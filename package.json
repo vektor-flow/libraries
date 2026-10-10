@@ -1,0 +1,33 @@
+{
+  "name": "@vektor-flow/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    "./retained-geometry-scene": "./browser-ui/vf-retained-geometry-scene.mjs",
+    "./coordinate-view": "./browser-ui/vf-coordinate-view.mjs",
+    "./coordinate-view-3d": "./browser-ui/vf-coordinate-view-3d.mjs",
+    "./view-transform": "./browser-ui/vf-view-transform.mjs",
+    "./visible-grid-snap": "./browser-ui/vf-visible-grid-snap.mjs",
+    "./geometry-render-size": "./browser-ui/vf-geometry-render-size.mjs",
+    "./retained-plot-view": "./browser-ui/vf-retained-plot-view.mjs",
+    "./antialiased-screen-renderer": "./browser-ui/vf-antialiased-screen-renderer.mjs",
+    "./retained-scene-arena": "./browser-ui/vf-retained-scene-arena.mjs"
+  },
+  "files": [
+    "browser-ui",
+    "LICENSE",
+    "README.md",
+    "PROVENANCE.json"
+  ],
+  "dependencies": {
+    "vektor-flow": "github:svenviktorjonsson/vektor-flow#623bd30"
+  },
+  "devDependencies": {
+    "vitest": "4.1.10"
+  },
+  "scripts": {
+    "test": "vitest run tests/browser-ui"
+  }
+}
