@@ -57,3 +57,13 @@ own their input/selection policy and supply the view with resulting geometry.
 `npm test` runs public behavior tests. `PROVENANCE.json` records source pins and
 the actual compiler fixture. This branch is a preview candidate, not a compiler
 release, C0 acceptance or physical GPU verification. No hardware GPU is exercised.
+
+## Isolated compiler0.7.2 capabilities
+
+The 0.7.2 preview adds boolean native `viewport.add(...,selectable:true,draggable:false)` flags. Selection and object dragging are independent. Legacy pickable=false still blocks both. Absent flags retain selectable=true and draggable=false presentation defaults and unchanged compiler packet geometry. Non-draggable objects do not disable viewport navigation. Selection follows stable mesh IDs across packet updates.
+
+`createNativePlotInteraction({targets})` binds stable geometry IDs to existing native writable-input runtimes. Each target declares runtime, inputFields, positionFields and referenceSystem. A 3D target must declare a world plane or axis constraint. The adapter writes native inputs and calls the native update interface; it never writes retained geometry. Pass it to `mountRetainedPlot(...,{interaction,onInteractionChange})`; the caller handles World/compilation and supplies resulting packets. Missing bindings keep pan available.
+
+The verified record-input fixture uses the existing legacy emitter's integer num fields and explicitly enables quantized:true. Continuous f64 record-input updates remain a compiler preview gap, rather than silently claiming continuous dragging from integer storage. The adapter accepts f64/f32 native bindings when supplied by a compatible runtime. Physics remains outside the renderer.
+
+Explicit line-list segments retain their sample geometry and disconnected curves. Antialiasing changes stroke presentation only. Native interpolation and symbolic plotting retain their original semantics; the UI infers no splines. The full lighting, depth, text and toolbar renderer remains available separately. Source983 preview checks pass86 library tests and desktop/phone SwiftShader selection; no physical GPU or C0/P0 acceptance. Historical0.7.1 fixture provenance remains unchanged.

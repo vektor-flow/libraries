@@ -28,12 +28,15 @@ export function createRetainedPlotView({ coordinates, renderer, pixelRatio = glo
       if (!['line-list', 'line-strip', 'triangle-list', 'point-list'].includes(topology)) throw new TypeError('unsupported compiler topology');
       if (indices.some(index => !Number.isSafeInteger(index) || index < 0 || index >= points.length)) throw new RangeError('compiler index is outside vertex storage');
       if (topology === 'line-list' && indices.length % 2 || topology === 'triangle-list' && indices.length % 3) throw new RangeError('incomplete compiler primitive indices');
-      return {id: mesh.id, pickable: mesh.pickable !== false, points, colors, indices, topology, sizeSpace:mesh.marker_space || 'pixel', width: mesh.edge_width ?? 2, radius: (mesh.vertex_size ?? mesh.point_size ?? 14) / 2};
+      for (const name of ['selectable','draggable']) {
+        if (name in mesh && typeof mesh[name] !== 'boolean') throw new TypeError(`mesh ${name} must be a boolean`);
+      }
+      return {id: mesh.id, pickable: mesh.pickable !== false, selectable:mesh.selectable !== false, draggable:mesh.draggable === true, points, colors, indices, topology, sizeSpace:mesh.marker_space || 'pixel', width: mesh.edge_width ?? 2, radius: (mesh.vertex_size ?? mesh.point_size ?? 14) / 2};
     });
     if (frame !== next.frame) selected = new Set();
     frame = next.frame;
     meshes = values;
-    selected = new Set([...selected].filter(id => ids.has(id)));
+    selected = new Set([...selected].filter(id => values.some(mesh=>mesh.id===id && mesh.pickable && mesh.selectable)));
   }
 
   function projected(mesh) {
@@ -82,13 +85,14 @@ export function createRetainedPlotView({ coordinates, renderer, pixelRatio = glo
     return scene.commit(renderer);
   }
 
-  function selectAt(point, { tolerance = 7, additive = false } = {}) {
+  function hitTest(point, { tolerance = 7, capability = 'selectable' } = {}) {
     if (!Array.isArray(point) || point.length !== 2 || !point.every(Number.isFinite) || !Number.isFinite(tolerance) || tolerance < 0) throw new TypeError('selection needs a finite screen point and nonnegative tolerance');
+    if (!['selectable','draggable'].includes(capability)) throw new TypeError('hit capability must be selectable or draggable');
     const screen = point.map(value => value * pixelRatio);
     let hit = null;
     let best = tolerance * pixelRatio;
     for (const mesh of meshes) {
-      if (!mesh.pickable) continue;
+      if (!mesh.pickable || !mesh[capability]) continue;
       const points = projected(mesh);
       const distances = segments(mesh).map(([from,to]) => distanceToSegment(screen,points[from],points[to]));
       if (mesh.topology === 'point-list') distances.push(...mesh.indices.map(index => Math.max(0,Math.hypot(screen[0]-points[index][0],screen[1]-points[index][1])-pixelSize(mesh,mesh.radius))));
@@ -97,16 +101,21 @@ export function createRetainedPlotView({ coordinates, renderer, pixelRatio = glo
         distances.push(insideTriangle(screen, triangle) ? 0 : Math.min(...triangle.map((from,index) => distanceToSegment(screen,from,triangle[(index+1)%3]))));
       }
       const distance = Math.min(...distances);
-      if (distance <= best) { hit = mesh.id; best = distance; }
+      if (distance <= best) { hit = mesh; best = distance; }
     }
+    return hit ? Object.freeze({id:hit.id,selectable:hit.selectable,draggable:hit.draggable}) : null;
+  }
+
+  function selectAt(point, { tolerance = 7, additive = false } = {}) {
+    const hit=hitTest(point,{tolerance,capability:'selectable'});
     if (!additive) selected.clear();
-    if (hit) selected.add(hit);
+    if (hit) selected.add(hit.id);
     return selection();
   }
 
   function selection() { return Object.freeze([...selected]); }
   function clearSelection() { selected.clear(); }
-  return Object.freeze({replace, replaceArena: packet => replace(materializeRetainedSceneArena(packet)), render, selectAt, selection, clearSelection, invalidate:scene.invalidate});
+  return Object.freeze({replace, replaceArena: packet => replace(materializeRetainedSceneArena(packet)), render, hitTest, selectAt, selection, clearSelection, invalidate:scene.invalidate});
 }
 
 function distanceToSegment(point, from, to) {

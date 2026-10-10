@@ -6,7 +6,8 @@ import {createRetainedPlotView} from './vf-retained-plot-view.mjs';
 // A bounded native presentation for compiler-produced retained field geometry.
 // The caller owns compilation, World execution, toolbar and authored source.
 export async function mountRetainedPlot(container, packet, {
-  dimensions = null, bounds, selectionColor = '#00ffff', onSelectionChange = () => {}
+  dimensions = null, bounds, selectionColor = '#00ffff', onSelectionChange = () => {},
+  interaction = null, onInteractionChange = () => {}
 } = {}) {
   if (!container?.ownerDocument || typeof container.append !== 'function') throw new TypeError('plot container must be a DOM element');
   const meshes=packet?.metadata?.scene?.meshes || [];
@@ -41,23 +42,31 @@ export async function mountRetainedPlot(container, packet, {
   };
   const down=event=>{
     if(event.button!==0)return;
-    active={id:event.pointerId,origin:local(event),last:local(event),dragged:false};
+    interaction?.cancel();
+    const point=local(event),hit=view.hitTest(point,{capability:'draggable'});
+    const objectDrag=Boolean(hit && interaction?.begin(hit.id,point,coordinates,{dimensions}));
+    active={id:event.pointerId,origin:point,last:point,dragged:false,objectDrag};
     canvas.setPointerCapture(event.pointerId);
   };
   const move=event=>{
     if(!active || event.pointerId!==active.id)return;
     const point=local(event);
     if(Math.hypot(point[0]-active.origin[0],point[1]-active.origin[1])>=4)active.dragged=true;
-    if(active.dragged){coordinates.pan(active.last,point);render()}
+    if(active.dragged){
+      if(active.objectDrag){const update=interaction.move(point);if(update)onInteractionChange(update)}
+      else coordinates.pan(active.last,point);
+      render();
+    }
     active.last=point;
   };
   const up=event=>{
     if(!active || event.pointerId!==active.id)return;
     if(!active.dragged){view.selectAt(local(event),{additive:event.shiftKey});render();onSelectionChange(view.selection())}
+    interaction?.end();
     if(canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);
     active=null;
   };
-  const cancel=()=>{active=null};
+  const cancel=()=>{interaction?.cancel();active=null};
   const wheel=event=>{event.preventDefault();coordinates.zoomAt(local(event),event.deltaY);render()};
   const key=event=>{if(event.key==='Escape'){view.clearSelection();render();onSelectionChange(view.selection())}};
   let observer;
@@ -80,7 +89,7 @@ export async function mountRetainedPlot(container, packet, {
     update(next){if(disposed)throw new Error('plot view is disposed');view.replaceArena(next);render()},
     dispose(){
       if(disposed)return;
-      disposed=true;active=null;observer.disconnect();
+      disposed=true;interaction?.cancel();active=null;observer.disconnect();
       for(const [name,handler] of [['pointerdown',down],['pointermove',move],['pointerup',up],['pointercancel',cancel],['wheel',wheel],['keydown',key]])canvas.removeEventListener(name,handler);
       renderer.destroy();canvas.remove();
     }

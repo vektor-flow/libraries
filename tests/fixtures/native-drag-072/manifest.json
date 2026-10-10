@@ -1,0 +1,90 @@
+{
+  "artifact_content_sha256": "4166d30f705b7b72",
+  "artifact_kind": "wasm",
+  "artifact_path": "/dev/shm/vkf-architecture-0136/pp-interaction-probes42/.vkfbuild/record44/record44.wasm",
+  "compiler_version": "vkf-wasm-artifact-smoke-0.1",
+  "dependencies": [],
+  "manifest_hash": "7fdc8d3e1613276e",
+  "runtime_hash": "4166d30f705b7b72",
+  "runtime_surface": {
+    "bindings": [],
+    "exports": [
+      "vkf_init",
+      "vkf_update",
+      "vkf_shutdown",
+      "vkf_state_ptr",
+      "vkf_state_size",
+      "vkf_input_ptr",
+      "vkf_input_size",
+      "vkf_symbolic_input_ptr",
+      "vkf_symbolic_input_capacity",
+      "vkf_symbolic_input_len",
+      "vkf_symbolic_set_input_len",
+      "vkf_symbolic_output_ptr",
+      "vkf_symbolic_output_capacity",
+      "vkf_symbolic_output_len",
+      "vkf_symbolic_trace"
+    ],
+    "init_export": "vkf_init",
+    "input_fields": [
+      {
+        "name": "x",
+        "offset": 0,
+        "type": "num"
+      },
+      {
+        "name": "y",
+        "offset": 4,
+        "type": "num"
+      },
+      {
+        "name": "z",
+        "offset": 8,
+        "type": "num"
+      }
+    ],
+    "input_offset": 12,
+    "input_ptr_export": "vkf_input_ptr",
+    "input_size": 12,
+    "input_size_export": "vkf_input_size",
+    "memory_export": "memory",
+    "shutdown_export": "vkf_shutdown",
+    "state_fields": [
+      {
+        "name": "x",
+        "offset": 0,
+        "type": "num"
+      },
+      {
+        "name": "y",
+        "offset": 4,
+        "type": "num"
+      },
+      {
+        "name": "z",
+        "offset": 8,
+        "type": "num"
+      }
+    ],
+    "state_ptr_export": "vkf_state_ptr",
+    "state_size": 12,
+    "state_size_export": "vkf_state_size",
+    "symbolic_text": {
+      "encoding": "utf-8",
+      "input_capacity_export": "vkf_symbolic_input_capacity",
+      "input_len_export": "vkf_symbolic_input_len",
+      "input_ptr_export": "vkf_symbolic_input_ptr",
+      "output_capacity_export": "vkf_symbolic_output_capacity",
+      "output_len_export": "vkf_symbolic_output_len",
+      "output_ptr_export": "vkf_symbolic_output_ptr",
+      "set_input_len_export": "vkf_symbolic_set_input_len",
+      "trace_export": "vkf_symbolic_trace"
+    },
+    "update_export": "vkf_update",
+    "update_mode": "record"
+  },
+  "source_path": "/dev/shm/vkf-architecture-0136/pp-interaction-probes42/record44.vkf",
+  "source_sha256": "d1182931c9796f37",
+  "status": "compiled",
+  "typed_ir_sha256": "10159c28fd899dae"
+}

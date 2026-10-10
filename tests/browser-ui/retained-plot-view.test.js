@@ -51,6 +51,32 @@ describe('compiled retained plot selection and animation', () => {
     expect(packed().length).toBe(36);
     expect(result.selectAt(coordinates.worldToScreen([0,0]))).toEqual([]);
   });
+  it.each([[false,false],[false,true],[true,false],[true,true]])(
+    'keeps selectable=%s independent of draggable=%s', (selectable,draggable) => {
+      const {result,coordinates,packed} = view();
+      result.replace({frame:'f',meshes:[{...mesh(),selectable,draggable}]});
+      result.render();
+      expect(packed().length).toBe(36);
+      const point=coordinates.worldToScreen([0,0]);
+      expect(result.selectAt(point)).toEqual(selectable ? ['line'] : []);
+      expect(result.hitTest(point,{capability:'draggable'})?.id ?? null).toBe(draggable ? 'line' : null);
+    }
+  );
+  it('prunes selection when its stable id becomes non-selectable', () => {
+    const {result,coordinates} = view();
+    result.replace({frame:'f',meshes:[mesh()]});
+    result.selectAt(coordinates.worldToScreen([0,0]));
+    result.replace({frame:'f',meshes:[{...mesh(),selectable:false,draggable:true}]});
+    expect(result.selection()).toEqual([]);
+  });
+  it('does not bridge separate explicit segments while drawing or selecting', () => {
+    const {result,coordinates,packed} = view();
+    const vertices=[[-1,0],[-0.5,0],[0.5,0],[1,0]].flatMap(([x,y])=>[x,y,0,0,0,1,1,0,0,1]);
+    result.replace({frame:'f',meshes:[{...mesh(),vertices,indices:[0,1,2,3]}]});
+    result.render();
+    expect(packed().length).toBe(72);
+    expect(result.selectAt(coordinates.worldToScreen([0,0]),{tolerance:1})).toEqual([]);
+  });
   it('renders actual compiler add output, then follows upstream physics with the same selection', () => {
     const packet = JSON.parse(readFileSync(new URL('../fixtures/canonical-add-071.json', import.meta.url),'utf8'));
     packet.arena = Uint8Array.from(packet.arena);
