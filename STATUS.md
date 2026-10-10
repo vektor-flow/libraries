@@ -41,3 +41,13 @@ The new plot presentation remains a candidate; existing full native lighting,
 depth/text/toolbar behavior is outside this screen view. Physics-property module
 policy is now upstream and descriptors still come from the pinned native runtime.
 No compiler release, public site activation, physical GPU test or main merge.
+
+Native DOM mount added: compiler-owned dimensionality/bounds, local mouse/touch
+selection, drag pan, wheel zoom, Escape, ResizeObserver, stable updates and complete
+disposal. Actual desktop and phone with DPR2 run native add compilation and select
+through real pointer events at an offset container. Contours are visibly rendered;
+selection persists after another compilation; disposal removes the canvas and
+rejects updates. No JS page errors. Tests use explicitly forced SwiftShader and
+preserve the upstream physical GPU STOP. Public syntax and the compiler arena ABI
+are unchanged. Product integration remains eight thin re-exports; its main bundle
+does not include this optional native mount until requested by a consumer.

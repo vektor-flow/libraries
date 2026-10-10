@@ -33,6 +33,13 @@ viewport.add(x:[-1,1]_u,y:[0,0]_u,id:"line",color:[0.2,0.7,1,1])
 viewport.show()
 ```
 
+`mountRetainedPlot(container, packet)` mounts a bounded canvas for one compiled
+arena. It derives initial dimensionality and coordinate bounds from the packet,
+supports mouse/touch selection, pan, wheel zoom and Escape, and returns `update`,
+`selection` and `dispose`. `update` accepts the next compiler/World packet without
+resetting the user's view. Resize and GPU resource lifetime belong to the mount.
+The caller supplies compilation and physics; mounting a packet executes no source.
+
 `createRetainedPlotView` accepts those compiler-owned packets through
 `replaceArena(packet)`, or materialized field meshes through `replace(scene)`.
 Its coordinate view supplies world-to-screen projection. `selectAt` uses CSS
