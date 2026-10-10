@@ -21,3 +21,23 @@ Next: pin the candidate in Product, delete Product-owned implementations in favo
 of re-exports, run original common tests/build, then verify actual browser pixels.
 The bootstrap branch provides compiler compatibility/packaging evidence without
 modifying accepted seed, patches or active reconciliation0135 worker builds.
+
+Final source:77 tests pass, including World data-unit marker sizing, selection of
+actual compiler arena output, frame updates through upstream inertial physics,
+face boundary without triangulation diagonals and physics-module descriptors.
+Product's original68 focused /1237 eligible tests pass after seven implementation
+deletions; its222-file build remains byte-identical to both native bundles.
+Fresh canonical add2d/add3d/World checks pass using pinned0.7.1 with no new syntax
+or frontend change. Software-rendered desktop1000x700 /phone390x844 actual compile,
+mouse selection and recompiled y0→1 preserve selection, with zero page errors.
+Direct same-frame GL readback sees1284/729 cyan contour pixels. Renderer is
+explicitly SwiftShader, not a physical device. Screenshots are local QA evidence.
+Initial browser import-map setup and post-presentation cleared-buffer readback
+failed; correcting the harness and doing synchronous post-draw readback supplied
+the final pixel proof. The first boundary test checked only endpoints; triangle
+centroid sampling exposed the internal diagonal before its repair.
+
+The new plot presentation remains a candidate; existing full native lighting,
+depth/text/toolbar behavior is outside this screen view. Physics-property module
+policy is now upstream and descriptors still come from the pinned native runtime.
+No compiler release, public site activation, physical GPU test or main merge.

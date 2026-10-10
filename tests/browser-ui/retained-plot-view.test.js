@@ -75,4 +75,31 @@ describe('compiled retained plot selection and animation', () => {
     packet.metadata.scene.meshes[0].vertices.length = 100000;
     expect(()=>materializeRetainedSceneArena(packet)).toThrow(/range/);
   });
+  it('preserves native World embedding size in data coordinates', () => {
+    const {result,coordinates,packed} = view();
+    const point = {...mesh(),topology:'point-list',indices:[0],vertex_size:0.7,marker_space:'world'};
+    result.replace({frame:'f',meshes:[point]});
+    result.render();
+    const center = coordinates.worldToScreen([-1,0]);
+    const expectedRadius = Math.abs(coordinates.worldToScreen([-0.65,0])[0]-center[0]);
+    const xs = Array.from(packed()).filter((_,index)=>index%6===0);
+    expect(Math.max(...xs)-center[0]).toBeCloseTo(expectedRadius,4);
+  });
+  it('marks a triangulated face boundary without marking its internal diagonal', () => {
+    const {result,coordinates,packed} = view();
+    const corners=[[-0.5,-0.5],[0.5,-0.5],[0.5,0.5],[-0.5,0.5]];
+    const vertices=corners.flatMap(([x,y])=>[x,y,0,0,0,1,1,1,1,1]);
+    result.replace({frame:'f',meshes:[{...mesh('face'),vertices,topology:'triangle-list',indices:[0,1,2,0,2,3]}]});
+    result.selectAt(coordinates.worldToScreen([0,0]));
+    result.render();
+    const cornersScreen=corners.map(coordinates.worldToScreen);
+    const xs=cornersScreen.map(p=>p[0]),ys=cornersScreen.map(p=>p[1]);
+    const cyan=[];
+    for(let i=0;i<packed().length;i+=18) {
+      if([0,6,12].every(offset=>packed()[i+offset+2]===0 && packed()[i+offset+3]===1 && packed()[i+offset+4]===1))
+        cyan.push([(packed()[i]+packed()[i+6]+packed()[i+12])/3,(packed()[i+1]+packed()[i+7]+packed()[i+13])/3]);
+    }
+    expect(cyan.length).toBeGreaterThan(0);
+    expect(cyan.every(([x,y])=>x<=Math.min(...xs)+2 || x>=Math.max(...xs)-2 || y<=Math.min(...ys)+2 || y>=Math.max(...ys)-2)).toBe(true);
+  });
 });
