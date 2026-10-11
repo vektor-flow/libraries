@@ -1,5 +1,11 @@
 # Platonic interaction candidate — 2026-10-11
 
+The Owner subsequently revised the defaults on October11: data plots default to
+selectable:false and draggable:false; graphical scenes explicitly enable either
+capability. This supersedes the upstream48819e3 draggable-by-default rule. The
+camera-only zero-update repair remains. Compiler fixtures and numerical oracles
+are unchanged; selection tests explicitly opt into graphical-scene interaction.
+
 Integrator interaction178 continues the immutable 48819e3 candidate in a separate
 local worktree. A stationary pointer now returns null after rebasing, without
 calling writeInput or update. All88 original library tests pass. A separate real

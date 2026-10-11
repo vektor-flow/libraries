@@ -14,7 +14,8 @@ describe('compiled retained plot selection and animation', () => {
     const result = createRetainedPlotView({coordinates,renderer});
     return {result,coordinates,packed:()=>packed};
   }
-  const mesh = (id='line',dy=0) => ({id,type:'field_mesh',topology:'line-list',vertices:new Float32Array([-1,dy,0,0,0,1,1,0,0,1,1,dy,0,0,0,1,0,0,1,1]),indices:new Uint32Array([0,1]),edge_width:2});
+  // These selection cases explicitly opt into graphical-scene interaction.
+  const mesh = (id='line',dy=0) => ({id,selectable:true,type:'field_mesh',topology:'line-list',vertices:new Float32Array([-1,dy,0,0,0,1,1,0,0,1,1,dy,0,0,0,1,0,0,1,1]),indices:new Uint32Array([0,1]),edge_width:2});
   it('selects compiled geometry with a visible contour and preserves its id after a frame update', () => {
     const {result,coordinates,packed} = view();
     result.replace({frame:'f',meshes:[mesh()]});
@@ -51,12 +52,24 @@ describe('compiled retained plot selection and animation', () => {
     expect(packed().length).toBe(36);
     expect(result.selectAt(coordinates.worldToScreen([0,0]))).toEqual([]);
   });
-  it('allows dragging by default while honoring explicit opt-out', () => {
-    const {result,coordinates} = view();
+  it('renders data with selection and dragging disabled until explicitly enabled', () => {
+    const {result,coordinates,packed} = view();
     const point = coordinates.worldToScreen([0,0]);
-    result.replace({frame:'f',meshes:[mesh()]});
+    const data=mesh();delete data.selectable;
+    result.replace({frame:'f',meshes:[data]});
+    result.render();expect(packed().length).toBe(36);
+    expect(result.selectAt(point)).toEqual([]);
+    expect(result.hitTest(point,{capability:'draggable'})).toBeNull();
+    const next={...data,vertices:data.vertices.slice()};
+    for(let i=1;i<next.vertices.length;i+=10)next.vertices[i]+=0.5;
+    result.replace({frame:'f',meshes:[next]});
+    expect(result.selectAt(coordinates.worldToScreen([0,0.5]))).toEqual([]);
+    expect(result.hitTest(coordinates.worldToScreen([0,0.5]),{capability:'draggable'})).toBeNull();
+    result.replace({frame:'f',meshes:[{...data,selectable:true,draggable:true}]});
+    expect(result.selectAt(point)).toEqual(['line']);
     expect(result.hitTest(point,{capability:'draggable'})?.id).toBe('line');
-    result.replace({frame:'f',meshes:[{...mesh(),draggable:false}]});
+    result.replace({frame:'f',meshes:[{...data,selectable:false,draggable:false}]});
+    expect(result.selection()).toEqual([]);
     expect(result.hitTest(point,{capability:'draggable'})).toBeNull();
   });
   it.each([[false,false],[false,true],[true,false],[true,true]])(
@@ -92,10 +105,13 @@ describe('compiled retained plot selection and animation', () => {
     result.replaceArena(packet);
     result.render();
     expect(packed().length).toBe(36);
+    expect(result.selectAt(coordinates.worldToScreen([0,0]))).toEqual([]);
+    const frame = materializeRetainedSceneArena(packet);
+    frame.meshes[0].selectable=true;
+    result.replace(frame);
     expect(result.selectAt(coordinates.worldToScreen([0,0]))).toEqual(['line']);
     const body = stepInertialBodies([{position:[0,0,0],momentum:[0,0,0],force:[0,2,0],mass:2,inertia:[[1,0,0],[0,1,0],[0,0,1]]}],1)[0];
     expect(body.position).toEqual([0,1,0]);
-    const frame = materializeRetainedSceneArena(packet);
     frame.meshes[0].vertices = frame.meshes[0].vertices.slice();
     for (let i=1;i<frame.meshes[0].vertices.length;i+=10) frame.meshes[0].vertices[i]+=body.position[1];
     result.replace(frame);
