@@ -14,13 +14,26 @@ export function createNativePlotInteraction({targets = {}} = {}) {
     const state = target.runtime.readState();
     const local = ['x','y','z'].map(axis=>state[target.positionFields[axis]]);
     const world = toWorld(target.reference,vector(local,'native position'));
-    active = {id,target,coordinates,dimensions,constraint,offset:subtract(world,hit)};
+    active = {id,target,coordinates,dimensions,constraint,offset:subtract(world,hit),
+      lastScreen:[...screen],viewKey:viewKey(coordinates)};
     return true;
   }
 
   function move(screen) {
     if (!active) return null;
-    const {id,target,coordinates,dimensions,constraint,offset} = active;
+    const {id,target,coordinates,dimensions} = active;
+    const nextViewKey = viewKey(coordinates);
+    if (active.constraint.kind === 'camera-plane' && nextViewKey !== active.viewKey) {
+      const state = target.runtime.readState();
+      const world = toWorld(target.reference,vector(['x','y','z'].map(axis=>state[target.positionFields[axis]]),'native position'));
+      const constraint = {...active.constraint,point:world};
+      const hit = constrainedPoint(active.lastScreen,coordinates,dimensions,constraint);
+      if (!hit) return null;
+      active.constraint = constraint;
+      active.offset = subtract(world,hit);
+      active.viewKey = nextViewKey;
+    }
+    const {constraint,offset} = active;
     const hit = constrainedPoint(screen,coordinates,dimensions,constraint);
     if (!hit) return null;
     const local = toLocal(target.reference,add(hit,offset));
@@ -30,6 +43,7 @@ export function createNativePlotInteraction({targets = {}} = {}) {
     }
     target.runtime.writeInput(input);
     target.runtime.update();
+    active.lastScreen = [...screen];
     return Object.freeze({id,state:Object.freeze({...target.runtime.readState()})});
   }
 
@@ -69,18 +83,20 @@ function referenceFrame(system) {
 
 function prepareConstraint(value) {
   const point = vector(value.point,'constraint point');
+  if (value.kind === 'camera-plane') return {kind:'camera-plane',point};
   if (value.kind === 'plane') return {kind:'plane',point,normal:unit(value.normal)};
   if (value.kind === 'axis') return {kind:'axis',point,direction:unit(value.direction)};
-  throw new TypeError('drag constraint must be a declared plane or axis');
+  throw new TypeError('drag constraint must be a declared plane, camera-plane or axis');
 }
 
 function constrainedPoint(screen,coordinates,dimensions,constraint) {
   const ray = dimensions === 3 ? coordinates.screenLine(screen)
     : {point:[...coordinates.screenToWorld(screen).slice(0,2),0],direction:[0,0,1]};
-  if (constraint.kind === 'plane') {
-    const denominator = dot(ray.direction,constraint.normal);
+  if (constraint.kind === 'plane' || constraint.kind === 'camera-plane') {
+    const normal = constraint.kind === 'camera-plane' ? unit(ray.direction) : constraint.normal;
+    const denominator = dot(ray.direction,normal);
     if (Math.abs(denominator)<1e-10) return null;
-    return add(ray.point,scale(ray.direction,dot(subtract(constraint.point,ray.point),constraint.normal)/denominator));
+    return add(ray.point,scale(ray.direction,dot(subtract(constraint.point,ray.point),normal)/denominator));
   }
   const direction = constraint.direction;
   const alignment = dot(direction,ray.direction);
@@ -88,6 +104,10 @@ function constrainedPoint(screen,coordinates,dimensions,constraint) {
   if (Math.abs(denominator)<1e-10) return null;
   const delta = subtract(ray.point,constraint.point);
   return add(constraint.point,scale(direction,(dot(delta,direction)-alignment*dot(delta,ray.direction))/denominator));
+}
+
+function viewKey(coordinates) {
+  return JSON.stringify(coordinates.snapshot?.() ?? null);
 }
 
 function vector(value,label) {

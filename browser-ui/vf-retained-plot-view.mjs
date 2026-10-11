@@ -31,7 +31,7 @@ export function createRetainedPlotView({ coordinates, renderer, pixelRatio = glo
       for (const name of ['selectable','draggable']) {
         if (name in mesh && typeof mesh[name] !== 'boolean') throw new TypeError(`mesh ${name} must be a boolean`);
       }
-      return {id: mesh.id, pickable: mesh.pickable !== false, selectable:mesh.selectable !== false, draggable:mesh.draggable === true, points, colors, indices, topology, sizeSpace:mesh.marker_space || 'pixel', width: mesh.edge_width ?? 2, radius: (mesh.vertex_size ?? mesh.point_size ?? 14) / 2};
+      return {id: mesh.id, pickable: mesh.pickable !== false, selectable:mesh.selectable !== false, draggable:mesh.draggable !== false, points, colors, indices, topology, sizeSpace:mesh.marker_space || 'pixel', width: mesh.edge_width ?? 2, radius: (mesh.vertex_size ?? mesh.point_size ?? 14) / 2};
     });
     if (frame !== next.frame) selected = new Set();
     frame = next.frame;

@@ -51,6 +51,14 @@ describe('compiled retained plot selection and animation', () => {
     expect(packed().length).toBe(36);
     expect(result.selectAt(coordinates.worldToScreen([0,0]))).toEqual([]);
   });
+  it('allows dragging by default while honoring explicit opt-out', () => {
+    const {result,coordinates} = view();
+    const point = coordinates.worldToScreen([0,0]);
+    result.replace({frame:'f',meshes:[mesh()]});
+    expect(result.hitTest(point,{capability:'draggable'})?.id).toBe('line');
+    result.replace({frame:'f',meshes:[{...mesh(),draggable:false}]});
+    expect(result.hitTest(point,{capability:'draggable'})).toBeNull();
+  });
   it.each([[false,false],[false,true],[true,false],[true,true]])(
     'keeps selectable=%s independent of draggable=%s', (selectable,draggable) => {
       const {result,coordinates,packed} = view();

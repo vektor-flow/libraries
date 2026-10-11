@@ -60,9 +60,14 @@ release, C0 acceptance or physical GPU verification. No hardware GPU is exercise
 
 ## Isolated compiler0.7.2 capabilities
 
-The 0.7.2 preview adds boolean native `viewport.add(...,selectable:true,draggable:false)` flags. Selection and object dragging are independent. Legacy pickable=false still blocks both. Absent flags retain selectable=true and draggable=false presentation defaults and unchanged compiler packet geometry. Non-draggable objects do not disable viewport navigation. Selection follows stable mesh IDs across packet updates.
+The 0.7.2 preview adds boolean native `viewport.add(...,selectable:true,draggable:false)` flags. Selection and object dragging are independent. Legacy pickable=false still blocks both. This interaction candidate changes the absent draggable flag to true; explicit false still disables dragging. The published preview retains its earlier presentation default. Compiler packet geometry is unchanged. Non-draggable objects do not disable viewport navigation. Selection follows stable mesh IDs across packet updates.
 
 `createNativePlotInteraction({targets})` binds stable geometry IDs to existing native writable-input runtimes. Each target declares runtime, inputFields, positionFields and referenceSystem. A 3D target must declare a world plane or axis constraint. The adapter writes native inputs and calls the native update interface; it never writes retained geometry. Pass it to `mountRetainedPlot(...,{interaction,onInteractionChange})`; the caller handles World/compilation and supplies resulting packets. Missing bindings keep pan available.
+
+The interaction candidate additionally accepts a declared `camera-plane` constraint
+with its picked world point. Camera changes rebase the cursor mapping at the last
+pointer position before applying further cursor movement. Camera changes alone do
+not change native position. This is an adapter contract, not added VKF source syntax.
 
 The verified record-input fixture uses the existing legacy emitter's integer num fields and explicitly enables quantized:true. Continuous f64 record-input updates remain a compiler preview gap, rather than silently claiming continuous dragging from integer storage. The adapter accepts f64/f32 native bindings when supplied by a compatible runtime. Physics remains outside the renderer.
 
