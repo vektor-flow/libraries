@@ -39,14 +39,19 @@ it('requires a declared 3D constraint and explicit integer quantization',()=>{
 
 it('rebases a camera-facing grab without camera movement changing native position',()=>{
   const runtime=native(),coordinates=createCoordinateView3d();coordinates.resize(600,400);
+  const originalUpdate=runtime.update;
+  let updateCount=0;
+  runtime.update=()=>{updateCount++;originalUpdate();};
   const interaction=createNativePlotInteraction({targets:{point:{runtime,inputFields:fields,
     positionFields:fields,quantized:true,referenceSystem:'world',
     constraint:{kind:'camera-plane',point:[0,0,0]}}}});
   const screen=coordinates.worldToScreen([0,0,0]);
   expect(interaction.begin('point',screen,coordinates,{dimensions:3})).toBe(true);
   coordinates.pan(screen,[screen[0]+80,screen[1]+40]);
-  interaction.move(screen);
+  expect(interaction.move(screen)).toBeNull();
+  expect(updateCount).toBe(0);
   expect(runtime.readState()).toEqual({x:0,y:0,z:0});
   interaction.move([screen[0]+120,screen[1]]);
+  expect(updateCount).toBe(1);
   expect(Object.values(runtime.readState()).some(value=>value!==0)).toBe(true);
 });

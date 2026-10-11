@@ -36,6 +36,9 @@ export function createNativePlotInteraction({targets = {}} = {}) {
     const {constraint,offset} = active;
     const hit = constrainedPoint(screen,coordinates,dimensions,constraint);
     if (!hit) return null;
+    // Rebase the mapping above, but a stationary pointer supplies no input.
+    // Calling update here could advance a runtime even though only its camera moved.
+    if (screen[0] === active.lastScreen[0] && screen[1] === active.lastScreen[1]) return null;
     const local = toLocal(target.reference,add(hit,offset));
     const input = {...target.runtime.readInput()};
     for (const [index,axis] of ['x','y','z'].entries()) {

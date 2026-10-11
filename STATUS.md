@@ -1,5 +1,16 @@
 # Platonic interaction candidate — 2026-10-11
 
+Integrator interaction178 continues the immutable 48819e3 candidate in a separate
+local worktree. A stationary pointer now returns null after rebasing, without
+calling writeInput or update. All88 original library tests pass. A separate real
+compiled integer-input audit verifies pan, rotation and zoom each execute zero
+updates, while subsequent cursor movement executes one update. Fractional input
+still truncates and has no continuous-input credit. No physical grab, full native
+snapshot/restore, motion precedence or simultaneous physical grab qualification
+is claimed. Original Product implementations and independently pinned backend
+remain required. The upstream author's worktree and active compiler workers are
+unchanged. This is a private integration candidate, not deployed browser assets.
+
 Branch codex/platonic-interaction-20261011, base31b92ed. Single agent. Contract:
 /home/viktor/Projects/Tesseracs/products.platonic-play.web/docs/INTERACTION_CONTRACT.md.
 

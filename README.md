@@ -67,7 +67,9 @@ The 0.7.2 preview adds boolean native `viewport.add(...,selectable:true,draggabl
 The interaction candidate additionally accepts a declared `camera-plane` constraint
 with its picked world point. Camera changes rebase the cursor mapping at the last
 pointer position before applying further cursor movement. Camera changes alone do
-not change native position. This is an adapter contract, not added VKF source syntax.
+not change native position and a stationary pointer performs no runtime update.
+This prevents camera-only events from advancing a simulation through its update
+hook. This is an adapter contract, not added VKF source syntax.
 
 The verified record-input fixture uses the existing legacy emitter's integer num fields and explicitly enables quantized:true. Continuous f64 record-input updates remain a compiler preview gap, rather than silently claiming continuous dragging from integer storage. The adapter accepts f64/f32 native bindings when supplied by a compatible runtime. Physics remains outside the renderer.
 
