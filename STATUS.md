@@ -1,3 +1,12 @@
+# Solid transport surfaces follow-up — 2026-10-14
+
+Transported material now has solid interiors and narrow antialiased boundaries,
+with area-calibrated density reconstruction and image-inferred narrowing necks
+for splitting/merging. Thirty-two Python tests pass. The six clean KaTeX cases
+retain ten-second timing and exact endpoint coverage. This is bounded visual
+research, not a physical mitosis, universal topology or collision guarantee.
+See examples/katex-transport/README.md. No deployment/compiler/GPU changes.
+
 # Residual material transport follow-up — 2026-10-14
 
 Endpoint-only alpha research now reuses unmatched old material to form unmatched

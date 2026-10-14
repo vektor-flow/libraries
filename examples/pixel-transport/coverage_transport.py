@@ -94,27 +94,30 @@ def material_plan(source,target,mapping,pixel_scale,max_samples=1600):
     from scipy.spatial import cKDTree
     from scipy.spatial.distance import cdist
     def collect(parts,indices):
-        points=[];weights=[]
+        points=[];weights=[];labels=[]
         for i in indices:
             part=parts[i];y,x=np.nonzero(part.patch)
             points.append((np.column_stack((x,y))+part.origin)/pixel_scale)
             weights.append(part.patch[y,x]/pixel_scale**2)
-        return np.concatenate(points),np.concatenate(weights)
+            labels.extend([i]*len(x))
+        return np.concatenate(points),np.concatenate(weights),np.array(labels)
     if not mapping['unmatched_source'] or not mapping['unmatched_target']:return None
-    a,wa=collect(source,mapping['unmatched_source']);b,wb=collect(target,mapping['unmatched_target'])
+    a,wa,la=collect(source,mapping['unmatched_source']);b,wb,lb=collect(target,mapping['unmatched_target'])
     count=min(max_samples,max(len(a),len(b)))
-    def sample(points,weights):
+    def sample(points,weights,labels):
         cdf=np.cumsum(weights);q=(np.arange(count)+.5)*cdf[-1]/count
-        return points[np.searchsorted(cdf,q)]
-    pa=sample(a,wa);pb=sample(b,wb)
+        index=np.searchsorted(cdf,q)
+        return points[index],labels[index]
+    pa,sa=sample(a,wa,la);pb,sb=sample(b,wb,lb)
     rows,cols=linear_sum_assignment(cdist(pa,pb,'sqeuclidean'))
-    pa=pa[rows];pb=pb[cols]
+    pa=pa[rows];pb=pb[cols];sa=sa[rows];sb=sb[cols]
+    necks=infer_necks(pa,pb,sa,sb,float(wa.sum()),float(wb.sum()))
     def lift(points,anchors,displacements):
         distance,index=cKDTree(anchors).query(points,k=min(4,len(anchors)))
         if distance.ndim==1:return displacements[index]
         w=1/np.maximum(distance,.05)**2;w/=w.sum(axis=1)[:,None]
         return np.sum(displacements[index]*w[:,:,None],axis=1)
-    return dict(source_points=a,target_points=b,source_weights=wa,target_weights=wb,
+    return dict(necks=necks,source_points=a,target_points=b,source_weights=wa,target_weights=wb,
                 source_displacement=lift(a,pa,pb-pa),target_displacement=lift(b,pb,pa-pb),
                 sample_count=count,source_mass=float(wa.sum()),target_mass=float(wb.sum()),
                 sample_transport_cost=float(np.mean(np.sum((pb-pa)**2,axis=1))))
@@ -138,7 +141,7 @@ def material_particles(material,t,lift=0):
     return groups
 
 
-def splat_material(material,t,size,factor,offset,lift=0):
+def splat_material(material,t,size,factor,offset,lift=0,raw=False):
     """Bilinear particle coverage. Raw mass is measured before saturation."""
     width,height=size;flat=np.zeros(width*height)
     for points,weights in material_particles(material,t,lift):
@@ -149,4 +152,78 @@ def splat_material(material,t,size,factor,offset,lift=0):
             w=weights*(f[:,0] if dx else 1-f[:,0])*(f[:,1] if dy else 1-f[:,1])
             valid=(x>=0)&(x<width)&(y>=0)&(y<height)
             flat+=np.bincount(y[valid]*width+x[valid],weights=w[valid],minlength=width*height)
-    return np.clip(flat.reshape(height,width),0,1)
+    return flat.reshape(height,width) if raw else np.clip(flat.reshape(height,width),0,1)
+
+
+def infer_necks(a,b,source_labels,target_labels,source_mass,target_mass):
+    """Infer a minimal tree of temporary necks from material branching alone."""
+    from scipy.sparse.csgraph import minimum_spanning_tree
+    from scipy.spatial.distance import cdist
+    result=[]
+    for reverse in [False,True]:
+        owners=target_labels if reverse else source_labels
+        children=source_labels if reverse else target_labels
+        for owner in np.unique(owners):
+            selected=owners==owner;groups=[]
+            for child in np.unique(children[selected]):
+                mask=selected & (children==child)
+                if mask.sum()<max(3,.03*selected.sum()):continue
+                groups.append((a[mask].mean(axis=0),b[mask].mean(axis=0),int(mask.sum())))
+            if len(groups)<2:continue
+            centers=np.array([g[0] if reverse else g[1] for g in groups])
+            distance=cdist(centers,centers);distance[distance==0]=1e-9
+            tree=minimum_spanning_tree(distance).tocoo()
+            for i,j in zip(tree.row,tree.col):
+                first,second=groups[i],groups[j]
+                mass=(target_mass if reverse else source_mass)*min(first[2],second[2])/len(a)
+                result.append(dict(start=np.array([first[0],second[0]]),end=np.array([first[1],second[1]]),
+                                   radius=float(np.clip(np.sqrt(mass/np.pi)*.22,.6,3.)),reverse=reverse))
+    return result
+
+
+def solid_material(material,t,size,factor,offset,lift=0):
+    """Reconstruct a smooth interior with a narrow antialiased level-set edge.
+
+    Density smoothing removes splat grain; area calibration avoids arbitrary
+    inflation. Temporary inferred necks encourage cohesive split/merge motion.
+    This is a visual regularizer, not a topology or physical-fluid guarantee.
+    """
+    raw=splat_material(material,t,size,factor,offset,lift,raw=True)
+    if t==0 or t==1:return np.clip(raw,0,1)
+    u=clock(t)
+    strength=clock(min(t/.12,1))*clock(min((1-t)/.12,1))
+    sigma=max(.5,2.*factor)
+    # Work only near transported material, avoiding full-canvas level-set solves.
+    y,x=np.nonzero(raw>1e-8)
+    if not len(x):return raw
+    pad=int(np.ceil(5*sigma+4*factor));height,width=raw.shape
+    x0=max(0,int(x.min())-pad);x1=min(width,int(x.max())+pad+1)
+    y0=max(0,int(y.min())-pad);y1=min(height,int(y.max())+pad+1)
+    density=ndi.gaussian_filter(raw[y0:y1,x0:x1],sigma)
+    yy,xx=np.mgrid[y0:y1,x0:x1]
+    for neck in material.get('necks',[]):
+        phase=1-u if neck['reverse'] else u
+        radius=neck['radius']*(1-clock(min(phase/.68,1)))
+        if radius<.015:continue
+        delta=neck['end']-neck['start']
+        normal=np.column_stack((-delta[:,1],delta[:,0]))/np.maximum(np.linalg.norm(delta,axis=1)[:,None],1)
+        ends=((1-u)*neck['start']+u*neck['end']+normal*lift*4*u*(1-u))*factor+offset
+        vector=ends[1]-ends[0];squared=float(vector@vector)
+        along=np.clip(((xx-ends[0,0])*vector[0]+(yy-ends[0,1])*vector[1])/max(squared,1e-12),0,1)
+        distance=np.hypot(xx-ends[0,0]-along*vector[0],yy-ends[0,1]-along*vector[1])
+        bridge=np.clip(.5+(radius*factor-distance)/max(1.,factor*.4),0,1)
+        density=np.maximum(density,bridge)
+    gy,gx=np.gradient(density)
+    # Only the boundary is soft: approximately one output pixel of antialiasing.
+    edge_width=np.maximum(np.hypot(gx,gy),.005)
+    wanted=((1-u)*material['source_mass']+u*material['target_mass'])*factor**2
+    low=0.;high=float(density.max())
+    for _ in range(22):
+        level=(low+high)/2
+        area=np.clip(.5+(density-level)/edge_width,0,1).sum()
+        if area>wanted:low=level
+        else:high=level
+    solid=np.clip(.5+(density-(low+high)/2)/edge_width,0,1)
+    result=np.clip(raw,0,1)*(1-strength)
+    result[y0:y1,x0:x1]+=strength*solid
+    return result

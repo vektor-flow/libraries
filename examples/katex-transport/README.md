@@ -145,7 +145,7 @@ motion, parent trajectories, blank-image fallback, and allowed-family contact.
 The prior source/sink movies and receipts are preserved for comparison.
 
 
-## Material reuse and slower motion — latest owner revision
+## Material reuse and slower motion — previous revision
 
 The six harder examples now last ten seconds each (60 seconds combined). Rigid
 registration prefers translation when rotation improves RMS pixel distance by no
@@ -177,3 +177,29 @@ emitted. Twenty-seven Python checks cover previous behavior plus material reuse,
 one-to-many/many-to-one, actual in-transit coverage, exact antialiased endpoints,
 particle mass interpolation, endpoint rest and evidence-based rotation selection.
 Earlier videos, receipts and migration evidence remain intact.
+
+
+## Solid boundaries and mitosis-style splitting — latest owner revision
+
+The transported alpha field is now reconstructed as a solid surface rather than
+showing individual particle splats. A local Gaussian density reconstruction
+removes grain; an area-calibrated level set gives an opaque interior and a narrow
+antialiased boundary. The selected area follows the same quintic interpolation
+of endpoint coverage. The regularizer eases in/out during the first/last 12% of
+the transition, preserving exact original antialiased endpoint pixels.
+
+Source/target connected-component membership of the transport samples identifies
+branch families. A minimal tree connects their inferred branch centers through
+temporary capsule necks, which narrow while the branches move and pinch off.
+Reverse families join through the same rule. This uses endpoint geometry only;
+no glyph names, manually supplied split points or formula-specific instructions.
+Neck width and density smoothing are visual regularization heuristics, not a
+physical mitosis model or a universal topology-preservation guarantee. Close
+unrelated residual regions can still merge, and some collision/shape artifacts
+remain. The original rigid-part motion and slower ten-second timing are retained.
+
+Outputs: *-solid.mp4, solid-verification.json and solid-concat.txt. Combined movie:
+solid-katex-animations.mp4. Thirty-two Python tests pass, including measured grain
+reduction, opaque interiors, smooth area, exact antialiased endpoints, a connected
+body that narrows and separates into two, and reverse merging. All earlier video
+and migration evidence remains preserved. No still previews are emitted.
