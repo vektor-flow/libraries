@@ -14,8 +14,25 @@ class SolidTransportTests(unittest.TestCase):
     def draw(self,t):return solid_material(self.material,t,(200,140),1,np.zeros(2))
     def test_split_stays_connected_then_pinches_into_two(self):
         self.assertEqual(len(self.material['necks']),1)
-        for t in [.2,.3,.4,.5]:self.assertEqual(ndi.label(self.draw(t)>.5)[1],1)
-        for t in [.7,.8,.9]:self.assertEqual(ndi.label(self.draw(t)>.5)[1],2)
+        for t in [.1,.15,.2]:self.assertEqual(ndi.label(self.draw(t)>.5)[1],1)
+        for t in [.3,.4,.5,.7,.8,.9]:self.assertEqual(ndi.label(self.draw(t)>.5)[1],2)
+    def test_separating_bodies_leave_a_clear_gap_instead_of_a_strand(self):
+        for t in [.35,.45,.55]:
+            image=self.draw(t)
+            # The known split axis crosses the midpoint between the two bodies.
+            self.assertLess(float(image[69:72,:].max()),.01)
+    def test_forced_necks_cannot_span_distant_bodies(self):
+        from coverage_transport import neck_profile
+        neck=dict(start=np.array([[0.,0.],[40.,0.]]),end=np.array([[0.,0.],[80.,0.]]),radius=2.,reverse=False)
+        for u in np.linspace(0,1,25):self.assertEqual(neck_profile(neck,u)[3],0)
+    def test_release_settles_smoothly_without_a_binary_cut(self):
+        from coverage_transport import neck_profile
+        neck=dict(start=np.array([[0.,0.],[2.,0.]]),end=np.array([[0.,0.],[2.,0.]]),radius=2.,reverse=False)
+        f=lambda u:neck_profile(neck,u)[3]
+        h=1e-5;end=.32
+        self.assertEqual(f(end),0)
+        self.assertLess(abs((f(end)-f(end-h))/h),1e-6)
+        self.assertLess(abs((f(end)-2*f(end-h)+f(end-2*h))/h**2),.03)
     def test_reverse_merge_forms_one_cohesive_body(self):
         material=plan_coverage_pair(self.b,self.a)['material']
         early=solid_material(material,.2,(200,140),1,np.zeros(2))

@@ -1,3 +1,11 @@
+# Local pinch-off correction — 2026-10-14
+
+Inferred split necks now pinch centrally and retract early, with smooth distance
+and time limits preventing long artificial tethers. Thirty-five Python checks
+pass, including a clear gap during separation and smooth contact release. The
+six-case clean KaTeX movie retains exact endpoints and ten-second timing. This
+remains bounded offline research; no deployment, compiler or GPU changes.
+
 # Solid transport surfaces follow-up — 2026-10-14
 
 Transported material now has solid interiors and narrow antialiased boundaries,

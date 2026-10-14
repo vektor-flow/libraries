@@ -179,7 +179,7 @@ particle mass interpolation, endpoint rest and evidence-based rotation selection
 Earlier videos, receipts and migration evidence remain intact.
 
 
-## Solid boundaries and mitosis-style splitting — latest owner revision
+## Solid boundaries and mitosis-style splitting — previous revision
 
 The transported alpha field is now reconstructed as a solid surface rather than
 showing individual particle splats. A local Gaussian density reconstruction
@@ -203,3 +203,22 @@ solid-katex-animations.mp4. Thirty-two Python tests pass, including measured gra
 reduction, opaque interiors, smooth area, exact antialiased endpoints, a connected
 body that narrows and separates into two, and reverse merging. All earlier video
 and migration evidence remains preserved. No still previews are emitted.
+
+
+## Local pinch-off without long tethers — latest owner correction
+
+The old capsule neck extended across the entire distance between moving branch
+centres, creating long strands. Necks now narrow at their centre first, then
+retract into the bodies. Quintic distance and time gates limit this artificial
+contact to nearby branches: bridge contribution is zero beyond six initial neck
+radii and after the early split phase. Reverse merging uses the same local rule.
+Area reconstruction reallocates the disappearing neck area to the moving bodies.
+Original endpoint coverage, rigid routes and ten-second timing are unchanged.
+
+Thirty-five Python checks pass. The split is connected early, disconnected from
+30% of the test duration onwards, with a clear inter-body gap at intermediate
+times. New checks cover distance-bounded contact and release with zero first and
+second derivative. This bounds the explicit bridge, not every possible thin
+feature in the underlying transported image; general topology/collision guarantees
+remain out of scope. Outputs are *-pinch.mp4, pinch-verification.json and
+pinch-concat.txt, combined into pinch-katex-animations.mp4. Previous movies remain.

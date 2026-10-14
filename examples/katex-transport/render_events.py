@@ -67,7 +67,7 @@ for name in cases:
     for part in plan['source']+plan['target']:part.bitmap=Image.fromarray(np.uint8(np.round(part.patch*255)))
     route,search=choose_route(plan)
     print(name,route,'unrelated overlap score',round(search['baseline']['overlap'],2),'->',round(search['selected']['overlap'],2),flush=True)
-    ff=subprocess.Popen(['ffmpeg','-hide_banner','-loglevel','error','-y','-f','rawvideo','-pixel_format','rgb24','-video_size',f'{W}x{H}','-framerate','30','-i','-','-an','-c:v','libx264','-preset','fast','-crf','17','-pix_fmt','yuv420p','-movflags','+faststart',str(folder/(name+'-solid.mp4'))],stdin=subprocess.PIPE)
+    ff=subprocess.Popen(['ffmpeg','-hide_banner','-loglevel','error','-y','-f','rawvideo','-pixel_format','rgb24','-video_size',f'{W}x{H}','-framerate','30','-i','-','-an','-c:v','libx264','-preset','fast','-crf','17','-pix_fmt','yuv420p','-movflags','+faststart',str(folder/(name+'-pinch.mp4'))],stdin=subprocess.PIPE)
     endpoint_errors=[];max_overlap=0;mass=[];max_unrelated=0
     for frame in range(300):
         t=max(0,min(1,(frame-24)/251));total=np.zeros((H,W),float);occupied=np.zeros((H,W),int)
@@ -89,6 +89,6 @@ for name in cases:
     material_summary=None if plan['material'] is None else {k:plan['material'][k] for k in ['source_mass','target_mass','sample_count','sample_transport_cost']}
     if material_summary is not None:material_summary['inferred_necks']=len(plan['material']['necks'])
     receipts.append(dict(material=material_summary,case=name,route=route,search=search,matches=plan['mapping']['matches'],birth_parents=plan['birth_parents'],death_parents=plan['death_parents'],endpoint_max_errors=endpoint_errors,observed_total_overlap_pixels=max_overlap,observed_unrelated_pair_overlap_pixels=max_unrelated,rendered_coverage_range=[min(mass),max(mass)],policy='Residual source/target material jointly transported; smooth endpoint mass interpolation; one-sided budding/absorption fallback; sampled overlap minimization, not guaranteed topology or collision preservation',duration=10))
-    (folder/'solid-verification.json').write_text(json.dumps(receipts,indent=2)+'\n')
+    (folder/'pinch-verification.json').write_text(json.dumps(receipts,indent=2)+'\n')
     print('Rendered',name,'unrelated overlap pixels',max_unrelated,flush=True)
-(folder/'solid-concat.txt').write_text(''.join("file '%s-solid.mp4'\n"%name for name in cases))
+(folder/'pinch-concat.txt').write_text(''.join("file '%s-pinch.mp4'\n"%name for name in cases))

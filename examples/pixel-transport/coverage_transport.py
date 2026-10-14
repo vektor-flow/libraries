@@ -202,16 +202,15 @@ def solid_material(material,t,size,factor,offset,lift=0):
     density=ndi.gaussian_filter(raw[y0:y1,x0:x1],sigma)
     yy,xx=np.mgrid[y0:y1,x0:x1]
     for neck in material.get('necks',[]):
-        phase=1-u if neck['reverse'] else u
-        radius=neck['radius']*(1-clock(min(phase/.68,1)))
-        if radius<.015:continue
-        delta=neck['end']-neck['start']
-        normal=np.column_stack((-delta[:,1],delta[:,0]))/np.maximum(np.linalg.norm(delta,axis=1)[:,None],1)
-        ends=((1-u)*neck['start']+u*neck['end']+normal*lift*4*u*(1-u))*factor+offset
+        ends,radius,pinch,opacity=neck_profile(neck,u,lift)
+        if opacity<=0:continue
+        ends=ends*factor+offset
         vector=ends[1]-ends[0];squared=float(vector@vector)
         along=np.clip(((xx-ends[0,0])*vector[0]+(yy-ends[0,1])*vector[1])/max(squared,1e-12),0,1)
         distance=np.hypot(xx-ends[0,0]-along*vector[0],yy-ends[0,1]-along*vector[1])
-        bridge=np.clip(.5+(radius*factor-distance)/max(1.,factor*.4),0,1)
+        # The middle closes first, then the short stubs retract into the bodies.
+        local_radius=radius*(1-2*pinch*np.exp(-((along-.5)/.23)**2))
+        bridge=np.clip(.5+(local_radius*factor-distance)/max(1.,factor*.4),0,1)*opacity
         density=np.maximum(density,bridge)
     gy,gx=np.gradient(density)
     # Only the boundary is soft: approximately one output pixel of antialiasing.
@@ -227,3 +226,18 @@ def solid_material(material,t,size,factor,offset,lift=0):
     result=np.clip(raw,0,1)*(1-strength)
     result[y0:y1,x0:x1]+=strength*solid
     return result
+
+
+def neck_profile(neck,u,lift=0):
+    """Local contact only: pinch before separation can stretch a long tether."""
+    delta=neck['end']-neck['start']
+    normal=np.column_stack((-delta[:,1],delta[:,0]))/np.maximum(np.linalg.norm(delta,axis=1)[:,None],1)
+    ends=(1-u)*neck['start']+u*neck['end']+normal*lift*4*u*(1-u)
+    phase=1-u if neck['reverse'] else u
+    radius=neck['radius']
+    span=float(np.linalg.norm(ends[1]-ends[0]))
+    # C2 gates: no forced bridge beyond six initial neck radii, regardless of time.
+    stretch=clock(float(np.clip((span/radius-2)/4,0,1)))
+    release=clock(min(phase/.32,1))
+    pinch=clock(min(phase/.20,1))
+    return ends,radius,pinch,(1-stretch)*(1-release)
