@@ -1,3 +1,23 @@
+# Direct LaTeX GPU-field research — 2026-10-14
+
+Separate branch codex/gpu-math-20261014, based on immutable libraries37fbc99.
+The owner requires real LaTeX source/output as the reference, bypassing KaTeX.
+New isolated examples/gpu-math compiles real TeX Live LaTeX to DVI, expands
+positioned vector paths/rules via dvisvgm, and bakes a whole-expression MTSDF.
+Canonical curve packets are retained alongside shader/upload source and field
+receipts with actual TeX metrics/Type1 fonts, font maps and tool hashes.
+
+Six sources cover symbols, scripts, fractions/sums, integrals, radicals and
+matrix/extensible delimiters. All 19,530 sampled non-boundary outline sign checks
+pass; four Python extraction checks and two JS field-placement checks pass.
+This is offline CPU preparation. Shader compilation/drawing, actual GPU pixels,
+MiKTeX equivalence, caching, arbitrary LaTeX paint/graphics and VKF compiler
+integration are not verified. TeX Live is the installed distribution; there
+is no MiKTeX test result. No physical GPU, compiler, main merge, deployment or
+other-chat worktree changes. See examples/gpu-math/README.md for reproduction,
+limits and staged next steps; local evidence is in Cuvami staging/artifacts/
+gpu-math/20261014/direct-latex-pinned. Earlier exploratory evidence is preserved.
+
 # Shared surface-weight comparison — 2026-10-14
 
 A bounded five-configuration sweep now ranks common surface/trajectory settings

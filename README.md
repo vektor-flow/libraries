@@ -85,3 +85,10 @@ Node's built-in test runner with no additional dependencies. See
 
 Pixel-only sentence/shape matching and collision-checked MP4 studies are in
 [the raster research notes](examples/pixel-transport/README.md).
+
+## Direct LaTeX GPU-field research — 2026-10-14
+
+A separate research candidate accepts real LaTeX source and retains its emitted
+vector geometry/placement while preparing distance fields for a shared GPU pass.
+See [the direct-LaTeX prototype](examples/gpu-math/README.md). This is offline CPU
+evidence plus candidate WebGPU source, not implemented VKF syntax or GPU acceptance.
