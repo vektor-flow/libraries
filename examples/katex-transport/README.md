@@ -273,3 +273,60 @@ lineage-concat.txt. Combined: lineage-katex-animations.mp4. The local independen
 verify-lineage.py receipt checks decoded counts, near-final silhouette agreement
 and disjoint reconstructed layer ownership. Previous videos and failed first
 encoding evidence remain preserved. No still previews or staging changes.
+
+## Shared weight sweep — 2026-10-14
+
+`sweep_weights.py` compares five global surface/trajectory configurations on the
+same six harder endpoint-only KaTeX pairs. It ranks them under three explicit
+weight vectors (area-first, balanced, rounded). Configuration knobs and objective
+weights are distinct: the knobs generate a bounded candidate set; weights rank
+measured results across **all six cases**, never select a different style for each
+formula. This is a small discrete search, not a global variational optimizer.
+
+The baseline remains available. New candidates regularize signed distance fields
+at a radius-relative scale, offset contours toward the smooth target area, and
+connect disconnected lobes within an identity with finite-width rounded capsules.
+Area correction and connection alternate twice; residual area error is scored,
+not hidden. Inferred rigid one-to-one matches bypass these style operations.
+The existing disjoint-coverage collision projection remains authoritative. A
+surface callback is optional and leaves the earlier lineage renderer unchanged.
+
+Costs measure area-curve error, excess area variation, centroid/area acceleration,
+excess thin features, excess perimeter, transport, event spacing, hole-count
+reversals, and temporal boundary differences. Areas are normalized by endpoint
+area, distances by its square root, and thin-feature radius by input scale.
+The ranking applies one common positive-median normalization per sampling grid to all
+weight vectors. Boundary difference is a flicker proxy that also responds to
+legitimate movement, not a material-velocity estimate. Hole count is not full
+persistent topology. Event schedules are retained in this sweep, so their cost
+cannot distinguish its configurations. This 2D experiment does not measure 3D
+volume. Endpoint-relative perimeter/thin costs avoid simply penalizing all
+legitimate thin glyph strokes.
+
+    python examples/katex-transport/sweep_weights.py /path/to/clean --frames 81
+    python examples/katex-transport/sweep_weights.py /path/to/clean \
+      --frames 252 --candidates 2,3,4 --encode
+
+Outputs are under `weight-sweep/`, preserving every previous movie and receipt.
+Each candidate movie shows the same six transitions consecutively, one animation
+at a time, with 24-frame endpoint holds and 252 motion frames per case. No stills,
+side-by-side panels, semantic hints, or diagnostic overlays are rendered. Coarse
+receipts can be rescored from saved frames without rerunning geometry. Failed
+candidates are recorded and excluded from aggregate rankings unless all cases
+pass. Full-rate generation also checks trajectory acceleration and near-target
+convergence; encoding checks every decoded frame's visible object count.
+
+These are comparisons for visual judgment, not a claim that topology, area,
+contact geometry and motion are all solved. Raster repair, hard lineage event
+handoffs, hole changes and residual thin geometry can remain. Rounded connections
+are not a physical bacterial-division model. A visually convincing continuous
+neck/contact construction remains a separate improvement if these weights do not
+resolve the observed artifacts. No runtime, compiler, deployment or GPU changes.
+
+The first full-rate trial exposed late target convergence in the moderate-rounding
+configuration. That failed trial and its source snapshots are preserved in
+`weight-sweep-initial/`. Weighted trajectories now taper projection corrections
+over the final 16% of time, retaining the original renderer's 8% default. The
+acceptance threshold was not relaxed. `verify_weight_movies.py` additionally
+checks encoded held endpoint silhouettes and 98%/99% target convergence, recording
+near-event area changes without producing still previews.

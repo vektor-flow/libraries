@@ -230,7 +230,7 @@ def frame(plan,t,state,size=(1280,720),offset=np.array([-800.,-450.])):
     old_t=state.get('time',0);old_offsets=state.setdefault('offsets',{})
     decay=.90*max(0,1-clock(t))/max(1e-12,1-clock(old_t))
     for node in nodes:
-        alpha,repair=patch_at(node,t);repairs+=repair;patches.append(alpha)
+        alpha,repair=plan.get('surface',patch_at)(node,t);repairs+=repair;patches.append(alpha)
         want=desired_center(node,t,factor)*factor+offset
         if 'tracks' in plan:want=want+plan['tracks'][node.id][round(t*(len(plan['tracks'][node.id])-1))]
         desired.append(want)
@@ -295,7 +295,8 @@ def motion_quality(metrics):
 def smooth_tracks(plan,metrics,sigma=8):
     count=len(metrics);times=np.linspace(0,1,count);tracks={}
     recorded=[{i:np.array(c) for i,c in zip(r['ids'],r['centers'])} for r in metrics]
-    envelope=np.array([clock(min(t/.08,1))*clock(min((1-t)/.08,1)) for t in times])
+    fade=plan.get('track_fade',.08)
+    envelope=np.array([clock(min(t/fade,1))*clock(min((1-t)/fade,1)) for t in times])
     for node in plan['nodes']:
         offsets=[];last=np.zeros(2)
         for k,t in enumerate(times):

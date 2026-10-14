@@ -1,3 +1,13 @@
+# Shared surface-weight comparison — 2026-10-14
+
+A bounded five-configuration sweep now ranks common surface/trajectory settings
+across six endpoint-only KaTeX pairs under three explicit objective weight sets.
+New area-calibrated rounded surfaces retain rigid matches and hard disjoint
+lineage checks. Fifty-two Python tests pass. Full movies and quantitative
+receipts are separate local research artifacts; see examples/katex-transport/README.md.
+This is a 2D discrete candidate search, not solved physical division, 3D volume,
+full persistent topology or a global optimization. No deployment/compiler changes.
+
 # Monotone object-lineage candidate — 2026-10-14
 
 The owner's latest rule is monotone visible object count, with direction-pure
