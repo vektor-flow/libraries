@@ -1,3 +1,22 @@
+# Published math typing preview — 2026-10-14
+
+Live https://vektorflow.org/previews/gpu-math-typing/ through existing GitHub Pages.
+Coming soon links the preview; homepage now exposes Coming soon in navigation
+and its introductory links. Runtime source pinab1a656578fded76af5aba9452c72b821207b3be
+on the isolated GPU-math libraries branch. Public assets77ca8124ed596942541cf3bab2bc13cc2b680e60;
+navigation b109b26300356d61c69e278f1d303919cea5e61b. Both reviewed-byte Pages workflows
+succeeded. Existing public assets and compiler provenance remain preserved.
+
+Live HTTPS source identity, actual headed software WebGPU typing, incomplete-input
+recovery and canvas pixels verified. Six Node and seven Python source checks pass;
+eight fresh LaTeX oracle cases pass. Live test uses SwiftShader and390px browser
+viewport, not a physical phone or GPU. Live60-edit queue latency p95/max15.1/47.4ms;
+one typed formula3.1ms,899-instance first long edit39.1ms. Fresh10ms remains a target.
+No claim of full independent TeX, physical GPU acceptance or native VKF integration.
+Local detailed receipts: TYPING-PUBLICATION.json and typing-browser-live under
+Cuvami staging/artifacts/gpu-math/20261014. No Cuvami deployment, registry migration
+evidence, other-chat worktree, native compiler or physical GPU stop changes.
+
 # Live WebGPU math typing preview — 2026-10-14
 
 Owner authorized a browser typing test hosted through GitHub Pages and linked
