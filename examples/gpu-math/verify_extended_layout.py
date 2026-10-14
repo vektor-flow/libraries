@@ -7,17 +7,19 @@ CASES=[r'x^{\int_0^1}',r'x^{\sum_i^n}',r'f(x)+y',r'f(x)^2',r'\int\limits_0^1',r'
 def verify(root,atlas,output,mode,cases=CASES,arrow_envelopes=False):
     if output.exists():raise ValueError('Fresh output required')
     output.mkdir(parents=True);env=os.environ.copy();extras=root/'oracle-packages'
-    for variable in ['TEXINPUTS','TFMFONTS','T1FONTS']:env[variable]=str(extras.resolve())+'//:'
+    for variable in ['TEXINPUTS','TFMFONTS','TEXFONTS','MFINPUTS','T1FONTS']:env[variable]=str(extras.resolve())+'//:'
     module=Path(__file__).with_name('typing-layout.mjs').resolve().as_uri()
-    script=f"import{{readFileSync}}from'node:fs';import{{typeset}}from{json.dumps(module)};const data=JSON.parse(readFileSync({json.dumps(str(atlas/'typing-data.json'))},'utf8'));console.log(JSON.stringify({json.dumps(cases)}.map(s=>typeset(s,data.maps,{{mode:{json.dumps(mode)}}}))));"
+    sources=[c['source']if isinstance(c,dict)else c for c in cases]
+    oracles=[c.get('oracle',c['source'])if isinstance(c,dict)else c for c in cases]
+    script=f"import{{readFileSync}}from'node:fs';import{{typeset}}from{json.dumps(module)};const data=JSON.parse(readFileSync({json.dumps(str(atlas/'typing-data.json'))},'utf8'));console.log(JSON.stringify({json.dumps(sources)}.map(s=>typeset(s,data.maps,{{mode:{json.dumps(mode)}}}))));"
     boxes=json.loads(subprocess.check_output(['node','--input-type=module','-e',script],text=True));maps={s:json.loads((root/f'typing-{s}/symbol-mapping.json').read_text())for s in ['display','text','script','scriptscript']};results=[];asset_cache={};arrow_paths=set()
     if arrow_envelopes:
         for style in maps:
             for token in ['\\rightarrow','\\leftarrow','\\leftrightarrow','-']:
                 index=list(maps[style]['symbols']).index(token);asset=ET.parse(root/f'typing-{style}'/str(index)/'expression.svg').getroot();arrow_paths.update(e.attrib['d']for e in asset.iter()if e.tag.endswith('}path'))
-    for i,(source,box)in enumerate(zip(cases,boxes)):
-        folder=output/str(i);folder.mkdir();(folder/'formula.tex').write_text(r'\documentclass{article}\usepackage{amsmath,amssymb}\usepackage[nointlimits]{esint}'+(r'\usepackage{siunitx}'if (extras/'siunitx.sty').exists() else '')+r'\pagestyle{empty}\begin{document}\noindent\special{dvisvgm:raw <rect id="origin" x="{?x}" y="{?y}" width="0" height="0"/>}$'+('\\displaystyle 'if mode=='display'else'\\textstyle ')+source+r'$\end{document}')
-        for cmd in [['latex','-no-shell-escape','-interaction=nonstopmode','-halt-on-error','formula.tex'],['dvisvgm','--fontmap=+'+str(extras/'esint.map'),'--no-fonts=0','--exact-bbox','--precision=8','--output=reference.svg','formula.dvi']]:subprocess.run(cmd,cwd=folder,env=env,capture_output=True,text=True,check=True)
+    for i,(source,box)in enumerate(zip(sources,boxes)):
+        folder=output/str(i);folder.mkdir();(folder/'formula.tex').write_text(r'\documentclass{article}\usepackage{amsmath,amssymb}\usepackage[nointlimits]{esint}'+(r'\usepackage{siunitx}'if (extras/'siunitx.sty').exists() else '')+(r'\usepackage{mathrsfs}\DeclareMathAlphabet{\vkfbb}{U}{bbold}{m}{n}'if (extras/'mathrsfs.sty').exists()else '')+r'\pagestyle{empty}\begin{document}\noindent\special{dvisvgm:raw <rect id="origin" x="{?x}" y="{?y}" width="0" height="0"/>}$'+('\\displaystyle 'if mode=='display'else'\\textstyle ')+oracles[i]+r'$\end{document}')
+        for cmd in [['latex','-no-shell-escape','-interaction=nonstopmode','-halt-on-error','formula.tex'],['dvisvgm',*['--fontmap=+'+str(extras/name)for name in ['esint.map','rsfs.map','bbold.map']if(extras/name).exists()],'--no-fonts=0','--exact-bbox','--precision=8','--output=reference.svg','formula.dvi']]:subprocess.run(cmd,cwd=folder,env=env,capture_output=True,text=True,check=True)
         svg=ET.parse(folder/'reference.svg').getroot();defs={e.attrib['id']:e for e in svg.iter()if'id'in e.attrib};origin=defs['origin'];ox,oy=float(origin.attrib['x']),float(origin.attrib['y'])
         uses=[e for e in svg.iter()if e.tag.endswith('}use')];actual=[p for p in box['items']if p['kind']=='glyph'];errors=[]
         reference=[];independent=[];reference_arrows=[];independent_arrows=[]

@@ -1,3 +1,4 @@
+import {parseColor} from './colors.mjs';
 import {unitOptions,numberNodes,unitNodes} from './units.mjs';
 /** Recovery is preview-only: never rewrite the user's source or reuse old values. */
 const greekLower='alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega'.split(' ');
@@ -41,6 +42,9 @@ export function parseDraft(source,mapping){
  function base(depth){
   if(depth>32)throw Error('Nesting limit: 32');skip();const raw=peek();if(!raw)return hole();
   if(source[at]==='{'){at++;return{type:'group',children:list(depth+1,'brace')};}
+  if(raw==='\\\\'||raw==='\\newline'){take();return{type:'break'};}
+  if(raw==='\\color'||raw==='\\textcolor'){take();const model=optionalRaw(),value=rawGroup(),color=parseColor(value,model);if(!color)repair('Unfinished or unsupported color: '+value);return raw==='\\color'?{type:'color',color}:{type:'paint',color,children:argument(depth)};}
+  if(['\\mathrm','\\mathbf','\\mathit','\\mathsf','\\mathtt','\\mathfrak','\\mathcal','\\mathscr','\\mathbb','\\mathbbold','\\mathnormal','\\boldsymbol','\\bm'].includes(raw)){take();return{type:'font',name:raw==='\\bm'?'boldsymbol':raw.slice(1),children:argument(depth)};}
   if(raw==='\\frac'||raw==='\\dfrac'||raw==='\\tfrac'){take();return{type:'frac',num:argument(depth),den:argument(depth),style:raw==='\\dfrac'?0:raw==='\\tfrac'?1:null};}
   if(['\\hat','\\widehat','\\tilde','\\widetilde','\\bar','\\vec','\\dot','\\ddot','\\dddot','\\ddddot','\\acute','\\grave','\\breve','\\check','\\mathring','\\overline','\\underline','\\overbrace','\\underbrace','\\overrightarrow','\\overleftarrow','\\overleftrightarrow','\\underrightarrow','\\underleftarrow','\\underleftrightarrow'].includes(raw)){take();return{type:'decoration',name:raw.slice(1),children:argument(depth),...(['\\overbrace','\\underbrace'].includes(raw)?{limits:true}:{})};}
   if(raw==='\\overset'||raw==='\\underset'||raw==='\\stackrel'){take();const label=argument(depth),children=argument(depth);return{type:'stack',children,[raw==='\\underset'?'sub':'sup']:label,limits:true};}
@@ -56,7 +60,7 @@ export function parseDraft(source,mapping){
    if(peek()==='\\right'){take();right=delimiter();}else repair('Inferred \\right.');return{type:'delimited',left,right,children,scalable:true};}
   if(raw==='\\begin'){take();return matrix(rawGroup(),depth);}
   if(environments.has(raw.slice(1))){take();return matrix(raw.slice(1),depth,true);}
-  if(raw==='\\text'||raw==='\\mathrm'||raw==='\\operatorname'){take();return{type:'text',text:rawGroup(),class:raw==='\\operatorname'?'op':'ord'};}
+  if(raw==='\\text'||raw==='\\operatorname'){take();return{type:'text',text:rawGroup(),class:raw==='\\operatorname'?'op':'ord'};}
   if(['\\big','\\Big','\\bigg','\\Bigg','\\bigl','\\bigr','\\Bigl','\\Bigr','\\biggl','\\biggr','\\Biggl','\\Biggr'].includes(raw)){take();const size=raw.slice(1).replace(/[lr]$/,'');const token=delimiter();return{type:'glyph',token:'@'+size+':'+token};}
   if(raw==='('||raw==='['){take();const right=raw==='('?')':']',children=list(depth+1,right);let end='.';if(peek()===right){take();end=right;}else repair('Inferred an invisible closing scope');return{type:'delimited',left:raw,right:end,children,scalable:false};}
   const token=take();if(token in spaces)return{type:'space',mu:spaces[token]};

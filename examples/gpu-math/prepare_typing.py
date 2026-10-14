@@ -8,7 +8,7 @@ from fontTools.tfmLib import TFM
 
 def prepare(root,output,generator,extras=None):
     if output.exists():raise ValueError('Use a fresh output directory')
-    output.mkdir(parents=True);maps={};tiles={};atlas_width=4096;atlas_height=4096
+    output.mkdir(parents=True);maps={};tiles={};atlas_width=4096;atlas_height=8192
     atlas=Image.new('RGBA',(atlas_width,atlas_height));x=y=2;row=0;cached={};font_cache={}
     env=os.environ.copy()
     if extras:
@@ -28,7 +28,9 @@ def prepare(root,output,generator,extras=None):
                 s['italic']=font_cache[font_name].chars[code].get('italic',0)*scale
                 s['advance']=font_cache[font_name].chars[code]['width']*scale
                 s['fontXHeight']=font_cache[font_name].fontdimens.get('XHEIGHT',0)*scale
-                s['skew']=font_cache[font_name].kerning.get(code,{}).get(127,0)*scale if font_name.startswith('cmmi') else 0
+                s['fontCode']=code;s['fontName']=font_name
+                s['kerns']={str(c):v*scale for c,v in font_cache[font_name].kerning.get(code,{}).items()}
+                s['skew']=font_cache[font_name].kerning.get(code,{}).get(127,0)*scale if font_name.startswith(('cmmi','rsfs')) else 0
             pen=BoundsPen(None);parse_path(s['outline']['svgPath'],pen);left,top,right,bottom=pen.bounds;s['inkBounds']=[left,top,right,bottom]
             key=f'{style}/{token}';outline_hash=s['outlineHash']
             if outline_hash not in cached:
@@ -43,6 +45,12 @@ def prepare(root,output,generator,extras=None):
                     'uv':[x/atlas_width,y/atlas_height,(x+width)/atlas_width,(y+height)/atlas_height]}
                 x+=width+2;row=max(row,height)
             tiles[key]=cached[outline_hash];s.pop('outline');s.pop('outlineHash')
+        size=10 if style in ['display','text']else 7 if style=='script'else 5
+        bold_font=TFM(subprocess.check_output(['kpsewhich',f'cmbsy{size}.tfm'],text=True,env=env).strip())
+        mapping['boldParameters']={**mapping['parameters'],**{name:value*size*72/72.27 for name,value in bold_font.fontdimens.items()}}
+        roman_font=TFM(subprocess.check_output(['kpsewhich',f'cmr{size}.tfm'],text=True,env=env).strip())
+        mapping['textSpace']=roman_font.fontdimens['SPACE']*size*72/72.27
+        mapping['textExtraSpace']=roman_font.fontdimens.get('EXTRASPACE',0)*size*72/72.27
         maps[style]=mapping
     atlas.save(output/'atlas.png');(output/'atlas.rgba').write_bytes(atlas.tobytes());(output/'atlas.rgba.gz').write_bytes(gzip.compress(atlas.tobytes(),mtime=0))
     (output/'typing-data.json').write_text(json.dumps({'maps':maps,'tiles':tiles,'atlasSize':[atlas_width,atlas_height],'range':8},separators=(',',':')))

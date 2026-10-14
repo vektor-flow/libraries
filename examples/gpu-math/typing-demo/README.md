@@ -40,9 +40,9 @@ The development oracle uses unmodified siunitx 3.6.4 (2026-10-12).
 Array rules/options, optional row spacing, arbitrary packages/macros, radicals,
 general document layout and full TeX compatibility are not implemented.
 
-Real LaTeX is used only during development. The browser loads 411 mapped symbols
-in display/text/script/scriptscript styles (1,644 keys, 1,048 distinct outlines),
-using a 4096-square MTSDF atlas and one batched draw per edit. No LaTeX, KaTeX,
+Real LaTeX is used only during development. The browser loads 1,411 mapped symbols
+in display/text/script/scriptscript styles (5,644 keys, 3,315 distinct outlines),
+using a 4096×8192 MTSDF atlas and one batched draw per edit. No LaTeX, KaTeX,
 font loading, DOM math or Canvas2D text runtime is used. Native VKF compiler
 integration is pending. Source is never evaluated as JavaScript or inserted as HTML.
 
@@ -76,3 +76,43 @@ actual TFM/DVI data. Include the unmodified siunitx and EC source archives and
 notices when distributing these prepared assets. Common geometry is checked
 against fresh LaTeX independently; browser tests also drive partially typed accents,
 arrows and quantities. All recorded browser evidence uses software SwiftShader.
+
+## Page flow and appearance
+
+In Math input, a top-level `\\` or `\newline` starts a new left-aligned row.
+Matrix/environment row separators retain their existing meaning. This bare-math
+linebreak is a preview extension; standard LaTeX uses a multiline environment.
+Row spacing follows struts and the actual height/depth, so tall fractions and
+scripts do not collide. General equation alignment uses the existing aligned
+or array support; automatic wrapping of grouped math remains bounded.
+
+Text + math input uses the same Computer Modern Roman family and measured
+native advances, kerning, ligatures, punctuation and common Latin accents.
+Embed math with $…$ / $$…$$ or \(…\) / \[…\]. Blank lines create paragraphs;
+\\ creates a hard break. Prose uses independent greedy word flow; it does not
+implement TeX paragraph optimization, justification or automatic hyphenation.
+Long words can split between glyphs. Source text is never inserted as HTML.
+
+Page-width and text-size sliders reflow or scale the canvas. The colour swatches
+and picker change default ink; explicit source colours stay assigned to their
+own glyphs. Opacity affects both default and explicit ink so blending is visible.
+All glyphs/rules carry their colours in the GPU instance packet, with premultiplied
+alpha. Colour-only edits reuse cached layout and submit a new instance draw.
+Named \color and \textcolor, HTML/RGB/rgb values and nested colour scopes are
+supported in math. The Colour example includes several source colours.
+
+Native math alphabet families include mathrm, mathbf, mathit, mathsf, mathtt,
+mathnormal, mathfrak, mathcal, mathscr, mathbb and boldsymbol (bm alias). All
+families have display/text/script/scriptscript mappings. Calligraphic and RSFS
+script use their native capital alphabets; missing lowercase is a diagnostic,
+not a different glyph from that font slot. AMS mathbb capitals retain their
+standard appearance; lowercase/digits use a documented BBOLD extension, with
+mathbbold selecting BBOLD for the whole Latin/digit alphabet. This extension
+is checked against the native BBOLD LaTeX alphabet, not unsupported AMS slots.
+The regular Roman/bold/italic/sans/monospace/normal faces also map Greek capitals;
+boldsymbol handles the mapped Greek and ordinary symbols. Full arbitrary font
+package selection and every possible alphabet/glyph combination remain outside scope.
+
+Prepared assets include new AMS/Euler notices and the unmodified RSFS/BBOLD source
+archives. The GPL mathrsfs adapter is used only by the development oracle; its
+source and GPLv2 text are supplied separately. It does not execute in the browser.

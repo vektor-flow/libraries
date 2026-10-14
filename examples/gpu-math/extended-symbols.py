@@ -41,3 +41,25 @@ for name,start in [('widehat',0x5B),('widetilde',0x5D)]:
     for n in range(2):
         key=f'@accent:{name}AMS{n}';TOKENS[key]='ord';ALIASES[key]=r'\mathchar\numexpr\symAMSb*256+"'+f'{start+n:02X}'+r'\relax'
 TOKENS['@unit:arcminute']='ord';ALIASES['@unit:arcminute']=r'\unit{\arcminute}'
+# Alphabet commands use real native LaTeX font families in every math style.
+FAMILIES={'mathrm':string.ascii_letters+string.digits,'mathbf':string.ascii_letters+string.digits,'mathit':string.ascii_letters+string.digits,'mathsf':string.ascii_letters+string.digits,'mathtt':string.ascii_letters+string.digits,'mathfrak':string.ascii_letters+string.digits,'mathcal':string.ascii_uppercase,'mathscr':string.ascii_uppercase,'mathbb':string.ascii_letters+string.digits,'mathbbold':string.ascii_letters+string.digits}
+for family,characters in FAMILIES.items():
+    for c in characters:
+        key=f'@font:{family}:{c}';TOKENS[key]='ord'
+        command='vkfbb' if family=='mathbbold' or family=='mathbb' and c not in string.ascii_uppercase else family
+        ALIASES[key]='\\'+command+'{'+c+'}'
+for token,kind in list(TOKENS.items()):
+    if token.startswith('@'):continue
+    key='@font:boldsymbol:'+token;TOKENS[key]=kind;ALIASES[key]=r'\boldsymbol{'+ALIASES.get(token,token)+'}'
+# Prose uses the same Computer Modern Roman family, with text punctuation and ligatures.
+TEXT_CHARS=string.punctuation+'åäöÅÄÖéÉèÈüÜñÑáÁàÀçÇßøØæÆœŒ“”‘’–—…'
+TEXT_ESCAPES={'\\':r'\textbackslash{}','{':r'\{','}':r'\}','_':r'\_','%':r'\%','#':r'\#','$':r'\$','&':r'\&','^':r'\textasciicircum{}','~':r'\textasciitilde{}'}
+for c in TEXT_CHARS:
+    key='@text:'+c;TOKENS[key]='ord';ALIASES[key]=r'\text{'+TEXT_ESCAPES.get(c,c)+'}'
+for ligature in ['ff','fi','fl','ffi','ffl']:
+    TOKENS['@text:'+ligature]='ord';ALIASES['@text:'+ligature]=r'\text{'+ligature+'}'
+for c in string.ascii_letters+string.digits:
+    key='@font:mathnormal:'+c;TOKENS[key]='ord';ALIASES[key]=r'\mathnormal{'+c+'}'
+for family in ['mathrm','mathbf','mathit','mathsf','mathtt','mathnormal']:
+    for name in 'Gamma Delta Theta Lambda Xi Pi Sigma Upsilon Phi Psi Omega'.split():
+        token='\\'+name;key='@font:'+family+':'+token;TOKENS[key]='ord';ALIASES[key]='\\'+family+'{'+token+'}'

@@ -1,0 +1,171 @@
+Prepared atlas files are differently named derivatives of the original glyph outlines. RSFS sources are credited to Ralph Smith; Type1 conversion to Taco Hoekwater. BBOLD sources are by Alan Jeffrey; Type1 files are Copyright 2007 TeX Users Group and permit free use, modification and distribution. Complete unmodified source archives are supplied alongside. mathrsfs is a development-only GPLv2 LaTeX adapter; no GPL adapter code runs in the independent browser renderer. Source archives retain their upstream licensing and names. Standard Computer Modern/Euler/AMS glyphs have the separate accompanying OFL notices. Report preview issues to the Vektor Flow maintainer rather than the upstream font authors.
+
+rsfs/README
+RSFS - Ralph Smith's Formal Script Symbol Fonts
+------------------------------------------------
+
+Version 1.0,  Released October 1991
+
+This package contains METAFONT sources for fonts of uppercase
+script letters for use as symbols in scientific and mathematical
+typesetting.  For example, script D, N, and S are often used in
+functional analysis for domain, nullspace, and Schwartz class.
+Script L and H are the standard symbols for lagrangian and
+hamiltonian densities in quantum field theory.  These formal
+script symbols may be contrasted with informal scripts such
+as the one designed by H. Zapf and used as `calligraphic'
+symbols in the TeX math symbol font.
+I have tried to be fairly conservative, and closely imitated
+a formal script type designed by R. Hunter Middleton.  This is
+similar to Typo Script and Marina, as well as the font used
+by the typesetters at Springer Verlag.  All are based on the
+so-called Spencerian or Copperplate hand lettering which
+prevailed in the eighteenth century.
+
+These programs were not designed with much `meta-ness' in mind.
+Although formal script is subject to many stylistic variations,
+radical changes in weight or slant violate my sense of taste.
+This is a first revision, and certainly does not reflect much
+expertise in METAFONT programming. It has been checked for
+legibility and spacing.
+
+I have tested these fonts on some 300dpi printers (ink-jet and laser),
+but not at other resolutions.  I suspect they won't look very good at
+low resolution (because of the instrinsic detail).  Comments from users
+of the fonts are welcome; please describe your printer and metafont
+parameters when relevant.  I will probably revise the sources and hope
+to add lowercase letters to make a text font.
+
+You are welcome to use and distribute these files; if you modify them,
+please change the name but give credit to the original author!
+
+			- Ralph Smith
+			  Physics 0319
+			  Univ. of California -- San Diego
+			  9500 Gilman Drive, La Jolla CA 92093-0319
+			  
+			  E-mail: rasmith@ucsd.edu
+
+
+Notes on the files:
+
+README - this file
+rsfsX.mf (X = 5,7,10) - set sizes for Xpt font and calls driver
+script.mf - driver
+scriptu.mf - character programs
+scrload.tex -  TeX code to make these symbols available with
+		a \scr macro (to be used like \cal)
+
+To compile a font, run Metafont with CMBASE:  at the MF prompt, type
+
+    &cm \mode=localfont; input rsfs10
+
+Then run gftopk, put the PK and TFM files in the appropriate places,
+and TeX away.
+
+
+
+rsfs/type1/README
+
+Hi there,
+
+This directory contains a Type 1 version of (some of) the
+Metafont sources from the directory above. The pfb files 
+are intended to be used with the original TFM files, 
+_don't_ run finst or afmtotfm on the afm files! 
+
+The afm and pfm files are provided just in case you want to
+install the files on your windowing system. I'm sorry for
+the Macintosh users amongst you, but I don't know how to 
+create the MacType1 files.
+
+The fonts should give exactly the same output results as 
+the .mf originals, up to the point of sillyness. All bugs 
+in the metafont sources have been kept (and there might be
+new ones).
+
+Files are herewith donated to the public domain, and 
+provided as is. Note that I feel that the copyright 
+from the metafont sources still applies, my only statement 
+here is that I do not impose extra restrictions.
+
+Conversion process:
+    .mf   -> metapost (c) Hobby -> .eps
+    .eps  -> metafog  (c) Kinch -> .pfb
+    .pfb  -> hinted & touched up with FontLab v3.0c
+
+More fonts should follow in the next few months. I can be reached for 
+propositions/bugs at: taco.hoekwater@wkap.nl
+
+Greetings,
+
+Taco Hoekwater
+
+
+
+bbold/README
+THE BBOLD SYMBOL FONT
+
+6 APRIL 1994
+
+This directory contains the bbold symbol font.  This is a geometric
+sans serif blackboard bold font, for use in mathematics.
+
+Read the INSTALL file for details of how to install the bbold
+package.
+
+Alan Jeffrey (alanje@cogs.susx.ac.uk)
+
+
+
+bbold-type1/README
+This repacking of Type1 version of BBOLD font from Y&Y.
+
+Only 10, 7 and 5pt sizes were provided by Y&Y, other sizes in Ubbold.fd will be scaled from nearest size.
+
+The files are Copyright 2007 TeX Users Group, with license:
+
+  "You may freely use, modify and/or distribute this file."
+
+
+jknappen/mathrsfs.rme
+mathrsfs.rme
+
+Readme File for the mathrsfs package by J"org Knappen
+(c) Copyleft 1995, 1996, 1998, 1999 J"org Knappen
+Licence: GNU public licence version 2
+
+   Physicists don't like the appearance of the standard calligraphic fonts
+when speaking about Lagrangian density, Hamiltonian density, or the measure 
+in the path integral. Fortunately, the Ralph Smith Formal Script (rsfs) 
+fonts provide the desired shapes. The mathrsfs package makes them accesible
+via the command \mathscr{ABC}.
+
+   To use this package, just write
+\usepackage{mathrsfs}
+in the preamble of the document.
+
+   If you don't have the rsfs fonts ready, get the METAFONT sources from 
+the nearest CTAN archive in directory tex-archive/fonts/rsfs. There are also
+PS Type 1 versions by Tako Hoekwater on CTAN.
+
+  This package contains 3 files, namely
+  mathrsfs.rme    This readme file
+  mathrsfs.sty    Package file
+  ursfs.fd        Font definition file
+The latter two files need to be in the search path of LaTeX2e.
+
+  This package differs from Vadim V. Zhytnikov's calrsfs package in
+several aspects. It does not overwrite the \mathcal command, so that you
+have the calligraphic shape still available. I also choose to do some 
+internal things in a different way.
+
+J"org Knappen, Barbarossaring 43, D-55118 Mainz, Allemagne
+Author of the Book: Schnell ans Ziel mit LaTeX2e, Oldenbourg-Verlag
+M"unchen, 1997, ISBN 3-486-24199-0.
+
+Change history:
+
+1998/03/24    Added setting of the skewchar to ursfs.fd
+
+/mathrsfs.rme

@@ -1,3 +1,38 @@
+# GPU math page flow, alphabets, size and colour controls — 2026-10-14
+
+Owner requested bare \\ newlines, script/double-stroke alphabets, page-width
+control, regular-text word wrapping in the same font family, size controls and
+instant colour taps with a multicolour example. Math now has explicit rows;
+Text + math mode uses CM Roman prose, kerning/ligatures/Latin accents and inline
+or display math delimiters. Width/size sliders reflow text, and colour/opacity
+changes repaint GPU instances using cached layout. Named/HTML/RGB source colours
+scope glyphs and rules. Native compiler integration remains pending.
+
+Math alphabet mappings cover Roman, bold, italic, sans, mono, normal, Fraktur,
+CM calligraphic, RSFS script and double stroke. Native script/calligraphic are
+capitals. AMS mathbb capitals plus a documented native BBOLD lowercase/digit
+extension provide the full Latin/digit range. Boldsymbol/bm and Greek capitals
+in ordinary faces are included. All families retain optical-size script maps.
+1411 source symbols give5644 keys/3315 distinct outlines in a4096×8192 atlas.
+TeX is only the development oracle. Font notices/complete source archives remain.
+
+Sixteen Node and seven Python checks pass. Fifty-four fresh alphabet/script
+fixtures match native LaTeX positioned ink within0.000118bp (BBOLD extensions
+use explicit oracle aliases);40 prior cases still pass. Three fresh text lines
+validate native advances, kerning, ligatures and Swedish accents within0.000076bp.
+Word wrapping is independent greedy flow, not full TeX paragraph optimization.
+
+Headed SwiftShader browser checks13 example families, row breaks, page width,
+size, opacity, color taps and draft recovery with no page/GPU errors or390px
+overflow. Width1000→300 and size30→48 change text row counts6→19→29.
+Red/blue screenshots prove911/929 coloured pixels; opacity blend proves175 pink
+pixels. Localwarm60-edit p95/max18.9/35.3ms; fresh10ms remains a target. Cold atlas
+setup1296ms is separate. Physical GPU/device, physical presentation and full
+LaTeX/font compatibility are not established. Earlier attempts/failures retained
+under alphabets, alphabets-final and page-flow in the existing artifact root.
+No other-chat worktree, GPU stop, Cuvami deployment or registry evidence changes.
+Publication identity follows once the live checks finish.
+
 # GPU math accents, annotations, arrows and SI units — 2026-10-14
 
 User requests accents/arrows, over/under lines, labelled braces and SI units.

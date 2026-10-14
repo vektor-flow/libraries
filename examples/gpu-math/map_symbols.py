@@ -25,7 +25,7 @@ def build(output,style="display",extended=False,extras=None,reuse=None):
     import os
     env=dict(os.environ)
     if extras:
-        for variable in ['TEXINPUTS','TFMFONTS','T1FONTS']:
+        for variable in ['TEXINPUTS','TFMFONTS','TEXFONTS','MFINPUTS','T1FONTS']:
             env[variable]=str(extras.resolve())+'//:'+env.get(variable,'')
     style_command={'display':r'\displaystyle','text':r'\textstyle','script':r'\scriptstyle','scriptscript':r'\scriptscriptstyle'}[style]
     prior=json.loads((reuse/'symbol-mapping.json').read_text())['symbols'] if reuse else {}
@@ -35,13 +35,13 @@ def build(output,style="display",extended=False,extras=None,reuse=None):
         if token in prior:
             symbols[token]=prior[token];folder.symlink_to((reuse/str(prior_indices[token])).resolve(),target_is_directory=True);continue
         folder.mkdir()
-        source=(r'\documentclass{article}\usepackage{amsmath,amssymb,graphicx}'+(r'\usepackage[nointlimits]{esint}' if extras else '')+(r'\usepackage{siunitx}' if extras and (extras/'siunitx.sty').exists() else '')+r'\pagestyle{empty}'+'\n'+
+        source=(r'\documentclass{article}\usepackage{amsmath,amssymb,graphicx}'+(r'\usepackage[nointlimits]{esint}' if extras else '')+(r'\usepackage{siunitx}' if extras and (extras/'siunitx.sty').exists() else '')+(r'\usepackage{mathrsfs}\DeclareMathAlphabet{\vkfbb}{U}{bbold}{m}{n}'if extras and (extras/'mathrsfs.sty').exists()else '')+r'\pagestyle{empty}'+'\n'+
             r'\begin{document}\setbox0=\hbox{$'+style_command+' '+aliases.get(token,token)+r'$}'+ '\n'+
             r'\typeout{BOXWIDTH:\the\wd0}\typeout{BOXHEIGHT:\the\ht0}\typeout{BOXDEPTH:\the\dp0}'+ '\n'+
             r'\noindent\special{dvisvgm:raw <rect id="box-origin" x="{?x}" y="{?y}" width="0" height="0"/>}\box0\end{document}')
         (folder/'expression.tex').write_text(source)
         for command in [['latex','-no-shell-escape','-interaction=nonstopmode','-halt-on-error','expression.tex'],
-            ['dvisvgm']+(['--fontmap=+'+str(extras.resolve()/'esint.map')] if extras else [])+['--no-fonts=0','--exact-bbox','--precision=8','--output=expression.svg','expression.dvi']]:
+            ['dvisvgm']+(['--fontmap=+'+str(extras.resolve()/name)for name in ['esint.map','rsfs.map','bbold.map']if(extras/name).exists()] if extras else [])+['--no-fonts=0','--exact-bbox','--precision=8','--output=expression.svg','expression.dvi']]:
             result=subprocess.run(command,cwd=folder,capture_output=True,text=True,check=True,timeout=30,env=env)
             (folder/(command[0]+'.log')).write_text(result.stdout+result.stderr)
         log=(folder/'expression.log').read_text()
