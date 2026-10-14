@@ -1,3 +1,17 @@
+# Expanded colored native-field scenes — 2026-10-14
+
+Six new six-second clips form a36-second60fps movie: a rigid moving sentence
+layout, polynomial and fraction geometry morphs, mixed analytic ring/text, and
+separate bounded two-disc division/fusion. Eight tests pass. All1,872 source
+frames and2,160 decoded frames pass their component/hole constraints; decoded
+silhouette changes stay within one source-boundary pixel. Counts are monotone
+in each branch fixture. These are not general algebraic simplification or
+arbitrary-object branching. See examples/field-transport/README.md and Cuvami
+staging/artifacts/embedding-transport/field-expanded/rendered/verification.json.
+The movie SHA256 is5f82e208f9116786ee2871283f131edebb0530c5b6499d1317000b0c5329715a.
+Earlier failed content/correspondence/codec trials remain preserved. Native atlas
+and read-only working-layout snapshots are hashed; no other-chat source changes.
+
 # Native scalar-field topology correction — 2026-10-14
 
 The prior ring-to-D acceptance checked components but missed disappearing holes:
