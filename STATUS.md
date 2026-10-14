@@ -24,7 +24,13 @@ oracle/atlas/browser receipts are preserved in extended/ alongside final evidenc
 Source and publication work stay in the isolated math worktrees. Font-derived
 assets retain AMS/OFL and esint/LPPL notices, including unmodified esint archives.
 No Cuvami deployment, registry evidence, other-chat worktree or GPU stop change.
-Public source pin and deployment identities follow in the publication receipt.
+Published runtime source b450ae50c45538bcb8f5573e7a17f016fc1dd249;
+public main31a601aecc08fb2b7728b695a729499a5d3e33ed. Pages workflow38565122499
+passed. Live HTTPS code/data identity and headed software canvas checks pass;
+live60-edit p95/max14.9/39ms and first899-instance long40.2ms. The deletion
+sample sum_x^ updates in4.3ms with no n glyph. Live source, browser, pixel and
+oracle receipts are recorded in extended/PUBLICATION.json. Full TeX and
+consistent fresh10ms remain future work.
 
 # Published math typing preview — 2026-10-14
 
