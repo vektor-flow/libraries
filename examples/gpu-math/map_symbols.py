@@ -13,7 +13,7 @@ TOKENS={c:'ord' for c in string.ascii_letters+string.digits}
 TOKENS.update({t:'ord' for t in [r'\alpha',r'\beta',r'\gamma',r'\delta',r'\theta',r'\lambda',r'\mu',r'\pi',r'\sigma',r'\omega',r'\Gamma',r'\Delta',r'\Omega',r'\infty']})
 TOKENS.update({'+':'bin','-':'bin','=':'rel','<':'rel','>':'rel',r'\leq':'rel',r'\geq':'rel','(':'open',')':'close','[':'open',']':'close',',':'punct'})
 
-def build(output,style="display",extended=False,extras=None):
+def build(output,style="display",extended=False,extras=None,reuse=None):
     if output.exists(): raise ValueError('Use a fresh output directory')
     output.mkdir(parents=True)
     symbols={}
@@ -28,9 +28,14 @@ def build(output,style="display",extended=False,extras=None):
         for variable in ['TEXINPUTS','TFMFONTS','T1FONTS']:
             env[variable]=str(extras.resolve())+'//:'+env.get(variable,'')
     style_command={'display':r'\displaystyle','text':r'\textstyle','script':r'\scriptstyle','scriptscript':r'\scriptscriptstyle'}[style]
+    prior=json.loads((reuse/'symbol-mapping.json').read_text())['symbols'] if reuse else {}
+    prior_indices={token:i for i,token in enumerate(prior)}
     for index,(token,kind) in enumerate(catalogue.items()):
-        folder=output/str(index);folder.mkdir()
-        source=(r'\documentclass{article}\usepackage{amsmath,amssymb,graphicx}'+(r'\usepackage[nointlimits]{esint}' if extras else '')+r'\pagestyle{empty}'+'\n'+
+        folder=output/str(index)
+        if token in prior:
+            symbols[token]=prior[token];folder.symlink_to((reuse/str(prior_indices[token])).resolve(),target_is_directory=True);continue
+        folder.mkdir()
+        source=(r'\documentclass{article}\usepackage{amsmath,amssymb,graphicx}'+(r'\usepackage[nointlimits]{esint}' if extras else '')+(r'\usepackage{siunitx}' if extras and (extras/'siunitx.sty').exists() else '')+r'\pagestyle{empty}'+'\n'+
             r'\begin{document}\setbox0=\hbox{$'+style_command+' '+aliases.get(token,token)+r'$}'+ '\n'+
             r'\typeout{BOXWIDTH:\the\wd0}\typeout{BOXHEIGHT:\the\ht0}\typeout{BOXDEPTH:\the\dp0}'+ '\n'+
             r'\noindent\special{dvisvgm:raw <rect id="box-origin" x="{?x}" y="{?y}" width="0" height="0"/>}\box0\end{document}')
@@ -78,5 +83,5 @@ def build(output,style="display",extended=False,extras=None):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--style',choices=['display','text','script','scriptscript'],default='display')
-    parser.add_argument('--extended',action='store_true');parser.add_argument('--oracle-extras',type=Path)
-    args=parser.parse_args();build(args.output,args.style,args.extended,args.oracle_extras)
+    parser.add_argument('--extended',action='store_true');parser.add_argument('--oracle-extras',type=Path);parser.add_argument('--reuse',type=Path)
+    args=parser.parse_args();build(args.output,args.style,args.extended,args.oracle_extras,args.reuse)

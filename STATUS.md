@@ -1,3 +1,35 @@
+# GPU math accents, annotations, arrows and SI units — 2026-10-14
+
+User requests accents/arrows, over/under lines, labelled braces and SI units.
+The current-source draft renderer now supports hat/widehat, tilde/widetilde,
+bar/vec, dots, acute/grave/breve/check/mathring, overline/underline, nested
+labelled overbrace/underbrace, overset/underset/stackrel, extensible over/under
+arrows and xrightarrow/xleftarrow labels. Long/hook/diagonal/harpoon arrows
+are also mapped. Braces use actual fixed TeX font pieces; shafts are continuous
+rules between font arrow heads. Triple/quad-dot arrangements remain approximate.
+
+New independent units.mjs supports common qty/unit and SI/si, num and ang,
+upright SI base/derived units, prefixes, powers/per, scientific notation,
+grouped digits, angles, literal abbreviations and three documented option families.
+Full siunitx options, uncertainty/rounding and custom declarations are outside scope.
+Real siunitx3.6.4 is used only by the development LaTeX oracle, not runtime.
+
+411 symbols in four styles give1,644 keys/1,048 distinct outlines. Skew and
+accent-font x-height follow actual font data, including the wider AMS variants.
+All12 Node and7 Python checks pass. Fresh LaTeX validates68 new positioned
+accent/brace/unit fixtures,40 prior fixtures,3 literal-unit examples and16
+arrow-envelope/label fixtures. Exact shaft interiors and raster equivalence are
+not claimed. Headed SwiftShader verifies nine example families, five incomplete
+annotation/unit drafts, deletion, both modes and390px layout with no page/GPU
+errors. Local60-edit p95/max9.2/20ms;10ms remains a target, not a guarantee.
+
+Evidence and preserved failures: Cuvami staging/artifacts/gpu-math/20261014/
+annotations, annotations-v2 and annotations-final. Applicable AMS, EC and esint
+font notices/source archives are retained; siunitx source is supplied for oracle
+reproduction. No other-chat branch, physical GPU stop, native compiler, Cuvami
+staging/production or registry evidence changes. Publication identity follows
+in the extension receipt once live verification finishes.
+
 # Recoverable math drafts and Inline/Display styles — 2026-10-14
 
 User requests Platonic-style visual recovery and wider native-LaTeX mappings.

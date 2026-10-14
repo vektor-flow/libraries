@@ -18,7 +18,7 @@ def prepare(root,output,generator,extras=None):
         for index,(token,s) in enumerate(mapping['symbols'].items()):
             folder=root/f'typing-{style}'/str(index)
             tree=ET.parse(folder/'expression.svg');uses=[e for e in tree.getroot().iter() if e.tag.endswith('}use')]
-            s['italic']=0
+            s['italic']=0;s['skew']=0
             if len(uses)==1:
                 font_info=re.search(r'Font \d+: ([^\s-]+)(?: scaled \d+)?---loaded at size (\d+) DVI units',subprocess.check_output(['dvitype','--output-level=0',str(folder/'expression.dvi')],text=True,env=env));font_name=font_info[1]
                 if font_name not in font_cache:font_cache[font_name]=TFM(subprocess.check_output(['kpsewhich',font_name+'.tfm'],text=True,env=env).strip())
@@ -26,6 +26,9 @@ def prepare(root,output,generator,extras=None):
                 # Actual DVI loaded size, including scaled extension/integral fonts.
                 scale=int(font_info[2])/65536*72/72.27
                 s['italic']=font_cache[font_name].chars[code].get('italic',0)*scale
+                s['advance']=font_cache[font_name].chars[code]['width']*scale
+                s['fontXHeight']=font_cache[font_name].fontdimens.get('XHEIGHT',0)*scale
+                s['skew']=font_cache[font_name].kerning.get(code,{}).get(127,0)*scale if font_name.startswith('cmmi') else 0
             pen=BoundsPen(None);parse_path(s['outline']['svgPath'],pen);left,top,right,bottom=pen.bounds;s['inkBounds']=[left,top,right,bottom]
             key=f'{style}/{token}';outline_hash=s['outlineHash']
             if outline_hash not in cached:

@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id),input=$('expression'),canvas=$('math'),s
 const boot=performance.now();let revision=0,running=false,pending=null,ready=false;
 window.mathGpuErrors=[];
 const times=[];let gpu,adapter,device,context,pipeline,bind,instances,uniform,data;
-const examples={basic:'x+\\alpha=\\beta',scripts:'x_i^2+a^{n+1}+e^{i\\pi}=0',fraction:'\\frac{x^2+\\alpha}{1+x_i}=\\frac{a}{b}',greek:'\\alpha+\\beta+\\gamma+\\omega+\\Gamma+\\Delta+\\Theta+\\Lambda+\\Xi+\\Pi+\\Sigma+\\Phi+\\Psi+\\Omega',operators:'\\sum_{x=0}^n x^2+\\prod_{k=1}^n k+\\oint_C f(x)\\,dx+\\oiint_S F\\cdot n\\,dS',matrix:'\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}\\begin{bmatrix}x\\\\y\\end{bmatrix}',cases:'f(x)=\\begin{cases}x^2&x>0\\\\-x&x\\leq0\\end{cases}',nested:'\\left\\langle\\frac{1}{\\left(1+x^{2^{n+1}}\\right)}\\right\\rangle',long:Array(90).fill('\\frac{x_i^2+\\alpha}{1+x}').join('+')};
+const examples={basic:'x+\\alpha=\\beta',scripts:'x_i^2+a^{n+1}+e^{i\\pi}=0',fraction:'\\frac{x^2+\\alpha}{1+x_i}=\\frac{a}{b}',greek:'\\alpha+\\beta+\\gamma+\\omega+\\Gamma+\\Delta+\\Theta+\\Lambda+\\Xi+\\Pi+\\Sigma+\\Phi+\\Psi+\\Omega',operators:'\\sum_{x=0}^n x^2+\\prod_{k=1}^n k+\\oint_C f(x)\\,dx+\\oiint_S F\\cdot n\\,dS',matrix:'\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}\\begin{bmatrix}x\\\\y\\end{bmatrix}',cases:'f(x)=\\begin{cases}x^2&x>0\\\\-x&x\\leq0\\end{cases}',nested:'\\left\\langle\\frac{1}{\\left(1+x^{2^{n+1}}\\right)}\\right\\rangle',accents:'\\hat{x}+\\widehat{ABC}+\\tilde{x}+\\widetilde{abc}+\\vec{v}+\\dot{x}+\\ddot{x}+\\dddot{x}+\\check{x}',annotations:'\\overbrace{a+b+c}^{n}+\\underbrace{x+y}_{\\text{terms}}+\\overline{z}+\\underline{w}',arrows:'A\\xrightarrow[k]{n+1}B+\\overrightarrow{AB}+\\underleftarrow{xy}',units:'v=\\qty{9.81}{\\metre\\per\\second\\squared}+R=\\SI{1.2e3}{\\kilo\\ohm}+T=\\qty{20}{\\degreeCelsius}',long:Array(90).fill('\\frac{x_i^2+\\alpha}{1+x}').join('+')};
 function resize(){const rect=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio,2);const width=Math.max(1,Math.round(rect.width*dpr)),height=Math.max(1,Math.round(rect.height*dpr));if(canvas.width!==width)canvas.width=width;if(canvas.height!==height)canvas.height=height;}
 function pack(box){
  const values=[],dpr=canvas.width/canvas.getBoundingClientRect().width,scale=3*dpr;
@@ -13,10 +13,10 @@ function pack(box){
   lastFlow=item.flowX;
   const ox=24*dpr+(item.x-offset)*scale,oy=36*dpr+(box.height+item.y+row*(box.height+box.depth+6))*scale;
   if(item.kind==='glyph'){
-   const t=data.tiles[item.key];if(!t)throw Error('Missing prepared symbol');const p=t.plane,sy=item.sy??1;
-   const lo=Math.max(p[1],item.crop?.[0]??p[1]),hi=Math.min(p[3],item.crop?.[1]??p[3]);
-   const v0=t.uv[1]+(lo-p[1])/(p[3]-p[1])*(t.uv[3]-t.uv[1]),v1=t.uv[1]+(hi-p[1])/(p[3]-p[1])*(t.uv[3]-t.uv[1]);
-   values.push(ox+p[0]*scale,oy+lo*sy*scale,(p[2]-p[0])*scale,(hi-lo)*sy*scale,t.uv[0],v0,t.uv[2],v1,.08,.19,.15,1,0,0,0,0);
+   const t=data.tiles[item.key];if(!t)throw Error('Missing prepared symbol');const p=t.plane,sy=item.sy??1,sx=item.sx??1;
+   const lo=Math.max(p[1],item.crop?.[0]??p[1]),hi=Math.min(p[3],item.crop?.[1]??p[3]),left=Math.max(p[0],item.cropX?.[0]??p[0]),right=Math.min(p[2],item.cropX?.[1]??p[2]);
+   const uv=[t.uv[0]+(left-p[0])/(p[2]-p[0])*(t.uv[2]-t.uv[0]),t.uv[1]+(lo-p[1])/(p[3]-p[1])*(t.uv[3]-t.uv[1]),t.uv[0]+(right-p[0])/(p[2]-p[0])*(t.uv[2]-t.uv[0]),t.uv[1]+(hi-p[1])/(p[3]-p[1])*(t.uv[3]-t.uv[1])];
+   values.push(ox+left*sx*scale,oy+lo*sy*scale,(right-left)*sx*scale,(hi-lo)*sy*scale,...uv,.08,.19,.15,1,0,0,0,0);
   }else if(item.kind==='placeholder'){
    const w=item.width*scale,h=item.height*scale,edge=Math.max(1,dpr*.65);
    for(const [x,y,rw,rh] of [[0,0,w,edge],[0,h-edge,w,edge],[0,0,edge,h],[w-edge,0,edge,h]])values.push(ox+x-1,oy+y-1,rw+2,rh+2,0,0,0,0,.35,.48,.42,.45,1,rw,rh,0);

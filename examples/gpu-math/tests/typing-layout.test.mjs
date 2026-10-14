@@ -41,3 +41,21 @@ test('inline and display use distinct TeX styles and explicit overrides',()=>{
  assert.ok(glyphs(display).includes('display/\\sum'));assert.ok(glyphs(inline).includes('text/\\sum'));assert.ok(display.height>inline.height);
  const explicit=typeset('\\displaystyle '+source,maps,{mode:'inline'});assert.deepEqual(glyphs(explicit),glyphs(display));
 });
+
+test('accents, annotated braces, lines and labelled arrows nest in both styles',()=>{
+ const sources=['\\hat{x}+\\widehat{ABC}+\\tilde{x}+\\widetilde{abc}+\\vec{v}','\\dot{x}+\\ddot{x}+\\dddot{x}+\\ddddot{x}+\\acute{a}+\\grave{a}+\\breve{a}+\\check{a}+\\mathring{a}','\\overbrace{\\underbrace{a+b}_{k}+c}^{n}','\\overline{\\frac{x}{y}}+\\underline{z}','A\\xrightarrow[k]{n+1}B+\\overrightarrow{AB}+\\underleftarrow{xy}','\\overset{n}{=}+\\underset{x}{\\lim}'];
+ for(const mode of ['inline','display'])for(const source of sources){const b=typeset(source,maps,{mode});assert.equal(b.complete,true,source+JSON.stringify(b.diagnostics));assert.ok(!b.items.some(i=>i.kind==='placeholder'),source);assert.ok(b.items.every(i=>Number.isFinite(i.x)&&Number.isFinite(i.y)&&Number.isFinite(i.flowX)));}
+ const b=typeset('\\overbrace{x+y}^n',maps),deleted=typeset('\\overbrace{x+y}^',maps);assert.ok(glyphs(b).includes('script/n'));assert.ok(!glyphs(deleted).includes('script/n'));assert.ok(deleted.items.some(i=>i.kind==='placeholder'));
+ for(const source of ['\\hat{','\\overline{\\frac{x}{','\\xrightarrow[k','\\underbrace{x+y}_'])assert.equal(typeset(source,maps).complete,false,source);
+});
+test('SI quantities use upright units, prefixes, powers and explicit options',()=>{
+ const sources=['\\qty{9.81}{\\metre\\per\\second\\squared}','\\SI{1.2e3}{\\kilo\\ohm}','\\si{\\micro\\metre}','\\unit{\\degreeCelsius}','\\num{12345.67890}','\\ang{30;15;20}'];
+ for(const source of sources){const b=typeset(source,maps);assert.equal(b.complete,true,source+JSON.stringify(b.diagnostics));assert.ok(!b.items.some(i=>i.kind==='placeholder'),source);}
+ assert.ok(glyphs(typeset('\\unit{\\micro\\metre}',maps)).includes('display/@unit:micro'));
+ const power=typeset('\\qty{9.81}{\\metre\\per\\second\\squared}',maps);assert.ok(glyphs(power).includes('script/@roman:2'));assert.ok(glyphs(power).includes('display/@roman:m'));
+ const frac=typeset('\\unit[per-mode=fraction]{\\metre\\per\\second}',maps);assert.equal(frac.items.filter(i=>i.kind==='rule').length,1);
+ assert.ok(glyphs(typeset('\\unit[per-mode=symbol]{\\metre\\per\\second}',maps)).includes('display//'));
+ assert.ok(typeset('\\num{12345}',maps).width>typeset('\\num[group-digits=false]{12345}',maps).width);
+ assert.equal(typeset('\\unit[not-an-option=true]{\\metre}',maps).complete,false);
+ for(const source of ['\\qty{9.81}{\\metre\\per','\\num{1.2e','\\qty{','\\unit{\\metre\\tothe{','\\unit{\\unknown}']){const b=typeset(source,maps);assert.equal(b.complete,false,source);assert.ok(b.items.some(i=>i.kind==='placeholder'),source);}
+});

@@ -21,3 +21,23 @@ for delimiter,kind in DELIMITERS.items():
 # Roman letter assets also allow words in case conditions without font loading.
 for c in string.ascii_letters+string.digits:
     TOKENS['@roman:'+c]='ord';ALIASES['@roman:'+c]=r'\mathrm{'+c+'}'
+# Isolated accent glyphs retain their own baseline, avoiding whole-expression tiles.
+for name,code in {'acute':'0013','grave':'0012','ddot':'007F','tilde':'007E','bar':'0016','breve':'0015','check':'0014','hat':'005E','vec':'017E','dot':'005F','mathring':'0017'}.items():
+    key='@accent:'+name;TOKENS[key]='ord';ALIASES[key]=r'\mathchar"'+code
+for name,start in [('widehat',0x62),('widetilde',0x65)]:
+    for n in range(3):
+        key=f'@accent:{name}{n}';TOKENS[key]='ord';ALIASES[key]=r'\mathchar"03'+f'{start+n:02X}'
+for name in ['braceld','bracerd','bracelu','braceru']:
+    TOKENS['@'+name]='ord';ALIASES['@'+name]='\\'+name
+for token in [r'\imath',r'\jmath',r'\uparrow',r'\downarrow',r'\updownarrow',r'\Uparrow',r'\Downarrow',r'\Updownarrow',r'\longrightarrow',r'\longleftarrow',r'\longleftrightarrow',r'\Longrightarrow',r'\Longleftarrow',r'\Longleftrightarrow',r'\hookrightarrow',r'\hookleftarrow',r'\nearrow',r'\searrow',r'\nwarrow',r'\swarrow',r'\rightharpoonup',r'\rightharpoondown',r'\leftharpoonup',r'\leftharpoondown',r'\rightleftharpoons']:
+    TOKENS[token]='ord' if token in [r'\imath',r'\jmath'] else 'rel'
+for name in ['micro','ohm','degree','percent','angstrom']:
+    TOKENS['@unit:'+name]='ord';ALIASES['@unit:'+name]='\\unit{\\'+name+'}'
+ALIASES['@unit:micro']=r'\SIUnitSymbolMicro'
+TOKENS[r'\prime']='ord'
+TOKENS['@unit:arcsecond']='ord';ALIASES['@unit:arcsecond']=r'\unit{\arcsecond}'
+# amsfonts selects the wider AMS variants once the text-style body exceeds 2 em.
+for name,start in [('widehat',0x5B),('widetilde',0x5D)]:
+    for n in range(2):
+        key=f'@accent:{name}AMS{n}';TOKENS[key]='ord';ALIASES[key]=r'\mathchar\numexpr\symAMSb*256+"'+f'{start+n:02X}'+r'\relax'
+TOKENS['@unit:arcminute']='ord';ALIASES['@unit:arcminute']=r'\unit{\arcminute}'

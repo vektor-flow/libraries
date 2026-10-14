@@ -18,11 +18,30 @@ Vmatrix, smallmatrix, cases, aligned, align, gathered and basic clr array alignm
 Nested fractions, scripts, power towers, angle/floor/ceiling brackets, explicit
 big/Big/bigg/Bigg and nested left/right are supported. Very tall delimiters extend
 font-derived stems; those extensions are a visual approximation of TeX recipes.
-Array rules/options, optional row spacing, arbitrary packages/macros, radicals,
-accents, general document layout and full TeX compatibility are not implemented.
+Standard accents include hat/widehat, tilde/widetilde, bar, vec, dot/ddot,
+acute, grave, breve, check and mathring. Overline/underline span their arguments;
+fixed font brace pieces and connecting rules support nested overbrace/underbrace
+with labels. Overset/underset/stackrel preserve the underlying relation class.
+Arrow families include long, hooked, diagonal and harpoon glyphs; over/under
+left/right/bidirectional arrows and xrightarrow/xleftarrow with optional lower
+labels use font-derived heads and continuous shafts. Triple/quad dots use an
+independent dot arrangement; exact AMS placement of those two accents is unverified.
+Arrow fixtures verify outer ink envelopes and label positions, not shaft interiors.
 
-Real LaTeX is used only during development. The browser loads 353 mapped symbols
-in display/text/script/scriptscript styles (1,412 keys, 874 distinct outlines),
+Common siunitx syntax supports qty/unit, legacy SI/si, num and ang, upright SI
+base/derived units, prefixes, per, squared/cubed/tothe/raiseto, decimal/scientific
+numbers, digit grouping, angles and literal unit abbreviations such as m/s.
+Options: per-mode=power/symbol/fraction, group-digits and output-decimal-marker.
+Unknown options/units produce draft diagnostics. Rounding, uncertainty notation,
+locale profiles, lists/ranges, custom unit declarations and the full siunitx
+option surface are not implemented. units.mjs is independent of the package.
+The development oracle uses unmodified siunitx 3.6.4 (2026-10-12).
+
+Array rules/options, optional row spacing, arbitrary packages/macros, radicals,
+general document layout and full TeX compatibility are not implemented.
+
+Real LaTeX is used only during development. The browser loads 411 mapped symbols
+in display/text/script/scriptscript styles (1,644 keys, 1,048 distinct outlines),
 using a 4096-square MTSDF atlas and one batched draw per edit. No LaTeX, KaTeX,
 font loading, DOM math or Canvas2D text runtime is used. Native VKF compiler
 integration is pending. Source is never evaluated as JavaScript or inserted as HTML.
@@ -38,7 +57,7 @@ Extra-wide grouped atoms and taller output may clip.
 Reproduce by running map_symbols.py --extended --style STYLE --oracle-extras DIR
 for the four styles into fresh typing-STYLE directories. DIR contains the unmodified
 esint LaTeX/Type1 oracle files. Run prepare_typing.py --oracle-extras DIR; copy the
-atlas and typing-data.json here, and copy typing-layout.mjs and draft-parser.mjs
+atlas and typing-data.json here, and copy typing-layout.mjs draft-parser.mjs and units.mjs
 from the parent directory. Serve through HTTPS/localhost. verify_extended_layout.py
 checks fresh native LaTeX ink bounds and fraction rules in either mode. Node tests
 cover draft recovery and deletion; verify_typing_browser.mjs drives real textarea
@@ -46,6 +65,14 @@ input, style changes, feature examples and canvas output using headed SwiftShade
 Physical GPU stop remains unchanged.
 
 MIT applies to runtime source. Font-derived atlas data retains applicable AMS/SIL
-OFL and esint/LPPL notices; MSDFgen also has its own notice. esint-source archives
+OFL and esint/LPPL notices; MSDFgen also has its own notice. EC/TC glyphs have separate notices and their complete unmodified source archive. esint-source archives
 provide the unmodified upstream sources. esint symbols are mapped to a differently
 named combined atlas and are never installed as modified esint font files.
+
+For this extension, --reuse DIR reuses earlier oracle glyph folders without
+changing them; add siunitx.sty and its translation dependency to the development
+oracle directory. Font skew, advance and accent-font x-height are extracted from
+actual TFM/DVI data. Include the unmodified siunitx and EC source archives and
+notices when distributing these prepared assets. Common geometry is checked
+against fresh LaTeX independently; browser tests also drive partially typed accents,
+arrows and quantities. All recorded browser evidence uses software SwiftShader.

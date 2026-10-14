@@ -83,13 +83,66 @@ export function typeset(source,maps,{mode='display'}={}){
   }
   const pair=matrixDelimiters[node.name];return pair?enclose(box,pair[0],pair[1],style):box;
  }
+ function accent(node,style,cramped){
+  const map=profile(style),p=map.parameters,body=layout(node.children,style,true);let mark,skew=0;
+  const single=node.children.length===1&&node.children[0].type==='glyph'&&!node.children[0].sup&&!node.children[0].sub;
+  if(single){const s=map.symbols[node.children[0].token];if(s){skew=s.skew??0;}}
+  if(node.name==='dddot'||node.name==='ddddot'){
+   mark=empty();const dot=glyph('@accent:dot',style),count=node.name==='dddot'?3:4;mark.width=dot.width+(count-1)*map.em*.2;mark.height=dot.height;mark.depth=dot.depth;
+   for(let i=0;i<count;i++)add(mark.items,dot,i*map.em*.2,0);
+  }else{
+   let key='@accent:'+node.name;
+   if(node.name==='widehat'||node.name==='widetilde'){const useAMS=layout(node.children,1,true).width>2*profile(1).em;key+=useAMS?'AMS0':'0';for(let i=1;i<(useAMS?2:3);i++){const candidate='@accent:'+node.name+(useAMS?'AMS':'')+i;if(map.symbols[candidate]?.width<=body.width)key=candidate;}}
+   mark=glyph(key,style);
+  }
+  const delta=Math.min(body.height,map.symbols[mark.token]?.fontXHeight??p.XHEIGHT),y=-body.height+delta,b={...body,class:'ord',italic:0,character:single};
+  add(b.items,mark,(body.width-mark.width)/2+skew,y);b.height=Math.max(body.height,mark.height-y);b.depth=Math.max(body.depth,mark.depth+y);return b;
+ }
+ function arrow(direction,width,style){
+  const map=profile(style),first=glyph(direction==='right'?'-':'\\leftarrow',style),last=glyph(direction==='left'?'-':'\\rightarrow',style);
+  if(direction==='right'){first.height=0;first.depth=0;}if(direction==='left'){last.height=0;last.depth=0;}
+  const target=Math.max(width,first.width+last.width-14*map.parameters.QUAD/18),b={...empty(),width:target,height:Math.max(first.height,last.height),depth:Math.max(first.depth,last.depth),class:'ord',character:false};
+  add(b.items,first,0,0);add(b.items,last,target-last.width,0);
+  // TeX's overlapping relbar leaders form one continuous shaft.
+  const lo=first.width-7*map.parameters.QUAD/18,hi=target-last.width+7*map.parameters.QUAD/18;
+  if(hi>lo)b.items.push({kind:'rule',x:lo,y:map.symbols['-'].inkBounds[1],width:hi-lo,height:map.symbols['-'].inkBounds[3]-map.symbols['-'].inkBounds[1]});
+  return b;
+ }
+ function brace(body,under){
+  // TeX's four fixed font pieces joined by two extensible horizontal rules.
+  const names=under?['bracelu','bracerd','braceld','braceru']:['braceld','braceru','bracelu','bracerd'];
+  const pieces=names.map(n=>glyph('@'+n,1)),width=Math.max(body.width,pieces.reduce((sum,g)=>sum+g.width,0));
+  const gap=(width-pieces.reduce((sum,g)=>sum+g.width,0))/2;
+  const mark=empty();mark.width=width;mark.height=Math.max(...pieces.map(g=>g.height));mark.depth=Math.max(...pieces.map(g=>g.depth));
+  let x=0;for(let i=0;i<4;i++){add(mark.items,pieces[i],x,0);x+=pieces[i].width;if(i===0||i===2){if(gap>0)mark.items.push({kind:'rule',x,y:-mark.height,width:gap,height:mark.height});x+=gap;}}
+  const b={...empty(),width,height:body.height,depth:body.depth,class:'op',character:false,italic:0};add(b.items,body,(width-body.width)/2,0);
+  const y=under?body.depth+3*pt+mark.height:-body.height-3*pt-mark.depth;add(b.items,mark,0,y);
+  if(under)b.depth=y+mark.depth+3*pt;else b.height=-y+mark.height+3*pt;return b;
+ }
+ function decorate(node,style,cramped){
+  const p=profile(style).parameters;
+  if(!['overline','underline','overbrace','underbrace'].includes(node.name)&&!node.name.includes('arrow'))return accent(node,style,cramped);
+  if(node.name==='overbrace'||node.name==='underbrace')return brace(layout(node.children,0,cramped),node.name==='underbrace');
+  const under=node.name.startsWith('under'),body=layout(node.children,style,node.name==='overline'?true:cramped),b={...body,class:'ord',italic:0,character:false};
+  if(node.name==='overline'||node.name==='underline'){
+   b.items.push({kind:'rule',x:0,y:under?body.depth+3*p.RULE:-body.height-4*p.RULE,width:body.width,height:p.RULE});
+   if(under)b.depth+=5*p.RULE;else b.height+=5*p.RULE;return b;
+  }
+  const direction=node.name.includes('leftright')?'both':node.name.includes('left')?'left':'right',mark=arrow(direction,body.width,style),width=Math.max(body.width,mark.width);
+  b.items=[];add(b.items,body,(width-body.width)/2,0);const y=under?body.depth+1.3*pt+mark.height:-body.height-mark.depth;
+  add(b.items,mark,0,y);b.width=width;b.height=Math.max(body.height,mark.height-y);b.depth=Math.max(body.depth,y+mark.depth);return b;
+ }
+
  function atom(node,style,cramped=false){const map=profile(style),p=map.parameters;let b;
   if(node.type==='hole')b=hole(style);
-  else if(node.type==='glyph')b=glyph(node.token,style);
+  else if(node.type==='glyph'){b=glyph(node.token,style);if(node.class)b.class=node.class;}
   else if(node.type==='space')return{...empty(),width:node.mu*map.em/18,space:true};
-  else if(node.type==='group')b=layout(node.children,style,cramped);
+  else if(node.type==='group'){b=layout(node.children,style,cramped);if(node.unit)b.character=true;}
   else if(node.type==='delimited')b=enclose(layout(node.children,style,cramped),node.left,node.right,style,node.scalable);
   else if(node.type==='matrix')b=matrix(node,style);
+  else if(node.type==='decoration')b=decorate(node,style,cramped);
+  else if(node.type==='stack'){b=layout(node.children,style,cramped);b.class=node.children.length===1&&node.children[0].type==='glyph'?(map.symbols[node.children[0].token]?.class??'ord'):'ord';b.stacked=true;}
+  else if(node.type==='arrow'){const labelStyle=style<2?2:3,sup=node.sup?layout(node.sup,labelStyle):empty(),sub=node.sub?layout(node.sub,labelStyle):empty(),pad=14*profile(labelStyle).parameters.QUAD/18;b=arrow(node.name==='xleftarrow'?'left':'right',Math.max(sup.width,sub.width)+pad,0);b.class='rel';b.stacked=true;b.arrowLabel=true;}
   else if(node.type==='text'){
    b=empty();b.class=node.class;
    for(const char of node.text){if(char===' '){b.width+=map.em/3;continue;}const g=glyph(map.symbols['@roman:'+char]?'@roman:'+char:char,style);add(b.items,g,b.width,0);b.width+=g.width;b.height=Math.max(b.height,g.height);b.depth=Math.max(b.depth,g.depth);}
@@ -104,10 +157,11 @@ export function typeset(source,maps,{mode='display'}={}){
   if(node.sup||node.sub){
    const scriptStyle=style<2?2:3,q=profile(scriptStyle).parameters,sup=node.sup?layout(node.sup,scriptStyle,cramped):null,sub=node.sub?layout(node.sub,scriptStyle,true):null;
    const useLimits=node.limits??(style===0&&limitOperators.has(node.token));
-   if(b.class==='op'&&useLimits){
-    const width=Math.max(b.width,sup?.width??0,sub?.width??0),items=[];add(items,b,(width-b.width)/2,0);
-    if(sup){const up=b.height+Math.max(p.BIGOPSPACING1,p.BIGOPSPACING3-sup.depth)+sup.depth;add(items,sup,(width-sup.width+b.italic)/2,-up);b.height=up+sup.height+p.BIGOPSPACING5;}
-    if(sub){const down=b.depth+Math.max(p.BIGOPSPACING2,p.BIGOPSPACING4-sub.height)+sub.height;add(items,sub,(width-sub.width-b.italic)/2,down);b.depth=down+sub.depth+p.BIGOPSPACING5;}
+   if((b.class==='op'||b.stacked)&&useLimits){
+    const labelPad=b.arrowLabel?3*profile(scriptStyle).parameters.QUAD/18:0,labelShift=b.arrowLabel?(node.name==='xleftarrow'?labelPad/2:-labelPad/2):0;
+    const width=Math.max(b.width,(sup?.width??0)+labelPad,(sub?.width??0)+labelPad),items=[];add(items,b,(width-b.width)/2,0);
+    if(sup){const up=b.height+Math.max(p.BIGOPSPACING1,p.BIGOPSPACING3-sup.depth)+sup.depth;add(items,sup,(width-sup.width+b.italic)/2+labelShift,-up);b.height=up+sup.height+p.BIGOPSPACING5;}
+    if(sub){const down=b.depth+Math.max(p.BIGOPSPACING2,p.BIGOPSPACING4-sub.height)+sub.height;add(items,sub,(width-sub.width-b.italic)/2+labelShift,down);b.depth=down+sub.depth+p.BIGOPSPACING5;}
     b.items=items;b.width=width;
    }else{
     let up=b.character?0:b.height-q.SUPDROP,down=b.character?0:b.depth+q.SUBDROP;
