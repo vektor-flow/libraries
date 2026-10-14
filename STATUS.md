@@ -1,3 +1,19 @@
+# Embedding research candidate — 2026-10-14
+
+Branch codex/embedding-transport-20261014 is based on the immutable integration178
+library candidate bf3dc9cc8af41155623d0678ace48948632806f9. New modules and an isolated
+CPU Canvas preview implement the bounded research described in
+examples/embedding-transport/README.md. 24 focused tests, 88 original tests and
+four browser/viewport runs passed. No existing renderer/physics source was changed.
+No compiler integration, main merge, public runtime release or staging deployment.
+The active compiler workers and physical GPU STOP remain untouched.
+
+The numerical fit depends on supplied correspondences; it is not a solved
+arbitrary-visualization morph, optimal branched transport or universal topology
+preservation. Keep these acceptance boundaries in future integration reports.
+
+## Prior candidate evidence (retained)
+
 # Platonic interaction candidate — 2026-10-11
 
 The Owner subsequently revised the defaults on October11: data plots default to
