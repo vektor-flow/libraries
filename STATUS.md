@@ -1,3 +1,16 @@
+# Earlier contact and lower-area merges — 2026-10-14
+
+New isolated three-case merge movie targets the late contact snap and clumping.
+Sibling release no longer inserts the fixed safety gap when visible interiors
+are disjoint and shared edge coverage fits within one pixel. Branch movement
+lags deformation in the internal split direction, so reversed merges meet sooner.
+A bounded monotone per-leaf area schedule favors smaller intermediate surfaces.
+All 67 Python tests pass; 1,080 decoded movie frames retain monotone counts and
+exact held endpoints; 936 motion frames pass independent ownership/replay checks.
+Excess thickness falls 57.5–61.3%, with 59.7–93.5% smaller late coverage changes
+at matched clip durations. Earlier boundary peaks and area reversals remain in
+some cases; this is not a global mass/area optimization. See the KaTeX README.
+
 # Regularized contours and steadier timing — 2026-10-14
 
 New isolated CPU candidate adds a temporally smoothed contour-field atlas, direct

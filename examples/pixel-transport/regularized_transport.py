@@ -20,6 +20,14 @@ def configure(plan, lane_scale=.5):
     plan['surface']=surface
 
 
+def area_target(node,v):
+    """Bounded monotone mass schedule; power one retains the previous candidate."""
+    a=float(node.part.patch.sum());b=float(node.final.patch.sum())
+    power=getattr(node,'area_power',1.)
+    progress=v**power if b>=a else 1-(1-v)**power
+    return a+(b-a)*progress
+
+
 class RegularizedPatch:
     """Smooth changes of repair geometry before sampling a sharp contour.
 
@@ -48,7 +56,7 @@ class RegularizedPatch:
                     sampled.append(ndi.map_coordinates(field,coords,order=1,mode='constant',cval=-100))
                 envelope=clock(min(w/.12,1))*clock(min((1-w)/.12,1))
                 field=ndi.gaussian_filter((1-w)*sampled[0]+w*sampled[1],1.2*envelope)
-                alpha=calibrate(field,(1-w)*a.sum()+w*b.sum())
+                alpha=calibrate(field,area_target(node,w))
                 repaired,_=rounded_connect(alpha,radius)
                 # Preserve the subpixel field where no connection was added.
                 correction=np.maximum(0,distance_field(repaired)-distance_field(alpha))
@@ -67,7 +75,7 @@ class RegularizedPatch:
         relative=np.array([y+origin[1]-c[1],x+origin[0]-c[0]])
         coords=relative+((np.array(field.shape)-1)/2)[:,None,None]
         field=ndi.map_coordinates(field,coords,order=1,mode='constant',cval=-100)
-        alpha=calibrate(field,(1-v)*a.sum()+v*b.sum())
+        alpha=calibrate(field,area_target(node,v))
         for patch,weight in [(a,1-clock(min(v/.04,1))),(b,1-clock(min((1-v)/.04,1)))]:
             if weight:
                 coords=relative+((np.array(patch.shape)-1)/2+2)[:,None,None]

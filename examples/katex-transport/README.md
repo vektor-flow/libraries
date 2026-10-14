@@ -463,3 +463,57 @@ shape measures. Cancellation is a clear remaining failure: changed-coverage peak
 and both shape averages worsen. Area second differences also do not improve
 universally. Further work should couple material correspondence and geometry
 regularization rather than treating a coverage-based clock as physical transport.
+
+
+## Earlier contact and lower-area merge tests (2026-10-14)
+
+The owner reported clumping and a snap just before merging. `join_transport.py`
+separates movement progress from deformation progress: internal sibling branch
+movement uses squared quintic progress while the shape uses quintic progress.
+Played backward for merges, the bodies can contact while still deforming. The
+area target uses exponent 1.5 to favor the lower side of the interval between
+endpoint areas; it is bounded and monotone per leaf, with endpoint ramps retained.
+Rigid pairs bypass this morphology. This is a candidate schedule, not a solved
+area-minimizing variational problem or global monotone mass guarantee.
+
+A specific contact discontinuity was the immediate insertion of a fixed safety
+gap on sibling separation. An opt-in release rule now permits disjoint visible
+interiors to share antialiasing coverage only when their summed pixel coverage
+is at most one. Unrelated bodies retain strict clearance. Count reversals remain
+rejected. A focused split fixture now has zero collision-induced offset through
+release; overlap rejection and bounded area schedules have additional tests.
+
+    python examples/katex-transport/render_join.py /path/to/katex-clean
+    python examples/katex-transport/retime_regularized.py /path/to/katex-clean --join
+    python examples/katex-transport/verify_steady.py /path/to/katex-clean --join
+    python examples/katex-transport/compare_join.py /path/to/katex-clean
+
+`joined/joined-katex-animations.mp4` contains cancellation, collection and fraction
+simplification, sequentially, for 36 seconds at 30 fps. Each clip has the same
+312 moving frames and two 24-frame holds as the previous steady candidate. The
+final pass uses uniform scene time to assess the shape/contact change without
+the activity clock increasing residence in clumpy configurations. The coarse
+252-sample search retains conservative sibling clearance; its acceleration bound
+scales with squared sample interval. Final 312-frame checks retain the prior
+10 px/frame step and 2.5 px/frame² second-difference bounds. Accepted maxima are
+4.842 and 0.999 respectively. All 67 tests pass, all 1,080 decoded counts match,
+and independent replay of 936 frames finds no unrelated overlap. Held endpoint
+silhouettes have IoU 1.0; minimum 98% target IoU is 0.999024, 99% is 1.0.
+
+Compared at equal duration with the prior steady clips:
+
+| Case | Excess thickness | Mean area | Final-fifth peak coverage change |
+| --- | ---: | ---: | ---: |
+| cancel | -57.5% | -13.1% | -93.5% |
+| collect | -58.8% | -6.5% | -59.7% |
+| fraction | -61.3% | -9.1% | -72.4% |
+
+All final merges occur earlier: normalized scene times 0.939→0.887,
+0.904→0.830 and 0.900→0.814. These are visual-count events, not proof of physical
+material correspondence. Thin excess improves for cancel and fraction but rises
+10.2% for collect. Whole-clip boundary second-difference peaks rise for cancel
+and collect, despite smaller late/contact changes. Area reversals increase in
+cancel/collect, and area second differences increase in cancel/fraction. Attached
+body coverage remains clamped and raster repair remains. Do not claim every snap,
+clump or mass reversal is eliminated. Previous movies and failed trials remain
+preserved in join-timing-only, joined-area-only and the surrounding logs/receipts.

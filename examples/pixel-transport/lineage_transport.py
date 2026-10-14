@@ -225,6 +225,20 @@ def intersects(a,b,shift=(0,0)):
     return bool(np.any(aa&bb))
 
 
+def compatible_edge_coverage(a,b):
+    """Disjoint visible interiors may share a pixel's antialiasing coverage.
+
+    This is only for siblings after release, never unrelated-body clearance.
+    Summed coverage cannot exceed one, so no clamp hides interpenetration.
+    """
+    p=a['origin'];q=b['origin']
+    start=np.maximum(p,q);end=np.minimum(p+np.array(a['alpha'].shape[::-1]),q+np.array(b['alpha'].shape[::-1]))
+    if np.any(end<=start):return True
+    aa=a['alpha'][start[1]-p[1]:end[1]-p[1],start[0]-p[0]:end[0]-p[0]]
+    bb=b['alpha'][start[1]-q[1]:end[1]-q[1],start[0]-q[0]:end[0]-q[0]]
+    return bool(not np.any((aa>.5)&(bb>.5)) and np.max(aa+bb)<=1+1e-8)
+
+
 def frame(plan,t,state,size=(1280,720),offset=np.array([-800.,-450.])):
     """Offline collision projection with persistent offsets and checked topology."""
     nodes=active_nodes(plan,t);factor=plan['scale'];patches=[];centers=[];desired=[];repairs=0
@@ -232,7 +246,7 @@ def frame(plan,t,state,size=(1280,720),offset=np.array([-800.,-450.])):
     decay=.90*max(0,1-clock(t))/max(1e-12,1-clock(old_t))
     for node in nodes:
         alpha,repair=plan.get('surface',patch_at)(node,t);repairs+=repair;patches.append(alpha)
-        want=desired_center(node,t,factor)*factor+offset
+        want=plan.get('desired_center',desired_center)(node,t,factor)*factor+offset
         if 'track_splines' in plan:want=want+plan['track_splines'][node.id](t)
         elif 'tracks' in plan:want=want+plan['tracks'][node.id][round(t*(len(plan['tracks'][node.id])-1))]
         desired.append(want)
@@ -254,6 +268,7 @@ def frame(plan,t,state,size=(1280,720),offset=np.array([-800.,-450.])):
                     visible_j=dict(stamps[j],mask=stamps[j]['alpha']>.5)
                     if intersects(visible_i,visible_j):continue
                     separated.add(pair)
+                if siblings and pair in separated and plan.get('gentle_sibling_release',False) and compatible_edge_coverage(stamps[i],stamps[j]):continue
                 if not intersects(stamps[i],stamps[j]):continue
                 collisions+=1;key=(nodes[i].id,nodes[j].id)
                 root_i=nodes[i];root_j=nodes[j]
@@ -281,7 +296,8 @@ def frame(plan,t,state,size=(1280,720),offset=np.array([-800.,-450.])):
                 if not intersects(stamps[i],stamps[j]):continue
                 pair=tuple(sorted((nodes[i].id,nodes[j].id)))
                 attached=nodes[i].parent is not None and nodes[i].parent is nodes[j].parent and pair not in separated
-                if not attached:raise ValueError('Overlap outside an attached sibling body')
+                released=plan.get('gentle_sibling_release',False) and nodes[i].parent is not None and nodes[i].parent is nodes[j].parent and compatible_edge_coverage(stamps[i],stamps[j])
+                if not attached and not released:raise ValueError('Overlap outside an attached sibling body')
     width,height=size;image=np.zeros((height,width));occupied=np.zeros((height,width),bool)
     for node,c,want,s in zip(nodes,centers,desired,stamps):
         old_offsets[node.id]=c-want;repairs+=s['repair']
@@ -322,7 +338,7 @@ def smooth_tracks(plan,metrics,sigma=8):
     for node in plan['nodes']:
         offsets=[];last=np.zeros(2)
         for k,t in enumerate(times):
-            base=desired_center(node,t,plan['scale'])*plan['scale']+np.array([-800.,-450.])
+            base=plan.get('desired_center',desired_center)(node,t,plan['scale'])*plan['scale']+np.array([-800.,-450.])
             if node.id in recorded[k]:last=recorded[k][node.id]-base
             elif t<=node.birth and node.parent is not None:last=tracks[node.parent.id][k]
             offsets.append(last.copy())

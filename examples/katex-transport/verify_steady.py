@@ -5,10 +5,14 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage as ndi
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'pixel-transport'))
-from lineage_transport import make_plan,stamp,intersects
+from lineage_transport import make_plan,stamp,intersects,compatible_edge_coverage
 from regularized_transport import configure
-folder=Path(sys.argv[1]);out=folder/'steady';results=[]
-all_cases=['03-factor','04-square','05-difference','06-cancel','07-collect','08-fraction']
+joined='--join' in sys.argv
+if joined:
+    sys.argv.remove('--join')
+    from join_transport import configure
+folder=Path(sys.argv[1]);out=folder/('joined' if joined else 'steady');results=[]
+all_cases=['06-cancel','07-collect','08-fraction'] if joined else ['03-factor','04-square','05-difference','06-cancel','07-collect','08-fraction']
 cases=sys.argv[2:] or all_cases
 for case in cases:
     row=json.loads((out/(case+'-verification.json')).read_text());images=np.load(out/(case+'-frames.npz'))['frames']
@@ -23,7 +27,7 @@ for case in cases:
                 if not intersects(layers[i],layers[j]):continue
                 assert nodes[i].parent is not None and nodes[i].parent is nodes[j].parent,(case,k,'unrelated material overlap')
                 vi=dict(layers[i],mask=ndi.binary_dilation(layers[i]['alpha']>.5));vj=dict(layers[j],mask=layers[j]['alpha']>.5)
-                assert intersects(vi,vj),(case,k,'overlap after visible separation')
+                assert intersects(vi,vj) or (joined and compatible_edge_coverage(layers[i],layers[j])),(case,k,'overlap after visible separation')
                 shared_frames+=1
         replay=np.zeros((720,1280))
         for layer in layers:
@@ -31,7 +35,7 @@ for case in cases:
             replay[y:y+h,x:x+w]=np.minimum(1,replay[y:y+h,x:x+w]+layer['alpha'])
         error=float(np.max(np.abs(replay-images[k]/255)));max_error=max(max_error,error)
         assert error<=1/255+1e-8,(case,k,'trajectory replay',error)
-    prior=json.loads((folder/'continuity'/(case+'-verification.json')).read_text())
+    prior=json.loads((folder/('steady' if joined else 'continuity')/(case+'-verification.json')).read_text())
     def travel(metrics):
         last={};distance=0.
         for r in metrics:
