@@ -1,3 +1,70 @@
+# Varied GPU math and geometry film — 2026-10-14
+
+The current study uses **GPU math**, the independent typesetting runtime and its
+native scalar distance atlas. Its source/assets are pinned at
+8352880e0c7a37c1794892521bc5c73abfb22104. The other chat's worktree is read-only.
+Historical terminology and evidence below are retained for provenance.
+
+New endpoint-only research adapters:
+
+- `affine_transport.py` infers a positive-determinant affine map by enumerating
+  cyclic boundary alignments. Polar rotation/log-stretch interpolation preserves
+  the affine shape throughout. It requires compatible boundary sampling; this
+  is not a general affine recognizer for independently resampled images.
+- `registered_transport.py` infers rotation from boundary distance and hole
+  positions before contour interpolation. Rotation and residual deformation
+  happen concurrently. This fixes the two-hole infinity-to-eight candidate;
+  validation is still required for arbitrary shapes.
+- `replica_transport.py` handles bounded split/merge cases between approximately
+  axis-affine-equivalent, hole-free outlines. Geometry eligibility precedes
+  spatial assignment; small sampling differences must not outweigh travel.
+  Curved central contact necks, smooth field unions and continuous area calibration operate concurrently with
+  movement. Fields are reconstructed from native zero contours at 4x sampling;
+  they are not direct atlas-alpha interpolation. Reverse playback gives merges.
+  It rejects unrelated cohort overlap and unsupported geometry. Component count
+  must be checked over time; monotonicity is not guaranteed for arbitrary inputs.
+- `plan_transport.py` selects these bounded candidates from anonymous endpoint
+  geometry: count change, affine equivalence, hole count and body count.
+  `render_variety.py` validates the result. No formula strings, glyph identities,
+  supplied correspondences or example planner labels enter inference. Selection
+  can still return a candidate that fails validation; no fallback is hidden.
+
+Evidence is in Cuvami `staging/artifacts/embedding-transport/mixed-transformations`.
+The input contains rotation/translation, shear/stretch, GPU math symbol division,
+symbol merging, a ten-body fraction rearrangement, ring-to-Delta with one hole,
+infinity-to-eight with two holes, and a one-to-three geometric division.
+The symbol changes are visual demonstrations, not algebraic equivalence claims.
+The film uses one evolving state at a time, six seconds per case, 60 fps and
+linear-light color interpolation. There are no start/end overlays or crossfades
+between unrelated endpoint images.
+
+Twenty focused tests pass, including geometric affine inference with reversed
+boundary indexing, endpoint ramp behavior, rotation of two-hole geometry,
+near-identical repeated bars, generated split shapes and reversed trajectories.
+Independent bilinear atlas sampling validates all ten basic math endpoint layouts
+at greater than 0.992 silhouette IoU, with matching component/hole counts.
+This does not establish the other runtime's cropped/extended glyphs, viewport
+wrapping or browser integration. The three branching cases also pass 933 half-frame samples; their calibrated
+coverage-area errors stay below 0.0002 square pixels. Full frame/codec receipts
+accompany the film. Ordinary 4:2:0 encoding damaged near-contact seams even at
+lossless quantization and was rejected. The final film uses lossless RGB H.264;
+players must support its High 4:4:4 Predictive profile. This is a codec limitation,
+not a relaxation of the geometry/decoded-frame checks.
+
+Reproduce in a fresh output directory:
+
+    python -m unittest discover -s examples/field-transport -p 'test_*.py'
+    python examples/field-transport/render_variety.py INPUT_JSON OUTPUT_DIRECTORY
+
+Preserve failed first trials: bar assignment caused overlap, and unregistered
+infinity-to-eight crossed a hole. The shared fixes address geometric families;
+no per-formula trajectories were added. Distribution, collection, factorization
+and cancellation remain unresolved in the existing benchmark. This is an offline
+CPU reference using GPU math field data, not GPU playback, a complete arbitrary
+morphology solver, or a claim of global optimality/continuous collision proof.
+
+---
+
 # Scalar-field contours with preserved holes
 
 The earlier coalescence movie passed component-count checks but lost the hole in

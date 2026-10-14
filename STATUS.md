@@ -1,6 +1,39 @@
-# Requested routing video — 2026-10-14
+# Varied GPU math and geometry film — 2026-10-14
 
-Thirty-second60fps video delivered in Cuvami staging/artifacts/embedding-transport/
+The routing-only response did not meet the owner's request. A new48-second,
+60fps film contains eight sequential examples: rotation/translation, shear,
+ring-to-Delta, infinity-to-eight, math symbol splitting, math symbol merging,
+one-to-three geometry division and a larger fraction rearrangement. New work
+calls the independent typesetter **GPU math**; its snapshot is8352880e0c7a37c1794892521bc5c73abfb22104.
+
+Movie: Cuvami staging/artifacts/embedding-transport/mixed-transformations/
+cuvami-gpu-math-and-geometry.mp4. SHA256:
+acdd82edecd135ff543cbab87ec754c393c8590833cddda364daf6b4b00329d9.
+All2,496 source motion frames and2,880 decoded frames pass their count/hole and
+silhouette checks. The joined movie's RGB frames exactly match verified clips.
+Another933 between-frame states pass for the three split/merge cases; calibrated
+coverage area differs from its eased schedule by less than0.0002 square pixels.
+Ten independent native-field endpoint samples exceed0.992 silhouette IoU.
+Geometry-only planner selection exactly reproduces40 sampled source frames.
+Twenty focused tests pass.
+
+New bounded candidates infer affine motion, register rotation before multi-hole
+morphing, and split/merge repeated hole-free outlines with curved contact necks
+and area calibration. Geometry-only selection uses no supplied formula IDs,
+semantic correspondences or example family labels. General image inference,
+arbitrary branching and the four unresolved algebra operations remain unfinished.
+These visual symbol changes are not algebraic equivalence claims.
+
+Preserve the overlap, hole-crossing, codec and initial join failures. 4:2:0 encoding
+corrupted thin seams; the accepted movie uses lossless RGB H.264 (High4:4:4
+Predictive, requiring player support). Geometry acceptance was not weakened.
+This remains offline CPU research using GPU math field data. No deployment,
+physical GPU, remote push or changes to the other chat's worktree were performed.
+
+# Routing-only video — incomplete response — 2026-10-14
+
+The owner rejected this routing-only response because it omitted the requested
+variety of transformations. Thirty-second60fps video delivered in Cuvami staging/artifacts/embedding-transport/
 generalization-video/cuvami-routing-demonstration.mp4. One native-field polynomial
 rearrangement and four nonrepeated generated routing cases play sequentially.
 All1,800 joined decoded frames match the verified source clips. No solver or
