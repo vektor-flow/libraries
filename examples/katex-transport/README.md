@@ -117,3 +117,29 @@ Receipts and pre-path-search logs are preserved; compiler/staging are unchanged.
 
     python examples/katex-transport/render_events.py /path/to/clean
     # Concatenate event-concat.txt using ffmpeg as above.
+
+## Fade, move, shrink; budding and absorption — latest owner revision
+
+Disappearance now combines translation, fading and a moderate reduction in size
+(1 to 0.45) under the common quintic clock. Appearance reverses those channels.
+Shapes no longer disappear solely by collapsing to a point. New parts originate
+at a parent inferred from the endpoint pixels; disappearing parts converge on an
+inferred receiving part. Prefer geometrically similar retained parents, otherwise
+choose a nearby retained part. No LaTeX, glyph identities or algebra is supplied.
+A blank endpoint has no parent and uses the explicit unanchored appearance/removal
+fallback. Ambiguous parent selection remains heuristic.
+
+Parents follow the retained part's moving trajectory. A 25-candidate bounded path
+search scores opacity-weighted intersections at 13 times and penalizes clipping
+and excessive detours. Contact is allowed within a budding/absorption family;
+unrelated parts are penalized. This reduces sampled overlap, not a continuous-time
+nonintersection certificate. Full movie receipts separately report actual observed
+unrelated overlap, including cases the coarse search misses. Source/sink appearance
+is still not a conservative physical material solver.
+
+The renderer now emits *-budding.mp4, budding-verification.json and
+budding-concat.txt. It emits no still-frame previews. The clean six-case compilation
+is budding-katex-animations.mp4 in the same local artifact directory. Nineteen
+Python tests pass, including image-inferred parent selection, coupled fade/scale/
+motion, parent trajectories, blank-image fallback, and allowed-family contact.
+The prior source/sink movies and receipts are preserved for comparison.

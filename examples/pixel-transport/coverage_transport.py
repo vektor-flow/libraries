@@ -1,10 +1,10 @@
-"""Image-only coverage events: retain matches, grow births, contract deaths.
+"""Image-only coverage events: infer parents, bud, fade and absorb.
 This explicit source/sink policy is not a mass-conserving split/merge optimizer.
 """
 from dataclasses import dataclass
 import numpy as np
 from scipy import ndimage as ndi
-from pixel_transport import Region,partial_match,clock,rotation
+from pixel_transport import Region,partial_match,clock,rotation,rigid_fit
 
 @dataclass
 class CoveragePart:
@@ -35,19 +35,46 @@ def plan_coverage_pair(start,end,pixel_scale=1):
     if np.shape(start)!=np.shape(end):raise ValueError('Endpoint image extents must agree')
     source=coverage_parts(start,pixel_scale);target=coverage_parts(end,pixel_scale)
     mapping=partial_match([p.region for p in source],[p.region for p in target])
-    return dict(source=source,target=target,mapping=mapping,pixel_scale=pixel_scale,extent=np.array(np.shape(start)[::-1])/pixel_scale)
+    def parent(region,candidates):
+        if not candidates:return None
+        similar=[]
+        for index,part in candidates:
+            if abs(region.mass/part.region.mass-1)<.1:
+                _,error=rigid_fit(region,part.region)
+                if error<1.4:similar.append((error+.001*np.linalg.norm(region.center-part.region.center),index))
+        if similar:return min(similar)[1]
+        return min(candidates,key=lambda pair:np.linalg.norm(region.center-pair[1].region.center))[0]
+    retained_source=[(m['source'],source[m['source']]) for m in mapping['matches']]
+    retained_target=[(m['target'],target[m['target']]) for m in mapping['matches']]
+    births={j:parent(target[j].region,retained_source or list(enumerate(source))) for j in mapping['unmatched_target']}
+    deaths={i:parent(source[i].region,retained_target or list(enumerate(target))) for i in mapping['unmatched_source']}
+    return dict(source=source,target=target,mapping=mapping,birth_parents=births,death_parents=deaths,pixel_scale=pixel_scale,extent=np.array(np.shape(start)[::-1])/pixel_scale)
 
 
-def event_states(plan,t,detour=0,event_lift=0):
+def event_states(plan,t,detour=0,event_lift=24):
     if not np.isfinite(t) or t<0 or t>1:raise ValueError('Time outside [0,1]')
-    u=clock(t);result=[]
+    u=clock(t);result=[];source_motion={};target_motion={}
+    def curve(a,b,lift):
+        delta=b-a;normal=np.array([-delta[1],delta[0]])/max(np.linalg.norm(delta),1)
+        return (1-u)*a+u*b+normal*lift*4*u*(1-u)
     for m in plan['mapping']['matches']:
         a=plan['source'][m['source']].region;b=plan['target'][m['target']].region
-        delta=b.center-a.center;normal=np.array([-delta[1],delta[0]])/max(np.linalg.norm(delta),1)
-        center=(1-u)*a.center+u*b.center+normal*detour*4*u*(1-u)
-        result.append(dict(kind='matched',source=m['source'],target=m['target'],center=center,source_angle=u*m['angle'],target_angle=(u-1)*m['angle'],scale=1.,blend=u))
+        center=curve(a.center,b.center,detour);key=('m',m['source'])
+        source_motion[m['source']]=(center,key);target_motion[m['target']]=(center,key)
+        result.append(dict(kind='matched',key=key,parent=None,source=m['source'],target=m['target'],center=center,source_angle=u*m['angle'],target_angle=(u-1)*m['angle'],scale=1.,opacity=1.,blend=u))
     for i in plan['mapping']['unmatched_source']:
-        result.append(dict(kind='death',source=i,center=plan['source'][i].region.center+np.array([0,event_lift*u]),scale=1-u))
+        start=plan['source'][i].region.center;j=plan['death_parents'][i]
+        if j is None:end=start+np.array([0.,24.]);parent=None
+        else:end,parent=target_motion.get(j,(plan['target'][j].region.center,('b',j)))
+        result.append(dict(kind='death',key=('d',i),parent=parent,source=i,center=curve(start,end,event_lift),scale=1-.55*u,opacity=1-u))
     for j in plan['mapping']['unmatched_target']:
-        result.append(dict(kind='birth',target=j,center=plan['target'][j].region.center-np.array([0,event_lift*(1-u)]),scale=u))
+        end=plan['target'][j].region.center;i=plan['birth_parents'][j]
+        if i is None:start=end-np.array([0.,24.]);parent=None
+        else:start,parent=source_motion.get(i,(plan['source'][i].region.center,('d',i)))
+        result.append(dict(kind='birth',key=('b',j),parent=parent,target=j,center=curve(start,end,-event_lift),scale=.45+.55*u,opacity=u))
     return result
+
+
+def related_events(a,b):
+    # Contact is intentional inside a budding/absorption family.
+    return a['parent']==b['key'] or b['parent']==a['key'] or (a['parent'] is not None and a['parent']==b['parent'])
