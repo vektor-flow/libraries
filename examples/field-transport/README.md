@@ -59,3 +59,18 @@ the documented codec tolerance, without weakening hole/component/crossing checks
 The earlier threefold study also remains preserved. Subframe checks additionally
 bound the separation between contour segments from nearest-vertex distances and
 half-edge lengths; every bound must stay positive.
+
+## Color blends
+
+`render_colors.py VERIFIED_FOLDER FRESH_OUTPUT_FOLDER` reuses the accepted shape
+frames and blends distinct endpoint colors in linear-light RGB using the same
+quintic clock. Coverage compositing also takes place in linear light. Cyan→coral,
+pink→gold, blue→green and purple→turquoise show intermediate colors, with zero
+endpoint color velocity/acceleration. The four clips retain six seconds each at
+60 fps. This is color interpolation, not spatial pigment/material mixing.
+
+The encoder decodes every frame, compares decoded luma with the known half-coverage blend luminance (avoiding
+chroma-subsampling bias in RGB-vector projection), and checks components, holes and
+silhouette IoU >0.99. Solid-interior median color must stay within four sRGB code
+values of the expected blend. Receipts hash the unchanged input shape arrays.
+The earlier monochrome movie remains preserved.
