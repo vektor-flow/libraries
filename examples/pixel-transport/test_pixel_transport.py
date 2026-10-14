@@ -39,4 +39,42 @@ class PixelTransportTests(unittest.TestCase):
             self.assertAlmostEqual(np.linalg.norm(p[1]-p[2]),5)
         np.testing.assert_allclose(positions(a,b,1.1,0,20),a.points+a.center)
 
+
+class PartialInferenceTests(unittest.TestCase):
+    def test_unequal_counts_keep_valid_matches_and_expose_leftovers(self):
+        from pixel_transport import partial_match
+        a=np.zeros((100,200),bool);a[10:30,10:25]=1;a[50:65,80:115]=1
+        b=np.zeros_like(a);b[60:80,150:165]=1
+        result=partial_match(segment(a,0),segment(b,0))
+        self.assertEqual(len(result['matches']),1)
+        self.assertEqual(result['matches'][0]['source'],0)
+        self.assertEqual(result['unmatched_source'],[1])
+        self.assertEqual(result['unmatched_target'],[])
+    def test_shape_change_does_not_force_an_unchanged_part_to_morph(self):
+        from pixel_transport import partial_match
+        a=np.zeros((100,200),bool);a[10:30,10:25]=1;a[50:70,80:100]=1
+        b=np.zeros_like(a);b[10:30,150:165]=1;b[50:60,40:80]=1
+        result=partial_match(segment(a,0),segment(b,0))
+        self.assertEqual(len(result['matches']),1)
+        self.assertEqual(result['unmatched_source'],[1]);self.assertEqual(result['unmatched_target'],[1])
+    def test_repeated_shapes_report_ambiguity(self):
+        from pixel_transport import partial_match
+        a=np.zeros((100,200),bool);a[10:30,10:25]=1;a[60:80,150:165]=1
+        result=partial_match(segment(a,0),segment(a,0))
+        self.assertEqual(result['ambiguous_matches'],2)
+    def test_generic_multiscale_entry_accepts_only_masks(self):
+        from pixel_transport import infer_pixel_pair
+        a=np.zeros((100,200),bool);a[20:40,20:45]=1
+        b=np.zeros_like(a);b[60:80,140:165]=1
+        source,target,best,runs=infer_pixel_pair(a,b)
+        self.assertEqual(best['matched_source_fraction'],1)
+        self.assertEqual(len(runs),4)
+
+    def test_symmetric_stationary_shape_does_not_spin_gratuitously(self):
+        from pixel_transport import rigid_fit
+        a=np.zeros((80,80),bool);a[30:50,38:42]=1;a[38:42,30:50]=1
+        region=segment(a,0)[0]
+        angle,error=rigid_fit(region,region)
+        self.assertEqual(angle,0);self.assertEqual(error,0)
+
 if __name__=='__main__':unittest.main()

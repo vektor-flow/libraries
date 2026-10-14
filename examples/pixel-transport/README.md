@@ -65,3 +65,43 @@ mass ranges. Rendering is an offline CPU study, not VKF compiler or GPU acceptan
 checks passed. Three videos rendered; midpoint/end frames inspected for legibility.
 Evidence: Cuvami/staging/artifacts/embedding-transport/pixel-movies. Earlier browser
 verification remains historical and was not rerun for these standalone scripts.
+
+## Endpoint-only general approach and harder evidence
+
+The solver's only semantic input is the source image and target image. It should
+infer the parts; algebra, OCR, scene IDs and author-provided mappings must not be
+required. The new `infer_pixel_pair` entry accepts two foreground arrays and uses
+multiscale grouping plus partial rigid assignments, shared with the KaTeX stress
+suite. It retains unmatched source AND target material. Partial matches do not
+constitute complete morphs. See ../katex-transport/README.md for failures and movies.
+
+The proposed general research approach is joint latent partition and transport:
+
+1. Build multiscale appearance/edge/shape descriptors directly from both images.
+   Their feature coordinates are distinct from physical image coordinates.
+2. Infer soft many-to-many material correspondence jointly with a hierarchy of
+   parts. Prefer locally consistent relative geometry; penalize gratuitous cuts.
+   Do not segment irreversibly first or constrain matches to one region per object.
+3. Fit each coherent subset with translation, rotation, similarity, then affine
+   motion. Split a proposed part if subsets support incompatible motions. Preserve
+   exact supported simple transforms; only unexplained residuals deform.
+4. Plan the joint spacetime material paths, including branching events and 2D
+   occupancy constraints. Check endpoint recovery, mass policy, self/inter-object
+   intersections and zero endpoint velocity/acceleration. Iterate correspondence
+   when a proposed assignment cannot support an admissible path.
+
+Local structural transport penalties are motivated by Gromov-Wasserstein ideas,
+not ordinary nearest-position matching: rigidly moving a part should not destroy
+its correspondence. A full-scene distance penalty would wrongly resist relative
+motion of separate parts, hence the latent local partition. High-dimensional
+pair-conditioned matching, such as LoFTR, is a descriptor reference rather than a
+complete morphing solution. Neither method is implemented or a proven best choice
+here; no weights or GPU tasks were launched.
+
+References: [Computational Optimal Transport](https://optimaltransport.github.io/),
+[LoFTR primary project](https://zju3dv.github.io/loftr/).
+
+The current binary-mask heuristic is a baseline to falsify against increasingly
+hard image pairs, not the completed general solver. Repeated/symmetric images may
+have several equally valid endpoint-only explanations. Keep confidence/ambiguity
+and compare structural preferences rather than inventing semantic certainty.

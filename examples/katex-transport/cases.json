@@ -1,0 +1,67 @@
+[
+  {
+    "id": "01-translation",
+    "title": "1. Move an unchanged expression",
+    "from": "x^2+2x+1",
+    "to": "x^2+2x+1",
+    "shift": 180,
+    "valid": true
+  },
+  {
+    "id": "02-reorder",
+    "title": "2. Rearrange unchanged terms",
+    "from": "a+b",
+    "to": "b+a",
+    "valid": true
+  },
+  {
+    "id": "03-factor",
+    "title": "3. Extract a common factor",
+    "from": "ab+ac",
+    "to": "a(b+c)",
+    "valid": true
+  },
+  {
+    "id": "04-square",
+    "title": "4. Factor a perfect square",
+    "from": "x^2+2x+1",
+    "to": "(x+1)^2",
+    "valid": true
+  },
+  {
+    "id": "05-difference",
+    "title": "5. Factor a difference of squares",
+    "from": "x^2-y^2",
+    "to": "(x-y)(x+y)",
+    "valid": true
+  },
+  {
+    "id": "06-cancel",
+    "title": "6. Cancel a factor, preserve the domain",
+    "from": "\\frac{x^2-1}{x-1}",
+    "to": "x+1",
+    "condition": "x != 1",
+    "valid": true
+  },
+  {
+    "id": "07-collect",
+    "title": "7. Combine repeated terms",
+    "from": "x+x+x",
+    "to": "3x",
+    "valid": true
+  },
+  {
+    "id": "08-fraction",
+    "title": "8. Simplify a fraction",
+    "from": "\\frac{2x+2}{2}",
+    "to": "x+1",
+    "valid": true
+  },
+  {
+    "id": "09-negative-control",
+    "title": "9. Similar symbols, different images",
+    "from": "x^2+1",
+    "to": "(x+1)^2",
+    "valid": false
+  }
+]

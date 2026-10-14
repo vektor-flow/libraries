@@ -1,3 +1,14 @@
+# Endpoint-only KaTeX stress follow-up — 2026-10-14
+
+Nine KaTeX image pairs now exercise the shared pixel-only inference entry, without
+LaTeX, IDs or formula-specific correspondence. Translation and term reordering pass
+rigid path checks; seven harder pairs remain visibly partial. Eleven Python tests,
+27 embedding tests and 88 original library tests pass. Two general motion defects
+found by the reorder case were fixed. See examples/katex-transport/README.md for
+quantitative results, exact raster limits, source-mass versus target-coverage policy
+and reproduction. Movies are offline CPU research, not a complete generic morph
+solver, VKF compiler acceptance, main integration or staging deployment.
+
 # Pixel correspondence follow-up — 2026-10-14
 
 Added a pixel-only foreground research path: heuristic multiscale grouping,
