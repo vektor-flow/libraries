@@ -27,8 +27,12 @@ Evidence and preserved failures: Cuvami staging/artifacts/gpu-math/20261014/
 annotations, annotations-v2 and annotations-final. Applicable AMS, EC and esint
 font notices/source archives are retained; siunitx source is supplied for oracle
 reproduction. No other-chat branch, physical GPU stop, native compiler, Cuvami
-staging/production or registry evidence changes. Publication identity follows
-in the extension receipt once live verification finishes.
+staging/production or registry evidence changes. Published runtime de9cb4230eb9ff43b9318417e0563bd3013b55f4;
+public main809fcbb7cc96becfa0671173b54165a093a47bef. Reviewed-byte Pages
+workflow38572838462 succeeds. Live HTTPS code/metric hashes, nine nonblank
+feature canvases, five incomplete drafts and both mode controls pass. Live60-edit
+p95/max12.8/41.6ms. Publication and detailed software/browser/native-LaTeX
+receipts are retained under annotations-final/PUBLICATION.json.
 
 # Recoverable math drafts and Inline/Display styles — 2026-10-14
 
