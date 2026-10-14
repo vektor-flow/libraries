@@ -226,3 +226,18 @@ extend the independent grammar to scripts and fractions using fresh oracle cases
 Dynamic browser curve/index preparation is not wired into the typesetter yet:
 new runtime packets currently feed the offline code generator. The generated GPU
 module itself runs independently of Python, LaTeX, KaTeX and font loading.
+
+## Live typing third slice
+
+The typing-demo source now uses264 prepared MTSDF tiles across10/7/5pt mappings
+and batched glyph/rule instances. It extends the independent grammar with scripts
+and nested fractions, checked against eight fresh LaTeX fixtures. Maximum observed
+position discrepancy is0.000243SVG points; exact outline identity is checked.
+The browser runs no LaTeX, KaTeX, font loader or Canvas2D math layer.
+
+See typing-demo/README.md for supported syntax, limits and timing semantics.
+A headed software Vulkan/SwiftShader test checks actual visible canvas pixels,
+keyboard typing, recovery from incomplete braces, long input and phone layout.
+Warm edits currently measure11.9ms p95 in that lane, above the10ms target; one
+899-instance first update measures39ms. The public preview reports measurements
+on the visitor’s device rather than asserting those software timings universally.

@@ -13,14 +13,15 @@ TOKENS={c:'ord' for c in string.ascii_letters+string.digits}
 TOKENS.update({t:'ord' for t in [r'\alpha',r'\beta',r'\gamma',r'\delta',r'\theta',r'\lambda',r'\mu',r'\pi',r'\sigma',r'\omega',r'\Gamma',r'\Delta',r'\Omega',r'\infty']})
 TOKENS.update({'+':'bin','-':'bin','=':'rel','<':'rel','>':'rel',r'\leq':'rel',r'\geq':'rel','(':'open',')':'close','[':'open',']':'close',',':'punct'})
 
-def build(output):
+def build(output,style="display"):
     if output.exists(): raise ValueError('Use a fresh output directory')
     output.mkdir(parents=True)
     symbols={}
+    style_command={'display':r'\displaystyle','script':r'\scriptstyle','scriptscript':r'\scriptscriptstyle'}[style]
     for index,(token,kind) in enumerate(TOKENS.items()):
         folder=output/str(index);folder.mkdir()
         source=(r'\documentclass{article}\usepackage{amsmath,amssymb}\pagestyle{empty}'+'\n'+
-            r'\begin{document}\setbox0=\hbox{$\displaystyle '+token+r'$}'+ '\n'+
+            r'\begin{document}\setbox0=\hbox{$'+style_command+' '+token+r'$}'+ '\n'+
             r'\typeout{BOXWIDTH:\the\wd0}\typeout{BOXHEIGHT:\the\ht0}\typeout{BOXDEPTH:\the\dp0}'+ '\n'+
             r'\noindent\box0\end{document}')
         (folder/'expression.tex').write_text(source)
@@ -35,13 +36,19 @@ def build(output):
         outline=packet['outlines'][packet['primitives'][0]['outline']]
         symbols[token]={'class':kind,**metrics,'outline':outline,'outlineHash':packet['primitives'][0]['outline']}
     # Em size for standard 10pt math, in the SVG bp coordinates of our outlines.
-    result={'schema':'vkf.latex-symbol-mapping/1','em':10*72/72.27,'symbols':symbols,
+    result={'schema':'vkf.latex-symbol-mapping/1','em':{'display':10,'script':7,'scriptscript':5}[style]*72/72.27,'style':style,'symbols':symbols,
         'oracle':'Real TeX Live latex, standard 10pt Computer Modern/AMS',
         'limits':['Ordinary single glyph atoms only; no scripts, fractions, macros or arbitrary packages.',
             'Box metrics include measured italic correction; pair rules need separate validation.']}
+    from fontTools.tfmLib import TFM
+    size={'display':10,'script':7,'scriptscript':5}[style]
+    tfm=TFM(subprocess.check_output(['kpsewhich',f'cmsy{size}.tfm'],text=True).strip())
+    result['parameters']={name:value*size*72/72.27 for name,value in tfm.fontdimens.items()}
+    result['parameters']['RULE']=TFM(subprocess.check_output(['kpsewhich','cmex10.tfm'],text=True).strip()).fontdimens['DEFAULTRULETHICKNESS']*10*72/72.27
     (output/'symbol-mapping.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps({'mappedSymbols':len(symbols)}))
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',type=Path,required=True)
-    args=parser.parse_args();build(args.output)
+    parser.add_argument('--style',choices=['display','script','scriptscript'],default='display')
+    args=parser.parse_args();build(args.output,args.style)

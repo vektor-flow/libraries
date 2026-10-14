@@ -1,3 +1,29 @@
+# Live WebGPU math typing preview — 2026-10-14
+
+Owner authorized a browser typing test hosted through GitHub Pages and linked
+from vektorflow.org Coming soon. New typing-layout.mjs supports bounded ordinary
+atoms, optical-size scripts and nested fractions independently of LaTeX. All88
+symbols are mapped in10/7/5pt:264 reusable MTSDF tiles, one shared atlas, glyph/rule
+instancing and one draw per edit. No whole-expression distance rebuild while typing.
+Eight fresh real-LaTeX fixtures match relative glyph/rule positions and outline
+identity; maximum positional discrepancy0.000243SVG units. General TeX packages,
+radicals, extensible operators and full document linebreaking remain unsupported.
+
+Headed Xvfb SwiftShader browser test confirms actual canvas pixels, typed edits,
+incomplete-input diagnostics, long expressions and390px responsive layout with no
+horizontal overflow or GPU/page errors. The initial ANGLE-GL software lane failed
+canvas completion; headless screenshots could be blank despite completed draws.
+Accepted verification uses a headed software Vulkan compositor and explicit
+SwiftShader ICD. No physical GPU gate, driver/reset or native compiler modification.
+
+One live typed sample completes in1.7ms, but60 warm edits p95/max11.9/46.1ms and
+one899-instance long update39ms: user’s10ms fresh input target is not yet met in
+this software lane. Initial atlas/pipeline preparation600ms; actual physical screen
+presentation is not measured. The page reports layout, input→queue completion and
+next-frame estimate separately. Canvas-only screenshot contains visible math;
+receipts in Cuvami staging/artifacts/gpu-math/20261014/typing-browser-headed and
+typing-layout-final. Earlier failures retained. Publication identity follows below.
+
 # Independent LaTeX mapping and generated GPU code — 2026-10-14
 
 Owner requires real LaTeX only during development, then an independent runtime
