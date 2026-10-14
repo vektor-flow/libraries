@@ -1,3 +1,14 @@
+# Monotone object-lineage candidate — 2026-10-14
+
+The owner's latest rule is monotone visible object count, with direction-pure
+split/merge families and approximately evenly distributed event timing as a soft
+objective. A separate endpoint-only candidate now tracks persistent binary
+lineages, disjoint coverage, passing trajectories and target convergence, and
+checks the actual decoded video for fragments/count reversals. Forty-four Python
+tests cover this and the retained earlier candidates. See
+examples/katex-transport/README.md for acceptance thresholds and limitations.
+This remains bounded offline CPU research, not runtime/compiler/GPU acceptance.
+
 # Local pinch-off correction — 2026-10-14
 
 Inferred split necks now pinch centrally and retract early, with smooth distance

@@ -205,7 +205,7 @@ body that narrows and separates into two, and reverse merging. All earlier video
 and migration evidence remains preserved. No still previews are emitted.
 
 
-## Local pinch-off without long tethers — latest owner correction
+## Local pinch-off without long tethers — previous correction
 
 The old capsule neck extended across the entire distance between moving branch
 centres, creating long strands. Necks now narrow at their centre first, then
@@ -222,3 +222,54 @@ second derivative. This bounds the explicit bridge, not every possible thin
 feature in the underlying transported image; general topology/collision guarantees
 remain out of scope. Outputs are *-pinch.mp4, pinch-verification.json and
 pinch-concat.txt, combined into pinch-katex-animations.mp4. Previous movies remain.
+
+
+## Monotone visible count and persistent lineages — latest owner contract
+
+The owner requires monotone object count, with no split-then-merge or
+merge-then-split families. Equal endpoint counts must stay constant. Event timing
+should approximately follow a linear count ramp, but remain a soft objective
+that can trade against deformation and collision avoidance.
+
+`render_lineage.py` uses the separate endpoint-only `lineage_transport.py`
+candidate. It does not use pooled material density or inferred reconnecting necks.
+Connected source components receive persistent rooted binary families, with
+connected geodesic partitions conserving source samples at each split. Reverse
+playback of the same split construction gives merge-only families. One-to-one
+rigid matches retain their rotation; remaining local shapes use aligned distance
+fields. Local raster connectivity repair acts only inside an identity and never
+joins separate identities. This repair can alter local geometry; hole topology
+and exact intermediate mass conservation are not guaranteed.
+
+Event slots approximate a linear count ramp; a bounded timing search also
+penalizes insufficient deformation time and respects ancestry. Timing is neither
+fixed at those slots nor a claimed global minimum. Crossing families receive
+passing lanes before contact. Framewise separation and repeated trajectory
+smoothing enforce disjoint coverage while avoiding large projection jumps. The
+bounded planner rejects failures; it does not claim arbitrary scenes always fit.
+Blank endpoints require a separate birth/death policy and are rejected here.
+
+Acceptance is on every frame, including the decoded MP4: visible connected count
+must equal the persistent active-family count, without dropping small fragments
+from the count. Pixel topology uses 4-connectivity at half coverage. Coverage
+ownership is checked down to 1/255 alpha. The video uses a small edge contrast
+margin and higher-quality H.264 encoding to prevent compression from turning
+thin connected strokes into extra components. The edge guard eases to a smaller nonzero guard at the held endpoint; its
+display-only contrast change preserves the half-coverage silhouette. Exact
+endpoint recovery is measured before this transfer and lossy encoding.
+
+The last-frame check alone was insufficient. The renderer also rejects excessive
+normalized coverage error at 98% and 99% of motion, verifies decoded near-target
+silhouettes, and holds the final state. These are discrete offline frame checks,
+not a continuous-time physical nonintersection proof or production acceptance.
+Forty-four Python tests cover the existing candidates and new monotone one-to-five,
+five-to-one, constant-count swaps, connected partitions, spread event timing,
+rigid rotation and explicit unsupported-input rejection.
+
+    python examples/katex-transport/render_lineage.py /path/to/clean
+
+Outputs: *-lineage.mp4, *-lineage-frames.npz, lineage-verification.json and
+lineage-concat.txt. Combined: lineage-katex-animations.mp4. The local independent
+verify-lineage.py receipt checks decoded counts, near-final silhouette agreement
+and disjoint reconstructed layer ownership. Previous videos and failed first
+encoding evidence remain preserved. No still previews or staging changes.
