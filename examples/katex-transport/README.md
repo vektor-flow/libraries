@@ -87,3 +87,33 @@ This is a presentation correction; approximate registration limits remain.
     python examples/katex-transport/render_clean.py /path/to/evidence /path/to/clean
 
 Output: /path/to/clean/katex-one-animation.mp4.
+
+## Creation/removal and harder-only sequence
+
+Owner requests creation of new symbols, multiple harder animations consecutively,
+and video only: no still-frame outputs, overlays, source/target panels or simple
+translation/reorder demos. `render_events.py` uses the generic coverage_transport
+module, which receives endpoint alpha arrays only. Connected regions retain actual
+KaTeX anti-aliasing; coverage mass replaces thresholded pixel counts for matching.
+This recovers the existing plus in ab+ac without pretending it is a new glyph.
+Unmatched target regions grow continuously from zero extent; unmatched source
+regions contract. Matched glyphs share a moving frame, with aligned residual alpha
+interpolation recovering the actual target raster. All use the same quintic clock.
+
+Six clean movies: common factor, perfect square, difference of squares, cancellation,
+collection and fraction simplification. Combined output is 36 sec, H.264, 1280x720,
+30 fps: Cuvami/staging/artifacts/embedding-transport/katex-clean/
+harder-katex-animations.mp4. Each animation displays only its evolving expression.
+No source/target comparison is burned into frames. Every endpoint matches its
+original supersampled KaTeX coverage within 1/255 (actual maxima below 1e-15).
+Sixteen Python checks pass, including creation, removal, coverage and endpoint rates.
+
+This is an explicit source/sink appearance policy, not a conservative material
+split/merge solution. Source/sink regions are inferred from images, not math tokens.
+Intermediate overlap still occurs: 0,736,497,36,0,44 high-resolution pixels across
+the six movies. A bounded detour experiment could not clear every case and is not
+part of this renderer. No collision-free or globally optimal transport claim.
+Receipts and pre-path-search logs are preserved; compiler/staging are unchanged.
+
+    python examples/katex-transport/render_events.py /path/to/clean
+    # Concatenate event-concat.txt using ffmpeg as above.
