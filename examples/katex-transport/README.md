@@ -330,3 +330,65 @@ over the final 16% of time, retaining the original renderer's 8% default. The
 acceptance threshold was not relaxed. `verify_weight_movies.py` additionally
 checks encoded held endpoint silhouettes and 98%/99% target convergence, recording
 near-event area changes without producing still previews.
+
+## Continuity, local thickness and compact routes — 2026-10-14
+
+The owner observed excessive evasive motion, abrupt mass/shape changes and clumps
+that resolved late, especially in thin symbols. `render_continuity.py` adds a
+separate candidate using `continuous_transport.py`; previous movies and weighted
+surface implementations remain available.
+
+- Route search contracts previous passing trajectories and tests the current
+  silhouettes. It retains a wider route where tighter candidates fail. Optional
+  contact anticipation spreads required corrections earlier instead of repeatedly
+  smoothing away their peaks and colliding again. The accepted centre step and
+  second-difference limits are 10 and 2.5 output pixels per sampled frame.
+- Area growth follows each piece's actual local deformation progress. It no longer
+  assigns a thin daughter its eventual mass before its shape has stretched. Local
+  thickness (coverage-weighted interior distance) measures temporary concentration
+  relative to endpoint thickness; this is a proxy, not a full density optimizer.
+- Fixed local fields are sampled directly on the output grid. Continuous extents
+  replace rounded intermediate bounding-box sizes, avoiding double resampling.
+  Small stroke-scale smoothing replaces strong blob-radius smoothing.
+- A split starts from the parent's exact partitioned material. Sibling pieces can
+  remain one attached body while they begin moving; once visibly separate, they
+  cannot rejoin. Separate bodies still undergo collision checks. Attached coverage
+  uses a clamped sum; overlap between unrelated bodies is rejected and independently
+  checked. This changes the contact model, not just the timing weights.
+- Correction tracks have continuous cubic interpolation between sampled positions.
+  A smooth monotone display transfer replaces the old jump at half coverage.
+  Inferred rigid matches continue to bypass residual morphology.
+
+    python examples/katex-transport/render_continuity.py /path/to/clean --encode
+    python examples/katex-transport/verify_continuity.py /path/to/clean
+
+Outputs: `continuity/continuity-katex-animations.mp4`, six per-case movies, saved
+frames and accepted centre trajectories, source/decoded receipts, diagnostics and
+independent replay verification. Failed early trials remain in `continuity-initial`;
+route rejections are logged rather than delivered. Cached accepted trajectories
+are research results: replay their saved centres through the field sampler to
+reproduce frames independently of the path-search iteration history.
+
+Fifty-eight Python tests include shrinking time intervals around a split handoff,
+mid-morph subframe checks, monotone separation, exact endpoints, continuous display
+contrast, sampled/cubic trajectory agreement and anticipatory contact corrections.
+These tests do **not** establish universal no-snap or continuous-time nonintersection
+proofs. Raster connectivity repair and discrete collision projection remain.
+Clamped attached coverage is not a solved physical material-transfer model; global
+area reversals and residual local changes must remain visible in the evidence.
+The independent verifier checks every saved frame's ownership/replay, then encoded
+held endpoints and near-target convergence. Videos still show one animation at a
+time, using only endpoint images and no formula-specific mapping hints.
+
+### Future native endpoint distance fields
+
+The owner is separately developing GPU math/text typesetting and symbol distance
+fields. That work is independent and has not been modified or integrated here.
+A future input adapter should accept evaluable signed-distance geometry plus
+bounds, units, sign convention and glyph/layout transforms (including baselines
+and placement). Gradients/outlines and stable geometry identifiers can be optional.
+This avoids rasterizing outlines and recovering them from pixels, and supports
+better boundary, thickness, hole and gap measurements. It does not itself solve
+correspondence, branching or material conservation. Endpoint-only inference and a
+raster fallback remain useful; no manually supplied transition hints are required.
+No GPU/compiler work, deployment or new runtime dependency is adopted here.

@@ -1,3 +1,13 @@
+# Continuity and thickness candidate — 2026-10-14
+
+A new offline candidate tests compact silhouette-aware routes, continuous sampled
+contours, material growth tied to local deformation, attached split/merge handoffs,
+and continuous display contrast. Fifty-eight Python tests pass. Previous weight
+movies remain preserved. See examples/katex-transport/README.md for reproduction,
+metrics and remaining continuity/material-transfer limitations. Native GPU symbol
+distance fields are a future input option under separate owner development, not
+an integration delivered here. No compiler, GPU or deployment changes.
+
 # Shared surface-weight comparison — 2026-10-14
 
 A bounded five-configuration sweep now ranks common surface/trajectory settings

@@ -206,6 +206,7 @@ def connected_alpha(alpha):
 
 
 def stamp(alpha,c,clearance=1):
+    if hasattr(alpha,'stamp'):return alpha.stamp(c,clearance)
     corner=c-(np.array(alpha.shape[::-1])-1)/2
     origin=np.floor(corner).astype(int)-2;fraction=corner-np.floor(corner)
     image=ndi.shift(np.pad(alpha,2),[fraction[1],fraction[0]],order=1,prefilter=False)
@@ -232,18 +233,27 @@ def frame(plan,t,state,size=(1280,720),offset=np.array([-800.,-450.])):
     for node in nodes:
         alpha,repair=plan.get('surface',patch_at)(node,t);repairs+=repair;patches.append(alpha)
         want=desired_center(node,t,factor)*factor+offset
-        if 'tracks' in plan:want=want+plan['tracks'][node.id][round(t*(len(plan['tracks'][node.id])-1))]
+        if 'track_splines' in plan:want=want+plan['track_splines'][node.id](t)
+        elif 'tracks' in plan:want=want+plan['tracks'][node.id][round(t*(len(plan['tracks'][node.id])-1))]
         desired.append(want)
         previous=old_offsets.get(node.id,old_offsets.get(node.parent.id if node.parent else -1,np.zeros(2)))
         centers.append(want+previous*decay)
     centers=np.array(centers);desired=np.array(desired)
-    clearance=0 if t in (0,1) else 1
+    clearance=0 if t in (0,1) else plan.get('clearance',1)
     stamps=[stamp(a,c,clearance) for a,c in zip(patches,centers)]
     routes=state.setdefault('routes',{})
+    separated=state.setdefault('separated',set())
     for iteration in range(120):
         collisions=0
         for i in range(len(nodes)):
             for j in range(i):
+                pair=tuple(sorted((nodes[i].id,nodes[j].id)))
+                siblings=plan.get('contact_grace',False) and nodes[i].parent is not None and nodes[i].parent is nodes[j].parent
+                if siblings and pair not in separated:
+                    visible_i=dict(stamps[i],mask=ndi.binary_dilation(stamps[i]['alpha']>.5))
+                    visible_j=dict(stamps[j],mask=stamps[j]['alpha']>.5)
+                    if intersects(visible_i,visible_j):continue
+                    separated.add(pair)
                 if not intersects(stamps[i],stamps[j]):continue
                 collisions+=1;key=(nodes[i].id,nodes[j].id)
                 root_i=nodes[i];root_j=nodes[j]
@@ -260,21 +270,33 @@ def frame(plan,t,state,size=(1280,720),offset=np.array([-800.,-450.])):
                             choices.append((distance*penalty,distance,direction));break
                 if not choices:raise ValueError('No bounded separating displacement')
                 _,distance,direction=min(choices);routes[key]=direction
-                move=np.array(direction)*(distance+1)*.5
+                move=np.array(direction)*(distance+plan.get('projection_slack',1))*.5
                 centers[i]+=move;centers[j]-=move
                 stamps[i]=stamp(patches[i],centers[i],clearance);stamps[j]=stamp(patches[j],centers[j],clearance)
         if not collisions:break
     else:raise ValueError('Collision projection did not converge')
+    if plan.get('contact_grace',False):
+        for i in range(len(nodes)):
+            for j in range(i):
+                if not intersects(stamps[i],stamps[j]):continue
+                pair=tuple(sorted((nodes[i].id,nodes[j].id)))
+                attached=nodes[i].parent is not None and nodes[i].parent is nodes[j].parent and pair not in separated
+                if not attached:raise ValueError('Overlap outside an attached sibling body')
     width,height=size;image=np.zeros((height,width));occupied=np.zeros((height,width),bool)
     for node,c,want,s in zip(nodes,centers,desired,stamps):
         old_offsets[node.id]=c-want;repairs+=s['repair']
         x,y=s['origin'];h,w=s['alpha'].shape
         if x<0 or y<0 or x+w>width or y+h>height:raise ValueError('Object left the output canvas')
         region=occupied[y:y+h,x:x+w]
-        if np.any(region&(s['alpha']>1/255)):raise ValueError('Visible object overlap')
-        region|=s['alpha']>1/255;image[y:y+h,x:x+w]+=s['alpha']
+        if np.any(region&(s['alpha']>1/255)) and not plan.get('contact_grace',False):raise ValueError('Visible object overlap')
+        region|=s['alpha']>1/255
+        if plan.get('contact_grace',False):image[y:y+h,x:x+w]=np.minimum(1,image[y:y+h,x:x+w]+s['alpha'])
+        else:image[y:y+h,x:x+w]+=s['alpha']
     count=ndi.label(image>.5)[1]
-    if count!=len(nodes):raise ValueError(f'Visible count {count} differs from lineage count {len(nodes)}')
+    if plan.get('contact_grace',False):
+        if count>len(nodes) or count<state.get('count',len(plan['roots'])):raise ValueError(f'Contact count reversal {state.get("count")} -> {count}')
+        state['count']=count
+    elif count!=len(nodes):raise ValueError(f'Visible count {count} differs from lineage count {len(nodes)}')
     state['time']=t
     return image,dict(ids=[n.id for n in nodes],count=count,repairs=repairs,max_offset=float(np.linalg.norm(centers-desired,axis=1).max()),centers=centers.tolist())
 
@@ -304,12 +326,21 @@ def smooth_tracks(plan,metrics,sigma=8):
             if node.id in recorded[k]:last=recorded[k][node.id]-base
             elif t<=node.birth and node.parent is not None:last=tracks[node.parent.id][k]
             offsets.append(last.copy())
-        smooth=ndi.gaussian_filter1d(np.array(offsets),sigma,axis=0,mode='nearest')*envelope[:,None]
+        offsets=np.array(offsets)
+        if plan.get('anticipate_contacts',False):
+            size=2*int(np.ceil(sigma))+1
+            positive=ndi.maximum_filter1d(np.maximum(offsets,0),size,axis=0,mode='nearest')
+            negative=ndi.maximum_filter1d(np.maximum(-offsets,0),size,axis=0,mode='nearest')
+            offsets=positive-negative
+        smooth=ndi.gaussian_filter1d(offsets,sigma,axis=0,mode='nearest')*envelope[:,None]
         if node.parent is not None:
             blend=np.array([clock(float(np.clip((t-node.birth)/.08,0,1))) for t in times])
             smooth=(1-blend[:,None])*tracks[node.parent.id]+blend[:,None]*smooth
         tracks[node.id]=smooth
     plan['tracks']=tracks
+    if plan.get('continuous_tracks',False):
+        from scipy.interpolate import CubicSpline
+        plan['track_splines']={i:CubicSpline(times,values,bc_type=((1,np.zeros(2)),(1,np.zeros(2)))) for i,values in tracks.items()}
 
 
 def presentation_alpha(alpha,t):
