@@ -1,3 +1,14 @@
+# Owner correction and VKF morphology handover — 2026-10-14
+
+The owner rejected the published glyph matching/movement/crossfade transition as
+an interpretation of the requested general visual morphology. Its UI/browser
+checks establish controls/rendering behavior only. Retain the compact UI and
+native LaTeX endpoint renderer; integrate the shared endpoint-only field solver.
+Implementation handover: examples/gpu-math/VKF_MORPHOLOGY_HANDOVER.md.
+It pins source/assets, describes the scalar-alpha boundary, crop/placement gaps,
+the shared solver contract, integration sequence and unresolved algebra cases.
+The published transition has not been replaced by this documentation change.
+
 # GPU math transitions and compact phone tabs — 2026-10-14
 
 Owner requested two selectable equations and Transform, then a compact phone UI

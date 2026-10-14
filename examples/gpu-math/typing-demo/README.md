@@ -119,6 +119,12 @@ source and GPLv2 text are supplied separately. It does not execute in the browse
 
 ## Equation transitions
 
+The owner rejected the following backend for the requested general visual
+morphology. Its compact UI can be retained, but symbol pairing/crossfades must be
+replaced with the shared solver. See
+[the VKF implementation handover](../VKF_MORPHOLOGY_HANDOVER.md).
+
+
 Use the **Equations** tab, type or select examples independently for
 A and B, and press **Transform A → B**. Duration, swap and a scrub slider are
 provided. Matching atlas glyph regions are paired once by nearest position,
