@@ -46,7 +46,13 @@ def rigid_fit(a,b):
     angle=min(angles,key=lambda x:(round(score(x),8),abs(x)))
     for step in [3, .5, .1]:
         angle=min(angle+np.arange(-5,6)*step*np.pi/180,key=lambda x:(round(score(x),8),abs(x)))
-    return float(angle),float(np.sqrt(score(angle)))
+    error=float(np.sqrt(score(angle)))
+    # Raster uncertainty must not turn a translation into a gratuitous spin.
+    # Keep a real rotation when it substantially improves geometric agreement.
+    translation_error=float(np.sqrt(score(0.)))
+    if translation_error<=error+.35:
+        return 0.,translation_error
+    return float(angle),error
 
 
 def match(source,target):

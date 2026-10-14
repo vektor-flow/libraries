@@ -118,7 +118,7 @@ Receipts and pre-path-search logs are preserved; compiler/staging are unchanged.
     python examples/katex-transport/render_events.py /path/to/clean
     # Concatenate event-concat.txt using ffmpeg as above.
 
-## Fade, move, shrink; budding and absorption — latest owner revision
+## Fade, move, shrink; budding and absorption — previous revision
 
 Disappearance now combines translation, fading and a moderate reduction in size
 (1 to 0.45) under the common quintic clock. Appearance reverses those channels.
@@ -143,3 +143,37 @@ is budding-katex-animations.mp4 in the same local artifact directory. Nineteen
 Python tests pass, including image-inferred parent selection, coupled fade/scale/
 motion, parent trajectories, blank-image fallback, and allowed-family contact.
 The prior source/sink movies and receipts are preserved for comparison.
+
+
+## Material reuse and slower motion — latest owner revision
+
+The six harder examples now last ten seconds each (60 seconds combined). Rigid
+registration prefers translation when rotation improves RMS pixel distance by no
+more than 0.35 logical pixels; substantial evidenced rotations remain supported.
+This prevents near-symmetric raster noise from introducing gratuitous spins.
+
+When both endpoints contain unmatched components, coverage_transport pools those
+components into one residual material problem. Deterministic equal-mass samples
+(up to 1,600) undergo minimum squared-distance assignment. Local interpolation
+lifts their displacements onto both complete antialiased endpoint rasters. This
+allows one-to-many and many-to-one reshaping without supplying glyph identities,
+LaTeX, semantic hints or intermediate drawings. Geometry that already matches
+continues through its independent rigid route. One-sided residuals retain the
+previous moving/fading/shrinking budding or absorption behavior.
+
+The renderer blends two moving quadratures of that shared transport, rather than
+fading stationary old shapes out while independently growing new shapes. Particle
+mass follows the quintic interpolation of endpoint coverage mass; paths use the
+same endpoint-rest clock. This is approximate transport: sample interpolation,
+coverage saturation and intersections can lose visible area, and interpolated
+fields do not guarantee hole preservation, injectivity or collision avoidance.
+It is not an exact continuum optimal-transport or topology solver. The bounded
+path search penalizes intersections with retained objects; residual self-contact
+is allowed for splitting/merging and is not separately certified.
+
+Outputs: *-material.mp4, material-verification.json and material-concat.txt.
+Concatenate with ffmpeg to material-katex-animations.mp4. No still previews are
+emitted. Twenty-seven Python checks cover previous behavior plus material reuse,
+one-to-many/many-to-one, actual in-transit coverage, exact antialiased endpoints,
+particle mass interpolation, endpoint rest and evidence-based rotation selection.
+Earlier videos, receipts and migration evidence remain intact.

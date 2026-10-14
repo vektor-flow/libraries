@@ -1,3 +1,14 @@
+# Residual material transport follow-up — 2026-10-14
+
+Endpoint-only alpha research now reuses unmatched old material to form unmatched
+new components through a bounded sampled assignment and interpolated displacement
+fields. Existing rigid matches stay separate; one-sided appearance/removal keeps
+the budding/absorption fallback. Translation wins over raster-noise rotations.
+Six clean KaTeX examples run at ten seconds each; 27 Python checks pass. See
+examples/katex-transport/README.md for reproduction and approximation limits.
+This remains offline CPU research, with no topology/collision guarantee or
+compiler, main-branch, physical GPU or staging acceptance.
+
 # Endpoint-only KaTeX stress follow-up — 2026-10-14
 
 Nine KaTeX image pairs now exercise the shared pixel-only inference entry, without
