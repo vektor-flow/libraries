@@ -116,3 +116,23 @@ package selection and every possible alphabet/glyph combination remain outside s
 Prepared assets include new AMS/Euler notices and the unmodified RSFS/BBOLD source
 archives. The GPL mathrsfs adapter is used only by the development oracle; its
 source and GPLv2 text are supplied separately. It does not execute in the browser.
+
+## Equation transitions
+
+Use the **Equations** tab, type or select examples independently for
+A and B, and press **Transform A → B**. Duration, swap and a scrub slider are
+provided. Matching atlas glyph regions are paired once by nearest position,
+then their rectangles and ink interpolate with quintic easing. Different outlines
+crossfade, retaining their own atlas coordinates. This is visual matching rather
+than semantic algebra, contour morphing, or the other chat's merge/split solver.
+Layouts are prepared once per transition; each animation frame uploads a bounded
+instance packet and draws it on the existing WebGPU canvas. The CPU computes
+correspondence/interpolation; native VKF compiler integration remains pending.
+Editing either source or appearance cancels playback. Resizing preserves the
+paused progress, and reduced-motion users get an immediate endpoint transition.
+The combined packet is bounded by the existing 12,000-instance limit.
+
+Phone widths stack editors and controls, retain 16px editor text and at least44px
+button/swatch targets. Compact **Equations**, **Style** and **Examples** tabs keep controls near the
+canvas; notes are reduced to a closed help section. Phone viewport/software-browser checks do not certify
+physical iOS/Android WebGPU support or actual device latency.

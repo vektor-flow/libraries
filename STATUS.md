@@ -1,3 +1,29 @@
+# GPU math transitions and compact phone tabs — 2026-10-14
+
+Owner requested two selectable equations and Transform, then a compact phone UI
+with tabs and less text. Equations/Style/Examples tabs now replace the long page;
+A/B editors and example selectors are small, appearance lives in Style, and notes
+are compressed into a closed Help & timing section. Two-equation mode defaults on.
+Transform, swap, duration and scrubbing use the existing WebGPU canvas. Matching
+atlas regions interpolate positions/size/ink with quintic easing; others crossfade.
+This is CPU instance interpolation plus GPU drawing, not contour morphing,
+semantic algebra or integration of the other chat's experimental merge solver.
+Editing cancels animation; resizing preserves paused progress; reduced-motion
+uses the exact target immediately. Combined packets retain the12000 instance cap.
+A screenshot-related transient zero size found during checks now uses bounded
+DPR/dimensions rather than deriving DPR from a transient CSS rectangle.
+
+Nineteen Node tests pass. Forced headed SwiftShader browser checks all13 prior
+example families, recovery, controls, playback, endpoints, scrubbing, edit
+cancellation, matrix target, swap and reduced motion. No page/GPU errors;320/390/430
+widths have no overflow and16px editor type. Independent touch-enabled390×844
+cold phone check places Transform bottom400px and canvas bottom659px, both within
+viewport, and verifies tabs/colour/example selection. Local warm edits p95/max
+9.3/39.3ms; cold setup1072ms.10ms remains a target, not device acceptance.
+Evidence/failures preserved in Cuvami staging/artifacts/gpu-math/20261014/transitions.
+Physical GPU/device, physical presentation and native VKF integration unverified.
+Other-chat worktrees, Cuvami deployments, registry archives and GPU stop untouched.
+
 # GPU math page flow, alphabets, size and colour controls — 2026-10-14
 
 Owner requested bare \\ newlines, script/double-stroke alphabets, page-width
