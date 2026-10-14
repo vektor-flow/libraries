@@ -74,3 +74,41 @@ chroma-subsampling bias in RGB-vector projection), and checks components, holes 
 silhouette IoU >0.99. Solid-interior median color must stay within four sRGB code
 values of the expected blend. Receipts hash the unchanged input shape arrays.
 The earlier monochrome movie remains preserved.
+
+## Larger colored scenes and bounded division/fusion studies
+
+`prepare_scenes.mjs RUNTIME_MODULE ATLAS_JSON OUTPUT_JSON` captures real native
+math/text layout packets. The exact layout module snapshot and atlas hashes are
+part of the evidence; another chat's working files are read only and are not
+misrepresented as a committed runtime release. `scene_transport.py` converts the
+packets to anonymous placed scalar-field contours, separates exteriors/holes and
+matches bodies by geometry, location and hole count. Glyph keys/text do not enter
+assignment. Inferred rigid similarities bypass morphology; incompatible body
+counts/hole distributions fail closed. Unrelated-body overlap and topology changes
+are checked in the rasterized scene, with self/hole crossings checked for morphs.
+
+The selected scenes are a curved baseline for “These shapes move.” (all sixteen
+components translate rigidly), O²+2O+1 → D²+2D+1, (8+O)/(0+O) → (B+D)/(O+D),
+and x + analytic ring → x + D. The formulas demonstrate geometric changes, not
+algebraic identities. The initially tried sentence-content changes and more general
+variable morphs failed crossing/topology checks and remain rejected. Factorization
+ab+ac → a(b+c) and x+x+x → 3x require a general branching planner and remain rejected.
+
+`division_field.py` adds a deliberately bounded analytic two-disc fixture. It
+combines the discs' signed fields with a rounded maximum, continuously changes
+separation/radius and calibrates antialiased area to the eased endpoint areas.
+The reverse trajectory supplies fusion. Both are checked for direction-monotone
+component counts and no holes. This is not a general split/merge solver, inferred
+arbitrary-object correspondence or physical material/color transport.
+
+    python examples/field-transport/render_scene_study.py ATLAS_FOLDER LAYOUT_JSON OUTPUT_FOLDER
+    python examples/field-transport/verify_scene_movies.py OUTPUT_FOLDER
+
+Each case lasts six seconds at60fps. Source geometry/topology receipts and cached
+frames support replay. Eight tests cover the prior contour slice plus rigid
+translation, rejecting body-count mismatch and bounded division topology/area.
+Decoded verification uses exact component/hole counts and at most one boundary
+pixel displacement. IoU is also reported, but a fixed relative-area cutoff is
+unsuitable for comparing tiny text strokes with the earlier giant glyphs. The
+initial0.99/0.97-gate failures remain recorded; the one-pixel check applies uniformly
+to all cases. Preserve the initial layout/probe/serialization/codec trials.
