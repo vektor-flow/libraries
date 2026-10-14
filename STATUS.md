@@ -1,3 +1,15 @@
+# Native scalar-field topology correction — 2026-10-14
+
+The prior ring-to-D acceptance checked components but missed disappearing holes:
+37/312 motion frames lose the hole. That preview is rejected for topology.
+New isolated examples/field-transport consumes the completed native math atlas's
+scalar distance channel. Closed outer/hole contours move together with eased
+curve smoothing and polygon-area calibration. Ring→D, O→D, 8→B and 0→D form the
+focused same-topology study. Five tests pass. See its README and final video
+receipts for frame/hole/crossing verification and sampling limitations. This
+supports one exterior with unchanged holes, not general split/merge transport;
+no other-chat source, GPU/compiler runtime or deployment changes.
+
 # Expanded geometry/text preview at twice speed — 2026-10-14
 
 Six accepted sequential cases now run in 36 seconds at 60 fps: the existing
