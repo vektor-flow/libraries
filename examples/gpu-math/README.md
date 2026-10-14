@@ -1,3 +1,8 @@
+The live typing extension now supports recoverable drafts, Inline/Display styles,
+large operators, all Greek capitals/lowercase, matrices/cases and nested scopes.
+See [typing-demo/README.md](typing-demo/README.md) for the current runtime scope,
+reproduction and limits. The older research stages below retain their own scope.
+
 # LaTeX mapping and generated GPU code — research candidate, 2026-10-14
 
 LaTeX source is the input and real LaTeX output is the reference. There is no KaTeX

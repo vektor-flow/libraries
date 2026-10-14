@@ -1,3 +1,31 @@
+# Recoverable math drafts and Inline/Display styles — 2026-10-14
+
+User requests Platonic-style visual recovery and wider native-LaTeX mappings.
+Typing now previews current incomplete source, infers closing scopes/environments
+and inserts empty operands. Deleting n from sum_x^n immediately removes n at
+sum_x^; unknown commands show current placeholders rather than old expressions.
+Separate Inline/Display controls and explicit TeX style/limit overrides are present.
+
+The atlas maps 353 symbols in four styles: 1,412 keys and 874 distinct outlines.
+All lowercase/uppercase Greek (standard TeX plus upright capital aliases), large
+operators, esint contour integrals, angle brackets, nested delimiters, matrices,
+column vectors, cases, aligned/array and power towers are supported. Very tall
+delimiter extension is approximate; arbitrary TeX packages, radicals, accents and
+full document layout remain outside this independent preview.
+
+Ten Node checks pass. 20 fresh real-LaTeX formulas in each of Inline/Display pass
+positioned ink-bound/fraction-rule comparison, max0.000976bp. Headed software
+WebGPU verifies actual input deletion, draft recovery, both modes, five feature
+examples and390px layout without page/GPU errors. Local60-edit p95/max8.6/28.8ms;
+899-instance first long update is separately recorded. No consistent fresh10ms,
+physical GPU, physical phone or native compiler acceptance claim. Earlier failed
+oracle/atlas/browser receipts are preserved in extended/ alongside final evidence.
+
+Source and publication work stay in the isolated math worktrees. Font-derived
+assets retain AMS/OFL and esint/LPPL notices, including unmodified esint archives.
+No Cuvami deployment, registry evidence, other-chat worktree or GPU stop change.
+Public source pin and deployment identities follow in the publication receipt.
+
 # Published math typing preview — 2026-10-14
 
 Live https://vektorflow.org/previews/gpu-math-typing/ through existing GitHub Pages.
