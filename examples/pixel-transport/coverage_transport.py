@@ -51,4 +51,3 @@ def event_states(plan,t,detour=0,event_lift=0):
     for j in plan['mapping']['unmatched_target']:
         result.append(dict(kind='birth',target=j,center=plan['target'][j].region.center-np.array([0,event_lift*(1-u)]),scale=u))
     return result
-
