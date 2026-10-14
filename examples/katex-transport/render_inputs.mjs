@@ -13,7 +13,7 @@ const server=createServer(async(req,res)=>{try{
 }catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const base=`http://127.0.0.1:${server.address().port}`;
 const browser=await chromium.launch({channel:'chrome',headless:true,args:['--disable-gpu']});
-const page=await browser.newPage({viewport:{width:960,height:540},deviceScaleFactor:1});
+const page=await browser.newPage({viewport:{width:960,height:540},deviceScaleFactor:Number(process.env.PIXEL_RATIO||1)});
 let errors=[];page.on('pageerror',e=>errors.push(String(e)));
 for(const item of cases)for(const side of ['from','to']){
  const html=katex.renderToString(item[side],{displayMode:true,output:'html',throwOnError:true,strict:'error',trust:false});
@@ -23,5 +23,5 @@ for(const item of cases)for(const side of ['from','to']){
  const bounds=await page.locator('.formula').boundingBox();if(bounds.x<0||bounds.x+bounds.width>960||bounds.y<0||bounds.y+bounds.height>540)throw Error('clipped expression');
  await page.screenshot({path:resolve(out,`${item.id}-${side}.png`)});
 }
-await writeFile(resolve(out,'inputs.json'),JSON.stringify({katex:katex.version,viewport:[960,540],cases,errors,renderer:'Chrome headless software; only PNG masks enter matching'},null,2));
+await writeFile(resolve(out,'inputs.json'),JSON.stringify({katex:katex.version,viewport:[960,540],pixelRatio:Number(process.env.PIXEL_RATIO||1),cases,errors,renderer:'Chrome headless software; only PNG masks enter matching'},null,2));
 await browser.close();server.close();console.log(`Rendered ${cases.length*2} KaTeX endpoints; errors: ${errors.length}`);

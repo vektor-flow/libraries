@@ -71,3 +71,19 @@ Eleven Python geometry/inference tests, 27 JS embedding checks and 88 existing
 library tests pass. Software video frames were inspected for readable math and
 visible failure labels. No physical phone/GPU, compiler integration or deployment.
 Evidence: Cuvami/staging/artifacts/embedding-transport/katex.
+
+## Clean presentation correction
+
+Owner requests one evolving state, with actual KaTeX glyphs and no source/target
+panels, ghost targets, diagnostic labels or colour-coded leftovers. The diagnostic
+suite above remains preserved as evidence. `PIXEL_RATIO=3` on render_inputs.mjs
+captures the real KaTeX alpha at three times resolution; render_clean.py extracts
+those anti-aliased components and applies the existing blind pixel motion plan.
+It does not feed DOM/TeX identities into matching. The clean a+b→b+a clip is 7 sec,
+1280x720 at 30 fps, with one visible expression only. Source/midpoint/end inspected.
+This is a presentation correction; approximate registration limits remain.
+
+    PIXEL_RATIO=3 node examples/katex-transport/render_inputs.mjs /path/to/clean
+    python examples/katex-transport/render_clean.py /path/to/evidence /path/to/clean
+
+Output: /path/to/clean/katex-one-animation.mp4.
