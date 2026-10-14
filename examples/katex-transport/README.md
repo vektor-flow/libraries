@@ -392,3 +392,74 @@ better boundary, thickness, hole and gap measurements. It does not itself solve
 correspondence, branching or material conservation. Endpoint-only inference and a
 raster fallback remain useful; no manually supplied transition hints are required.
 No GPU/compiler work, deployment or new runtime dependency is adopted here.
+
+## Regularized contours and activity timing (2026-10-14)
+
+`render_regularized.py` preserves the previous continuity movie and uses its
+accepted paths as warm starts. It builds a 129-sample local contour-field atlas
+from endpoint geometry, rounds repair connections relative to endpoint thickness,
+filters their changes along deformation progress, then samples cubic field
+interpolation on the final pixel grid. Inferred rigid pairs use direct centered
+sampling instead of integer-sized intermediate image bounds. This is still a
+CPU raster research candidate, not a GPU/typesetting integration.
+
+`retime_regularized.py` measures spatially smoothed coverage redistribution and
+uses its accumulated activity to construct a monotone clock. The clock has a
+positive base rate and preserves the existing endpoint ramps. Geometry and paths
+are evaluated again at the new times; rendered images are never cross-faded.
+Additional contact corrections are anticipated, and trajectory residuals are
+smoothed if the retimed motion exceeds the same 10-pixel step / 2.5-pixel second
+frame-difference limits. The output has 312 moving frames plus two 24-frame holds
+per example: six sequential clips, 72 seconds at 30 fps. The previous movie is
+60 seconds. Reduced per-frame changes therefore include a slower presentation;
+`compare_steady.py` also reports activity variation and peak activity normalized
+by transition duration to separate that effect from retiming.
+
+    python examples/katex-transport/render_regularized.py /path/to/katex-clean
+    python examples/katex-transport/retime_regularized.py /path/to/katex-clean
+    python examples/katex-transport/verify_steady.py /path/to/katex-clean
+    python examples/katex-transport/compare_steady.py /path/to/katex-clean
+
+The output is `steady/steady-katex-animations.mp4`. Source arrays, times, accepted
+centres, failed contact trials and decoded count receipts accompany it. The
+independent verifier reconstructs every frame and checks ownership, count and
+encoded endpoints. Comparison measures thin features by a two-pixel opening,
+concentration by interior distance, and visual activity by blurred coverage
+change. These are explicit proxies, not physical particle correspondence or a
+proof of constant material speed. `comparison.json` reuses results for immutable
+candidate files; remove that derived report if deliberately replacing inputs.
+
+Remaining limits: final raster connectivity repair and discrete collision
+projection can still introduce changes. The contour atlas does not establish
+continuous-time topology/nonintersection. Attached sibling coverage is still
+clamped, so mass can change through overlap. Sharper connections can trade local
+thickness against thin strands; no universal no-snap or clump-free claim follows
+from these examples. Native distance fields under separate owner development
+remain a future input, and no compiler/GPU/deployment work is included.
+
+Verified outcome: 62 Python tests; all 2,160 decoded frame counts monotone; held
+encoded silhouettes IoU 1.0; independent reconstruction of all 1,872 motion
+frames finds no unrelated overlap. Minimum target silhouette IoU at 98% is
+0.992666 and at 99% is 0.999188. Boundary second-difference peaks decrease in all
+six clips, by 4.6–61.7%, including the slower duration. Activity coefficient of
+variation in the middle 70% decreases 55.3–73.3%. Normalized peak activity rises
+13.7% in fraction, despite its lower variation, and falls in the other five.
+
+Relative to the previous continuity movie, final duration-weighted proxy changes
+(percent, negative is lower; these proxies are not perceptual guarantees):
+
+| Case | Thin excess | Thickness excess | Peak changed coverage |
+| --- | ---: | ---: | ---: |
+| factor | -29.6 | +7.6 | -44.0 |
+| square | +0.8 | -39.8 | -24.7 |
+| difference | -37.6 | +3.3 | -16.0 |
+| cancel | +26.5 | +13.6 | +23.0 |
+| collect | -9.5 | -31.1 | -11.9 |
+| fraction | -8.6 | +8.8 | -9.1 |
+
+Before retiming, the contour pass reduces thin excess in all six cases. Retiming
+spends more time in busy configurations, which can worsen duration-weighted
+shape measures. Cancellation is a clear remaining failure: changed-coverage peak
+and both shape averages worsen. Area second differences also do not improve
+universally. Further work should couple material correspondence and geometry
+regularization rather than treating a coverage-based clock as physical transport.

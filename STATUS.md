@@ -1,3 +1,14 @@
+# Regularized contours and steadier timing — 2026-10-14
+
+New isolated CPU candidate adds a temporally smoothed contour-field atlas, direct
+rigid sampling and activity-based geometry retiming. Sixty-two Python tests pass.
+The six-case movie lasts 72 seconds; all 2,160 decoded counts, held silhouettes
+and independent ownership/replay checks pass. Visual activity variation falls
+55–73%, but thinness, thickness and area metrics have mixed outcomes. This is
+partial progress, not solved mass transport or snap-free arbitrary morphology.
+See examples/katex-transport/README.md and local steady/comparison.json. The
+previous continuity candidate and all earlier evidence remain intact.
+
 # Continuity and thickness candidate — 2026-10-14
 
 A new offline candidate tests compact silhouette-aware routes, continuous sampled
