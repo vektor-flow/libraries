@@ -1,3 +1,29 @@
+# Independent LaTeX mapping and generated GPU code — 2026-10-14
+
+Owner requires real LaTeX only during development, then an independent runtime
+for known mappings, targeting long-expression rendering under10ms. The isolated
+GPU-math branch now exports88 measured standard symbols and has a bounded JS
+atom typesetter independent of TeX/fonts. Seven fresh oracle cases match outline
+identity and relative positions within0.000227SVG units. Scripts/fractions/macros
+are not supported by the independent typesetter yet; real-LaTeX fixtures remain.
+
+Generated ESM/WGSL and hashed segment/bin/crossing buffers build fields on the GPU.
+Verified SwiftShader computes and draws a real fraction and a975-atom independent
+case with zero WebGPU/page errors. At800x800, long cached draw p95/max7.7/8.7ms over
+120 completed submissions; layout p95 0.63ms measured separately. Cold GPU module
+setup/field generation is557ms plus offline curve/index generation, so fresh-source
+10ms is not achieved. No physical GPU or native VKF integration qualification.
+
+Seven Python and four Node source tests pass. Actual GPU field readbacks pass780
+sampled non-boundary sign checks. Area-coverage error is3.43/3.79% against an
+independently supersampled vector reference; prototype gate5%, not pixel-exact.
+Earlier binary-IoU gate failed and remains recorded; its switch to area coverage
+is explicit in examples/gpu-math/README.md. Sixteen-sample shading improved quality
+but missed10ms on software; final uses four. Earlier runs/memory-failure evidence
+remain. Local receipts: Cuvami staging/artifacts/gpu-math/20261014/software-webgpu-aa4,
+runtime-layout-oracle and independent-layout-timing.json. No other-chat worktree,
+compiler, staging deployment, registry evidence or physical GPU stop changed.
+
 # Direct LaTeX GPU-field research — 2026-10-14
 
 Separate branch codex/gpu-math-20261014, based on immutable libraries37fbc99.

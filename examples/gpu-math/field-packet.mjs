@@ -2,7 +2,7 @@
 export function fieldInstance(texture, {x=0,y=0,unitsToPixels=1,color=[0,0,0,1]}={}) {
   const [width,height]=texture.size ?? [];
   const bounds=texture.quadBounds ?? [];
-  if (texture.type !== 'mtsdf' || texture.format !== 'linear rgba8unorm' ||
+  if (!['mtsdf','sdf'].includes(texture.type) || texture.format !== 'linear rgba8unorm' ||
       ![width,height].every(v=>Number.isInteger(v)&&v>0) || bounds.length!==4 ||
       ![...bounds,x,y,unitsToPixels,texture.distanceRangeTexels].every(Number.isFinite) ||
       bounds[2]<=bounds[0] || bounds[3]<=bounds[1] || unitsToPixels<=0 ||
@@ -10,22 +10,23 @@ export function fieldInstance(texture, {x=0,y=0,unitsToPixels=1,color=[0,0,0,1]}
       !color.every(v=>Number.isFinite(v)&&v>=0&&v<=1)) throw Error('Invalid LaTeX field placement');
   const data=[x+bounds[0]*unitsToPixels,y+bounds[1]*unitsToPixels,
     (bounds[2]-bounds[0])*unitsToPixels,(bounds[3]-bounds[1])*unitsToPixels,
-    0,0,1,1,...color,texture.distanceRangeTexels,width,height,0];
+    0,0,1,1,...color,texture.distanceRangeTexels,width,height,texture.type==='sdf'?1:0];
   if (!data.every(v=>Number.isFinite(Math.fround(v)))) throw Error('Field exceeds float32 range');
   return new Float32Array(data);
 }
 
 /** Candidate WebGPU adapter. The host supplies its device and shared render pass.
- * Shader compilation, draw execution and browser/GPU acceptance remain unverified.
+ * Generated SDF execution is verified on SwiftShader; physical GPU/VKF integration
+ * remain unverified. The original MTSDF upload route is a separate reference.
  */
-export function createLatexFieldRenderer({device,format,shaderSource,texture,rgba}) {
+export function createLatexFieldRenderer({device,format,shaderSource,texture,rgba,existingTexture}) {
   fieldInstance(texture); // Validate before allocating GPU resources.
   const [width,height]=texture.size;
-  if (!(rgba instanceof Uint8Array) || rgba.byteLength!==width*height*4) throw Error('Expected raw linear RGBA bytes');
+  if (!existingTexture && (!(rgba instanceof Uint8Array) || rgba.byteLength!==width*height*4)) throw Error('Expected raw linear RGBA bytes');
   if (width>device.limits.maxTextureDimension2D || height>device.limits.maxTextureDimension2D) throw Error('Field exceeds device texture limit');
-  const image=device.createTexture({size:[width,height],format:'rgba8unorm',
+  const image=existingTexture ?? device.createTexture({size:[width,height],format:'rgba8unorm',
     usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST});
-  device.queue.writeTexture({texture:image},rgba,{bytesPerRow:width*4,rowsPerImage:height},[width,height]);
+  if (!existingTexture) device.queue.writeTexture({texture:image},rgba,{bytesPerRow:width*4,rowsPerImage:height},[width,height]);
   const module=device.createShaderModule({code:shaderSource});
   const pipeline=device.createRenderPipeline({layout:'auto',
     vertex:{module,entryPoint:'vs',buffers:[{arrayStride:64,stepMode:'instance',attributes:
@@ -49,6 +50,6 @@ export function createLatexFieldRenderer({device,format,shaderSource,texture,rgb
       pass.setPipeline(pipeline);pass.setBindGroup(0,bind);pass.setVertexBuffer(0,instance);
       pass.draw(6,1);
     },
-    dispose() {if (!disposed) {image.destroy();uniform.destroy();instance.destroy();disposed=true;}}
+    dispose() {if (!disposed) {if (!existingTexture) image.destroy();uniform.destroy();instance.destroy();disposed=true;}}
   };
 }

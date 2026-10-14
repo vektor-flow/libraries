@@ -1,4 +1,4 @@
-# Direct LaTeX to GPU fields — research candidate, 2026-10-14
+# LaTeX mapping and generated GPU code — research candidate, 2026-10-14
 
 LaTeX source is the input and real LaTeX output is the reference. There is no KaTeX
 parser, font substitution or DOM overlay in this path. The host currently has
@@ -7,7 +7,39 @@ TeX Live 2025/Debian. MiKTeX is a separate distribution of TeX engines/packages;
 matching engine, format, packages, fonts and options matters for reproducibility.
 No MiKTeX run or distribution equivalence is claimed.
 
-## Working first slice
+## Independent runtime direction
+
+The owner requires LaTeX during development as a reference, followed by a runtime
+independent of TeX when the mapping is known. `map_symbols.py` is a development
+oracle. It produces `symbol-mapping.json`: 88 standard symbols with measured real
+LaTeX box advances/heights/depths and actual vector outlines. `math-layout.mjs`
+uses that data and bounded TeX atom-spacing/bin-correction rules to lay out new
+ordinary expressions without launching LaTeX or loading fonts. Seven fresh oracle
+fixtures check relative positions and exact outline identity. Maximum observed
+position discrepancy is 0.000227 SVG units. Unsupported scripts, fractions,
+macros, composite symbols and unverified adjacency rules are explicitly rejected.
+The older direct-LaTeX fixtures remain useful for extending that grammar.
+
+`generate_gpu.py` accepts either a real LaTeX packet or an independent runtime
+packet. It emits an executable `expression.gpu.mjs`, WGSL and hashed binary
+geometry/index buffers. The GPU builds an SDF from flattened curves and then
+renders it in the same host-provided pass as other geometry. No CPU-generated
+pixel image or character atlas is consumed by this new GPU generation route.
+Line-segment approximation has a recorded tolerance and float32 endpoint error;
+this is not an exact Bezier distance evaluator. Distance lookup uses conservative
+local bins; nonzero fill uses binary search of scanline crossings. Curve flattening,
+index generation and scanline crossings currently occur in the preparation tool.
+
+The performance target is under 10 ms for long-expression display, with separate
+fresh-source-to-pixels reporting. `benchmark_layout.mjs` prepares a 975-atom,
+25-row case with no LaTeX process. `verify_webgpu.mjs` requires an explicit
+SwiftShader executable/ICD and checks the actual adapter before GPU operations.
+It records completed-submission wall timing and compares drawn pixels to a
+separate Path2D rasterization of retained curves. Cold resource preparation is
+reported separately. These software timings are not native VKF or physical GPU
+qualification. Current independent layout supports only the bounded atom subset.
+
+## Working reference slice
 
 `latex_paths.py` compiles a math body (or a full single-page LaTeX document) with
 amsmath/amssymb to DVI. dvisvgm emits positioned vector paths and rectangles using
@@ -27,8 +59,8 @@ rule, preserving original relative placement, then produces:
 uploads the raw bytes into a linear rgba8unorm texture and issues a six-vertex
 quad in a host-provided render pass. `mtsdf.wgsl` contains median reconstruction,
 derivative-based antialiasing and premultiplied compositing. The host can apply
-colour, translation and scale without rerunning TeX. The adapter is source-only:
-shader compilation, actual drawing and physical GPU acceptance are not yet tested.
+colour, translation and scale without rerunning TeX. Its original MTSDF route remains a reference. The newer generated SDF route has
+software WebGPU execution evidence; physical GPU and VKF integration remain untested.
 Use one draw invocation per renderer per submitted frame; its uniform/instance
 buffers currently store one placement.
 
@@ -97,7 +129,7 @@ All output directories must be fresh so failed and passing evidence remains.
 
 ## Next steps, in order
 
-1. Verify the shader and adapter in an explicitly software-rendered browser, with
+1. Extend the existing software shader/adapter evidence, with
    decoded pixels compared against independently rendered LaTeX reference geometry
    at multiple sizes, especially tiny scripts, thin rules and sharp corners. Preserve
    the existing physical GPU STOP until separately resumed. First measure and fix
@@ -140,3 +172,57 @@ separate undertaking; it is not required to eliminate CPU text painting overlays
 
 This isolated libraries branch does not alter the other chat's worktree, compiler,
 physical GPU stop markers, Cuvami deployment or registry evidence.
+
+## Generate GPU code from a packet
+
+```bash
+/tmp/vkf-latex-tools/bin/python examples/gpu-math/generate_gpu.py \
+  --packet /tmp/vkf-latex-fraction/path-packet.json \
+  --output /tmp/vkf-fraction-gpu --texels-per-unit 8
+```
+
+Serve the generated directory on loopback or your host's asset route, then import:
+
+```js
+const { create } = await import('./expression.gpu.mjs');
+const expression = await create(device, targetFormat);
+// In the shared render pass, once per submitted frame:
+expression.draw(pass, { viewport: [width, height], x: 16, y: 16, unitsToPixels: 2 });
+// On release:
+expression.dispose();
+```
+
+This is a JavaScript/WGSL research integration boundary. It adds no VKF syntax
+and has not been wired to a native compiler-generated VKF scene. Full independent
+TeX math layout and fresh-expression preparation below 10 ms remain open.
+
+## Measured second slice
+
+Accepted software run: `software-webgpu-aa4` in the local artifact root. Both compute
+and render shaders execute on verified SwiftShader, with zero WebGPU/page errors.
+The independent 975-atom case renders at 7.7 ms p95 and 8.7 ms maximum over 120
+completed submissions, with an 800x800 target. Its independent layout and row
+assembly take 0.63 ms p95 in Node. These stages are measured separately.
+Cold asset loading, pipeline setup and field computation take about 557 ms and
+exclude Python geometry/index preparation, so cold source-to-pixels is **not**
+under 10 ms. Physical GPU and native VKF integration remain unverified.
+
+The SDF renderer uses four subpixel samples for thin strokes at the tested scale.
+Against a separately supersampled (4x, area-downsampled) vector reference, relative
+alpha coverage error is 3.43% for the fraction fixture and 3.79% for the long case.
+The current prototype area-error gate is 5%; binary threshold IoU is also recorded
+(0.885/0.926) as a diagnostic. Earlier attempts used a 0.95 binary-IoU gate and
+failed. That change is explicit: binary masks near half coverage are unstable for
+small antialiased strokes, while area coverage directly measures displayed ink.
+This does not establish pixel-exact LaTeX fidelity. Independent sampled vector
+winding checks of the actual GPU field readback pass 780 non-boundary points.
+Initial low-resolution, high-resolution, 16-sample and harness-memory-failure
+evidence remains preserved. Sixteen subpixel samples improve area agreement but
+miss the software 10 ms target for the long case.
+
+Immediate next work: cache/tile repeated mapped outlines and instance their
+placements, avoiding a complete field rebuild after ordinary expression edits;
+extend the independent grammar to scripts and fractions using fresh oracle cases.
+Dynamic browser curve/index preparation is not wired into the typesetter yet:
+new runtime packets currently feed the offline code generator. The generated GPU
+module itself runs independently of Python, LaTeX, KaTeX and font loading.

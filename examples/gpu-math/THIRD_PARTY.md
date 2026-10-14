@@ -1,4 +1,7 @@
-This candidate runs installed tools; it does not vendor their engines or fonts.
+This candidate runs installed tools; it does not vendor their engines. The generated
+symbol mapping includes outline data derived from the standard AMS Computer Modern
+Type1 fonts. Their notices and SIL Open Font License are preserved in
+AMS-FONTS-NOTICES.txt and AMS-FONTS-OFL.txt.
 Source and generated-field receipts preserve the identities of used tools,
 packages, font maps, TeX metrics and Type1 outlines. Generated artwork and field
 textures are separate ignored research artifacts.
