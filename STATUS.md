@@ -31,7 +31,13 @@ setup1296ms is separate. Physical GPU/device, physical presentation and full
 LaTeX/font compatibility are not established. Earlier attempts/failures retained
 under alphabets, alphabets-final and page-flow in the existing artifact root.
 No other-chat worktree, GPU stop, Cuvami deployment or registry evidence changes.
-Publication identity follows once the live checks finish.
+Published runtime12b41904f29c66eb08fc6c736a8e7cf8a4b2f3eb;
+public main8f3f3ced6524bad7186934d98c39e6d46131d7c8. Reviewed-byte Pages
+workflow38583936681 succeeds. Live code/metric hashes,13 canvas examples,
+width/size reflow, color/opacity taps and draft updates pass without page/GPU
+errors or phone-width overflow. Livewarm60-edit p95/max11.2/32.6ms; cold setup1461ms.
+Live color pixels and newlines/reflow counts are retained with all source/native
+receipts in page-flow/PUBLICATION.json.
 
 # GPU math accents, annotations, arrows and SI units — 2026-10-14
 
