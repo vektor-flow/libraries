@@ -517,3 +517,52 @@ cancel/collect, and area second differences increase in cancel/fraction. Attache
 body coverage remains clamped and raster repair remains. Do not claim every snap,
 clump or mass reversal is eliminated. Previous movies and failed trials remain
 preserved in join-timing-only, joined-area-only and the surrounding logs/receipts.
+
+
+## Forward merge-first surface experiment (2026-10-14)
+
+The owner rejected the apparent docking behavior of the preceding candidate.
+`coalescing_transport.py` uses endpoint-only grouping from the previous inference,
+but discards the partition-shaped child morphs. Each input symbol translates in
+its original shape. Once a cohort becomes connected, the inward relative motion
+eases off over 0.08 normalized time while its combined field reforms toward the
+single target over 0.28 normalized time. A shared affine extent change acts on the
+whole joined shape; input symbols are never individually pre-fitted to the target.
+Global translation continues during reformation. There is no image cross-fade.
+
+Three new tests establish no target-field influence before contact, a continuous
+contact handoff, and a merged body that still changes shape afterward, with exact
+endpoints and monotone count in the fixture. All 70 Python tests pass.
+
+The accepted collection preview is deliberately one 12-second clip:
+
+    python examples/katex-transport/render_coalescence.py /path/to/katex-clean 07-collect
+    python examples/katex-transport/encode_coalescence.py /path/to/katex-clean 07-collect
+    python examples/katex-transport/verify_coalescence.py /path/to/katex-clean 07-collect
+
+Movie: `coalescence/07-collect.mp4`. All 360 decoded counts match the monotone
+sequence 5→3→2; all 312 moving frames replay independently without overlap between
+unrelated shared bodies. Held silhouettes have IoU 1.0; 98%/99% target IoU is
+0.999024/1.0. The cohort contact estimates are 0.30208/0.31417; visible sampled
+merges happen at 0.30225/0.30868. Reformation finishes near 0.58208/0.59417 while
+translation continues. Centre step/second-difference maxima are 1.161/0.0115 px.
+
+This is a proof of the requested sequence, not a uniformly better morph. Shared
+field interpolation can fragment. A sampled scalar neck offset anticipates local
+connectivity loss, with a bounded search, temporal smoothing and endpoint ramps;
+this avoids adding arbitrary line segments but can thicken the whole surface.
+Accepted maximum offsets are 5.059/7.116 px. Excess thickness is 0.40841 versus
+0.04752 in the prior joined clip, and normalized area second difference is 0.03463
+versus 0.00430. Those regressions are substantial. Pixel union and contour offsets
+are not material-conserving transport. Early count events are clustered rather
+than optimizing the earlier soft event-spacing objective.
+
+The harder cancellation and fraction cases fail per-body monotone-count checks
+at normalized times 0.35691 and 0.27653 across the tested lanes. They have explicit
+failure receipts and are excluded from the preview. Rendering requested failed
+cases returns a failure status. Do not present this as a general solved algorithm.
+The next geometry task is local, mass-aware shared-body reformation without global
+inflation or fragmentation; scheduling individual docking shapes is no longer the
+model used by this experiment. Evidence, failures and the first coalescence movie
+remain in coalescence/, coalescence-initial/ and the adjacent logs/source snapshot.
+No native GPU distance-field integration, compiler change, deployment or main merge.

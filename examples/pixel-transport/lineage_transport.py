@@ -309,7 +309,12 @@ def frame(plan,t,state,size=(1280,720),offset=np.array([-800.,-450.])):
         if plan.get('contact_grace',False):image[y:y+h,x:x+w]=np.minimum(1,image[y:y+h,x:x+w]+s['alpha'])
         else:image[y:y+h,x:x+w]+=s['alpha']
     count=ndi.label(image>.5)[1]
-    if plan.get('contact_grace',False):
+    if plan.get('coalescing',False):
+        group_counts=[int(ndi.label(s['alpha']>.5)[1]) for s in stamps]
+        previous=state.get('group_counts',group_counts)
+        if count!=sum(group_counts) or any(n>p for n,p in zip(group_counts,previous)):raise ValueError(('Shared-body count reversal',previous,group_counts,count))
+        state['group_counts']=group_counts
+    elif plan.get('contact_grace',False):
         if count>len(nodes) or count<state.get('count',len(plan['roots'])):raise ValueError(f'Contact count reversal {state.get("count")} -> {count}')
         state['count']=count
     elif count!=len(nodes):raise ValueError(f'Visible count {count} differs from lineage count {len(nodes)}')

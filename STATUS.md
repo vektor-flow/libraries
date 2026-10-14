@@ -1,3 +1,15 @@
+# Shared-body coalescence experiment — 2026-10-14
+
+Owner rejected the earlier "dock, then finish" behavior. A separate forward
+candidate now translates intact input symbols into contact and reforms a shared
+surface afterward, with no target partitions for incoming pieces. The collection
+example passes 70 tests plus all 360 decoded counts, endpoint silhouettes and
+independent replay/ownership checks. This is a behavioral experiment, not an
+overall quality improvement: excess thickness and area second differences worsen.
+Cancellation and fraction cases are rejected for count reversals and are not
+included in the 12-second preview. Earlier candidates remain intact. See the
+KaTeX README and coalescence evidence for the open failures.
+
 # Earlier contact and lower-area merges — 2026-10-14
 
 New isolated three-case merge movie targets the late contact snap and clumping.
