@@ -20,7 +20,8 @@
     "./embedding-transport": "./browser-ui/vf-embedding-transport.mjs",
     "./branching-transport": "./browser-ui/vf-branching-transport.mjs",
     "./transition-clock": "./browser-ui/vf-transition-clock.mjs",
-    "./visual-properties": "./browser-ui/vf-visual-properties.mjs"
+    "./visual-properties": "./browser-ui/vf-visual-properties.mjs",
+    "./object-transport": "./browser-ui/vf-object-transport.mjs"
   },
   "files": [
     "browser-ui",
@@ -36,6 +37,6 @@
   },
   "scripts": {
     "test": "vitest run tests/browser-ui",
-    "test:embedding": "node --test tests/embedding-transport.test.mjs tests/branching-transport.test.mjs tests/visual-properties.test.mjs"
+    "test:embedding": "node --test tests/embedding-transport.test.mjs tests/branching-transport.test.mjs tests/visual-properties.test.mjs tests/object-transport.test.mjs"
   }
 }

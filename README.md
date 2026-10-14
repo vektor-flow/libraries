@@ -82,3 +82,6 @@ example and smooth visual properties. These are JavaScript research APIs, not
 new VKF syntax or compiler/physics acceptance. `npm run test:embedding` uses
 Node's built-in test runner with no additional dependencies. See
 [the prototype notes](examples/embedding-transport/README.md).
+
+Pixel-only sentence/shape matching and collision-checked MP4 studies are in
+[the raster research notes](examples/pixel-transport/README.md).

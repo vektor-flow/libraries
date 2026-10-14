@@ -1,3 +1,14 @@
+# Pixel correspondence follow-up — 2026-10-14
+
+Added a pixel-only foreground research path: heuristic multiscale grouping,
+rotation-aware shape assignment, curved collision-checked rigid routes, and three
+real MP4s including full sentences. Six new Python tests pass. The shared JS
+object adapter independently fits affine/residual motion for supplied object
+identities; 27 embedding tests and all 88 existing library tests pass.
+See examples/pixel-transport/README.md for exact limits. General RGB segmentation,
+automatic split/merge and residual pixel transport are not solved. No deployment,
+compiler modification, main merge, or physical GPU acceptance.
+
 # Embedding research candidate — 2026-10-14
 
 Branch codex/embedding-transport-20261014 is based on the immutable integration178
