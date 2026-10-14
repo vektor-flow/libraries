@@ -30,6 +30,29 @@ class SceneTests(unittest.TestCase):
   for t in [1e-4,1-1e-4]:
    anchor=0 if t<.5 else 1
    self.assertLess(max(np.max(abs(p-q)) for a,b in zip(scene.contours(t),scene.contours(anchor)) for p,q in zip(a,b)),1e-6)
+ def test_vertical_exchange_uses_transverse_route(self):
+  a=[[p+[0,-100] for p in ring(30,10)],[p+[0,100] for p in ring(40,12)]]
+  b=[[p+[0,100] for p in ring(30,10)],[p+[0,-100] for p in ring(40,12)]]
+  scene=RoutedScene(a,b)
+  self.assertEqual(scene.axis,0)
+  for t in np.linspace(0,1,41):
+   self.assertEqual(topology(draw_scene(scene.contours(float(t)))>127),(2,2))
+ def test_routing_rejects_overlapping_endpoints(self):
+  with self.assertRaises(ValueError):RoutedScene([ring(30,10),ring(40,12)],[ring(30,10),ring(40,12)])
+ def test_full_planar_search_handles_rotated_crossing_layout(self):
+  from stress_transport import generated
+  angle=float(np.random.default_rng(7104).uniform(0,np.pi))
+  a,b=generated(104,4,angle,True);scene=RoutedScene(a,b)
+  self.assertIsNone(scene.axis)
+  for t in np.linspace(0,1,21):
+   self.assertEqual(topology(draw_scene(scene.contours(float(t)),ss=8)>127),scene.expected)
+ def test_target_list_order_does_not_supply_correspondence(self):
+  from stress_transport import generated
+  a,b=generated(7,4,np.pi/4);b=[b[i] for i in [2,0,3,1]]
+  scene=RoutedScene(a,b)
+  self.assertTrue(all(part[3] for part in scene.parts))
+  for t in np.linspace(0,1,21):
+   self.assertEqual(topology(draw_scene(scene.contours(float(t)),ss=8)>127),scene.expected)
  def test_count_mismatch_is_rejected(self):
   with self.assertRaises(ValueError):Scene([ring(40,12)],[ring(40,12),[p+[120,0] for p in ring(40,12)]])
  def test_division_is_monotone_and_coverage_changes_continuously(self):

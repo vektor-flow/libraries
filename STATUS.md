@@ -1,3 +1,20 @@
+# Generated routing generalization — 2026-10-14
+
+Owner requires a shared endpoint-only algorithm, not formula-specific fixes.
+Forty generated permutation scenes now pass3,240 sampled states: two to seven
+bodies, holes, concavity, arbitrary layout orientation, common scaling/translation,
+and reversed endpoints. Fourteen focused tests pass, including shuffled target
+ordering. Initial vertical-only routing failed2/16 base cases; both-axis routing
+then failed additional crossing layouts. Generic priority retries and a full2D
+path search fix those without formula names, seeds or authored mappings in the
+solver. Existing polynomial movie knots and31 sampled contour states are exactly
+unchanged. Evidence: Cuvami staging/artifacts/embedding-transport/generalization.
+
+Coverage is fixed-shape planar routing with sampled validation. General affine
+matching, nonrigid topology changes and branching remain unfinished; the four
+unsolved math operations remain in the benchmark. No claim of a complete solver,
+global optimum or continuous collision proof. No deployment/other-chat changes.
+
 # Real math routing correction — 2026-10-14
 
 The first actual algebra operation, x²+y²+z² → z²+x²+y², now has a verified

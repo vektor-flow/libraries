@@ -153,3 +153,44 @@ identical contour arrays at21 sample times each. Original movies, initial failed
 single-arc routing attempts, raster failures and the first unsmoothed route movie
 remain in Cuvami staging/artifacts/embedding-transport/field-real-math. No compiler,
 GPU, other-chat worktree, staging deployment or registry changes.
+
+## Generated routing regressions
+
+The owner requires improvements to the shared algorithm, without formula-specific
+exceptions. `RoutedScene` accepts only anonymous endpoint contours. It has no
+formula identifier, symbol name, seed, target-list identity, or authored trajectory.
+`stress_transport.py` independently generates permutations of two to seven
+bodies, holes, concave outlines, rotated layouts, common scale/translation changes
+and reversed endpoints. A focused regression also scrambles target-list order.
+These are fixed-shape translation problems; rotating an entire input layout is
+not a test of object rotation between endpoints. This distinction matters.
+
+The original vertical-detour search failed two of sixteen generated layouts.
+Both-axis search fixed those, but the additional seeds exposed crossings for
+which neither one-axis corridor connected the endpoints. The shared algorithm
+now searches geometry-derived priority orders and, when needed, a full planar
+offset lattice. Feasible one-axis candidates are compared by detour/motion cost.
+The full planar fallback smooths both coordinates inside conservative rectangular
+corridors. All candidates undergo a denser 1,001-sample collision-obstacle and
+viewport check after smoothing; independent raster/topology checks still apply.
+Endpoint overlap is rejected before planning. No collision/topology tolerance was
+relaxed, no symbol is shrunk, and failed candidates are not rendered as successes.
+
+    python examples/field-transport/stress_transport.py BASE_REPORT
+    python examples/field-transport/stress_transport.py ADDITIONAL_REPORT --start-seed 100 --seeds 12 --varied
+
+The corpus seeds and generator hash are recorded with the denominator and every
+failure. Preserve the baseline, intermediate both-axis/priority failures, and
+final planar reports in Cuvami staging/artifacts/embedding-transport/generalization.
+The existing polynomial movie's plan remains exactly unchanged: identical offset
+knots and identical contour arrays at31 checked times.
+
+This remains a bounded prioritized routing algorithm with sampled verification,
+not a complete solver or proof of continuous collision freedom. Passing this
+corpus does not establish arbitrary affine matching, morphology, hole creation,
+or split/merge transport. The four unsolved algebra operations remain visible in
+the separate math benchmark and must not be counted as covered by routing tests.
+
+Final generated result:40/40 cases,3,240 independently raster-checked states;
+14 focused tests pass. This denominator covers translation/permutation families
+only. It does not include the four currently unsolved algebra transformations.
