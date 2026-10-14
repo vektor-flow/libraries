@@ -3,6 +3,7 @@ import numpy as np
 from field_transport import ring,topology,clock
 from scene_transport import Scene,draw_scene
 from division_field import division,start_area,end_area
+from rigid_routes import RoutedScene
 
 class SceneTests(unittest.TestCase):
  def test_translation_keeps_contours_rigid(self):
@@ -12,6 +13,23 @@ class SceneTests(unittest.TestCase):
    loops=scene.contours(t)[0]
    for p,q in zip(scene.contours(0)[0],loops):np.testing.assert_allclose(q-p,np.tile(clock(t)*np.array([140,35]),(len(p),1)),atol=1e-7)
    self.assertEqual(topology(draw_scene([loops])>127),(1,1))
+ def test_exact_shapes_win_over_shorter_wrong_shape_assignments(self):
+  square=np.array([[-25,-25],[25,-25],[25,25],[-25,25]])
+  triangle=np.array([[-25,-25],[25,-25],[0,25]])
+  a=[[square+[-350,0]],[triangle+[350,0]]]
+  b=[[triangle+[-350,0]],[square+[350,0]]]
+  scene=Scene(a,b,exact_first=True)
+  self.assertTrue(all(p[3] for p in scene.parts))
+  self.assertGreater(scene.parts[0][2][0],300)
+ def test_routing_keeps_holes_and_separates_exchanging_bodies(self):
+  a=[[p+[-100,0] for p in ring(30,10)],[p+[100,0] for p in ring(40,12)]]
+  b=[[p+[100,0] for p in ring(30,10)],[p+[-100,0] for p in ring(40,12)]]
+  scene=RoutedScene(a,b)
+  for t in np.linspace(0,1,41):
+   self.assertEqual(topology(draw_scene(scene.contours(float(t)))>127),(2,2))
+  for t in [1e-4,1-1e-4]:
+   anchor=0 if t<.5 else 1
+   self.assertLess(max(np.max(abs(p-q)) for a,b in zip(scene.contours(t),scene.contours(anchor)) for p,q in zip(a,b)),1e-6)
  def test_count_mismatch_is_rejected(self):
   with self.assertRaises(ValueError):Scene([ring(40,12)],[ring(40,12),[p+[120,0] for p in ring(40,12)]])
  def test_division_is_monotone_and_coverage_changes_continuously(self):

@@ -37,18 +37,19 @@ def fit(a,b):
  return result
 
 class Scene:
- def __init__(self,a,b):
+ def __init__(self,a,b,exact_first=False):
   if len(a)!=len(b):raise ValueError(('Branching required',len(a),len(b)))
   self.source=a;self.target=b
   center=lambda body:(np.concatenate(body).min(0)+np.concatenate(body).max(0))/2
   ca=np.array([center(x) for x in a]);cb=np.array([center(x) for x in b]);cost=np.linalg.norm(ca[:,None,:]-cb[None,:,:],axis=2)
+  shape_penalty=(len(a)+1)*max(float(cost.max()),1.) if exact_first else 500
   for i,x in enumerate(a):
    for j,y in enumerate(b):
     if len(x)!=len(y):cost[i,j]=1e9
     else:
      u=normalize([p-ca[i] for p in x]);v=normalize([p-cb[j] for p in y])
      exact=all(np.max(abs(p-q))<.05 for p,q in zip(u,v))
-     if not exact:cost[i,j]+=500
+     if not exact:cost[i,j]+=shape_penalty
   rows,cols=linear_sum_assignment(cost)
   if any(cost[i,j]>1e8 for i,j in zip(rows,cols)):raise ValueError('Per-body hole topology needs a different planner')
   self.parts=[]

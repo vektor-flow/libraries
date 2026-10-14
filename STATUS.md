@@ -1,3 +1,20 @@
+# Real math routing correction — 2026-10-14
+
+The first actual algebra operation, x²+y²+z² → z²+x²+y², now has a verified
+six-second native-field movie. Exact-shape priority and silhouette-based planar
+routing preserve all eight bodies without morphing or overlapping. C2 paths and
+the existing quintic/color clocks retain stationary endpoints. Ten focused tests
+pass;312 source/360 decoded frames and623 sampled states pass. Earlier four
+scene contour results remain unchanged at21 sample times each. See
+examples/field-transport/README.md and Cuvami staging/artifacts/embedding-transport/
+field-real-math/rendered-smooth/reorder.mp4.
+
+The full five-operation request is NOT complete: distribution, collection,
+factorization and cancellation remain rejected for nonrigid/branching mapping.
+They are explicit cases in prepare_math_scenes.mjs / verify_math_cases.py, not
+replaced with more O→D scenes. Preserve all trials. No deployment or other-chat
+source changes.
+
 # Expanded colored native-field scenes — 2026-10-14
 
 Six new six-second clips form a36-second60fps movie: a rigid moving sentence

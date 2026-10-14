@@ -5,15 +5,16 @@ from scipy import ndimage as ndi
 from field_transport import Atlas,clock,topology,crossings,ring
 from scene_transport import endpoint,fit,Scene,draw_scene
 from division_field import division
+from rigid_routes import RoutedScene
 
 def linear(rgb):
  x=np.asarray(rgb,dtype=float)/255
  return np.where(x<=.04045,x/12.92,((x+.055)/1.055)**2.4)
 def srgb(x):return np.clip(np.where(x<=.0031308,12.92*x,1.055*np.maximum(x,0)**(1/2.4)-.055)*255,0,255)
-p=argparse.ArgumentParser();p.add_argument('atlas',type=Path);p.add_argument('layouts',type=Path);p.add_argument('out',type=Path);p.add_argument('--cases',nargs='*');args=p.parse_args();args.out.mkdir(exist_ok=True)
+p=argparse.ArgumentParser();p.add_argument('atlas',type=Path);p.add_argument('layouts',type=Path);p.add_argument('out',type=Path);p.add_argument('--cases',nargs='*');p.add_argument('--routed',action='store_true');args=p.parse_args();args.out.mkdir(exist_ok=True)
 atlas=Atlas(args.atlas);layouts=json.loads(args.layouts.read_text());bg=np.array([16,25,25]);back=linear(bg);receipts=[]
 palettes=[([65,215,245],[255,110,130]),([243,108,203],[255,211,83]),([105,145,255],[138,238,107]),([182,123,255],[64,224,193])]
-all_cases=['sentence','powers','fraction','mixed','division','fusion']
+all_cases=args.cases or ['sentence','powers','fraction','mixed','division','fusion']
 for index,name in enumerate(all_cases):
  if args.cases and name not in args.cases:continue
  try:
@@ -33,7 +34,7 @@ for index,name in enumerate(all_cases):
      # Replace only the source annulus geometry with an analytic ring.
      hole=next(i for i,body in enumerate(a) if len(body)==2);cloud=np.concatenate(a[hole]);center=(cloud.min(0)+cloud.max(0))/2;radius=(cloud.max(0)-cloud.min(0))[1]/2
      a[hole]=[q+center for q in ring(radius,radius*.18)]
-    scene=Scene(a,b)
+    scene=(RoutedScene if args.routed else Scene)(a,b)
    previous=None
    for k,t in enumerate(np.linspace(0,1,312)):
     if name in ['division','fusion']:
@@ -45,7 +46,7 @@ for index,name in enumerate(all_cases):
       for j,p in enumerate(body):
        assert not crossings(p,p,True),(name,k,'self crossing')
        for q in body[:j]:assert not crossings(p,q),(name,k,'hole crossing')
-     im=draw_scene(bodies)
+     im=draw_scene(bodies,ss=8 if args.routed else 4)
     count,hole_count=topology(im>127)
     if name in ['division','fusion']:
      assert hole_count==0
@@ -83,4 +84,4 @@ listing=args.out/'concat.txt';listing.write_text(''.join(f"file '{r['case']}.mp4
 if receipts:
  movie=args.out/'more-field-examples-2x.mp4';subprocess.run(['ffmpeg','-v','error','-y','-f','concat','-safe','0','-i',str(listing),'-c','copy','-movflags','+faststart',str(movie)],check=True)
  (args.out/'verification.json').write_text(json.dumps(dict(cases=receipts,seconds=len(receipts)*6,fps=60,atlas=atlas.provenance,sha256=hashlib.sha256(movie.read_bytes()).hexdigest()),indent=2)+'\n')
-if len(receipts)!=6:raise SystemExit('Some cases rejected; see failure receipts')
+if len(receipts)!=len(all_cases):raise SystemExit('Some cases rejected; see failure receipts')

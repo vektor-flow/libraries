@@ -112,3 +112,44 @@ pixel displacement. IoU is also reported, but a fixed relative-area cutoff is
 unsuitable for comparing tiny text strokes with the earlier giant glyphs. The
 initial0.99/0.97-gate failures remain recorded; the one-pixel check applies uniformly
 to all cases. Preserve the initial layout/probe/serialization/codec trials.
+
+## Actual math benchmark and fixed-shape routing
+
+The larger-math request is now tracked with five distinct endpoint operations:
+reorder x²+y²+z² → z²+x²+y²; distribute a(b+c+d) → ab+ac+ad;
+collect x+x+x+y+y → 3x+2y; factor x²+2x+1 → (x+1)²; and cancel
+(x²−1)/(x−1) → x+1. `prepare_math_scenes.mjs` takes the same runtime/atlas/output
+arguments as the previous generator. It does not send symbol names to matching.
+`verify_math_cases.py ATLAS LAYOUTS REPORT` retains unsuccessful operations in
+its report and exits unsuccessfully if any remain unsolved. Reordering passes;
+the other four still need validated nonrigid/branching correspondence. They are
+not replaced with more O→D demonstrations.
+
+`rigid_routes.py` is a separate fixed-shape candidate. Exact geometry matches
+outrank proximity in its assignment, fixing the prior preference for a nearby
+wrong shape over a farther identical one. Anonymous silhouette correlations
+construct pairwise collision obstacles. A time/vertical-offset lattice finds
+passing corridors; bounded quadratic smoothing penalizes travel and acceleration
+inside those corridors. C2 cubic paths use the existing quintic clock, preserving
+zero endpoint velocity and acceleration. All parts retain their geometry, area,
+and holes; no shrinking, rotation, fading, or contour deformation is introduced
+to evade obstacles. This is prioritized bounded routing, not a global optimum or
+complete planar planner. Large detours can remain. Dense sampled raster checks
+remain mandatory; the planning grid alone is not an acceptance check.
+
+    python examples/field-transport/render_scene_study.py ATLAS LAYOUTS FRESH_OUTPUT --cases reorder --routed
+
+The six-second colored polynomial movie passes all312 source frames and360
+decoded frames; another623-state check includes half-frame positions. The decoded
+silhouette stays within the existing one-boundary-pixel tolerance. Minimum IoU
+is0.979114. Ten focused tests pass, including unchanged-shape matching across a
+large exchange and collision-free routing of two holed bodies. Quadratic path
+smoothing reduced peak sampled transverse second difference from1.7053 to0.3975
+pixels/frame²; this is a numerical comparison, not perceptual acceptance.
+
+Earlier contour/color behavior stays on its original path: exact-first matching
+is opt-in for the routing candidate. The previous four scene layouts reproduce
+identical contour arrays at21 sample times each. Original movies, initial failed
+single-arc routing attempts, raster failures and the first unsmoothed route movie
+remain in Cuvami staging/artifacts/embedding-transport/field-real-math. No compiler,
+GPU, other-chat worktree, staging deployment or registry changes.
