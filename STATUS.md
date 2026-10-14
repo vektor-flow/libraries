@@ -1,3 +1,13 @@
+# Expanded geometry/text preview at twice speed — 2026-10-14
+
+Six accepted sequential cases now run in 36 seconds at 60 fps: the existing
+collection plus five new geometry/mixed-text cases. All 71 tests pass, with
+2,160 decoded frames and 1,872 independent motion-frame replays checked. Equal
+count changes preserve endpoint direction; splitting uses reversed merge solves.
+Nine new stress pairs were added, but four fail, as do the other five older
+formulas under this model. Prior evidence is preserved. See the KaTeX README;
+shared-field clumping, area changes and general topology remain unresolved.
+
 # Shared-body coalescence experiment — 2026-10-14
 
 Owner rejected the earlier "dock, then finish" behavior. A separate forward

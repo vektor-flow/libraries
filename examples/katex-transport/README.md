@@ -566,3 +566,36 @@ inflation or fragmentation; scheduling individual docking shapes is no longer th
 model used by this experiment. Evidence, failures and the first coalescence movie
 remain in coalescence/, coalescence-initial/ and the adjacent logs/source snapshot.
 No native GPU distance-field integration, compiler change, deployment or main merge.
+
+## Twice-speed geometry and text suite (2026-10-14)
+
+`render_mixed_inputs.mjs` adds nine endpoint pairs: shape merging/reformation,
+ring-to-letter, mixed geometry and math, a letter-to-geometry split, nested
+fractions, longer factorization and a full sentence. KaTeX 0.19.0 and SVG produce
+only endpoint PNGs; the solver receives no object labels or formula metadata.
+The equal-count path now preserves the requested direction. Increasing-count
+examples are solved in the decreasing direction and played backward. This is a
+reversible surface experiment, not a new physical division law.
+
+    node examples/katex-transport/render_mixed_inputs.mjs /path/to/katex-clean
+    python examples/katex-transport/render_expanded.py /path/to/katex-clean 10-geometry-merge 11-geometry-reform 12-ring-to-text 14-mixed-split 18-mixed-reform
+    python examples/katex-transport/encode_expanded.py /path/to/katex-clean 10-geometry-merge 11-geometry-reform 12-ring-to-text 14-mixed-split 18-mixed-reform
+    python examples/katex-transport/verify_expanded.py /path/to/katex-clean 10-geometry-merge 11-geometry-reform 12-ring-to-text 14-mixed-split 18-mixed-reform
+
+Outputs are isolated in `expanded/`. Existing collection frames are also reused
+there with provenance in their verification receipt. The delivered combined movie
+adds that case to the five new accepted examples: 36 seconds, 60 fps, six seconds
+per case, exactly twice the previous playback rate with all samples retained.
+All 2,160 decoded frames pass counts and exact held silhouettes; all 1,872 motion
+frames independently replay without unrelated-body overlap. Concatenation hashes
+match the decoded component movies. The Python suite passes 71 tests, including
+an equal-count endpoint/direction regression.
+
+The other five old formulas and four new harder cases remain rejected: count
+reversals, an inherited serial-split scheduling limit for nested fractions, and
+large path corrections in the sentence. All failures are preserved. An optional
+`--phase-guard` / `--output expanded-guard` trial checks additional field levels;
+it did not fix the old formula failures and is not used in the accepted suite.
+New cases use a 1.6 px neck probe, while reused collection retains 0.8 px. These
+sampled checks do not prove continuous-time topology, physical mass conservation,
+or elimination of clumping/speed changes. No GPU, compiler, deployment or main merge.

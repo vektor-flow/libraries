@@ -20,6 +20,17 @@ class CoalescingTests(unittest.TestCase):
         early=CoalescingPatch(node,node.contact_time+.04).field_on_grid()
         late=CoalescingPatch(node,.85).field_on_grid()
         self.assertGreater(abs(np.clip(early+.5,0,1)-np.clip(late+.5,0,1)).sum(),100)
+    def test_equal_count_morph_preserves_direction_and_endpoints(self):
+        y,x=np.mgrid[:180,:300]
+        a=(((x-70)**2+(y-75)**2)<16**2).astype(float)
+        b=np.zeros_like(a);b[60:120,205:225]=1
+        plan=make_plan(a,b,1);state={};images=[]
+        for t in np.linspace(0,1,61):
+            im,row=frame(plan,float(t),state,size=(300,180),offset=np.zeros(2))
+            self.assertEqual(row['count'],1);images.append(im)
+        np.testing.assert_array_equal(images[0],a)
+        np.testing.assert_array_equal(images[-1],b)
+
     def test_contact_surface_has_no_finite_handoff_jump(self):
         _,_,p=self.fixture();n=p['roots'][0];t=n.contact_time
         def delta(eps):

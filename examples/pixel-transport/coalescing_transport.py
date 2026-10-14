@@ -9,9 +9,12 @@ from weighted_transport import calibrate
 from pixel_transport import clock
 
 
-def make_plan(start,end,scale=3,lane_scale=.5):
+def make_plan(start,end,scale=3,lane_scale=.5,neck_width=.8,phase_guard=False):
     old=lineage_plan(start,end,scale)
-    if not old['reverse']:raise ValueError('This candidate tests decreasing-count merges')
+    if old['source_count']==old['target_count']:
+        old=lineage_plan(end,start,scale)
+    elif not old['reverse']:
+        raise ValueError('Render the decreasing-count direction and reverse for splits')
     roots=[]
     def leaves(node):return sum([leaves(c) for c in node.children],[]) if node.children else [node]
     for original in old['roots']:
@@ -30,6 +33,8 @@ def make_plan(start,end,scale=3,lane_scale=.5):
         node.field_pad=int(max(node.canvas))+8
         node.source_fields=[distance_field(np.pad(p.patch,node.field_pad)) for p in parts]
         node.target_field=distance_field(np.pad(node.final.patch,node.field_pad))
+        node.neck_width=neck_width
+        node.phase_guard=phase_guard
         node.collapse_time=.58
         node.contact_time=0.
         if len(parts)>1:
@@ -95,8 +100,10 @@ class CoalescingPatch:
                 for time in times:
                     raw=CoalescingPatch(n,float(time)).field_on_grid(regularize=False)
                     env=clock(min((time-n.contact_time)/.08,1))*clock(min((finish-time)/.08,1))
-                    neck=.8*env
-                    def feasible(shift):return ndi.label(raw+shift>0)[1]==1 and ndi.label(raw+shift>neck)[1]<=1
+                    neck=n.neck_width*env
+                    def feasible(shift):
+                        levels=[0,neck] if not n.phase_guard else [-neck,0,neck/2,neck]
+                        return ndi.label(raw+shift>0)[1]==1 and all(ndi.label(raw+shift>level)[1]<=1 for level in levels)
                     shift=0.
                     if not feasible(0):
                         for shift in np.arange(.25,12.01,.25):
