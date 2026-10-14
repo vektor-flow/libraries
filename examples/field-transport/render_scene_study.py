@@ -24,7 +24,9 @@ for index,name in enumerate(all_cases):
    frames=[];counts=[];holes=[];areas=[]
    if name not in ['division','fusion']:
     item=next(c for c in layouts if c['id']==name)
-    a,b=fit(endpoint(atlas,item['from']),endpoint(atlas,item['to']))
+    if 'geometry' in item:
+     a,b=[[[np.asarray(p,dtype=float) for p in body] for body in side] for side in item['geometry']]
+    else:a,b=fit(endpoint(atlas,item['from']),endpoint(atlas,item['to']))
     if name=='sentence':
      a,_=fit(endpoint(atlas,item['from']),endpoint(atlas,item['from']));b=[]
      for body in a:

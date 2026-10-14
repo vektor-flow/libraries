@@ -194,3 +194,24 @@ the separate math benchmark and must not be counted as covered by routing tests.
 Final generated result:40/40 cases,3,240 independently raster-checked states;
 14 focused tests pass. This denominator covers translation/permutation families
 only. It does not include the four currently unsolved algebra transformations.
+
+## Routing demonstration video
+
+The requested30-second60fps video joins the verified native-field polynomial
+rearrangement with four nonrepeated generated routing cases: five-body vertical
+layout, four-body full-planar crossing, seven-body full-planar crossing, and
+six-body oblique layout. One evolving scene appears at a time. Existing six-second
+clip timing and linear-light color blends are retained. This demonstrates routing,
+not the unfinished algebraic split/merge transformations.
+
+`render_scene_study.py` also accepts layout entries with `geometry:[start,end]`,
+where each side contains bodies of closed contour point arrays. This is a data
+adapter; the solver receives no scene identifiers. All1,248 new source frames and
+1,440 new decoded frames passed the unchanged topology/overlap/silhouette gates.
+The combined1,800 decoded frames match the five verified source clips byte for
+byte in decoded-frame hashes. Existing movies and all migration evidence remain.
+
+Movie and reproducible join/verification script:
+Cuvami staging/artifacts/embedding-transport/generalization-video/
+cuvami-routing-demonstration.mp4 and join_and_verify.py.
+SHA256:5ba6ddcf6583b6ef7d7a9436a2aa888d0d7a9d125e12c20a4e09faf9dcdfbf6e.

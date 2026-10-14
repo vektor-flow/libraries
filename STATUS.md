@@ -1,3 +1,12 @@
+# Requested routing video — 2026-10-14
+
+Thirty-second60fps video delivered in Cuvami staging/artifacts/embedding-transport/
+generalization-video/cuvami-routing-demonstration.mp4. One native-field polynomial
+rearrangement and four nonrepeated generated routing cases play sequentially.
+All1,800 joined decoded frames match the verified source clips. No solver or
+acceptance-rule changes; only a generic contour-data input adapter for rendering.
+The broader algebraic branching work remains unfinished. See field-transport README.
+
 # Generated routing generalization — 2026-10-14
 
 Owner requires a shared endpoint-only algorithm, not formula-specific fixes.
