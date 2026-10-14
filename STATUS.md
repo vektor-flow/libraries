@@ -24,6 +24,13 @@ Evidence/failures preserved in Cuvami staging/artifacts/gpu-math/20261014/transi
 Physical GPU/device, physical presentation and native VKF integration unverified.
 Other-chat worktrees, Cuvami deployments, registry archives and GPU stop untouched.
 
+Published runtime331e1322a1d215a225d4d95018432679bd218084; public main
+8309ba2070ad52cf2007233fbb1f01f8558daa18. Reviewed-byte Pages workflow
+38588077803 succeeds. Live HTTPS runtime hashes match; fresh touch-enabled
+390×844 SwiftShader check verifies playback/scrubbing/tabs/colours with no page/GPU
+errors or overflow. Transform/canvas bottoms remain400/659px; cold setup1477ms.
+Publication receipt and phone-live screenshots remain in the transitions artifacts.
+
 # GPU math page flow, alphabets, size and colour controls — 2026-10-14
 
 Owner requested bare \\ newlines, script/double-stroke alphabets, page-width
