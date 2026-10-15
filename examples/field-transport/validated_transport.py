@@ -32,6 +32,21 @@ class ValidatedBodyPlan(BodyPlan):
  def __init__(self,a,b):
   super().__init__(a,b)
   self.rejected_candidates=[]
+  if self.kind in ['contour','stroke'] and len(a)==len(b)==1:
+   from thin_transport import stroke_width
+   from conservative_thin_transport import ConservativeThinTransport
+   def image(t):
+    return self.plan.image(t)[0] if self.kind=='stroke' else draw_scene([self.contours(t)],ss=8)
+   limit=max(stroke_width(image(t)) for t in [0.,1.])+2.
+   if any(stroke_width(image(t))>limit for t in [.25,.5,.75]):
+    for weight in [0.,1.,.5]:
+     try:
+      candidate=ConservativeThinTransport(a,b,frame_weight=weight)
+      if not valid_body(candidate,a,b):raise ValueError('Thin ribbon topology/endpoint failure')
+      if any(stroke_width(candidate.image(float(t))[0])>limit for t in np.linspace(0,1,33)):
+       raise ValueError('Thin ribbon widened beyond endpoint envelope')
+      self.kind='tree';self.plan=candidate;return
+     except ValueError as exc:self.rejected_candidates.append(dict(thin_frame_weight=weight,error=str(exc)))
   if self.kind!='contour' or len(a)!=1 or valid_body(self,a,b):return
   for weight in [1.,0.,.5]:
    try:
@@ -76,13 +91,23 @@ def validated_replica(source,targets):
 def event_body(a,b):
  if len(a)!=len(b):
   from hole_event_transport import HoleEventPlan
-  return HoleEventPlan(a,b,ValidatedBodyPlan)
+  from thin_event_transport import ThinEventPlan
+  failures=[]
+  for weight in [0.,1.,.5]:
+   try:
+    candidate=ThinEventPlan(a,b,frame_weight=weight)
+    candidate.rejected_candidates=failures;return candidate
+   except ValueError as exc:failures.append(dict(thin_frame_weight=weight,error=str(exc)))
+  candidate=HoleEventPlan(a,b,ValidatedBodyPlan);candidate.rejected_candidates=failures
+  return candidate
  return ValidatedBodyPlan(a,b)
 
 
 class ValidatedCombinedScene(CombinedScene):
  def __init__(self,a,b):
   super().__init__(a,b,body_plan_factory=event_body,replica_factory=validated_replica,allow_hole_events=True,allow_general_branching=True)
+  self.prepare_route()
+ def prepare_route(self):
   self.cohort_route=None;self.motion_clock=None;self.motion_rejection=None
   try:
    for t in np.linspace(0,1,33):super().images(float(t))

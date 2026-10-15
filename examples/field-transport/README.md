@@ -525,3 +525,28 @@ samples checks topology, overlap, viewport and monotone component/hole counts.
 A rejected retiming restores the accepted original route and records its reason.
 The benchmark records motion selection and rejection explicitly. Unrouted scenes
 and the default `CombinedScene` are unchanged.
+
+### Ink area and thin geometry
+
+The owner's morphology rule is to minimize overshoot and reversals in measurable
+shape quantities. Endpoint identity and topology remain mandatory. In particular,
+a thin stroke must not become a solid blob and then shrink when its counter opens.
+`ConservativeThinTransport` bends endpoint-inferred medial paths, interpolates
+local radii, and solves centerline scale for a prescribed quintic coverage area.
+Equal endpoint areas therefore prescribe constant ink area. This replaces width
+dilation as the area correction for the new thin candidates.
+
+One-hole `ThinEventPlan` candidates form their loop ahead of translation/area
+progress with a smooth, stationary-endpoint shape clock. Endpoint scalar detail
+follows shape progress, preventing a late correction from oversizing the counter.
+Sub-four-pixel parasitic cavities are removed on the scalar field before the area
+solve. Every event is checked at 257 states for connectedness, monotone hole count,
+endpoint fidelity and a medial-width envelope (endpoint maximum plus two raster
+pixels); a separately declared event threshold is refined and checked at render.
+
+The area solve has a 0.01-pixel continuous-coverage tolerance. Eight-bit output
+and translated raster masks can have small quantization reversals. Width, counter
+area and extents are measured separately: this is not a guarantee that every
+possible measurement is simultaneously monotone. General multi-hole events and
+replica unions still have their existing planners and limitations. Changed shape
+paths require full-scene route and shared-clock replay before acceptance.

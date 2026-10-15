@@ -13,7 +13,7 @@ from skimage.morphology import skeletonize
 from field_transport import clock
 from replica_transport import ScalarOutline
 
-def medial_path(field,with_branches=False):
+def medial_path(field,with_branches=False,spanning_tree=False,cut_hint=None):
  skeleton=skeletonize(field.field>0);yy,xx=np.nonzero(skeleton);count=len(xx)
  lookup=np.full(skeleton.shape,-1,int);lookup[yy,xx]=np.arange(count)
  rows=[];cols=[];weights=[]
@@ -21,7 +21,19 @@ def medial_path(field,with_branches=False):
   qy,qx=yy+dy,xx+dx;valid=(qy>=0)&(qx>=0)&(qy<skeleton.shape[0])&(qx<skeleton.shape[1])
   source=np.where(valid)[0];target=lookup[qy[valid],qx[valid]];keep=target>=0
   rows.extend(source[keep]);cols.extend(target[keep]);weights.extend([np.hypot(dx,dy)]*int(keep.sum()))
- graph=csr_matrix((weights,(rows,cols)),shape=(count,count));degree=np.diff(graph.indptr);ends=np.flatnonzero(degree==1)
+ graph=csr_matrix((weights,(rows,cols)),shape=(count,count))
+ if spanning_tree:
+  from scipy.sparse.csgraph import minimum_spanning_tree
+  if cut_hint is not None:
+   coordinates=(np.c_[xx,yy]+.5)/field.ss-field.size/2+field.center
+   edges=graph.tocoo();middle=(coordinates[edges.row]+coordinates[edges.col])/2
+   bias=1+10*np.exp(-np.sum((middle-cut_hint)**2,axis=1)/8.)
+   graph=csr_matrix((edges.data*bias,(edges.row,edges.col)),shape=graph.shape)
+  graph=minimum_spanning_tree(graph)
+  # Restore physical edge lengths after choosing which cycle edge to cut.
+  edges=graph.tocoo();length=np.hypot(xx[edges.row]-xx[edges.col],yy[edges.row]-yy[edges.col])
+  graph=csr_matrix((length,(edges.row,edges.col)),shape=graph.shape);graph=graph+graph.T
+ degree=np.diff(graph.indptr);ends=np.flatnonzero(degree==1)
  if not 2<=len(ends)<=20:raise ValueError('No bounded open-stroke medial path')
  distance,previous=dijkstra(graph,directed=False,indices=ends,return_predecessors=True)
  pairs=distance[:,ends];i,j=np.unravel_index(np.argmax(pairs),pairs.shape)

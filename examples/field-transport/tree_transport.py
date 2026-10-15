@@ -48,7 +48,7 @@ class TreeTransport(StrokeTransport):
   f=self.tube(path,radius)
   for branch,radii in branches:f=np.maximum(f,self.tube(branch,radii))
   return f
- def raw(self,t):
+ def geometry(self,t):
   v=clock(t);pairs=self.branch_pairs()
   da=np.diff(self.pa,axis=0);db=np.diff(self.pb,axis=0)
   aa=np.unwrap(np.arctan2(da[:,1],da[:,0]));ab=np.unwrap(np.arctan2(db[:,1],db[:,0]))
@@ -77,7 +77,10 @@ class TreeTransport(StrokeTransport):
    rb=self.b.sample(b[:,0],b[:,1],self.b.center) if b is not None else np.full(len(a),np.interp(sb,grid,self.rb))
    local=(1-self.frame_weight)*global_local+self.frame_weight*((1-v)*local_a+v*local_b)@frame(path,at).T
    branches.append((root+local,(1-v)*ra+v*rb))
-  f=self.reconstructed(path,(1-v)*self.ra+v*self.rb,branches)
+  return path,(1-v)*self.ra+v*self.rb,branches
+ def raw(self,t):
+  v=clock(t);path,radius,branches=self.geometry(t)
+  f=self.reconstructed(path,radius,branches)
   if v<.15 or v>.85:
    start=v<.15;field=self.a if start else self.b;progress=v if start else 1-v
    offset=(self.b.center-self.a.center)*v if start else (self.a.center-self.b.center)*(1-v)
@@ -86,6 +89,7 @@ class TreeTransport(StrokeTransport):
    original=field.sample(self.x,self.y,field.center+offset)
    tube=self.reconstructed(primary+offset,radii,branches)
    f+=max(0.,1-progress/.15)**4*(original-tube)
+  if not getattr(self,'fill_cavities',True):return f
   # Fill enclosed scalar valleys before coverage-area calibration. This is a
   # grayscale geometry operator, not a binary patch on the accepted image.
   # It applies at every field level, including the later calibration threshold.
