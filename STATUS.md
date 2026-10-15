@@ -41,7 +41,10 @@ Report includes original sources/PDFs, direct untimed GPU framebuffer pixels,
 red/blue differences, package diagnostics and timings. Reference image padding
 and hidden-image CSS defects found by phone UI verification were corrected.
 Public preview paths: /previews/gpu-math-typing/document.html and
-/previews/gpu-math-typing/document-checks/. Source scripts reproduce downloads,
+/previews/gpu-math-typing/document-checks/.
+Published runtime source eefd317; reviewed site20e6d7e. Pages workflow38690107903
+succeeded. Eleven live HTTPS files match reviewed bytes; PUBLICATION.json preserves
+the checks. Formula goldens and failed whole-document results are both published. Source scripts reproduce downloads,
 PDF compilation, GPU measurements, comparison and static report generation.
 Physical GPU STOP, unrelated morph work and compiler releases remain untouched.
 
