@@ -1,0 +1,31 @@
+{
+  "device": "NVIDIA GeForce GT1030",
+  "driver": "580.178.04",
+  "backend": "Chrome WebGPU native Vulkan",
+  "software": false,
+  "date": "2026-10-15",
+  "sceneResolution": [
+    1200,
+    760
+  ],
+  "grid": 32,
+  "iterations": 12,
+  "measuredFramesPerVariant": 12,
+  "warmupFramesPerVariant": 4,
+  "referenceCommit": "6e535cb",
+  "referenceEngineSha256": "8d3c2f70fdd3ecad1f9a786e348cfd787b0c8d61be1e7a32cf092c824ef660a9",
+  "referenceShaderSha256": "6e427a5336ed69dfee4d782835ed666789067b9d2d9255d14c140292a354cf8a",
+  "candidateShaderSha256": "ed621aa7c9bb70bf11a448cdf74ba2ebd6f840d590f287e759cdde12cfad995a",
+  "note": "Current engine adds finite-input/grid guards after native timings; shaders match measured candidate. Guarded source passes software reproduction.",
+  "sameDevicePairedComparisons": "gt1030-comparison.json",
+  "physicalStop": {
+    "newXidRecords": 1,
+    "run": "portable capability setup; before engines ready",
+    "cause": "unknown",
+    "resetRebootUnload": false,
+    "longerFinalTimingRun": "unexecuted",
+    "nativePortablePath": "unexecuted"
+  },
+  "publicDeployment": "unchanged; candidate held in research branch",
+  "vkfIntegration": "pending; see README contract"
+}

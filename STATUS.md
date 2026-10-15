@@ -1,3 +1,20 @@
+# Standalone GPU morph optimization — 2026-10-15
+
+Isolated examples/gpu-morph now contains tiled pair costs, exact subgroup/cooperative
+assignment, shared-memory Jacobi, within-frame coefficient reuse and exact affine-only
+field recognition. Paired GT1030 samples at1200×760/32×32fields/12iterations reduce
+1014-body mixed-scene wall median257.8→9.7ms; long math254.3→11.0ms and geometry
+247.5→10.8ms. No reduced precision, iterations, precomputed transition or CPU matching.
+18paired cases and48independent cost fixtures plus36flow/render checks preserve
+recorded output exactly. Native subgroup checks pass; portable checks pass in software.
+The deferred-acceptance candidate was slower and is retained as rejected research.
+A subsequent browser setup emitted a new Xid; physical testing is stopped again,
+with private evidence preserved. Longer final sampling and native portable-path
+acceptance are unexecuted. No driver health, production or VKF GPU acceptance claim.
+See examples/gpu-morph/README.md for research sources, measurements, reproduction,
+remaining morphology constraints and future typed-arena integration requirements.
+No public site deployment or compiler/runtime integration was performed in this step.
+
 # Combined scenes — 2026-10-15 (verified film)
 
 Owner requests at least six glyphs per example, geometry and symbols together,
