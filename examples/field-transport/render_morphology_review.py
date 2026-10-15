@@ -17,10 +17,15 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('inputs',type=Path);p.add_argument('output',type=Path)
     p.add_argument('--solver-dir',type=Path);p.add_argument('--label',required=True)
-    p.add_argument('--cases',nargs='+',required=True);args=p.parse_args()
+    p.add_argument('--cases',nargs='+',required=True)
+    p.add_argument('--planner',choices=['combined','validated'],default='combined')
+    p.add_argument('--diagnostic',action='store_true',help='Render rejected baseline frames with validation explicitly disabled')
+    args=p.parse_args()
     if args.output.exists():p.error('Output must be new')
     if args.solver_dir:sys.path.insert(0,str(args.solver_dir.resolve()))
     from combined_transport import CombinedScene
+    if args.planner=="validated":
+        from validated_transport import ValidatedCombinedScene as CombinedScene
     cases={item['id']:item for item in json.loads(args.inputs.read_text())}
     if set(args.cases)-cases.keys():p.error('Unknown cases')
     hashes=[];receipts=[]
@@ -31,7 +36,7 @@ def main():
             a,b=[[[np.array(q) for q in body] for body in side] for side in item['geometry']]
             plan=CombinedScene(a,b)
             for index,t in enumerate(np.linspace(0,1,156)):
-                ims,_=plan.images(float(t));mask=np.max(ims,axis=0)
+                ims,_=plan.images(float(t),validate=not args.diagnostic);mask=np.max(ims,axis=0)
                 # Identical, fixed spatial mapping in both comparison panels.
                 ink=Image.fromarray(mask[140:580,420:860]).resize((560,560),Image.Resampling.LANCZOS)
                 image=Image.new('RGB',(720,640),(12,20,26))
@@ -42,7 +47,7 @@ def main():
                 raw=image.tobytes()
                 for _ in range(13 if index in [0,155] else 1):
                     ff.stdin.write(raw);hashes.append(hashlib.sha256(raw).hexdigest())
-            receipts.append(dict(case=name,kinds=[k for k,_ in plan.groups],motion_states=156,frames=180))
+            receipts.append(dict(case=name,diagnostic_validation_disabled=args.diagnostic,kinds=[k for k,_ in plan.groups],motion_states=156,frames=180))
             print(name,flush=True)
     finally:
         ff.stdin.close();status=ff.wait()

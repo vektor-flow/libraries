@@ -1,3 +1,31 @@
+# Experimental branch and cohort morphology — 2026-10-15
+
+The opt-in `ValidatedCombinedScene` adds endpoint-inferred medial-tree branches,
+scalar cavity filling before area calibration and routing of changing silhouette
+cohorts. The existing default solver retains exactly the same pixels across the
+28-case/17-state regression check. Public players are unchanged.
+
+At157 states per case, the expanded offline corpus improves19/28→23/28, with no
+regressions. Three isolated native glyph morphs and the nonrigid exchange improve;
+all19 previously passing cases retain identical dense frame hashes. The original
+23-case subset remains18/23: distribution, collection, factorization, cancellation
+and hole creation are still failed. Collection/factorization now expose internal
+replica fragmentation rather than being declared solved after a glyph correction.
+The candidate passes3611 states in fully passing cases,36 focused tests, and four
+held-out changing-cohort scenes at65 states each. All failures and rejected trials
+are preserved. These are finite raster checks, not arbitrary topology/collision
+proofs or new algebraic capability claims.
+
+The9-second720x1280/60fps High-profile H.264/yuv420p comparison has540 decoded
+frames. Previous panels deliberately show rejected baseline geometry; candidate
+panels preserve topology, one-boundary-pixel agreement and min silhouette
+IoU0.998545 using pre-encode YUV420 luma. Earlier failed exports remain retained.
+Evidence: Cuvami staging/artifacts/morphology-branching-20261015/summary.json,
+baseline-dense/, final-dense/, cohort-heldout.json and movie/verifier receipts.
+Preparation performs expensive candidate/replay checks; there is no realtime or
+speed-improvement claim. No push, deployment, GPU port or physical GPU execution;
+physical NVIDIA STOP and VKF-008 capability coordination remain in force.
+
 # Morphology review — 2026-10-15
 
 Isolated `codex/morphology-review-20261015` corrects affine recognition when

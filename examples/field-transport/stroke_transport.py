@@ -13,7 +13,7 @@ from skimage.morphology import skeletonize
 from field_transport import clock
 from replica_transport import ScalarOutline
 
-def medial_path(field):
+def medial_path(field,with_branches=False):
  skeleton=skeletonize(field.field>0);yy,xx=np.nonzero(skeleton);count=len(xx)
  lookup=np.full(skeleton.shape,-1,int);lookup[yy,xx]=np.arange(count)
  rows=[];cols=[];weights=[]
@@ -31,7 +31,7 @@ def medial_path(field):
   path.append(node);node=int(previous[i,node])
   if node<0:raise ValueError('Incomplete medial path')
  path.append(start);path=np.array(path[::-1]);length=pairs[i,j]/field.ss
- if len(path)<.65*count:raise ValueError('Silhouette has substantial medial branches')
+ if not with_branches and len(path)<.65*count:raise ValueError('Silhouette has substantial medial branches')
  points=(np.c_[xx[path],yy[path]]+.5)/field.ss-field.size/2+field.center
  radius=field.field[yy[path],xx[path]]
  if length<6*np.median(radius):raise ValueError('Silhouette is not stroke-like')
@@ -41,12 +41,32 @@ def medial_path(field):
  result=np.c_[np.interp(s,distance,points[:,0]),np.interp(s,distance,points[:,1])]
  if np.min(field.sample(result[:,0],result[:,1],field.center))<=0:
   raise ValueError('Smoothed medial path leaves silhouette')
- return result
+ if not with_branches:return result
+ # Recover significant side branches through the existing skeleton graph. The
+ # nearest primary-path source identifies their attachment, without stroke IDs.
+ _,parents,_=dijkstra(graph,directed=False,indices=path,min_only=True,return_predecessors=True)
+ core=set(path.tolist());branches=[]
+ for leaf in ends:
+  if int(leaf) in core:continue
+  ids=[];node=int(leaf)
+  while node not in core:
+   ids.append(node);node=int(parents[node])
+   if node<0:raise ValueError('Branch does not connect to primary path')
+  ids.append(node);ids=np.array(ids[::-1])
+  branch=(np.c_[xx[ids],yy[ids]]+.5)/field.ss-field.size/2+field.center
+  lengths=np.r_[0,np.cumsum(np.linalg.norm(np.diff(branch,axis=0),axis=1))]
+  if lengths[-1]<max(6.,3*np.median(field.field[yy[ids],xx[ids]])):continue
+  samples=np.linspace(0,lengths[-1],128)
+  branch=np.c_[np.interp(samples,lengths,branch[:,0]),np.interp(samples,lengths,branch[:,1])]
+  branch=ndi.gaussian_filter1d(branch,.8,axis=0,mode='nearest')
+  branch[0]=result[np.argmin(np.linalg.norm(result-branch[0],axis=1))]
+  branches.append(branch)
+ return result,branches
 
 class StrokeTransport:
  def __init__(self,a,b):
   if len(a)!=len(b) or len(a)!=1:raise ValueError('Stroke candidate requires one hole-free body')
-  self.a=ScalarOutline(a);self.b=ScalarOutline(b);self.pa=medial_path(self.a);self.pb=medial_path(self.b)
+  self.a=ScalarOutline(a);self.b=ScalarOutline(b);self.pa=self.path(self.a);self.pb=self.path(self.b)
   cost=lambda q:np.sum(((self.pa-self.a.center)-(q-self.b.center))**2)
   if cost(self.pb[::-1])<cost(self.pb):self.pb=self.pb[::-1]
   self.ra=self.a.sample(self.pa[:,0],self.pa[:,1],self.a.center)
@@ -55,6 +75,7 @@ class StrokeTransport:
   if np.any(self.lo<[-640,-360]) or np.any(self.hi>[640,360]):raise ValueError('Stroke field exceeds viewport')
   y,x=np.mgrid[self.lo[1]:self.hi[1],self.lo[0]:self.hi[0]];self.x=x+.5;self.y=y+.5;self.points=np.c_[self.x.ravel(),self.y.ravel()]
   self.area0=float(np.clip(self.raw(0)+.5,0,1).sum());self.area1=float(np.clip(self.raw(1)+.5,0,1).sum())
+ def path(self,field):return medial_path(field)
  def tube(self,path,radius):
   result=np.full(len(self.points),-np.inf)
   for k in range(0,len(path),32):

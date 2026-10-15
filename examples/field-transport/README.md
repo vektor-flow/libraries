@@ -368,3 +368,82 @@ other non-affine screening cases retain their exact previous frame hashes.
 The720-frame comparison transcode preserves both panels' topology, stays within
 one boundary pixel, and has minimum silhouette IoU0.9987615. Lossless source clips
 are decoded exactly. No hosted or physical-phone result is claimed.
+
+## Experimental branch morphs and changing-cohort routes (2026-10-15)
+
+`ValidatedCombinedScene` in `validated_transport.py` is an opt-in offline candidate.
+The existing `CombinedScene` remains the default. Invoke the audit with
+`--planner validated`; `--inputs CORPUS_JSON` replays a complete anonymous geometry
+corpus instead of regenerating it. The default generated corpus now also includes
+a nonrigid two-body exchange with a persistent hole (13 generated cases). Case
+names and parent-reduction metadata never enter body matching or planning.
+
+The tree candidate extends the open-stroke study with significant side branches
+inferred from the endpoint skeletons. Branches attach to the inferred main path;
+unmatched branches grow from or contract into their attachment. Local tangent
+frames carry their shape during deformation. A bounded choice of fixed frame
+weights is sampled and validated; these are algorithm candidates, not authored
+correspondences. Existing contour plans are kept when their screening checks pass.
+A failed hole-free contour may try the tree candidate; unsupported inputs remain
+explicit failures.
+
+Merely changing the boundary phase or branch frame left brief holes in native
+reductions. The new tree field therefore fills enclosed scalar valleys by grayscale
+morphological reconstruction **before** coverage-area calibration. This changes
+the modeled geometry at every field level; it is not a binary repair applied to
+accepted frames. The result is a scalar shape field, not an exact Euclidean signed
+distance field or material-conserving simulation. This candidate intentionally
+supports hole-free trees only. It does not infer arbitrary hole creation/deletion.
+The calibrated area tolerance remains0.01 square pixels before quantization.
+Tree selection checks305 distinct states (257 uniform times plus inverse-quintic
+planning phases), endpoints and the existing raster topology criteria. This is
+still sampled validation, not a guarantee at every possible time.
+
+`cohort_routes.py` adds a bounded prioritized routing candidate for changing
+silhouettes. It samples actual cohort masks at51 uniform progress values, max-pools
+at4 pixels, and builds silhouette-correlation obstacles. Dynamic programming tries
+one-axis corridors and geometry-derived priorities; constrained smoothing and
+cubic splines retain stationary endpoint motion under the quintic clock. A proposed
+route must pass257 full-resolution scene states, including topology, unrelated
+foreground separation, component-count direction and viewport checks. Route offsets
+move whole cohorts; they do not alter matching, merge unrelated cohorts, or permit
+fragmented bodies. Bilinear coverage translation is explicit and revalidated; it
+is not a new native field renderer. General full-planar/nonrigid coordination and
+continuous collision proofs remain open.
+
+The expanded evidence corpus has28 cases: the original23, four isolated native
+contour reductions from collection/factorization, and the new nonrigid exchange.
+Keep reduction outcomes separate from acceptance of their parent algebra scenes.
+An additional seeded routing set rotates/scales/translates the layouts and shuffles
+target order. Tests also use independently checked changing-radius circles, branch
+attachment growth, area, endpoint ramps, unsupported holes and rejected routes.
+Preparation includes expensive selection/replay validation. No realtime, GPU,
+physical-phone or performance-improvement claim is made for this candidate.
+
+The review renderer accepts `--planner validated`. Its explicit `--diagnostic`
+flag renders rejected baseline frames with validation disabled and records that
+fact in the receipt; candidate rendering keeps validation enabled. The new phone
+movie compares two isolated glyphs and the nonrigid exchange, with the same fixed
+zoom on both sides. This is not a movie of solved algebra transformations.
+Lossless clips and rejected exports remain beside all benchmark results under
+Cuvami staging artifacts `morphology-branching-20261015`. Public players and the
+physical NVIDIA STOP remain unchanged.
+
+Final comparison at157 states per case: **19/28 → 23/28**, with no regressions.
+The gains are `algebra-collect-outline-0`, `algebra-collect-outline-1`,
+`algebra-factor-outline-4` and `nonrigid-hole-crossing`. All19 previously passing
+cases retain identical dense frame hashes. The original23-case subset remains
+18/23; none of the four failed parent algebra operations is counted as solved.
+36 focused tests and four held-out routes (260 states) pass. Default-solver
+regression is exact for all28 cases at17 states. The candidate passes3611 states
+in fully passing cases; failed cases remain in the denominator.
+
+The final phone-format movie is `morphology-branching-review-v3.mp4`:9seconds,
+540frames, High-profile H.264/yuv420p. Candidate decoded topology is exact,
+minimum silhouette IoU is0.998545 and boundaries stay within one pixel. Verification
+compares actual luma with the exact pre-encode YUV420 conversion; RGB/chroma edge
+projection is not used as a coverage proxy. The first RGB-mean export and second
+4:4:4-reference export failed the unchanged0.995 codec IoU gate and remain in the
+evidence. The accepted third export uses explicit BT.601 conversion andQP1;
+lossless originals and rejected diagnostic frames remain preserved. No physical
+phone compatibility or playback test is claimed.

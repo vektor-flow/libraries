@@ -75,7 +75,7 @@ class BodyPlan:
   return [p+(1-v)*self.ca+v*self.cb for p in self.plan.contours(t)]
 
 class CombinedScene:
- def __init__(self,a,b):
+ def __init__(self,a,b,body_plan_factory=BodyPlan):
   self.original_a=a;self.original_b=b;self.reverse=len(a)>len(b)
   if self.reverse:a,b=b,a
   self.a=a;self.b=b
@@ -102,7 +102,7 @@ class CombinedScene:
      raise ValueError('Cohort requires unsupported non-affine branching')
     self.groups.append(('replica',Group(p,targets)))
    else:
-    plan=BodyPlan(p,targets[0]);self.groups.append((plan.kind,plan))
+    plan=body_plan_factory(p,targets[0]);self.groups.append((plan.kind,plan))
     if plan.kind=='rigid':
      self.rigid_indices.append(i);rigid_a.append(p);rigid_b.append(targets[0])
   self.route=None
@@ -132,7 +132,7 @@ class CombinedScene:
   out=[];occupied=np.zeros((720,1280),bool);metrics=[]
   for i,(kind,plan) in enumerate(self.groups):
    if kind=='replica':im,mass=plan.image(t);loops=None
-   elif kind=='stroke':im,mass=plan.plan.image(t);loops=None
+   elif kind in ['stroke','tree']:im,mass=plan.plan.image(t);loops=None
    else:
     loops=routed.get(i) if i in routed else plan.contours(t)
     im=draw_scene([loops],ss=self.raster_ss[i])
@@ -141,8 +141,8 @@ class CombinedScene:
    mask=im>127;n,h=topology(mask)
    if validate:
     if np.any(occupied&mask):raise ValueError(('Unrelated foreground overlap',i,t))
-    if kind=='stroke' and (n,h)!=(1,0):raise ValueError(('Stroke topology',i,t,n,h))
-    if kind not in ['replica','stroke'] and (n,h)!=(1,len(loops)-1):raise ValueError(('Body topology',i,t,n,h))
+    if kind in ['stroke','tree'] and (n,h)!=(1,0):raise ValueError(('Stroke topology',i,t,n,h))
+    if kind not in ['replica','stroke','tree'] and (n,h)!=(1,len(loops)-1):raise ValueError(('Body topology',i,t,n,h))
     if kind=='replica' and (h!=0 or not 1<=n<=len(plan.targets)):raise ValueError(('Branch topology',i,t,n,h))
    occupied|=mask;out.append(im);metrics.append((n,h,mass))
   return out,metrics

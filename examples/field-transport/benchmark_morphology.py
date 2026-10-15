@@ -40,15 +40,24 @@ def generated_cases():
     for name,sides in [('split',[a,b]),('merge',[b,a])]:
         yield dict(id=name,family='replica',geometry=sides)
     yield dict(id='hole-creation',family='unsupported-topology',geometry=[[[outer]],[[outer,40*circle]]])
+    angle=np.linspace(0,2*np.pi,128,endpoint=False);unit=np.c_[np.cos(angle),np.sin(angle)]
+    def star(radius,lobes,phase=0):return radius*(1+.16*np.cos(lobes*angle+phase))[:,None]*unit
+    left=np.array([-100.,0]);right=-left
+    a=[[star(42,3)+left,10*unit+left],[star(34,5,.3)+right]]
+    b=[[star(38,4,.2)+right,12*unit+right],[star(36,6,.6)+left]]
+    yield dict(id='nonrigid-hole-crossing',family='generated-nonrigid-routing',geometry=[a,b])
 
 
-def audit(item,samples):
+
+def audit(item,samples,planner="combined"):
     from combined_transport import CombinedScene,topology
+    if planner=="validated":
+        from validated_transport import ValidatedCombinedScene as CombinedScene
     from affine_transport import AffineTransport
     from scene_transport import draw_scene
     from scipy import ndimage as ndi
     a,b=[[[np.asarray(p,dtype=float) for p in body] for body in side] for side in item['geometry']]
-    result=dict(case=item['id'],family=item['family'],bodies=[len(a),len(b)],passed=False)
+    result=dict(case=item['id'],family=item['family'],planner=planner,bodies=[len(a),len(b)],passed=False)
     if item.get('affine_expected'):
         start=time.perf_counter()
         try:
@@ -61,6 +70,8 @@ def audit(item,samples):
         plan=CombinedScene(a,b)
         result['prepare_ms']=(time.perf_counter()-start)*1000
         result['kinds']=[kind for kind,_ in plan.groups]
+        result['cohort_routed']=getattr(plan,'cohort_route',None) is not None
+        result['plan_parameters']=[dict(kind=kind,frame_weight=getattr(getattr(part,'plan',None),'frame_weight',None),rejected=getattr(part,'rejected_candidates',[])) for kind,part in plan.groups]
         for t in np.linspace(0,1,samples):
             start=time.perf_counter();ims,metrics=plan.images(float(t))
             frame_times.append((time.perf_counter()-start)*1000)
@@ -92,11 +103,15 @@ def main():
     p.add_argument('output',type=Path);p.add_argument('--solver-dir',type=Path)
     p.add_argument('--combined',type=Path);p.add_argument('--atlas',type=Path);p.add_argument('--math-layouts',type=Path)
     p.add_argument('--samples',type=int,default=33);p.add_argument('--cases',nargs='+')
+    p.add_argument('--planner',choices=['combined','validated'],default='combined')
+    p.add_argument('--inputs',type=Path,help='Replay a complete anonymous geometry corpus')
     args=p.parse_args()
     if args.samples<3:p.error('--samples must be at least 3')
     if bool(args.atlas)!=bool(args.math_layouts):p.error('--atlas and --math-layouts must be supplied together')
     if args.solver_dir:sys.path.insert(0,str(args.solver_dir.resolve()))
-    cases=list(generated_cases());sources={}
+    if args.inputs and (args.combined or args.atlas or args.math_layouts):p.error('--inputs replaces generated/native inputs')
+    cases=json.loads(args.inputs.read_text()) if args.inputs else list(generated_cases());sources={}
+    if args.inputs:sources['input_file_sha256']=hashlib.sha256(args.inputs.read_bytes()).hexdigest()
     if args.combined:
         sources['combined_sha256']=hashlib.sha256(args.combined.read_bytes()).hexdigest()
         cases.extend(dict(item,family='native-combined') for item in json.loads(args.combined.read_text()))
@@ -122,7 +137,7 @@ def main():
     sources['benchmark_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     report=dict(scope='CPU wall time and sampled raster correctness; no continuous collision proof, GPU or phone timing',platform=platform.platform(),python=sys.version,numpy=np.__version__,sources=sources,inputs_sha256=hashlib.sha256(inputs.encode()).hexdigest(),samples_per_case=args.samples,cases=results)
     for item in cases:
-        result=audit(item,args.samples);results.append(result)
+        result=audit(item,args.samples,args.planner);results.append(result)
         report.update(total=len(results),passed=sum(r['passed'] for r in results),elapsed_seconds=time.perf_counter()-start)
         (args.output/'report.json').write_text(json.dumps(report,indent=2)+'\n')
         print(result['case'],result['passed'],result.get('kinds'),result.get('error',''),flush=True)
