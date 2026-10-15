@@ -1,3 +1,33 @@
+# Thin geometry and monotone ink area — 2026-10-15
+
+Owner's latest rule is to minimize overshoot and reversals in measurable shape
+quantities. The reported solid-then-hollow letter transition is replaced by an
+opening/closing medial ribbon in the opt-in CPU reference. Code `d1e031d` (following
+`d07c844`) calibrates visible area through centerline geometry, preserving local
+stroke radii; equal endpoint areas prescribe constant coverage area. One-hole
+candidates form counters during the bend instead of cutting them from a completed
+solid exterior. Endpoint detail follows shape progress to avoid counter overshoot.
+
+Four affected scene geometry replays (distribution, factorization, cubic/quintic,
+and scale/shift) pass 257 states each. 51 focused tests pass, with the final nine
+routing/motion tests rerun after endpoint tapering. Distribution's forming-letter
+width stays at or below the 14px endpoint width (previous sampled peak 56px).
+Correction routing retains accepted replica motions and adjusts only changed
+cohorts, with independent native replay and a shared motion-clock check. Endpoint
+tapering removes a rejected correction's artificial initial speed burst.
+
+Evidence: Cuvami staging/artifacts/morphology-thickness-20261015/final/,
+quality-summary.json, source-receipt.json, tests-integrated.log and
+ tests-tapered-routing.log. The earlier `3e533ff` speed checkpoint replays all28
+cases/4396 states from accepted geometry; this new quality checkpoint is a targeted
+four-scene replay, not a fresh full28-case synthesis. Failed routes and earlier
+movies remain as rejected evidence.
+
+Small raster reversals remain in width, counter area and extents. General replica
+unions and multi-hole changes are not a universal monotonic-material solution.
+Default solver/public players are unchanged. CPU/offline only; no deployment,
+physical-phone result, GPU test or native runtime port. NVIDIA STOP remains active.
+
 # Replica and topology-event corrections — 2026-10-15
 
 The opt-in validated CPU planner now passes all **28/28** expanded morphology
