@@ -1,3 +1,24 @@
+# Sharp rule edges under camera zoom — 2026-10-15
+
+Fixed square-root/fraction/overline/array-rule blur. The analytic rectangle
+shader previously smoothed over one document unit, so blur grew with zoom.
+It now computes box/pixel overlap using fwidth(local) in physical screen pixels,
+retaining coverage for rules thinner than a pixel. Root-bar measured partial
+coverage at28.6x improves36→1px;64x improves77→1px.
+30 horizontal/vertical fixture captures cover1/4/16/28.6/64x, including isolated
+phantom rules at subpixel thickness. Adjacent glyphs contaminate the1x fraction
+profile, so that case checks visibility; isolated thin rules check edge width.
+All magnified actual-math profiles pass. Gesture regression and17 math example
+families/9 incomplete drafts pass without errors or phone overflow. No shader/
+page/GPU errors.
+Evidence: Cuvami staging/artifacts/gpu-math/20261015/rule-sharpness/.
+Before/after captures and the first contaminated-profile audit are preserved.
+Software browser checks only; no physical GPU or Safari qualification.
+Original full-document report is a frozen pre-fix snapshot with original hashes;
+its pixel metrics have NOT been recomputed. Layout/font geometry is unchanged.
+
+---
+
 # Direct pinch, wheel and drag for document cameras — 2026-10-15
 
 Replaces the phone zoom panel with two-finger pinch, cursor-anchored wheel zoom,

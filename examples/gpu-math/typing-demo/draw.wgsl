@@ -18,6 +18,8 @@ struct Out {
 }
 @fragment fn fs(i:Out)->@location(0) vec4f{
  let range=max(.5*dot(vec2f(8.0)/vec2f(textureDimensions(atlas)),1.0/max(fwidth(i.uv),vec2f(1e-8))),1.0);
+ // World units covered by one physical fragment; evaluate before material branches.
+ let pixelSize=max(fwidth(i.local),vec2f(1e-8));
  let sampled=textureSample(atlas,sampler0,i.uv);
  if(i.info.x>2.5){let alpha=sampled.a*i.color.a;return vec4f(i.color.rgb*alpha,alpha);}
  if(i.info.x>1.5){let alpha=sampled.a*i.color.a;return vec4f(sampled.rgb*i.color.rgb*alpha,alpha);}
@@ -25,9 +27,14 @@ struct Out {
  let m=max(min(v.r,v.g),min(max(v.r,v.g),v.b));
  var coverage=clamp((m-.5)*range+.5,0.0,1.0);
  if(i.info.x>0.5){
-  let half=i.info.yz*.5;let d=abs(i.local-(half+1))-half;
-  let distance=length(max(d,vec2f(0)))+min(max(d.x,d.y),0.0);
-  coverage=clamp(.5-distance,0.0,1.0);
+  // Exact axis-aligned rectangle / pixel intersection. A fixed world-space
+  // smoothing band grows when magnified; this footprint stays one screen pixel
+  // and preserves the area of rules thinner than a pixel when zoomed out.
+  let half=i.info.yz*.5;let p=i.local-(half+1);
+  let lo=max(p-pixelSize*.5,-half);
+  let hi=min(p+pixelSize*.5,half);
+  let area=clamp((hi-lo)/pixelSize,vec2f(0),vec2f(1));
+  coverage=area.x*area.y;
  }
  let alpha=coverage*i.color.a;return vec4f(i.color.rgb*alpha,alpha);
 }

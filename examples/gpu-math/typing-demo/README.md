@@ -296,3 +296,21 @@ finger, cancellation, limits, pointer capture and independent page cameras.
 Compositor captures separately check that a50×35px drag actually moves ink by
 50×35px. This is explicit software WebGPU coverage, not physical iPhone/Safari
 qualification. The original full-document accuracy report remains unchanged.
+
+## Screen-space rule edges — 2026-10-15
+
+The square-root vinculum, fraction bars, over/underlines and array rules now use
+exact axis-aligned rectangle / pixel intersection in the shader. fwidth(local)
+sets the physical-pixel footprint. The previous one-document-unit smoothing band
+grew with camera magnification (36 partial-coverage pixels in the root-bar
+profile at28.6x); the corrected root profile is one pixel at4/16/28.6/64x.
+Thin rules retain area coverage instead of disappearing below one pixel.
+
+verify_rule_edges.mjs records30 cases across1/4/16/28.6/64x. Horizontal and
+vertical phantom fixtures isolate thin rules from glyphs; normal1x fraction
+profiles can include adjacent glyph ink and are checked for visibility, while
+magnified profiles must retain narrow edges. Test readback is96dpi in aDPR3
+phone viewport using explicit software WebGPU. This does not qualify physical
+Safari. The stored full-document comparison remains the original frozen capture;
+its shader hash and pixel scores predate this correction. Native layout and
+font mappings are unchanged; no new full-document parity claim is made.
