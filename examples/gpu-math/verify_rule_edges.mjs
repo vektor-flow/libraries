@@ -7,7 +7,7 @@ try{
  const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(url);await page.waitForFunction(()=>window.documentResult||window.documentInitError);if(await page.evaluate(()=>window.documentInitError))throw Error(await page.evaluate(()=>window.documentInitError));
  await page.locator('#render').click();await page.waitForFunction(()=>document.getElementById('editor').hidden);
  const checks=[];
- const fixtures=[['sqrt',String.raw`\sqrt{x^2}`,'y'],['fraction',String.raw`\frac{a}{b}`,'y'],['overline',String.raw`\overline{x}`,'y'],['array',String.raw`\begin{array}{|c|}\hline x\\\hline\end{array}`,'y'],['isolated-horizontal',String.raw`\overline{\phantom{xxxx}}`,'y',true],['isolated-vertical',String.raw`\begin{array}{|c|}\phantom{x}\end{array}`,'x',true]];
+ const fixtures=[['sqrt',String.raw`\sqrt{x^2}`,'y'],['fraction',String.raw`\frac{a}{b}`,'y'],['overline',String.raw`\overline{x}`,'y'],['array',String.raw`\begin{array}{|c|}\hline x\\\hline\end{array}`,'y'],['underline',String.raw`\underline{x}`,'y'],['box-horizontal',String.raw`\boxed{x}`,'y'],['box-vertical',String.raw`\boxed{x}`,'x'],['overbrace',String.raw`\overbrace{xxxxxxxx}^n`,'y'],['underbrace',String.raw`\underbrace{xxxx}_n`,'y'],['arrow',String.raw`\xrightarrow{n}`,'y'],['isolated-horizontal',String.raw`\overline{\phantom{xxxx}}`,'y',true],['isolated-vertical',String.raw`\begin{array}{|c|}\phantom{x}\end{array}`,'x',true]];
  for(const [name,body,axis,isolated=false]of fixtures){
   const source=String.raw`\documentclass{article}\begin{document}$`+body+String.raw`$\end{document}`;
   for(const zoom of [1,4,16,28.6,64]){

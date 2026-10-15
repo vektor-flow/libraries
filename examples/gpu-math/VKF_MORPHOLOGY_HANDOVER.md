@@ -1,5 +1,8 @@
 # VKF native LaTeX fields and general visual morphology handover
 
+Native renderer update: read [VKF LaTeX rendering integration](VKF_LATEX_RENDERING_HANDOVER.md).
+The native source pins/counts below are historical. Morphology is now a separate project.
+
 Date: 2026-10-14. Recipient: VKF implementation owner.
 
 Replace KaTeX-generated math endpoints with the native LaTeX-mapped distance-field

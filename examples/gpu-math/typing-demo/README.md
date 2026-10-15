@@ -306,7 +306,7 @@ grew with camera magnification (36 partial-coverage pixels in the root-bar
 profile at28.6x); the corrected root profile is one pixel at4/16/28.6/64x.
 Thin rules retain area coverage instead of disappearing below one pixel.
 
-verify_rule_edges.mjs records30 cases across1/4/16/28.6/64x. Horizontal and
+verify_rule_edges.mjs records60 cases across1/4/16/28.6/64x. Horizontal and
 vertical phantom fixtures isolate thin rules from glyphs; normal1x fraction
 profiles can include adjacent glyph ink and are checked for visibility, while
 magnified profiles must retain narrow edges. Test readback is96dpi in aDPR3
@@ -314,3 +314,48 @@ phone viewport using explicit software WebGPU. This does not qualify physical
 Safari. The stored full-document comparison remains the original frozen capture;
 its shader hash and pixel scores predate this correction. Native layout and
 font mappings are unchanged; no new full-document parity claim is made.
+
+## Exhaustive full-document zoom grids — 2026-10-15
+
+Document pixel acceptance requires zoom coverage as well as the original96dpi
+page/identity audit. `benchmark_document_zoom_grid.mjs` streams the entire union
+of PDF and GPU page bounds at1x/2x/4x by default. Every1024px tile is captured,
+including blank cells and extra/missing pages. A1px halo protects neighbour
+coverage across tile boundaries; metric counts use disjoint tile cores. This
+is exhaustive at the listed zooms, not a grid of sampled glyphs. Set
+VKF_GRID_ZOOMS (up to64) and VKF_GRID_TILE for larger scans. High-zoom rule
+fixtures through64x are separate; they do not certify every document pixel
+at those higher levels.
+
+The native oracle is development-only PyMuPDF1.28.2, replaying original PDF
+vector display lists at the same absolute pixel coordinates. No PDF paths or
+pixels enter runtime layout or glyph preparation. The browser capture API uses
+the same packets, shader, texture and draw path as the live camera. Independent
+tile-vs-full-frame checks cover text, radicals, fractions, rules, colour and an
+uploaded image at1/2/4x; all nine captures match exactly, including clipped tails.
+The original Poppler comparison remains unchanged; scores from different native
+rasterizers must not be interpreted as a calibration-only improvement.
+
+Run the driver with URL, original corpus directory and a fresh output directory;
+set VKF_PYTHON to an environment with PyMuPDF/numpy/scipy/Pillow. It also requires
+the existing explicit SwiftShader Playwright environment. Then run
+build_document_zoom_report.py with output, corpus, frozen audited dataset and
+rule-sharpness evidence root. The builder verifies every grid cell, pixel count,
+no overlaps/gaps, and exact native-layout/mapping hashes before inheriting the
+original glyph-identity audit. After layout/font changes, pass --mapping for a
+fresh native glyph audit instead of inheriting old results. It refuses incomplete scans. The report exposes
+all grid cells and their full-resolution PDF/GPU/error tiles, worst local errors,
+raw ink overlap, one-pixel ink coverage, RGB differences and missing/extra pages.
+Global white background never increases ink coverage. Full-document acceptance
+still requires the identity audit and every tile to pass.
+
+`verify_document_zoom_report.mjs` checks every page/zoom grid and worst-tile
+views at phone width. `verify_rule_edges.mjs` remains mandatory after shader
+changes; a normal-size PDF diff cannot establish scale-invariant edge softness.
+
+Initial zoom-grid follow-up fixes: raster images now magnify without interpolation,
+matching the native PDF's default. The figure rescan improves4x ink coverage
+98.6659%→100%;1x local edges still fail. Inline begin/end math environments now
+share dollar-math paragraph geometry. The full scan remains a saved pre-fix
+baseline; affected-case rescans have separate source hashes. The fresh AMS
+geometry audit and per-direction changes are recorded in the VKF handover.

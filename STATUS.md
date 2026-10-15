@@ -1,3 +1,39 @@
+# Exhaustive zoom grids and first document fixes — 2026-10-15
+
+VKF handover: examples/gpu-math/VKF_LATEX_RENDERING_HANDOVER.md. It supersedes
+native-renderer details/pins in the old morphology handover; morphology is separate.
+
+Completed exhaustive1/2/4x scans over all46 original PDF pages and49 GPU pages:
+1372 adjacent tiles,916522896 disjoint core pixels. Blank tiles and the3 extra
+AMS pages are retained.1px halos protect neighbour tests. Native oracle is
+PyMuPDF1.28.2; original Poppler96dpi evidence remains unchanged. Native layout
+and mapping hashes exactly match the frozen glyph/identity audit for the baseline.
+All-document acceptance still FAILS. Report shows every grid and full-resolution
+PDF/GPU/local-error tile;147 grids/438 worst views pass the phone UI check.
+Separate60-case bar suite passes through64x, including underlines, box borders,
+brace connectors and arrow shafts. These targeted cases are not full64x scans.
+Nine tile/full-frame readbacks match exactly at1/2/4x, including images/colour.
+
+First fixes after the complete scan:
+- Enlarged raster images now use nearest filtering when matching default PDF
+  image interpolation=false; font sampling stays linear. Figure4x ink coverage
+  improves98.6659%→100%,2x stays100%.1x local edges still fail.
+- Inline begin/end math now preserves dollar-math paragraph geometry.30 Node
+  checks pass. AMS diagnostics62→57;44 pages still differ from41 native.
+  Fresh same-page audit missing14878→14882, extra14749→14729,
+  moved/wrong-size26304→26299. This is a valid syntax correction, not a
+  demonstrated overall document match; counts change in both directions.
+
+Evidence: Cuvami staging/artifacts/gpu-math/20261015/document-zoom-grid/:
+full-v2/ (frozen baseline), figure-nearest/ (affected-case rescan), report-ui/,
+tile-verification/, math-env-fixed-layout.json, math-env-fixed-geometry.json.
+Sharp rule evidence remains rule-sharpness/, including before/after60-case and
+live checks. Later changes require affected-case rescans; changed layouts/fonts
+require a fresh native audit (--mapping) rather than inheriting frozen geometry.
+No physical GPU/Safari qualification or under10ms full-document claim.
+
+---
+
 # Sharp rule edges under camera zoom — 2026-10-15
 
 Fixed square-root/fraction/overline/array-rule blur. The analytic rectangle
@@ -5,7 +41,7 @@ shader previously smoothed over one document unit, so blur grew with zoom.
 It now computes box/pixel overlap using fwidth(local) in physical screen pixels,
 retaining coverage for rules thinner than a pixel. Root-bar measured partial
 coverage at28.6x improves36→1px;64x improves77→1px.
-30 horizontal/vertical fixture captures cover1/4/16/28.6/64x, including isolated
+60 horizontal/vertical fixture captures cover1/4/16/28.6/64x, including isolated
 phantom rules at subpixel thickness. Adjacent glyphs contaminate the1x fraction
 profile, so that case checks visibility; isolated thin rules check edge width.
 All magnified actual-math profiles pass. Gesture regression and17 math example
