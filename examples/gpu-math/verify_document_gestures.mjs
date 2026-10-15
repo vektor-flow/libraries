@@ -7,8 +7,9 @@ try{
  const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,isMobile:true}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(url);await page.waitForFunction(()=>window.documentResult||window.documentInitError);if(await page.evaluate(()=>window.documentInitError))throw Error(await page.evaluate(()=>window.documentInitError));
  await page.locator('#render').click();await page.waitForFunction(()=>document.getElementById('editor').hidden);
  await page.evaluate(()=>window.renderDocument(String.raw`\documentclass{article}\begin{document}H\end{document}`,{zoom:1,black:true}));
+ await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
  const canvas=page.locator('canvas').first(),box=await canvas.boundingBox();await canvas.evaluate(c=>window.gestureCanvas=c);
- const state=()=>page.evaluate(()=>({...window.documentViews[0],sameCanvas:window.gestureCanvas===document.querySelector('canvas'),scrollY,viewportScale:visualViewport.scale}));
+ const state=()=>page.evaluate(()=>({...window.documentViews[0],sameCanvas:window.gestureCanvas===document.querySelector('canvas'),scrollY,scrollX,viewportScale:visualViewport.scale,stageRect:document.getElementById('pages').getBoundingClientRect().toJSON(),canvasRect:document.querySelector('canvas:not([hidden])').getBoundingClientRect().toJSON(),headerTop:document.querySelector('header').getBoundingClientRect().top}));
  const settled=async()=>{await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));await page.evaluate(()=>window.documentViewReady);};
  const world=(view,x,y)=>[view.origin[0]+(x-box.x)*view.worldWidth/box.width,view.origin[1]+(y-box.y)*view.worldWidth/box.width];
  const near=(actual,expected,tolerance=.02)=>{if(Math.abs(actual-expected)>tolerance)throw Error('Gesture mismatch '+JSON.stringify({actual,expected}));};
@@ -33,6 +34,7 @@ try{
  // Moving page 2 must preserve page 1's camera and canvas.
  await page.evaluate(()=>window.renderDocument(String.raw`\documentclass{article}\begin{document}First\newpage Second\end{document}`,{zoom:1}));
  const first=await page.evaluate(()=>JSON.stringify(window.documentViews[0]));await page.locator('#navigation summary').click();await page.locator('#document-page').selectOption('1');const secondBox=await page.locator('canvas').nth(1).boundingBox();await page.mouse.move(secondBox.x+100,secondBox.y+100);await page.mouse.wheel(0,-100);await settled();if(await page.evaluate(()=>JSON.stringify(window.documentViews[0]))!==first)throw Error('Page 2 moved page 1');if(await page.evaluate(()=>window.documentViews[1].zoom)<=1)throw Error('Page 2 did not zoom');
+ for(const check of checks){near(check.after.scrollY,check.before.scrollY);near(check.after.scrollX,check.before.scrollX);near(check.after.headerTop,check.before.headerTop);for(const key of ['x','y','width','height'])near(check.after.stageRect[key],check.before.stageRect[key]);}
  const gpuErrors=await page.evaluate(()=>window.documentGpuErrors),overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);if(errors.length||gpuErrors.length||overflow)throw Error('Page/GPU errors or overflow');if(await page.locator('input[type=range]').count())throw Error('Zoom slider remains');
  await writeFile(output+'/gestures.json',JSON.stringify({checks,errors,gpuErrors,overflow,multiPageIndependent:true,scope:'Real CDP touch input and Playwright mouse/wheel on explicit software WebGPU; not physical Safari qualification.'},null,2));console.log(JSON.stringify({checks:checks.map(c=>c.name),errors,gpuErrors,overflow}));
 }finally{await browser.close();}

@@ -359,3 +359,14 @@ matching the native PDF's default. The figure rescan improves4x ink coverage
 share dollar-math paragraph geometry. The full scan remains a saved pre-fix
 baseline; affected-case rescans have separate source hashes. The fresh AMS
 geometry audit and per-direction changes are recorded in the VKF handover.
+
+## Contained document viewport — 2026-10-15
+
+The renderer now uses a fixed application shell and document viewport. Panning
+and zoom operate inside that surface; the site stays still. Page selection
+shows the chosen canvas in place. Automatic viewport sizing observes the
+remaining screen area and DPR, including editor collapse and rotation; explicit
+validation scales still capture complete native pages. The editor keeps its
+own scrolling. Nonpassive touch/gesture cancellation on the document surface
+supplements touch-action/overscroll containment for Safari. Report navigation
+is removed from the renderer so its controls focus on rendering and viewing.

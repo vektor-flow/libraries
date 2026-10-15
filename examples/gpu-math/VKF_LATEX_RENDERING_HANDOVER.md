@@ -76,7 +76,9 @@ The camera supports two-finger pinch, cursor-anchored wheel zoom and one-finger
 or left-mouse dragging, including at1x. `document-gestures.mjs` coalesces changes
 onto animation frames, captures pointers and rebases when fingers change.
 `updateDocumentView` redraws the active page using retained geometry/canvas;
-it does not retypeset or rebuild the atlas. Each page has its own camera.
+it does not retypeset or rebuild the atlas. Each page has its own camera. The document sits in a fixed clipped viewport;
+pan/pinch/wheel do not scroll the site. Page selection switches canvases in
+place, and DPR-aware resize keeps the canvas matched to the available area.
 Render collapses the phone editor; Edit restores it. More contains page selection
 and optional Fit text/Fit page actions. There is no zoom slider/button.
 

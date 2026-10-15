@@ -1,3 +1,22 @@
+# Document gestures stay inside a fixed viewport — 2026-10-15
+
+The main renderer is a fixed-height application shell with a clipped document
+surface. Drag/pinch/wheel move only the GPU camera; site scroll and viewport
+bounds remain unchanged. Touch/overscroll handling is scoped to the surface,
+with explicit Safari touch/gesture cancellation. The editor remains scrollable.
+Visible-page switching replaces site scrolling; only the selected canvas shows.
+Auto viewport canvases resize at device pixel ratio without retypesetting.
+Explicit-scale validation captures retain native page extents.
+
+Removed report links from the renderer navigation per owner: focus on source,
+Render, pan and zoom. Development evidence remains archived separately.
+Software checks: pointer/touch/pinch/drag capture assert stable site scroll,
+header and document-surface bounds; four phone/orientation layouts and DPR3
+zoom through64x pass without errors or overflow. Physical Safari remains open.
+Evidence: Cuvami staging/artifacts/gpu-math/20261015/pan-containment/.
+
+---
+
 # Exhaustive zoom grids and first document fixes — 2026-10-15
 
 VKF handover: examples/gpu-math/VKF_LATEX_RENDERING_HANDOVER.md. It supersedes
