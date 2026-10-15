@@ -8,13 +8,18 @@ import numpy as np
 from scipy import ndimage as ndi
 from scipy.spatial import cKDTree
 from scipy.optimize import linear_sum_assignment
-from field_transport import Transport,clock,area,topology
+from field_transport import Transport,clock,area,topology as full_topology
 from scene_transport import draw_scene
 from replica_transport import Group,center,shape_error
 from affine_transport import AffineTransport
 from registered_transport import RegisteredTransport
 from rigid_routes import RoutedScene
 from stroke_transport import StrokeTransport
+
+def topology(mask):
+ yy,xx=np.nonzero(mask)
+ if not len(xx):return (0,0)
+ return full_topology(np.pad(mask[yy.min():yy.max()+1,xx.min():xx.max()+1],1))
 
 def translation_error(a,b):
  if len(a)!=len(b):return np.inf
@@ -131,7 +136,7 @@ class CombinedScene:
    else:
     loops=routed.get(i) if i in routed else plan.contours(t)
     im=draw_scene([loops],ss=self.raster_ss[i])
-    if self.raster_ss[i]>8:im=np.uint8(np.rint(ndi.gaussian_filter(im.astype(float),.55)))
+    if self.raster_ss[i]>8:im=np.uint8(np.rint(ndi.gaussian_filter(im.astype(float),.7)))
     mass=float(im.sum()/255)
    mask=im>127;n,h=topology(mask)
    if validate:

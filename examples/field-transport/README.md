@@ -300,7 +300,7 @@ profile correspondence; open strokes use endpoint-inferred medial tangent angles
 and widths, with scalar endpoint-detail residuals and eased area calibration.
 The latter is a bounded candidate for mostly unbranched strokes, not an arbitrary
 shape solver. Rigid bodies whose translation exposes coarse raster artifacts use
-higher supersampling and a fixed0.55-pixel antialiasing kernel throughout their
+higher supersampling and a fixed0.7-pixel antialiasing kernel throughout their
 trajectory. The kernel conserves coverage mass and stays fixed in time. Sampled topology/overlap gates
 remain mandatory; supersampling does not exempt a frame from those checks.
 

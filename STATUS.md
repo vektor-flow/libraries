@@ -5,10 +5,10 @@ and graph changes with simultaneous label updates. Six endpoint-only scenes are
 prepared; each lasts3seconds at60fps, twice the prior pace. Anonymous boundary
 matching combines rigid/affine transforms, hole-preserving morphs and replica
 split/merge groups. New profile and medial-stroke candidates address thin plots
-and changing numerals. Twenty-five focused tests pass. All936 motion frames pass topology, foreground
+and changing numerals. Twenty-six focused tests pass. All936 motion frames pass topology, foreground
 overlap and endpoint checks; all1,080 joined decoded frames exactly match their
 verified clips. Endpoint silhouette IoU is at least0.9963. Movie SHA256:
-d2b84c3010c0f4803a84fded3c938916b7ff408aad8fdd8b0fe48f2d8a75caa1.
+d86d00d506abbb7058763ab1e5c29d047dcc1fe692e55710f90a666ff7899f36.
 Public phone delivery is maintained by the Cuvami staging gateway.
 Evidence including rejected candidates: Cuvami staging/artifacts/
 embedding-transport/combined-20261015. Do not replace failures with success claims.

@@ -42,6 +42,14 @@ class CombinedTests(unittest.TestCase):
   for t,want in [(0,a),(1,b)]:
    im,_=plan.image(t);truth=draw_scene([want],ss=8)>127;mask=im>127
    self.assertGreater((mask&truth).sum()/(mask|truth).sum(),.95)
+ def test_cropped_topology_matches_full_frame(self):
+  from combined_transport import topology as cropped
+  rng=np.random.default_rng(81)
+  for density in [.1,.4,.7,.95]:
+   for _ in range(20):
+    mask=rng.random((21,33))<density
+    self.assertEqual(cropped(mask),topology(mask))
+  self.assertEqual(cropped(np.zeros((10,10),bool)),(0,0))
  def test_affine_precedes_nonrigid(self):
   p=outline();plan=BodyPlan([p],[p@np.array([[1.1,.2],[0,.9]]).T])
   self.assertEqual(plan.kind,'affine')
