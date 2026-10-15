@@ -310,3 +310,61 @@ clips are decoded and compared exactly to all rendered frames. A separate phone
 viewing transcode must retain the research originals and their checks. Continuous
 collision proofs, arbitrary topology changes, foreground/background inference and
 the previously unresolved algebraic operations remain outside acceptance.
+
+## Morphology benchmark and affine-hole correction (2026-10-15)
+
+`benchmark_morphology.py FRESH_OUTPUT` audits twelve generated cases: eight
+same-map affine shapes with one/two holes, a non-affine ribbon, replica split and
+merge, and unsupported hole creation. Supply `--combined INPUTS_JSON` to include
+the six existing native combined scenes. Supply both `--atlas ATLAS_DIRECTORY`
+and `--math-layouts LAYOUTS_JSON` to retain the five actual algebra operations.
+`--samples 157` includes endpoints and midpoint; `--solver-dir DIRECTORY` runs
+the exact same corpus against a separate solver checkout. `--cases ID ...`
+selects cases explicitly and rejects unknown IDs.
+
+Every report retains all failures, input/solver hashes, accepted state counts,
+frame hashes, topology/count/foreground-overlap checks and one-boundary-pixel
+endpoint checks. Preparation and image+validation wall times are separate. The
+command completing successfully means the **audit completed**, not that all
+cases passed. Consult `passed`, `total` and the per-case errors in `report.json`.
+The initial concurrent screening times are diagnostic only; serial repeated
+measurements are separate evidence. This is CPU research, not GPU or phone timing,
+and finite raster samples do not establish continuous geometric validity.
+
+The affine candidate previously selected its lowest-cost exterior map before
+checking holes. Symmetric exteriors can admit multiple maps; the selected one
+can disagree with holes even when a valid alternative exists. Hole enumeration
+also carries no correspondence. Affine inference now searches exterior candidates
+in the original preference order and accepts the first with a geometry-inferred
+bijection of holes under that **same map**. Hole winding/phase and enumeration
+may differ, and distinct holes may have different sample counts. Each matched
+boundary must still have equal sampling and maximum error <=1e-6. No non-affine
+input is promoted by a looser fitting threshold.
+
+The initial identical 23-case screening recognizes all eight exact affine cases
+(previously zero), replacing contour/registered fallbacks. Overall sampled raster
+acceptance remains18/23, including the expected unsupported hole event. The four
+algebra failures remain: distribution has no same-hole primary assignment,
+collection develops invalid body topology, factorization has unrelated foreground
+overlap, and cancellation needs unsupported branching. Existing accepted cases
+retain identical screening frame hashes. This correction improves transform
+selection, not algebraic branching coverage or GPU integration.
+
+`render_morphology_review.py INPUTS_JSON NEW_MOVIE --label TEXT --cases ID ...`
+replays selected cases at60fps, three seconds each. `--solver-dir` allows a
+baseline clip; both clips use the same fixed crop and scale. Every lossless RGB
+frame is decoded and checked exactly. The review joins four baseline/updated
+comparisons vertically in a720x1280 H.264 phone-format movie. This is a focused
+shape-transform review, separate from the earlier multi-glyph combined film.
+Evidence and reproduction helpers live in Cuvami staging artifacts under
+`morphology-review-20261015`; the public player is unchanged.
+
+Final denser audit retains18/23 at157 samples per case:2,826 states across fully
+passing cases, plus56 valid states before the two runtime-rejected algebra cases.
+A held-out seeded set of24 affine scenes plus reversed endpoints passes48/48:
+1,584 additional states check self/inter-contour crossings and raster topology.
+All29 focused Python tests pass. Six existing native combined scenes and all
+other non-affine screening cases retain their exact previous frame hashes.
+The720-frame comparison transcode preserves both panels' topology, stays within
+one boundary pixel, and has minimum silhouette IoU0.9987615. Lossless source clips
+are decoded exactly. No hosted or physical-phone result is claimed.

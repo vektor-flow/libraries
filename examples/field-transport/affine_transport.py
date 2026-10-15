@@ -5,11 +5,22 @@ No symbol identities or authored correspondences are accepted.
 """
 import numpy as np
 from scipy.linalg import polar
+from scipy.optimize import linear_sum_assignment
 from field_transport import clock
+
+def boundary_error(p,q):
+ """Maximum point error after cyclic/winding registration of a closed loop."""
+ if p.shape!=q.shape:return np.inf
+ errors=[]
+ for target in [q,q[::-1]]:
+  # Any valid exact registration must place the first source point here.
+  phase=int(np.argmin(np.linalg.norm(target-p[0],axis=1)))
+  errors.append(np.max(np.linalg.norm(p-np.roll(target,-phase,axis=0),axis=1)))
+ return min(errors)
 
 class AffineTransport:
  def __init__(self,a,b):
-  if len(a)!=len(b) or any(x.shape!=y.shape for x,y in zip(a,b)):
+  if len(a)!=len(b) or a[0].shape!=b[0].shape:
    raise ValueError('Affine candidate requires equal boundary sampling')
   self.a=a;self.ca=a[0].mean(0);self.cb=b[0].mean(0)
   x=a[0]-self.ca;y=b[0]-self.cb;candidates=[]
@@ -26,12 +37,21 @@ class AffineTransport:
     score=float(np.sum(np.log(values)**2)+1e-6*angle**2)
     candidates.append((score,matrix,angle,values,vectors))
   if not candidates:raise ValueError('Endpoints are not affine equivalent')
-  _,self.matrix,self.angle,self.values,self.vectors=min(candidates,key=lambda x:x[0])
-  # All holes must agree with the same map, allowing cyclic indexing.
-  for p,q in zip(a[1:],b[1:]):
-   moved=(p-self.ca)@self.matrix.T+self.cb
-   error=min(np.max(np.linalg.norm(moved-np.roll(v,k,axis=0),axis=1)) for v in [q,q[::-1]] for k in range(len(q)))
-   if error>1e-6:raise ValueError('Holes do not share the affine map')
+  # Symmetric outer boundaries admit multiple maps. Interior boundaries must
+  # participate in selection, rather than rejecting after choosing one map.
+  # Hole enumeration carries no correspondence; infer a bijection geometrically.
+  for _,matrix,angle,values,vectors in sorted(candidates,key=lambda x:x[0]):
+   costs=np.full((len(a)-1,len(b)-1),np.inf)
+   for i,p in enumerate(a[1:]):
+    moved=(p-self.ca)@matrix.T+self.cb
+    for j,q in enumerate(b[1:]):
+     costs[i,j]=boundary_error(moved,q)
+   try:rows,cols=linear_sum_assignment(costs)
+   except ValueError:continue
+   if len(rows) and np.max(costs[rows,cols])>1e-6:continue
+   self.matrix,self.angle,self.values,self.vectors=matrix,angle,values,vectors
+   break
+  else:raise ValueError('Holes do not share any inferred affine map')
   self.expected=(1,len(a)-1)
  def contours(self,t):
   if not 0<=t<=1:raise ValueError('Time outside [0,1]')

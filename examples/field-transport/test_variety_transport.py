@@ -28,6 +28,31 @@ class VarietyTests(unittest.TestCase):
    end=p.contours(t)[0]
    d=lambda e:np.linalg.norm(p.contours(t+e if t==0 else t-e)[0]-end)
    self.assertLess(d(.001),.002*d(.01))
+ def test_affine_symmetric_outer_uses_holes_to_choose_rotation(self):
+  from combined_transport import BodyPlan
+  t=np.linspace(0,2*np.pi,64,endpoint=False);u=np.c_[np.cos(t),np.sin(t)]
+  a=[120*u,18*u+[48,12]]
+  m=rotation(np.pi)@np.array([[1.1,.15],[0,.85]])
+  b=[np.roll((p@m.T+[30,-20])[::-1],9,axis=0) for p in a]
+  plan=BodyPlan(a,b);self.assertEqual(plan.kind,'affine')
+  np.testing.assert_allclose(plan.plan.matrix,m,atol=1e-10)
+  for t in np.linspace(0,1,65):
+   self.assertEqual(topology(draw_scene([plan.contours(float(t))],ss=8)>127),(1,1))
+ def test_affine_holes_are_anonymous_with_different_sampling(self):
+  # Outer shape fixes the map. Reordered, differently sampled holes cannot be
+  # zipped by input index and must retain their geometry under the shared map.
+  u=ring(1,.1)[0][::8];v=u[::2]
+  a=[outline()*2,15*u+[-45,0],10*v+[45,20]]
+  m=rotation(.7)@np.array([[1.1,.2],[0,.9]])
+  b=[p@m.T+[20,-10] for p in a]
+  b=[np.roll(p[::-1],7,axis=0) for p in [b[0],b[2],b[1]]]
+  plan=AffineTransport(a,b)
+  np.testing.assert_allclose(plan.matrix,m,atol=1e-10)
+  truth=draw_scene([b],ss=8)>127;actual=draw_scene([plan.contours(1)],ss=8)>127
+  self.assertGreater((truth&actual).sum()/(truth|actual).sum(),.999)
+ def test_affine_rejects_holes_without_a_common_map(self):
+  a=ring(100,20);b=[a[0],a[1]*.8]
+  with self.assertRaises(ValueError):AffineTransport(a,b)
  def test_affine_rejects_nonaffine_shape(self):
   a=outline();b=a.copy();b[5]+=[5,3]
   with self.assertRaises(ValueError):AffineTransport([a],[b])

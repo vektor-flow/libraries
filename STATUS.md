@@ -1,3 +1,25 @@
+# Morphology review — 2026-10-15
+
+Isolated `codex/morphology-review-20261015` corrects affine recognition when
+symmetric exterior boundaries require holes to select the shared transform.
+Hole phase/winding/enumeration carry no correspondence. Eight exact affine
+cases previously fell through to deforming plans; all now select affine motion.
+No fitting tolerance was weakened.29 focused tests pass.
+
+A reproducible23-case benchmark includes generated geometry, all six existing
+native combined scenes and all five actual algebra operations. Both screening
+and157-state-per-case audits retain18/23 acceptance. Unsupported hole creation,
+distribution, collection, factorization and cancellation remain failures, with
+errors preserved. Existing non-affine screening frame hashes are unchanged.
+Another48 held-out affine/reverse cases pass1,584 raster and crossing checks.
+This improves transform selection, not arbitrary branching or algebra coverage.
+
+A12-second720x1280/60fps before/after movie has720 decoded frames, exact topology
+in both panels and min silhouette IoU0.9987615 against lossless source clips.
+Evidence and reproduction helpers: Cuvami staging artifacts under
+`morphology-review-20261015`. See field-transport README. CPU offline work only;
+public players, GPU runtime integration and physical NVIDIA STOP are unchanged.
+
 # Standalone GPU morph optimization — 2026-10-15
 
 Isolated examples/gpu-morph now contains tiled pair costs, exact subgroup/cooperative
