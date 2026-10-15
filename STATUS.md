@@ -16,7 +16,10 @@ or phone testing was performed. Document geometry/atlas and previous full-match
 failures are unchanged. Local gesture, four phone viewports, DPR3 and desktop1/4/16/64x edge checks
 pass; uploaded figure and all187 report-image checks pass. No errors/overflow.
 Compositor screenshots confirm a50×35px pointer drag moves ink50×35px.
-Publication receipts will record the reviewed source/site pins.
+Runtime source bb60444; site dbcf37c; successful Pages workflow38712246175.
+All four changed HTTPS files match reviewed bytes. Live touch/mouse gesture
+checks and the50×35px compositor-ink displacement check pass. Receipt:
+document-gestures/publication.json.
 
 ---
 
