@@ -8,6 +8,37 @@ LaTeX and PDF engines are development oracles. This is a working subset with
 explicit diagnostics. Complete document equivalence remains failing. Morphology
 is a separate project and is outside this integration.
 
+## Latest local accuracy iteration — 2026-10-15
+
+The arXiv expansion is local and supersedes earlier package/test counts here;
+the public renderer pins below remain unchanged. Read STATUS.md and the new
+complete-project section in typing-demo/README.md. Four original source projects
+and80 PDF pages are preserved under the existing evidence root's
+arxiv-expansion/. arxiv-corpus.json pins both download hashes. Local input
+assembly is replayed byte-for-byte; no content is stripped to improve scores.
+
+New explicit modules: bm, amstext, amsbsy, url. URL/comment/macro handling and
+native tilde positioning are corrected. Default short ASCII URLs and the
+sample2e nonbreaking-space reduction pass strict96dpi pixel/glyph acceptance.
+The first sample2e page2 spacing divergence was sentence width applied to
+Mr.~Jones; it is fixed. Page2 moved/wrong-size glyphs979→948, missing27/extra3
+remain. Page1's1693 glyph positions are unchanged. The next paragraph/list/math
+flow divergences remain. The bold-package fixture's display baseline still fails.
+
+All four full articles FAIL: native/GPU pages15/19,39/27,15/16,11/0 (amsart).
+The full-paper raw ink IoU is slightly lower in two cases and unchanged in one;
+no overall parity improvement is claimed from a syntax/module diagnostic count.
+Conference styles, bibliography, tables, custom floats and PDF/EPS images need
+substantial work. A38-second paragraph-layout case also needs a bounded solution
+that preserves original content and reports any fallback explicitly.
+
+Fresh final evidence: audit-final/ (88 reference/70 GPU pages over10 documents),
+report-final/ (all pages/errors/audits and original downloads), report-ui/
+(288 image views,84 missing views), summary.json.34 Node/13 Python checks pass.
+Software SwiftShader only. This is96dpi whole-page coverage, not a new exhaustive
+zoom acceptance. Preserve the prior zoom grids. No site publication or physical
+GPU run was performed; the hardware STOP remains unchanged.
+
 ## Source and preview
 
 Repository `vektor-flow/libraries`, branch `codex/gpu-math-20261014`.

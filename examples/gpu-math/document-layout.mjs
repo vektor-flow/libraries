@@ -1,3 +1,4 @@
+import {readUrl} from './latex-modules/core/literals.mjs';
 import {typeset} from './typing-layout.mjs';
 import {typesetText} from './text-flow.mjs';
 import {typesetDocumentText} from './document-text.mjs';
@@ -24,6 +25,7 @@ export async function typesetDocument(source,data,{assets={},strict=false}={}){
  const emit=block=>{blocks.push({...block,context:{...context,leadingSpace:/^\s/.test(buffer)}});if(block.kind==='math')context.afterDisplay=true;else if(block.kind==='paragraph'||['section','subsection'].includes(block.kind))context.afterDisplay=false;};
  const flush=()=>{if(buffer.trim())emit({kind:'paragraph',source:buffer.trim()});buffer='';context.before=0;delete context.label;};
  while(i<body.length){
+  const url=readUrl(body,i);if(url){if(!modules.packages.has('url')&&!modules.packages.has('hyperref'))diagnostics.push('Command requires url: url');if(!url.closed)diagnostics.push('Unfinished URL');buffer+=body.slice(i,url.end);i=url.end;continue;}
   if(body[i]==='$'&&!body.startsWith('$$',i)||body.startsWith('\\(',i)){const opening=body[i]==='$'?'$':'\\(',closing=opening==='$'?'$':'\\)';let end=i+opening.length;for(;end<body.length;end++){if(body.startsWith(closing,end))break;if(body[end]==='\\')end++;}if(end>=body.length){diagnostics.push('Inferred inline math closing delimiter');buffer+=body.slice(i)+closing;i=body.length;}else{buffer+=body.slice(i,end+closing.length);i=end+closing.length;}continue;}
   if(body.startsWith('\\[',i)||body.startsWith('$$',i)){flush();const close=body.startsWith('$$',i)?'$$':'\\]',end=body.indexOf(close,i+2);emit({kind:'math',source:body.slice(i+2,end<0?body.length:end),number:null});if(end<0)diagnostics.push('Inferred display closing delimiter');i=end<0?body.length:end+2;continue;}
   if(body.startsWith('\\begin',i)){const inlineEnv=group(body,i+6);if(inlineEnv.value==='math'&&inlineEnv.closed){const end=findEnvironmentEnd(body,'math',inlineEnv.end);buffer+='$'+body.slice(inlineEnv.end,end<0?body.length:end)+'$';if(end<0)diagnostics.push('Inferred end of math');i=end<0?body.length:end+'\\end{math}'.length;continue;}}

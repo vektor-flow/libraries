@@ -4,9 +4,10 @@ from PIL import Image,ImageDraw
 from pathlib import Path
 
 def build(corpus,browser,output):
- output.mkdir();pixels=json.loads((browser/'pixel-comparison.json').read_text());gpu=json.loads((browser/'document-browser.json').read_text());engine=json.loads((corpus/'engine-benchmark.json').read_text());sources=json.loads((corpus/'sources.json').read_text());records=[]
+ output.mkdir();pixels=json.loads((browser/'pixel-comparison.json').read_text());gpu=json.loads((browser/'document-browser.json').read_text());engine=json.loads((corpus/'engine-benchmark.json').read_text())if(corpus/'engine-benchmark.json').exists()else{'engine':'Original supplied PDF; no local compilation timing','rasterizer':'pdftoppm at 96 dpi','documents':[]};sources=json.loads((corpus/'sources.json').read_text());records=[]
  for doc in pixels['documents']:
   name=doc['name'];folder=output/name;folder.mkdir();shutil.copyfile(corpus/name/'source.tex',folder/'source.tex');shutil.copyfile(corpus/name/'source.pdf',folder/'reference.pdf')
+  if(corpus/name/'original-source.bin').exists():shutil.copyfile(corpus/name/'original-source.bin',folder/'original-source.bin')
   if(corpus/name/'plot.png').exists():shutil.copyfile(corpus/name/'plot.png',folder/'plot.png')
   for index in range(1,max(doc['referencePages'],doc['nativePages'])+1):
    reference=corpus/name/f'reference-{index}.png'
@@ -33,7 +34,7 @@ def build(corpus,browser,output):
    geometry=page.get('geometry',{})
    for key in ['missingReferenceGlyphs','extraGpuGlyphs','misplacedOrWrongSize','unmeasured']:
     if key in geometry:geometry[key+'Count']=len(geometry[key]);geometry[key]=geometry[key][:4]
-  timings=next(d for d in gpu['results']if d['name']==name);baseline=next(d for d in engine['documents']if d['name']==name)
+  timings=next(d for d in gpu['results']if d['name']==name);baseline=next((d for d in engine['documents']if d['name']==name),{'trials':[]})
   records.append({**doc,'source':next(d for d in sources if d['name']==name),'modules':timings['modules'],'gpuTimings':timings['timings'],'latexTimings':baseline['trials']})
  summary={'accepted':pixels['accepted'],'documents':records,'policy':pixels['policy'],'pixelMode':gpu.get('pixelMode','MTSDF'),'runtimeHashes':gpu.get('runtimeHashes',{}),'geometryPolicy':'One-to-one native font/glyph matching on each original page; position <=1px, font size <=.1px; no missing, extra or unmeasured glyphs. Vector-only tiles are checked by pixels.','backend':gpu['backend'],'coldBrowserReadyMs':gpu['coldBrowserReadyMs'],'scope':gpu['scope'],'engine':engine['engine'],'rasterizer':engine['rasterizer']};(output/'report.json').write_text(json.dumps(summary,indent=2)+'\n')
  (output/'index.html').write_text(Path(__file__).with_name('document-report.html').read_text())

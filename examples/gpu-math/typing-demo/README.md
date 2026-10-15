@@ -370,3 +370,47 @@ validation scales still capture complete native pages. The editor keeps its
 own scrolling. Nonpassive touch/gesture cancellation on the document surface
 supplements touch-action/overscroll containment for Safari. Report navigation
 is removed from the renderer so its controls focus on rendering and viewing.
+
+## Complete arXiv project corpus — 2026-10-15
+
+`../fetch_arxiv_corpus.py OUTPUT [--cache DOWNLOADS]` preserves four versioned
+projects and their original PDFs. `../arxiv-corpus.json` pins reviewed SHA-256
+hashes for both downloads. It rejects changed bytes, archive traversal/links,
+recursive inputs and resource-limit violations. Every extracted file is hashed.
+`source.tex` substitutes local input files for the independent renderer; original
+project files and compressed downloads remain intact. Sources are not rewritten
+to remove failing packages, figures or sections. Missing inputs stay diagnostic.
+Original article/font/asset terms apply; these downloads are local test evidence,
+not relicensed library content or a publication authorization.
+
+The four PDFs contain 80 original pages. The renderer currently produces
+19/27/16/0 pages against 15/39/15/11 originals. The last project uses unsupported
+`amsart`; its 11 missing pages remain failures. Conference styles, bibliography
+packages, custom floats, tables, PDF/EPS images and long paragraphs remain major
+limits. One paper takes about 38 seconds for layout on this software test host;
+there is no full-document performance acceptance. Pixel comparisons include all
+original pages and all extra GPU pages, without alignment/cropping.
+
+New explicit package subsets: `bm`, `amstext`, `amsbsy` and `url`. The first three
+expose already mapped bold/text math; they do not establish arbitrary package
+compatibility. Default short ASCII `url` arguments retain literal percent, hash,
+underscore, backslash and other punctuation through macro/comment processing.
+Native OT1 tilde lowering uses the font's x-height. URL styles/options, line
+breaking, whitespace and non-ASCII normalization remain diagnostic limitations.
+Nonbreaking text spaces use ordinary interword width even after a period.
+
+Evidence is in Cuvami `staging/artifacts/gpu-math/20261015/arxiv-expansion/`.
+Original downloads, baseline/intermediate captures and rejected trials are retained.
+`audit-final/` is the fresh full-page pixel/glyph audit of current renderer bytes;
+`audit-corpus/` adds three controlled fixtures and three earlier document cases.
+`report-final/` exposes all pages, differences, local-error maps, original PDFs,
+source archives and per-page audits. Downloaded PDF compile times are unmeasured;
+report timings state the actual sample count. Set `VKF_DOCUMENT_TRIALS=1` for a
+correctness scan; the existing default remains three timing samples.
+
+The URL and nonbreaking-space reductions pass strict pixel/glyph acceptance;
+the bold-package fixture retains an existing display-placement failure. The
+sample2e page2 spacing correction reduces moved/wrong-size glyphs 979 to 948,
+while preserving all 1,693 accurately placed page1 glyphs. Its later-page failures
+remain. Existing small2e and figure glyph geometry is unchanged. These are bounded
+software-WebGPU checks, separate from exhaustive zoom grids and physical devices.

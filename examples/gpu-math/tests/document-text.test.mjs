@@ -8,3 +8,34 @@ test('valid empty nuclei and primes differ from unfinished script operands',()=>
 test('theorem/proof nesting and footnotes retain independent visible primitives',async()=>{const{typesetDocument}=await import('../document-layout.mjs');const source=String.raw`\documentclass{article}\usepackage{amsthm}\newtheorem{thm}{Theorem}[section]\begin{document}\section{Test}\begin{thm}\label{t}Claim $x'=1$.\end{thm}\begin{proof}Proof text.\end{proof}A note\footnote{A native footnote.} and Theorem \ref{t}.\end{document}`;const r=await typesetDocument(source,data);assert.equal(r.complete,true,JSON.stringify(r.diagnostics));assert.equal(r.pages[0].footnoteNumbers.length,1);assert.ok(r.pages[0].items.some(i=>i.key?.startsWith('text/@document:footnote:')));assert.ok(r.pages[0].items.some(i=>i.key?.startsWith('text/@document:footnotemark:')));assert.ok(r.pages[0].items.filter(i=>i.kind==='rule').length>=5);assert.ok(r.pages[0].items.every(i=>Number.isFinite(i.x+i.y)));});
 
 test('math environments preserve surrounding paragraph geometry like dollar math',async()=>{const{typesetDocument}=await import('../document-layout.mjs');const wrap=body=>String.raw`\documentclass{article}\begin{document}`+body+String.raw`\end{document}`;const a=await typesetDocument(wrap(String.raw`Before $x^2+\alpha$ after.`),data),b=await typesetDocument(wrap(String.raw`Before \begin{math}x^2+\alpha\end{math} after.`),data);assert.equal(b.complete,true,JSON.stringify(b.diagnostics));assert.deepEqual(b.pages,a.pages);});
+
+test('literal URLs preserve percent/hash/math markers through macros and document flow',async()=>{
+ const {typesetDocument}=await import('../document-layout.mjs');
+ const literal=String.raw`https://a.b/x_y%20?q=1#s$~\TeX`,source=String.raw`\documentclass{article}\usepackage{url}\newcommand{\around}[1]{Before #1 after.}\begin{document}\around{\url{`+literal+String.raw`}}\end{document}`;
+ const expanded=expandDocumentMacros(source).source;assert.ok(expanded.includes(literal));
+ const result=await typesetDocument(source,data);assert.equal(result.complete,true,JSON.stringify(result.diagnostics));
+ const codes=result.pages[0].items.filter(i=>i.key?.startsWith('text/@document:mono:')).map(i=>String.fromCharCode(Number(i.key.split(':').at(-1)))).join('');assert.equal(codes,literal);
+ const delimited=await typesetDocument(String.raw`\documentclass{article}\usepackage{url}\begin{document}\url!https://a.b/~x!\end{document}`,data);assert.equal(delimited.complete,true,JSON.stringify(delimited.diagnostics));
+ const noPackage=await typesetDocument(String.raw`\documentclass{article}\begin{document}\url{abc}\end{document}`,data);assert.ok(noPackage.diagnostics.some(d=>d.includes('requires url')));
+ assert.ok(typesetDocumentText(String.raw`\url{`+'a'.repeat(120)+'}',data,{width:100}).diagnostics.some(d=>d.includes('URL line breaking')));
+});
+
+test('standalone AMS text/bold and bm imports use native mapped math glyphs',async()=>{
+ const {typesetDocument}=await import('../document-layout.mjs');
+ const result=await typesetDocument(String.raw`\documentclass{article}\usepackage{bm,amstext,amsbsy}\begin{document}$\bm{\alpha}+\boldsymbol{\beta}+\text{office}$\end{document}`,data);
+ assert.equal(result.complete,true,JSON.stringify(result.diagnostics));assert.deepEqual(result.modules.packages,['bm','amstext','amsbsy']);
+ assert.ok(result.pages[0].items.some(i=>i.key?.includes('boldsymbol')));
+});
+
+test('nonbreaking spaces use interword spacing after sentence punctuation',()=>{
+ const nbsp=typesetDocumentText('Mr.~Jones',data,{width:1000,justify:false});
+ const explicit=typesetDocumentText(String.raw`Mr.\ Jones`,data,{width:1000,justify:false});
+ assert.ok(Math.abs(nbsp.width-explicit.width)<1e-10);
+ const ordinary=typesetDocumentText('Mr. Jones',data,{width:1000,justify:false});assert.ok(ordinary.width>nbsp.width);
+});
+
+test('unsupported URL encoding remains diagnostic instead of throwing',()=>{
+ for(const value of ['café','a b','line\nbreak']){
+  const result=typesetDocumentText('\\url{'+value+'}',data);assert.equal(result.complete,false);assert.ok(result.diagnostics.some(d=>d.includes('normalization')));
+ }
+});

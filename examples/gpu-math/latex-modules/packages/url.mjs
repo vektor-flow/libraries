@@ -1,0 +1,1 @@
+export default {name:'url',kind:'package',dependencies:[],options:[],commands:['url','nolinkurl'],scope:'Default monospace unbroken URLs; configurable styles and URL line breaking are not implemented.'};

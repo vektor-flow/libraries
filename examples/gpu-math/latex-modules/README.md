@@ -38,3 +38,11 @@ commands still use the shared renderer; not every package command is gated yet.
 The expression-only Math lab retains its convenient bundled math feature set.
 The document renderer supplies the explicitly resolved modules. Unsupported
 content stays visible as diagnostics/placeholders; no LaTeX engine fallback runs.
+
+The arXiv corpus follow-up adds explicit `bm`, `amstext`, `amsbsy` and `url`
+subsets. Bold/text math uses the existing native mappings. URL arguments pass
+through a shared literal reader before comment stripping, macro expansion and
+paragraph parsing; short default ASCII URLs use native monospace glyphs and the
+OT1 tilde offset. Custom styles, whitespace/non-ASCII normalization and URL line
+breaking remain unsupported with diagnostics. Package recognition alone is not
+an accuracy result; the complete-paper corpus still fails.

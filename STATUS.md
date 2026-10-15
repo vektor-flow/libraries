@@ -1,3 +1,36 @@
+# Complete arXiv corpus and first package/spacing corrections — 2026-10-15
+
+Four version-pinned arXiv source projects (52 files) and original PDFs (80 pages)
+are preserved locally. Reviewed source/PDF hashes are in
+examples/gpu-math/arxiv-corpus.json. The downloader safely extracts archives and
+assembles local TeX inputs without removing unsupported content; replay is exact.
+Current GPU page counts19/27/16/0 differ from original15/39/15/11; amsart is
+unsupported. All complete papers FAIL. Every original/extra/missing page remains
+in the96dpi pixel/glyph audit. No full-paper parity or performance claim.
+
+Added explicit bm/amstext/amsbsy/url modules. Short ASCII URLs retain literal
+punctuation through comments/macros and use the native OT1 tilde offset.
+Unsupported URL encodings/whitespace/line breaking remain diagnostic. Fixed
+nonbreaking spaces inheriting sentence space. Both controlled URL and spacing
+fixtures pass strict ink/local-component/glyph acceptance. URL max glyph error
+.0111px; spacing .0689px. The bold-package display fixture still fails placement.
+Sample2e page2 moved/wrong-size979→948; missing27/extra3 unchanged. Accurate
+page1 and small2e/figure geometry are unchanged. Original-paper raw ink overlap
+is slightly worse in two cases and unchanged in one; targeted corrections do
+not establish overall document improvement. Native style, floats, bibliography,
+tables, images and page-building work remain substantial.
+
+34 Node and13 Python checks pass. Fresh SwiftShader capture covers10 documents,
+88 reference/70 GPU pages, with no browser/GPU errors or phone overflow. Report
+navigation checks288 present/84 missing image views without errors/overflow.
+Report supports original PDFs/source archives and unmeasured PDF compile times.
+Evidence: Cuvami staging/artifacts/gpu-math/20261015/arxiv-expansion/;
+audit-final/, report-final/, summary.json. Baselines and failed trials retained.
+Local research changes only; no publication, physical GPU testing or VKF runtime
+integration. Existing physical GPU STOP remains in force.
+
+---
+
 # Document gestures stay inside a fixed viewport — 2026-10-15
 
 The main renderer is a fixed-height application shell with a clipped document
