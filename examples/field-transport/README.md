@@ -505,3 +505,23 @@ they do not establish arbitrary topology transport or realtime preparation.
 Evidence and rejected trials are preserved in Cuvami staging artifacts under
 `morphology-replica-20261015`. Snapshots v5/v6 differ only by an additional rejected-
 route retry; equivalence of the accepted 51-state path is checked verbatim.
+
+## Coordinated route timing (2026-10-15)
+
+`MotionClock` retimes accepted cohort routes through one monotone scene clock.
+The previous quintic endpoint ease did not control interior acceleration: tight
+avoidance turns could produce rapid speed changes and late returns. A sampled
+motion proxy combines endpoint-center travel with the actual avoidance spline.
+Positive smoothed time density redistributes duration toward faster, more sharply
+accelerating sections. Selection requires both peak speed and acceleration to
+improve by at least5%; otherwise the original timing remains. The proxy is not
+optical flow or a measurement of every deforming boundary point.
+
+The integral of a positive C1 density has a C2 inverse. Its finite endpoint rate
+retains the original stationary endpoint velocity and acceleration. All body
+morphs, branches, routes and hole schedules share the clock; duration, geometric
+path and endpoint geometry remain unchanged. Replaying257 new physical-time
+samples checks topology, overlap, viewport and monotone component/hole counts.
+A rejected retiming restores the accepted original route and records its reason.
+The benchmark records motion selection and rejection explicitly. Unrouted scenes
+and the default `CombinedScene` are unchanged.

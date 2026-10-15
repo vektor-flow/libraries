@@ -83,7 +83,7 @@ def event_body(a,b):
 class ValidatedCombinedScene(CombinedScene):
  def __init__(self,a,b):
   super().__init__(a,b,body_plan_factory=event_body,replica_factory=validated_replica,allow_hole_events=True,allow_general_branching=True)
-  self.cohort_route=None
+  self.cohort_route=None;self.motion_clock=None;self.motion_rejection=None
   try:
    for t in np.linspace(0,1,33):super().images(float(t))
    return
@@ -107,6 +107,29 @@ class ValidatedCombinedScene(CombinedScene):
      previous=count
    finally:self.cohort_route=None
   self.cohort_route=CohortRoutes(masks,len(self.groups),validate)
+  self.prepare_motion()
+ def prepare_motion(self):
+  from motion_clock import MotionClock
+  self.motion_clock=MotionClock(self.cohort_route);self.motion_rejection=None
+  if self.motion_clock.integral is None:return
+  previous=None;previous_holes=None
+  try:
+   for t in np.linspace(0,1,257):
+    ims,_=self.images(float(t));n,h=topology(np.max(ims,axis=0)>127)
+    if h!=self.expected_holes_at(float(t)):raise ValueError('Retimed hole schedule')
+    if previous is not None:
+     direction=np.sign(len(self.original_b)-len(self.original_a))
+     holes=np.sign(sum(len(p)-1 for p in self.original_b)-sum(len(p)-1 for p in self.original_a))
+     if direction*(n-previous)<0 or (direction==0 and n!=previous):raise ValueError('Retimed count reversal')
+     if holes*(h-previous_holes)<0 or (holes==0 and h!=previous_holes):raise ValueError('Retimed hole reversal')
+    previous=n;previous_holes=h
+  except ValueError as exc:
+   self.motion_rejection=str(exc);self.motion_clock=None
+ def scene_time(self,t):
+  motion=getattr(self,'motion_clock',None)
+  return motion(t) if motion is not None else t
+ def expected_holes_at(self,t):
+  return super().expected_holes_at(self.scene_time(t))
  @lru_cache(maxsize=384)
  def base_crops(self,t):
   ims,metrics=super().images(t,validate=False);crops=[]
@@ -133,6 +156,7 @@ class ValidatedCombinedScene(CombinedScene):
    if overlap and np.any(occupied&(im>127)):raise ValueError(('Routed cohort overlap',t))
    occupied|=im>127
  def images(self,t,validate=True):
+  t=self.scene_time(t)
   if self.cohort_route is None:return super().images(t,validate=validate)
   ims,metrics=self.base_images(t);out=[];new_metrics=[]
   for im,offset in zip(ims,self.cohort_route.displacements(t)):

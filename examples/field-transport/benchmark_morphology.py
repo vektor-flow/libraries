@@ -71,6 +71,9 @@ def audit(item,samples,planner="combined"):
         result['prepare_ms']=(time.perf_counter()-start)*1000
         result['kinds']=[kind for kind,_ in plan.groups]
         result['cohort_routed']=getattr(plan,'cohort_route',None) is not None
+        motion=getattr(plan,'motion_clock',None)
+        result['motion_clock']=(dict(active=motion.integral is not None,before=motion.before,after=motion.after,parameters=getattr(motion,'parameters',None)) if motion else None)
+        result['motion_rejection']=getattr(plan,'motion_rejection',None)
         result['plan_parameters']=[dict(kind=kind,implementation=type(part).__name__,separation_power=getattr(part,'separation_power',None),frame_weight=getattr(getattr(part,'plan',None),'frame_weight',None),rejected=getattr(part,'rejected_candidates',[])) for kind,part in plan.groups]
         for t in np.linspace(0,1,samples):
             start=time.perf_counter();ims,metrics=plan.images(float(t))
