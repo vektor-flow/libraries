@@ -15,7 +15,15 @@ from field_transport import clock
 
 class CohortRoutes:
  def __init__(self,images,groups,validate):
-  self.times=np.linspace(0,1,51);self.grid=4.;self.obstacles=[];bounds=[];centers=[]
+  failures=[]
+  for samples in [51,201]:
+   try:
+    self._prepare(images,groups,validate,samples)
+    self.planning_samples=samples;self.rejected_resolutions=failures;return
+   except ValueError as exc:failures.append(dict(samples=samples,error=str(exc)))
+  raise ValueError(('No sampled cohort route',failures))
+ def _prepare(self,images,groups,validate,samples):
+  self.times=np.linspace(0,1,samples);self.grid=4.;self.obstacles=[];bounds=[];centers=[]
   for k,u in enumerate(self.times):
    t=brentq(lambda t:clock(t)-u,0,1) if 0<u<1 else u
    masks=images(t);cropped=[];frame_bounds=[]
@@ -40,20 +48,22 @@ class CohortRoutes:
   priority=np.argsort(-travel,kind='stable')
   orders=[priority,priority[::-1]]+[np.roll(priority,k) for k in range(1,groups)]
   failures=[]
-  for order in orders:
-   for axis in [1,0]:
-    try:
-     self._plan(axis,order)
-     validate(self)
-     self.rejected=failures;return
-    except ValueError as exc:failures.append(str(exc))
+  for step in [36.,96.,192.]:
+   for ramp in [False,True]:
+    for order in orders:
+     for axis in [1,0]:
+      try:
+       self._plan(axis,order,ramp,step)
+       validate(self)
+       self.rejected=failures;return
+      except ValueError as exc:failures.append(str(exc))
   raise ValueError(('No sampled cohort corridor',failures))
- def _plan(self,axis,priority):
+ def _plan(self,axis,priority,ramp=False,max_step=36.):
   self.axis=axis;groups=self.bounds.shape[1]
   levels=np.arange(-240,241,6.) if axis==1 else np.arange(-480,481,12.)
   zero=int(np.argmin(abs(levels)));offsets=np.zeros((len(self.times),groups))
   transition=(levels[:,None]-levels[None,:])**2
-  transition[abs(levels[:,None]-levels[None,:])>36]=np.inf
+  transition[abs(levels[:,None]-levels[None,:])>max_step]=np.inf
   for body in priority:
    allowed=(self.bounds[:,body,0,axis,None]+levels>=5)&(self.bounds[:,body,1,axis,None]+levels<=(715 if axis==1 else 1275))
    for k,obstacles in enumerate(self.obstacles):
@@ -63,14 +73,15 @@ class CohortRoutes:
      q=np.broadcast_to(origin[:,None],(2,len(levels))).copy().astype(float)
      q[axis]+=sign*(levels-offsets[k,other])/self.grid
      gap=ndi.map_coordinates(distance,[q[1],q[0]],order=1,mode='constant',cval=1e4)
-     allowed[k]&=gap>=8.
+     clearance=8.*clock(min(1.,self.times[k]/.15,(1-self.times[k])/.15)) if ramp else 8.
+     allowed[k]&=gap>=max(.01,clearance)
    allowed[0]=False;allowed[-1]=False;allowed[0,zero]=allowed[-1,zero]=True
    cost=np.full(len(levels),np.inf);cost[zero]=0;parents=[]
    for k in range(1,len(self.times)):
     values=cost[:,None]+transition;previous=np.argmin(values,axis=0)
     cost=values[previous,np.arange(len(levels))]+.002*levels**2
     cost[~allowed[k]]=np.inf;parents.append(previous)
-   if not np.isfinite(cost[zero]):raise ValueError('No connected cohort corridor')
+   if not np.isfinite(cost[zero]):raise ValueError(('No connected cohort corridor',int(body),axis))
    path=np.zeros(len(self.times));q=zero
    for k in range(len(self.times)-1,0,-1):path[k]=levels[q];q=int(parents[k-1][q])
    bounds=[]

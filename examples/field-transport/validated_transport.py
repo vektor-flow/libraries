@@ -4,6 +4,7 @@ Keep a valid existing body trajectory byte-for-byte. A failed hole-free contour
 may try endpoint-inferred tree ribbons in a bounded set of fixed local frames.
 No case identifiers, glyph names, or semantic correspondences enter selection.
 """
+from functools import lru_cache
 import numpy as np
 from scipy.optimize import brentq
 from scipy import ndimage as ndi
@@ -42,9 +43,46 @@ class ValidatedBodyPlan(BodyPlan):
   # candidate selection is not permission to relax the existing acceptance gate.
 
 
+def validated_replica(source,targets):
+ from replica_transport import Group
+ from scaled_replica_transport import ScaledGroup
+ original=Group(source,targets)
+ previous=1
+ for t in np.linspace(0,1,65):
+  im,_=original.image(float(t));n,h=topology(im>127)
+  if h or not previous<=n<=len(targets):break
+  previous=n
+ else:return original
+ from replica_transport import shape_error
+ from morph_replica_transport import MorphGroup
+ failures=[]
+ factory=MorphGroup if any(shape_error(source,q)>.06 for q in targets) else ScaledGroup
+ for power in [1.,.5,2.]:
+  try:
+   kwargs=dict(body_factory=ValidatedBodyPlan) if factory is MorphGroup else {}
+   candidate=factory(source,targets,separation_power=power,**kwargs)
+   previous=1
+   for t in np.linspace(0,1,257):
+    im,_=candidate.image(float(t));n,h=topology(im>127)
+    if h or not previous<=n<=len(targets):raise ValueError((float(t),previous,n,h))
+    previous=n
+   candidate.rejected_candidates=failures
+   return candidate
+  except ValueError as exc:failures.append(dict(separation_power=power,error=str(exc)))
+ raise ValueError(('Scaled replica topology',failures))
+
+
+
+def event_body(a,b):
+ if len(a)!=len(b):
+  from hole_event_transport import HoleEventPlan
+  return HoleEventPlan(a,b,ValidatedBodyPlan)
+ return ValidatedBodyPlan(a,b)
+
+
 class ValidatedCombinedScene(CombinedScene):
  def __init__(self,a,b):
-  super().__init__(a,b,body_plan_factory=ValidatedBodyPlan)
+  super().__init__(a,b,body_plan_factory=event_body,replica_factory=validated_replica,allow_hole_events=True,allow_general_branching=True)
   self.cohort_route=None
   try:
    for t in np.linspace(0,1,33):super().images(float(t))
@@ -53,14 +91,15 @@ class ValidatedCombinedScene(CombinedScene):
    if not (isinstance(exc.args[0],tuple) and exc.args[0][0]=='Unrelated foreground overlap'):raise
   from cohort_routes import CohortRoutes
   def masks(t):
-   ims,metrics=super(ValidatedCombinedScene,self).images(t,validate=False)
+   ims,metrics=self.base_images(t)
    self.validate_images(ims,t,overlap=False)
    return ims
   def validate(route):
    self.cohort_route=route
    previous=None
    try:
-    for t in np.linspace(0,1,257):
+    for t in np.r_[np.linspace(0,1,33),np.linspace(0,1,257)]:
+     if t==0:previous=None
      ims,_=self.images(float(t));count=topology(np.max(ims,axis=0)>127)[0]
      if previous is not None:
       delta=count-previous;direction=np.sign(len(self.original_b)-len(self.original_a))
@@ -68,6 +107,20 @@ class ValidatedCombinedScene(CombinedScene):
      previous=count
    finally:self.cohort_route=None
   self.cohort_route=CohortRoutes(masks,len(self.groups),validate)
+ @lru_cache(maxsize=384)
+ def base_crops(self,t):
+  ims,metrics=super().images(t,validate=False);crops=[]
+  for im in ims:
+   yy,xx=np.nonzero(im)
+   if not len(xx):raise ValueError('Empty cohort')
+   x,y=xx.min(),yy.min();X,Y=xx.max()+1,yy.max()+1
+   crops.append((int(x),int(y),im[y:Y,x:X].copy()))
+  return crops,metrics
+ def base_images(self,t):
+  crops,metrics=self.base_crops(float(t));ims=[]
+  for x,y,crop in crops:
+   im=np.zeros((720,1280),np.uint8);im[y:y+crop.shape[0],x:x+crop.shape[1]]=crop;ims.append(im)
+  return ims,metrics
  def validate_images(self,ims,t,overlap=True):
   occupied=np.zeros((720,1280),bool)
   for (kind,plan),im in zip(self.groups,ims):
@@ -75,13 +128,13 @@ class ValidatedCombinedScene(CombinedScene):
    if kind=='replica':
     if h or not 1<=n<=len(plan.targets):raise ValueError(('Routed branch topology',t,n,h))
    else:
-    holes=len(plan.a)-1
+    holes=plan.expected_holes(1-t if self.reverse else t) if kind=='event' else len(plan.a)-1
     if (n,h)!=(1,holes):raise ValueError(('Routed body topology',t,n,h))
    if overlap and np.any(occupied&(im>127)):raise ValueError(('Routed cohort overlap',t))
    occupied|=im>127
  def images(self,t,validate=True):
   if self.cohort_route is None:return super().images(t,validate=validate)
-  ims,metrics=super().images(t,validate=False);out=[];new_metrics=[]
+  ims,metrics=self.base_images(t);out=[];new_metrics=[]
   for im,offset in zip(ims,self.cohort_route.displacements(t)):
    yy,xx=np.nonzero(im)
    lo=np.array([xx.min(),yy.min()])-2;hi=np.array([xx.max()+1,yy.max()+1])+2

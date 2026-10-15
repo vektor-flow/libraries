@@ -65,21 +65,25 @@ def audit(item,samples,planner="combined"):
         except ValueError as exc:
             result['affine_recognized']=False;result['affine_error']=str(exc)
         result['affine_inference_ms']=(time.perf_counter()-start)*1000
-    start=time.perf_counter();frame_times=[];counts=[];ious=[];hashes=[];masses=[]
+    start=time.perf_counter();frame_times=[];counts=[];hole_counts=[];ious=[];hashes=[];masses=[]
     try:
         plan=CombinedScene(a,b)
         result['prepare_ms']=(time.perf_counter()-start)*1000
         result['kinds']=[kind for kind,_ in plan.groups]
         result['cohort_routed']=getattr(plan,'cohort_route',None) is not None
-        result['plan_parameters']=[dict(kind=kind,frame_weight=getattr(getattr(part,'plan',None),'frame_weight',None),rejected=getattr(part,'rejected_candidates',[])) for kind,part in plan.groups]
+        result['plan_parameters']=[dict(kind=kind,implementation=type(part).__name__,separation_power=getattr(part,'separation_power',None),frame_weight=getattr(getattr(part,'plan',None),'frame_weight',None),rejected=getattr(part,'rejected_candidates',[])) for kind,part in plan.groups]
         for t in np.linspace(0,1,samples):
             start=time.perf_counter();ims,metrics=plan.images(float(t))
             frame_times.append((time.perf_counter()-start)*1000)
             image=np.max(ims,axis=0);n,h=topology(image>127)
-            if h!=plan.expected_holes:raise ValueError(('Scene hole count',float(t),h))
+            if h!=(plan.expected_holes_at(float(t)) if hasattr(plan,'expected_holes_at') else plan.expected_holes):raise ValueError(('Scene hole count',float(t),h))
             if counts:
                 direction=np.sign(len(b)-len(a));delta=n-counts[-1]
                 if direction*delta<0 or (direction==0 and delta!=0):raise ValueError(('Count reversal',float(t),counts[-1],n))
+            if hole_counts:
+                hole_direction=np.sign(sum(len(p)-1 for p in b)-sum(len(p)-1 for p in a));hole_delta=h-hole_counts[-1]
+                if hole_direction*hole_delta<0 or (hole_direction==0 and hole_delta):raise ValueError(('Hole count reversal',float(t),hole_counts[-1],h))
+            hole_counts.append(h)
             counts.append(n);masses.append(sum(m[2] for m in metrics))
             hashes.append(hashlib.sha256(image.tobytes()).hexdigest())
             if t in [0,1]:
@@ -92,7 +96,7 @@ def audit(item,samples,planner="combined"):
     except ValueError as exc:
         result['error']=str(exc)
         if 'prepare_ms' not in result:result['failed_prepare_ms']=(time.perf_counter()-start)*1000
-    result.update(sampled_states=len(counts),counts=counts,masses=masses,endpoint_iou=ious,frame_sha256=hashes)
+    result.update(sampled_states=len(counts),counts=counts,hole_counts=hole_counts,masses=masses,endpoint_iou=ious,frame_sha256=hashes)
     if frame_times:
         result['image_ms']=dict(median=float(np.median(frame_times)),p95=float(np.percentile(frame_times,95)),maximum=max(frame_times),samples=len(frame_times))
     return result

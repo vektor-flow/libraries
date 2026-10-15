@@ -75,14 +75,14 @@ class BodyPlan:
   return [p+(1-v)*self.ca+v*self.cb for p in self.plan.contours(t)]
 
 class CombinedScene:
- def __init__(self,a,b,body_plan_factory=BodyPlan):
+ def __init__(self,a,b,body_plan_factory=BodyPlan,replica_factory=Group,allow_hole_events=False,allow_general_branching=False):
   self.original_a=a;self.original_b=b;self.reverse=len(a)>len(b)
   if self.reverse:a,b=b,a
   self.a=a;self.b=b
   costs=np.full((len(a),len(b)),1e9);exact=np.zeros_like(costs,dtype=bool)
   for i,p in enumerate(a):
    for j,q in enumerate(b):
-    if len(p)!=len(q):continue
+    if len(p)!=len(q) and not allow_hole_events:continue
     error=shape_error(p,q);exact[i,j]=translation_error(p,q)<.15
     extent_p=np.maximum(np.ptp(p[0],axis=0),.1);extent_q=np.maximum(np.ptp(q[0],axis=0),.1)
     costs[i,j]=np.linalg.norm(center(p)-center(q))+200*error+60*np.linalg.norm(np.log(extent_p/extent_q))+(0 if exact[i,j] else 2000)
@@ -92,15 +92,16 @@ class CombinedScene:
   for j in range(len(b)):
    if j in owners:continue
    eligible=[i for i,p in enumerate(a) if len(p)==len(b[j])==1 and shape_error(p,b[j])<.06]
+   if not eligible and allow_general_branching:eligible=[i for i,p in enumerate(a) if len(p)==len(b[j])==1]
    if not eligible:raise ValueError('Unmatched outline requires unsupported branching')
    owners[j]=min(eligible,key=lambda i:np.linalg.norm(center(a[i])-center(b[j])))
   self.groups=[];rigid_a=[];rigid_b=[];self.rigid_indices=[]
   for i,p in enumerate(a):
    targets=[b[j] for j in range(len(b)) if owners[j]==i]
    if len(targets)>1:
-    if len(p)!=1 or any(shape_error(p,q)>.06 for q in targets):
+    if len(p)!=1 or (not allow_general_branching and any(shape_error(p,q)>.06 for q in targets)):
      raise ValueError('Cohort requires unsupported non-affine branching')
-    self.groups.append(('replica',Group(p,targets)))
+    self.groups.append(('replica',replica_factory(p,targets)))
    else:
     plan=body_plan_factory(p,targets[0]);self.groups.append((plan.kind,plan))
     if plan.kind=='rigid':
@@ -124,7 +125,10 @@ class CombinedScene:
     loops=routed[i] if i in routed else self.groups[i][1].contours(t)
     if topology(draw_scene([loops],ss=8)>127)!=(1,len(loops)-1):self.raster_ss[i]=32
   self.expected_holes=sum(len(p)-1 for p in a)
-  if self.expected_holes!=sum(len(p)-1 for p in b):raise ValueError('Hole event is unsupported')
+  if not allow_hole_events and self.expected_holes!=sum(len(p)-1 for p in b):raise ValueError('Hole event is unsupported')
+ def expected_holes_at(self,t):
+  u=1-t if self.reverse else t
+  return sum(plan.expected_holes(u) if kind=='event' else (0 if kind=='replica' else len(plan.a)-1) for kind,plan in self.groups)
  def images(self,t,validate=True):
   if not 0<=t<=1:raise ValueError('Time outside [0,1]')
   t=1-t if self.reverse else t
@@ -132,6 +136,7 @@ class CombinedScene:
   out=[];occupied=np.zeros((720,1280),bool);metrics=[]
   for i,(kind,plan) in enumerate(self.groups):
    if kind=='replica':im,mass=plan.image(t);loops=None
+   elif kind=='event':im,mass=plan.image(t);loops=None
    elif kind in ['stroke','tree']:im,mass=plan.plan.image(t);loops=None
    else:
     loops=routed.get(i) if i in routed else plan.contours(t)
@@ -142,7 +147,8 @@ class CombinedScene:
    if validate:
     if np.any(occupied&mask):raise ValueError(('Unrelated foreground overlap',i,t))
     if kind in ['stroke','tree'] and (n,h)!=(1,0):raise ValueError(('Stroke topology',i,t,n,h))
-    if kind not in ['replica','stroke','tree'] and (n,h)!=(1,len(loops)-1):raise ValueError(('Body topology',i,t,n,h))
+    if kind=='event' and (n,h)!=(1,plan.expected_holes(t)):raise ValueError(('Event topology',i,t,n,h))
+    if kind not in ['replica','stroke','tree','event'] and (n,h)!=(1,len(loops)-1):raise ValueError(('Body topology',i,t,n,h))
     if kind=='replica' and (h!=0 or not 1<=n<=len(plan.targets)):raise ValueError(('Branch topology',i,t,n,h))
    occupied|=mask;out.append(im);metrics.append((n,h,mass))
   return out,metrics

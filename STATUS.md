@@ -1,3 +1,25 @@
+# Replica and topology-event corrections — 2026-10-15
+
+The opt-in validated CPU planner now passes all **28/28** expanded morphology
+cases (previously23/28), including all four previously failed full algebra scenes
+and solid-to-ring hole creation. The original23-case subset improves18/23→23/23.
+All23 earlier passing cases retain identical157-state frame hashes; all4396 audited
+states pass.42 focused tests, six transformed/shuffled split cases (390 states),
+and exact default-solver28-case/17-state regression checks pass.
+
+Geometry scaling replaces erosive area correction for failed replicas; differently
+sized copies are normalized before blending. Different-shape branches use individual
+body morphs. Explicit zero-to-N hole events retain independent masks and topology
+checks. Distribution requires the new201-state routing fallback; accepted routes
+still replay257 states. Endpoint clocks preserve stationary velocity/acceleration.
+
+Evidence: Cuvami staging/artifacts/morphology-replica-20261015/summary.json,
+final-dense/, tests-final.log, tests-routing-v6.log, heldout-v5.json and retained
+source snapshots/rejected trials. The v5/v6 accepted-path equivalence is checked;
+v6 adds only a rejected-route refinement. Preparation remains expensive offline
+research. No continuous proof, semantic algebra correspondence, realtime/GPU result
+or deployment is claimed. Physical NVIDIA STOP and VKF-008 remain in force.
+
 # Experimental branch and cohort morphology — 2026-10-15
 
 The opt-in `ValidatedCombinedScene` adds endpoint-inferred medial-tree branches,

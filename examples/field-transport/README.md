@@ -447,3 +447,61 @@ projection is not used as a coverage proxy. The first RGB-mean export and second
 evidence. The accepted third export uses explicit BT.601 conversion andQP1;
 lossless originals and rejected diagnostic frames remain preserved. No physical
 phone compatibility or playback test is claimed.
+
+## Replica area and explicit hole events (2026-10-15)
+
+The validated planner now tries `ScaledGroup` when an existing replica trajectory
+fails its topology/count screening. It normalizes endpoint extents before field
+interpolation and calibrates visible area by scaling geometry about each moving
+copy center. Threshold erosion previously severed thin strokes; blending fields
+of differently sized copies could also fragment them before area calibration.
+Grayscale reconstruction fills union cavities before coverage sampling. This is
+an alternate scalar geometry model, not a material simulation or an exact SDF.
+Area calibration still requires agreement within 0.01 square pixels before
+quantization. Candidate splitting must pass 257 states with no holes, no extra
+components and no split/rejoin reversal. A bounded set of separation clocks is
+tried; rejection remains explicit.
+
+For different-shape branches, `MorphGroup` first uses the existing body planner
+on each copy, then scales and combines the resulting fields. Each member must
+remain connected. Geometry-only ownership is still inferred from endpoint
+shapes/positions; mathematical identities are not supplied to the planner.
+
+`HoleEventPlan` supports an explicit zero-to-N hole birth or its reverse. The
+exterior finishes its morph before holes open; holes close before the exterior
+moves. Independent hole masks define the event schedule and must remain connected,
+disjoint and strictly inside the exterior. The audit checks that schedule,
+monotone hole counts, endpoints and unrelated-body separation. This replaces the
+constant-hole contract only for an explicit event plan. Nonzero-to-different-
+nonzero hole matching remains outside this candidate's scope.
+
+Cohort routing retains its original search first, then tries endpoint-clearance
+ramps and larger movement bounds between planning samples. Every proposed route
+still needs full-resolution replay. Cropped base-frame caching avoids regenerating
+the same geometry during route rejection checks; it does not interpolate or skip
+validation states. These changes remain opt-in offline CPU research.
+
+Separation bias remaps time rationally and then applies the quintic clock, so
+both endpoint velocity and acceleration remain zero. Hole radii also use the
+quintic clock directly. The rejected square-root timing trial is retained in the
+research artifacts; a square root of quintic progress would have unbounded
+endpoint acceleration. Hole-event area is therefore not claimed to follow a
+linear or quintic area schedule.
+
+Final 28-case comparison at 157 states per case: **23/28 → 28/28**, with no
+regressions. The original 23-case subset improves **18/23 → 23/23**. The gains
+are the complete distribution, collection, factorization and cancellation scenes,
+plus hole creation. All 23 previously passing cases retain identical dense frame
+hashes. All 4,396 audited states pass; 42 focused tests and six transformed/shuffled
+held-out splits (390 states) also pass. The default solver retains its exact
+28-case/17-state regression output.
+
+Collection and factorization use scaled replicas alongside the existing tree
+morphs; cancellation uses individually planned different-shape replicas.
+Distribution uses staged hole events and the refined 201-state routing fallback.
+Original 51-state routing is tried first. All accepted routes still replay 257
+full-resolution states. These results close the five recorded corpus failures;
+they do not establish arbitrary topology transport or realtime preparation.
+Evidence and rejected trials are preserved in Cuvami staging artifacts under
+`morphology-replica-20261015`. Snapshots v5/v6 differ only by an additional rejected-
+route retry; equivalence of the accepted 51-state path is checked verbatim.
