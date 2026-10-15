@@ -272,3 +272,27 @@ verify_document_phone.mjs exercises320/390/430px portrait and844px landscape,
 preview placement, source reopening, uploads panel, zoom/reset and navigation
 on explicit software WebGPU. Simulated touch/DPR coverage does not qualify a
 physical phone browser or its on-screen keyboard.
+
+## Direct document gestures — 2026-10-15
+
+This supersedes the zoom panel described above. Pinch with two fingers or scroll
+the mouse wheel over a page to zoom about the finger midpoint/cursor. Drag with
+one finger or the left mouse button at any zoom, including1x; the page follows
+the pointer. Touch-action is disabled only on the document canvases. Remaining
+page chrome retains browser scrolling/zoom accessibility. Fit text and Fit page
+are secondary actions under More, with a page selector for multi-page documents.
+There is no zoom button or slider in the preview.
+
+Gestures keep the existing canvas, native geometry and instance packets. A
+coalesced animation frame redraws only the active page with a new camera uniform;
+there is no LaTeX layout or atlas preparation per gesture. Every page retains its
+own camera. Pointer capture survives dragging beyond the canvas; pinch/pan
+transitions rebase on finger changes, and cancellation clears the active drag.
+Camera zoom retains the tested1–64x bounds and derivative-based screen-space AA.
+
+verify_document_gestures.mjs uses CDP multi-touch input plus real browser
+mouse/wheel dispatch to check anchored zoom, one-finger drag, a lifted pinch
+finger, cancellation, limits, pointer capture and independent page cameras.
+Compositor captures separately check that a50×35px drag actually moves ink by
+50×35px. This is explicit software WebGPU coverage, not physical iPhone/Safari
+qualification. The original full-document accuracy report remains unchanged.

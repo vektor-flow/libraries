@@ -1,3 +1,25 @@
+# Direct pinch, wheel and drag for document cameras — 2026-10-15
+
+Replaces the phone zoom panel with two-finger pinch, cursor-anchored wheel zoom,
+one-finger panning and left-mouse dragging, including at1x. The pointer/finger
+anchor stays fixed during zoom; fingers can be lifted/added without a jump.
+The existing canvas and draw packets remain in place. Camera redraws are
+coalesced to animation frames and redraw only the active page, without layout
+or texture rebuilding. Multiple pages retain independent cameras; More contains
+a page selector and the optional Fit text/Fit page actions. Native browser
+scroll/zoom remains available outside the document canvases.
+
+Evidence: Cuvami staging/artifacts/gpu-math/20261015/document-gestures/.
+The first two local touch-driver attempts selected the wrong release event;
+local-v3 and final check actual pinch-to-one-finger transitions. No physical GPU
+or phone testing was performed. Document geometry/atlas and previous full-match
+failures are unchanged. Local gesture, four phone viewports, DPR3 and desktop1/4/16/64x edge checks
+pass; uploaded figure and all187 report-image checks pass. No errors/overflow.
+Compositor screenshots confirm a50×35px pointer drag moves ink50×35px.
+Publication receipts will record the reviewed source/site pins.
+
+---
+
 # Phone document preview controls — 2026-10-15
 
 Phone UI now folds the source and auxiliary controls when Render is pressed,
