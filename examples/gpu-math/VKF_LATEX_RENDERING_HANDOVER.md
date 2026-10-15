@@ -21,7 +21,10 @@ The full zoom report is published at
 https://vektorflow.org/previews/gpu-math-typing/document-zoom-checks/.
 Publication receipts and exact source/site pins are recorded in STATUS and the
 private evidence root below. Source `ccaeb08` introduced the sharp rule shader;
-site `e3e6525` first published it. Later commits include the grid runner and fixes.
+site `e3e6525` first published it. Runtime `a396b39` and site `03ef624`
+publish the grid runner, report and first follow-up fixes; Pages workflow
+`38718794269` succeeded. All147 live grid views and438 worst-tile image views
+pass at phone width, and all nine live tile/full-frame captures match exactly.
 
 ## Layout and draw contract
 

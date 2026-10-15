@@ -30,6 +30,10 @@ tile-verification/, math-env-fixed-layout.json, math-env-fixed-geometry.json.
 Sharp rule evidence remains rule-sharpness/, including before/after60-case and
 live checks. Later changes require affected-case rescans; changed layouts/fonts
 require a fresh native audit (--mapping) rather than inheriting frozen geometry.
+Published runtime source a396b39; reviewed site03ef624; successful Pages
+workflow38718794269. Seven HTTPS byte hashes match reviewed assets. Live147
+grids/438 tile views pass with no errors/overflow; all nine live tile/full-frame
+captures match exactly. publication.json records the receipts.
 No physical GPU/Safari qualification or under10ms full-document claim.
 
 ---
