@@ -1,3 +1,47 @@
+# Native document flow and font-metric errors repaired — 2026-10-15
+
+Latest checkpoint supersedes the earlier sample2e geometry/performance failures.
+All3559 glyphs across its3 original pages now pass identity/position/size audit:
+no missing, extra, unmeasured or misplaced glyphs. Max errors .1217/.6647/.0980px.
+Page2 previously had3 missing/3 extra/948 moved glyphs and page3 had24 extra/384
+moved. Mean one-pixel ink coverage58.05%→99.45%; individual pages99.4727%,
+99.5117%,99.3725%. Strict pixel/local-component acceptance still FAILS.
+
+Fixed first-match TFM kern semantics (the preparation library overwrote earlier
+instructions in shared tails); refreshed222 metadata entries,68 substantive
+changes. Added native TS1 bullet fields from the already-preserved CM-Super fonts;
+existing UVs/field pixels are unchanged. Corrected inline math stretch/shrink and
+break penalties, explicit hyphen breaks, quote/list skips, paragraph continuation,
+verse hanging indents and display normal/short skips. Four native flow reductions,
+bold-package fixture, small2e and figure fixture pass glyph geometry. The raster
+alpha-channel experiment did not improve fidelity consistently and was rejected;
+public/default shader is unchanged.
+
+Removed redundant line-break search states with exact cost dominance.160 seeded
+paragraph comparisons match the line-count-retaining solver exactly. Optimization
+alone also preserved all10 baseline documents' page geometry. Long-paper browser
+layout38152→288ms in the single-sample software audit; total GPU completion remains
+1514ms. Not a physical-device or under10ms full-document result.
+
+Fresh15-document audit includes133 reference/118 GPU pages, including80 original
+arXiv pages and41 native AMS pages. Full papers still FAIL with unchanged counts
+15/19,39/27,15/16,11/0; AMS41/44. Mean one-pixel coverage on all3 renderable
+papers regresses slightly (23.202→23.090%,27.807→26.367%,19.935→19.892%).
+Correct standard-article rules do not repair missing conference styles, fonts,
+tables, bibliography or images. These regressions remain visible; no overall
+full-paper accuracy claim or threshold relaxation.
+
+39 Node/16 Python checks pass; native flow reductions pass geometry;9 tile/full
+readbacks are exact at1/2/4x. Report verifies471 present/93 missing views with no
+errors/overflow. Font/atlas preparation replays exactly;13 runtime hashes match
+reviewed source. Evidence: Cuvami staging/artifacts/gpu-math/20261015/document-errors/
+(summary.json, audit-final/, report-final/, report-ui/, optimization-replay.json,
+line-break-parity.json, bullet-assets/invariants.json). Earlier evidence is retained
+and its font/atlas snapshots frozen. Local source only; no publication or physical
+GPU test. Existing NVIDIA STOP remains unchanged.
+
+---
+
 # Complete arXiv corpus and first package/spacing corrections — 2026-10-15
 
 Four version-pinned arXiv source projects (52 files) and original PDFs (80 pages)

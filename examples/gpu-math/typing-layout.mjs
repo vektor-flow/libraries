@@ -3,7 +3,7 @@ const pt=72/72.27;
 const limitOperators=new Set('sum prod coprod bigcup bigcap bigvee bigwedge bigsqcup bigoplus bigotimes bigodot lim max min sup inf'.split(' ').map(t=>'\\'+t));
 const matrixDelimiters={pmatrix:['(',')'],bmatrix:['[',']'],Bmatrix:['\\lbrace','\\rbrace'],vmatrix:['|','|'],Vmatrix:['\\Vert','\\Vert'],cases:['\\lbrace','.']};
 /** Current-source visual draft; recovery never supplies an old operand. */
-export function typeset(source,maps,{mode='display',equationStart=1,packages=null,extensions=[],displayEnvironment=false}={}){
+export function typeset(source,maps,{mode='display',equationStart=1,packages=null,extensions=[],displayEnvironment=false,paragraphMode=false}={}){
  if(!['display','inline'].includes(mode))throw Error('Unknown math mode');
  const displayContext=displayEnvironment||/\\begin\{(?:align|equation|gather|multline)\*?\}/.test(source);
  const draft=parseDraft(source,maps.display,{packages,extensions});let activeFont='',activeColor=null,middleRequired=0,equationNumber=equationStart;
@@ -21,7 +21,7 @@ export function typeset(source,maps,{mode='display',equationStart=1,packages=nul
   return{items:[{kind:'glyph',color:activeColor,key:`${map.style}/${token}`,x:0,y:0}],width:s.width,height:s.height,depth:s.depth,class:s.class,italic:s.italic??0,character:s.class!=='op',token,nucleus:{key:token,italic:s.italic??0,skew:s.skew??0,fontName:s.fontName,fontCode:s.fontCode,kerns:s.kerns}};
  }
  function hole(style){const size=profile(style).em*.32;return{items:[{kind:'placeholder',color:activeColor,x:0,y:-size,width:size,height:size}],width:size,height:size,depth:0,class:'ord',italic:0};}
- function layout(nodes,style,cramped=false){
+ function layout(nodes,style,cramped=false,collectParagraph=false){
   if(nodes.some(n=>n.type==='break'))return multiline(nodes,style,cramped);
   const restoreColor=activeColor;
   const boxes=[],tags=[];for(const node of nodes){if(node.type==='style'){style=node.style;continue;}if(node.type==='color'){activeColor=node.color;continue;}const box={...atom(node,style,cramped),style};if(box.tag)tags.push(box);else boxes.push(box);}
@@ -30,10 +30,11 @@ export function typeset(source,maps,{mode='display',equationStart=1,packages=nul
    if(significant[i].class==='bin'&&(i===0||['bin','op','rel','open','punct'].includes(significant[i-1].endClass??significant[i-1].class)))significant[i].class='ord';
    if(['rel','close','punct'].includes(significant[i].class)&&i&&significant[i-1].class==='bin')significant[i-1].class='ord';
   }if(significant.at(-1)?.class==='bin')significant.at(-1).class='ord';
-  const out=empty();let prior=null;
-  for(const b of boxes){
-   if(prior&&!b.space){let mu=table[prior.endClass??prior.class]?.[b.class]??0;if(b.style>=2&&!(mu===3&&(prior.class==='op'||b.class==='op')))mu=0;out.width+=mu*profile(b.style).parameters.QUAD/18;}
-   if(prior?.class==='ord'&&b.class==='ord'&&prior.nucleus&&b.nucleus&&prior.nucleus.fontName===b.nucleus.fontName&&/^(cmr|cmbx|cmti|cmbxti|cmss|cmssi|cmtt|cmmi|cmmib)\d/.test(prior.nucleus.fontName))out.width+=(prior.nucleus.kerns?.[String(b.nucleus.fontCode)]??0)-prior.nucleus.italic;
+  const out=empty();let prior=null;if(collectParagraph)out.paragraphNodes=[];
+  for(const [index,b]of boxes.entries()){
+   if(prior&&!b.space){let mu=table[prior.endClass??prior.class]?.[b.class]??0;if(b.style>=2&&!(mu===3&&(prior.class==='op'||b.class==='op')))mu=0;const unit=profile(b.style).parameters.QUAD/18;out.width+=mu*unit;if(collectParagraph&&mu)out.paragraphNodes.push({type:'glue',width:mu*unit,stretch:(mu===4?2:mu===5?5:0)*unit,shrink:(mu===4?4:0)*unit,breakable:false});}
+   if(prior?.class==='ord'&&b.class==='ord'&&prior.nucleus&&b.nucleus&&prior.nucleus.fontName===b.nucleus.fontName&&/^(cmr|cmbx|cmti|cmbxti|cmss|cmssi|cmtt|cmmi|cmmib)\d/.test(prior.nucleus.fontName)){const width=(prior.nucleus.kerns?.[String(b.nucleus.fontCode)]??0)-prior.nucleus.italic;out.width+=width;if(collectParagraph&&width)out.paragraphNodes.push({type:'kern',width});}
+   if(collectParagraph){out.paragraphNodes.push({type:'box',box:{items:b.items,width:b.width,height:b.height,depth:b.depth}});if(index<boxes.length-1&&['bin','rel'].includes(b.class))out.paragraphNodes.push({type:'penalty',penalty:b.class==='bin'?700:500});}
    const before=out.items.length;add(out.items,b,out.width,0);
    for(let j=before;j<out.items.length;j++){out.items[j].flowX=out.width;out.items[j].flowWidth=b.width;}
    out.width+=b.width;out.height=Math.max(out.height,b.height);out.depth=Math.max(out.depth,b.depth);if(!b.space)prior=b;
@@ -251,6 +252,6 @@ export function typeset(source,maps,{mode='display',equationStart=1,packages=nul
    }
   }if(node.sup||node.sub)b.nucleus=null;return b;
  }
- const out=source.trim()?layout(draft.nodes,mode==='inline'?1:0):empty();
+ const out=source.trim()?layout(draft.nodes,mode==='inline'?1:0,false,paragraphMode):empty();
  return{...out,source,mode,atoms:draft.atoms,diagnostics:draft.diagnostics,complete:draft.diagnostics.length===0,nextEquationNumber:equationNumber};
 }

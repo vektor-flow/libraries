@@ -3,7 +3,7 @@ import argparse,gzip,json,math,subprocess,xml.etree.ElementTree as ET
 from pathlib import Path
 from PIL import Image
 from fontTools.t1Lib import T1Font
-from fontTools.tfmLib import TFM
+from tex_font_metrics import load_tex_tfm as TFM
 from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.boundsPen import BoundsPen
 from fontTools.pens.transformPen import TransformPen

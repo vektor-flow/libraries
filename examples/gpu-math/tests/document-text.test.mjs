@@ -39,3 +39,36 @@ test('unsupported URL encoding remains diagnostic instead of throwing',()=>{
   const result=typesetDocumentText('\\url{'+value+'}',data);assert.equal(result.complete,false);assert.ok(result.diagnostics.some(d=>d.includes('normalization')));
  }
 });
+
+test('native text kern precedence preserves the measured value width',()=>{
+ // pdfTeX hbox trace: 22.50006pt; the shared-tail va kern is -0.055555em.
+ assert.ok(Math.abs(typeset(String.raw`\text{value}`,data.maps).width/(72/72.27)-22.50006)<.0001);
+ assert.ok(data.maps.text.symbols['@roman:v'].kerns['97']<-.55);
+});
+
+test('explicit hyphen breaks retain exactly one visible hyphen and all letters',()=>{
+ const box=typesetDocumentText('one-line',data,{width:30,justify:false});
+ const line=n=>box.items.filter(i=>i.flowLine===n).map(i=>String.fromCharCode(Number(i.key.split(':').at(-1)))).join('');
+ assert.equal(box.complete,true,JSON.stringify(box.diagnostics));assert.equal(line(0),'one-');assert.equal(line(1),'line');
+});
+
+test('inline math exports stretch and break opportunities without changing its natural width',()=>{
+ const math=typeset('x+3y=z',data.maps,{mode:'inline',paragraphMode:true});
+ assert.ok(math.paragraphNodes.some(n=>n.type==='glue'&&n.stretch>0));
+ assert.ok(math.paragraphNodes.some(n=>n.type==='penalty'&&n.penalty===500));
+ const width=math.paragraphNodes.reduce((sum,n)=>sum+(n.type==='box'?n.box.width:n.type==='glue'||n.type==='kern'?n.width:0),0);assert.ok(Math.abs(width-math.width)<1e-10);
+});
+
+test('base display skips and subsequent paragraph indentation match native reductions',async()=>{
+ const {typesetDocument}=await import('../document-layout.mjs'),wrap=body=>String.raw`\documentclass{article}\begin{document}`+body+String.raw`\end{document}`;
+ for(const [gap,after,x,y]of [['', 'Next line.',133.768,164.653],['','\n\nNext paragraph.',148.712,164.653],['\n\n','Following text.',133.768,180.538]]){
+  const r=await typesetDocument(wrap(String.raw`Text $g$.`+gap+String.raw`\[x=y\]`+after),data),items=r.pages[0].items,next=items.find(i=>i.key==='text/@document:roman:'+(after.includes('Following')?70:78));assert.equal(r.complete,true,JSON.stringify(r.diagnostics));assert.ok(Math.abs(next.x-x)<.03);assert.ok(Math.abs(next.y-y)<.03);
+ }
+});
+
+test('quotes resume the paragraph and itemize uses the native text-companion bullet',async()=>{
+ const {typesetDocument}=await import('../document-layout.mjs');
+ const r=await typesetDocument(String.raw`\documentclass{article}\begin{document}Before quote.\begin{quote}Quoted text.\end{quote}Continued text.`+'\n\n'+String.raw`New paragraph.\begin{itemize}\item First.\item Second.\end{itemize}\end{document}`,data);
+ assert.equal(r.complete,true,JSON.stringify(r.diagnostics));const c=r.pages[0].items.find(i=>i.key==='text/@document:roman:67');assert.ok(Math.abs(c.x-133.768)<.03);assert.ok(Math.abs(c.y-174.615)<.03);
+ assert.equal(r.pages[0].items.filter(i=>i.key==='text/@text:bullet').length,2);assert.equal(data.maps.text.symbols['@text:bullet'].glyphParts[0].fontCode,136);
+});

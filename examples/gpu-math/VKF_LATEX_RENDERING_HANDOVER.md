@@ -8,6 +8,43 @@ LaTeX and PDF engines are development oracles. This is a working subset with
 explicit diagnostics. Complete document equivalence remains failing. Morphology
 is a separate project and is outside this integration.
 
+## Native flow fixes after the arXiv audit — 2026-10-15
+
+This supersedes the sample2e geometry and long-paragraph performance failures
+below. All3559 original sample2e glyphs now pass identity/position/size checks on
+all3 original pages, with no missing/extra/misplaced/unmeasured glyphs. Max per-page
+errors .1217/.6647/.0980px; page1 is preserved. One-pixel ink coverage improves
+58.05%→99.45% mean. Strict raster/local-component acceptance still fails.
+
+Fixes: TeX first-match kern programs; native TS1 bullet fields; inline math glue
+and break penalties; explicit hyphens; quote/list skips; continuation indentation;
+verse hanging indents; normal/short display skips and paragraph resumes. FontTools
+had overwritten earlier kern matches in shared program tails. tex_font_metrics.py
+fixes preparation semantics; repair_font_kerns.py refreshes existing metadata.
+Old outlines/UVs/atlas pixels remain unchanged outside the new bullet fields.
+Existing CM-Super notices/programs remain with the asset. Four reduced native flow
+fixtures, the bold fixture, small2e and figure fixture pass glyph geometry.
+
+The line breaker now merges states with identical future costs.160 seeded cases
+exactly match a line-count-retaining solver; optimization alone preserves all10
+prior document page layouts. The38-second browser paragraph case now takes288ms
+(single software sample); total completion1514ms still misses the target.
+
+Final15-document evidence: document-errors/{audit-final,report-final,report-ui}/
+under the existing evidence root; summary.json and runtime-validation.json pin
+results/assets.133 reference/118 GPU pages;39 Node/16 Python checks;9 exact
+1/2/4x tile/full readbacks;471 present/93 missing report views. No browser/GPU
+errors or phone overflow. Earlier snapshots/failed trials are preserved.
+
+Whole papers still fail: arXiv native/GPU pages15/19,39/27,15/16,11/0; AMS41/44.
+All3 renderable arXiv mean ink-coverages regress slightly; retain that comparison.
+Conference styles/fonts, bibliography, tables, PDF/EPS images, arbitrary macros
+and page flow remain unresolved. This is a targeted standard-article correction,
+not full-paper compatibility. A true-distance-alpha raster trial was rejected;
+MTSDF shader unchanged. Pixel acceptance thresholds are unchanged. No exhaustive
+zoom-grid rerun, public release, physical GPU/phone acceptance or VKF integration.
+Hardware STOP remains in force.
+
 ## Latest local accuracy iteration — 2026-10-15
 
 The arXiv expansion is local and supersedes earlier package/test counts here;

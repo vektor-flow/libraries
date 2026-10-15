@@ -414,3 +414,43 @@ sample2e page2 spacing correction reduces moved/wrong-size glyphs 979 to 948,
 while preserving all 1,693 accurately placed page1 glyphs. Its later-page failures
 remain. Existing small2e and figure glyph geometry is unchanged. These are bounded
 software-WebGPU checks, separate from exhaustive zoom grids and physical devices.
+
+## Native flow corrections — 2026-10-15
+
+All3559 glyphs on sample2e's three original pages now pass the native identity,
+position and size audit, including the previously failing pages2/3. Normal-size
+ink coverage improves58.05%→99.45% mean; strict pixel/local-component acceptance
+still fails. The remaining full-paper and raster failures stay in the report.
+
+`tex_font_metrics.py` reads the first executed match in each TFM lig/kern program.
+The installed fontTools parser had overwritten earlier kerns with shared-tail
+entries (e.g. native `va` is-.055555em rather than-.027779em). Both preparation
+scripts now use that loader; `repair_font_kerns.py INPUT OUTPUT --oracle-extras PATH`
+refreshes kern metadata alone. Native `\text{value}` width is22.50006pt.
+
+`prepare_vector_textcomp.py --add-text-bullet` appends TS1 bullets using the
+preserved CM-Super font programs and native TFM metrics. A flat `cm-super-source/`
+font directory is accepted. Existing prepared vectors/UVs are reused, every changed
+atlas pixel lies within a new bullet tile, and repeating preparation is exact.
+No existing glyph outlines or font/atlas dimensions are changed.
+
+Paragraph math now exposes native stretch/shrink glue and binary/relation break
+penalties. Explicit hyphens retain their glyph when breaking. Article quote/list
+spacing distinguishes nesting and entry mode; verse preserves hanging indents.
+Text resumes correctly after lists/displays, including intervening figure spaces.
+Normal and short display skips are selected from actual preceding line extent.
+These remain bounded article rules, not arbitrary document-class emulation.
+
+The line breaker merges paths with equal future cost dependencies at each break.
+It retains fitness, penalties, first/forced indents and the best predecessor;
+no line-count objective or looseness is currently implemented. Adding such an
+objective would require revisiting the dominance key.160 seeded comparisons with
+the old state key are exact. The prior38-second software layout is now about288ms
+in the final single-sample browser audit; this is not physical-phone timing.
+
+Latest evidence: `document-errors/` beside `arxiv-expansion/`, with15 documents,
+133 original reference/118 GPU pages and a fresh mapping audit.39 Node/16 Python
+checks,9 exact tile/full captures and471 present/93 missing report views pass.
+Full arXiv documents/AMS still fail; arXiv aggregate coverage slightly regresses.
+The report preserves those failures. Shader-alpha experiments are retained as
+rejected trials; the default MTSDF shader is unchanged. No site was published.

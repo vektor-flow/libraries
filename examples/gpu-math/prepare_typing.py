@@ -4,7 +4,7 @@ from pathlib import Path
 from PIL import Image
 from fontTools.pens.boundsPen import BoundsPen
 from fontTools.svgLib.path import parse_path
-from fontTools.tfmLib import TFM
+from tex_font_metrics import load_tex_tfm as TFM
 
 def prepare(root,output,generator,extras=None):
     if output.exists():raise ValueError('Use a fresh output directory')
