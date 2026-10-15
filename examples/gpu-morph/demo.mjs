@@ -5,7 +5,7 @@ const $=id=>document.getElementById(id),status=$('status'),canvas=$('scene');
 let engine,data,playing=false,busy=false,measuring=false,frame=0,lastTime=0,request=0,phase=0,startTime=0,editTimer,applying=false,applyPending=false;
 let gpuTimes=[],wallTimes=[],cadences=[],pendingPhase=null;
 const stats={bootMs:0,layoutMs:0,frames:0,fullSolvePerFrame:true,software:false,errors:[],sweep:[]};window.gpuMorph={stats,get engine(){return engine},get phase(){return phase},apply,render:renderPhase};
-const percentile=(a,p)=>a.length?[...a].sort((a,b)=>a-b)[Math.floor((a.length-1)*p)]:null;
+const percentile=(a,p)=>a.length?[...a].sort((a,b)=>a-b)[Math.max(0,Math.ceil(a.length*p)-1)]:null;
 const ms=x=>x===null||x===undefined?'unavailable':x.toFixed(2)+' ms';
 function error(e){stats.errors.push(String(e.message??e));status.textContent=e.message??String(e);status.className='error';stop();}
 function resize(){const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio,2);canvas.width=Math.max(1,Math.round(r.width*dpr));canvas.height=Math.max(1,Math.round(r.height*dpr));}
