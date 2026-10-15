@@ -14,9 +14,11 @@ from field_transport import clock
 
 
 class CohortRoutes:
- def __init__(self,images,groups,validate):
+ def __init__(self,images,groups,validate,movable=None,sample_counts=(51,201),physical_samples=False):
+  self.movable=None if movable is None else tuple(movable)
+  self.physical_samples=physical_samples
   failures=[]
-  for samples in [51,201]:
+  for samples in sample_counts:
    try:
     self._prepare(images,groups,validate,samples)
     self.planning_samples=samples;self.rejected_resolutions=failures;return
@@ -24,6 +26,7 @@ class CohortRoutes:
   raise ValueError(('No sampled cohort route',failures))
  def _prepare(self,images,groups,validate,samples):
   self.times=np.linspace(0,1,samples);self.grid=4.;self.obstacles=[];bounds=[];centers=[]
+  if self.physical_samples:self.times=clock(self.times)
   for k,u in enumerate(self.times):
    t=brentq(lambda t:clock(t)-u,0,1) if 0<u<1 else u
    masks=images(t);cropped=[];frame_bounds=[]
@@ -46,6 +49,7 @@ class CohortRoutes:
   self.bounds=np.asarray(bounds);centers=self.bounds.mean(2)
   travel=np.linalg.norm(centers[-1]-centers[0],axis=1)
   priority=np.argsort(-travel,kind='stable')
+  if self.movable is not None:priority=np.array([i for i in priority if i in self.movable])
   orders=[priority,priority[::-1]]+[np.roll(priority,k) for k in range(1,groups)]
   failures=[]
   for step in [36.,96.,192.]:

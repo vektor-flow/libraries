@@ -16,9 +16,13 @@ class MotionClock:
   t=np.linspace(0,1,8193);u=clock(t)
   du=30*t*t*(1-t)**2;ddu=60*t*(1-t)*(1-2*t)
   delta=route.bounds[-1].mean(1)-route.bounds[0].mean(1)
-  axis=np.eye(2)[route.axis]
-  d=delta[None,:,:]+route.spline(u,1)[:,:,None]*axis
-  dd=route.spline(u,2)[:,:,None]*axis
+  if hasattr(route,'progress_derivatives'):
+   first,dd=route.progress_derivatives(u)
+  else:
+   axis=np.eye(2)[route.axis]
+   first=route.spline(u,1)[:,:,None]*axis
+   dd=route.spline(u,2)[:,:,None]*axis
+  d=delta[None,:,:]+first
   velocity=d*du[:,None,None]
   acceleration=dd*du[:,None,None]**2+d*ddu[:,None,None]
   speed=np.linalg.norm(velocity,axis=2).max(1)

@@ -29,6 +29,11 @@ class CohortRouteTests(unittest.TestCase):
   for t in [0,1]:
    displacement=lambda e:np.linalg.norm(route.displacements(t+e if t==0 else t-e))
    self.assertLess(displacement(.001),.002*displacement(.01))
+  correction=CohortRoutes(images,2,validate,movable=[0],sample_counts=(65,),physical_samples=True)
+  validate(correction)
+  from route_correction import TaperedRoute
+  validate(TaperedRoute(correction,.025))
+  for t in np.linspace(0,1,33):np.testing.assert_array_equal(correction.displacements(float(t))[1],0.)
  def test_empty_material_is_rejected(self):
   with self.assertRaises(ValueError):CohortRoutes(lambda t:[np.zeros((720,1280),np.uint8)],1,lambda route:None)
  def test_replay_failure_cannot_be_ignored(self):

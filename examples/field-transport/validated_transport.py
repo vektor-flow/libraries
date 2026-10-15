@@ -29,10 +29,10 @@ def valid_body(plan,a,b,samples=65):
 
 
 class ValidatedBodyPlan(BodyPlan):
- def __init__(self,a,b):
+ def __init__(self,a,b,preserve_ink=True):
   super().__init__(a,b)
   self.rejected_candidates=[]
-  if self.kind in ['contour','stroke'] and len(a)==len(b)==1:
+  if preserve_ink and self.kind in ['contour','stroke'] and len(a)==len(b)==1:
    from thin_transport import stroke_width
    from conservative_thin_transport import ConservativeThinTransport
    def image(t):
@@ -58,7 +58,7 @@ class ValidatedBodyPlan(BodyPlan):
   # candidate selection is not permission to relax the existing acceptance gate.
 
 
-def validated_replica(source,targets):
+def validated_replica(source,targets,body_factory=ValidatedBodyPlan):
  from replica_transport import Group
  from scaled_replica_transport import ScaledGroup
  original=Group(source,targets)
@@ -74,7 +74,7 @@ def validated_replica(source,targets):
  factory=MorphGroup if any(shape_error(source,q)>.06 for q in targets) else ScaledGroup
  for power in [1.,.5,2.]:
   try:
-   kwargs=dict(body_factory=ValidatedBodyPlan) if factory is MorphGroup else {}
+   kwargs=dict(body_factory=body_factory) if factory is MorphGroup else {}
    candidate=factory(source,targets,separation_power=power,**kwargs)
    previous=1
    for t in np.linspace(0,1,257):
@@ -103,11 +103,68 @@ def event_body(a,b):
  return ValidatedBodyPlan(a,b)
 
 
+def baseline_body(a,b):return ValidatedBodyPlan(a,b,preserve_ink=False)
+def baseline_event(a,b):
+ if len(a)!=len(b):
+  from hole_event_transport import HoleEventPlan
+  return HoleEventPlan(a,b,baseline_body)
+ return baseline_body(a,b)
+def baseline_replica(a,b):return validated_replica(a,b,body_factory=baseline_body)
+
+
 class ValidatedCombinedScene(CombinedScene):
  def __init__(self,a,b):
-  super().__init__(a,b,body_plan_factory=event_body,replica_factory=validated_replica,allow_hole_events=True,allow_general_branching=True)
-  self.prepare_route()
- def prepare_route(self):
+  # Establish the accepted cohort motions before improving individual outlines.
+  # Replanning all replica offsets can introduce raster split-count flicker.
+  super().__init__(a,b,body_plan_factory=baseline_event,replica_factory=baseline_replica,allow_hole_events=True,allow_general_branching=True)
+  self.prepare_route(smooth=False)
+  self.refine_thin_bodies()
+ def refine_thin_bodies(self):
+  from conservative_thin_transport import ConservativeThinTransport
+  from thin_event_transport import ThinEventPlan
+  changed=[]
+  for k,(kind,old) in enumerate(self.groups):
+   if kind not in ['contour','stroke','tree','event']:continue
+   new=event_body(old.a,old.b) if kind=='event' else ValidatedBodyPlan(old.a,old.b)
+   if isinstance(new,ThinEventPlan) or isinstance(getattr(new,'plan',None),ConservativeThinTransport):
+    self.groups[k]=(new.kind,new);changed.append(k)
+  self.refined_groups=changed
+  if changed:
+   prior=self.cohort_route;self.motion_clock=None;self.base_crops.cache_clear()
+   self.prepare_route(prior_route=prior,movable=changed)
+  elif self.cohort_route is not None:self.prepare_motion()
+ def prepare_route(self,prior_route=None,movable=None,smooth=True):
+  if prior_route is not None:
+   from cohort_routes import CohortRoutes
+   from route_correction import CompositeRoute,TaperedRoute
+   self.cohort_route=prior_route;self.motion_clock=None;self.motion_rejection=None
+   accepted=[None]
+   def validate_route(route):
+    self.cohort_route=route
+    previous=None
+    try:
+     for t in np.linspace(0,1,257):
+      ims,_=self.images(float(t));n,h=topology(np.max(ims,axis=0)>127)
+      if h!=self.expected_holes_at(float(t)):raise ValueError('Corrected scene holes')
+      direction=np.sign(len(self.original_b)-len(self.original_a))
+      if previous is not None and (direction*(n-previous)<0 or (direction==0 and n!=previous)):
+       raise ValueError('Corrected scene count reversal')
+      previous=n
+    finally:self.cohort_route=prior_route
+   def validate_correction(correction):
+    for width in [.1,.05,.025,.0125]:
+     route=CompositeRoute(prior_route,TaperedRoute(correction,width))
+     try:validate_route(route)
+     except ValueError as exc:error=exc
+     else:accepted[0]=route;return
+    raise error
+   try:validate_route(prior_route)
+   except ValueError:
+    def masks(t):return self.images(t,validate=False)[0]
+    correction=CohortRoutes(masks,len(self.groups),validate_correction,movable=movable,sample_counts=(257,),physical_samples=True)
+    self.cohort_route=accepted[0]
+   if smooth:self.prepare_motion()
+   return
   self.cohort_route=None;self.motion_clock=None;self.motion_rejection=None
   try:
    for t in np.linspace(0,1,33):super().images(float(t))
@@ -132,7 +189,7 @@ class ValidatedCombinedScene(CombinedScene):
      previous=count
    finally:self.cohort_route=None
   self.cohort_route=CohortRoutes(masks,len(self.groups),validate)
-  self.prepare_motion()
+  if smooth:self.prepare_motion()
  def prepare_motion(self):
   from motion_clock import MotionClock
   self.motion_clock=MotionClock(self.cohort_route);self.motion_rejection=None

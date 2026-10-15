@@ -550,3 +550,12 @@ area and extents are measured separately: this is not a guarantee that every
 possible measurement is simultaneously monotone. General multi-hole events and
 replica unions still have their existing planners and limitations. Changed shape
 paths require full-scene route and shared-clock replay before acceptance.
+
+Scene construction first establishes the existing validated cohort paths, then
+upgrades eligible outlines. If a changed outline needs more room, correction
+routing moves only the upgraded cohorts; replica paths remain fixed. The
+correction grid samples physical time densely and tapers offsets near endpoints,
+where coarse pooled masks otherwise demand an artificial early displacement.
+Every accepted correction replays 257 native states. The shared motion clock uses
+analytic derivatives of both axes of the composed route, followed by another
+257-state replay. This preserves the area law under a common monotone time map.
