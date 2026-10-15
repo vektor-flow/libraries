@@ -1,3 +1,18 @@
+# Phone document preview controls — 2026-10-15
+
+Phone UI now folds the source and auxiliary controls when Render is pressed,
+clears text-field focus and returns to the preview. Edit restores the source.
+Files/images, zoom and diagnostics are independent collapsed panels. A compact
+sticky toolbar retains Render/Edit and puts secondary navigation behind More.
+On <=600px screens Render frames native content bounds rather than paper
+margins; Fit page restores the complete paper and Fit text is available in Zoom.
+Camera framing changes neither document geometry nor the prior accuracy results.
+Explicit software browser checks cover320/390/430px phones and844px landscape;
+physical Safari and on-screen keyboard behavior remain unqualified.
+Evidence: Cuvami staging/artifacts/gpu-math/20261015/phone-layout/.
+
+---
+
 # Spatial accuracy, text alignment and practical zoom — 2026-10-15
 
 This checkpoint supersedes the document results below. Scope remains independent
