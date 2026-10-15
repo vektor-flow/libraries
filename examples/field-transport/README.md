@@ -282,3 +282,31 @@ Movie and reproducible join/verification script:
 Cuvami staging/artifacts/embedding-transport/generalization-video/
 cuvami-routing-demonstration.mp4 and join_and_verify.py.
 SHA256:5ba6ddcf6583b6ef7d7a9436a2aa888d0d7a9d125e12c20a4e09faf9dcdfbf6e.
+
+## Combined graph, geometry and GPU math scenes (2026-10-15)
+
+`prepare_combined.mjs SNAPSHOT OUTPUT_LAYOUTS` uses the pinned independent GPU
+math runtime. `build_combined_inputs.py OUTPUT_DIRECTORY SNAPSHOT` constructs
+six pairs of endpoint scenes (7–10 glyphs each), including quadratic/cubic and
+cubic/quintic graph changes with simultaneous label changes. Formula strings
+remain provider metadata; `CombinedScene` receives only anonymous boundaries.
+Reference axes/grid are explicit background context, not inferred foreground.
+
+`render_combined.py INPUTS OUTPUT_DIRECTORY` produces three-second,60fps clips:
+156 motion frames and twelve extra holds at either end. This is twice the prior
+six-second pace. Multiple transform families operate concurrently within each
+scene. Native affine matches take precedence; thin x-monotone ribbons get
+profile correspondence; open strokes use endpoint-inferred medial tangent angles
+and widths, with scalar endpoint-detail residuals and eased area calibration.
+The latter is a bounded candidate for mostly unbranched strokes, not an arbitrary
+shape solver. Rigid bodies whose translation exposes coarse raster artifacts use
+higher supersampling and a fixed0.55-pixel antialiasing kernel throughout their
+trajectory. The kernel conserves coverage mass and stays fixed in time. Sampled topology/overlap gates
+remain mandatory; supersampling does not exempt a frame from those checks.
+
+Foreground frames are checked for monotone object count, preserved holes, no
+unrelated overlap and endpoint agreement within one boundary pixel. Lossless RGB
+clips are decoded and compared exactly to all rendered frames. A separate phone
+viewing transcode must retain the research originals and their checks. Continuous
+collision proofs, arbitrary topology changes, foreground/background inference and
+the previously unresolved algebraic operations remain outside acceptance.
