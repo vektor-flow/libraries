@@ -37,11 +37,11 @@ locale profiles, lists/ranges, custom unit declarations and the full siunitx
 option surface are not implemented. units.mjs is independent of the package.
 The development oracle uses unmodified siunitx 3.6.4 (2026-10-12).
 
-Array rules/options, optional row spacing, arbitrary packages/macros, radicals,
-general document layout and full TeX compatibility are not implemented.
+Arbitrary packages/macros and full TeX document compatibility are not implemented.
+See the extended math/document notes below for newly supported roots and arrays.
 
-Real LaTeX is used only during development. The browser loads 1,411 mapped symbols
-in display/text/script/scriptscript styles (5,644 keys, 3,315 distinct outlines),
+Real LaTeX is used only during development. The browser loads 1,541 mapped symbols
+in display/text/script/scriptscript styles (6,164 keys, 3,675 distinct outlines),
 using a 4096×8192 MTSDF atlas and one batched draw per edit. No LaTeX, KaTeX,
 font loading, DOM math or Canvas2D text runtime is used. Native VKF compiler
 integration is pending. Source is never evaluated as JavaScript or inserted as HTML.
@@ -142,3 +142,47 @@ Phone widths stack editors and controls, retain 16px editor text and at least44p
 button/swatch targets. Compact **Equations**, **Style** and **Examples** tabs keep controls near the
 canvas; notes are reduced to a closed help section. Phone viewport/software-browser checks do not certify
 physical iOS/Android WebGPU support or actual device latency.
+
+## Extended math and modular documents
+
+The 2026-10-15 renderer adds square/indexed roots, nested radicals, binom/dbinom/
+tbinom, genfrac with numeric rule dimensions, not overlays, pmod/pod/mod/bmod,
+operatorname*, boxed/fbox, phantom variants, smash options, mathstrut and numeric
+hspace/kern/mkern spacing. Text arguments support nested textbf/textit/textsf/
+texttt/emph, escaped characters, native kerning/ligatures and italic correction.
+Roots and tall delimiters use native font next-larger chains and extension pieces;
+the old cropped/stretch approximation has been replaced for supported delimiters.
+
+Equation/equation*, align/align*, split, gather/gather*, multline/multline* and
+gathered are recognized, alongside prior matrices/arrays. Numbered variants add
+tags, starred variants omit them; tag/tag*, notag/nonumber and optional row gaps
+are supported. Array clr specifications include vertical bars, hline and cline.
+Middle delimiters inherit their left/right scope size. Full TeX display layout
+and line placement remain subject to the independent document comparison.
+
+`document.html` accepts a whole .tex source and local image assets. It uses
+`document-layout.mjs` and separate class/package modules in `latex-modules/`.
+Article flow, basic section headings, inline/display math, page breaks, simple
+section/equation/figure references and includegraphics image boxes are available.
+PNG/JPEG/browser-decodable images draw as GPU textures in the same page pass as
+distance-field text. Upload assets with the names used in the source. PDF image
+assets, general float placement and complete document classes are not supported.
+Missing assets/imports emit diagnostics. Multi-row/custom-tag reference binding
+is explicitly incomplete. This is an experimental document preview, not a
+pixel-equivalent replacement for TeX document layout.
+
+Prepared fields now contain1541 symbols in four styles:6164 keys/3675 outlines.
+Height-sorted atlas packing retains4096×8192 RGBA8 (128MiB decoded); glyph roles
+include raw CM extension pieces. All existing font notices/source archives apply.
+Font space metrics and style-dependent rule thickness come from native TFM data.
+
+`fetch_document_corpus.py` downloads unmodified LaTeX project small2e/sample2e
+and AMS testmath sources with reviewed hashes. `benchmark_latex_documents.py`
+measures fresh-process PDF compilation and96dpi page rasterization separately.
+`benchmark_documents.mjs` renders original source independently in WebGPU and
+measures layout/queue completion. A separate untimed framebuffer readback supplies
+pixels without CSS screenshot scaling. `compare_document_pixels.py` compares all
+pages without registration/cropping and returns failure for incompatible output.
+`build_document_report.py` creates the source/PDF/GPU/difference browser report.
+Full-document acceptance is failing; successful formula fixtures do not override
+those page-level failures. Timing stages and actual software backend are explicit.

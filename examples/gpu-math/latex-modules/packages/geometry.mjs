@@ -1,0 +1,1 @@
+export default {name:'geometry',kind:'package',dependencies:[],configure(config){config.paperWidth=config.logicalPaperWidth;config.paperHeight=config.logicalPaperHeight;},options:['margin','left','right','top','bottom','textwidth','textheight','a4paper','letterpaper']};

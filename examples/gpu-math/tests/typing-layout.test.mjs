@@ -29,7 +29,7 @@ test('operators, matrices, cases, delimiters and power towers',()=>{
  formulas.push('\\begin{array}{rl}x&y\\\\z&w\\end{array}');
  for(const source of formulas){const b=typeset(source,maps);assert.equal(b.complete,true,source+JSON.stringify(b.diagnostics));assert.ok(!b.items.some(i=>i.kind==='placeholder'),source);}
  const tower=typeset('x^{2^{n+1}}',maps);assert.ok(glyphs(tower).includes('scriptscript/n'));
- const tall=typeset('\\left\\{\\begin{matrix}'+Array(8).fill('x').join('\\\\')+'\\end{matrix}\\right.',maps);assert.ok(tall.items.some(i=>i.crop));
+ const tall=typeset('\\left\\{\\begin{matrix}'+Array(8).fill('x').join('\\\\')+'\\end{matrix}\\right.',maps);assert.ok(tall.items.some(i=>i.key?.includes('/@ext:')));
 });
 test('bounded parsing rejects overload and never hangs on closing tokens',()=>{
  assert.throws(()=>typeset('x'.repeat(12001),maps),/limit/);

@@ -1,0 +1,20 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LaTeX documents · Vektor Flow</title><style>
+*{box-sizing:border-box}body{font:16px/1.4 system-ui;margin:0;background:#edf2ed;color:#18322c}main{max-width:1050px;margin:auto;padding:12px}header{display:flex;justify-content:space-between;gap:12px;align-items:center}h1{font-size:21px;margin:8px 0}a{color:inherit}textarea{width:100%;height:110px;font:16px/1.4 monospace;padding:10px;border:1px solid #bccbbf;border-radius:8px}button,input,select{font:inherit;min-height:44px;max-width:100%}button{background:#143026;color:white;border:0;border-radius:6px;padding:8px 14px}.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}#pages{display:grid;gap:16px;justify-items:start}canvas{display:block;width:min(100%,816px);height:auto;background:white;box-shadow:0 1px 7px #0002}#status,#timing{font-size:13px}details{font-size:13px;margin:8px 0}summary{padding:6px 0;cursor:pointer}pre{white-space:pre-wrap;overflow-wrap:anywhere}.file{max-width:220px}.file span{display:block;font-size:12px}</style></head><body><main>
+<header><h1>LaTeX documents</h1><span><a href="./">Math lab</a> · <a href="./document-checks/">Comparisons</a></span></header>
+<textarea id="document" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off" aria-label="LaTeX document">\documentclass{article}
+\usepackage{amsmath,amssymb,graphicx,xcolor}
+\begin{document}
+\section{Math on the GPU}
+Regular text and inline math $E=mc^2$ share native LaTeX fonts.
+\begin{equation}
+\sqrt[3]{x}+\binom{n}{k}=\frac{a}{b}
+\end{equation}
+\begin{align}
+x&amp;=y+1\\[3pt]
+z&amp;=\sqrt{x^2+y^2}
+\end{align}
+\end{document}</textarea>
+<div class="controls"><button id="render" disabled>Render</button><label class="file"><span>Open .tex</span><input id="tex-file" type="file" accept=".tex,.txt"></label><label class="file"><span>Image assets</span><input id="image-files" type="file" accept="image/*" multiple></label></div>
+<p id="timing"></p><p id="status">Loading native symbol atlas…</p>
+<details><summary>Compatibility</summary><pre id="diagnostics"></pre><p>Article flow is experimental. Full TeX paragraph breaking and general float placement are pending. Package imports are resolved as modules; unsupported packages are reported.</p></details>
+<div id="pages"></div></main><script type="module" src="./document-demo.mjs"></script></body></html>

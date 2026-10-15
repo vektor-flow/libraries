@@ -1,0 +1,3 @@
+export default {name:'graphicx',kind:'package',dependencies:[],options:['draft','final'],commands:['includegraphics'],environments:['figure','figure*'],
+ configure(config){config.paperWidth=config.logicalPaperWidth;config.paperHeight=config.logicalPaperHeight;},
+ parseOptions(raw,diagnostics){const options={};for(const part of raw.split(',')){if(!part.trim())continue;const [key,...values]=part.split('=');if(['width','height','scale','keepaspectratio'].includes(key.trim()))options[key.trim()]=values.join('=').trim()||true;else diagnostics.push('Unsupported graphicx option: '+key.trim());}return options;}};

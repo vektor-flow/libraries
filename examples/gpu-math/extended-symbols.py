@@ -63,3 +63,9 @@ for c in string.ascii_letters+string.digits:
 for family in ['mathrm','mathbf','mathit','mathsf','mathtt','mathnormal']:
     for name in 'Gamma Delta Theta Lambda Xi Pi Sigma Upsilon Phi Psi Omega'.split():
         token='\\'+name;key='@font:'+family+':'+token;TOKENS[key]='ord';ALIASES[key]='\\'+family+'{'+token+'}'
+# Raw native extension-font glyphs preserve TeX's next-larger and assembly recipes.
+# These are reusable pieces, never tiles containing a whole expression.
+for code in range(128):
+    key=f'@ext:{code}';TOKENS[key]='ord';ALIASES[key]=r'\mathchar"03'+f'{code:02X}'
+TOKENS['@sqrt']='ord';ALIASES['@sqrt']=r'\mathchar"0270'
+TOKENS['@not']='rel';ALIASES['@not']=r'\mathchar"0236'

@@ -1,0 +1,78 @@
+import {typeset} from './typing-layout.mjs';
+import {typesetText} from './text-flow.mjs';
+import {resolveModules} from './latex-modules/registry.mjs';
+const pt=72/72.27;
+export const stripComments=source=>source.replace(/(^|[^\\])(?:\\\\)*%[^\n]*/g,match=>match.slice(0,match.indexOf('%')));
+function group(source,start){while(/\s/.test(source[start]??'')&&start<source.length)start++;const open=source[start],close=open==='{'?'}':open==='['?']':null;if(!close)return{value:'',end:start,closed:false};let level=1,i=start+1;for(;i<source.length&&level;i++){if(source[i]==='\\'){i++;continue;}if(source[i]===open)level++;if(source[i]===close)level--;}return{value:source.slice(start+1,level?i:i-1),end:i,closed:!level};}
+function length(raw,config,fallback){if(!raw)return fallback;const relative=/^\s*([\d.]*)\\(textwidth|linewidth|textheight)\s*$/.exec(raw);if(relative)return Number(relative[1]||1)*(relative[2]==='textheight'?config.textHeight:config.textWidth);raw=raw.replace(/\\(?:textwidth|linewidth)/g,config.textWidth+'bp').replace(/\\textheight/g,config.textHeight+'bp');const m=/^\s*([\d.]+)\s*(pt|bp|cm|mm|in|em|ex)\s*$/.exec(raw);return m?Number(m[1])*({pt,bp:1,cm:72/2.54,mm:72/25.4,in:72,em:config.fontSize,ex:.43*config.fontSize}[m[2]]):fallback;}
+export async function typesetDocument(source,data,{assets={},strict=false}={}){
+ const start=performance.now();if(source.length>1000000)throw Error('Document limit: 1000000 characters');source=stripComments(source);const modules=await resolveModules(source),diagnostics=[...modules.diagnostics],pages=[],references=new Map();
+ if(!modules.classModule)return{pages,diagnostics,complete:false,modules:{class:null,packages:[...modules.packages.keys()]},layoutMs:performance.now()-start};
+ const config=modules.classModule.configure(modules.options);for(const module of modules.packages.values())module.configure?.(config);const geo=modules.packages.get('geometry');
+ if(geo)for(const option of geo.requestedOptions){const [key,value]=option.split('=');if(key==='a4paper'){config.paperWidth=595.276;config.paperHeight=841.89;}if(key==='letterpaper'){config.paperWidth=612;config.paperHeight=792;}if(key==='margin'){const margin=length(value,config,72);config.left=margin;config.top=margin;config.textWidth=config.paperWidth-2*margin;config.textHeight=config.paperHeight-2*margin;}else if(key==='textwidth')config.textWidth=length(value,config,config.textWidth);else if(key==='textheight')config.textHeight=length(value,config,config.textHeight);else if(['left','right','top','bottom'].includes(key))config[key]=length(value,config,72);}
+ if(config.left===undefined)config.left=(config.paperWidth-config.textWidth)/2;if(config.right!==undefined)config.textWidth=config.paperWidth-config.left-config.right;if(config.bottom!==undefined)config.textHeight=config.paperHeight-config.top-config.bottom;
+ if(modules.options.some(o=>['11pt','12pt'].includes(o)))diagnostics.push('Article 11/12pt currently scales 10pt metrics; optical document fonts pending');
+ const document=/\\begin\{document\}/.exec(source),body=document?source.slice(document.index+document[0].length).replace(/\\end\{document\}[\s\S]*$/,''):source;
+ if(!document)diagnostics.push('Missing document environment');
+ const meta={};for(const name of ['title','author','date']){const m=new RegExp('\\\\'+name+'\\s*\\{').exec(source.slice(0,document?.index??0));if(m)meta[name]=group(source,m.index+name.length+1).value;}
+ const blocks=[],counters={section:0,subsection:0,equation:0,figure:0},mathEnvs=new Set(['equation','equation*','align','align*','gather','gather*','multline','multline*','displaymath']);let i=0,buffer='',lastLabel='';
+ const flush=()=>{if(buffer.trim())blocks.push({kind:'paragraph',source:buffer.trim()});buffer='';};
+ while(i<body.length){
+  if(body[i]==='$'&&!body.startsWith('$$',i)||body.startsWith('\\(',i)){const opening=body[i]==='$'?'$':'\\(',closing=opening==='$'?'$':'\\)';let end=i+opening.length;for(;end<body.length;end++){if(body.startsWith(closing,end))break;if(body[end]==='\\')end++;}if(end>=body.length){diagnostics.push('Inferred inline math closing delimiter');buffer+=body.slice(i)+closing;i=body.length;}else{buffer+=body.slice(i,end+closing.length);i=end+closing.length;}continue;}
+  if(body.startsWith('\\[',i)||body.startsWith('$$',i)){flush();const close=body.startsWith('$$',i)?'$$':'\\]',end=body.indexOf(close,i+2);blocks.push({kind:'math',source:body.slice(i+2,end<0?body.length:end),number:null});if(end<0)diagnostics.push('Inferred display closing delimiter');i=end<0?body.length:end+2;continue;}
+  if(body.startsWith('\\begin',i)){const env=group(body,i+6);if(!env.closed){diagnostics.push('Unfinished environment');break;}flush();const name=env.value,endToken='\\end{'+name+'}',end=body.indexOf(endToken,env.end),content=body.slice(env.end,end<0?body.length:end);if(end<0)diagnostics.push('Inferred end of '+name);
+   if(mathEnvs.has(name)){if(!['equation','equation*','displaymath'].includes(name)&&!modules.packages.has('amsmath'))diagnostics.push('Environment requires amsmath: '+name);const numbered=!name.endsWith('*')&&name!=='displaymath',number=numbered?counters.equation+1:null,equationStart=counters.equation+1;lastLabel=String(number??'');const labels=[...content.matchAll(/\\label\{([^}]+)\}/g)].map(m=>m[1]);for(const label of labels)references.set(label,lastLabel);if(labels.length>1||labels.length&&/\\(?:tag|notag|nonumber)/.test(content))diagnostics.push('Per-row or custom-tag equation reference resolution is not implemented');const expression=name==='displaymath'?content:'\\begin{'+name+'}'+content+'\\end{'+name+'}';const count=typeset(expression,data.maps,{mode:'display',displayEnvironment:true,equationStart,packages:[...modules.packages.keys()],extensions:[...modules.packages.values()].filter(p=>p.parseMathCommand)}).nextEquationNumber;if(numbered)counters.equation=Math.max(counters.equation,count-1);blocks.push({kind:'math',source:expression,number,equationStart});}
+   else if(name==='figure'||name==='figure*'){const figureBlocks=[],here=/^\s*\[h\]/.test(content);if(!modules.packages.has('graphicx'))diagnostics.push('Figure requires graphicx for images');const figureNumber=++counters.figure;for(const m of content.matchAll(/\\label\{([^}]+)\}/g))references.set(m[1],String(figureNumber));const images=[...content.matchAll(/\\includegraphics\s*(?:\[([^\]]*)\])?\s*\{([^}]+)\}/g)];for(const m of images){const options=modules.packages.get('graphicx')?.parseOptions(m[1]??'',diagnostics)??{};figureBlocks.push({kind:'image',asset:m[2],options,figure:true});}const cap=/\\caption\s*\{/.exec(content);if(cap)figureBlocks.push({kind:'caption',source:'Figure '+figureNumber+': '+group(content,cap.index+8).value});if(!/^\s*\[(?:h|H)\]/.test(content))diagnostics.push('Deferred figure float placement is not implemented; figure remains in source order');if(!images.length)diagnostics.push('Figure contains no supported includegraphics');if(images.length>1)diagnostics.push('Multiple image figure layout is not implemented');blocks.push({kind:'figure',blocks:figureBlocks,here});}
+   else{diagnostics.push('Unsupported document environment: '+name);blocks.push({kind:'paragraph',source:content});}i=end<0?body.length:end+endToken.length;continue;}
+  if(body[i]==='\\'){
+   const command=/^\\([A-Za-z]+\*?|.)/.exec(body.slice(i));if(!command){buffer+=body[i++];continue;}const name=command[1],end=i+command[0].length;
+   if(['section','section*','subsection','subsection*'].includes(name)){flush();const arg=group(body,end),kind=name.startsWith('sub')?'subsection':'section';if(!name.endsWith('*')){counters[kind]++;if(kind==='section')counters.subsection=0;}lastLabel=kind==='section'?String(counters.section):counters.section+'.'+counters.subsection;blocks.push({kind,source:(name.endsWith('*')?'':lastLabel+'$\\hspace{1em}$')+arg.value});i=arg.end;continue;}
+   if(name==='maketitle'){flush();if(meta.title)blocks.push({kind:'title',source:meta.title});if(meta.author)blocks.push({kind:'author',source:meta.author});if(meta.date)blocks.push({kind:'author',source:meta.date});i=end;continue;}
+   if(name==='includegraphics'){flush();let at=end,options={};while(/\s/.test(body[at]??'')&&at<body.length)at++;if(body[at]==='['){const option=group(body,at);options=modules.packages.get('graphicx')?.parseOptions(option.value,diagnostics)??{};at=option.end;}const asset=group(body,at);if(!modules.packages.has('graphicx'))diagnostics.push('Command requires graphicx: includegraphics');blocks.push({kind:'image',asset:asset.value,options});i=asset.end;continue;}
+   if(['hspace','phantom','hphantom','vphantom','smash','fbox'].includes(name)){const arg=group(body,end);buffer+='$\\'+name+'{'+arg.value+'}$';i=arg.end;continue;}
+   if(name==='label'){const arg=group(body,end);references.set(arg.value,lastLabel);i=arg.end;continue;}
+   if(name==='newpage'||name==='clearpage'){flush();blocks.push({kind:'pagebreak'});i=end;continue;}
+   if(name==='par'){flush();i=end;continue;}
+   if(['textbf','textit','textrm','textsf','texttt','textnormal','emph'].includes(name)){const arg=group(body,end);buffer+='$\\text{\\'+name+'{'+arg.value+'}}$';i=arg.end;continue;}
+   if(['ref','eqref'].includes(name)){const arg=group(body,end);buffer+='@@REF:'+name+':'+arg.value+'@@';i=arg.end;continue;}
+   if(['%','$','#','&','_','{','}',' '].includes(name)){buffer+=name==='$'?'\\$':name;i=end;continue;}
+   if(name==='LaTeX'||name==='TeX'){buffer+=name;i=end;continue;}
+   if(name==='centering'){i=end;continue;}
+   if(name==='\\'){buffer+='\\\\';i=end;continue;}
+   diagnostics.push('Unsupported document command: \\'+name);buffer+='□';i=end;continue;
+  }
+  if(body[i]==='\n'&&/^\n\s*\n/.test(body.slice(i))){flush();i+=/^\n\s*\n/.exec(body.slice(i))[0].length;continue;}
+  if(body.startsWith('---',i)){buffer+='—';i+=3;continue;}if(body.startsWith('--',i)){buffer+='–';i+=2;continue;}if(body.startsWith('``',i)){buffer+='“';i+=2;continue;}if(body.startsWith("''",i)){buffer+='”';i+=2;continue;}
+  buffer+=body[i++];
+ }flush();
+ const flow=[],pendingFigures=[];for(const block of blocks){if(block.kind==='figure'){if(block.here)pendingFigures.push(...block.blocks);else flow.push(...block.blocks);continue;}if(block.kind==='pagebreak')flow.push(...pendingFigures.splice(0));flow.push(block);if(block.kind==='paragraph')flow.push(...pendingFigures.splice(0));}flow.push(...pendingFigures);
+ let page,y,firstParagraph=false,lastBaseline=0,lastNaturalDepth=0;const newPage=()=>{if(pages.length>=100)throw Error('Document limit: 100 pages');page={width:config.paperWidth,height:config.paperHeight,items:[],number:pages.length+1};pages.push(page);y=config.top;lastBaseline=0;lastNaturalDepth=0;};newPage();
+ const resolveRefs=text=>text.replace(/@@REF:(ref|eqref):([^@]+)@@/g,(_,kind,key)=>{const value=references.get(key);if(value===undefined)diagnostics.push('Undefined reference: '+key);return kind==='eqref'?'('+(value??'??')+')':value??'??';});
+ for(const block of flow){
+  if(block.kind==='pagebreak'){newPage();firstParagraph=false;continue;}
+  if(block.kind==='image'){
+   if(block.figure&&lastBaseline)y+=12*pt+lastNaturalDepth-Math.max(0,y-lastBaseline);
+   const asset=assets[block.asset]??assets[block.asset.replace(/\.[^.]+$/,'')];if(!asset){diagnostics.push('Missing image asset: '+block.asset);continue;}
+   const naturalWidth=asset.width*72/96,naturalHeight=asset.height*72/96;let width=length(block.options.width,config,naturalWidth),height=length(block.options.height,config,naturalHeight);if(block.options.width&&!block.options.height)height=width*naturalHeight/naturalWidth;if(block.options.height&&!block.options.width)width=height*naturalWidth/naturalHeight;if(block.options.keepaspectratio&&block.options.width&&block.options.height){const ratio=Math.min(width/naturalWidth,height/naturalHeight);width=naturalWidth*ratio;height=naturalHeight*ratio;}if(block.options.scale){width*=Number(block.options.scale);height*=Number(block.options.scale);}if(!Number.isFinite(width+height)||width<=0||height<=0){diagnostics.push('Invalid image dimensions');continue;}
+   if(y+height>config.top+config.textHeight)newPage();page.items.push({kind:'image',asset:block.asset,x:config.left+(config.textWidth-width)/2,y,width,height});y+=height+(block.figure?10:12)*pt;continue;
+  }
+  const heading=['section','subsection','title','author'].includes(block.kind),paragraph=block.kind==='paragraph',caption=block.kind==='caption',scale=block.kind==='title'?1.73:block.kind==='section'?1.44:block.kind==='subsection'?1.2:1,unit=config.fontSize/data.maps.display.em*scale,before=heading?(config[block.kind]?.before??12*pt):block.kind==='math'?10*pt:caption?12*pt:0;
+  let text=resolveRefs(block.source),box;
+  if(block.kind==='math'){box=typeset(text,data.maps,{mode:'display',displayEnvironment:true,equationStart:block.equationStart??1,packages:[...modules.packages.keys()],extensions:[...modules.packages.values()].filter(p=>p.parseMathCommand)});}
+  else box=typesetText(text,data.maps,{width:config.textWidth/unit,firstIndent:paragraph&&!firstParagraph?config.paragraphIndent/unit:0,justify:paragraph,font:['section','subsection'].includes(block.kind)?'mathbf':'mathrm',packages:[...modules.packages.keys()],extensions:[...modules.packages.values()].filter(p=>p.parseMathCommand)});
+  diagnostics.push(...box.diagnostics);if(y>config.top+.01)y+=before;const height=(box.height+box.depth)*unit;if(y+height>config.top+config.textHeight&&y>config.top)newPage();
+  // Paragraphs split at actual line boundaries, retaining glyph baselines.
+  const lines=box.lines?.length?box.lines:[{baseline:0,height:box.height,depth:box.depth}];let firstBaseline=y+(y===config.top?10*pt:heading?(block.kind==='section'?18:block.kind==='subsection'?14:18)*pt-3.6*pt:caption?(lines[0].naturalHeight??lines[0].height)*unit:lines[0].height*unit),baseline=firstBaseline;
+  for(let line=0;line<lines.length;line++){
+   const current=lines[line],lineHeight=Math.max(config.lineHeight*scale,(current.height+current.depth)*unit);
+   if(line&&baseline+current.depth*unit>config.top+config.textHeight){newPage();baseline=y+current.height*unit;}
+   const shiftX=block.kind==='math'||block.kind==='title'||block.kind==='author'||caption?Math.max(0,(config.textWidth-box.width*unit)/2):paragraph&&!firstParagraph&&line===0?config.paragraphIndent:0;
+   for(const item of box.items){if((item.flowLine??0)!==line)continue;page.items.push({...item,x:item.equationTag?config.left+config.textWidth-item.tagWidth*unit+(item.x-box.width-10*pt)*unit:config.left+shiftX+item.x*unit,y:baseline+(item.y-(current.baseline??0))*unit,sx:(item.sx??1)*unit,sy:(item.sy??1)*unit,...(item.kind==='rule'||item.kind==='placeholder'?{width:item.width*unit,height:item.height*unit}:{})});}
+   lastBaseline=baseline;lastNaturalDepth=(current.naturalDepth??current.depth)*unit;y=baseline+(heading?3.6*pt:caption?lastNaturalDepth:current.depth*unit);baseline+=lineHeight;
+  }
+  y+=heading?config[block.kind]?.after??8*pt:block.kind==='math'?10*pt:caption?12*pt:0;firstParagraph=heading;
+ }
+ for(const page of pages){const footer=typesetText(String(page.number),data.maps,{width:100});for(const item of footer.items)page.items.push({...item,x:config.left+(config.textWidth-footer.width)/2+item.x,y:config.top+config.textHeight+30*pt+item.y});}
+ const unique=[...new Set(diagnostics)],complete=unique.length===0;if(strict&&!complete)throw Error(unique.join('\n'));
+ return{pages,diagnostics:unique,complete,modules:{class:modules.classModule.name,packages:[...modules.packages.keys()]},config,layoutMs:performance.now()-start,scope:'Independent article flow; TeX paragraph optimization, general float placement and arbitrary packages are not implemented.'};
+}

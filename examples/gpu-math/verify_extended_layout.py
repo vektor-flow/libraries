@@ -55,7 +55,25 @@ def verify(root,atlas,output,mode,cases=CASES,arrow_envelopes=False):
         else:errors.append(999)
         rects=[e for e in svg.iter()if e.tag.endswith('}rect')and e.attrib.get('id')!='origin'];rules=[p for p in box['items']if p['kind']=='rule']
         if arrow_envelopes:rects=[];rules=[]
-        if len(rects)!=len(rules):errors.append(999)
+        if len(rects)!=len(rules):
+            # TeX can split one continuous array rule into row-sized rectangles.
+            # Compare their geometric unions without requiring equal draw counts.
+            import numpy as np
+            rboxes=[[float(r.attrib['x'])-ox,float(r.attrib['y'])-oy,float(r.attrib['x'])-ox+float(r.attrib['width']),float(r.attrib['y'])-oy+float(r.attrib['height'])]for r in rects]
+            aboxes=[[r['x'],r['y'],r['x']+r['width'],r['y']+r['height']]for r in rules]
+            all_boxes=rboxes+aboxes
+            if not all_boxes:errors.append(999)
+            else:
+                # Round at .001bp to suppress DVI/text conversion noise only.
+                xs=sorted(set(round(v,3)for b in all_boxes for v in [b[0],b[2]]));ys=sorted(set(round(v,3)for b in all_boxes for v in [b[1],b[3]]))
+                difference=0
+                for x0,x1 in zip(xs,xs[1:]):
+                    for y0,y1 in zip(ys,ys[1:]):
+                        x,y=(x0+x1)/2,(y0+y1)/2
+                        if any(b[0]-.0005<x<b[2]+.0005 and b[1]-.0005<y<b[3]+.0005 for b in rboxes)!=any(b[0]-.0005<x<b[2]+.0005 and b[1]-.0005<y<b[3]+.0005 for b in aboxes):difference+=(x1-x0)*(y1-y0)
+                (folder/'rule-union.json').write_text(json.dumps({'reference':rboxes,'actual':aboxes,'symmetricDifferenceBp2':difference,'coordinateQuantizationBp':.001},indent=2))
+                errors.append(0 if difference<.001 else 999)
+            rects=[];rules=[]
         for rect,item in zip(sorted(rects,key=lambda r:float(r.attrib['y'])),sorted(rules,key=lambda r:r['y'])):
             for k in ['x','y','width','height']:errors.append(abs(float(rect.attrib[k])-(ox if k=='x'else oy if k=='y'else 0)-item[k]))
         maximum=max(errors,default=0);results.append({'source':source,'maxInkOrRuleErrorBp':maximum,'glyphs':[len(uses),len(actual)],'passed':maximum<.01})

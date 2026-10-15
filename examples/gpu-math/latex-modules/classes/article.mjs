@@ -1,0 +1,3 @@
+const pt=72/72.27;
+export default {name:'article',kind:'class',options:['10pt','11pt','12pt','a4paper','letterpaper','draft','final','oneside'],
+ configure(options){const a4=!options.includes('letterpaper'),size=options.includes('12pt')?12:options.includes('11pt')?11:10;return {logicalPaperWidth:options.includes('a4paper')?595.276:612,logicalPaperHeight:options.includes('a4paper')?841.89:792,fontSize:size*pt,paperWidth:a4?595.276:612,paperHeight:a4?841.89:792,textWidth:345*pt,textHeight:550*pt,left:options.includes('a4paper')?(595.276-345*pt)/2:72+62*pt,top:72+53*pt,paragraphIndent:15*pt,lineHeight:12*pt,section:{scale:1.44,before:3.5*4.30554*pt,after:2.3*4.30554*pt},subsection:{scale:1.2,before:3.25*4.30554*pt,after:1.5*4.30554*pt}};}};

@@ -1,3 +1,50 @@
+# Modular LaTeX documents and full pixel comparison — 2026-10-15
+
+Scope is independent LaTeX rendering; morphology is a separate project. Runtime
+uses prepared native-font distance fields, its own parser/layout and WebGPU.
+No TeX engine, KaTeX, PDF raster or DOM text is used to render runtime pages.
+
+New math mappings include roots, generalized fractions/binomials, native tall
+extension pieces, boxes/phantoms, text styles, modulo/negation, tagged math
+environments, arrays/rules and draft recovery. Class/package modules now have
+real dependency/configuration/command hooks: initial article, amsmath, amsfonts,
+amssymb, mathrsfs, graphicx, geometry, xcolor/color and siunitx subsets. Unsupported
+imports/options emit diagnostics; these names do not imply complete packages.
+Document UI accepts original .tex and named local images. GPU textures share the
+page pass with text. Paragraphs, headings, basic references and simple figures
+are experimental; full float/TeX paragraph layout is not implemented.
+
+Full unregistered 96dpi PDF comparison uses unmodified official small2e (1 page),
+sample2e (3), AMS testmath (41), plus a controlled image fixture (1). All46 native
+PDF pages are retained. GPU produces45: testmath loses page41. ALL FOUR DOCUMENTS
+FAIL acceptance. Mean page ink IoU: .372406/.072420/.030262/.470842 respectively.
+Policy requires same pages/dimensions, >=.99 ink IoU and <=1px maximum boundary
+error. Exact RGB and per-page errors are recorded too. Formula-position goldens
+are separate evidence and do not establish PDF equivalence.
+
+Three-run warm software-SwiftShader medians, layout/GPU completion ms:
+small2e4.0/35.9; sample2e8.3/148.7; testmath148.1/1657.3; figure2.1/65.3.
+Native PDF compile medians are approximately59/67/183/79ms; PDF plus PNG about
+141/346/4057/130ms. Output stages differ; this is not a like-for-like speed claim.
+The <10ms goal is not established for full documents or physical devices.
+
+Validation:24 Node and7 Python checks pass.32 new real-LaTeX formula goldens in
+each of inline/display match positioned geometry within0.000200bp;20 regression
+cases per mode within0.001103bp. Continuous rule geometry is compared by union
+when TeX partitions a rule. Main UI:17 example families,9 drafts,390px viewport,
+no errors/overflow;60 edits p50 6ms,p95 10.5ms,max18.9ms, SwiftShader only.
+
+Evidence and every failed attempt are retained at Cuvami staging/artifacts/
+gpu-math/20261015/latex-completion/. Final page dataset is
+ document-modules-float-final/; human-readable report is document-report/.
+Report includes original sources/PDFs, direct untimed GPU framebuffer pixels,
+red/blue differences, package diagnostics and timings. Reference image padding
+and hidden-image CSS defects found by phone UI verification were corrected.
+Public preview paths: /previews/gpu-math-typing/document.html and
+/previews/gpu-math-typing/document-checks/. Source scripts reproduce downloads,
+PDF compilation, GPU measurements, comparison and static report generation.
+Physical GPU STOP, unrelated morph work and compiler releases remain untouched.
+
 # Owner correction and VKF morphology handover — 2026-10-14
 
 The owner rejected the published glyph matching/movement/crossfade transition as
