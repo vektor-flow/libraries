@@ -10,6 +10,10 @@ Camera framing changes neither document geometry nor the prior accuracy results.
 Explicit software browser checks cover320/390/430px phones and844px landscape;
 physical Safari and on-screen keyboard behavior remain unqualified.
 Evidence: Cuvami staging/artifacts/gpu-math/20261015/phone-layout/.
+Local and live phone-flow checks pass all four viewports; local DPR3 zoom and
+187-image/upload/report checks pass with no errors/overflow. Source c5d64d5,
+site b6b0e8d, successful Pages workflow38710881659. Three changed HTTPS files
+match reviewed bytes. Receipts: fit-text/, dpr/, ui-fit/, live/, publication.json.
 
 ---
 
