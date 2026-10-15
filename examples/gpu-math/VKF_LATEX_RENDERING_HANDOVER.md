@@ -1,6 +1,6 @@
-# VKF native LaTeX rendering integration
+# VKF native LaTeX rendering: shared handover
 
-Updated 15 October 2026 for the VKF implementation agent.
+Updated 15 October 2026 for joining the native LaTeX renderer and VKF integration work.
 
 Adopt the native LaTeX endpoint renderer in VKF's shared GPU viewport. The browser
 uses prepared native font metrics/outlines, independent parsing/layout and WebGPU;
@@ -17,16 +17,48 @@ supersedes the native renderer information in `VKF_MORPHOLOGY_HANDOVER.md`;
 that older file's source pins, counts and solver integration are historical.
 
 The live document UI is https://vektorflow.org/previews/gpu-math-typing/document.html.
-The full zoom report is published at
-https://vektorflow.org/previews/gpu-math-typing/document-zoom-checks/.
-Publication receipts and exact source/site pins are recorded in STATUS and the
-private evidence root below. Source `ccaeb08` introduced the sharp rule shader;
-site `e3e6525` first published it. Runtime `a396b39` and site `03ef624`
-publish the grid runner, report and first follow-up fixes; Pages workflow
-`38718794269` succeeded. All147 live grid views and438 worst-tile image views
-pass at phone width, and all nine live tile/full-frame captures match exactly.
-The later contained-viewport UI is source `c0be0ab`, site `2400f32`; live gesture
-checks verify unchanged site scroll, header and viewport bounds.
+The tested runtime is source `c0be0ab`; source checkpoint `e26182d` also records
+the live containment verification. The site repository is
+`vektor-flow/vektor-flow.github.io`, published commit `2400f32`, Pages workflow
+`38720679089` (succeeded). Its worktree is
+`/home/viktor/Projects/Vektor Flow/.worktrees/math-typing-site` on
+`codex/math-typing-20261014`. Live file hashes and gestures are recorded in
+`pan-containment/publication.json` under the evidence root below. This handover
+update changes documentation only; it does not require another renderer release.
+
+## Join forces: scope and proposed work split
+
+The shared goal is native LaTeX layout rendered inside VKF's GPU scene, with
+responsive editing and sharp zoom. The long-expression rendering target is
+under 10 ms; this is a target, not a measured full-document guarantee. LaTeX is
+the development reference, with no runtime LaTeX or KaTeX dependency. Complete
+document fidelity is still unfinished. Morphology remains a separate project.
+
+These are proposed responsibilities, not assignments to an already-running agent:
+
+- **VKF integration owner:** extract the current packet builder and draw pass,
+  use the host's shared device/resources, connect document cameras and clipping,
+  and preserve premultiplied blending and screen-space antialiasing.
+- **Layout and parity owner:** fix native class/package behavior, paragraph and
+  page building, font selection and missing commands; retain original TeX/PDF
+  fixtures and reproduce failures with geometry and pixel evidence.
+- **Shared boundary:** agree the packet, camera uniform and asset versions before
+  changing them. Keep atlas, font metrics and shader pinned together. Coordinate
+  edits to shared files; land small tested commits from separate worktrees.
+
+The first joint task is to locate the earliest sample2e page 2 divergence while
+preserving its accurate page 1. Reduce that divergence to a native LaTeX fixture,
+fix the responsible layout rule, then regenerate affected pixel captures and a
+fresh glyph-identity/geometry audit. Report which failures improve or regress.
+Do not reuse a geometry audit after layout or font mappings change. In parallel,
+the host integration can consume the unchanged packet contract described below.
+Native VKF integration has not yet been completed.
+
+Keep the existing renderer as the public entry point. The requested UI is compact
+Render/Edit, page selection, document-local drag/pinch/wheel and optional fit
+actions. Panning must leave the site stationary. Do not add a zoom-grid/report
+interface or zoom buttons to the main flow; keep diagnostic suites as developer
+tools. Preserve the archived evidence rather than turning it into another site.
 
 ## Layout and draw contract
 
@@ -170,3 +202,21 @@ The under10ms full-document/physical-phone goal remains unestablished. The exist
 physical GPU stop in the Cuvami chat handover still governs hardware testing;
 read that checkpoint before attempting physical browser/GPU runs. Preserve all
 failed trials, original PDFs, licenses and other agents' worktrees.
+
+## Latest containment verification
+
+`pan-containment/` contains the latest local and live interaction receipts.
+`gestures/gestures.json` and `live/gestures.json` cover mouse drag at 1x,
+drag beyond canvas bounds, anchored wheel zoom, pinch with translation,
+pinch-to-one-finger transition and single-touch pan. They check unchanged site
+scroll, header position and viewport bounds, with no GPU/page errors or overflow.
+`phone/phone.json` covers 320/390/430 px portrait and 844 px landscape layouts.
+`dpr/dpr.json` checks DPR 3 backing resolution and 1–2 physical-pixel rule edges
+at 1/4/16/64x. `tiles/tiles.json` retains nine exact tile/full-frame matches;
+`uploads/document-ui.json` verifies file/image upload and direct developer report
+navigation. These are software-browser checks, not physical iPhone qualification.
+
+Before the next implementation change, read the current `STATUS.md` and
+`typing-demo/README.md`, inspect worktree status, and identify who owns each
+shared file. Keep source fixes and evidence together before publishing the
+existing preview. Documentation-only changes do not need a site deployment.
