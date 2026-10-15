@@ -1,6 +1,6 @@
 // Each class/package has a separate module. No user TeX is executed as code.
 const classes={article:()=>import('./classes/article.mjs')};
-const packages={amsmath:()=>import('./packages/amsmath.mjs'),graphicx:()=>import('./packages/graphicx.mjs'),geometry:()=>import('./packages/geometry.mjs'),xcolor:()=>import('./packages/xcolor.mjs'),color:()=>import('./packages/xcolor.mjs'),siunitx:()=>import('./packages/siunitx.mjs'),amsfonts:()=>import('./packages/amsfonts.mjs'),amssymb:()=>import('./packages/amssymb.mjs'),mathrsfs:()=>import('./packages/mathrsfs.mjs')};
+const packages={amsthm:()=>import('./packages/amsthm.mjs'),amsmath:()=>import('./packages/amsmath.mjs'),graphicx:()=>import('./packages/graphicx.mjs'),geometry:()=>import('./packages/geometry.mjs'),xcolor:()=>import('./packages/xcolor.mjs'),color:()=>import('./packages/xcolor.mjs'),siunitx:()=>import('./packages/siunitx.mjs'),amsfonts:()=>import('./packages/amsfonts.mjs'),amssymb:()=>import('./packages/amssymb.mjs'),mathrsfs:()=>import('./packages/mathrsfs.mjs')};
 export async function resolveModules(source){
  const diagnostics=[],match=/\\documentclass\s*(?:\[([^\]]*)\])?\s*\{([^}]+)\}/.exec(source),name=match?.[2]??'article',options=(match?.[1]??'').split(',').map(s=>s.trim()).filter(Boolean),loaded=new Map();
  if(!Object.hasOwn(classes,name))return{classModule:null,packages:loaded,diagnostics:['Unsupported document class: '+name],options,imports:[]};

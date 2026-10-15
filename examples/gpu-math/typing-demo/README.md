@@ -186,3 +186,73 @@ pages without registration/cropping and returns failure for incompatible output.
 `build_document_report.py` creates the source/PDF/GPU/difference browser report.
 Full-document acceptance is failing; successful formula fixtures do not override
 those page-level failures. Timing stages and actual software backend are explicit.
+
+## Accuracy and practical zoom — 2026-10-15
+
+The document renderer defaults to MTSDF at every zoom. Zoom1–64× and drag-to-pan
+use a fixed backing viewport and a camera, rather than enlarging a canvas bitmap.
+Fragment derivatives keep the antialias transition in device pixels. UI backing
+resolution follows CSS width and device pixel ratio; comparison captures explicitly
+request96dpi. DPR3 phone simulation verifies1098 backing pixels for366 CSS pixels,
+and a one-pixel transition on the tested H stems at1/4/16/64×. Curved g, Greek,
+integral and dollar fields have separate zoom captures. This is bounded software
+browser evidence, not infinite-resolution curve or physical-phone qualification.
+A finite atlas can eventually show contour approximation; analytic outline
+rendering remains the route to stronger unbounded-zoom guarantees.
+
+Two text-companion symbols previously inherited PK bitmap outlines. Their eight
+style keys now use six CM-Super vector outlines with the original TFM box/advance
+metrics. Original PDF references remain unchanged. The exact unmodified Type1
+programs, TS1 encoding, copyright, license and hashes are in `cm-super-source/`.
+Those font-data terms apply independently of the repository's code license.
+No global TeX font maps were changed during this work.
+
+Document text now has native optical fonts for article headings/titles/authors
+and footnotes, standard English TeX hyphenation data, paragraph demerits with
+stretch/shrink, and reconstruction of unbroken ligatures across discretionary
+hyphen positions. Explicit control-space handling, escaped-symbol space factors,
+italic corrections around font changes and text ellipsis kerns are corrected.
+Simple orphan/widow protection, theorem/proof flow, lists, quotations, verse,
+references/citations, bibliography entries and footnotes are experimental subsets.
+Author newcommand/renewcommand, aliases, optional arguments and simple conditionals
+expand within resource limits. Verbatim examples retain their literal contents.
+These additions do not establish full TeX page-building or arbitrary macro parity.
+
+Accuracy is reported without moving or registering pages:
+
+- Raw ink IoU and RGB errors remain visible. White background cannot inflate ink
+  overlap; ink is defined as mean RGB below178/255 for these black/blue fixtures.
+- A second measure reports ink within a one-pixel x/y neighbourhood. A99.5%
+  aggregate threshold is combined with local connected-component checks.
+- Native PDF font/glyph identities and baseline positions are matched one-to-one
+  on each original page. Missing, extra, unmeasured, moved and wrong-size glyphs
+  are counted separately. A good page average cannot hide a missing symbol.
+- Local-error maps and PDF/GPU/error close-ups show where the remaining error lies.
+  Connected components are glyph parts, not necessarily whole characters.
+
+`compare_document_pixels.py` now accepts `--mapping typing-demo/typing-data.json`
+and `--oracle-extras PATH`. `mutool` supplies independent PDF vector traces for
+`compare_document_geometry.py`; it is never a runtime dependency. The metadata's
+`glyphParts` come from the development DVI files, including composite symbols.
+All original reference pages and extra/missing GPU pages remain in the report.
+Full-document acceptance still fails, especially the AMS testmath source.
+
+`pdfPixels:true` is a separate96dpi calibration diagnostic: reusable Type1 glyph
+coverage masks, generated without any document/PDF input, approximate the native
+PDF rasterizer. It is opt-in, never the interactive zoom default, and automatically
+falls back to MTSDF beyond1×. It must not be used to claim distance-field pixel
+parity. The report provides separate views for both rendering paths.
+
+The development preparation sequence is `prepare_typing.py`, then
+`prepare_document_fonts.py`, `prepare_document_coverage.py`,
+`prepare_glyph_provenance.py` and `prepare_vector_textcomp.py`. Each stage takes a
+fresh output directory. The optional coverage stage requires freetype-py; glyph
+provenance consumes the existing oracle DVI files. Vector text-companion generation
+uses the supplied CM-Super Type1 programs and original native TFM files.
+
+`window.renderDocument(source,{zoom:16,pan:[x,y]})` uses DPR-aware MTSDF rendering.
+For reproducible comparisons use
+`{scale:96/72,black:true,capture:true,forceLayout:true}`. Timed corpus runs force a
+fresh layout on every trial; zoom/pan can reuse layout. GPU-completion times include
+layout and are measured separately from the untimed readback. Software timings do
+not establish the10ms target on a physical device.

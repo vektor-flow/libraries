@@ -1,5 +1,6 @@
 """Build a phone-readable static report from preserved independent comparisons."""
-import argparse,html,json,shutil,statistics
+import argparse,gzip,html,json,shutil,statistics
+from PIL import Image,ImageDraw
 from pathlib import Path
 
 def build(corpus,browser,output):
@@ -11,18 +12,31 @@ def build(corpus,browser,output):
    reference=corpus/name/f'reference-{index}.png'
    if not reference.exists():reference=corpus/name/f'reference-{index:02}.png'
    if reference.exists():shutil.copyfile(reference,folder/f'reference-{index:02}.png')
-   for kind in ['native','difference']:
+   for kind in ['native','difference','local-error']:
     image=browser/name/f'{kind}-{index:02}.png'
     if image.exists():shutil.copyfile(image,folder/image.name)
+  for page in doc['pages']:
+   index=page['page'];ref=folder/f'reference-{index:02}.png';native=folder/f'native-{index:02}.png';error=folder/f'local-error-{index:02}.png'
+   if not all(p.exists()for p in [ref,native,error]):continue
+   images=[Image.open(p).convert('RGB')for p in [ref,native,error]];page['closeups']=[]
+   for rank,region in enumerate(page.get('spatialAccuracy',{}).get('regions',[])[:4],1):
+    x0,y0,x1,y1=region['bbox'];cx=(x0+x1)//2;cy=(y0+y1)//2;box=(max(0,cx-36),max(0,cy-22),min(images[0].width,cx+36),min(images[0].height,cy+22));parts=[image.crop(box).resize((216,132),Image.Resampling.NEAREST)for image in images];combined=Image.new('RGB',(648,152),'white');draw=ImageDraw.Draw(combined)
+    for i,part in enumerate(parts):combined.paste(part,(i*216,20));draw.text((i*216+4,2),['PDF','GPU','Local error'][i],fill='black')
+    name_=f'closeup-{index:02}-{rank}.png';combined.save(folder/name_);page['closeups'].append(name_)
+  # Full audits remain downloadable per page; keep the phone's initial JSON small.
+  for page in doc['pages']:
+   audit=f"audit-{page['page']:02}.json.gz";page['audit']=audit
+   with gzip.open(folder/audit,'wt',encoding='utf-8')as f:json.dump(page,f,separators=(',',':'))
+   spatial=page.get('spatialAccuracy',{})
+   for key in ['regions','concentratedErrorRegions']:
+    if key in spatial:spatial[key+'Count']=len(spatial[key]);spatial[key]=spatial[key][:4]
+   geometry=page.get('geometry',{})
+   for key in ['missingReferenceGlyphs','extraGpuGlyphs','misplacedOrWrongSize','unmeasured']:
+    if key in geometry:geometry[key+'Count']=len(geometry[key]);geometry[key]=geometry[key][:4]
   timings=next(d for d in gpu['results']if d['name']==name);baseline=next(d for d in engine['documents']if d['name']==name)
   records.append({**doc,'source':next(d for d in sources if d['name']==name),'modules':timings['modules'],'gpuTimings':timings['timings'],'latexTimings':baseline['trials']})
- summary={'accepted':pixels['accepted'],'documents':records,'policy':pixels['policy'],'backend':gpu['backend'],'coldBrowserReadyMs':gpu['coldBrowserReadyMs'],'scope':gpu['scope'],'engine':engine['engine'],'rasterizer':engine['rasterizer']};(output/'report.json').write_text(json.dumps(summary,indent=2)+'\n')
- (output/'index.html').write_text('''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LaTeX document comparisons</title><style>*{box-sizing:border-box}body{font:16px/1.45 system-ui;background:#f4f7f4;color:#18322c;margin:0}main{max-width:1000px;padding:12px;margin:auto}h1{font-size:23px}select,button{font:inherit;min-height:44px;max-width:100%}.controls{display:flex;gap:8px;flex-wrap:wrap}img{display:block;max-width:100%;height:auto;background:white;margin-top:10px}img[hidden]{display:none}p{font-size:14px}pre{font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}a{color:inherit}#result{font-weight:650;color:#923524}.timings{overflow:auto}table{border-collapse:collapse;font-size:13px;white-space:nowrap}th,td{padding:6px;text-align:left;border-bottom:1px solid #ccd9cf}</style><main><a href="../document.html">Document renderer</a><h1>LaTeX document comparisons</h1><p id="result"></p><p>Original sources compiled with pdfLaTeX, compared with independent GPU distance-field pages at 96 dpi. Red is reference-only ink; blue is GPU-only ink. Pages are compared without registration or cropping.</p><div class="controls"><select id="doc" aria-label="Document"></select><select id="page" aria-label="Page"></select><select id="view" aria-label="View"><option value="reference">PDF reference</option><option value="native">GPU output</option><option value="difference">Difference</option></select></div><p id="metrics"></p><p id="links"></p><div class="timings"><table><thead><tr><th>Document</th><th>Layout ms</th><th>GPU complete ms</th><th>PDF compile ms</th><th>PDF + PNG ms</th></tr></thead><tbody id="timings"></tbody></table></div><p>Times are medians of three runs. GPU timings use software SwiftShader and exclude screenshot/readback. PDF + PNG includes rasterization, PNG encoding and disk I/O. These are different output stages, not a like-for-like speed claim. Cold atlas preparation is separate.</p><details><summary>Compatibility and source</summary><pre id="issues"></pre></details><img id="image" alt="Selected document page"></main><script type="module">
-const $=id=>document.getElementById(id),data=await fetch('./report.json').then(r=>r.json()),median=values=>[...values].sort((a,b)=>a-b)[1];$('result').textContent=data.accepted?'Document acceptance passed':'Full-document pixel acceptance has not passed';
-for(const [i,doc]of data.documents.entries()){const option=document.createElement('option');option.value=i;option.textContent=doc.name;$('doc').append(option);const tr=document.createElement('tr');for(const value of [doc.name,median(doc.gpuTimings.map(t=>t.layoutMs)).toFixed(1),median(doc.gpuTimings.map(t=>t.gpuCompleteMs)).toFixed(1),median(doc.latexTimings.map(t=>t.compileMs)).toFixed(1),median(doc.latexTimings.map(t=>t.sourceToPNGMs)).toFixed(1)]){const td=document.createElement('td');td.textContent=value;tr.append(td);}$('timings').append(tr);}
-function selectDocument(){const doc=data.documents[Number($('doc').value)];$('page').replaceChildren();for(let i=1;i<=Math.max(doc.referencePages,doc.nativePages);i++){const option=document.createElement('option');option.value=i;option.textContent='Page '+i;$('page').append(option);}$('issues').textContent=JSON.stringify({source:doc.source,modules:doc.modules,diagnostics:doc.diagnostics,referencePages:doc.referencePages,nativePages:doc.nativePages,policy:data.policy},null,2);$('links').replaceChildren();for(const [label,file]of [['Original TeX','source.tex'],['Reference PDF','reference.pdf']]){const a=document.createElement('a');a.textContent=label;a.href='./'+doc.name+'/'+file;a.style.marginRight='12px';$('links').append(a);}update();}
-function update(){const doc=data.documents[Number($('doc').value)],number=Number($('page').value),metrics=doc.pages[number-1],view=$('view').value,missing=view==='reference'?number>doc.referencePages:number>doc.nativePages;$('image').hidden=missing;if(!missing)$('image').src='./'+doc.name+'/'+view+'-'+String(number).padStart(2,'0')+'.png';$('metrics').textContent=metrics.inkIoU===undefined?'Missing '+metrics.missing+' page':`Ink overlap ${(metrics.inkIoU*100).toFixed(1)}% · maximum boundary displacement ${metrics.maxBoundaryDistancePixels.toFixed(1)} px · ${metrics.passed?'passed':'failed'}`;}
-$('doc').addEventListener('change',selectDocument);$('page').addEventListener('change',update);$('view').addEventListener('change',update);selectDocument();</script></html>''')
+ summary={'accepted':pixels['accepted'],'documents':records,'policy':pixels['policy'],'pixelMode':gpu.get('pixelMode','MTSDF'),'runtimeHashes':gpu.get('runtimeHashes',{}),'geometryPolicy':'One-to-one native font/glyph matching on each original page; position <=1px, font size <=.1px; no missing, extra or unmeasured glyphs. Vector-only tiles are checked by pixels.','backend':gpu['backend'],'coldBrowserReadyMs':gpu['coldBrowserReadyMs'],'scope':gpu['scope'],'engine':engine['engine'],'rasterizer':engine['rasterizer']};(output/'report.json').write_text(json.dumps(summary,indent=2)+'\n')
+ (output/'index.html').write_text(Path(__file__).with_name('document-report.html').read_text())
  print('Report:',output,'documents:',len(records),'accepted:',summary['accepted'])
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('corpus',type=Path);p.add_argument('browser',type=Path);p.add_argument('output',type=Path);a=p.parse_args();build(a.corpus,a.browser,a.output)

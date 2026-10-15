@@ -1,3 +1,69 @@
+# Spatial accuracy, text alignment and practical zoom — 2026-10-15
+
+This checkpoint supersedes the document results below. Scope remains independent
+LaTeX rendering; morphology and compiler publication are separate projects.
+
+Text layout now uses native TFM widths/kerns, optical font sizes, ligatures,
+English hyphenation, bounded paragraph optimization, sentence space factors and
+italic correction. Explicit control-space followed by ordinary whitespace was
+counted twice; it is fixed. All 746 glyphs in small2e match native positions
+within .0742px. All 1,693 glyphs on sample2e page1 match within .1217px, and the
+102-glyph figure fixture within .0412px. Original PDF positions are compared by
+font/glyph identity, without registration. Later sample2e pages still fail.
+
+Accuracy now separates raw ink IoU, ink coverage within one pixel, local
+connected-component failures and one-to-one glyph/image geometry. Acceptance
+requires >=99.5% ink coverage on BOTH outputs, >=95% coverage per component,
+matching pages and no missing/extra/unmeasured or >1px displaced glyphs.
+White background never increases accuracy. A synthetic missing-symbol test
+proves a 99.5% global result can still be rejected locally.
+
+The default renderer remains smooth MTSDF, with DPR-aware backing resolution,
+a fixed viewport camera, pan/reset and 1–64x zoom. Shader derivatives keep edge
+softness in physical screen pixels. Desktop and DPR3 phone simulations pass
+1/4/16/64x checks; partial edge width is 1–2 physical pixels. Curved text, Greek,
+TC dollar and integral captures retain vector-derived outlines. Six formerly
+bitmap-derived TC outlines were replaced using privately extracted CM-Super
+Type1 fonts with native metrics. Sources/licenses are bundled. This finite
+atlas is NOT a proof of exact curves at unbounded zoom; adaptive analytic or
+vector fallback remains necessary for that guarantee. No physical GPU/device
+qualification was performed.
+
+A separate opt-in 96dpi glyph-coverage cache diagnoses rasterizer differences;
+it is generated from font outlines, never PDFs/documents. It is not used for
+interactive zoom. small2e, sample2e page1 and the figure pass this diagnostic,
+while ALL FOUR complete documents still fail the default MTSDF policy. MTSDF
+first-page one-pixel ink coverage: small2e99.2685%, sample2e99.4727%,
+figure99.6515%; local errors remain even when aggregate coverage exceeds99.5%.
+
+Full corpus: original46 pages preserved, GPU49 pages (1/3/44/1). AMS reference
+has41 pages; GPU has44 and62 unsupported-feature diagnostics. Nested text/math,
+lists/page breaking, floats, macro scoping and package-specific font selection
+remain incomplete. Standard integrals currently use the esint-prepared mapping;
+documents without that package can require different native glyphs. Do not
+claim package completeness or full-document match.
+
+Final evidence: Cuvami staging/artifacts/gpu-math/20261015/document-parity/:
+corpus-mtsdf-frozen/, corpus-coverage-frozen/, report-publication/ (compact phone report; full audits per page), report-frozen/,
+zoom-frozen/,
+dpr-reviewed/, sample-spaces-geometry.json. Browser datasets/report include
+SHA256 runtime hashes. All earlier failed attempts remain preserved. Reports
+retain all46 reference and49 GPU pages, raw differences, local errors and
+worst-region closeups. No acceptance images are aligned, cropped or excluded.
+
+Checks:29 Node and10 Python tests pass;32 display and32 inline independent
+formula goldens pass.
+Main browser passes17 families/9 drafts with no errors or phone overflow;60 warm
+edits p50 6.1ms, p95 9.6ms, max26ms (software only). Document/report UI
+verification passes187 page-image resources, uploaded figures and phone controls
+without errors or overflow (ui-publication/).
+Frozen MTSDF three-run software medians, layout/GPU completion ms:
+small2e6.8/48.2; sample2e22.2/161.0; AMS290.4/1886.5; figure2.3/70.2.
+These are SwiftShader full-page completion timings with fresh layout. Captures
+are untimed. They do not establish the <10ms goal or hardware performance.
+
+---
+
 # Modular LaTeX documents and full pixel comparison — 2026-10-15
 
 Scope is independent LaTeX rendering; morphology is a separate project. Runtime

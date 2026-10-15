@@ -123,7 +123,7 @@ export function typeset(source,maps,{mode='display',equationStart=1,packages=nul
   b.width=l.width+content.width+r.width;b.height=Math.max(l.height,content.height,r.height);b.depth=Math.max(l.depth,content.depth,r.depth);if(!scalable){b.class='open';b.endClass='close';b.character=true;}return b;
  }
  function matrix(node,style){
-  const name=node.name.replace(/\*$/,''),small=name==='smallmatrix',aligned=['aligned','align','split'].includes(name),display=['align','split','equation','multline','gather','gathered'].includes(name),childStyle=small?2:display?0:Math.max(1,style);
+  const name=node.name.replace(/\*$/,''),small=['smallmatrix','substack','subarray'].includes(name),aligned=['aligned','align','alignat','split'].includes(name),display=['align','split','equation','multline','gather','gathered'].includes(name),childStyle=small?2:display?0:Math.max(1,style);
   if(name==='equation'){const body=layout(node.rows.flat(2),childStyle);if(!node.name.endsWith('*')&&!node.rows.flat(2).some(n=>n.noNumber||n.type==='tag')){const tag=atom({type:'tag',children:[...String(equationNumber++)].map(char=>({type:'textchar',char,font:'mathrm'}))},style);for(const item of tag.items)body.items.push({...item,x:body.width+10*pt+item.x,equationTag:true,tagWidth:tag.width});}return body;}
   const rows=node.rows.length?node.rows:[[[]]],cells=rows.map(row=>row.map((nodes,j)=>nodes.length?layout(aligned&&j%2?[{type:'group',children:[]},...nodes.filter(n=>n.type!=='tag')]:nodes.filter(n=>n.type!=='tag'),childStyle):hole(childStyle)));
   const columns=Math.max(1,...cells.map(row=>row.length));if(columns>32||rows.length>100)throw Error('Matrix limit: 32 columns and 100 rows');
@@ -132,7 +132,7 @@ export function typeset(source,maps,{mode='display',equationStart=1,packages=nul
   const rowGaps=rows.map((_,i)=>node.rowGaps?.[i]?dimension(node.rowGaps[i],style):0),rule=profile(style).parameters.RULE,hrules=node.rules??[];
   const total=heights.reduce((a,h,i)=>a+h+depths[i]+(i<rows.length-1?rowGaps[i]:0),0)+hrules.length*rule,axis=profile(style).parameters.AXISHEIGHT;
   const box={...empty(),height:total/2+axis,depth:total/2-axis,class:'inner'},array=name==='array',padding=array?5*pt:0,align=(node.align??'').replace(/[^clr]/g,'');
-  const gaps=Array.from({length:columns-1},(_,j)=>aligned?(j%2?20*pt:0):cases?10*pt:small?3*pt:10*pt);
+  const gaps=Array.from({length:columns-1},(_,j)=>aligned?(j%2&&name!=='alignat'?20*pt:0):cases?10*pt:small?3*pt:10*pt);
   const vcount=Array(columns+1).fill(0);if(array){let c=0;for(const char of node.align){if(/[clr]/.test(char))c++;else if(char==='|')vcount[Math.min(c,columns)]++;}}
   const vspace=vcount.map(c=>c*rule+Math.max(0,c-1)*2*pt);box.width=widths.reduce((a,w)=>a+w,0)+gaps.reduce((a,g)=>a+g,0)+2*padding+vspace.reduce((n,w)=>n+w,0);
   let y=-box.height;const boundaries=[0];for(let j=0,x=padding+vspace[0];j<columns;j++){x+=widths[j];boundaries.push(j===columns-1?box.width-vspace[columns]:x+(gaps[j]??0)/2);x+=(gaps[j]??0)+vspace[j+1];}
@@ -142,7 +142,7 @@ export function typeset(source,maps,{mode='display',equationStart=1,packages=nul
    for(let j=0;j<columns;j++){const c=cells[i][j]??hole(childStyle),mode=cases?'l':aligned?(j%2?'l':'r'):name==='multline'?(i===0?'l':i===cells.length-1?'r':'c'):(align[j]??'c');
     const shift=mode==='l'?0:mode==='r'?widths[j]-c.width:(widths[j]-c.width)/2;add(box.items,c,x+shift,y);x+=widths[j]+(gaps[j]??0)+vspace[j+1];
    }
-   const custom=rows[i].flat().find(n=>n.type==='tag'),numbered=['equation','align','gather','multline'].includes(name)&&!node.name.endsWith('*')&&!rows[i].flat().some(n=>n.noNumber),showNumber=name!=='multline'||i===cells.length-1;
+   const custom=rows[i].flat().find(n=>n.type==='tag'),numbered=['equation','align','alignat','gather','multline'].includes(name)&&!node.name.endsWith('*')&&!rows[i].flat().some(n=>n.noNumber),showNumber=name!=='multline'||i===cells.length-1;
    if(custom||numbered&&showNumber){const number=custom??{type:'tag',children:[...String(equationNumber++)].map(char=>({type:'textchar',char,font:'mathrm'}))},tag=atom(number,style);for(const item of tag.items)box.items.push({...item,x:box.width+10*pt+item.x,y:y+item.y,equationTag:true,tagWidth:tag.width});}
    y+=depths[i]+(i<rows.length-1?rowGaps[i]:0);
   }
@@ -205,6 +205,7 @@ export function typeset(source,maps,{mode='display',equationStart=1,packages=nul
   else if(node.type==='space')return{...empty(),width:node.mu*map.parameters.QUAD/18,space:true};
   else if(node.type==='font'){const previous=activeFont;activeFont=node.name;b=layout(node.children,style,cramped);b.character=!!b.nucleus;b.italic=b.nucleus?.italic??0;activeFont=previous;}
   else if(node.type==='paint'){const previous=activeColor;activeColor=node.color;b=layout(node.children,style,cramped);activeColor=previous;}
+  else if(node.type==='class'){b={...layout(node.children,style,cramped),class:node.class,character:false};}
   else if(node.type==='group'){b=layout(node.children,style,cramped);if(node.unit)b.character=true;}
   else if(node.type==='delimited'){const previous=middleRequired;let body=layout(node.children,style,cramped);if(node.children.some(n=>n.type==='middle')){const delta=Math.max(body.height-p.AXISHEIGHT,body.depth+p.AXISHEIGHT);middleRequired=Math.max(1.802*delta,2*delta-5*pt);body=layout(node.children,style,cramped);}b=enclose(body,node.left,node.right,style,node.scalable);middleRequired=previous;}
   else if(node.type==='matrix')b=matrix(node,style);

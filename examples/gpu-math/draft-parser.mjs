@@ -7,7 +7,7 @@ const greekUpper='Alpha Beta Gamma Delta Epsilon Zeta Eta Theta Iota Kappa Lambd
 const unicode={};for(let i=0;i<24;i++){unicode['αβγδεζηθικλμνξοπρστυφχψω'[i]]='\\'+greekLower[i];unicode['ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ'[i]]='\\'+greekUpper[i];}
 Object.assign(unicode,{'ς':'\\varsigma','ϕ':'\\phi','ϑ':'\\vartheta','ϖ':'\\varpi','ϱ':'\\varrho','ϵ':'\\epsilon','∑':'\\sum','∏':'\\prod','∫':'\\int','∬':'\\iint','∭':'\\iiint','∮':'\\oint','∯':'\\oiint','∞':'\\infty','≤':'\\leq','≥':'\\geq','≠':'\\neq','×':'\\times','·':'\\cdot','→':'\\to','⟨':'\\langle','⟩':'\\rangle'});
 const aliases={'\\{':'\\lbrace','\\}':'\\rbrace','\\lparen':'(','\\rparen':')','\\lbrack':'[','\\rbrack':']','\\vert':'|','\\lvert':'|','\\rvert':'|','\\|':'\\Vert','\\lVert':'\\Vert','\\rVert':'\\Vert','\\le':'\\leq','\\ge':'\\geq','\\ne':'\\neq','\\land':'\\wedge','\\lor':'\\vee'};
-const environments=new Set(['matrix','pmatrix','bmatrix','Bmatrix','vmatrix','Vmatrix','smallmatrix','cases','aligned','align','align*','array','gathered','split','multline','multline*','gather','gather*','equation','equation*']);
+const environments=new Set(['matrix','pmatrix','bmatrix','Bmatrix','vmatrix','Vmatrix','smallmatrix','cases','aligned','align','align*','array','gathered','split','multline','multline*','gather','gather*','equation','equation*','alignat','alignat*','substack','subarray']);
 const spaces={'\\,':3,'\\:':4,'\\;':5,'\\!':-3,'\\quad':18,'\\qquad':36,'\\ ':6,'~':6};
 export function parseDraft(source,mapping,{packages=null,extensions=[]}={}){
  if(source.length>12000)throw Error('Expression limit: 12,000 characters');
@@ -44,7 +44,7 @@ export function parseDraft(source,mapping,{packages=null,extensions=[]}={}){
  }
  function matrix(name,depth,shorthand=false){
   if(!environments.has(name)){const candidate=[...environments].find(e=>e.startsWith(name));if(candidate){name=candidate;repair('Completed a matrix environment for preview');}else{repair('Unknown environment '+name);name='matrix';}}
-  let align='';if(name==='array'){align=rawGroup();if(/[^clr|\s]/.test(align))repair('Unsupported array column specification');}
+  let align='';if(name==='alignat'||name==='alignat*'){skip();if(source[at]==='{')rawGroup();else if(/\d/.test(source[at]??''))at++;}if(name==='subarray'){align=rawGroup();}if(name==='array'){align=rawGroup();if(/[^clr|\s]/.test(align))repair('Unsupported array column specification');}
   if(shorthand){skip();if(source[at]==='{')at++;else repair('Inferred the matrix body');}
   const rows=[[]],rowGaps=[],rules=[];while(at<source.length){skip();if(peek()==='\\end'){take();const end=rawGroup();if(end!==name)repair('Matched the unfinished environment');if(rows.length>1&&rows.at(-1).length===0)rows.pop();return{type:'matrix',name,rows,align,rowGaps,rules};}if(peek()==='\\hline'||peek()==='\\cline'){const command=take();rules.push({row:rows.length-1,columns:command==='\\cline'?rawGroup():null});continue;}rows.at(-1).push(list(depth+1,shorthand?'matrixBrace':'matrix'));
    const t=peek();if(source[at]==='&'){at++;continue;}
@@ -63,13 +63,16 @@ export function parseDraft(source,mapping,{packages=null,extensions=[]}={}){
   if(raw==='\\\\'||raw==='\\newline'){take();return{type:'break',gap:optionalRaw()};}
   if(raw==='\\color'||raw==='\\textcolor'){take();const model=optionalRaw(),value=rawGroup(),color=parseColor(value,model);if(!color)repair('Unfinished or unsupported color: '+value);return raw==='\\color'?{type:'color',color}:{type:'paint',color,children:argument(depth)};}
   if(['\\mathrm','\\mathbf','\\mathit','\\mathsf','\\mathtt','\\mathfrak','\\mathcal','\\mathscr','\\mathbb','\\mathbbold','\\mathnormal','\\boldsymbol','\\bm'].includes(raw)){take();return{type:'font',name:raw==='\\bm'?'boldsymbol':raw.slice(1),children:argument(depth)};}
+  if(['\\relax','\\protect','\\allowbreak','\\displaybreak'].includes(raw)){take();return{type:'space',mu:0};}
+  if(raw==='\\substack'){take();return matrix('substack',depth,true);}
+  if(['\\mathinner','\\mathord','\\mathbin','\\mathrel','\\mathop','\\mathopen','\\mathclose','\\mathpunct'].includes(raw)){take();return{type:'class',class:raw.slice(5),operatorLimits:raw==='\\mathop',children:argument(depth)};}
   if(raw==='\\sqrt'){take();return{type:'radical',index:optionalArgument(depth),children:argument(depth)};}
   if(['\\boxed','\\fbox','\\phantom','\\hphantom','\\vphantom','\\smash','\\mathstrut'].includes(raw)){take();const option=raw==='\\smash'?optionalRaw():'';if(option&&!['t','b'].includes(option))repair('Unsupported smash option');return{type:'box',name:raw.slice(1),option,children:raw==='\\mathstrut'?[{type:'glyph',token:'('}]:argument(depth)};}
-  if(['\\hspace','\\kern','\\mkern','\\mskip'].includes(raw)){take();if(source[at]==='*')at++;let dimension;if(source[at]==='{')dimension=rawGroup();else{skip();const match=/^[+-]?(?:d+(?:.d*)?|.d+)s*(?:pt|bp|em|ex|mu|mm|cm|in|pc)/.exec(source.slice(at));dimension=match?.[0]??'';at+=dimension.length;}if(!dimension)repair('Empty spacing dimension');return{type:'dimension',dimension};}
+  if(['\\hspace','\\kern','\\mkern','\\mskip'].includes(raw)){take();if(source[at]==='*')at++;let dimension;if(source[at]==='{')dimension=rawGroup();else{skip();const match=/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)\s*(?:pt|bp|em|ex|mu|mm|cm|in|pc)/.exec(source.slice(at));dimension=match?.[0]??'';at+=dimension.length;}if(!dimension)repair('Empty spacing dimension');return{type:'dimension',dimension};}
   if(raw==='\\not'){take();return{type:'glyph',token:'@not',class:'rel'};}
   if(raw==='\\middle'){take();return{type:'middle',token:delimiter()};}
   if(raw==='\\label'){take();rawGroup();return{type:'space',mu:0};}
-  if(raw==='\\frac'||raw==='\\dfrac'||raw==='\\tfrac'){take();return{type:'frac',num:argument(depth),den:argument(depth),style:raw==='\\dfrac'?0:raw==='\\tfrac'?1:null};}
+  if(raw==='\\frac'||raw==='\\dfrac'||raw==='\\tfrac'||raw==='\\cfrac'){take();return{type:'frac',num:argument(depth),den:argument(depth),style:['\\dfrac','\\cfrac'].includes(raw)?0:raw==='\\tfrac'?1:null};}
   if(['\\hat','\\widehat','\\tilde','\\widetilde','\\bar','\\vec','\\dot','\\ddot','\\dddot','\\ddddot','\\acute','\\grave','\\breve','\\check','\\mathring','\\overline','\\underline','\\overbrace','\\underbrace','\\overrightarrow','\\overleftarrow','\\overleftrightarrow','\\underrightarrow','\\underleftarrow','\\underleftrightarrow'].includes(raw)){take();return{type:'decoration',name:raw.slice(1),children:argument(depth),...(['\\overbrace','\\underbrace'].includes(raw)?{limits:true}:{})};}
   if(raw==='\\overset'||raw==='\\underset'||raw==='\\stackrel'){take();const label=argument(depth),children=argument(depth);return{type:'stack',children,[raw==='\\underset'?'sub':'sup']:label,limits:true};}
   if(raw==='\\xrightarrow'||raw==='\\xleftarrow'){take();const below=optionalArgument(depth),above=argument(depth);return{type:'arrow',name:raw.slice(1),sup:above,sub:below,limits:true};}
@@ -87,7 +90,7 @@ export function parseDraft(source,mapping,{packages=null,extensions=[]}={}){
   if(['\\text','\\textrm','\\textbf','\\textit','\\textsf','\\texttt','\\textnormal','\\emph'].includes(raw)){take();return{type:'textflow',children:parseText(rawGroup(),depth,{'\\textbf':'mathbf','\\textit':'mathit','\\emph':'mathit','\\textsf':'mathsf','\\texttt':'mathtt'}[raw]??'mathrm')};}
   if(['\\big','\\Big','\\bigg','\\Bigg','\\bigl','\\bigr','\\Bigl','\\Bigr','\\biggl','\\biggr','\\Biggl','\\Biggr'].includes(raw)){take();const size=raw.slice(1).replace(/[lr]$/,'');const token=delimiter();return{type:'glyph',token:'@'+size+':'+token};}
   if(raw==='('||raw==='['){take();const right=raw==='('?')':']',children=list(depth+1,right);let end='.';if(peek()===right){take();end=right;}else repair('Inferred an invisible closing scope');return{type:'delimited',left:raw,right:end,children,scalable:false};}
-  const token=take();if(token in spaces)return{type:'space',mu:spaces[token]};
+  let token=take();const capitalAccent=/^\\(Hat|Check|Tilde|Acute|Grave|Dot|Ddot|Breve|Bar|Vec)$/.exec(token);if(capitalAccent)return{type:'decoration',name:capitalAccent[1].toLowerCase(),children:argument(depth)};if(['\\dots','\\dotsb','\\dotsc','\\dotsm','\\dotsi'].includes(token))token=token==='\\dotsc'||token==='\\dots'&&!['bin','rel'].includes(mapping.symbols[peek()]?.class)?'\\ldots':'\\cdots';if(token in spaces)return{type:'space',mu:spaces[token]};
   if(token==='\\displaystyle'||token==='\\textstyle'||token==='\\scriptstyle'||token==='\\scriptscriptstyle')return{type:'style',style:{'\\displaystyle':0,'\\textstyle':1,'\\scriptstyle':2,'\\scriptscriptstyle':3}[token]};
   if(token==='^'||token==='_'){repair('Empty base placeholder');const n=hole();n[token==='^'?'sup':'sub']=argument(depth);return n;}
   if(mapping.symbols[token])return{type:'glyph',token};
@@ -98,14 +101,14 @@ export function parseDraft(source,mapping,{packages=null,extensions=[]}={}){
  }
  function list(depth=0,stop=''){
   const nodes=[];const finish=()=>{const last=nodes.at(-1);if((nodes.length>1||stop===''||stop==='matrix'||stop==='matrixBrace')&&last?.type==='glyph'&&['bin','rel'].includes(mapping.symbols[last.token]?.class)){nodes.push(hole());repair('Empty operand placeholder');}return nodes;};while(at<source.length){skip();if(at===source.length)break;const token=peek();
-   if(stop==='brace'&&token==='}'){at++;return nodes.length?finish():[hole()];}
+   if(stop==='brace'&&token==='}'){at++;return finish();}
    if((stop==='right'&&token==='\\right')||(token===stop)||((stop==='matrix'||stop==='matrixBrace')&&(token==='&'||token==='\\\\'||token==='\\end'||token==='\\right'||token==='\\hline'||token==='\\cline'||(stop==='matrixBrace'&&token==='}'))))return finish();
    // A script cannot steal the parent's brace or enclosing right/environment.
-   if(stop==='brace'&&['\\right','\\end','&','\\\\'].includes(token)){repair('Inferred a closing brace');return nodes.length?finish():[hole()];}
+   if(stop==='brace'&&['\\right','\\end','&','\\\\'].includes(token)){repair('Inferred a closing brace');return finish();}
    let node=base(depth);if(!node)continue;
    if(++count>3000)throw Error('Atom limit: 3,000');skip();
-   while(['^','_','\\limits','\\nolimits'].includes(peek())){
-    const t=take();if(t==='\\limits'||t==='\\nolimits'){node.limits=t==='\\limits';continue;}
+   while(['^','_',"'",'\\limits','\\nolimits'].includes(peek())){
+    const t=take();if(t==="'"){node.sup??=[];node.sup.push({type:'glyph',token:'\\prime'});continue;}if(t==='\\limits'||t==='\\nolimits'){node.limits=t==='\\limits';continue;}
     const name=t==='^'?'sup':'sub',arg=argument(depth);let target=node;
     if(target[name]){repair('Grouped repeated scripts for preview');while(target[name]?.[0]?.[name])target=target[name][0];target=target[name]?.[0]??target;}
     target[name]=arg;skip();
