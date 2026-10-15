@@ -62,6 +62,14 @@ small2e6.8/48.2; sample2e22.2/161.0; AMS290.4/1886.5; figure2.3/70.2.
 These are SwiftShader full-page completion timings with fresh layout. Captures
 are untimed. They do not establish the <10ms goal or hardware performance.
 
+Published runtime source9b44ef8; reviewed site74f1dbe. Pages workflow
+38704142708 succeeded. HTTPS verification matches19 reviewed runtime/report/font
+files, including the atlas and all12 frozen runtime hashes. Live touch UI checks
+all187 page images and figure upload with no errors/overflow. Live desktop and
+DPR3 phone simulations pass 1/4/16/64x MTSDF zoom. Receipts: publication.json,
+live-ui/, live-dpr/, live-zoom/ under the evidence root. These remain software
+simulations, not physical-device qualification.
+
 ---
 
 # Modular LaTeX documents and full pixel comparison — 2026-10-15
