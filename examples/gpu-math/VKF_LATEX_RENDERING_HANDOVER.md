@@ -25,6 +25,8 @@ site `e3e6525` first published it. Runtime `a396b39` and site `03ef624`
 publish the grid runner, report and first follow-up fixes; Pages workflow
 `38718794269` succeeded. All147 live grid views and438 worst-tile image views
 pass at phone width, and all nine live tile/full-frame captures match exactly.
+The later contained-viewport UI is source `c0be0ab`, site `2400f32`; live gesture
+checks verify unchanged site scroll, header and viewport bounds.
 
 ## Layout and draw contract
 

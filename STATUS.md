@@ -14,6 +14,10 @@ Software checks: pointer/touch/pinch/drag capture assert stable site scroll,
 header and document-surface bounds; four phone/orientation layouts and DPR3
 zoom through64x pass without errors or overflow. Physical Safari remains open.
 Evidence: Cuvami staging/artifacts/gpu-math/20261015/pan-containment/.
+Published runtime c0be0ab, site2400f32, successful workflow38720679089.
+Live touch/mouse/wheel checks keep site scroll, header and viewport bounds fixed
+with no errors/overflow; HTTPS renderer files match reviewed bytes. Local upload
+and nine exact tile/full-frame checks also pass. publication.json records receipts.
 
 ---
 
