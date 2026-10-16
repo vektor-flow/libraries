@@ -1,0 +1,297 @@
+# Native implicit geometry transport. Positive fields are material interiors.
+# Inputs are local signed-distance grids, not images or opacity layers.
+s:.state
+math:.math
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+Plan:(curve:Curve,dimension:int,size:int,cells:int,carriers:int,stride:int,smooth_start:bit,smooth_end:bit,join:num)
+Frame:(coverage:[num],measure:num,scale:num)
+minimum(a:num,b:num)->num:
+    a<b? @:a
+    @:b
+maximum(a:num,b:num)->num:
+    a>b? @:a
+    @:b
+clamp(x:num,a:num,b:num)->num:minimum(b,maximum(a,x))
+
+# Every state object must have at least one persistent carrier. Replicated fields
+# coincide at a split's source and its reverse merge destination; none fade in.
+prepare(knots:[num],offsets:[int],owners:[int],carriers:int,centers:[num],extents:[num],fields:[num],size:int,dimension:int,mode:int,smooth_start:bit,smooth_end:bit,join:num)->Plan:
+    count:knots.length()
+    (count>=2 /\ (dimension=2 \/ dimension=3) /\ size>=3 /\ carriers>0 /\ join>=0 /\ join<=1)?! "invalid biological dimensions"
+    (offsets.length()=count+1 /\ offsets.(0)=0 /\ owners.length()=count*carriers)?! "invalid biological ownership"
+    objects:offsets.(count)
+    cells:size*size
+    dimension=3? .cells:cells*size
+    (objects>0 /\ centers.length()=objects*dimension /\ extents.length()=centers.length() /\ fields.length()=objects*cells)?! "invalid biological storage"
+    i:0
+    i<centers.length()?>
+        (|centers.(i)|<10^100 /\ extents.(i)>0 /\ extents.(i)<10^100)?! "invalid biological embedding"
+        .i:i+1
+    [int] used:[0:objects]
+    state:0
+    state<count?>
+        (offsets.(state+1)>offsets.(state) /\ offsets.(state+1)<=objects)?! "empty biological state"
+        k:0
+        k<carriers?>
+            owner:owners.(state*carriers+k)
+            (owner>=0 /\ owner<offsets.(state+1)-offsets.(state))?! "biological owner outside state"
+            used.(offsets.(state)+owner):1
+            .k:k+1
+        .state:state+1
+    .i:0
+    i<objects?>
+        (used.(i)=1)?! "biological object has no lineage"
+        interior:false
+        j:0
+        j<cells?>
+            value:fields.(i*cells+j)
+            (|value|<10^100)?! "nonfinite biological field"
+            value>0? .interior:true
+            x:j%size
+            y:(j//size)%size
+            z:j//(size*size)
+            edge:x=0 \/ x=size-1 \/ y=0 \/ y=size-1
+            dimension=3 /\ (z=0 \/ z=size-1)? .edge:true
+            edge? (value<0)?! "biological field must enclose its material"
+            .j:j+1
+        interior?! "empty biological object"
+        .i:i+1
+    # One plan is one connected split/merge cohort per interval. Independent
+    # objects require separate plans so a smooth union cannot bridge them.
+    .state:0
+    state<count-1?>
+        [int] parent:[0:carriers]
+        k:0
+        k<carriers?>
+            parent.(k):k
+            .k:k+1
+        .k:0
+        k<carriers?>
+            j:0
+            j<k?>
+                owners.(state*carriers+k)=owners.(state*carriers+j) \/ owners.((state+1)*carriers+k)=owners.((state+1)*carriers+j)?
+                    a:k
+                    b:j
+                    parent.(a)~=a?> .a:parent.(a)
+                    parent.(b)~=b?> .b:parent.(b)
+                    parent.(a):b
+                .j:j+1
+            .k:k+1
+        root:0
+        parent.(root)~=root?> .root:parent.(root)
+        .k:1
+        k<carriers?>
+            other:k
+            parent.(other)~=other?> .other:parent.(other)
+            (other=root)?! "independent biological cohorts need separate plans"
+            .k:k+1
+        .state:state+1
+    stride:2*dimension+cells
+    [num] values:[0:count*carriers*stride]
+    .state:0
+    state<count?>
+        k:0
+        k<carriers?>
+            owner:offsets.(state)+owners.(state*carriers+k)
+            base:(state*carriers+k)*stride
+            d:0
+            d<dimension?>
+                values.(base+d):centers.(owner*dimension+d)
+                values.(base+dimension+d):extents.(owner*dimension+d)
+                .d:d+1
+            j:0
+            j<cells?>
+                values.(base+2*dimension+j):fields.(owner*cells+j)
+                .j:j+1
+            .k:k+1
+        .state:state+1
+    @:(curve:s.prepare(knots,values,carriers*stride,mode),dimension:dimension,size:size,cells:cells,carriers:carriers,stride:stride,smooth_start:smooth_start,smooth_end:smooth_end,join:join)
+
+# Multilinear field lookup in the object's own moving coordinates.
+field(plan:Plan,values:[num],carrier:int,x:num,y:num,z:num,scale:num)->num:
+    base:carrier*plan.stride
+    ex:values.(base+plan.dimension)*scale
+    ey:values.(base+plan.dimension+1)*scale
+    (ex>0 /\ ey>0)?! "interpolated biological extent is nonpositive"
+    xx:(x-values.(base))/ex
+    yy:(y-values.(base+1))/ey
+    zz:0.0
+    extent:minimum(ex,ey)
+    plan.dimension=3?
+        ez:values.(base+plan.dimension+2)*scale
+        (ez>0)?! "interpolated biological extent is nonpositive"
+        .zz:(z-values.(base+2))/ez
+        .extent:minimum(extent,ez)
+    outside:maximum(maximum(|xx|-1,|yy|-1),|zz|-1)
+    gx:clamp((xx+1)*(plan.size-1)/2,0,plan.size-1)
+    gy:clamp((yy+1)*(plan.size-1)/2,0,plan.size-1)
+    gz:0.0
+    plan.dimension=3? .gz:clamp((zz+1)*(plan.size-1)/2,0,plan.size-1)
+    ix:int(minimum(gx//1,plan.size-2))
+    iy:int(minimum(gy//1,plan.size-2))
+    iz:int(minimum(gz//1,plan.size-2))
+    fx:gx-ix
+    fy:gy-iy
+    fz:gz-iz
+    layers:1
+    plan.dimension=3? .layers:2
+    value:0.0
+    dz:0
+    dz<layers?>
+        wz:1.0
+        plan.dimension=3?
+            .wz:1-fz
+            dz=1? .wz:fz
+        dy:0
+        dy<2?>
+            wy:1-fy
+            dy=1? .wy:fy
+            dx:0
+            dx<2?>
+                wx:1-fx
+                dx=1? .wx:fx
+                at:(iz+dz)*plan.size*plan.size+(iy+dy)*plan.size+ix+dx
+                .value:value+wx*wy*wz*values.(base+2*plan.dimension+at)
+                .dx:dx+1
+            .dy:dy+1
+        .dz:dz+1
+    @:(value-maximum(outside,0))*extent
+
+# Stable smooth union: geometric contact neck, no alpha/opacity interpolation.
+union(a:num,b:num,radius:num)->num:
+    radius<=0? @:maximum(a,b)
+    h:maximum(radius-|a-b|,0)/radius
+    @:maximum(a,b)+radius*h*h/4
+
+raster(plan:Plan,values:[num],resolution:int,lo:[num],hi:[num],scale:num,neck:num)->Frame:
+    (resolution>=3 /\ lo.length()=plan.dimension /\ hi.length()=plan.dimension /\ scale>0)?! "invalid biological raster"
+    step:10^100
+    voxel:1.0
+    d:0
+    d<plan.dimension?>
+        (hi.(d)>lo.(d))?! "empty biological raster domain"
+        spacing:(hi.(d)-lo.(d))/resolution
+        .step:minimum(step,spacing)
+        .voxel:voxel*spacing
+        .d:d+1
+    cells:resolution*resolution
+    plan.dimension=3? .cells:cells*resolution
+    [num] coverage:[0:cells]
+    measure:0.0
+    i:0
+    i<cells?>
+        x:lo.(0)+(i%resolution+0.5)*(hi.(0)-lo.(0))/resolution
+        y:lo.(1)+((i//resolution)%resolution+0.5)*(hi.(1)-lo.(1))/resolution
+        z:0.0
+        plan.dimension=3? .z:lo.(2)+(i//(resolution*resolution)+0.5)*(hi.(2)-lo.(2))/resolution
+        value:field(plan,values,0,x,y,z,scale)
+        k:1
+        k<plan.carriers?>
+            .value:union(value,field(plan,values,k,x,y,z,scale),neck)
+            .k:k+1
+        coverage.(i):clamp(value/step+0.5,0,1)
+        .measure:measure+coverage.(i)*voxel
+        .i:i+1
+    @:(coverage:coverage,measure:measure,scale:scale)
+
+# Geometric scaling calibrates area (2D) / volume (3D), not opacity or erosion.
+# Desired measure is caller supplied; endpoints should use their measured measure.
+sample(plan:Plan,coordinate:num,resolution:int,lo:[num],hi:[num],desired:num,tolerance:num)->Frame:
+    (desired>0 /\ tolerance>0)?! "invalid requested biological measure"
+    evaluated:s.evaluate(plan.curve,coordinate,plan.smooth_start,plan.smooth_end)
+    mapping:s.clock(plan.curve.knots,coordinate,plan.smooth_start,plan.smooth_end)
+    interval:s.interval(plan.curve.knots,mapping.coordinate)
+    u:(mapping.coordinate-plan.curve.knots.(interval))/(plan.curve.knots.(interval+1)-plan.curve.knots.(interval))
+    neck:plan.join*16*u*u*(1-u)*(1-u)
+    original:raster(plan,evaluated.value,resolution,lo,hi,1,neck)
+    |original.measure-desired|<=tolerance? @:checked(original,resolution,plan.dimension)
+    low:0.125
+    high:4.0
+    small:raster(plan,evaluated.value,resolution,lo,hi,low,neck)
+    large:raster(plan,evaluated.value,resolution,lo,hi,high,neck)
+    (small.measure<=desired /\ large.measure>=desired)?! "biological measure cannot be bracketed"
+    iteration:0
+    iteration<36?>
+        scale:(low+high)/2
+        frame:raster(plan,evaluated.value,resolution,lo,hi,scale,neck)
+        |frame.measure-desired|<=tolerance? @:checked(frame,resolution,plan.dimension)
+        frame.measure<desired? .low:scale
+        frame.measure>=desired? .high:scale
+        .iteration:iteration+1
+    final:raster(plan,evaluated.value,resolution,lo,hi,(low+high)/2,neck)
+    (|final.measure-desired|<=tolerance)?! "biological measure calibration did not converge"
+    @:checked(final,resolution,plan.dimension)
+
+# Prepare per-key raster measures once. Piecewise linear measure interpolation
+# with the same endpoint clock cannot introduce an area/volume overshoot.
+measure_curve(plan:Plan,resolution:int,lo:[num],hi:[num])->Curve:
+    [num] measures:[0:plan.curve.count]
+    i:0
+    i<plan.curve.count?>
+        state:s.evaluate(plan.curve,plan.curve.knots.(i),false,false)
+        frame:raster(plan,state.value,resolution,lo,hi,1,0)
+        measures.(i):frame.measure
+        .i:i+1
+    @:s.prepare(plan.curve.knots,measures,1,0)
+
+sample_measured(plan:Plan,measure:Curve,coordinate:num,resolution:int,lo:[num],hi:[num],tolerance:num)->Frame:
+    desired:s.component(measure,coordinate,0,plan.smooth_start,plan.smooth_end)
+    @:sample(plan,coordinate,resolution,lo,hi,desired,tolerance)
+
+# Exact segment distances and even/odd contour membership, sampled on a local
+# grid. Ring orientation is irrelevant; holes are geometric interior boundaries.
+polygon_field(vertices:[num],rings:[int],size:int)->[num]:
+    (size>=3 /\ vertices.length()%2=0 /\ rings.length()>=2 /\ rings.(0)=0 /\ rings.(rings.length()-1)=vertices.length()//2)?! "invalid polygon field"
+    ring:0
+    ring<rings.length()-1?>
+        (rings.(ring+1)-rings.(ring)>=3)?! "polygon ring needs three vertices"
+        .ring:ring+1
+    i:0
+    i<vertices.length()?>
+        (|vertices.(i)|<1)?! "polygon must fit inside its local field"
+        .i:i+1
+    [num] fields:[0:size*size]
+    .i:0
+    i<fields.length()?>
+        x:2*num(i%size)/(size-1)-1
+        y:2*num(i//size)/(size-1)-1
+        distance:10^100
+        inside:false
+        .ring:0
+        ring<rings.length()-1?>
+            a:rings.(ring)
+            a<rings.(ring+1)?>
+                b:a+1
+                b=rings.(ring+1)? .b:rings.(ring)
+                ax:vertices.(2*a)
+                ay:vertices.(2*a+1)
+                bx:vertices.(2*b)
+                by:vertices.(2*b+1)
+                dx:bx-ax
+                dy:by-ay
+                length:dx*dx+dy*dy
+                (length>0)?! "degenerate polygon edge"
+                t:clamp(((x-ax)*dx+(y-ay)*dy)/length,0,1)
+                .distance:minimum(distance,math.sqrt((x-ax-t*dx)^2+(y-ay-t*dy)^2))
+                ((ay>y /\ by<=y) \/ (by>y /\ ay<=y))?
+                    crossing:ax+(y-ay)*dx/dy
+                    x<crossing? .inside:~inside
+                .a:a+1
+            .ring:ring+1
+        inside? fields.(i):distance
+        ~inside? fields.(i): -distance
+        .i:i+1
+    @:fields
+
+# Do not claim conserved geometry after material has left the sampling domain.
+checked(frame:Frame,resolution:int,dimension:int)->Frame:
+    i:0
+    i<frame.coverage.length()?>
+        x:i%resolution
+        y:(i//resolution)%resolution
+        z:i//(resolution*resolution)
+        boundary:x=0 \/ x=resolution-1 \/ y=0 \/ y=resolution-1
+        dimension=3 /\ (z=0 \/ z=resolution-1)? .boundary:true
+        boundary? (frame.coverage.(i)<=0.000001)?! "biological material leaves sample domain"
+        .i:i+1
+    @:frame

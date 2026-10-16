@@ -37,6 +37,7 @@ def reference(knots,values,q,mode,start,end):
 try:
  compile_run('core',(root/'tests/morphing/core.vkf').read_text())
  compile_run('material',(root/'tests/morphing/material.vkf').read_text())
+ compile_run('biological',(root/'tests/morphing/biological.vkf').read_text())
  lines=['m:.Morphing','tests()->bit:'];rng=np.random.default_rng(41);samples=0;cases=0
  for count in [2,3,5,9]:
   knots=np.r_[0,np.cumsum(rng.uniform(.4,2,count-1))];values=rng.normal(size=(count,3))
@@ -63,9 +64,10 @@ try:
  'material-birth':'m.prepare_material([0,1],[0,1,2],[1,2],[0,1],1,0,false,false)',
  'empty-state':'m.prepare_material([0,1],[0,0,1],[1],[0],1,0,false,false)',
  'duplicate-layer':'m.bind_view("view",["same","same"],[0,1,2],m.prepare([0,1],[0,1,2,3],2,0,false,false))',
+ 'empty-polygon': 'b.polygon_field([0,0,0.2,0.2],[0,2],9)',
  'invalid-channel':'m.channel(m.prepare([0,1],[0,1],1,0,false,false),[0,1],1)',
  }
- for name,expr in invalid.items():compile_run(name,'m:.Morphing\n::'+expr+'\n',False)
+ for name,expr in invalid.items():compile_run(name,'m:.Morphing\nb:.morphing.biological\n::'+expr+'\n',False)
  report['rejections']=list(invalid);report['passed']=True
 finally:(out/'verification.json').write_text(json.dumps(report,indent=2)+'\n')
 print(json.dumps(report,indent=2))

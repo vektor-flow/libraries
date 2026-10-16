@@ -203,3 +203,17 @@ reserve_groups(source_count:int,target_count:int,source_groups:[int],target_grou
                     .k:k+1
         .i:i+3
     @:matched
+
+# Connected geometric split/merge cohort. Independent cohorts remain separate.
+b:.morphing.biological
+GeometryPlan:(curve:Curve,dimension:int,size:int,cells:int,carriers:int,stride:int,smooth_start:bit,smooth_end:bit,join:num)
+GeometryFrame:(coverage:[num],measure:num,scale:num)
+
+prepare_geometry(coordinates:[num],offsets:[int],owners:[int],carriers:int,centers:[num],extents:[num],fields:[num],size:int,dimension:int,mode:int,smooth_start:bit,smooth_end:bit,join:num)->GeometryPlan:
+    @:b.prepare(coordinates,offsets,owners,carriers,centers,extents,fields,size,dimension,mode,smooth_start,smooth_end,join)
+
+geometry_measure(plan:GeometryPlan,resolution:int,lo:[num],hi:[num])->Curve:
+    @:b.measure_curve(plan,resolution,lo,hi)
+
+sample_geometry(plan:GeometryPlan,measure:Curve,coordinate:num,resolution:int,lo:[num],hi:[num],tolerance:num)->GeometryFrame:
+    @:b.sample_measured(plan,measure,coordinate,resolution,lo,hi,tolerance)

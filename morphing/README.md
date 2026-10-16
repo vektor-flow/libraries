@@ -60,10 +60,26 @@ by whole-group cost. Group triples are `[identity, first_member, member_count]`.
 This preserves terms such as `4ac` against character-by-character reassignment.
 Unresolved entries are `-1` correspondences to plan, never empty visible objects.
 
-Constant carrier measure is **not yet** conserved visible ink/solid volume. The
-rounded connected-boundary solver, general correspondence, collision routing,
-medial thin strokes and hole-event handling from the current reference still need
-to be ported. This core must not be advertised as the completed biological solver.
+`prepare_geometry` creates a connected split/merge cohort from local signed-distance
+fields (2D or 3D), embeddings and persistent ownership. `geometry_measure` prepares
+endpoint areas/volumes; `sample_geometry` produces geometry with a piecewise
+monotone measure target. Coincident carriers at a parent separate geometrically
+and rejoin with rounded contact regions. All field evaluation, interpolation,
+union, rasterization and scale calibration execute in VKF. `polygon_field` in
+`morphing/biological.vkf` constructs fields from contours including holes.
+
+Independent cohorts must use separate plans. Empty objects, missing lineage,
+invalid fields, nonpositive interpolated extents, clipped output and failed measure
+calibration are rejected. The measure is a sampled-grid integral, not an analytic
+solid-volume proof. Exact key-state geometry is retained when its measured endpoint
+target is used. For an explicitly constant measure, use `biological.sample` with
+that target; this can rescale supplied endpoints if their measures differ.
+
+This is a general implicit-field operation, not a completed port of every prior
+shape constraint. Automatic correspondence, collision routing between independent
+cohorts, medial thin-stroke guarantees and controlled hole-event scheduling remain
+unfinished. Natural cubic field/embedding interpolation can change topology or
+overshoot; conservation alone does not certify topology or thickness.
 
 ## Verification and integration boundary
 
@@ -76,8 +92,24 @@ installed VKF 0.7.3; this does not change the site's pinned 0.7.2 compiler relea
 The current native UI packager rejects a root `type_alias` from imported libraries,
 and rejects calls constructing a View inside a function. The probes are retained
 in Cuvami `staging/artifacts/morphing-library-20261016/probes` and `project/view.vkf`.
-Pure VKF compilation/execution succeeds. Direct animated native View packaging is
-therefore **not complete**, and the old browser matcher is not a fallback.
+Pure VKF compilation/execution succeeds. Direct animated Linux native View
+packaging remains **incomplete**, and the old browser matcher is not a fallback.
+
+Canonical WASM is a verified execution route for this same library. A prepared
+scene is retained as a canonical runtime handle and sampled at arbitrary runtime
+coordinates. The browser only transports values and presents native coverage;
+no JavaScript implements morph interpolation. `tests/morphing/build_wasm.py`
+builds the canonical artifact and checks all eight interpolation/easing settings,
+invalid-coordinate recovery and optional real Chromium execution. The source
+fixture is `tests/morphing/wasm-demo.vkf`. The loader supplies `dispose()`; it drops
+references for garbage collection because the canonical ABI has no explicit release.
+
+The browser geometry path is not realtime: the measured 24×24 intermediate frame
+cost is about 1.1 seconds on this host. Use asynchronous latest-request handling.
+The fast state-core benchmark below does not measure geometric calibration.
+Native/WASM comparisons over five full geometric frames agree to 4.22e-15 across
+2,890 values. The native 1→2→1 recording has separately sampled topology/area
+checks; neither result establishes generic topology preservation.
 
 ## Native CPU benchmark — 2026-10-16
 
@@ -110,3 +142,15 @@ Reproduce with `tests/morphing/benchmark.py --compiler /path/to/vkf --library
 source/compiler hashes and checksums. Historical baselines belong in benchmark
 artifacts, never in the runtime library. Full biological morph/render performance
 remains unmeasured until that integration is complete.
+
+Build the browser artifact with the same canonical compiler components:
+
+```sh
+python3 tests/morphing/build_wasm.py --library . \
+  --source tests/morphing/wasm-demo.vkf --compiler /path/to/vkf \
+  --wasm-compiler /path/to/vkf_symbolic_kernel_artifact \
+  --runtime-root /path/to/canonical/ui-assets --output /new/wasm-evidence
+```
+
+Add `--playwright /path/to/playwright --chromium /path/to/chromium` for the
+software-rendered browser check. This does not change the pinned public compiler.
