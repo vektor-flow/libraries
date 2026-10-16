@@ -1,0 +1,136 @@
+# Compilable independent GPU invocations. Host code only schedules these stages.
+# Explicit real-f32 visualization lowering is required by the browser backend.
+# Params: 0 dimension, 1 field size, 2 stride, 3 carriers, 4 resolution,
+# 5..7 lower bounds, 8..10 upper bounds, 11 scale, 12 neck, 13 spacing,
+# 14 voxel measure, 15 target measure, 16 tolerance, 17..18 scale bracket,
+# 19 sampling mode (0 measure, 1 contour, 2 checked measure), 20 viewport extent,
+# 21 interval, 22 normalized coordinate, 23 interval width, 24 state count,
+# 25 channel count, 26..29 RGBA, 30 converged, 31 calibration phase,
+# 32 measured area/volume, 33 final contour resolution.
+k:.field
+p:.parallel
+
+state(index:int,params:[num],values:[num])->num:
+    @:p.state_component(values,int(params.(25)),int(params.(24)),int(params.(21)),params.(23),params.(22),index)
+
+# Readonly layout is shared by field sampling and calibration dispatches.
+# 0 dimension, 1 field size, 2 stride, 3 carriers, 4 output resolution,
+# 5..7 lower bounds, 8..10 upper bounds, 11 scale, 12 neck,
+# 13 coverage spacing, 14 voxel measure, 15 desired measure, 16 tolerance,
+# 17 lower scale bracket, 18 upper bracket, 19 lattice mode (0 centers, 1 nodes).
+sample_field(index:int,params:[num],values:[num])->num:
+    params.(30)=1 /\ params.(19)=0? @:0
+    dimension:int(params.(0))
+    size:int(params.(1))
+    stride:int(params.(2))
+    carriers:int(params.(3))
+    resolution:int(params.(4))
+    denominator:resolution
+    offset:0.5
+    params.(19)=1?
+        .denominator:resolution-1
+        .offset:0
+    x:params.(5)+(index%resolution+offset)*(params.(8)-params.(5))/denominator
+    y:params.(6)+((index//resolution)%resolution+offset)*(params.(9)-params.(6))/denominator
+    z:0.0
+    dimension=3? .z:params.(7)+(index//(resolution*resolution)+offset)*(params.(10)-params.(7))/denominator
+    value:k.cohort(values,dimension,size,stride,carriers,x,y,z,params.(11),params.(12))
+    params.(19)=1? @:value
+    coverage:k.clamp(value/params.(13)+0.5,0,1)
+    params.(19)=2?
+        ix:index%resolution
+        iy:(index//resolution)%resolution
+        iz:index//(resolution*resolution)
+        boundary:ix=0 \/ ix=resolution-1 \/ iy=0 \/ iy=resolution-1
+        dimension=3 /\ (iz=0 \/ iz=resolution-1)? .boundary:true
+        boundary? (coverage<=0.000001)?! "biological material leaves sample domain"
+    @:coverage*params.(14)
+
+# Parallel row reduction. The scalar control pass reduces these short rows.
+reduce_row(index:int,params:[num],values:[num])->num:
+    resolution:int(params.(4))
+    total:0.0
+    x:0
+    x<resolution?>
+        .total:total+values.(index*resolution+x)
+        .x:x+1
+    @:total
+
+# Entire bisection control is VKF. Host dispatches a fixed bounded pass sequence.
+# Extra controls: 30 done, 31 phase, 32 measured area/volume.
+calibrate(index:int,params:[num],values:[num])->num:
+    params.(30)=1? @:params.(index)
+    ~(index=11 \/ index=17 \/ index=18 \/ index=30 \/ index=31 \/ index=32)? @:params.(index)
+    measured:total_measure(params,values)
+    index=32? @:measured
+    desired:params.(15)
+    tolerance:params.(16)
+    |measured-desired|<=tolerance?
+        index=30? @:1
+        @:params.(index)
+    phase:int(params.(31))
+    phase>=39? false?! "biological GPU calibration did not converge"
+    phase=0?
+        index=11? @:params.(17)
+        index=31? @:1
+        @:params.(index)
+    phase=1?
+        (measured<=desired)?! "biological GPU measure cannot be bracketed below"
+        index=11? @:params.(18)
+        index=31? @:2
+        @:params.(index)
+    low:params.(17)
+    high:params.(18)
+    phase=2? (measured>=desired)?! "biological GPU measure cannot be bracketed above"
+    phase>2?
+        measured<desired? .low:params.(11)
+        measured>=desired? .high:params.(11)
+    index=11? @:(low+high)/2
+    index=17? @:low
+    index=18? @:high
+    index=31? @:phase+1
+    @:params.(index)
+
+# Recheck the accepted calibrated geometry using the native boundary rule.
+check_controls(index:int,params:[num],values:[num])->num:
+    index=19? @:2
+    @:params.(index)
+
+# Transition calibrated controls to the final contour lattice without readback.
+render_controls(index:int,params:[num],values:[num])->num:
+    index=4? @:params.(33)
+    index=19? @:1
+    @:params.(index)
+
+triangles(index:int,params:[num],values:[num])->num:
+    @:p.triangle_component(values,int(params.(4)),params.(20),index,params.(26),params.(27),params.(28),params.(29))
+
+# Final short reduction is also reused to prepare exact endpoint targets.
+total_measure(params:[num],values:[num])->num:
+    rows:values.length()
+    measured:0.0
+    row:0
+    row<rows?>
+        .measured:measured+values.(row)
+        .row:row+1
+    @:measured
+
+measure(index:int,params:[num],values:[num])->num:total_measure(params,values)
+
+triangle_packet(index:int,params:[num],values:[num])->[num]:
+    @:p.cell_triangles(values,int(params.(4)),params.(20),index,params.(26),params.(27),params.(28),params.(29))
+
+# Fused short reduction: eight samples per invocation avoids an intermediate
+# raster buffer and one dispatch per calibration iteration.
+measure_chunk(index:int,params:[num],values:[num])->num:
+    params.(30)=1? @:0
+    resolution:int(params.(4))
+    cells:resolution*resolution
+    params.(0)=3? .cells:cells*resolution
+    total:0.0
+    i:index*8
+    end:i+8
+    i<end /\ i<cells?>
+        .total:total+sample_field(i,params,values)
+        .i:i+1
+    @:total

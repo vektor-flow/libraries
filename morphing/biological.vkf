@@ -1,6 +1,7 @@
 # Native implicit geometry transport. Positive fields are material interiors.
 # Inputs are local signed-distance grids, not images or opacity layers.
 s:.state
+kernel:.field
 math:.math
 Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
 Plan:(curve:Curve,dimension:int,size:int,cells:int,carriers:int,stride:int,smooth_start:bit,smooth_end:bit,join:num)
@@ -107,61 +108,10 @@ prepare(knots:[num],offsets:[int],owners:[int],carriers:int,centers:[num],extent
         .state:state+1
     @:(curve:s.prepare(knots,values,carriers*stride,mode),dimension:dimension,size:size,cells:cells,carriers:carriers,stride:stride,smooth_start:smooth_start,smooth_end:smooth_end,join:join)
 
-# Multilinear field lookup in the object's own moving coordinates.
+# Existing API delegates to the shared allocation-free field kernel.
 field(plan:Plan,values:[num],carrier:int,x:num,y:num,z:num,scale:num)->num:
-    base:carrier*plan.stride
-    ex:values.(base+plan.dimension)*scale
-    ey:values.(base+plan.dimension+1)*scale
-    (ex>0 /\ ey>0)?! "interpolated biological extent is nonpositive"
-    xx:(x-values.(base))/ex
-    yy:(y-values.(base+1))/ey
-    zz:0.0
-    extent:minimum(ex,ey)
-    plan.dimension=3?
-        ez:values.(base+plan.dimension+2)*scale
-        (ez>0)?! "interpolated biological extent is nonpositive"
-        .zz:(z-values.(base+2))/ez
-        .extent:minimum(extent,ez)
-    outside:maximum(maximum(|xx|-1,|yy|-1),|zz|-1)
-    gx:clamp((xx+1)*(plan.size-1)/2,0,plan.size-1)
-    gy:clamp((yy+1)*(plan.size-1)/2,0,plan.size-1)
-    gz:0.0
-    plan.dimension=3? .gz:clamp((zz+1)*(plan.size-1)/2,0,plan.size-1)
-    ix:int(minimum(gx//1,plan.size-2))
-    iy:int(minimum(gy//1,plan.size-2))
-    iz:int(minimum(gz//1,plan.size-2))
-    fx:gx-ix
-    fy:gy-iy
-    fz:gz-iz
-    layers:1
-    plan.dimension=3? .layers:2
-    value:0.0
-    dz:0
-    dz<layers?>
-        wz:1.0
-        plan.dimension=3?
-            .wz:1-fz
-            dz=1? .wz:fz
-        dy:0
-        dy<2?>
-            wy:1-fy
-            dy=1? .wy:fy
-            dx:0
-            dx<2?>
-                wx:1-fx
-                dx=1? .wx:fx
-                at:(iz+dz)*plan.size*plan.size+(iy+dy)*plan.size+ix+dx
-                .value:value+wx*wy*wz*values.(base+2*plan.dimension+at)
-                .dx:dx+1
-            .dy:dy+1
-        .dz:dz+1
-    @:(value-maximum(outside,0))*extent
-
-# Stable smooth union: geometric contact neck, no alpha/opacity interpolation.
-union(a:num,b:num,radius:num)->num:
-    radius<=0? @:maximum(a,b)
-    h:maximum(radius-|a-b|,0)/radius
-    @:maximum(a,b)+radius*h*h/4
+    @:kernel.field(values,plan.dimension,plan.size,plan.stride,carrier,x,y,z,scale)
+union(a:num,b:num,radius:num)->num:kernel.union(a,b,radius)
 
 raster(plan:Plan,values:[num],resolution:int,lo:[num],hi:[num],scale:num,neck:num)->Frame:
     (resolution>=3 /\ lo.length()=plan.dimension /\ hi.length()=plan.dimension /\ scale>0)?! "invalid biological raster"
@@ -184,11 +134,7 @@ raster(plan:Plan,values:[num],resolution:int,lo:[num],hi:[num],scale:num,neck:nu
         y:lo.(1)+((i//resolution)%resolution+0.5)*(hi.(1)-lo.(1))/resolution
         z:0.0
         plan.dimension=3? .z:lo.(2)+(i//(resolution*resolution)+0.5)*(hi.(2)-lo.(2))/resolution
-        value:field(plan,values,0,x,y,z,scale)
-        k:1
-        k<plan.carriers?>
-            .value:union(value,field(plan,values,k,x,y,z,scale),neck)
-            .k:k+1
+        value:kernel.cohort(values,plan.dimension,plan.size,plan.stride,plan.carriers,x,y,z,scale,neck)
         coverage.(i):clamp(value/step+0.5,0,1)
         .measure:measure+coverage.(i)*voxel
         .i:i+1

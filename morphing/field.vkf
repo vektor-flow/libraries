@@ -1,0 +1,75 @@
+# Shared numerical field kernels. Preparation and ownership stay in biological.vkf.
+minimum(a:num,b:num)->num:
+    a<b? @:a
+    @:b
+maximum(a:num,b:num)->num:
+    a>b? @:a
+    @:b
+clamp(x:num,a:num,b:num)->num:minimum(b,maximum(a,x))
+
+
+# Multilinear field lookup in the object's own moving coordinates.
+field(values:[num],dimension:int,size:int,stride:int,carrier:int,x:num,y:num,z:num,scale:num)->num:
+    base:carrier*stride
+    ex:values.(base+dimension)*scale
+    ey:values.(base+dimension+1)*scale
+    (ex>0 /\ ey>0)?! "interpolated biological extent is nonpositive"
+    xx:(x-values.(base))/ex
+    yy:(y-values.(base+1))/ey
+    zz:0.0
+    extent:minimum(ex,ey)
+    dimension=3?
+        ez:values.(base+dimension+2)*scale
+        (ez>0)?! "interpolated biological extent is nonpositive"
+        .zz:(z-values.(base+2))/ez
+        .extent:minimum(extent,ez)
+    outside:maximum(maximum(|xx|-1,|yy|-1),|zz|-1)
+    gx:clamp((xx+1)*(size-1)/2,0,size-1)
+    gy:clamp((yy+1)*(size-1)/2,0,size-1)
+    gz:0.0
+    dimension=3? .gz:clamp((zz+1)*(size-1)/2,0,size-1)
+    ix:int(minimum(gx//1,size-2))
+    iy:int(minimum(gy//1,size-2))
+    iz:int(minimum(gz//1,size-2))
+    fx:gx-ix
+    fy:gy-iy
+    fz:gz-iz
+    layers:1
+    dimension=3? .layers:2
+    value:0.0
+    dz:0
+    dz<layers?>
+        wz:1.0
+        dimension=3?
+            .wz:1-fz
+            dz=1? .wz:fz
+        dy:0
+        dy<2?>
+            wy:1-fy
+            dy=1? .wy:fy
+            dx:0
+            dx<2?>
+                wx:1-fx
+                dx=1? .wx:fx
+                at:(iz+dz)*size*size+(iy+dy)*size+ix+dx
+                .value:value+wx*wy*wz*values.(base+2*dimension+at)
+                .dx:dx+1
+            .dy:dy+1
+        .dz:dz+1
+    @:(value-maximum(outside,0))*extent
+
+# Stable smooth union: geometric contact neck, no alpha/opacity interpolation.
+union(a:num,b:num,radius:num)->num:
+    radius<=0? @:maximum(a,b)
+    h:maximum(radius-|a-b|,0)/radius
+    @:maximum(a,b)+radius*h*h/4
+
+
+# One independent sample; suitable for a parallel field invocation.
+cohort(values:[num],dimension:int,size:int,stride:int,carriers:int,x:num,y:num,z:num,scale:num,neck:num)->num:
+    value:field(values,dimension,size,stride,0,x,y,z,scale)
+    k:1
+    k<carriers?>
+        .value:union(value,field(values,dimension,size,stride,k,x,y,z,scale),neck)
+        .k:k+1
+    @:value

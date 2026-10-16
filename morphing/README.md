@@ -202,3 +202,26 @@ repeated browser frames are tested.
 Current browser fixture: a lobed annulus splits into three perforated shapes
 and rejoins. Equation, indexed 3D and image adapters are still not connected to
 this presentation path. This fixture is not acceptance of that complete suite.
+
+## Compiled GPU geometry candidate
+
+`field.vkf` is shared by native geometry and compiled GPU evaluation.
+`parallel.vkf` evaluates prepared state channels and emits complete clipped
+triangle packets (72 floats per cell) using private bounded arrays. `dispatch.vkf`
+owns field sampling, measure reduction, scale calibration and checked boundaries.
+`tests/morphing/build_gpu.py` emits these functions from canonical typed IR through
+an isolated compiler-owned real-f32 WGSL backend. It does not handwrite shaders
+or replace the installed/public compiler. `build_gpu_scene.py` emits the canonical
+WASM preparation and small coordinate-control module using the qualified ABI.
+
+The browser keeps state, fields and double-buffered vertex packets on the GPU.
+Only error flags and calibration controls return to the host per frame (160 bytes).
+Failed samples retain the previous valid geometry. The current browser pipeline
+is a 2D cohort adapter; native 3D field support does not imply a completed 3D GPU
+player. Equation and image adapters and native View handles remain outstanding.
+
+Qualification covers native/GPU numeric parity, all81 triangle corner-sign
+combinations, private-array bounds failures, visible pixel parity, software-only
+GPU playback and a complete193-frame1080p/48fps VKF capture. Software timings are
+not hardware performance claims. The earlier ~10ms state benchmark measured10000
+state samples and must not be presented as a complete geometry/render frame.

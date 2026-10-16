@@ -1,0 +1,29 @@
+# Appended to the shared scene fixture during GPU package construction.
+Controls:(knots:[num],measure:Curve,dimension:int,size:int,stride:int,carriers:int,count:int,width:int,join:num,resolution:int,smooth_start:bit,smooth_end:bit)
+gpu_prepare(resolution:int,mode:int,smooth_start:bit,smooth_end:bit)->Scene:
+    plan:make(2,mode,smooth_start,smooth_end)
+    # GPU endpoint reductions replace these provisional targets before sampling.
+    measure:s.prepare(plan.curve.knots,[1,1,1],1,0)
+    @:(plan:plan,measure:measure,resolution:resolution)
+gpu_control_scene(scene:Scene)->Controls:
+    @:(knots:scene.plan.curve.knots,measure:scene.measure,dimension:scene.plan.dimension,size:scene.plan.size,stride:scene.plan.stride,carriers:scene.plan.carriers,count:scene.plan.curve.count,width:scene.plan.curve.width,join:scene.plan.join,resolution:scene.resolution,smooth_start:scene.plan.smooth_start,smooth_end:scene.plan.smooth_end)
+gpu_measures(scene:Controls,measures:[num])->Controls:
+    (measures.length()=scene.count)?! "invalid GPU endpoint measures"
+    i:0
+    i<measures.length()?>
+        (measures.(i)>0 /\ measures.(i)<10^100)?! "invalid GPU endpoint measure"
+        .i:i+1
+    @:(knots:scene.knots,measure:s.prepare(scene.knots,measures,1,0),dimension:scene.dimension,size:scene.size,stride:scene.stride,carriers:scene.carriers,count:scene.count,width:scene.width,join:scene.join,resolution:scene.resolution,smooth_start:scene.smooth_start,smooth_end:scene.smooth_end)
+gpu_controls(scene:Controls,coordinate:num,extent:num,lattice:int)->[num]:
+    mapping:s.clock(scene.knots,coordinate,scene.smooth_start,scene.smooth_end)
+    i:s.interval(scene.knots,mapping.coordinate)
+    h:scene.knots.(i+1)-scene.knots.(i)
+    u:(mapping.coordinate-scene.knots.(i))/h
+    neck:scene.join*16*u*u*(1-u)*(1-u)
+    desired:s.component(scene.measure,coordinate,0,scene.smooth_start,scene.smooth_end)
+    spacing:4/num(scene.resolution)
+    @:[num(scene.dimension),num(scene.size),num(scene.stride),num(scene.carriers),num(scene.resolution),-2,-2,0,2,2,0,1,neck,spacing,spacing*spacing,desired,0.0001,0.125,4,0,extent,num(i),u,h,num(scene.count),num(scene.width),0.262745098,0.82745098,0.878431373,1,0,0,0,num(lattice)]
+gpu_entry(coordinate:num)->[num]:
+    scene:gpu_prepare(24,1,true,true)
+    @:gpu_controls(gpu_measures(gpu_control_scene(scene),[1,1,1]),coordinate,1024,129)
+::gpu_entry(0)

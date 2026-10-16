@@ -1,0 +1,115 @@
+# Independent output components for compiler-generated parallel dispatch.
+s:.segment
+
+# State and second-derivative tables are concatenated in readonly storage.
+state_component(values:[num],width:int,count:int,interval:int,h:num,u:num,index:int)->num:
+    left:interval*width+index
+    right:left+width
+    second:count*width
+    @:s.value(values.(left),values.(right),values.(second+left),values.(second+right),h,u)
+
+corner(origin:int,size:int,half:int,edge:int)->int:
+    edge=0? @:origin
+    half=0?
+        edge=1? @:origin+1
+        @:origin+size+1
+    edge=1? @:origin+size+1
+    @:origin+size
+
+# Count the same clipped polygon used by the compact native triangle adapter.
+polygon_count(values:[num],origin:int,size:int,half:int)->int:
+    count:0
+    edge:0
+    edge<3?>
+        a:values.(corner(origin,size,half,edge))
+        b:values.(corner(origin,size,half,(edge+1)%3))
+        a>=0? .count:count+1
+        (a<0 /\ b>0) \/ (a>0 /\ b<0)? .count:count+1
+        .edge:edge+1
+    @:count
+
+polygon_coordinate(values:[num],origin:int,size:int,half:int,vertex:int,axis:int)->num:
+    count:0
+    edge:0
+    edge<3?>
+        a:corner(origin,size,half,edge)
+        b:corner(origin,size,half,(edge+1)%3)
+        va:values.(a)
+        vb:values.(b)
+        ca:num(a%size)
+        cb:num(b%size)
+        axis=1?
+            .ca:num(a//size)
+            .cb:num(b//size)
+        va>=0?
+            count=vertex? @:ca
+            .count:count+1
+        (va<0 /\ vb>0) \/ (va>0 /\ vb<0)?
+            count=vertex? @:ca+va/(va-vb)*(cb-ca)
+            .count:count+1
+        .edge:edge+1
+    @:0
+
+# Fixed-capacity output uses zero-area triangles for empty slots. Its GPU buffer
+# can serve directly as the renderer's packed [x,y,r,g,b,a] vertex input.
+triangle_component(values:[num],size:int,extent:num,index:int,r:num,g:num,b:num,a:num)->num:
+    channel:index%6
+    channel=2? @:r
+    channel=3? @:g
+    channel=4? @:b
+    channel=5? @:a
+    cell:index//72
+    half:(index//36)%2
+    fan:(index//18)%2
+    vertex:(index//6)%3
+    origin:(cell//(size-1))*size+cell%(size-1)
+    count:polygon_count(values,origin,size,half)
+    count<3 \/ fan>=count-2? @:0
+    selected:0
+    vertex>0? .selected:fan+vertex
+    @:polygon_coordinate(values,origin,size,half,selected,channel)*extent/(size-1)
+
+# One invocation owns a whole cell packet. Each polygon is clipped once;
+# contiguous vertex attributes are written together instead of recomputed per float.
+cell_triangles(values:[num],size:int,extent:num,cell:int,r:num,g:num,b:num,a:num)->[num]:
+    [num] storage:[0:72]
+    [num] color:[r,g,b,a]
+    origin:(cell//(size-1))*size+cell%(size-1)
+    half:0
+    half<2?>
+        [num] polygon:[0:8]
+        n:0
+        edge:0
+        edge<3?>
+            first:corner(origin,size,half,edge)
+            last:corner(origin,size,half,(edge+1)%3)
+            va:values.(first)
+            vb:values.(last)
+            va>=0?
+                polygon.(2*n):num(first%size)*extent/(size-1)
+                polygon.(2*n+1):num(first//size)*extent/(size-1)
+                .n:n+1
+            (va<0 /\ vb>0) \/ (va>0 /\ vb<0)?
+                t:va/(va-vb)
+                polygon.(2*n):(num(first%size)+t*(last%size-first%size))*extent/(size-1)
+                polygon.(2*n+1):(num(first//size)+t*(last//size-first//size))*extent/(size-1)
+                .n:n+1
+            .edge:edge+1
+        fan:1
+        count:half*36
+        fan<n-1?>
+            vertex:0
+            vertex<3?>
+                selected:0
+                vertex>0? .selected:fan+vertex-1
+                storage.(count):polygon.(2*selected)
+                storage.(count+1):polygon.(2*selected+1)
+                channel:0
+                channel<4?>
+                    storage.(count+2+channel):color.(channel)
+                    .channel:channel+1
+                .count:count+6
+                .vertex:vertex+1
+            .fan:fan+1
+        .half:half+1
+    @:storage
