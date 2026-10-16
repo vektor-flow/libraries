@@ -1,5 +1,6 @@
 # Coordinate-independent vector state interpolation.
 # mode 0: piecewise linear; mode 1: natural cubic (minimum squared curvature).
+segment:.segment
 Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
 Sample:(value:[num],first:[num],second:[num])
 Clock:(coordinate:num,first:num,second:num)
@@ -92,10 +93,10 @@ evaluate(curve:Curve,coordinate:num,smooth_start:bit,smooth_end:bit)->Sample:
         y1:curve.values.((i+1)*curve.width+j)
         m0:curve.second.(i*curve.width+j)
         m1:curve.second.((i+1)*curve.width+j)
-        value.(j):a*y0+b*y1+((a^3-a)*m0+(b^3-b)*m1)*h*h/6
-        derivative:(y1-y0)/h+((1-3*a*a)*m0+(3*b*b-1)*m1)*h/6
+        value.(j):segment.value(y0,y1,m0,m1,h,b)
+        derivative:segment.first(y0,y1,m0,m1,h,b)
         first.(j):derivative*mapping.first
-        second.(j):(a*m0+b*m1)*mapping.first^2+derivative*mapping.second
+        second.(j):segment.second(m0,m1,b)*mapping.first^2+derivative*mapping.second
         .j:j+1
     @:(value:value,first:first,second:second)
 
@@ -125,5 +126,5 @@ component(curve:Curve,coordinate:num,index:int,smooth_start:bit,smooth_end:bit)-
     curve.mode=1?
         m0:curve.second.(i*curve.width+index)
         m1:curve.second.((i+1)*curve.width+index)
-        .value:value+((a^3-a)*m0+(b^3-b)*m1)*h*h/6
+        .value:segment.value(y0,y1,m0,m1,h,b)
     @:value

@@ -112,6 +112,24 @@ Native/WASM comparisons over five full geometric frames agree to 4.22e-15 across
 2,890 values. The native 1→2→1 recording has separately sampled topology/area
 checks; neither result establishes generic topology preservation.
 
+`python3 tests/morphing/gpu_capabilities.py --library . --compiler /path/to/vkf
+--output /new/evidence/path` checks the separate compiled Vulkan field route
+without executing GPU commands. It compiles control fields and imports the actual
+prepared segment evaluator, biological union and state sampler, requires a runtime coordinate binding, and
+validates emitted SPIR-V. A failed library probe returns a nonzero exit even when
+the controls pass. Reports pin compiler and library hashes. On the installed
+0.7.3 compiler, controls pass but union comparisons and state records block GPU
+lowering. The browser WGSL backend is a separate, narrower route; passing this
+gate would establish neither browser support nor realtime performance.
+
+`morphing/segment.vkf` contains allocation-free evaluation of a prepared spline
+segment and its first two derivatives. Native vector sampling and cubic channel
+sampling use these same functions. All three functions compile through the
+installed Vulkan field backend with a runtime coordinate, without recreating a
+plan inside each field invocation. State validation, interval selection, spline
+preparation and endpoint clock mapping remain separate responsibilities. This is
+a shared numerical kernel, not a completed GPU View adapter.
+
 ## Native CPU benchmark — 2026-10-16
 
 Measured with VKF 0.7.3 on AMD Ryzen 7 3700X, shared Linux host. Each entry is

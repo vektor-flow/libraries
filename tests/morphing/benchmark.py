@@ -5,7 +5,7 @@ p=argparse.ArgumentParser();p.add_argument('--compiler',type=Path,required=True)
 out=a.output.resolve();out.mkdir(parents=True,exist_ok=False)
 shutil.copy2(a.library/'Morphing.vkf',out/'Morphing.vkf');shutil.copytree(a.library/'morphing',out/'morphing')
 cases=[('prepare',32,256,100),('sample',32,256,2000),('lookup',1024,1,10000),('channel',32,1024,8)]
-report={'scope':'Warm native CPU process wall time including launch and fixture setup; compilation excluded; no renderer or GPU. One untimed warmup, seven timed runs by default.','platform':platform.platform(),'cpu':next((line.split(':',1)[1].strip() for line in Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')),platform.processor()),'compiler_sha256':hashlib.sha256(a.compiler.read_bytes()).hexdigest(),'sources':{f:hashlib.sha256((out/f).read_bytes()).hexdigest() for f in ['Morphing.vkf','morphing/state.vkf']},'cases':[]}
+report={'scope':'Warm native CPU process wall time including launch and fixture setup; compilation excluded; no renderer or GPU. One untimed warmup, seven timed runs by default.','platform':platform.platform(),'cpu':next((line.split(':',1)[1].strip() for line in Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')),platform.processor()),'compiler_sha256':hashlib.sha256(a.compiler.read_bytes()).hexdigest(),'sources':{str(f.relative_to(out)):hashlib.sha256(f.read_bytes()).hexdigest() for f in [out/'Morphing.vkf', *sorted((out/'morphing').rglob('*.vkf'))]},'cases':[]}
 for kind,count,width,repeats in cases:
  for mode in [0,1]:
   name=f'{kind}-{mode}'
