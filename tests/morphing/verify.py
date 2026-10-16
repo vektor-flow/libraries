@@ -38,6 +38,7 @@ try:
  compile_run('core',(root/'tests/morphing/core.vkf').read_text())
  compile_run('material',(root/'tests/morphing/material.vkf').read_text())
  compile_run('biological',(root/'tests/morphing/biological.vkf').read_text())
+ compile_run('presentation',(root/'tests/morphing/presentation.vkf').read_text())
  lines=['m:.Morphing','tests()->bit:'];rng=np.random.default_rng(41);samples=0;cases=0
  for count in [2,3,5,9]:
   knots=np.r_[0,np.cumsum(rng.uniform(.4,2,count-1))];values=rng.normal(size=(count,3))

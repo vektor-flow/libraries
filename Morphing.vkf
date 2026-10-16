@@ -217,3 +217,9 @@ geometry_measure(plan:GeometryPlan,resolution:int,lo:[num],hi:[num])->Curve:
 
 sample_geometry(plan:GeometryPlan,measure:Curve,coordinate:num,resolution:int,lo:[num],hi:[num],tolerance:num)->GeometryFrame:
     @:b.sample_measured(plan,measure,coordinate,resolution,lo,hi,tolerance)
+
+# Native triangle packets for the existing VKF screen-space renderer. Bounded
+# rows avoid a single large transient allocation in canonical WASM execution.
+presentation:.morphing.presentation
+geometry_row(plan:GeometryPlan,coordinate:num,scale:num,size:int,row:int,lo:[num],hi:[num],extent:num,color:[num])->[num]:
+    @:presentation.surface2d_row(plan,coordinate,scale,size,row,lo,hi,extent,color)

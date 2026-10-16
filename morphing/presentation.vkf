@@ -1,0 +1,131 @@
+# Geometry adapter for the existing VKF screen-space simplex renderer.
+# No coverage image is enlarged: zero crossings produce actual triangles.
+b:.biological
+s:.state
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+Plan:(curve:Curve,dimension:int,size:int,cells:int,carriers:int,stride:int,smooth_start:bit,smooth_end:bit,join:num)
+
+# Clip each lattice triangle against its linearly interpolated signed field.
+# Shared lattice edges have identical crossings; holes remain empty geometry.
+triangles(values:[num],size:int,extent:num,color:[num])->[num]:
+    (size>=3 /\ values.length()%size=0 /\ values.length()>=2*size /\ extent>0 /\ color.length()=4)?! "invalid presentation lattice"
+    height:values.length()//size
+    capacity:0
+    cell:0
+    cell<(size-1)*(height-1)?>
+        origin:(cell//(size-1))*size+cell%(size-1)
+        values.(origin)>=0 \/ values.(origin+1)>=0 \/ values.(origin+size)>=0 \/ values.(origin+size+1)>=0? .capacity:capacity+72
+        .cell:cell+1
+    [num] storage:[0:capacity]
+    count:0
+    y:0
+    y<height-1?>
+        x:0
+        x<size-1?>
+            stop:x
+            filling:true
+            stop<size-1 /\ filling?>
+                at:y*size+stop
+                values.(at)>=0 /\ values.(at+1)>=0 /\ values.(at+size)>=0 /\ values.(at+size+1)>=0? .stop:stop+1
+                ~(values.(at)>=0 /\ values.(at+1)>=0 /\ values.(at+size)>=0 /\ values.(at+size+1)>=0)? .filling:false
+            full:stop>x
+            full?
+                [num] rectangle:[num(x),num(y),num(stop),num(y),num(stop),num(y+1),num(x),num(y),num(stop),num(y+1),num(x),num(y+1)]
+                vertex:0
+                vertex<6?>
+                    storage.(count):rectangle.(2*vertex)*extent/(size-1)
+                    storage.(count+1):rectangle.(2*vertex+1)*extent/(size-1)
+                    channel:0
+                    channel<4?>
+                        storage.(count+2+channel):color.(channel)
+                        .channel:channel+1
+                    .count:count+6
+                    .vertex:vertex+1
+                .x:stop
+            ~full?
+                [int] corners:[y*size+x,y*size+x+1,(y+1)*size+x+1,y*size+x,(y+1)*size+x+1,(y+1)*size+x]
+                half:0
+                half<2?>
+                    [num] polygon:[0:8]
+                    n:0
+                    edge:0
+                    edge<3?>
+                        a:corners.(half*3+edge)
+                        c:corners.(half*3+(edge+1)%3)
+                        va:values.(a)
+                        vc:values.(c)
+                        (|va|<10^100 /\ |vc|<10^100)?! "nonfinite presentation field"
+                        va>=0?
+                            polygon.(2*n):num(a%size)*extent/(size-1)
+                            polygon.(2*n+1):num(a//size)*extent/(size-1)
+                            .n:n+1
+                        (va<0 /\ vc>0) \/ (va>0 /\ vc<0)?
+                            t:va/(va-vc)
+                            polygon.(2*n):(num(a%size)+t*(c%size-a%size))*extent/(size-1)
+                            polygon.(2*n+1):(num(a//size)+t*(c//size-a//size))*extent/(size-1)
+                            .n:n+1
+                        .edge:edge+1
+                    fan:1
+                    fan<n-1?>
+                        [int] indices:[0,fan,fan+1]
+                        vertex:0
+                        vertex<3?>
+                            at:indices.(vertex)
+                            storage.(count):polygon.(2*at)
+                            storage.(count+1):polygon.(2*at+1)
+                            channel:0
+                            channel<4?>
+                                storage.(count+2+channel):color.(channel)
+                                .channel:channel+1
+                            .count:count+6
+                            .vertex:vertex+1
+                        .fan:fan+1
+                    .half:half+1
+                .x:x+1
+        .y:y+1
+    [num] packed:[0:count]
+    i:0
+    i<count?>
+        packed.(i):storage.(i)
+        .i:i+1
+    @:packed
+
+# The caller supplies the scale already calibrated by sample_geometry. This
+# evaluates the same native field on a separate geometry lattice, once only.
+Surface:(plan:Plan,values:[num],scale:num,neck:num)
+prepare_surface(plan:Plan,coordinate:num,scale:num)->Surface:
+    (scale>0)?! "invalid surface scale"
+    evaluated:s.evaluate(plan.curve,coordinate,plan.smooth_start,plan.smooth_end)
+    mapping:s.clock(plan.curve.knots,coordinate,plan.smooth_start,plan.smooth_end)
+    interval:s.interval(plan.curve.knots,mapping.coordinate)
+    u:(mapping.coordinate-plan.curve.knots.(interval))/(plan.curve.knots.(interval+1)-plan.curve.knots.(interval))
+    neck:plan.join*16*u*u*(1-u)*(1-u)
+    # Field lookup consumes only spatial layout. Do not transport the unused
+    # complete time curve again with every row of resolved geometry.
+    basis:s.prepare([0,1],[0,0],1,0)
+    layout:(curve:basis,dimension:plan.dimension,size:plan.size,cells:plan.cells,carriers:plan.carriers,stride:plan.stride,smooth_start:false,smooth_end:false,join:0.0)
+    @:(plan:layout,values:evaluated.value,scale:scale,neck:neck)
+
+surface_row(surface:Surface,size:int,row:int,lo:[num],hi:[num],extent:num,color:[num])->[num]:
+    (surface.plan.dimension=2 /\ size>=3 /\ row>=0 /\ row<size-1 /\ lo.length()=2 /\ hi.length()=2 /\ hi.(0)>lo.(0) /\ hi.(1)>lo.(1))?! "invalid presentation domain"
+    [num] values:[0:2*size]
+    i:0
+    i<values.length()?>
+        x:lo.(0)+num(i%size)*(hi.(0)-lo.(0))/(size-1)
+        y:lo.(1)+num(row+i//size)*(hi.(1)-lo.(1))/(size-1)
+        value:b.field(surface.plan,surface.values,0,x,y,0,surface.scale)
+        k:1
+        k<surface.plan.carriers?>
+            .value:b.union(value,b.field(surface.plan,surface.values,k,x,y,0,surface.scale),surface.neck)
+            .k:k+1
+        values.(i):value
+        .i:i+1
+    packed:triangles(values,size,extent,color)
+    j:1
+    j<packed.length()?>
+        packed.(j):packed.(j)+num(row)*extent/(size-1)
+        .j:j+6
+    @:packed
+
+surface2d_row(plan:Plan,coordinate:num,scale:num,size:int,row:int,lo:[num],hi:[num],extent:num,color:[num])->[num]:
+    @:surface_row(prepare_surface(plan,coordinate,scale),size,row,lo,hi,extent,color)

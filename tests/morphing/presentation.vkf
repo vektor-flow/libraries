@@ -1,0 +1,40 @@
+p:.morphing.presentation
+math:.math
+area(vertices:[num])->num:
+    (vertices.length()%18=0)?! "incomplete triangles"
+    a:0.0
+    i:0
+    i<vertices.length()?>
+        cross:(vertices.(i+6)-vertices.(i))*(vertices.(i+13)-vertices.(i+1))-(vertices.(i+7)-vertices.(i+1))*(vertices.(i+12)-vertices.(i))
+        (cross>=0)?! "inconsistent winding"
+        .a:a+cross/2
+        .i:i+18
+    @:a
+
+tests()->bit:
+    [num] values:[0:33*33]
+    i:0
+    i<values.length()?>
+        values.(i):num(i%33)/32-0.3
+        .i:i+1
+    clipped:p.triangles(values,33,1,[1,1,1,1])
+    (|area(clipped)-0.7|<0.000000001)?! "linear boundary area"
+    .i:0
+    i<values.length()?>
+        x:num(i%33)/32-0.5
+        y:num(i//33)/32-0.5
+        r:math.sqrt(x*x+y*y)
+        v:0.4-r
+        r-0.2<v? .v:r-0.2
+        values.(i):v
+        .i:i+1
+    ring:p.triangles(values,33,1,[1,1,1,1])
+    (|area(ring)-math.pi*0.12|<0.003)?! "annular area"
+    .i:0
+    i<ring.length()?>
+        x:(ring.(i)+ring.(i+6)+ring.(i+12))/3-0.5
+        y:(ring.(i+1)+ring.(i+7)+ring.(i+13))/3-0.5
+        (math.sqrt(x*x+y*y)>0.197)?! "hole filled by presentation"
+        .i:i+18
+    @:true
+::tests()

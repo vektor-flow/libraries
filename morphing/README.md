@@ -96,16 +96,17 @@ Pure VKF compilation/execution succeeds. Direct animated Linux native View
 packaging remains **incomplete**, and the old browser matcher is not a fallback.
 
 Canonical WASM is a verified execution route for this same library. A prepared
-scene is retained as a canonical runtime handle and sampled at arbitrary runtime
-coordinates. The browser only transports values and presents native coverage;
+scene is transported as an immutable canonical value and sampled at arbitrary
+runtime coordinates. The browser only transports values and presents native geometry;
 no JavaScript implements morph interpolation. `tests/morphing/build_wasm.py`
 builds the canonical artifact and checks all eight interpolation/easing settings,
 invalid-coordinate recovery and optional real Chromium execution. The source
 fixture is `tests/morphing/wasm-demo.vkf`. The loader supplies `dispose()`; it drops
 references for garbage collection because the canonical ABI has no explicit release.
 
-The browser geometry path is not realtime: the measured 24×24 intermediate frame
-cost is about 1.1 seconds on this host. Use asynchronous latest-request handling.
+The browser geometry path is not realtime: the current three-carrier, holed
+fixture takes about 1.4–2.0 seconds per state at 24×24 area calibration, including
+native triangle production on a 129×129 lattice. Use asynchronous latest-request handling.
 The fast state-core benchmark below does not measure geometric calibration.
 Native/WASM comparisons over five full geometric frames agree to 4.22e-15 across
 2,890 values. The native 1→2→1 recording has separately sampled topology/area
@@ -154,3 +155,32 @@ python3 tests/morphing/build_wasm.py --library . \
 
 Add `--playwright /path/to/playwright --chromium /path/to/chromium` for the
 software-rendered browser check. This does not change the pinned public compiler.
+
+## Native geometry presentation
+
+`geometry_row(plan, coordinate, scale, size, row, lo, hi, extent, color)`
+produces packed `[x,y,r,g,b,a]` triangles for the existing VKF
+`createScreenSpaceSimplexRenderer`. Pass the scale returned by
+`sample_geometry`; calibration and presentation use the same native field.
+Rows cover a vertex lattice (`size - 1` rows), while calibration uses cell
+centers. This is geometric contour extraction, not upscaling coverage pixels.
+The adapter clips triangle edges at signed zero crossings, leaves holes empty,
+and combines adjacent fully filled cells into rectangles. Input field and
+contour sampling still bound geometric accuracy.
+
+For repeated rows, `presentation.prepare_surface` evaluates the state once;
+`presentation.surface_row` consumes that immutable resolved surface. Browser
+glue only concatenates packed rows and scales the logical viewport for display.
+The existing VKF renderer owns antialiasing; the existing media capture API owns
+local video downloads. Native tests check winding, analytical half-plane area
+and an annular hole.
+
+The build requires the exact qualified canonical runtime hashes, including its
+retained-value graph transport and diagnostic recovery. An older runtime copy
+fails before compilation. The adapter does not replace canonical memory or
+handle management. Eight interpolation/easing combinations, error recovery and
+repeated browser frames are tested.
+
+Current browser fixture: a lobed annulus splits into three perforated shapes
+and rejoins. Equation, indexed 3D and image adapters are still not connected to
+this presentation path. This fixture is not acceptance of that complete suite.

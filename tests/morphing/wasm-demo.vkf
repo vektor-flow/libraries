@@ -1,34 +1,46 @@
 b:.morphing.biological
 math:.math
 s:.morphing.state
+p:.morphing.presentation
 
 Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
 Plan:(curve:Curve,dimension:int,size:int,cells:int,carriers:int,stride:int,smooth_start:bit,smooth_end:bit,join:num)
 
 make(dimension:int,mode:int,smooth_start:bit,smooth_end:bit)->Plan:
-    size:17
+    size:49
     cells:size*size
     dimension=3? .cells:cells*size
-    [num] fields:[0:4*cells]
+    [num] fields:[0:5*cells]
     object:0
-    object<4?>
-        radius:0.6
-        object=1 \/ object=2?
-            .radius:0.6/(2^(1/num(dimension)))
+    object<5?>
+        radius:0.7
+        hole:0.25
+        amplitude:0.08
+        object>=1 /\ object<=3?
+            .radius:0.41
+            .hole:0.14
+            .amplitude:0.05
+        object=1? .amplitude:0
         i:0
         i<cells?>
             x:2*num(i%size)/(size-1)-1
             y:2*num((i//size)%size)/(size-1)-1
             z:0.0
             dimension=3? .z:2*num(i//(size*size))/(size-1)-1
-            fields.(object*cells+i):radius-math.sqrt(x*x+y*y+z*z)
+            r:math.sqrt(x*x+y*y+z*z)
+            denominator:b.maximum(r^6,0.000000001)
+            lobes:(x^6-15*x^4*y*y+15*x*x*y^4-y^6)/denominator
+            fields.(object*cells+i):b.minimum(radius+amplitude*lobes-r,r-hole)
             .i:i+1
         .object:object+1
-    [num] centers:[0:4*dimension]
-    centers.(dimension): -0.75
-    centers.(2*dimension):0.75
-    [num] extents:[1:4*dimension]
-    @:b.prepare([0,1,2],[0,1,3,4],[0,0,0,1,0,0],2,centers,extents,fields,size,dimension,mode,smooth_start,smooth_end,0.12)
+    [num] centers:[0:5*dimension]
+    centers.(dimension): -0.68
+    centers.(dimension+1): -0.45
+    centers.(2*dimension):0.68
+    centers.(2*dimension+1): -0.45
+    centers.(3*dimension+1):0.72
+    [num] extents:[1:5*dimension]
+    @:b.prepare([0,1,2],[0,1,4,5],[0,0,0,0,1,2,0,0,0],3,centers,extents,fields,size,dimension,mode,smooth_start,smooth_end,0.12)
 
 Frame:(coverage:[num],measure:num,scale:num)
 Scene:(plan:Plan,measure:Curve,resolution:int)
@@ -38,7 +50,15 @@ demo_prepare(resolution:int,mode:int,smooth_start:bit,smooth_end:bit)->Scene:
     @:(plan:plan,measure:measure,resolution:resolution)
 demo_sample(scene:Scene,coordinate:num)->Frame:
     @:b.sample_measured(scene.plan,scene.measure,coordinate,scene.resolution,[-2,-2],[2,2],0.0001)
+Surface:(plan:Plan,values:[num],scale:num,neck:num)
+demo_surface(scene:Scene,coordinate:num,scale:num)->Surface:
+    @:p.prepare_surface(scene.plan,coordinate,scale)
+demo_row(surface:Surface,row:num)->[num]:
+    @:p.surface_row(surface,129,int(row),[-2,-2],[2,2],1024,[0.262745098,0.82745098,0.878431373,1])
 demo_entry(coordinate:num)->Frame:
     scene:demo_prepare(24,1,true,true)
-    @:demo_sample(scene,coordinate)
+    frame:demo_sample(scene,coordinate)
+    vertices:demo_row(demo_surface(scene,coordinate,frame.scale),64)
+    (vertices.length()%18=0)?! "invalid triangle packet"
+    @:frame
 ::demo_entry(0).measure
