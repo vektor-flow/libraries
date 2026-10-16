@@ -47,10 +47,14 @@ try:
      want=reference(knots,values,q,mode,start,end);sample='s'+str(samples);lines.append(f'    {sample}:m.sample({name},{fmt(q)})')
      for field,expected in zip(['value','first','second'],want):
       for c,x in enumerate(expected):lines.append(f'    (|{sample}.{field}.({c})-({fmt(x)})|<{fmt(1e-8*(1+abs(x)))})?! "independent spline {samples} {field} {c}"')
+     for c,x in enumerate(want[0]):
+      lines.append(f'    channel{samples}_{c}:m.channel({name},[{fmt(q)}],{c})')
+      lines.append(f'    (|channel{samples}_{c}.(0)-({fmt(x)})|<{fmt(1e-8*(1+abs(x)))})?! "independent channel {samples} {c}"')
      samples+=1
     cases+=1
- lines+=['    @:true','::tests()'];compile_run('oracle','\n'.join(lines)+'\n')
- report.update(curve_cases=cases,sampled_states=samples,scalar_comparisons=samples*9)
+  lines+=['    @:true','::tests()'];compile_run('oracle-'+str(count),'\n'.join(lines)+'\n')
+  lines=['m:.Morphing','tests()->bit:']
+ report.update(curve_cases=cases,sampled_states=samples,scalar_comparisons=samples*9,channel_comparisons=samples*3)
  invalid={
  'duplicate-coordinate':'m.prepare([0,0],[1,2],1,1,false,false)',
  'wrong-width':'m.prepare([0,1],[1,2],2,1,false,false)',

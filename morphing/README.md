@@ -78,3 +78,35 @@ and rejects calls constructing a View inside a function. The probes are retained
 in Cuvami `staging/artifacts/morphing-library-20261016/probes` and `project/view.vkf`.
 Pure VKF compilation/execution succeeds. Direct animated native View packaging is
 therefore **not complete**, and the old browser matcher is not a fallback.
+
+## Native CPU benchmark — 2026-10-16
+
+Measured with VKF 0.7.3 on AMD Ryzen 7 3700X, shared Linux host. Each entry is
+median process wall time from seven alternating before/after pairs after an
+untimed warmup. Compilation is excluded; launch and fixture preparation are
+included. These are complete workload times, not per-frame or GPU measurements.
+The baseline is library commit `2c8f442`.
+
+| Workload | Before | Current | Speedup |
+| --- | ---: | ---: | ---: |
+| 10,000 linear samples, 1,024 states, 1 channel | 198.16 ms | 9.36 ms | 21.2× |
+| 10,000 cubic samples, 1,024 states, 1 channel | 195.07 ms | 9.98 ms | 19.5× |
+| 2,048 linear channel samples, 32 states, 1,024 channels | 95.17 ms | 6.85 ms | 13.9× |
+| 2,048 cubic channel samples, 32 states, 1,024 channels | 95.93 ms | 7.20 ms | 13.3× |
+| 2,000 full cubic samples, 32 states, 256 channels | 26.91 ms | 26.03 ms | 1.03× |
+| 100 cubic preparations, 32 states, 256 channels | 58.96 ms | 59.02 ms | 1.00× |
+
+Segment lookup now uses binary search. `channel` evaluates only the requested
+component without allocating complete value/derivative vectors. State preparation
+and full-vector arithmetic are unchanged. Reuse the prepared plan across samples;
+use `sample` when all channels or derivatives are required and `channel` when
+extracting one renderer property. `weights` still constructs a basis per call;
+that convenience API and material/correspondence planning are not benchmarked here.
+
+Reproduce with `tests/morphing/benchmark.py --compiler /path/to/vkf --library
+/path/to/library --output /new/results`, once for each source revision. Then run
+`tests/morphing/compare_benchmarks.py --before /baseline/results --after
+/current/results --output /comparison.json`. Reports retain all timings, runtime
+source/compiler hashes and checksums. Historical baselines belong in benchmark
+artifacts, never in the runtime library. Full biological morph/render performance
+remains unmeasured until that integration is complete.

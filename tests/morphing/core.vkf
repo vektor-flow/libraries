@@ -38,5 +38,23 @@ tests()->bit:
     [num] large_costs:[10^99:121]
     large:m.reserve_groups(11,11,[5,0,11],[5,0,11],large_costs)
     (large.(0)=0 /\ large.(10)=10)?! "finite whole-group cost has no artificial ceiling"
+    # Large nonuniform knot set: exercise both binary-search branches and exact knots.
+    [num] knots:[0:1024]
+    [num] states:[0:1024]
+    i:0
+    i<1024?>
+        knots.(i):i*i*0.01+i*0.1
+        states.(i):3*knots.(i)+2
+        .i:i+1
+    many:m.prepare(knots,states,1,0,false,false)
+    .i:0
+    i<1024?>
+        at:m.sample(many,knots.(i))
+        (|at.value.(0)-states.(i)|<0.00000001 /\ |at.first.(0)-3|<0.00000001)?! "large nonuniform knot search"
+        i<1023?
+            q:(knots.(i)+knots.(i+1))/2
+            between:m.sample(many,q)
+            (|between.value.(0)-(3*q+2)|<0.00000001)?! "large nonuniform segment search"
+        .i:i+1
     @:true
 ::tests()

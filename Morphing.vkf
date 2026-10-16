@@ -21,8 +21,7 @@ channel(plan:Plan,coordinates:[num],component:int)->[num]:
     [num] values:[0:coordinates.length()]
     i:0
     i<coordinates.length()?>
-        state:sample(plan,coordinates.(i))
-        values.(i):state.value.(component)
+        values.(i):s.component(plan.curve,coordinates.(i),component,plan.smooth_start,plan.smooth_end)
         .i:i+1
     @:values
 
