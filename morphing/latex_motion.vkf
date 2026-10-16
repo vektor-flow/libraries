@@ -1,0 +1,50 @@
+# Motion of real LaTeX engine instances. No glyph/font/layout implementation here.
+# params header: example,q,mode,start,end,extent,N,G; then 16*N engine packets,
+# N exact group IDs, 6*G group origins (x0,y0,x1,y1,x2,y2). values=[0,1,2].
+# Input rects/origins use normalized view units. Glyph UV/color/info are retained.
+# Rule input rects are unpadded; output rules receive the renderer's 1px padding.
+state:.state
+segment:.segment
+blend(a:num,b:num,c:num,q:num,mode:int)->num:
+    num middle:0
+    mode=1? .middle:1.5*(c-2*b+a)
+    q<=1? @:segment.value(a,b,0,middle,1,q)
+    @:segment.value(b,c,middle,0,1,q-1)
+instance(index:int,params:[num],values:[num])->[num]:
+    (params.length()>=8 /\ values.length()=3)?! "LaTeX motion header"
+    (values.(0)=0 /\ values.(1)=1 /\ values.(2)=2)?! "LaTeX motion knots"
+    count:int(params.(6))
+    groups:int(params.(7))
+    (count>0 /\ groups>0 /\ count<=100000 /\ groups<=100000)?! "LaTeX motion counts"
+    (num(count)=params.(6) /\ num(groups)=params.(7))?! "LaTeX motion integral counts"
+    (params.length()=8+17*count+6*groups)?! "LaTeX motion packed length"
+    (index>=0 /\ index<count)?! "LaTeX motion instance index"
+    mode:int(params.(2))
+    (num(mode)=params.(2) /\ (mode=0 \/ mode=1))?! "LaTeX motion mode"
+    extent:params.(5)
+    (extent>0)?! "LaTeX motion extent"
+    group:int(params.(8+16*count+index))
+    (group>=0 /\ group<groups /\ num(group)=params.(8+16*count+index))?! "LaTeX motion group"
+    q:state.coordinate_map(values,params.(1),params.(3)>0,params.(4)>0)
+    origin:8+17*count+6*group
+    ox:blend(params.(origin),params.(origin+2),params.(origin+4),q,mode)
+    oy:blend(params.(origin+1),params.(origin+3),params.(origin+5),q,mode)
+    base:8+16*index
+    (params.(base+2)>=0 /\ params.(base+3)>=0)?! "LaTeX motion nonnegative rectangle"
+    [num] output:[0:16]
+    channel:0
+    channel<16?>
+        output.(channel):params.(base+channel)
+        .channel:channel+1
+    output.(0):(params.(base)+ox)*extent
+    output.(1):(params.(base+1)+oy)*extent
+    output.(2):params.(base+2)*extent
+    output.(3):params.(base+3)*extent
+    params.(base+12)=1?
+        output.(13):output.(2)
+        output.(14):output.(3)
+        output.(0):output.(0)-1
+        output.(1):output.(1)-1
+        output.(2):output.(2)+2
+        output.(3):output.(3)+2
+    @:output

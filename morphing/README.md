@@ -199,9 +199,9 @@ fails before compilation. The adapter does not replace canonical memory or
 handle management. Eight interpolation/easing combinations, error recovery and
 repeated browser frames are tested.
 
-Current browser fixture: a lobed annulus splits into three perforated shapes
-and rejoins. Equation, indexed 3D and image adapters are still not connected to
-this presentation path. This fixture is not acceptance of that complete suite.
+The biological browser fixtures use five connected split/merge cohorts. The
+additional surface, diagram and LaTeX adapters below share the compiled GPU player.
+Image correspondence and arbitrary indexed-mesh correspondence remain unfinished.
 
 ## Compiled GPU geometry candidate
 
@@ -222,12 +222,47 @@ VKF generates integer indirect-dispatch arguments so empty cells do not launch
 triangle invocations. A bounded secant estimate uses six initial calibration
 rounds, retaining the bracketed solver in a42-round fallback batch. The1e-4
 measure tolerance, final boundary guard and contour resolution are unchanged.
-Failed samples retain the previous valid geometry. The current browser pipeline
-is a 2D cohort adapter; native 3D field support does not imply a completed 3D GPU
-player. Equation and image adapters and native View handles remain outstanding.
+Failed samples retain the previous valid geometry. The biological GPU pipeline is a 2D cohort adapter. The separate parametric
+surface player below supports 3D meshes; this does not complete volumetric
+split/merge, image adapters or native View handles.
 
 Qualification covers native/GPU numeric parity, all81 triangle corner-sign
 combinations, private-array bounds failures, visible pixel parity, software-only
 GPU playback and a complete193-frame1080p/48fps VKF capture. Software timings are
 not hardware performance claims. The earlier ~10ms state benchmark measured10000
 state samples and must not be presented as a complete geometry/render frame.
+
+
+## Live examples and LaTeX integration
+
+The current gallery contains 23 live examples: five biological cohorts, six
+parametric surfaces, six geometric diagrams and six examples using the existing
+LaTeX engine. `cohorts.vkf` prepares the biological fixtures. `examples.vkf`
+interpolates triangulated sheets and closed parametric surfaces, including
+zero-thickness planes, rolled sheets, helicoids and domes. These surface examples
+do not enforce area or volume conservation. `diagrams.vkf` generates function
+curves, lattices, geometric crossed strokes, closed curves, graphs and blocks.
+Neither module implements fonts. All frame interpolation is compiled from VKF;
+the browser renderer only projects and draws resident GPU vertices.
+
+`latex_motion.vkf` consumes the LaTeX engine's existing 16-float instance format,
+font UVs and stable semantic groups. The site shares `packLatexItem`, font resources
+and the unchanged LaTeX drawing shader with the document engine. Typesetting and
+group correspondence happen once per prepared set of states. Playback uploads
+32 control bytes and reads four error bytes per frame, with no geometry readback
+or repeated typesetting. Fractions, radicals, integrals and matrices use the real
+engine's glyphs and rules; `{4ac}` moves as one rigid group. Local rule padding is
+resolved in physical pixels after the VKF motion transform.
+
+The layout adapter currently supports three states with matching glyph inventory
+and unchanged local group geometry. It rejects unmatched glyphs or deformed
+groups rather than fading or inventing visible material. This is not yet arbitrary
+algebraic split/merge correspondence. LaTeX layout still uses the existing engine's
+JavaScript implementation; its native VKF port is a separate unfinished task.
+
+Tests include native/GPU packet parity, shared-clock parity, surface topology,
+constant diagram stroke widths, actual LaTeX endpoint packets and rigid `4ac`
+spacing. Browser validation uses SwiftShader, including the live slider, mode
+switching, camera, mobile layout and VKF capture. These checks do not establish
+physical-GPU performance. Source build entry points are in `tests/morphing/` and
+`tests/morphing/examples/`.

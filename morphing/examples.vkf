@@ -1,0 +1,136 @@
+# Parametric, zero-thickness surface examples with persistent material coordinates.
+# params: example, coordinate [0,2], interpolation mode, smooth start/end, cells per axis.
+# Each invocation returns one xyzRGBA triangle (21 numbers). No camera or host morph math.
+state:.state
+segment:.segment
+math:.math
+
+# Deterministic bounded real-f32 trigonometry avoids backend-specific sin accuracy.
+# Reduce to [-pi/2,pi/2], then evaluate the degree-13 sine series (error <7e-10).
+sine(angle:num)->num:
+    pi:3.141592653589793
+    tau:2*pi
+    x:angle
+    x>pi?> .x:x-tau
+    x< -pi?> .x:x+tau
+    x>pi/2? .x:pi-x
+    x< -pi/2? .x:-pi-x
+    z:x*x
+    @:x*(1+z*(-1.0/6+z*(1.0/120+z*(-1.0/5040+z*(1.0/362880+z*(-1.0/39916800+z/6227020800.0))))))
+cosine(angle:num)->num:sine(angle+1.5707963267948966)
+
+point(example:int,stage:int,u:num,v:num)->[num]:
+    pi:3.141592653589793
+    x:u
+    y:v
+    z:0.0
+    example=0?
+        stage=1? .z:0.65*(u*u-v*v)
+        stage=2? .z:0.4*sine(pi*u)*cosine(pi*v)
+    example=1?
+        stage=1?
+            .x:sine(pi*u/2)
+            .z:1-cosine(pi*u/2)
+        stage=2?
+            .x:sine(pi*u)/pi
+            .z:(1-cosine(pi*u))/pi
+    example=2?
+        a:pi*(u+1)
+        u=1? .a:0
+        b:pi*(v+1)
+        v=1? .b:0
+        major:0.65
+        minor:0.25
+        stage=1? .minor:0.16+0.08*cosine(3*a)
+        stage=2? .major:0.6+0.12*cosine(2*a)
+        .x:(major+minor*cosine(b))*cosine(a)
+        .y:(major+minor*cosine(b))*sine(a)
+        .z:minor*sine(b)
+    example=3?
+        a:pi*(u+1)
+        u=1? .a:0
+        b:pi*(v+1)/2
+        .x:0.8*sine(b)*cosine(a)
+        .y:0.8*sine(b)*sine(a)
+        .z:0.8*cosine(b)
+        (v= -1 \/ v=1)?
+            .x:0
+            .y:0
+        stage=1?
+            .x:x*1.3
+            .y:y*0.75
+            .z:z/0.975
+        stage=2?
+            .x:x*0.75
+            .y:y*1.3
+            .z:z/0.975
+    example=4?
+        twist:0.0
+        stage=1? .twist:pi/2
+        stage=2? .twist:pi
+        .x:u*cosine(twist*v)
+        .z:u*sine(twist*v)
+    example=5?
+        radius:(v+1)/2
+        angle:pi*(u+1)
+        u=1? .angle:0
+        .x:radius*cosine(angle)
+        .y:radius*sine(angle)
+        stage=1? .z:0.65*(1-radius*radius)
+    @:[x,y,z,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+
+# Three equally spaced states have natural-spline middle second derivative
+# 3/2*(last - 2*middle + first); endpoint second derivatives are zero.
+component(a:num,b:num,c:num,q:num,mode:int)->num:
+    second:0.0
+    mode=1? .second:1.5*(c-2*b+a)
+    q<=1? @:segment.value(a,b,0,second,1,q)
+    @:segment.value(b,c,second,0,1,q-1)
+
+vertex(example:int,u:num,v:num,q:num,mode:int)->[num]:
+    a:point(example,0,u,v)
+    b:point(example,1,u,v)
+    c:point(example,2,u,v)
+    x:component(a.(0),b.(0),c.(0),q,mode)
+    y:component(a.(1),b.(1),c.(1),q,mode)
+    z:component(a.(2),b.(2),c.(2),q,mode)
+    @:[x,y,z,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+
+kernel(index:int,params:[num],values:[num])->[num]:
+    (params.length()>=6)?! "surface parameters missing"
+    example:int(params.(0))
+    size:int(params.(5))
+    (example>=0 /\ example<6 /\ size>=2 /\ size<=256)?! "invalid surface configuration"
+    (index>=0 /\ index<2*size*size)?! "surface triangle outside grid"
+    (values.length()=3 /\ values.(0)=0 /\ values.(1)=1 /\ values.(2)=2)?! "surface knots must be zero one two"
+    mode:int(params.(2))
+    (mode=0 \/ mode=1)?! "invalid surface interpolation"
+    q:state.coordinate_map(values,params.(1),params.(3)=1,params.(4)=1)
+    cell:index//2
+    row:cell//size
+    column:cell%size
+    u:2*column/size-1
+    v:2*row/size-1
+    step:2.0/size
+    a:vertex(example,u,v,q,mode)
+    b:vertex(example,u+step,v,q,mode)
+    c:vertex(example,u+step,v+step,q,mode)
+    index%2=1?
+        .b:vertex(example,u+step,v+step,q,mode)
+        .c:vertex(example,u,v+step,q,mode)
+    ax:b.(0)-a.(0)
+    ay:b.(1)-a.(1)
+    az:b.(2)-a.(2)
+    bx:c.(0)-a.(0)
+    by:c.(1)-a.(1)
+    bz:c.(2)-a.(2)
+    nx:ay*bz-az*by
+    ny:az*bx-ax*bz
+    nz:ax*by-ay*bx
+    num length:math.sqrt(nx*nx+ny*ny+nz*nz)
+    light:0.4
+    length>0.000000001? .light:0.3+0.7*|(0.3*nx-0.4*ny+0.8660254037844386*nz)/length|
+    red:0.12+0.2*(u+1)/2
+    green:0.55+0.25*(v+1)/2
+    blue:0.95
+    @:[a.(0),a.(1),a.(2),red*light,green*light,blue*light,1,b.(0),b.(1),b.(2),red*light,green*light,blue*light,1,c.(0),c.(1),c.(2),red*light,green*light,blue*light,1]

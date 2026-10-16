@@ -6,41 +6,12 @@ p:.morphing.presentation
 Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
 Plan:(curve:Curve,dimension:int,size:int,cells:int,carriers:int,stride:int,smooth_start:bit,smooth_end:bit,join:num)
 
+cohorts:.morphing.cohorts
+make_example(dimension:int,mode:int,smooth_start:bit,smooth_end:bit,example:int)->Plan:
+    @:cohorts.prepare(dimension,mode,smooth_start,smooth_end,example)
+
 make(dimension:int,mode:int,smooth_start:bit,smooth_end:bit)->Plan:
-    size:49
-    cells:size*size
-    dimension=3? .cells:cells*size
-    [num] fields:[0:5*cells]
-    object:0
-    object<5?>
-        radius:0.7
-        hole:0.25
-        amplitude:0.08
-        object>=1 /\ object<=3?
-            .radius:0.41
-            .hole:0.14
-            .amplitude:0.05
-        object=1? .amplitude:0
-        i:0
-        i<cells?>
-            x:2*num(i%size)/(size-1)-1
-            y:2*num((i//size)%size)/(size-1)-1
-            z:0.0
-            dimension=3? .z:2*num(i//(size*size))/(size-1)-1
-            r:math.sqrt(x*x+y*y+z*z)
-            denominator:b.maximum(r^6,0.000000001)
-            lobes:(x^6-15*x^4*y*y+15*x*x*y^4-y^6)/denominator
-            fields.(object*cells+i):b.minimum(radius+amplitude*lobes-r,r-hole)
-            .i:i+1
-        .object:object+1
-    [num] centers:[0:5*dimension]
-    centers.(dimension): -0.68
-    centers.(dimension+1): -0.45
-    centers.(2*dimension):0.68
-    centers.(2*dimension+1): -0.45
-    centers.(3*dimension+1):0.72
-    [num] extents:[1:5*dimension]
-    @:b.prepare([0,1,2],[0,1,4,5],[0,0,0,0,1,2,0,0,0],3,centers,extents,fields,size,dimension,mode,smooth_start,smooth_end,0.12)
+    @:make_example(dimension,mode,smooth_start,smooth_end,0)
 
 Frame:(coverage:[num],measure:num,scale:num)
 Scene:(plan:Plan,measure:Curve,resolution:int)

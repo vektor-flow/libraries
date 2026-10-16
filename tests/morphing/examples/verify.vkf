@@ -1,0 +1,38 @@
+e:.morphing.examples
+s:.morphing.state
+verify()->int:
+    mode:0
+    mode<2?>
+        curve:s.prepare([0,1,2],[0.3,-0.7,1.2],1,mode)
+        j:0
+        j<=40?>
+            q:j/20.0
+            expected:s.component(curve,q,0,false,false)
+            (|e.component(0.3,-0.7,1.2,q,mode)-expected|<0.000000000001)?! "surface cubic differs from state interpolation"
+            .j:j+1
+        .mode:mode+1
+    example:0
+    example<6?>
+        .mode:0
+        mode<2?>
+            flags:0
+            flags<4?>
+                j:0
+                j<=8?>
+                    q:j/4.0
+                    index:0
+                    index<128?>
+                        packet:e.kernel(index,[example,q,mode,flags%2,flags//2,8],[0,1,2])
+                        (packet.length()=21)?! "wrong surface packet width"
+                        k:0
+                        k<21?>
+                            (|packet.(k)|<10)?! "nonfinite or excessive surface coordinate"
+                            .k:k+1
+                        (packet.(6)=1 /\ packet.(13)=1 /\ packet.(20)=1)?! "surface opacity changed"
+                        .index:index+1
+                    .j:j+1
+                .flags:flags+1
+            .mode:mode+1
+        .example:example+1
+    @:55296
+::verify()

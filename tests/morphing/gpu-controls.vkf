@@ -1,10 +1,12 @@
 # Appended to the shared scene fixture during GPU package construction.
 Controls:(knots:[num],measure:Curve,dimension:int,size:int,stride:int,carriers:int,count:int,width:int,join:num,resolution:int,smooth_start:bit,smooth_end:bit)
-gpu_prepare(resolution:int,mode:int,smooth_start:bit,smooth_end:bit)->Scene:
-    plan:make(2,mode,smooth_start,smooth_end)
+gpu_prepare_example(resolution:int,mode:int,smooth_start:bit,smooth_end:bit,example:int)->Scene:
+    plan:make_example(2,mode,smooth_start,smooth_end,example)
     # GPU endpoint reductions replace these provisional targets before sampling.
     measure:s.prepare(plan.curve.knots,[1,1,1],1,0)
     @:(plan:plan,measure:measure,resolution:resolution)
+gpu_prepare(resolution:int,mode:int,smooth_start:bit,smooth_end:bit)->Scene:
+    @:gpu_prepare_example(resolution,mode,smooth_start,smooth_end,0)
 gpu_control_scene(scene:Scene)->Controls:
     @:(knots:scene.plan.curve.knots,measure:scene.measure,dimension:scene.plan.dimension,size:scene.plan.size,stride:scene.plan.stride,carriers:scene.plan.carriers,count:scene.plan.curve.count,width:scene.plan.curve.width,join:scene.plan.join,resolution:scene.resolution,smooth_start:scene.plan.smooth_start,smooth_end:scene.plan.smooth_end)
 gpu_measures(scene:Controls,measures:[num])->Controls:
