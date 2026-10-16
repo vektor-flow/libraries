@@ -1,0 +1,42 @@
+m:.Morphing
+
+tests()->bit:
+    plan:m.prepare([0,1,2],[0,2,1,4,0,6],2,1,false,false)
+    f:m.sample[plan:plan]
+    middle:f(0.5)
+    (|middle.value.(0)-0.6875|<0.000000001)?! "Morphing is a coordinate-valued function"
+    (|middle.first.(0)-1.125|<0.000000001 /\ |middle.second.(0)+1.5|<0.000000001)?! "cubic derivatives"
+    eased:m.prepare([0,1,2],[0,2,1,4,0,6],2,1,true,true)
+    start:m.sample(eased,0)
+    finish:m.sample(eased,2)
+    (start.first.(1)=0 /\ start.second.(1)=0 /\ finish.first.(1)=0 /\ finish.second.(1)=0)?! "stationary outer endpoints"
+    (m.sample(eased,1).first.(1)=2)?! "interior states do not stop"
+    linear:m.prepare([2,4,8],[1,5,13],1,0,false,false)
+    (m.sample(linear,3).value.(0)=3 /\ m.sample(linear,6).value.(0)=9)?! "arbitrary coordinate and nonuniform states"
+    values:m.channel(plan,[0,0.5,1,1.5,2],1)
+    (values.(0)=2 /\ values.(2)=4 /\ values.(4)=6)?! "Layer channel exact key states"
+    # y(q)=(1+q)*(2+3q)+4q = 2+9q+3q^2.
+    embedding:m.prepare_affine_embedding([0,1],[2,5],1,[1,0,2,4],1,0,false,false)
+    projected:m.sample_embedding(embedding,0.5)
+    (projected.value.(0)=7.25 /\ projected.first.(0)=12 /\ projected.second.(0)=6)?! "state and embedding chain rule"
+    # One parent splits into two children and then merges into one.
+    material:m.prepare_material([0,1,2],[0,1,3,4],[2,1,1,2],[0,0,-1,1,1,1,0,2],2,1,true,true)
+    (material.carriers=2 /\ material.weights.(0)=1 /\ material.weights.(1)=1)?! "constant material carriers"
+    a:m.sample(material.state,0)
+    b:m.sample(material.state,1)
+    c:m.sample(material.state,2)
+    (a.value.(0)=a.value.(2) /\ c.value.(0)=c.value.(2))?! "children originate in and return to existing material"
+    (b.value.(0)= -1 /\ b.value.(2)=1 /\ b.value.(1)=1 /\ b.value.(3)=1)?! "split state exact"
+    (material.owners.(0)=0 /\ material.owners.(1)=0 /\ material.owners.(2)=0 /\ material.owners.(3)=1 /\ material.owners.(4)=0 /\ material.owners.(5)=0)?! "persistent lineage through multiple states"
+    view:m.bind_view("main",["4ac","remainder"],[0,1,2],plan)
+    view_at:m.sample_view(view,1)
+    (view_at.view_id="main" /\ view_at.layer_ids.(0)="4ac" /\ view_at.value.(0)=1 /\ view_at.value.(1)=4)?! "existing View and Layer identities retained"
+    # A leading duplicate glyph cannot steal a member of the unchanged 4ac group.
+    [num] costs:[0:20]
+    groups:m.reserve_groups(5,4,[7,1,3,2,0,1,2,1,1],[7,0,3,2,0,1],costs)
+    (groups.(0)= -1 /\ groups.(1)=0 /\ groups.(2)=1 /\ groups.(3)=2 /\ groups.(4)= -1)?! "4ac remains an indivisible matching unit"
+    [num] large_costs:[10^99:121]
+    large:m.reserve_groups(11,11,[5,0,11],[5,0,11],large_costs)
+    (large.(0)=0 /\ large.(10)=10)?! "finite whole-group cost has no artificial ceiling"
+    @:true
+::tests()

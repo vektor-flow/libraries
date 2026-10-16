@@ -16,12 +16,7 @@
     "./retained-scene-arena": "./browser-ui/vf-retained-scene-arena.mjs",
     "./geometry-property-capabilities": "./browser-ui/vf-geometry-property-capabilities.mjs",
     "./retained-plot-element": "./browser-ui/vf-retained-plot-element.mjs",
-    "./native-plot-interaction": "./browser-ui/vf-native-plot-interaction.mjs",
-    "./embedding-transport": "./browser-ui/vf-embedding-transport.mjs",
-    "./branching-transport": "./browser-ui/vf-branching-transport.mjs",
-    "./transition-clock": "./browser-ui/vf-transition-clock.mjs",
-    "./visual-properties": "./browser-ui/vf-visual-properties.mjs",
-    "./object-transport": "./browser-ui/vf-object-transport.mjs"
+    "./native-plot-interaction": "./browser-ui/vf-native-plot-interaction.mjs"
   },
   "files": [
     "browser-ui",
@@ -36,7 +31,6 @@
     "vitest": "4.1.10"
   },
   "scripts": {
-    "test": "vitest run tests/browser-ui",
-    "test:embedding": "node --test tests/embedding-transport.test.mjs tests/branching-transport.test.mjs tests/visual-properties.test.mjs tests/object-transport.test.mjs"
+    "test": "vitest run tests/browser-ui"
   }
 }

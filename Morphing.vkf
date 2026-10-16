@@ -1,0 +1,206 @@
+# Morphing: coordinate-independent state and embedding interpolation.
+# A renderer owns its Views/Layers. This library supplies their sampled state.
+s:.morphing.state
+
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+Sample:(value:[num],first:[num],second:[num])
+Plan:(curve:Curve,smooth_start:bit,smooth_end:bit)
+
+prepare(coordinates:[num],states:[num],width:int,mode:int,smooth_start:bit,smooth_end:bit)->Plan:
+    @:(curve:s.prepare(coordinates,states,width,mode),smooth_start:smooth_start,smooth_end:smooth_end)
+
+sample(plan:Plan,coordinate:num)->Sample:
+    @:s.evaluate(plan.curve,coordinate,plan.smooth_start,plan.smooth_end)
+
+weights(plan:Plan,coordinate:num)->[num]:
+    @:s.weights(plan.curve.knots,coordinate,plan.curve.mode,plan.smooth_start,plan.smooth_end)
+
+# Renderer channel adapter: the host provides coordinates, never interpolates.
+channel(plan:Plan,coordinates:[num],component:int)->[num]:
+    (component>=0 /\ component<plan.curve.width)?! "Morphing channel outside state"
+    [num] values:[0:coordinates.length()]
+    i:0
+    i<coordinates.length()?>
+        state:sample(plan,coordinates.(i))
+        values.(i):state.value.(component)
+        .i:i+1
+    @:values
+
+# Optional affine embedding adapter. Arbitrary embeddings may consume sample()
+# directly. Rows are [matrix coefficients..., offset] for each output channel.
+EmbeddingPlan:(state:Plan,embedding:Plan,input_width:int,output_width:int)
+
+prepare_affine_embedding(coordinates:[num],states:[num],input_width:int,embeddings:[num],output_width:int,mode:int,smooth_start:bit,smooth_end:bit)->EmbeddingPlan:
+    (input_width>0 /\ output_width>0)?! "Morphing embedding dimensions must be positive"
+    @:(state:prepare(coordinates,states,input_width,mode,smooth_start,smooth_end),embedding:prepare(coordinates,embeddings,output_width*(input_width+1),mode,smooth_start,smooth_end),input_width:input_width,output_width:output_width)
+
+sample_embedding(plan:EmbeddingPlan,coordinate:num)->Sample:
+    x:sample(plan.state,coordinate)
+    e:sample(plan.embedding,coordinate)
+    [num] value:[0:plan.output_width]
+    [num] first:[0:plan.output_width]
+    [num] second:[0:plan.output_width]
+    row:0
+    row<plan.output_width?>
+        offset:row*(plan.input_width+1)+plan.input_width
+        value.(row):e.value.(offset)
+        first.(row):e.first.(offset)
+        second.(row):e.second.(offset)
+        column:0
+        column<plan.input_width?>
+            at:row*(plan.input_width+1)+column
+            value.(row):value.(row)+e.value.(at)*x.value.(column)
+            first.(row):first.(row)+e.first.(at)*x.value.(column)+e.value.(at)*x.first.(column)
+            second.(row):second.(row)+e.second.(at)*x.value.(column)+2*e.first.(at)*x.first.(column)+e.value.(at)*x.second.(column)
+            .column:column+1
+        .row:row+1
+    @:(value:value,first:first,second:second)
+
+# Ordered, conserved material carrier across ANY number of states.
+# Each state may have a different object count; all have the same total measure.
+# This establishes split/merge lineage, not a spatial correspondence optimizer.
+MaterialPlan:(state:Plan,weights:[num],owners:[int],dimension:int,carriers:int,states:int)
+
+prepare_material(coordinates:[num],offsets:[int],weights:[num],positions:[num],dimension:int,mode:int,smooth_start:bit,smooth_end:bit)->MaterialPlan:
+    count:coordinates.length()
+    (count>=2 /\ offsets.length()=count+1 /\ dimension>0)?! "Morphing material state dimensions"
+    (offsets.(0)=0 /\ offsets.(count)=weights.length() /\ positions.length()=weights.length()*dimension)?! "Morphing material storage"
+    [num] totals:[0:count]
+    [num] ends:[0:weights.length()]
+    state:0
+    state<count?>
+        (offsets.(state)>=0 /\ offsets.(state+1)>offsets.(state) /\ offsets.(state+1)<=weights.length())?! "Morphing material requires nonempty states"
+        i:offsets.(state)
+        i<offsets.(state+1)?>
+            (weights.(i)>0 /\ weights.(i)<10^100)?! "Morphing requires positive finite material"
+            totals.(state):totals.(state)+weights.(i)
+            ends.(i):totals.(state)
+            .i:i+1
+        (|totals.(state)-totals.(0)|<=0.0000000001*totals.(0))?! "Morphing cannot create or destroy material"
+        .state:state+1
+    # Union of all cumulative material boundaries creates one persistent carrier.
+    [num] cuts:[0:weights.length()+1]
+    used:1
+    .state:0
+    state<count?>
+        i:offsets.(state)
+        i<offsets.(state+1)?>
+            at:ends.(i)*totals.(0)/totals.(state)
+            ends.(i):at
+            slot:0
+            slot<used /\ cuts.(slot)<at?> .slot:slot+1
+            exists:false
+            slot<used? .exists:cuts.(slot)=at
+            ~exists?
+                j:used
+                j>slot?>
+                    cuts.(j):cuts.(j-1)
+                    .j:j-1
+                cuts.(slot):at
+                .used:used+1
+            .i:i+1
+        .state:state+1
+    carriers:used-1
+    [num] mass:[0:carriers]
+    [int] owners:[0:count*carriers]
+    [num] values:[0:count*carriers*dimension]
+    k:0
+    k<carriers?>
+        mass.(k):cuts.(k+1)-cuts.(k)
+        midpoint:cuts.(k)+mass.(k)/2
+        (midpoint>cuts.(k) /\ midpoint<cuts.(k+1))?! "Morphing material interval is below numeric resolution"
+        .state:0
+        state<count?>
+            owner:offsets.(state)
+            owner<offsets.(state+1)-1 /\ ends.(owner)<=midpoint?> .owner:owner+1
+            owners.(state*carriers+k):owner-offsets.(state)
+            d:0
+            d<dimension?>
+                values.((state*carriers+k)*dimension+d):positions.(owner*dimension+d)
+                .d:d+1
+            .state:state+1
+        .k:k+1
+    @:(state:prepare(coordinates,values,carriers*dimension,mode,smooth_start,smooth_end),weights:mass,owners:owners,dimension:dimension,carriers:carriers,states:count)
+
+# Bind channels to EXISTING renderer identities; this is not another scene tree.
+# The renderer adapter supplies these identities and applies the returned channels.
+ViewBinding:(view_id:str,layer_ids:[str],offsets:[int],state:Plan)
+ViewSample:(view_id:str,layer_ids:[str],offsets:[int],value:[num],first:[num],second:[num])
+
+bind_view(view_id:str,layer_ids:[str],offsets:[int],state:Plan)->ViewBinding:
+    (view_id.length()>0 /\ layer_ids.length()>0 /\ offsets.length()=layer_ids.length()+1)?! "Morphing view binding dimensions"
+    (offsets.(0)=0 /\ offsets.(layer_ids.length())=state.curve.width)?! "Morphing view channel storage"
+    i:0
+    i<layer_ids.length()?>
+        (layer_ids.(i).length()>0 /\ offsets.(i+1)>offsets.(i))?! "Morphing requires identified nonempty layer channels"
+        j:0
+        j<i?>
+            (layer_ids.(j)~=layer_ids.(i))?! "Morphing layer identities must be unique"
+            .j:j+1
+        .i:i+1
+    @:(view_id:view_id,layer_ids:layer_ids,offsets:offsets,state:state)
+
+sample_view(view:ViewBinding,coordinate:num)->ViewSample:
+    state:sample(view.state,coordinate)
+    @:(view_id:view.view_id,layer_ids:view.layer_ids,offsets:view.offsets,value:state.value,first:state.first,second:state.second)
+
+# Reserve maximal unchanged subexpressions before geometry/material matching.
+# Group triples: [semantic identity, first member, member count], largest first.
+# -1 means UNRESOLVED correspondence, never a transparent birth/death object.
+reserve_groups(source_count:int,target_count:int,source_groups:[int],target_groups:[int],costs:[num])->[int]:
+    (source_count>0 /\ target_count>0 /\ source_groups.length()%3=0 /\ target_groups.length()%3=0 /\ costs.length()=source_count*target_count)?! "Morphing structural group dimensions"
+    [int] matched:[-1:source_count]
+    [int] used:[0:target_count]
+    i:0
+    i<costs.length()?>
+        (costs.(i)>=0 /\ costs.(i)<10^100)?! "Morphing group costs must be finite and nonnegative"
+        .i:i+1
+    previous:source_count
+    .i:0
+    i<source_groups.length()?>
+        count:source_groups.(i+2)
+        (source_groups.(i)>0 /\ source_groups.(i+1)>=0 /\ count>0 /\ source_groups.(i+1)+count<=source_count /\ count<=previous)?! "Morphing source groups must be in bounds and largest first"
+        .previous:count
+        .i:i+3
+    .previous:target_count
+    .i:0
+    i<target_groups.length()?>
+        count:target_groups.(i+2)
+        (target_groups.(i)>0 /\ target_groups.(i+1)>=0 /\ count>0 /\ target_groups.(i+1)+count<=target_count /\ count<=previous)?! "Morphing target groups must be in bounds and largest first"
+        .previous:count
+        .i:i+3
+    .i:0
+    i<source_groups.length()?>
+        first:source_groups.(i+1)
+        count:source_groups.(i+2)
+        free:true
+        k:0
+        k<count?>
+            matched.(first+k)>=0? .free:false
+            .k:k+1
+        free?
+            best: -1
+            best_cost:10^100
+            j:0
+            j<target_groups.length()?>
+                source_groups.(i)=target_groups.(j) /\ count=target_groups.(j+2)?
+                    destination:target_groups.(j+1)
+                    available:true
+                    cost:0.0
+                    .k:0
+                    k<count?>
+                        used.(destination+k)>0? .available:false
+                        .cost:cost+costs.((first+k)*target_count+destination+k)
+                        .k:k+1
+                    available /\ (best<0 \/ cost<best_cost \/ (cost=best_cost /\ destination<best))?
+                        .best:destination
+                        .best_cost:cost
+                .j:j+3
+            best>=0?
+                .k:0
+                k<count?>
+                    matched.(first+k):best+k
+                    used.(best+k):1
+                    .k:k+1
+        .i:i+3
+    @:matched

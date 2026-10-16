@@ -1,0 +1,25 @@
+m:.Morphing
+check(coordinates:[num],offsets:[int],weights:[num],positions:[num],dimension:int)->bit:
+    plan:m.prepare_material(coordinates,offsets,weights,positions,dimension,1,true,true)
+    [num] marginals:[0:weights.length()]
+    state:0
+    state<coordinates.length()?>
+        endpoint:m.sample(plan.state,coordinates.(state))
+        carrier:0
+        carrier<plan.carriers?>
+            (plan.weights.(carrier)>0)?! "every material carrier is nonempty"
+            owner:offsets.(state)+plan.owners.(state*plan.carriers+carrier)
+            marginals.(owner):marginals.(owner)+plan.weights.(carrier)
+            d:0
+            d<dimension?>
+                (|endpoint.value.(carrier*dimension+d)-positions.(owner*dimension+d)|<0.000000001)?! "every carrier reaches its real endpoint owner"
+                .d:d+1
+            .carrier:carrier+1
+        .state:state+1
+    i:0
+    i<weights.length()?>
+        (|marginals.(i)-weights.(i)|<0.000000001)?! "all source/intermediate/target material recovered"
+        .i:i+1
+    @:true
+::check([0,1,3],[0,1,4,6],[12,2,3,7,4,8],[0,-5,0,5,-2,2],1)
+::check([0,2,3,7],[0,3,5,6,10],[1,5,6,7,5,12,2,3,4,3],[0,0,1,2,3,4,1,0,4,1,0,1,-3,0,-1,1,1,2,3,3],2)

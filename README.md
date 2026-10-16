@@ -75,13 +75,10 @@ The verified record-input fixture uses the existing legacy emitter's integer num
 
 Explicit line-list segments retain their sample geometry and disconnected curves. Antialiasing changes stroke presentation only. Native interpolation and symbolic plotting retain their original semantics; the UI infers no splines. The full lighting, depth, text and toolbar renderer remains available separately. Source983 preview checks pass86 library tests and desktop/phone SwiftShader selection; no physical GPU or C0/P0 acceptance. Historical0.7.1 fixture provenance remains unchanged.
 
-## Embedding transition research — 2026-10-14
+## Morphing — native VKF library
 
-An isolated shared-library candidate adds affine-first transport, a moving split
-example and smooth visual properties. These are JavaScript research APIs, not
-new VKF syntax or compiler/physics acceptance. `npm run test:embedding` uses
-Node's built-in test runner with no additional dependencies. See
-[the prototype notes](examples/embedding-transport/README.md).
-
-Pixel-only sentence/shape matching and collision-checked MP4 studies are in
-[the raster research notes](examples/pixel-transport/README.md).
+`Morphing.vkf` and `morphing/` are the current library entry point. See
+[morphing/README.md](morphing/README.md) for the tested API, reproduction and
+remaining renderer integration. The superseded JavaScript/WGSL morphology
+examples and package exports are removed; they are not runtime fallbacks.
+Historical Python research is porting/qualification reference, not the library.
