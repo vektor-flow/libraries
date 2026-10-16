@@ -6,7 +6,7 @@ struct Item { rect:vec4f, uv:vec4f, color:vec4f, info:vec4f }
 @group(0) @binding(2) var<storage,read_write> descriptors:array<f32>;
 @group(0) @binding(3) var<storage,read_write> costs:array<f32>;
 @group(0) @binding(4) var<storage,read_write> assignment:array<u32>;
-@group(0) @binding(5) var<storage,read_write> used:array<atomic<u32>>;
+@group(0) @binding(5) var<storage,read> groups:array<u32>;
 @group(0) @binding(6) var<storage,read> flow:array<vec2f>;
 @group(0) @binding(7) var<storage,read_write> nextFlow:array<vec2f>;
 @group(0) @binding(8) var atlas:texture_2d<f32>;
@@ -48,8 +48,30 @@ var<workgroup> targetTile:array<f32,1024>;
  let extent=length(log(max(a.zw,vec2f(.1))/max(b.zw,vec2f(.1))));
  costs[i*n+j]=difference*100.+transport+extent*.1;
 }
+// Maximal unchanged syntax groups are reserved atomically, largest first.
+// Repeated occurrences compete by the cost of the whole group, never a glyph.
+@compute @workgroup_size(1) fn assign_groups(){
+ let n=params.count;for(var i=0u;i<n;i++){assignment[i]=0xffffffffu;}
+ let na=groups[0];let nb=groups[1];
+ for(var g=0u;g<na;g++){
+  let at=2u+3u*g;let key=groups[at];let start=groups[at+1u];let size=groups[at+2u];
+  var free=true;for(var k=0u;k<size;k++){if(assignment[start+k]!=0xffffffffu){free=false;}}
+  if(!free){continue;}
+  var best=0xffffffffu;var value=1e30;
+  for(var h=0u;h<nb;h++){
+   let bt=2u+3u*(na+h);let destination=groups[bt+1u];
+   if(groups[bt]!=key || groups[bt+2u]!=size){continue;}
+   var available=true;
+   for(var i=0u;i<n;i++){let j=assignment[i];if(j>=destination && j<destination+size){available=false;}}
+   if(!available){continue;}
+   var cost=0.;for(var k=0u;k<size;k++){cost+=costs[(start+k)*n+destination+k];}
+   if(cost<value || (cost==value && destination<best)){value=cost;best=destination;}
+  }
+  if(best!=0xffffffffu){for(var k=0u;k<size;k++){assignment[start+k]=best+k;}}
+ }
+}
 // Exact source-ordered greedy assignment, cooperatively evaluated by64 lanes.
-// Lowest target index wins equal costs, matching the original serial oracle.
+// Lowest destination index wins equal costs, matching the original serial oracle.
 var<workgroup> unavailable:array<u32,1024>;
 var<workgroup> bestCost:array<f32,64>;
 var<workgroup> bestTarget:array<u32,64>;
@@ -57,9 +79,11 @@ var<workgroup> bestTarget:array<u32,64>;
  let n=params.count;
  for(var j=lane;j<n;j+=64u){unavailable[j]=0u;}
  workgroupBarrier();
+ for(var i=lane;i<n;i+=64u){let j=assignment[i];if(j!=0xffffffffu){unavailable[j]=1u;}}
+ workgroupBarrier();
  for(var i=0u;i<n;i++){
   var best=0xffffffffu;var value=1e30;
-  for(var j=lane;j<n;j+=64u){let c=costs[i*n+j];if(unavailable[j]==0u && (c<value || (c==value && j<best))){value=c;best=j;}}
+  for(var j=lane;j<n;j+=64u){let c=costs[i*n+j];if(((assignment[i]==0xffffffffu && unavailable[j]==0u)||assignment[i]==j) && (c<value || (c==value && j<best))){value=c;best=j;}}
   bestCost[lane]=value;bestTarget[lane]=best;workgroupBarrier();
   for(var stride=32u;stride>0u;stride/=2u){
    if(lane<stride){let c=bestCost[lane+stride];let j=bestTarget[lane+stride];if(c<bestCost[lane] || (c==bestCost[lane] && j<bestTarget[lane])){bestCost[lane]=c;bestTarget[lane]=j;}}
@@ -83,9 +107,11 @@ var<workgroup> subgroupCount:atomic<u32>;
  let subgroup=subgroupBroadcastFirst(slot);
  for(var j=lane;j<n;j+=256u){unavailable[j]=0u;}
  workgroupBarrier();
+ for(var i=lane;i<n;i+=256u){let j=assignment[i];if(j!=0xffffffffu){unavailable[j]=1u;}}
+ workgroupBarrier();
  for(var i=0u;i<n;i++){
   var value=1e30;var best=0xffffffffu;
-  for(var j=lane;j<n;j+=256u){let c=costs[i*n+j];if(unavailable[j]==0u && (c<value || (c==value && j<best))){value=c;best=j;}}
+  for(var j=lane;j<n;j+=256u){let c=costs[i*n+j];if(((assignment[i]==0xffffffffu && unavailable[j]==0u)||assignment[i]==j) && (c<value || (c==value && j<best))){value=c;best=j;}}
   let minimum=subgroupMin(value);let selected=subgroupMin(select(0xffffffffu,best,value==minimum));
   if(subgroupElect()){subgroupCosts[subgroup]=minimum;subgroupTargets[subgroup]=selected;}
   workgroupBarrier();

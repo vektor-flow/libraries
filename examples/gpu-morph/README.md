@@ -180,3 +180,27 @@ language runtime. Required inputs and responsibilities:
  topology/material/collision constraints as separately measured quality milestones.
 -The10ms target must be remeasured after each added constraint and on presenter and
  phone hardware. These findings do not certify VKF runtime/compiler GPU acceptance.
+
+## Structural group correspondence — 2026-10-16
+
+`generate(a,b,{groups})` accepts optional syntax/structure metadata. `groups` is a
+Uint32Array `[sourceCount,targetCount,...sourceGroups,...targetGroups]`; each group
+is `[identity,startItem,itemCount]`. Identity is a nonzero dictionary ID shared
+between endpoints, not a hash; member order is semantic order. Each endpoint's
+groups are sorted largest first. Nested and repeated groups are supported.
+The renderer emits metadata independently at each endpoint; it does not choose
+correspondence. Without metadata the original greedy assignment is retained.
+
+A GPU pass reserves whole unchanged groups before residual glyph matching.
+Repeated occurrences compete by summed group cost. This prevents a disappearing
+`4a²` from stealing characters from an unchanged `4ac`. Both reduction variants
+respect the reservations, including for sources processed later. Matching still
+runs on every frame; no CPU correspondence or GPU readback enters playback.
+This is exact syntax preservation, not a symbolic equivalence solver; reordered
+or rewritten products can still use residual matching. Group reservation is a
+serial GPU pass; no new physical GPU timing qualification is claimed.
+
+The live math renderer's optional layout hook supplies products and nested
+expressions without changing glyph placement or atlas fields. Site regressions
+cover the quadratic fraction, discriminant, repeated terms, renamed variables,
+reverse transitions and both GPU assignment variants.

@@ -21,10 +21,10 @@ export class MorphEngine {
   const renderCode=(header+flowIndex+shader.slice(shader.indexOf('fn ease'))).replace('var<storage,read_write> assignment','var<storage,read> assignment');
   const renderModule=device.createShaderModule({code:renderCode});
   for(const m of [module,renderModule]){const messages=await m.getCompilationInfo();const errors=messages.messages.filter(x=>x.type==='error');if(errors.length)throw Error(errors.map(x=>x.message).join('\n'));}
-  const storage=b=>({binding:b,visibility:GPUShaderStage.COMPUTE,buffer:{type:[1,6].includes(b)?'read-only-storage':'storage'}});
+  const storage=b=>({binding:b,visibility:GPUShaderStage.COMPUTE,buffer:{type:[1,5,6].includes(b)?'read-only-storage':'storage'}});
   self.computeLayout=device.createBindGroupLayout({entries:[{binding:0,visibility:GPUShaderStage.COMPUTE,buffer:{type:'uniform'}},...[1,2,3,4,5,6,7,10].map(storage),{binding:8,visibility:GPUShaderStage.COMPUTE,texture:{}},{binding:9,visibility:GPUShaderStage.COMPUTE,sampler:{}}]});
   const computePipelineLayout=device.createPipelineLayout({bindGroupLayouts:[self.computeLayout]});self.compute={};
-  for(const name of ['describe','compare','assign_pairs','prepare_flow','relax','solve_local',...(subgroups?['assign_subgroups']:[])])self.compute[name]=await device.createComputePipelineAsync({layout:computePipelineLayout,compute:{module,entryPoint:name}});
+  for(const name of ['describe','compare','assign_groups','assign_pairs','prepare_flow','relax','solve_local',...(subgroups?['assign_subgroups']:[])])self.compute[name]=await device.createComputePipelineAsync({layout:computePipelineLayout,compute:{module,entryPoint:name}});
   self.renderLayout=device.createBindGroupLayout({entries:[{binding:0,visibility:3,buffer:{type:'uniform'}},...[1,4,6].map(binding=>({binding,visibility:3,buffer:{type:'read-only-storage'}})),{binding:8,visibility:2,texture:{}},{binding:9,visibility:2,sampler:{}}]});
   const format=navigator.gpu.getPreferredCanvasFormat();self.context=canvas.getContext('webgpu');self.context.configure({device,format,alphaMode:'opaque'});
   self.renderPipeline=await device.createRenderPipelineAsync({layout:device.createPipelineLayout({bindGroupLayouts:[self.renderLayout]}),vertex:{module:renderModule,entryPoint:'vertex'},fragment:{module:renderModule,entryPoint:'fragment',targets:[{format,blend:{color:{srcFactor:'one',dstFactor:'one-minus-src-alpha'},alpha:{srcFactor:'one',dstFactor:'one-minus-src-alpha'}}}]},primitive:{topology:'triangle-list'}});
@@ -40,16 +40,19 @@ export class MorphEngine {
   try{await timer.read.mapAsync(GPUMapMode.READ);const times=new BigUint64Array(timer.read.getMappedRange());return Number(times[1]-times[0])/1e6;}
   finally{timer.read.unmap();timer.read.destroy();timer.resolve.destroy();timer.query.destroy();}
  }
- async generate(a,b,{grid=32,iterations=12}={}){
+ async generate(a,b,{grid=32,iterations=12,groups=new Uint32Array([0,0])}={}){
   if(!Number.isInteger(grid)||grid<1||grid>32||!Number.isInteger(iterations)||iterations<1||iterations>32)throw Error('Grid and iteration counts must be integers in1–32.');
   if(!a.every(Number.isFinite)||!b.every(Number.isFinite))throw Error('Endpoint packets must contain finite values.');
   this.ready=false;await this.device.queue.onSubmittedWorkDone();this.buffers?.forEach(x=>x.destroy());
   const started=performance.now(),d=this.device,n=Math.max(a.length,b.length)/16;if(!Number.isInteger(n)||n<1||n>1024)throw Error('Scene must contain1–1024 bodies.');
   if(a.length!==b.length)throw Error('Endpoint packets must be padded to equal length.');
+  if(!(groups instanceof Uint32Array)||groups.length<2||groups.length!==2+3*(groups[0]+groups[1]))throw Error('Invalid structural group packet.');
+  for(let side=0,offset=2;side<2;side++){let previous=n;for(let i=0;i<groups[side];i++,offset+=3){const [key,start,count]=groups.subarray(offset,offset+3);if(!key||!count||start+count>n||count>previous)throw Error('Structural groups must be in bounds and largest first.');previous=count;}}
   this.n=n;this.grid=grid;this.u32[0]=n;this.u32[1]=grid;this.u32[3]=iterations;this.f32[2]=0;this.f32[4]=this.canvas.width;this.f32[5]=this.canvas.height;d.queue.writeBuffer(this.uniform,0,this.uniformBytes);
   const buffer=(size,extra=0)=>d.createBuffer({size:Math.max(4,size),usage:GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST|extra});
   const endpoints=buffer(a.byteLength+b.byteLength);d.queue.writeBuffer(endpoints,0,a);d.queue.writeBuffer(endpoints,a.byteLength,b);
-  const descriptors=buffer(n*2*64*4),costs=buffer(n*n*4),assignment=buffer(n*4,GPUBufferUsage.COPY_SRC),used=buffer((n+2)*4),flows=[buffer(n*grid*grid*8),buffer(n*grid*grid*8)];
+  const descriptors=buffer(n*2*64*4),costs=buffer(n*n*4),assignment=buffer(n*4,GPUBufferUsage.COPY_SRC),used=buffer(groups.byteLength),flows=[buffer(n*grid*grid*8),buffer(n*grid*grid*8)];
+  d.queue.writeBuffer(used,0,groups);
   const coefficients=buffer(n*grid*grid*16);this.coefficients=coefficients;this.matchState=used;this.costs=costs;this.assignment=assignment;this.endpoints=endpoints;this.buffers=[coefficients,endpoints,descriptors,costs,assignment,used,...flows];
   const base=[{binding:0,resource:{buffer:this.uniform}},{binding:1,resource:{buffer:endpoints}},{binding:2,resource:{buffer:descriptors}},{binding:3,resource:{buffer:costs}},{binding:4,resource:{buffer:assignment}},{binding:5,resource:{buffer:used}},{binding:8,resource:this.atlas.createView()},{binding:9,resource:this.sampler},{binding:10,resource:{buffer:coefficients}}];
   const binds=flows.map((f,i)=>d.createBindGroup({layout:this.computeLayout,entries:[...base,{binding:6,resource:{buffer:f}},{binding:7,resource:{buffer:flows[1-i]}}]}));
@@ -64,6 +67,7 @@ export class MorphEngine {
   const gpuMs=await this.readTimer(timer);await d.queue.onSubmittedWorkDone();this.ready=true;this.generation++;this.preparation={wallMs:performance.now()-started,gpuMs,bodies:n,grid,iterations};return this.preparation;
  }
  encodeMatching(p,n){
+  p.setPipeline(this.compute.assign_groups);p.dispatchWorkgroups(1);
   // Deferred acceptance is retained as an experimental variant; it did not
   // converge within16 rounds on these scenes and made the baseline slower.
   p.setPipeline(this.subgroups?this.compute.assign_subgroups:this.compute.assign_pairs);p.dispatchWorkgroups(1);
