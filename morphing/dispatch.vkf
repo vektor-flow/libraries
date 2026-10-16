@@ -48,6 +48,7 @@ sample_field(index:int,params:[num],values:[num])->num:
 
 # Parallel row reduction. The scalar control pass reduces these short rows.
 reduce_row(index:int,params:[num],values:[num])->num:
+    params.(30)=1? @:0
     resolution:int(params.(4))
     total:0.0
     x:0
@@ -60,9 +61,10 @@ reduce_row(index:int,params:[num],values:[num])->num:
 # Extra controls: 30 done, 31 phase, 32 measured area/volume.
 calibrate(index:int,params:[num],values:[num])->num:
     params.(30)=1? @:params.(index)
-    ~(index=11 \/ index=17 \/ index=18 \/ index=30 \/ index=31 \/ index=32)? @:params.(index)
+    ~(index=11 \/ index=17 \/ index=18 \/ index=21 \/ index=30 \/ index=31 \/ index=32)? @:params.(index)
     measured:total_measure(params,values)
     index=32? @:measured
+    index=21? @:params.(11)
     desired:params.(15)
     tolerance:params.(16)
     |measured-desired|<=tolerance?
@@ -70,7 +72,19 @@ calibrate(index:int,params:[num],values:[num])->num:
         @:params.(index)
     phase:int(params.(31))
     phase>=39? false?! "biological GPU calibration did not converge"
-    phase=0?
+    # The state pass consumes interval slot21 before calibration begins.
+    # It then holds previous scale alongside previous measured area in slot32.
+    # Start with a dimension-aware estimate and try five bounded secant steps;
+    # retain the original bracketed solver when estimates do not converge.
+    phase=0 /\ measured>0?
+        index=11? @:k.clamp(params.(11)*(1+(desired/measured-1)/params.(0)),params.(17),params.(18))
+        index=31? @:-1
+        @:params.(index)
+    phase<0 /\ phase>=-5 /\ |measured-params.(32)|>0.00000001?
+        index=11? @:k.clamp(params.(11)+(desired-measured)*(params.(11)-params.(21))/(measured-params.(32)),params.(17),params.(18))
+        index=31? @:phase-1
+        @:params.(index)
+    phase<=0?
         index=11? @:params.(17)
         index=31? @:1
         @:params.(index)
@@ -93,7 +107,9 @@ calibrate(index:int,params:[num],values:[num])->num:
 
 # Recheck the accepted calibrated geometry using the native boundary rule.
 check_controls(index:int,params:[num],values:[num])->num:
-    index=19? @:2
+    index=19?
+        params.(30)=1? @:2
+        @:0
     @:params.(index)
 
 # Transition calibrated controls to the final contour lattice without readback.
@@ -134,3 +150,121 @@ measure_chunk(index:int,params:[num],values:[num])->num:
         .total:total+sample_field(i,params,values)
         .i:i+1
     @:total
+
+# Compact cell ownership per row. Fixed packet size permits any contour lattice
+# supported by the browser adapter without dynamic private allocation.
+active_row(index:int,params:[num],values:[num])->[num]:
+    [num] result:[0:256]
+    size:int(params.(4))
+    (size>=2 /\ size<=256)?! "compact contour size"
+    count:0
+    x:0
+    x<size-1?>
+        stop:x
+        filling:true
+        stop<size-1 /\ filling?>
+            at:index*size+stop
+            full:values.(at)>=0 /\ values.(at+1)>=0 /\ values.(at+size)>=0 /\ values.(at+size+1)>=0
+            full? .stop:stop+1
+            ~full? .filling:false
+        is_run:stop>x
+        is_run?
+            .count:count+1
+            result.(count):num(index*(size-1)+x+(stop-x)*(size-1)*(size-1))
+            .x:stop
+        ~is_run?
+            origin:index*size+x
+            values.(origin)>=0 \/ values.(origin+1)>=0 \/ values.(origin+size)>=0 \/ values.(origin+size+1)>=0?
+                .count:count+1
+                result.(count):num(index*(size-1)+x)
+            .x:x+1
+    result.(0):num(count)
+    @:result
+
+active_prefix(index:int,params:[num],values:[num])->num:
+    total:0.0
+    row:0
+    row<index?>
+        .total:total+values.(row*256)
+        .row:row+1
+    @:total
+
+# Readonly input layout: contour nodes, row prefix (size entries), row packets.
+compact_triangle(index:int,params:[num],values:[num])->[num]:
+    size:int(params.(4))
+    prefix:size*size
+    total:int(values.(prefix+size-1))
+    index>=total?
+        [num] empty:[0:72]
+        @:empty
+    low:0
+    high:size-1
+    low+1<high?>
+        middle:(low+high)//2
+        values.(prefix+middle)<=index? .low:middle
+        values.(prefix+middle)>index? .high:middle
+    position:index-int(values.(prefix+low))
+    encoded:int(values.(prefix+size+low*256+1+position))
+    cells:(size-1)*(size-1)
+    cell:encoded%cells
+    run:encoded//cells
+    run>0? @:p.rectangle_packet(cell%(size-1),cell//(size-1),cell%(size-1)+run,size,params.(20),params.(26),params.(27),params.(28),params.(29))
+    @:p.cell_triangles(values,size,params.(20),cell,params.(26),params.(27),params.(28),params.(29))
+
+# Integer output feeds WebGPU indirect dispatch directly. No count readback is
+# needed between field compaction and triangle generation.
+triangle_dispatch(index:int,params:[num],values:[num])->int:
+    index=0? @:(int(values.(int(params.(4))-1))+63)//64
+    @:1
+
+# Classify cells in parallel before row compaction; rows then read one tag per
+# cell instead of repeating four checked field gathers inside divergent loops.
+cell_class(index:int,params:[num],values:[num])->num:
+    size:int(params.(4))
+    origin:(index//(size-1))*size+index%(size-1)
+    a:values.(origin)
+    b:values.(origin+1)
+    c:values.(origin+size)
+    d:values.(origin+size+1)
+    a>=0 /\ b>=0 /\ c>=0 /\ d>=0? @:2
+    a>=0 \/ b>=0 \/ c>=0 \/ d>=0? @:1
+    @:0
+
+active_tags(index:int,params:[num],values:[num])->[num]:
+    [num] result:[0:256]
+    width:int(params.(4))-1
+    (width>=1 /\ width<=255)?! "compact contour size"
+    count:0
+    start:-1
+    x:0
+    x<width?>
+        tag:values.(index*width+x)
+        tag=2 /\ start<0? .start:x
+        ~(tag=2)?
+            start>=0?
+                .count:count+1
+                result.(count):num(index*width+start+(x-start)*width*width)
+                .start:-1
+            tag=1?
+                .count:count+1
+                result.(count):num(index*width+x)
+        .x:x+1
+    start>=0?
+        .count:count+1
+        result.(count):num(index*width+start+(width-start)*width*width)
+    result.(0):num(count)
+    @:result
+
+# Final clipping validation only needs the domain perimeter. Interior samples
+# were already integrated by calibration; their final check output was unused.
+check_boundary2d(index:int,params:[num],values:[num])->num:
+    (params.(0)=2)?! "2D boundary dispatch dimension"
+    size:int(params.(4))
+    (index>=0 /\ index<4*size)?! "2D boundary dispatch index"
+    edge:index//size
+    along:index%size
+    cell:along
+    edge=1? .cell:(size-1)*size+along
+    edge=2? .cell:along*size
+    edge=3? .cell:along*size+size-1
+    @:sample_field(cell,params,values)

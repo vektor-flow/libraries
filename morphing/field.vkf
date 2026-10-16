@@ -34,6 +34,15 @@ field(values:[num],dimension:int,size:int,stride:int,carrier:int,x:num,y:num,z:n
     fx:gx-ix
     fy:gy-iy
     fz:gz-iz
+    # Bilinear case has four fixed samples. Keep its accumulation order while
+    # avoiding nested dynamic loops in every 2D GPU field invocation.
+    dimension=2?
+        at:base+2*dimension+iy*size+ix
+        value:(1-fx)*(1-fy)*values.(at)
+        .value:value+fx*(1-fy)*values.(at+1)
+        .value:value+(1-fx)*fy*values.(at+size)
+        .value:value+fx*fy*values.(at+size+1)
+        @:(value-maximum(outside,0))*extent
     layers:1
     dimension=3? .layers:2
     value:0.0
@@ -68,7 +77,14 @@ union(a:num,b:num,radius:num)->num:
 # One independent sample; suitable for a parallel field invocation.
 cohort(values:[num],dimension:int,size:int,stride:int,carriers:int,x:num,y:num,z:num,scale:num,neck:num)->num:
     value:field(values,dimension,size,stride,0,x,y,z,scale)
-    k:1
+    # Small cohorts avoid loop-budget machinery at every lattice point;
+    # the general path continues in the same union order for larger cohorts.
+    carriers<=1? @:value
+    .value:union(value,field(values,dimension,size,stride,1,x,y,z,scale),neck)
+    carriers<=2? @:value
+    .value:union(value,field(values,dimension,size,stride,2,x,y,z,scale),neck)
+    carriers<=3? @:value
+    k:3
     k<carriers?>
         .value:union(value,field(values,dimension,size,stride,k,x,y,z,scale),neck)
         .k:k+1

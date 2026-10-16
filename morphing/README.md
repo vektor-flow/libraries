@@ -215,7 +215,13 @@ or replace the installed/public compiler. `build_gpu_scene.py` emits the canonic
 WASM preparation and small coordinate-control module using the qualified ABI.
 
 The browser keeps state, fields and double-buffered vertex packets on the GPU.
-Only error flags and calibration controls return to the host per frame (160 bytes).
+Only error summaries, calibration controls and the compact packet count return
+to the host per batch (180 bytes); geometry is never read back. Full interior
+rows become rectangles, while boundary cells retain their clipped triangles.
+VKF generates integer indirect-dispatch arguments so empty cells do not launch
+triangle invocations. A bounded secant estimate uses six initial calibration
+rounds, retaining the bracketed solver in a42-round fallback batch. The1e-4
+measure tolerance, final boundary guard and contour resolution are unchanged.
 Failed samples retain the previous valid geometry. The current browser pipeline
 is a 2D cohort adapter; native 3D field support does not imply a completed 3D GPU
 player. Equation and image adapters and native View handles remain outstanding.

@@ -12,7 +12,7 @@ def main():
     sha=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
     report={'emitted':False,'browserVerified':False,'hardwareExecuted':False,'compilerSha256':sha(a.compiler),'gpuCompilerSha256':sha(a.gpu_compiler),'kernels':{}}
     try:
-        for name,expected in [('state','2'),('field','1'),('measure-chunk','1'),('reduce','6'),('measure','6'),('calibrate','1'),('check-controls','2'),('render-controls','1'),('triangles','64'),('triangle-packet','64')]:
+        for name,expected in [('check-boundary','0'),('cell-class','1'),('active-tags','1'),('triangle-dispatch','3'),('active-row','1'),('active-prefix','3'),('compact-triangle','0'),('state','2'),('field','1'),('measure-chunk','1'),('reduce','6'),('measure','6'),('calibrate','1'),('check-controls','2'),('render-controls','1'),('triangles','64'),('triangle-packet','64')]:
             source=project/(name+'.vkf');shutil.copy2(a.library/'tests/morphing'/('gpu-'+name+'.vkf'),source)
             command=[str(a.compiler),'-b',str(source),'-o',str(out/name),'--diagnostics']
             r=subprocess.run(command,capture_output=True,text=True,timeout=180)
@@ -21,7 +21,7 @@ def main():
             native=subprocess.run([str(out/name)],capture_output=True,text=True,timeout=30)
             if native.returncode or native.stdout.strip()!=expected:raise RuntimeError(name+': native fixture '+native.stdout+native.stderr)
             ir=json.loads(r.stdout)['typed_ir_path']
-            command=[str(a.gpu_compiler),'--source',str(source),'--typed-ir',ir,'--emit-wgsl-real-f32-field',str(package/(name+'.wgsl')),'--wgsl-field-entry','kernel','--wgsl-field-count','0','--wgsl-field-output-width','72' if name=='triangle-packet' else '1']
+            command=[str(a.gpu_compiler),'--source',str(source),'--typed-ir',ir,'--emit-wgsl-real-f32-field',str(package/(name+'.wgsl')),'--wgsl-field-entry','kernel','--wgsl-field-count','0','--wgsl-field-output-width','256' if name in ['active-row','active-tags'] else '72' if name in ['triangle-packet','compact-triangle'] else '1']
             r=subprocess.run(command,capture_output=True,text=True,timeout=180)
             (out/(name+'-gpu.log')).write_text(r.stdout+r.stderr)
             report['kernels'][name]={'command':command,'exit':r.returncode}

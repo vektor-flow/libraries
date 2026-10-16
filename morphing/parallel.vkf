@@ -113,3 +113,19 @@ cell_triangles(values:[num],size:int,extent:num,cell:int,r:num,g:num,b:num,a:num
             .fan:fan+1
         .half:half+1
     @:storage
+
+# Same filled-row rectangle as presentation.triangles, in fixed packet storage.
+rectangle_packet(x:int,y:int,stop:int,size:int,extent:num,r:num,g:num,b:num,a:num)->[num]:
+    [num] storage:[0:72]
+    [num] rectangle:[num(x),num(y),num(stop),num(y),num(stop),num(y+1),num(x),num(y),num(stop),num(y+1),num(x),num(y+1)]
+    [num] color:[r,g,b,a]
+    vertex:0
+    vertex<6?>
+        storage.(vertex*6):rectangle.(2*vertex)*extent/(size-1)
+        storage.(vertex*6+1):rectangle.(2*vertex+1)*extent/(size-1)
+        channel:0
+        channel<4?>
+            storage.(vertex*6+2+channel):color.(channel)
+            .channel:channel+1
+        .vertex:vertex+1
+    @:storage
