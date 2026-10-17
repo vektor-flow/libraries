@@ -1,0 +1,97 @@
+Independent semantic review04 — 2026-10-17 — SOURCE ONLY
+Line numbers below refer to repair02/candidate/layouts_1.cpp unless otherwise named.
+
+HIGH / P1 — Whole-record full demand bypasses counted child preservation.
+At734 the guard rejects an Aggregate current (409). compatible_numeric_shape
+recurses through record children763-769, but a DynamicF64List/Aggregate child
+fails753. The terminal path then assigns the entire candidate at775, without
+calling merge_inferred_layout or refining individual children. The recursion
+at789-794 only follows explicit path components; it does not traverse a record
+when the path already ended. Thus both paths {""} on Metadata and {"metadata"}
+on an enclosing record lose counted storage, for inline extents0,1,9.
+
+Concrete witness uses the ORIGINAL regression's declared and actuals[1]:
+current = metadata(dynamic_list_layout(Numeric), dynamic_list_layout(String));
+actual = metadata(indexed_layout({Numeric}), indexed_layout({String}));
+refine_signature_parameter_full_projection_paths(sig,0,actual,{""});
+Expected counted record width3; candidate assigns inline record width4.
+Both numbers/texts become Aggregate; subsequent from_argument sees identical
+fields and cannot restore their previous counted storage (calls_1.cpp43-73,
+206-211). Empty actual similarly changes width3 to1. A whole enclosing record
+fails by the same recursive compatibility check. This is an actual remaining
+source-level hole, not a newly introduced regression relative to baseline.
+
+An empty full path is reachable by design: inferred_parameter_layout620-626
+records joined empty paths and671-673 marks whole loads full. Core53 ordinary
+call954-959 and authenticated core56/layouts_4.cpp977-980 execute full projection
+before argument refinement. This establishes API/ordinary-call reachability,
+NOT that a retained renderer failing call used that path. There is no physical
+failed-layout dump; no whole-compiler causal or native success claim.
+
+Root's mixed-sibling concern is also confirmed from source: simply accepting
+counted/fixed children in compatible_numeric_shape is insufficient. A separate
+fixed sibling changing extent3->1 or3->0 still makes child counts differ at771;
+775 replaces the entire record again. Nor should an unconditional record merge
+be assumed correct: merge's default grow_fixed_aggregates=false and loop509-524
+retain existing fixed children. Required oracle preserves the counted children
+AND substitutes the unrelated fixed sibling exactly. Supplement covers both at
+record root, terminal metadata path, and nested record under an empty root path.
+No correction is applied/proposed to compiler code here; fresh repair owns it.
+Coordinator notified immediately; finding-notification-receipt.json acknowledged.
+
+MEDIUM / P2 — Existing coverage misses that distinction and proof boundaries.
+repair02/regression_layouts.cpp43-45 calls real compiler entry points, and49-53
+really exercises record merge. However, only leaf full paths are supplied.
+57-69 checks fixed9->1 and scalar Num->Complex, neither of which would catch an
+incorrect unconditional counted-current early return. test_reasoning.py41-49,
+132-140 checks a reimplemented predicate (no exact SelectorMap/offset structure,
+channel field or null default element); it is not independent native negative
+coverage. The Python model represents Numeric counted elements explicitly,
+whereas dynamic_list_layout(Numeric) returns a NULL dynamic_element at4-9.
+The existing C++ test correctly exercises that null form through real builders.
+
+Separate regression-supplement.patch adds real-output controls and27 record
+cases; reviewable complete proposed test is regression_layouts_supplemented.cpp.
+No helper clones the predicate or layout algorithms. It calls real merge/full
+projection/signature wrappers. Negative outcomes are explicit previous outputs,
+not claims that malformed layouts are accepted source programs. Both real entry
+points are checked where width/selector ordering yields exact replacement;
+record/shared-kind/channel-kind controls check full projection only, because
+ordinary merge has distinct pre-existing behavior. The supplement is UNEXECUTED,
+expected to fail reviewed candidate on the27 whole-record cases. Compile/link
+and actual mutant/baseline execution remain for future admitted native work.
+
+BOUNDED LEAF RATIONALE / no additional material hole found in this review.
+* Merge guard434 precedes width/selector replacement559-561. Record merge
+  extracts children at483-488 and reassigns491; calls_1.cpp62-72 does likewise.
+  Child full paths recurse789-794 to guard734. These paths preserve plain counted
+  Numeric/String storage for canonical inline values of the identical element ABI.
+* Current409-419 rejects malformed width/selectors, tuple/shared/channel tags
+  and nonprimitive/malformed element layouts. Null element415 is Numeric{};
+  authenticated header ValueLayout151-160 confirms width1/Numeric defaults.
+  Explicit canonical Numeric element is also supported; same_inference_layout
+  distinguishes null versus explicit pointers111-114, so retention is exact.
+* Candidate412-414 excludes record roots, tuples, root dynamic elements and
+  shared/channel tags. Canonical rebuild421 checks the full selector map:
+  names, offsets, widths, kinds, tuple/resource flags and element pointers are
+  compared107-132. Authenticated unit54 indexed_layout130-149 assigns sequential
+  names and cumulative offsets; indexed_element_layouts176-192 orders by offset
+  and extracts children via core53 record_field_layout175-199. Gaps/overlap,
+  leading-zero names, orphan selectors and wrong total width fail rebuild;
+  nested/nonprimitive items fail exact element comparison423 even if canonical.
+* Empty indexed layout is Aggregate,width0,no selectors (unit54 130-149).
+  The all_of is intentionally vacuous only after root canonicality and counted
+  primitive ABI checks. Therefore direct empty inputs preserve counted storage;
+  malformed empty-shaped layouts with nonzero width or selectors do not qualify.
+* Fixed CURRENT kind fails409: original fixed merge and exact full replacement
+  remain. Complex elements/cross-ABI primitive lists fail418-423, so old numeric
+  widening paths continue. Counted-to-counted never enters the new predicate.
+* display_shape is presentation-only per header159; ignoring it is consistent
+  with same_inference_layout, not evidence of an ABI mismatch.
+
+Relevant authenticated sources (exact paths/hashes in pins.json): core53 baseline
+and candidate; core51 calls_1.cpp; core54 effective private layouts_2.cpp; core56
+E188 effective layouts_4.cpp; private vkf_value_layout.hpp. Unit54's nominal
+combined source was read for lookup, then exact effective body/hash verified;
+reported130-149/176-192 match the effective body. No old rejected repair audit,
+allocator, typedArena or rejected fixed-spread repair body was inspected.

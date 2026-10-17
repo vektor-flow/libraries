@@ -1,0 +1,57 @@
+COMPILER CANDIDATE REVIEW04 — DONE, SOURCE-ONLY — 2026-10-17
+Owner 01a14952-bac9-7052-96d8-b7e71c44bcf9
+Coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31
+Assigned/initial HEAD 6b8f2b9d46fb9c89dfac119f2ae6fcba94b994dd
+
+RESULT: P1 remaining whole-record full-projection hole; hold candidate acceptance.
+P2 existing native regression misses that path and has insufficient independent
+negative controls. Detailed causal proof and exact lines in FINDINGS.txt.
+Immediate FINDING notification acknowledged; root independently confirmed.
+No additional material direct-leaf guard hole found within reviewed scope.
+
+PINS
+Reviewed core53 baseline 6c9f9cf5d2b60c426f88402c0ae32c294191c26880614e71907354613e27c5bd
+Reviewed candidate 8ff80f95d154585cc0966cfb2b9b06ae441cb357017eb524c8b750616ae6161d
+pins.json authenticates20 directly relevant inputs/proposed outputs; includes
+exact effective header and core51/54/56 functions, not just nominal paths.
+Read project instructions, dated HANDOVER/status, scoped grant and A333 reopening.
+Current coordinator status supersedes historical A333 hold; D267/D289 stay held.
+
+FINDING / CAUSAL WITNESS
+candidate/layouts_1.cpp734 guards only a terminal counted node. A terminal record
+fails recursive compatible_numeric_shape753/763-771 on a counted/fixed child,
+then775 replaces its whole layout. Existing regression declared vs actuals[1]
+with {""} narrows width3 counted metadata to width4 inline; empty narrows to1.
+A terminal {"metadata"} path and empty path on an enclosing record also fail.
+Existing leaf paths work through789-794; ordinary record merge works487-491.
+This is a remaining baseline defect, not a newly introduced behavior regression.
+No inference that this is the first failing physical renderer field/call.
+
+PATCH / FOLLOW-UP
+regression-supplement.patch changes ONLY the regression file as a PROPOSAL;
+regression_layouts_supplemented.cpp is its complete reviewable result.
+27 cases cover zero/one/nine vectors at whole-record empty path, nested metadata
+path, and empty path on enclosing record. Mixed cases require counted Numeric/
+String children retained while independent fixed sibling3->1/0 substitutes
+exactly. Both immediate full-projection and subsequent argument-refinement
+outputs checked. A compatibility-only tweak still loses to sibling shape mismatch;
+an indiscriminate merge would instead retain the fixed sibling's old extent.
+Fresh repair iteration owns correction; no compiler correction patch applied.
+Negatives call real functions and assert explicit output layouts: malformed
+width/selectors, record/tuple/shared/channel/element metadata, cross-ABI lists,
+fixed formal exact empty/narrow substitution and numeric widening. Explicit
+Numeric pointer and canonical null Numeric are covered. No predicate clone.
+
+TESTS / LIMITS
+Host-only verify_review.py PASSED in0.002143s:20 pins, exact proposed patch
+reconstruction in memory. tests.json records scope. Existing seven reasoning
+tests were read, not rerun or duplicated. All C++ tests UNEXECUTED;27 new record
+cases expected to fail reviewed candidate by source trace. No compile/link/VKF,
+service, operational, build-package, candidate edits, commits or extra agents.
+No native pass, full-compiler cause, renderer progress or performance claim.
+Buildprep03 and mountrepair10 work not duplicated. All writes confined here;
+all synchronous host children joined; no background work or own child agents.
+
+NOTIFICATION
+One DONE through existing app-server mechanism, no retry. Consult
+notification-receipt.json for delivery acknowledgement. Stop after review.
