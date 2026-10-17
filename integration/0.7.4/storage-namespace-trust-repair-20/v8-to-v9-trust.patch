@@ -1,0 +1,643 @@
+--- a/private_workload.py
++++ b/private_workload.py
+@@ -24,17 +24,496 @@
+ ABSENT_INCLUDES = ['/etc/apparmor.d/local/bwrap-userns-restrict', '/etc/apparmor.d/local/unpriv_bwrap', '/etc/apparmor.d/local/unprivileged_userns', '/etc/apparmor.d/tunables/alias.d', '/etc/apparmor.d/tunables/coreutils.d', '/etc/apparmor.d/tunables/etc.d', '/etc/apparmor.d/tunables/global.d', '/etc/apparmor.d/tunables/kernelvars.d', '/etc/apparmor.d/tunables/proc.d', '/etc/apparmor.d/tunables/run.d', '/etc/apparmor.d/tunables/share.d', '/etc/apparmor.d/tunables/system.d']
+ 
+ 
+-def trusted_system_file(path):
+-    """No symlink, privileged bits, filecaps or non-root-writable system input."""
+-    import stat
+-    path = Path(path)
+-    for p in (path, *path.parents):
+-        s = p.lstat()
+-        require(not stat.S_ISLNK(s.st_mode) and s.st_uid == 0
+-                and not s.st_mode & 0o022, 'untrusted system path '+str(p))
+-    s = path.stat()
+-    require(stat.S_ISREG(s.st_mode) and not s.st_mode & 0o6000, 'privileged system input')
+-    require('security.capability' not in os.listxattr(path), 'file capabilities forbidden')
++HOST_NAMESPACE_ANCHOR = {'boot': '36e567a7-0fa2-44a9-b95d-d93702c4b628', 'namespaces': {'mnt': 'mnt:[4026531832]', 'user': 'user:[4026531837]', 'pid': 'pid:[4026531836]', 'net': 'net:[4026531833]', 'cgroup': 'cgroup:[4026531835]'}}
++
++# Host-authenticated trust protocol. No receipt file or caller-supplied trust bit.
++# The admitted controller alone owns the reply writer. This transport is scoped
++# to its Popen child and existing wait_owned guard, never a standalone admission.
++import fcntl
++import stat
++import time
++from contextlib import contextmanager
++from storage_paths import strict_json
++
++NS_NAMES = ('mnt', 'user', 'pid', 'net', 'cgroup')
++NS_GET_USERNS, NS_GET_PARENT = 0xb701, 0xb702
++MAX_FRAME = 262144
++STAT_FIELDS = ('st_dev', 'st_ino', 'st_mode', 'st_uid', 'st_gid', 'st_nlink',
++               'st_size', 'st_mtime_ns', 'st_ctime_ns')
++IDENTITY_FIELDS = ('st_dev', 'st_ino', 'st_mode', 'st_nlink', 'st_ctime_ns')
++
++
++def stat_record(s):
++    return {k: getattr(s, k) for k in STAT_FIELDS}
++
++
++def single_map(raw, inside, outside):
++    # Exactly one nonempty decimal row. No overlaps, duplicate rows, sign,
++    # zero lengths, truncation, overflow, or implicit identity-map fallback.
++    lines = raw.splitlines()
++    require(len(lines) == 1, 'map row count')
++    fields = lines[0].split()
++    require(len(fields) == 3 and all(x.isascii() and x.isdecimal() for x in fields),
++            'malformed map')
++    values = [int(x) for x in fields]
++    require(all(0 <= x < 2**32-1 for x in values), 'map range')
++    require(values == [inside, outside, 1], 'unexpected single-ID map')
++    return values
++
++
++def _bounded_read(path, limit=8192):
++    with open(path, 'rb') as stream:
++        raw = stream.read(limit+1)
++    require(len(raw) <= limit, 'observation exceeds bound')
++    return raw.decode()
++
++
++def _proc_context(pid='self'):
++    base = Path('/proc')/str(pid)
++    lines = _bounded_read(base/'cgroup').splitlines()
++    require(len(lines) == 1 and lines[0].startswith('0::/'), 'unified service cgroup required')
++    status = dict(line.split(':', 1) for line in _bounded_read(base/'status').splitlines())
++    return dict(cgroup=lines[0][3:], uid=int(status['Uid'].split()[0]),
++                gid=int(status['Gid'].split()[0]),
++                namespaces={n: os.readlink(base/'ns'/n) for n in NS_NAMES},
++                maps={k: _bounded_read(base/(k+'_map')) for k in ('uid','gid')},
++                overflow={k: int(_bounded_read('/proc/sys/kernel/overflow'+k).strip())
++                          for k in ('uid','gid')},
++                boot=_bounded_read('/proc/sys/kernel/random/boot_id').strip())
++
++
++def trust_observation(root_fd=None, mountinfo=None):
++    """Bounded exact inputs only; lstat BEFORE any trust/dependency rejection.
++
++    Each no-follow walk records actual fields, errors and same-descriptor bytes.
++    The host may anchor this walk at a verified live child's /proc/PID/root.
++    """
++    result = dict(paths={}, files={}, errors=[], root_mount=None)
++    root = os.open('/', os.O_RDONLY|os.O_DIRECTORY) if root_fd is None else os.dup(root_fd)
++    try:
++        try:
++            from storage_paths import mount_id
++            mid = mount_id(root)
++            raw = _bounded_read('/proc/self/mountinfo', MAX_FRAME) if mountinfo is None else mountinfo
++            mount = effective_storage.parse_mountinfo(raw)[mid]
++            result['root_mount'] = dict(id=mid, path=mount.path, root=mount.root,
++                dev=list(mount.dev), fstype=mount.fstype, options=list(mount.options),
++                optional=list(mount.optional), readonly=bool(os.fstatvfs(root).f_flag & os.ST_RDONLY))
++        except Exception as exc:
++            result['errors'].append(dict(path='/', reason=type(exc).__name__+': '+str(exc)))
++        for pin in BINARIES+POLICY_INPUTS:
++            path = pin['path']; current = os.dup(root)
++            try:
++                result['paths']['/'] = stat_record(os.fstat(current))
++                parts = Path(path).parts[1:]
++                prefix = ''
++                for i, name in enumerate(parts):
++                    prefix += '/'+name
++                    before = os.stat(name, dir_fd=current, follow_symlinks=False)
++                    result['paths'][prefix] = stat_record(before)
++                    flags = os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK
++                    if i < len(parts)-1: flags |= os.O_DIRECTORY
++                    child = os.open(name, flags, dir_fd=current)
++                    os.close(current); current = child
++                    require(stat_record(os.fstat(current)) == stat_record(before), 'path changed during open')
++                    if i == len(parts)-1:
++                        require(stat.S_ISREG(before.st_mode), 'system file type')
++                        require(before.st_size <= 32*1024*1024, 'system file size bound')
++                        digest = hashlib.sha256()
++                        total = 0
++                        while True:
++                            data = os.read(current, 65536)
++                            if not data: break
++                            total += len(data)
++                            require(total <= 32*1024*1024, 'growing system file')
++                            digest.update(data)
++                        caps = 'security.capability' in os.listxattr(current)
++                        require(stat_record(os.fstat(current)) == stat_record(before), 'file changed while read')
++                        result['files'][path] = dict(sha256=digest.hexdigest(), filecaps=caps)
++            except Exception as exc:
++                result['errors'].append(dict(path=path, reason=type(exc).__name__+': '+str(exc)))
++            finally:
++                os.close(current)
++    finally:
++        os.close(root)
++    return result
++
++
++def dependency_diagnostic(stage, observation, ctx=None, reason=None):
++    # Requests are untrusted until accepted. Even a rejected/spoofed request
++    # cannot turn diagnostics into an arbitrary path inventory or unbounded log.
++    pins = {p['path'] for p in BINARIES+POLICY_INPUTS}
++    allowed = {str(q) for path in pins for q in (Path(path), *Path(path).parents)}
++    if isinstance(observation, dict):
++        observation = dict(
++            paths={k:{f:v for f,v in row.items() if f in STAT_FIELDS and type(v) is int}
++                   for k,row in observation.get('paths', {}).items() if k in allowed and isinstance(row,dict)},
++            files={k:v for k,v in observation.get('files', {}).items() if k in pins},
++            root_mount=observation.get('root_mount'),
++            errors=[dict(path=e.get('path'), reason=str(e.get('reason'))[:512])
++                    for e in observation.get('errors', [])[:len(pins)+1]
++                    if isinstance(e,dict) and e.get('path') in allowed])
++    if isinstance(ctx,dict):
++        ctx = {k:ctx.get(k) for k in ('cgroup','uid','gid','namespaces','maps','overflow','boot')}
++    print(json.dumps(dict(private_workload_system_trust=stage, context=ctx,
++                          observation=observation, reason=None if reason is None else str(reason)[:1024]),
++                     sort_keys=True), flush=True)
++
++
++def validate_observation(observation, *, host, scaffold_origin=None):
++    require(not observation['errors'], 'system observation errors')
++    pins = {p['path']: p['sha256'] for p in BINARIES+POLICY_INPUTS}
++    paths = {str(q) for p in pins for q in (Path(p), *Path(p).parents)}
++    require(set(observation['paths']) == paths and set(observation['files']) == set(pins),
++            'exact bounded system input closure')
++    if scaffold_origin is not None:
++        validate_scaffold(observation, scaffold_origin)
++    for path, row in observation['paths'].items():
++        require(set(row) == set(STAT_FIELDS) and all(type(v) is int and v >= 0 for v in row.values()),
++                'invalid lstat fields '+path)
++        require(not stat.S_ISLNK(row['st_mode']) and not row['st_mode'] & 0o022,
++                'symlink or writable system path '+path)
++        if host and not (path == '/' and scaffold_origin is not None):
++            require(row['st_uid'] == 0, 'non-root host owner '+path)
++        if path in pins:
++            require(stat.S_ISREG(row['st_mode']) and not row['st_mode'] & 0o6000
++                    and row['st_nlink'] == 1, 'unsafe system file '+path)
++        else:
++            require(stat.S_ISDIR(row['st_mode']), 'non-directory system parent '+path)
++    for path, digest in pins.items():
++        require(observation['files'][path] == dict(sha256=digest, filecaps=False),
++                'system bytes/file capabilities '+path)
++
++
++def scaffold_source_contract():
++    # Enabled only by separately reviewed proposal22 SOURCE composition, never
++    # by a grant/context/request flag. The exact command still has to match the
++    # live helper argv. Standalone proposal20 retains the frozen-v8 root bind.
++    return (globals().get('RUNTIME_READ_TREES') == ('/usr','/etc','/home','/mnt')
++            and callable(globals().get('runtime_view')))
++
++
++def validate_scaffold(observation, origin):
++    row, mount = observation['paths']['/'], observation['root_mount']
++    require(row['st_mode'] == stat.S_IFDIR|0o755
++            and row['st_uid'] == origin['uid'] and row['st_gid'] == origin['gid'],
++            'constructed scaffold owner/type/mode')
++    require(mount is not None and mount['path'] == '/' and mount['root'] == '/newroot'
++            and mount['fstype'] == 'tmpfs' and mount['optional'] == []
++            and set(('ro','nosuid','nodev')).issubset(mount['options'])
++            and mount['readonly'] is True
++            and mount['dev'] == [os.major(row['st_dev']), os.minor(row['st_dev'])],
++            'constructed scaffold readonly mount proof')
++
++
++def compare_host(before, after, scaffold_origin=None):
++    validate_observation(after, host=True, scaffold_origin=scaffold_origin)
++    for path, row in before['paths'].items():
++        if path == '/' and scaffold_origin is not None:
++            require((row['st_dev'],row['st_ino']) !=
++                    (after['paths'][path]['st_dev'],after['paths'][path]['st_ino']),
++                    'scaffold unexpectedly reuses host root')
++            continue  # ONLY this constructed object has its own stricter proof.
++        fields = STAT_FIELDS if path in before['files'] else IDENTITY_FIELDS+('st_uid','st_gid')
++        require(all(after['paths'][path][k] == row[k] for k in fields), 'host identity changed '+path)
++    require(before['files'] == after['files'], 'host bytes changed')
++
++
++def compare_namespace(host, local, ctx, origin):
++    validate_observation(local, host=False)
++    for path, row in host['paths'].items():
++        other = local['paths'][path]
++        fields = STAT_FIELDS if path in host['files'] else IDENTITY_FIELDS
++        for k in fields:
++            if k not in ('st_uid','st_gid'):
++                require(other[k] == row[k], 'namespace identity changed '+path+':'+k)
++        for kind in ('uid','gid'):
++            # Both approved chains compose to exactly origin ID -> same host ID.
++            # The overflow number alone never authenticates ownership: host root,
++            # object identity, bytes, modes and ACTUAL lineage must already pass.
++            host_id = row['st_'+kind]
++            expected = origin[kind] if host_id == origin[kind] else ctx['overflow'][kind]
++            require(other['st_'+kind] == expected, 'namespace ownership projection '+path)
++    require(local['files'] == host['files'], 'namespace bytes changed')
++    require(local['root_mount'] == host['root_mount'], 'namespace root mount evidence changed')
++
++
++def validate_stage_context(stage, now, origin):
++    require(stage in ('pre','post'), 'trust stage')
++    require(now['boot'] == origin['boot'] and now['overflow'] == origin['overflow'], 'host context changed')
++    require(now['cgroup'] == origin['cgroup'] and origin['cgroup'].endswith('.service'), 'wrapper cgroup changed')
++    require(now['uid'] == origin['uid'] != 0 and now['gid'] == origin['gid'] != 0, 'wrapper identity changed')
++    for n in NS_NAMES:
++        changed = now['namespaces'][n] != origin['namespaces'][n]
++        require(changed == (n in ('mnt','user') or (stage == 'post' and n in ('pid','net'))),
++                'wrapper namespace '+n)
++    for kind in ('uid','gid'):
++        single_map(now['maps'][kind], origin[kind], origin[kind] if stage == 'pre' else 0)
++
++
++def _process(pid):
++    base = Path('/proc')/str(pid)
++    fields = _bounded_read(base/'stat').rsplit(')', 1)[1].split()
++    return dict(pid=pid, starttime=int(fields[19]), ppid=int(fields[1]),
++                executable=os.readlink(base/'exe'),
++                argv=_bounded_read(base/'cmdline', 65536).rstrip('\0').split('\0'),
++                context=_proc_context(pid))
++
++
++def _descendant(pid, leader):
++    for _ in range(128):
++        p = _process(pid)
++        if pid == leader['pid']:
++            return p['starttime'] == leader['starttime']
++        if p['ppid'] <= 1 or p['ppid'] == pid: return False
++        pid = p['ppid']
++    return False
++
++
++def _ns_identity(fd):
++    s = os.fstat(fd)
++    return (s.st_dev, s.st_ino)
++
++
++@contextmanager
++def _related(fd, op):
++    related = fcntl.ioctl(fd, op)
++    try: yield related
++    finally: os.close(related)
++
++
++def lineage(stage, fds, host, pre):
++    """Only the outside controller calls ioctls; children do not walk ancestors."""
++    ident = lambda name: _ns_identity(fds[name])
++    require(ident('cgroup') == _ns_identity(host['cgroup']), 'cgroup namespace changed')
++    if stage == 'pre':
++        with _related(fds['user'], NS_GET_PARENT) as parent:
++            require(_ns_identity(parent) == _ns_identity(host['user']), 'pre user parent')
++        with _related(fds['mnt'], NS_GET_USERNS) as owner:
++            require(_ns_identity(owner) == ident('user'), 'pre mount owner')
++        for n in ('pid','net'):
++            require(ident(n) == _ns_identity(host[n]), 'pre '+n+' changed')
++        require(ident('mnt') != _ns_identity(host['mnt']), 'pre mount unchanged')
++    else:
++        require(pre is not None, 'post without authenticated pre')
++        # final -> intermediate(devpts root mapping) -> pre -> host.
++        with _related(fds['user'], NS_GET_PARENT) as intermediate:
++            require(_ns_identity(intermediate) not in
++                    (_ns_identity(host['user']), _ns_identity(pre['user']), ident('user')),
++                    'missing bwrap intermediate user namespace')
++            with _related(intermediate, NS_GET_PARENT) as parent:
++                require(_ns_identity(parent) == _ns_identity(pre['user']), 'intermediate parent')
++            for n in ('mnt','pid','net'):
++                require(ident(n) != _ns_identity(pre[n]), 'post '+n+' unchanged')
++                with _related(fds[n], NS_GET_USERNS) as owner:
++                    require(_ns_identity(owner) == _ns_identity(intermediate), 'post '+n+' owner')
++        with _related(fds['pid'], NS_GET_PARENT) as parent:
++            require(_ns_identity(parent) == _ns_identity(host['pid']), 'post pid parent')
++    return {n: list(ident(n)) for n in NS_NAMES}
++
++
++def _frame(value):
++    raw = json.dumps(value, sort_keys=True, separators=(',', ':')).encode()+b'\n'
++    require(len(raw) <= MAX_FRAME, 'trust frame bound')
++    return raw
++
++
++def _write_all(fd, raw):
++    while raw:
++        count = os.write(fd, raw)
++        require(count > 0, 'trust pipe short write')
++        raw = raw[count:]
++
++
++def namespace_trust(stage, origin, attempt, argv, now, observation):
++    # These are transport handles, not a trust override. The admitted controller
++    # independently validates the live process, exact argv and every observation.
++    channel = origin['trust_channel']
++    require(set(channel) == {'request_fd','reply_fd','nonce'}, 'trust channel shape')
++    request_fd, reply_fd = channel['request_fd'], channel['reply_fd']
++    for fd, mode in ((request_fd, os.O_WRONLY), (reply_fd, os.O_RDONLY)):
++        require(type(fd) is int and fd > 2 and stat.S_ISFIFO(os.fstat(fd).st_mode)
++                and fcntl.fcntl(fd, fcntl.F_GETFL) & os.O_ACCMODE == mode, 'trust pipe direction/type')
++    require(request_fd != reply_fd and len(channel['nonce']) == 64, 'trust channel identity')
++    request = dict(stage=stage, nonce=channel['nonce'], origin=origin,
++                   attempt=attempt, argv=argv, context=now, observation=observation)
++    raw = _frame(request)
++    _write_all(request_fd, raw)
++    # A bounded wait is also subject to the unchanged outside wait_owned timeout.
++    import select
++    received = b''; deadline = time.monotonic()+15
++    while b'\n' not in received:
++        remaining = deadline-time.monotonic()
++        require(remaining > 0 and select.select([reply_fd], [], [], max(0, remaining))[0], 'trust reply timeout')
++        part = os.read(reply_fd, 4096)
++        require(part, 'trust reply EOF')
++        received += part
++        require(len(received) <= 4096, 'trust reply bound')
++    reply = strict_json(received)
++    require(isinstance(reply,dict) and reply.get('accepted') is True
++            and reply == dict(stage=stage, nonce=channel['nonce'],
++                          request_sha256=hashlib.sha256(raw).hexdigest(), accepted=True),
++            'unauthenticated or rejected trust response')
++    if stage == 'post':
++        # Payload must inherit no trust channel. Pre keeps both through bwrap.
++        os.close(request_fd); os.close(reply_fd)
++
++
++class HostTrust:
++    """In-memory authority owned by an already admitted service controller.
++
++    No socket, new process, root helper, trust file or operational-state schema.
++    Errors propagate into unchanged wait_owned guard cleanup. Never release a
++    stage after partial observations. Held ns FDs prevent namespace-ID reuse.
++    """
++    def __init__(self, manifest, origin, writable_roots):
++        require(origin == context(), 'origin must be freshly observed by host')
++        self.manifest, self.origin = manifest, dict(origin)
++        for root in writable_roots:
++            root = Path(root)
++            require(root.is_absolute() and '..' not in root.parts, 'canonical writable root')
++            for path in [HERE, *[Path(p['path']) for p in BINARIES+POLICY_INPUTS]]:
++                require(not path.is_relative_to(root), 'trust authority in writable root')
++        verify_dependencies()  # authenticates initial host namespace and ownership
++        self.baseline = trust_observation()
++        validate_observation(self.baseline, host=True)
++        self.host_fds, self.pre_fds = {}, None
++        self.request_read = self.request_write = self.reply_read = self.reply_write = None
++        self.buffer, self.stages, self.proofs = b'', [], []
++        try:
++            self.host_fds = self._open_ns('self')
++            self.request_read, self.request_write = os.pipe()
++            self.reply_read, self.reply_write = os.pipe()
++            os.set_blocking(self.request_read, False)
++            os.set_blocking(self.reply_write, False)
++            self.origin['trust_channel'] = dict(request_fd=self.request_write,
++                reply_fd=self.reply_read, nonce=os.urandom(32).hex())
++            self.argv = command(manifest, self.origin)
++        except BaseException:
++            self.close(); raise
++
++    @staticmethod
++    def _open_ns(pid):
++        fds = {}
++        try:
++            for n in NS_NAMES:
++                fds[n] = os.open('/proc/'+str(pid)+'/ns/'+n, os.O_RDONLY|os.O_CLOEXEC)
++            return fds
++        except BaseException:
++            for fd in fds.values(): os.close(fd)
++            raise
++
++    @property
++    def pass_fds(self):
++        return (self.request_write, self.reply_read)
++
++    def attach(self, child):
++        self.leader = _process(child.pid)
++        # The creator keeps only its endpoints; child cannot inherit a reply writer.
++        os.close(self.request_write); self.request_write = None
++        os.close(self.reply_read); self.reply_read = None
++
++    def poll(self):
++        try: part = os.read(self.request_read, MAX_FRAME+1)
++        except BlockingIOError: return
++        if not part:
++            require(self.stages == ['pre','post'] and not self.buffer, 'trust request premature EOF')
++            return
++        self.buffer += part
++        require(len(self.buffer) <= MAX_FRAME, 'trust request bound')
++        if b'\n' not in self.buffer: return
++        raw, rest = self.buffer.split(b'\n', 1)
++        require(not rest, 'multiple or trailing trust requests')
++        self.buffer = b''
++        request = strict_json(raw)
++        try:
++            self._accept(request)
++        except BaseException as exc:
++            dependency_diagnostic('host-protocol-rejected', None, None, type(exc).__name__+': '+str(exc))
++            raise
++        response = dict(stage=request['stage'], nonce=self.origin['trust_channel']['nonce'],
++                        request_sha256=hashlib.sha256(raw+b'\n').hexdigest(), accepted=True)
++        _write_all(self.reply_write, _frame(response))
++        self.stages.append(request['stage'])
++
++    def _accept(self, request):
++        stage = 'pre' if not self.stages else 'post'
++        require(len(self.stages) < 2 and request['stage'] == stage, 'trust stage order/replay')
++        require(request['nonce'] == self.origin['trust_channel']['nonce']
++                and request['origin'] == self.origin, 'spoofed origin/channel')
++        require(request['attempt'] == self.manifest['attempt_root'], 'trust attempt')
++        # Exact gate command extracted from the controller's original launch.
++        pre_index = self.argv.index('pre')
++        pre_argv = self.argv[pre_index+4:]
++        post_index = pre_argv.index('post')
++        expected = pre_argv if stage == 'pre' else self.manifest['argv']
++        require(request['argv'] == expected, 'trust workload argv')
++        helper_argv = (self.argv[pre_index-4:pre_index+4] + expected if stage == 'pre'
++                       else pre_argv[post_index-4:])
++        validate_stage_context(stage, request['context'], self.origin)
++        # Read only this admitted cgroup, bounded by unchanged TasksMax128.
++        pids = _bounded_read(Path('/sys/fs/cgroup')/self.origin['cgroup'].lstrip('/')/'cgroup.procs').split()
++        require(len(pids) <= 128 and all(x.isdecimal() for x in pids), 'custody PID bound')
++        matches = []
++        for value in pids:
++            try: p = _process(int(value))
++            except FileNotFoundError: continue
++            if p['argv'] == helper_argv and p['context']['namespaces'] == request['context']['namespaces']:
++                matches.append(p)
++        require(len(matches) == 1, 'ambiguous/missing live helper custody')
++        p = matches[0]; pid = p['pid']
++        require(p['executable'] == PYTHON, 'live helper interpreter')
++        require(_descendant(pid, self.leader), 'helper outside owned descendant tree')
++        observed = p['context']
++        require(observed['cgroup'] == self.origin['cgroup'] and observed['uid'] == self.origin['uid']
++                and observed['gid'] == self.origin['gid'], 'host process custody/identity')
++        require(observed['boot'] == self.origin['boot'] and observed['overflow'] == self.origin['overflow'], 'host observation context')
++        for kind in ('uid','gid'):
++            # Host reads composition to HOST scope; self post maps to ns0 instead.
++            single_map(observed['maps'][kind], self.origin[kind], self.origin[kind])
++        fds = self._open_ns(pid)
++        try:
++            proof = lineage(stage, fds, self.host_fds, self.pre_fds)
++            for n in NS_NAMES:
++                require(request['context']['namespaces'][n] == n+':['+str(_ns_identity(fds[n])[1])+']', 'namespace fd race')
++            # Kernel proc-root magic link is used ONLY after live PID/starttime,
++            # exact cmdline, cgroup, ancestry and actual namespace proofs.
++            root = os.open('/proc/'+str(pid)+'/root', os.O_RDONLY|os.O_DIRECTORY|os.O_CLOEXEC)
++            try:
++                actual = trust_observation(root, _bounded_read('/proc/'+str(pid)+'/mountinfo', MAX_FRAME))
++            finally: os.close(root)
++            dependency_diagnostic('host-observer-'+stage, actual, observed)
++            compare_host(self.baseline, trust_observation())
++            scaffold = self.origin if stage == 'post' and scaffold_source_contract() else None
++            compare_host(self.baseline, actual, scaffold)
++            compare_namespace(actual, request['observation'], request['context'], self.origin)
++            require(_process(pid) == p, 'helper changed during observation')
++            self.proofs.append(dict(stage=stage, process=p, lineage=proof,
++                                   self_maps=request['context']['maps'], host_maps=observed['maps'],
++                                   intermediate_maps_observed=False,
++                                   scaffold_root=actual['root_mount'] if scaffold is not None else None,
++                                   observation_sha256=hashlib.sha256(_frame(actual)).hexdigest()))
++            if stage == 'pre':
++                self.pre_fds = fds; fds = {}
++        except BaseException as exc:
++            dependency_diagnostic('host-rejected-'+stage, request.get('observation'),
++                                  request.get('context'), type(exc).__name__+': '+str(exc))
++            raise
++        finally:
++            for fd in fds.values(): os.close(fd)
++
++    def complete(self):
++        require(self.stages == ['pre','post'], 'missing authenticated namespace trust stages')
++        return self.proofs
++
++    def close(self):
++        for attr in ('request_read','request_write','reply_read','reply_write'):
++            fd = getattr(self, attr, None)
++            if fd is not None: os.close(fd); setattr(self, attr, None)
++        for group in (self.host_fds, self.pre_fds or {}):
++            for fd in group.values(): os.close(fd)
++            group.clear()
++
+ 
+ 
+ def _security_snapshot():
+@@ -177,14 +656,26 @@
+ 
+ 
+ def verify_dependencies():
++    """Host admission only. Namespace stages require live controller approval."""
++    observation, now = trust_observation(), None
++    try:
++        now = _proc_context()
++        dependency_diagnostic('host-before-validation', observation, now)
++        require(now['boot'] == HOST_NAMESPACE_ANCHOR['boot']
++                and now['namespaces'] == HOST_NAMESPACE_ANCHOR['namespaces'],
++                'host namespace anchor changed; fresh reviewed authority required')
++        for kind in ('uid','gid'):
++            require(now['maps'][kind].split() == ['0','0','4294967295'], 'host identity map required')
++        verify_dependency_contract()
++        validate_observation(observation, host=True)
++    except BaseException as exc:
++        dependency_diagnostic('host-rejected', observation, now, type(exc).__name__+': '+str(exc))
++        raise
++
++
++def verify_dependency_contract():
+     require([p['path'] for p in BINARIES] == [UNSHARE, PYTHON, BWRAP], 'exact binary contract')
+     require(Path(sys.executable).resolve() == Path(PYTHON), 'executing interpreter contract')
+-    for p in BINARIES:
+-        pinned(p)
+-        trusted_system_file(p['path'])
+-    for p in POLICY_INPUTS:
+-        pinned(p)
+-        trusted_system_file(p['path'])
+     for p in ABSENT_INCLUDES:
+         require(not os.path.lexists(p), 'policy include appeared '+p)
+     require(Path('/proc/sys/kernel/apparmor_restrict_unprivileged_userns').read_text().strip() == '1',
+@@ -192,10 +683,7 @@
+ 
+ 
+ def context():
+-    lines = Path('/proc/self/cgroup').read_text().splitlines()
+-    require(len(lines) == 1 and lines[0].startswith('0::/'), 'unified service cgroup required')
+-    return dict(cgroup=lines[0][3:], uid=os.getuid(), gid=os.getgid(),
+-                namespaces={n:os.readlink('/proc/self/ns/'+n) for n in ('mnt','user','pid','net')})
++    return _proc_context()
+ 
+ 
+ def command(m, origin):
+@@ -223,19 +711,20 @@
+ 
+ def gate(stage, origin, attempt, argv):
+     require(stage in ('pre', 'post') and argv and Path(argv[0]).is_absolute(), 'private gate command')
+-    verify_dependencies()
+-    security = policy_gate(stage, origin)
+-    now = context()
+-    require(now['cgroup'] == origin['cgroup'] and origin['cgroup'].endswith('.service'), 'wrapper cgroup changed')
+-    require(now['uid'] == origin['uid'] != 0 and now['gid'] == origin['gid'], 'wrapper identity changed')
+-    for n in ('mnt','user','pid','net'):
+-        changed = now['namespaces'][n] != origin['namespaces'][n]
+-        require(changed == (stage == 'post' or n in ('mnt','user')), 'wrapper namespace '+n)
+-    if stage == 'pre':
+-        require(argv[0] == BWRAP, 'pre gate must exec bwrap')
+-        for kind, value in (('uid',origin['uid']), ('gid',origin['gid'])):
+-            fields = Path('/proc/self/'+kind+'_map').read_text().split()
+-            require(fields == [str(value), str(value), '1'], 'single current-user mapping required')
++    observation, now = trust_observation(), None
++    try:
++        now = context()
++        dependency_diagnostic(stage+'-before-validation', observation, now)
++        security = policy_gate(stage, origin)
++        validate_stage_context(stage, now, origin)
++        if stage == 'pre':
++            require(argv[0] == BWRAP, 'pre gate must exec bwrap')
++        verify_dependency_contract()
++        validate_observation(observation, host=False)
++        namespace_trust(stage, origin, attempt, argv, now, observation)
++    except BaseException as exc:
++        dependency_diagnostic(stage+'-rejected', observation, now, type(exc).__name__+': '+str(exc))
++        raise
+     raw = Path('/proc/self/mountinfo').read_text()
+     print(json.dumps(dict(private_workload_snapshot=stage, context=now, policy=security,
+         sha256=hashlib.sha256(raw.encode()).hexdigest(), mountinfo=raw)), flush=True)
+--- a/storage_controller.py
++++ b/storage_controller.py
+@@ -499,24 +499,46 @@
+         require(context['cgroup'] == expected_cgroup, 'private wrapper service cgroup')
+         private_workload.initialize_origin_capabilities(context)
+         private_workload.policy_gate('origin', context)
+-        argv = sandbox(self.m, context)
++        trust = private_workload.HostTrust(self.m, context,
++            [pinned_json(p)['root']['path'] for p in self.config['approved_policies']])
++        argv = trust.argv
+         env = {**os.environ, 'PATH':'/home/viktor/.local/bin:'+os.environ['PATH'],
+                'TMPDIR':self.m['tmpdir'], 'XDG_CACHE_HOME':self.m['cache'],
+                'CCACHE_DIR':self.m['ccache'], 'PYTHONDONTWRITEBYTECODE':'1'}
+         self.ledger.guard_service(self.key, authenticate=self.authenticate, host=self.host)
+         last = [0.0]
+         def guard():
++            trust.poll()
+             if time.monotonic()-last[0] >= 1:
+                 self.ledger.guard_service(self.key, authenticate=self.authenticate, host=self.host)
+                 last[0] = time.monotonic()
+-        with open(Path(self.m['receipts'])/'stdout', 'xb') as out, open(Path(self.m['receipts'])/'stderr', 'xb') as err:
+-            child = subprocess.Popen(argv, stdout=out, stderr=err, env=env, start_new_session=True)
+-            code, joined = cleanup.wait_owned(child, self.g['timeout_seconds'], guard=guard)
++        proofs, trust_error = [], None
++        try:
++            with open(Path(self.m['receipts'])/'stdout', 'xb') as out, open(Path(self.m['receipts'])/'stderr', 'xb') as err:
++                child = subprocess.Popen(argv, stdout=out, stderr=err, env=env,
++                                         start_new_session=True, pass_fds=trust.pass_fds)
++                # Attach errors are raised inside wait_owned's guarded join scope.
++                attached = [False]
++                original_guard = guard
++                def guarded_trust():
++                    if not attached[0]:
++                        trust.attach(child)
++                        attached[0] = True
++                    original_guard()
++                code, joined = cleanup.wait_owned(child, self.g['timeout_seconds'], guard=guarded_trust)
++                proofs = list(trust.proofs)
++                if code == 0:
++                    try: trust.complete()
++                    except Exception as exc:
++                        code, trust_error = 126, type(exc).__name__+': '+str(exc)
++        finally:
++            trust.close()
+         # The predecessor's fast-exit result omitted the empty remaining list.
+         require(joined.get('remaining_identities', []) == [], 'descendants remain')
+         for p in self.m['inputs']: pinned(p)
+         result = dict(exit=code, tracked=joined['tracked'], remaining_identities=[],
+-                      inputs_reverified=True, owned_join=joined, sandbox_argv=argv)
++                      inputs_reverified=True, owned_join=joined, sandbox_argv=argv,
++                      system_trust_proofs=proofs, system_trust_error=trust_error)
+         self.ledger.finish_service(self.key, result, authenticate=self.authenticate)
+         return code
+ 

@@ -1,0 +1,96 @@
+STORAGE NAMESPACE TRUST REPAIR20 — CONCRETE V9 SOURCE CANDIDATE; NOT INSTALLED/QUALIFIED
+2026-10-17. Worker01a149ab-4957-7a71-817b-494ae3302d01.
+Coordinator01a14893-cb1e-7203-97dd-de3da44dcf31.
+
+RESULT
+Two-file immutable patch against exact frozen installed v8: controller/private helper.
+No policy/config/ledger/helper-set mutation. Host-authenticated system ownership
+and actual outside namespace/custody proofs replace invalid pre/post host-UID0
+assumptions. Source-pinned host-only gate stays strict. No overflow whitelist,
+namespace-check skip, user-provided trust flag or writable trust receipt.
+No actual namespace/service/compiler/native/policy-load operation was performed.
+
+ACTUAL FAILURE / EVIDENCE LIMIT
+live19 failed trusted_system_file on dedicated unshare before namespace diagnostics.
+Host root-owned0755 metadata is observed; namespace lstat/maps at failure were
+NOT captured. Source-derived mapping explanations are not historical observations.
+SEMANTICS.txt distinguishes exact Ubuntu userspace source from upstream kernel
+corroboration and actual host observations. Audit21 exact trace incorporated.
+
+IMPLEMENTATION
+Controller retains all old current/admission/custody/accounting/join methods.
+Inside admitted service, an in-memory baseline and two private pipes bind one
+child. Helpers emit bounded lstat/maps/context before dependency rejection.
+Host checks live PID/starttime/exe/argv/cgroup/ancestry/readiness; holds actual
+namespace FDs; checks pre->host and final->intermediate->pre ancestry, correct
+intermediate mnt/pid/net ownership, unchanged cgroup namespace, and observer-
+scoped maps. Actual host source and child-root observations preserve UID0,
+protected parents, bytes/hash/dev/ino/mode/ctime/no-links/no-filecaps. Local
+metadata must equal that specific authenticated object after exact projection.
+Self pre1000:1000:1, self post1000:0:1, HOST post1000:1000:1 are distinct.
+Intermediate map is source-derived, not directly captured; proof says so.
+
+Ordered exact-digest/nonce releases precede original private/effective-storage
+checks; post closes both child endpoints before payload. Host guard remains
+under original wait_owned cleanup. Nonblocking host pipe ends,262144byte bounded
+frames, bounded128PID ancestry/cgroup enumeration,15s child reply deadline,
+strict fragment/EOF/replay/error rejection; missing stages cannot yield success.
+SEMANTICS details inherited-FD close behavior in bwrap's two monitor branches,
+guard timing, partial-write handling and live-latency/LSM limits. No runtime
+permission success is inferred. Helper alone is not an admission authority;
+only the already admitted controller owns the release capability and result.
+
+COMPOSITION22
+Standalone20 command() remains byte-identical to v8. Root-reviewed22 constants/
+runtime_view/command compose via composition-20-plus-22.patch; combined-review/
+is an OWN review copy. Exact-source runtime_view enables ONLY a constructed
+post / proof: different actual descriptor identity, mapped ordinary owner,
+0755,tmpfs /newroot,ro/nosuid/nodev,no propagation,statvfs readonly,matching dev.
+Original host/pre ancestry stays authenticated; imported /usr,/etc and all system
+parents/files retain strict host-root identity checks. No broad parent exemption.
+Full effective_storage implementation is unchanged. Root must review/pin combined
+bytes; this task did not deploy the combined candidate or modify22 artifacts.
+
+EXACT OUTPUTS
+v8-to-v9-trust.patch SHA256 29efe89d12bf07e637a7f300a6d60f1fddfc9ffc220b42a351617804c0eeadf0
+controller SHA256 679a326466cc127a0b5a70baca3230c408de9a94b1bb5b7c6d8df9bf8d330bb3
+standalone20 helper SHA256 3dd2e36ec6e4b4e95dc8e75d419775d4a8b24a3bafd1565207cf8d96b925640a
+combined20+22 helper SHA256 bb337ff57ecc96cf446d8e251e95dde0428dd2bcf7dea80cb1277e5adf450a1b
+successor-contract.json/SUCCESSOR.txt give fresh grant/source/authority requirements.
+preserved-v8-bundle.json must be appended to new config with every prior bundle
+and original v7 recovery authority retained. Same v4 state/lock/owners; no fresh
+operational grant issued. New source boot/namespace anchor requires review and
+fails closed after change/reboot. No arbitrary bypass flag is supported.
+
+VALIDATION
+Final64tests PASS: 0.267023s parent,peakRSS34716KiB;
+AS512MiB/CPU20s/wall35s,PID30390 joined/absent. Prior expanded64pass,
+initial47/48 plus one mock-fixture error retained honestly. Tests cover mapping
+ambiguity/observer scope, wrong host owner, bytes/identity/modes/symlinks/filecaps,
+spoofed context/receipt, malformed maps, wrong lineage/owner/intermediate, EPERM/
+ENOENT/PID race, protected roots, partial/oversize/EOF pipes, no ACK after failure,
+FD lifecycle, scaffold root/imported ancestry, diagnostics/order and old gates.
+Actual host dependency metadata/hash check and own bounded pipe/nofollow fixtures
+pass. No actual namespace/capability/exec/service call in tests; namespace/proc
+child/lineage operations are mocked. Patch dry-run and apply --fuzz=0 exactly
+reproduce standalone and composed copies. No compiler/parser/load was invoked.
+
+PRESERVATION / LIMITS
+45original plus42additional input pins verified, current installed v8 matches
+live19 authenticated pins. Original six phase rows/two recovery events and owner
+JSON byte pins unchanged;6attempts24MiB retained,activeRAM0,both owners live19.
+A/F cgroups empty, dispatcher service/timer/path inactive and masked /dev/null;
+A high3GiB/hard8GiB,F high/hard3GiB,swap0,pids160 unchanged.
+Final MemAvailable19516411904bytes. HEAD1c69ef8d7d1c24dea0373d7e7e29beeb0cd9a2c7 is root's disjoint
+22 evidence commit. D267/D289 excluded. No agents/commits/cap resets or peer writes.
+Runtime pipe permissions, host /proc/ioctl access, source-predicted scaffold and
+all live qualification cases remain unproven; no policy delta proposed without
+concrete indispensable evidence. No namespace probe or new attempt permission.
+
+DELIVERY
+Input/additional/output pins, final-readonly-seal, raw test results, exact patch
+verification, host observations and fresh successor contract are retained.
+ONE DONE storage-namespace-trust-repair-20-01a149ab-ready is delivered once through
+the existing app-server client; notification-result records ACK/uncertainty with
+no retry. Stop after delivery. Root alone owns composition/adoption and any future
+grant; this worker has no operational lane and performs no successor work.

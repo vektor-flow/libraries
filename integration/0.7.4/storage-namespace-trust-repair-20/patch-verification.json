@@ -1,0 +1,57 @@
+{
+  "runs": [
+    {
+      "argv": [
+        "patch",
+        "--fuzz=0",
+        "-p1",
+        "-i",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-namespace-trust-repair-20/v8-to-v9-trust.patch",
+        "--dry-run"
+      ],
+      "exit": 0,
+      "stdout": "checking file private_workload.py\nchecking file storage_controller.py\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "patch",
+        "--fuzz=0",
+        "-p1",
+        "-i",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-namespace-trust-repair-20/v8-to-v9-trust.patch"
+      ],
+      "exit": 0,
+      "stdout": "patching file private_workload.py\npatching file storage_controller.py\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "patch",
+        "--fuzz=0",
+        "-p1",
+        "-i",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-namespace-trust-repair-20/composition-20-plus-22.patch",
+        "--dry-run"
+      ],
+      "exit": 0,
+      "stdout": "checking file private_workload.py\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "patch",
+        "--fuzz=0",
+        "-p1",
+        "-i",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-namespace-trust-repair-20/composition-20-plus-22.patch"
+      ],
+      "exit": 0,
+      "stdout": "patching file private_workload.py\n",
+      "stderr": ""
+    }
+  ],
+  "exact_result": true,
+  "own_copies_only": true,
+  "all_children_waited": true
+}

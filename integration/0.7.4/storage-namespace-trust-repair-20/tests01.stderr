@@ -1,0 +1,74 @@
+test_actual_own_symlink_nofollow (__main__.HostReadOnly.test_actual_own_symlink_nofollow) ... ok
+test_real_direction_and_eof (__main__.HostReadOnly.test_real_direction_and_eof) ... ok
+test_real_host_dependencies_and_metadata (__main__.HostReadOnly.test_real_host_dependencies_and_metadata) ... ok
+test_cgroup_namespace_is_unchanged (__main__.Lineage.test_cgroup_namespace_is_unchanged) ... ok
+test_exact_devpts_chain (__main__.Lineage.test_exact_devpts_chain) ... ok
+test_final_not_owner_of_mount_pid_net (__main__.Lineage.test_final_not_owner_of_mount_pid_net) ... ok
+test_io_errors_are_not_proofs (__main__.Lineage.test_io_errors_are_not_proofs) ... ok
+test_missing_intermediate (__main__.Lineage.test_missing_intermediate) ... ok
+test_no_pre_no_post (__main__.Lineage.test_no_pre_no_post) ... ok
+test_wrong_owner_or_parent (__main__.Lineage.test_wrong_owner_or_parent) ... 
+  test_wrong_owner_or_parent (__main__.Lineage.test_wrong_owner_or_parent) (edge=(30, 46850)) ... ERROR
+test_malformed_and_ambiguous (__main__.Maps.test_malformed_and_ambiguous) ... ok
+test_namespace_change_matrix (__main__.Maps.test_namespace_change_matrix) ... ok
+test_post_pre_map_rejected (__main__.Maps.test_post_pre_map_rejected) ... ok
+test_pre_post_and_host_reader (__main__.Maps.test_pre_post_and_host_reader) ... ok
+test_spoofed_context (__main__.Maps.test_spoofed_context) ... ok
+test_wrong_host_composition (__main__.Maps.test_wrong_host_composition) ... ok
+test_authentic_host_and_projections (__main__.Objects.test_authentic_host_and_projections) ... ok
+test_bad_namespace_metadata (__main__.Objects.test_bad_namespace_metadata) ... ok
+test_byte_and_filecaps (__main__.Objects.test_byte_and_filecaps) ... ok
+test_changed_file_identity_fields (__main__.Objects.test_changed_file_identity_fields) ... ok
+test_changed_parent_identity (__main__.Objects.test_changed_parent_identity) ... ok
+test_missing_extra_error (__main__.Objects.test_missing_extra_error) ... ok
+test_namespace_root_proof_spoof (__main__.Objects.test_namespace_root_proof_spoof) ... ok
+test_overflow_is_not_ownership_authority (__main__.Objects.test_overflow_is_not_ownership_authority) ... ok
+test_symlink_privileged_writable_hardlink (__main__.Objects.test_symlink_privileged_writable_hardlink) ... ok
+test_controller_join_transport_order (__main__.Ordering.test_controller_join_transport_order) ... ok
+test_controller_other_methods_unchanged (__main__.Ordering.test_controller_other_methods_unchanged) ... ok
+test_diag_before_dependency_failure_and_no_release (__main__.Ordering.test_diag_before_dependency_failure_and_no_release) ... ok
+test_namespace_proof_before_dependency_release (__main__.Ordering.test_namespace_proof_before_dependency_release) ... ok
+test_no_child_ancestor_ioctl (__main__.Ordering.test_no_child_ancestor_ioctl) ... ok
+test_old_gates_unchanged_ast (__main__.Ordering.test_old_gates_unchanged_ast) ... ok
+test_complete_requires_both_stages (__main__.Protocol.test_complete_requires_both_stages) ... ok
+test_foreign_ancestry (__main__.Protocol.test_foreign_ancestry) ... ok
+test_live_model_both_scopes (__main__.Protocol.test_live_model_both_scopes) ... ok
+test_origin_not_accepted_from_user_json (__main__.Protocol.test_origin_not_accepted_from_user_json) ... ok
+test_oversize_duplicate_json_and_replay (__main__.Protocol.test_oversize_duplicate_json_and_replay) ... ok
+test_pid_race (__main__.Protocol.test_pid_race) ... ok
+test_proc_access_errors (__main__.Protocol.test_proc_access_errors) ... ok
+test_spoofed_context_nonce_attempt_argv_receipt (__main__.Protocol.test_spoofed_context_nonce_attempt_argv_receipt) ... ok
+test_unowned_or_wrong_executable_process (__main__.Protocol.test_unowned_or_wrong_executable_process) ... ok
+test_writable_authority_roots (__main__.Protocol.test_writable_authority_roots) ... ok
+test_wrong_composed_host_map (__main__.Protocol.test_wrong_composed_host_map) ... ok
+test_constructed_root_distinct_from_host (__main__.Scaffold.test_constructed_root_distinct_from_host) ... ok
+test_imported_parent_is_never_exempt (__main__.Scaffold.test_imported_parent_is_never_exempt) ... ok
+test_root_mount_failures (__main__.Scaffold.test_root_mount_failures) ... ok
+test_root_owner_mode_symlink (__main__.Scaffold.test_root_owner_mode_symlink) ... ok
+test_scaffold_rejected_without_specific_proof (__main__.Scaffold.test_scaffold_rejected_without_specific_proof) ... ok
+test_uncombined_source_has_no_scaffold_authority (__main__.Scaffold.test_uncombined_source_has_no_scaffold_authority) ... ok
+
+======================================================================
+ERROR: test_wrong_owner_or_parent (__main__.Lineage.test_wrong_owner_or_parent) (edge=(30, 46850))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-namespace-trust-repair-20/test_trust.py", line 159, in test_wrong_owner_or_parent
+    with self.subTest(edge=key),self.assertRaises(Rejected):self.runproof(stage)
+                                                            ~~~~~~~~~~~~~^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-namespace-trust-repair-20/test_trust.py", line 153, in runproof
+    return p.lineage(stage,self.pre if stage=='pre' else self.post,self.host,self.pre if pre else None)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-namespace-trust-repair-20/proposed/private_workload.py", line 287, in lineage
+    with _related(intermediate, NS_GET_PARENT) as parent:
+         ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-namespace-trust-repair-20/test_trust.py", line 151, in related
+    def related(fd,op):yield self.edges[(fd,op)]
+                             ~~~~~~~~~~^^^^^^^^^
+KeyError: (999, 46850)
+
+----------------------------------------------------------------------
+Ran 48 tests in 0.133s
+
+FAILED (errors=1)

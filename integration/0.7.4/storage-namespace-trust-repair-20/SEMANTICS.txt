@@ -1,0 +1,152 @@
+REPAIR20 — EXACT V8 FAILURE AND PROPOSED V9 TRUST PROTOCOL
+2026-10-17. Source/model/host-read-only result; no live namespace qualification.
+
+OBSERVED / INFERRED
+live19 raw-stderr proves gate226 -> verify_dependencies184 -> trusted_system_file33
+rejected /usr/local/libexec/vkf-storage-private-v2/unshare. The conjunction tests
+no symlink, UID0 and mode &022==0 on every path/parent. Host metadata was UID0,
+GID0,0755,single-link; live19 emitted NO namespace lstat or maps at that failure.
+An unmapped host root is a source explanation, never a captured live19 value.
+This task did not enter/create a namespace or run unshare/bwrap/payload.
+
+Frozen v8 installed helper hash0a9d6b0c...52301, controller520b46ca...e699c.
+input-pins.json authenticates exact installed sources, config, system dependencies,
+live19 evidence/state and Ubuntu package sources. Dated shared handover is the
+historical baseline; repair18 installation supersedes its preparation handoff;
+live19 failure/normal join supersedes live17. audit21 SOURCE-TRACE.txt and root's
+repair22 accepted source/evidence are newer disjoint compatibility requirements.
+Granted HEAD1b76a245 advanced through root evidence commits5a2edfee,d61a494,1c69ef8.
+No worker commit or installed-source mutation was made here.
+
+MAPS AND ACTUAL LINEAGE
+Pinned applied Ubuntu unshare source selects --map-current-user, calls unshare,
+writes pre UID/GID1000:1000:1 and execs helper. Bwrap0.11.1-1ubuntu0.3 --dev sets
+opt_needs_devpts; initial child U2 maps0:1000:1, then creates final U3 and writes
+1000:0:1. Exact traced source lines: US966-970,1104,1213-1232,1288;
+BW2147,3031-3034,3076-3134,3291-3305,3456-3501. This is source prediction.
+
+A proposed live run must separately observe:
+- self pre1000:1000:1; self post1000:0:1;
+- host-reader pre AND post1000:1000:1 (composition into observer scope);
+- actual pre.user.parent=host.user; pre.mnt.owner=pre.user; pid/net unchanged;
+- actual final.user.parent=intermediate; intermediate.parent=held pre.user;
+  mnt/pid/net.owner=intermediate, not final; pid.parent=host.pid;
+- cgroup namespace and cgroup path unchanged, all expected namespace changes.
+The host holds actual namespace FDs until join to prevent ID reuse. No child
+ancestor ioctls: EPERM/ENOENT/unknown lineage fail closed, never count as proof.
+The intermediate namespace's map is NOT directly observed (no retained task is
+assumed there). Its single-row source contract is bound by exact pinned bwrap
+and argv; final self/host maps plus actual lineage prove the relevant composition.
+Proof records explicitly say intermediate_maps_observed=false. Do not relabel
+inferred intermediate fields as a runtime map observation.
+
+Primary documentation, used as semantics not an installed-kernel source identity:
+https://man7.org/linux/man-pages/man7/user_namespaces.7.html (map reader scope)
+https://man7.org/linux/man-pages/man2/NS_GET_USERNS.2const.html (ancestor scope)
+https://man7.org/linux/man-pages/man2/ptrace.2.html (host read checks)
+Audit21 retains exact package source, documentation and labelled upstream-v7
+kernel corroboration. Exact Ubuntu kernel behavior remains unexecuted.
+
+AUTHORITY AND TRUST CHECKS
+Controller.current() and all old authorization/owner/source/ledger/root gates
+are unchanged. Host-only verify_dependencies authenticates a source-pinned,
+boot-bound host namespace anchor and full host identity maps; it never treats
+pre/post as host. The anchor is actual repair20 host /proc/self metadata; its
+four old namespace values also equal the authenticated live19 origin. Host
+/proc/1/ns/user was unreadable (EACCES) in a read-only preparation check; no
+PID1 observation or privileged fallback is claimed. cgroup namespace is newly
+observed at host. Reboot/anchor change requires a fresh reviewed source authority.
+
+The admitted controller creates two anonymous pipes and a random256-bit nonce,
+keeps the only reply writer, and passes only request-write/reply-read endpoints
+to its Popen child. Its private baseline/held FDs stay outside every enrolled
+writable root; current() continues to protect helper/config/grants/state paths.
+No new config trust flag, persistent trust receipt, root helper, socket, policy
+change or helper-set entry is introduced. A response is only accepted for its
+exact request digest/nonce/stage. Controller observes the live exact Python
+argv/executable, PID/starttime, cgroup, bounded descendant chain, readiness,
+actual namespace FDs, host-rendered maps and kernel /proc/PID/root before ACK.
+A second live process identity read closes the observation interval. Other
+readers/monitors or ambiguous/missing/raced matches reject, never substitute.
+
+This is an admitted-controller capability protocol, not a general standalone
+helper authorization service or cryptographically signed receipt. An arbitrary
+caller running a helper with caller-created pipes cannot create an authenticated
+controller result. The security boundary remains the existing trusted host
+coordinator/controller and its source-pinned launch chain; hostile unconfined
+same-UID host code already controls the old user-owned authority directories and
+is outside that boundary. No response JSON file or caller-selected "trusted"
+boolean is accepted as authority by the controller.
+
+The bounded inventory contains exactly BINARIES+POLICY_INPUTS and their parents.
+Every walk uses directory descriptors/O_NOFOLLOW and lstat before rejection;
+bytes, xattrs and fstat refer to the opened object and stable before/after fields.
+Host UID0, protected modes, regular single-link leaf, no privileged bits, no
+filecaps and pinned hash are mandatory. Host identity/dev/ino/mode/ctime and leaf
+size/mtime remain equal before/pre/post. Root source observations are refreshed.
+Namespace rows must match the same host-authenticated objects and exact mapped
+owner/group values. Overflow UID alone is never sufficient: a different host
+owner with identical namespace-visible overflow is rejected by host observations.
+
+ORDER / DIAGNOSTICS
+The helper captures actual bounded lstat/context/maps first and emits it before
+policy/dependency rejection; failure diagnostics include the reason. Strict
+policy gate and stage-context checks precede requesting trust release. The host
+validates actual custody and namespace lineage BEFORE accepting namespace-owned
+system observations. The host emits actual observations/reasons on rejection.
+After ACK the helper still runs original private_snapshot; post still runs the
+unchanged effective_storage.check and mountinfo stability check before exec.
+No storage/policy error or missing diagnostic is reclassified as success.
+Diagnostic request paths are filtered to the fixed system-input closure.
+
+SCAFFOLD COMPOSITION WITH22
+Proposal20 leaves command() byte-identical to v8. composition-20-plus-22.patch
+adds exactly repair22's constants/runtime_view and replaces command() with its
+reviewed version; all20 trust functions remain identical. combined-review/ is
+an own-output review copy, not installed v9. Root must compose and pin explicitly.
+
+Without22, post / must remain the authenticated original host-root object.
+With the source-pinned runtime_view and exact RUNTIME_READ_TREES contract, ONLY
+post / is verified as constructed: real host-side root descriptor must identify
+a different0755 directory, UID/GID matching the admitted ordinary host identity,
+tmpfs mount rooted at /newroot, no propagation attributes, ro/nosuid/nodev,
+actual fstatvfs ST_RDONLY and matching mount/dev identity. This matches bwrap's
+source3318-3337 tmpfs/newroot/bind construction, not a live observation.
+Original source / ancestry must already pass at host/pre. /usr,/etc and every
+other imported system parent/file retain host-root ownership, complete identity,
+mode, no-symlink, hash and filecaps checks. Only constructed / has this distinct
+proof; no name-only mount acceptance or parent skip. Final local root metadata
+and mount evidence must equal the actual host-observed root after mapping.
+The unchanged full effective-storage gate still checks all imported boundaries,
+visible paths/device identities/private topology and exact charged writable root.
+
+FD LIFETIME / BOUNDS / FAILURES
+Popen(pass_fds=two endpoints) is required. pre retains both endpoints across
+exec unshare->Python->bwrap; no CLOEXEC restoration is performed in pre. Exact
+BW monitor512-521 and PID1 supervisor3574-3587 close extra FDs in the monitor
+branches only; the final child inherits them. Final post closes both before
+storage check/payload exec. Controller closes its child-endpoint copies at attach,
+then both parent endpoints plus held namespace FDs in finally after wait_owned.
+
+Controller poll runs on every existing guard callback (nominal <=250ms wait),
+independently of the preserved >=1s ledger/resource refresh. Read end and reply
+writer are nonblocking. A complete newline frame <=262144bytes is needed before
+any release; fragments cannot trigger observation/ACK. Only pre then post are
+accepted, no concatenated/replayed/extra frames. Replies are about228bytes, at
+most two; nonblocking reply failure propagates into guarded cleanup. Child
+request writes may block while the controller drains them, but the host never
+blocks waiting for a request or a pipe ACK. Child reply deadline15s is bounded
+by the unchanged overall workload deadline; missing writer/EOF/closed FD,
+malformed JSON, observation failures, wrong hash/nonce/stage and incomplete
+stages prevent successful execution. Existing wait_owned handles error/timeout
+with original TERM/KILL/join and no cap/accounting reset. Missing stages with
+exit0 become exit126 and a recorded error after the existing child join.
+
+Limits are byte/count bounds, not measured live latency guarantees. Existing
+filesystem/proc reads may incur kernel latency; nominal250ms is not a hard
+scheduler guarantee. Final helper request size and bound tests are model evidence.
+No live bwrap transport or timing, inherited-FD permission, /proc/LSM access,
+namespace ioctl or scaffold acceptance was tested. Read failures are fatal.
+No concrete indispensable policy permission has been demonstrated; therefore
+NO policy delta is proposed. Stop for exact evidence if a separately granted
+live run finds a new requirement; do not infer permission from this model pass.
