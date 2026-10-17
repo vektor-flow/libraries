@@ -66,3 +66,5 @@ results['blocked_gates'] = ['40-page save/correctness/timing requires successful
 results['source_posthash_match'] = all(hashlib.sha256((repo/name).read_bytes()).hexdigest()==digest for name,digest in sources.items())
 results['canonical_original419'] = '293/419 unchanged; original compiler suite not rerun by this application baseline'
 save()
+# A successful runner process must never hide a failed stage or changed inputs.
+raise SystemExit(0 if results['source_posthash_match'] and all(stage['status']=='pass' for stage in results['stages']) else 1)
