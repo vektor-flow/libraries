@@ -1,0 +1,115 @@
+REPAIR22 — PRIVATE WORKLOAD READ VIEW; SOURCE PROOF, NOT LIVE QUALIFICATION
+
+The root accepted this explicit view in the worker conversation. Full host-root
+visibility is not required for the scoped compiler/storage workload. No /sys
+read was found in the workload helper, effective checker, compiler prepare/
+payload, or adopted adapter. Controller cgroup/systemd reads remain on the host.
+
+WHY NOT JUST COVER /run?
+The old command recursively binds host / into newroot. An overmount may make
+inaccessible descendants hidden to path resolution, but cannot be advertised as
+removing their mountinfo records. A --dir /run after that clone does not mask
+anything. The requested stronger property is achieved by never copying host /
+or its /run,/var,/sys subtrees into the final workload root.
+
+EXACT INSTALLED-PACKAGE SOURCE BASIS
+Use repair10/sources/ubuntu-bubblewrap.c and ubuntu-bind-mount.c, both pinned in
+source-evidence-pins.json. Audit21 SOURCE-TRACE confirms these are applied Ubuntu
+0.11.1-1ubuntu0.3 sources matching the installed pinned binary, not an inferred
+new implementation. Upstream overview: https://github.com/containers/bubblewrap/blob/v0.11.1/bubblewrap.c
+No source package, binary, installer or namespace was executed here.
+
+BW1112-1117 always binds directories recursively. There is no command-line
+nonrecursive ro-bind shortcut to selectively prune host-root descendants.
+BW3308 resolves source symlinks before constructing the new view.
+BW3314-3338 makes the inherited tree slave and creates its existing private tmpfs
+scaffold/newroot bind. Outer unshare already made the entire workload tree
+private; source/strict guards remain unchanged. Becoming slave with no shared
+master does not introduce incoming host propagation; final strict check remains
+mandatory, never replaced by this reasoning.
+BW1239-1260 creates destinations, then performs each requested bind from oldroot.
+BW1472-1481 --dir makes an ordinary directory; it is not a mount or writable tmpfs.
+BW1096-1107 --remount-ro calls bind_mount(NULL,dest,BIND_READONLY), nonrecursively.
+BM398 creates bind mounts; BM465-484 may skip inaccessible recursive remounts.
+Therefore a retained inaccessible submount is still a hard post-gate failure.
+BW3418-3422 makes oldroot private and detaches it. BW3429-3453 pivots into newroot
+using pivot_root(".",".") and detaches the old scaffold outside final root. No
+new writable directory must be created inside the root after its final remount.
+Thus final mountinfo contains only the scaffold and deliberately imported/new
+mounts, not oldroot's inaccessible /run or /var trees. This is a source-derived
+prediction for the exact argv, not a captured post-exec mount table.
+
+CONSTRUCTION / ORDER
+Retain bwrap --unshare-user. Import /usr,/etc,/home,/mnt recursively readonly.
+Create exact host-compatible /bin,/sbin,/lib,/lib32,/lib64 symlinks into usr.
+Create empty /run,/var,/tmp on the scaffold. Create fresh /dev and /proc, bind
+host /dev/shm readonly, retain readonly remounts /dev/pts,/dev,/proc. Bind only
+the exact charged attempt writable. Finally --remount-ro / freezes scaffold and
+all ordinary directories on it. The nonrecursive remount leaves the one charged
+attempt writable. No mount setup option follows it. Keep PID/net isolation,
+die-with-parent, chdir, pre/post helper and exact exec custody unchanged.
+
+No immutable empty source or system installation is needed: bwrap already has
+the construction scaffold. No additional executable, helper module, policy
+allow, UID exception, host chmod, host mount change, or fallback is proposed.
+The temporary construction filesystem is not accepted writable: deleting the
+final root remount makes the unchanged checker reject the model. So does adding
+any writable /tmp,/run,/var, external directory or nested attempt mount.
+
+READ CLOSURE, NOT ONLY QUALIFICATION PINS
+read-closure.json records 1,155 distinct nominal paths opened for a one-byte host
+read with descriptor metadata, resolving aliases and checking both nominal and
+resolved placement. This is accessibility evidence, not reauthorization of old
+digests or execution of native code. It includes all 216 live19 input pins;
+727 actual compiler plan inputs, its generated VFS/source assets and review;
+727 authentication inputs; 190 current-control source paths; 44 adapter authority
+paths; 29 ELF-edge endpoint paths; exact font catalog and language data; all
+16 paths mapped/required by the Python ctypes capture; three live protected
+state/owner/lock reads; and Git worktree/common metadata.
+
+The canonical loader and libffi remain under /usr; /lib and /lib64 aliases retain
+their exact installed links. Clang/linker/include/provider inputs stay under
+/usr,/home,/mnt. A347's actual .vkfont/.vkhyphen are under /mnt/development.
+No system font cache mutation or implicit /var cache dependency is asserted.
+All eight compiler stages and 727 input rows remain unchanged. Three unbuilt
+object references were initially misclassified as read inputs by the capture
+script; the correction distinguishes the plan's explicit future output set,
+verifies no overlap with its input set, and retains the initial failure logs.
+Future outputs are relocated by the existing adapter under the charged attempt;
+they were not created here. No plan or input was dropped to obtain a pass.
+
+293 retained host mount boundaries are inspectable via the unchanged component-
+wise O_PATH/fdinfo/fstat/statvfs adapter. Their directory types are recorded. The
+full host snapshot was stable during capture. The model derives 304 final mount
+records and passes all 304 through the unchanged checker, with no hidden rows,
+one charged writable mount and no imported /run,/var,/sys mount entry.
+Host observations do not prove actual final map/LSM accessibility; a later live
+snapshot must independently establish that. Any future inaccessible imported
+mount causes strict rejection; the source list is a view definition, not an
+exception list for the checker.
+
+OVERLAPPING HUNKS / REPAIR20 DEPENDENCY
+Only private_workload.py changes. New RUNTIME_READ_TREES/RUNTIME_LINKS/runtime_view
+are inserted before command(). Its bwrap list replaces --ro-bind / / with
+*runtime_view(m), and adds --remount-ro / immediately after the charged bind.
+All other existing functions have AST-identical semantics; effective_storage.py
+and storage_paths.py are byte-identical reference copies. No controller hunk.
+
+Repair20 owns command's authenticated transport/lineage changes. Root must merge
+the mount list deliberately into that command; do not overwrite either complete
+file with the other's candidate. Final / is now a constructed tmpfs object, so
+repair20 cannot require it to have host / dev/inode/owner. That unavoidable
+combination requirement was explicitly sent to root and repair20. Imported
+/usr,/etc,/home,/mnt objects still require their authenticated source identities;
+the synthetic scaffold needs exact construction/custody plus strict readonly
+observation. This proposal does not invent a trust exception or implement that
+other worker's proof. Frozen v8 trust checks still fail until correctly combined.
+
+LIMITS / REQUIRED FUTURE WORK
+44 bounded source/host tests pass (17 new plus 27 unchanged checker regressions).
+The mount model does not execute Linux mounts, AppArmor transitions or userns
+mapping. No successful pre/post namespace evidence, compiler execution, service
+join or qualification is claimed. Root must finish the scaffold-aware repair20
+combination, refresh exact source/input/grant pins and actual current compiler
+plan, then obtain separately authorized runtime validation. Failing any real
+gate remains a charged failure; no retry, cap/attempt reset or relaxed guard.

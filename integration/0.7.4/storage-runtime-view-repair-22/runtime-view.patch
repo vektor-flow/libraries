@@ -1,0 +1,71 @@
+--- a/private_workload.py
++++ b/private_workload.py
+@@ -198,15 +198,67 @@
+                 namespaces={n:os.readlink('/proc/self/ns/'+n) for n in ('mnt','user','pid','net')})
+ 
+ 
++# This is a construction contract, never an effective-storage exception list.
++# Do not import the host root: recursive binds preserve inaccessible submounts.
++RUNTIME_READ_TREES = ('/usr', '/etc', '/home', '/mnt')
++RUNTIME_LINKS = (('/bin', 'usr/bin'), ('/sbin', 'usr/sbin'),
++                 ('/lib', 'usr/lib'), ('/lib32', 'usr/lib32'),
++                 ('/lib64', 'usr/lib64'))
++
++
++def runtime_view(m):
++    """Use bwrap's private scaffold; freeze it after all setup operations.
++
++    Host controller/custody remains outside this workload-only view. No host
++    /run, /var or /sys mount tree is copied, and no immutable empty host source
++    or new privileged helper is needed. All imported submounts remain subject
++    to the unchanged strict post gate, including unknown/inaccessible ones.
++    """
++    import stat
++    for source in RUNTIME_READ_TREES:
++        require(stat.S_ISDIR(Path(source).lstat().st_mode), 'view source directory '+source)
++    for path, target in RUNTIME_LINKS:
++        require(Path(path).is_symlink() and os.readlink(path) == target,
++                'view compatibility symlink changed '+path)
++    # The manifest inputs have already passed controller pin validation. Check
++    # their nominal AND resolved locations so a new /run or /var dependency
++    # cannot silently disappear. No discovery, fallback bind or permission fix.
++    reads = [p['path'] for p in m['inputs']] + [p['path'] for p in BINARIES + POLICY_INPUTS]
++    reads += [str(HERE/'private_workload.py'), str(HERE/'effective_storage.py'),
++              str(HERE/'storage_paths.py'), m['argv'][0]]
++    read_trees = (*RUNTIME_READ_TREES, '/dev/shm')
++    for value in reads:
++        require(Path(value).is_absolute(), 'absolute view input required')
++        nominal = os.path.normpath(value)
++        for link, target in RUNTIME_LINKS:
++            if effective_storage.within(nominal, link):
++                nominal = '/'+target+nominal[len(link):]
++                break
++        resolved = str(Path(value).resolve(strict=True))
++        require(all(any(effective_storage.within(p, tree) for tree in read_trees)
++                    for p in (nominal, resolved)), 'input outside runtime read view '+value)
++    require(effective_storage.within(m['attempt_root'], '/mnt'), 'attempt outside retained /mnt')
++    argv = []
++    for source in RUNTIME_READ_TREES:
++        argv += ['--ro-bind', source, source]
++    for path, target in RUNTIME_LINKS:
++        argv += ['--symlink', target, path]
++    # These are ordinary empty directories in the single private scaffold;
++    # root's final --remount-ro also makes all three read-only.
++    argv += ['--dir', '/run', '--dir', '/var', '--dir', '/tmp']
++    return argv
++
++
+ def command(m, origin):
+     root = m['attempt_root']
+     encoded = json.dumps(origin, sort_keys=True, separators=(',', ':'))
+     helper = [PYTHON, '-I', '-B', str(HERE/'private_workload.py')]
+     post = [*helper, 'post', encoded, root, '--', *m['argv']]
+-    bwrap = [BWRAP, '--unshare-user', '--ro-bind', '/', '/', '--dev', '/dev', '--proc', '/proc',
++    bwrap = [BWRAP, '--unshare-user', *runtime_view(m), '--dev', '/dev', '--proc', '/proc',
+              '--ro-bind', '/dev/shm', '/dev/shm',
+              '--remount-ro', '/dev/pts', '--remount-ro', '/dev', '--remount-ro', '/proc',
+              '--bind', root, root,
++             '--remount-ro', '/',  # Last mount operation; no writable scaffold survives.
+              '--unshare-pid', '--unshare-net', '--die-with-parent', '--chdir', m['cwd'],
+              '--', *post]
+     return [UNSHARE, '--user', '--map-current-user', '--mount', '--propagation', 'private',

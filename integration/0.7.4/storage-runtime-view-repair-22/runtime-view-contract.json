@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "status": "SOURCE_ONLY_ROOT_PROPOSAL_NOT_ADMISSION",
+  "host_setup_required": false,
+  "immutable_empty_source_required": false,
+  "new_executables": [],
+  "new_policy_rules": [],
+  "source_read_trees": [
+    "/usr",
+    "/etc",
+    "/home",
+    "/mnt"
+  ],
+  "compatibility_symlinks": {
+    "/bin": "usr/bin",
+    "/sbin": "usr/sbin",
+    "/lib": "usr/lib",
+    "/lib32": "usr/lib32",
+    "/lib64": "usr/lib64"
+  },
+  "empty_scaffold_directories": [
+    "/run",
+    "/var",
+    "/tmp"
+  ],
+  "excluded_host_trees": [
+    "/run",
+    "/var",
+    "/sys"
+  ],
+  "special_mounts": [
+    "fresh /dev with exact existing six character bindings",
+    "fresh /proc",
+    "recursive readonly host /dev/shm",
+    "exact single writable charged attempt"
+  ],
+  "root_remount": "--remount-ro / is last mount operation, after charged bind",
+  "compiler_contract": "727 historical plan inputs and eight stages preserved; actual future plan must be freshly authenticated and relocated, not reused as admission",
+  "input_placement": "All canonical pinned input paths and resolved aliases must remain under /usr,/etc,/home,/mnt or the existing readonly /dev/shm. Unexpected external inputs reject; no automatic additional binds.",
+  "write_placement": "Only charged attempt; controller-defined cwd/tmp/cache/ccache/receipts and compiler adapter output relocation unchanged.",
+  "runtime_exclusions": "No /sys exposure; controller host cgroup/systemd/custody readers remain outside workload. Required workload code uses /proc, not /sys.",
+  "trust_combination": "Final / is newly constructed and differs from host /; repair20 must authenticate imported source roots plus exact readonly scaffold construction without UID exceptions. frozen-v8 trust logic is intentionally not repaired here.",
+  "live_required": [
+    "fresh final mountinfo + descriptor/statvfs check unchanged",
+    "exact namespace/lineage/trust proof from repair20 with scaffold-aware root handling",
+    "final caps/labels/NNP/cgroup/private propagation checks unchanged",
+    "fresh grant/admission and exact service/process joins",
+    "fresh actual input closure; inaccessible new imported mounts reject"
+  ],
+  "preserve": [
+    "frozen v8",
+    "6 attempts / 24 MiB",
+    "active RAM intent 0",
+    "both owners live19",
+    "D267/D289/A333 exclusions",
+    "old dispatcher held",
+    "no native/compiler/release qualification"
+  ]
+}

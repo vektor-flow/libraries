@@ -1,0 +1,6488 @@
+{
+  "model_only": true,
+  "executed": false,
+  "namespace_qualification": false,
+  "argv": [
+    "/usr/local/libexec/vkf-storage-private-v2/unshare",
+    "--user",
+    "--map-current-user",
+    "--mount",
+    "--propagation",
+    "private",
+    "--",
+    "/usr/bin/python3.14",
+    "-I",
+    "-B",
+    "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-runtime-view-repair-22/proposed/private_workload.py",
+    "pre",
+    "{\"cgroup\":\"/TEST_ONLY.service\",\"gid\":1000,\"namespaces\":{\"mnt\":\"TEST_ONLY_mnt\",\"net\":\"TEST_ONLY_net\",\"pid\":\"TEST_ONLY_pid\",\"user\":\"TEST_ONLY_user\"},\"uid\":1000}",
+    "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live19-f-success-01",
+    "--",
+    "/usr/bin/bwrap",
+    "--unshare-user",
+    "--ro-bind",
+    "/usr",
+    "/usr",
+    "--ro-bind",
+    "/etc",
+    "/etc",
+    "--ro-bind",
+    "/home",
+    "/home",
+    "--ro-bind",
+    "/mnt",
+    "/mnt",
+    "--symlink",
+    "usr/bin",
+    "/bin",
+    "--symlink",
+    "usr/sbin",
+    "/sbin",
+    "--symlink",
+    "usr/lib",
+    "/lib",
+    "--symlink",
+    "usr/lib32",
+    "/lib32",
+    "--symlink",
+    "usr/lib64",
+    "/lib64",
+    "--dir",
+    "/run",
+    "--dir",
+    "/var",
+    "--dir",
+    "/tmp",
+    "--dev",
+    "/dev",
+    "--proc",
+    "/proc",
+    "--ro-bind",
+    "/dev/shm",
+    "/dev/shm",
+    "--remount-ro",
+    "/dev/pts",
+    "--remount-ro",
+    "/dev",
+    "--remount-ro",
+    "/proc",
+    "--bind",
+    "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live19-f-success-01",
+    "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live19-f-success-01",
+    "--remount-ro",
+    "/",
+    "--unshare-pid",
+    "--unshare-net",
+    "--die-with-parent",
+    "--chdir",
+    "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live19-f-success-01/cwd",
+    "--",
+    "/usr/bin/python3.14",
+    "-I",
+    "-B",
+    "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-runtime-view-repair-22/proposed/private_workload.py",
+    "post",
+    "{\"cgroup\":\"/TEST_ONLY.service\",\"gid\":1000,\"namespaces\":{\"mnt\":\"TEST_ONLY_mnt\",\"net\":\"TEST_ONLY_net\",\"pid\":\"TEST_ONLY_pid\",\"user\":\"TEST_ONLY_user\"},\"uid\":1000}",
+    "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live19-f-success-01",
+    "--",
+    "/usr/bin/python3.14",
+    "-B",
+    "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-mount-repair-08/fixture.py",
+    "success",
+    "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live19-f-success-01",
+    "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-mount-repair-08/fixture.py",
+    "pid:[4026531836]",
+    "net:[4026531833]"
+  ],
+  "historical_manifest_reference": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v8/storage-live-19/live19-f-success-01-manifest.json",
+  "report": {
+    "mountinfo_sha256": "5ce4fa37c8204fb3cd72a42f9346d4973596042f315ee7eaabb0da5d1a40778b",
+    "attempt_mount_id": 100303,
+    "rows": [
+      {
+        "id": 100000,
+        "path": "/",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100000,
+          "dev": [
+            0,
+            999
+          ],
+          "ino": 200000,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100001,
+        "path": "/usr",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100001,
+          "dev": [
+            252,
+            1
+          ],
+          "ino": 200001,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100002,
+        "path": "/etc",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100002,
+          "dev": [
+            252,
+            1
+          ],
+          "ino": 200002,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100003,
+        "path": "/home",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100003,
+          "dev": [
+            252,
+            1
+          ],
+          "ino": 200003,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100004,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/artifact-archives01/verify01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100004,
+          "dev": [
+            7,
+            22
+          ],
+          "ino": 200004,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100005,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/native-benchmark-correctness01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100005,
+          "dev": [
+            7,
+            22
+          ],
+          "ino": 200005,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100006,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/all-lanes92801/closed915-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100006,
+          "dev": [
+            7,
+            25
+          ],
+          "ino": 200006,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100007,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/native01/CMakeFiles",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100007,
+          "dev": [
+            7,
+            25
+          ],
+          "ino": 200007,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100008,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/all-lanes92801/closed917-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100008,
+          "dev": [
+            7,
+            26
+          ],
+          "ino": 200008,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100009,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/nested-integration91702/native01/CMakeFiles",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100009,
+          "dev": [
+            7,
+            26
+          ],
+          "ino": 200009,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100010,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/all-lanes92802/closed-prior-reports-archive01/symbolic-gate02/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100010,
+          "dev": [
+            7,
+            27
+          ],
+          "ino": 200010,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100011,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/native01/reports",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100011,
+          "dev": [
+            7,
+            27
+          ],
+          "ino": 200011,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100012,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/all-lanes92802/closed-prior-reports-archive01/nested-integration91702/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100012,
+          "dev": [
+            7,
+            28
+          ],
+          "ino": 200012,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100013,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/nested-integration91702/native01/reports",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100013,
+          "dev": [
+            7,
+            28
+          ],
+          "ino": 200013,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100014,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/all-lanes92802/closed-native-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100014,
+          "dev": [
+            7,
+            29
+          ],
+          "ino": 200014,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100015,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/all-lanes92802/native01/CMakeFiles",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100015,
+          "dev": [
+            7,
+            29
+          ],
+          "ino": 200015,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100016,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-node-archive02/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100016,
+          "dev": [
+            7,
+            30
+          ],
+          "ino": 200016,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100017,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/node-preserved378-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100017,
+          "dev": [
+            7,
+            30
+          ],
+          "ino": 200017,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100018,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-original-native-benchmark-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100018,
+          "dev": [
+            7,
+            31
+          ],
+          "ino": 200018,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100019,
+        "path": "/home/viktor/.cache/vkf-merger-0134/native-benchmark-correctness01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100019,
+          "dev": [
+            7,
+            31
+          ],
+          "ino": 200019,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100020,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-forward-native17-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100020,
+          "dev": [
+            7,
+            32
+          ],
+          "ino": 200020,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100021,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/native-benchmark-correctness01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100021,
+          "dev": [
+            7,
+            32
+          ],
+          "ino": 200021,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100022,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-realpart-native17-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100022,
+          "dev": [
+            7,
+            33
+          ],
+          "ino": 200022,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100023,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/native-benchmark-correctness01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100023,
+          "dev": [
+            7,
+            33
+          ],
+          "ino": 200023,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100024,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-node-section-zero-matrix-cases-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100024,
+          "dev": [
+            7,
+            34
+          ],
+          "ino": 200024,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100025,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/node-section-zero-matrix-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100025,
+          "dev": [
+            7,
+            34
+          ],
+          "ino": 200025,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100026,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-node-historical-error69-cases-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100026,
+          "dev": [
+            7,
+            35
+          ],
+          "ino": 200026,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100027,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/node-historical-error69-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100027,
+          "dev": [
+            7,
+            35
+          ],
+          "ino": 200027,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100028,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-node-lifetime-selected-cases-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100028,
+          "dev": [
+            7,
+            36
+          ],
+          "ino": 200028,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100029,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/node-lifetime-selected-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100029,
+          "dev": [
+            7,
+            36
+          ],
+          "ino": 200029,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100030,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-node-website51-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100030,
+          "dev": [
+            7,
+            37
+          ],
+          "ino": 200030,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100031,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/node-website51-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100031,
+          "dev": [
+            7,
+            37
+          ],
+          "ino": 200031,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100032,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/native-benchmark-correctness01/least-squares-tall-96x48-closed-archive/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100032,
+          "dev": [
+            7,
+            38
+          ],
+          "ino": 200032,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100033,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/native-benchmark-correctness01/least-squares-tall-96x48",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100033,
+          "dev": [
+            7,
+            38
+          ],
+          "ino": 200033,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100034,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/native-benchmark-correctness01/lu-general-96-closed-archive/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100034,
+          "dev": [
+            7,
+            39
+          ],
+          "ino": 200034,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100035,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/native-benchmark-correctness01/lu-general-96",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100035,
+          "dev": [
+            7,
+            39
+          ],
+          "ino": 200035,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100036,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/native-benchmark-correctness01/cholesky-spd-96-closed-archive/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100036,
+          "dev": [
+            7,
+            40
+          ],
+          "ino": 200036,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100037,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/native-benchmark-correctness01/cholesky-spd-96",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100037,
+          "dev": [
+            7,
+            40
+          ],
+          "ino": 200037,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100038,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/native-benchmark-correctness01/svd-tall-96x48-closed-archive/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100038,
+          "dev": [
+            7,
+            41
+          ],
+          "ino": 200038,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100039,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/native-benchmark-correctness01/svd-tall-96x48",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100039,
+          "dev": [
+            7,
+            41
+          ],
+          "ino": 200039,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100040,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/native-benchmark-correctness01/eigen-symmetric-96-closed-archive/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100040,
+          "dev": [
+            7,
+            42
+          ],
+          "ino": 200040,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100041,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/native-benchmark-correctness01/eigen-symmetric-96",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100041,
+          "dev": [
+            7,
+            42
+          ],
+          "ino": 200041,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100042,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-firefox-symbolic-expand1-correctness-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100042,
+          "dev": [
+            7,
+            43
+          ],
+          "ino": 200042,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100043,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-original-inputs01/fresh928-original-symbolic-expand1-correctness",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100043,
+          "dev": [
+            7,
+            43
+          ],
+          "ino": 200043,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100044,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-firefox-symbolic-expand1-timing-preflight-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100044,
+          "dev": [
+            7,
+            44
+          ],
+          "ino": 200044,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100045,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-original-inputs01/fresh928-original-symbolic-expand1-timing-preflight",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100045,
+          "dev": [
+            7,
+            44
+          ],
+          "ino": 200045,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100046,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-firefox-symbolic-add1-correctness-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100046,
+          "dev": [
+            7,
+            45
+          ],
+          "ino": 200046,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100047,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-original-inputs01/fresh928-original-symbolic-add1-correctness",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100047,
+          "dev": [
+            7,
+            45
+          ],
+          "ino": 200047,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100048,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-firefox-symbolic-add1-timing-preflight-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100048,
+          "dev": [
+            7,
+            46
+          ],
+          "ino": 200048,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100049,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-original-inputs01/fresh928-original-symbolic-add1-timing-preflight",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100049,
+          "dev": [
+            7,
+            46
+          ],
+          "ino": 200049,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100050,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-firefox-symbolic-series-correctness-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100050,
+          "dev": [
+            7,
+            47
+          ],
+          "ino": 200050,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100051,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-original-inputs01/fresh928-original-symbolic-series-correctness",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100051,
+          "dev": [
+            7,
+            47
+          ],
+          "ino": 200051,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100052,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-firefox-symbolic-series-timing-preflight-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100052,
+          "dev": [
+            7,
+            48
+          ],
+          "ino": 200052,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100053,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-original-inputs01/fresh928-original-symbolic-series-timing-preflight",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100053,
+          "dev": [
+            7,
+            48
+          ],
+          "ino": 200053,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100054,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0134/continuous/S/closed-node-tiny-archive01/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100054,
+          "dev": [
+            7,
+            49
+          ],
+          "ino": 200054,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100055,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0134/continuous/S/node-tiny-audit01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100055,
+          "dev": [
+            7,
+            49
+          ],
+          "ino": 200055,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100056,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0134/continuous/S/closed-symbolic-typed-archive02/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100056,
+          "dev": [
+            7,
+            50
+          ],
+          "ino": 200056,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100057,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0134/continuous/S/symbolic-builder-native-typed05",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100057,
+          "dev": [
+            7,
+            50
+          ],
+          "ino": 200057,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100058,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0134/continuous/S/closed-incomplete-native-archive02/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100058,
+          "dev": [
+            7,
+            51
+          ],
+          "ino": 200058,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100059,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-S/helper-default01/native01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100059,
+          "dev": [
+            7,
+            51
+          ],
+          "ino": 200059,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100060,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-nested-integration91701-source-replay-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100060,
+          "dev": [
+            7,
+            52
+          ],
+          "ino": 200060,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100061,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/nested-integration91701/replay01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100061,
+          "dev": [
+            7,
+            52
+          ],
+          "ino": 200061,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100062,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-symbolic-gate02-source-replay-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100062,
+          "dev": [
+            7,
+            53
+          ],
+          "ino": 200062,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100063,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/replay01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100063,
+          "dev": [
+            7,
+            53
+          ],
+          "ino": 200063,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100064,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-linalg-solve-general-96-correctness-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100064,
+          "dev": [
+            7,
+            54
+          ],
+          "ino": 200064,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100065,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-linalg-document-inputs02/fresh928-mounted-original-solve-general-96-correctness",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100065,
+          "dev": [
+            7,
+            54
+          ],
+          "ino": 200065,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100066,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-linalg-solve-general-96-timing-preflight-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100066,
+          "dev": [
+            7,
+            55
+          ],
+          "ino": 200066,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100067,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-linalg-document-inputs02/fresh928-mounted-original-solve-general-96-timing-preflight",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100067,
+          "dev": [
+            7,
+            55
+          ],
+          "ino": 200067,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100068,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-linalg-least-squares-tall-96x48-correctness-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100068,
+          "dev": [
+            7,
+            56
+          ],
+          "ino": 200068,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100069,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-linalg-document-inputs02/fresh928-mounted-original-least-squares-tall-96x48-correctness",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100069,
+          "dev": [
+            7,
+            56
+          ],
+          "ino": 200069,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100070,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-linalg-least-squares-tall-96x48-timing-preflight-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100070,
+          "dev": [
+            7,
+            57
+          ],
+          "ino": 200070,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100071,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-linalg-document-inputs02/fresh928-mounted-original-least-squares-tall-96x48-timing-preflight",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100071,
+          "dev": [
+            7,
+            57
+          ],
+          "ino": 200071,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100072,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-linalg-lu-general-96-correctness-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100072,
+          "dev": [
+            7,
+            58
+          ],
+          "ino": 200072,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100073,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-linalg-document-inputs02/fresh928-mounted-original-lu-general-96-correctness",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100073,
+          "dev": [
+            7,
+            58
+          ],
+          "ino": 200073,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100074,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-linalg-lu-general-96-timing-preflight-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100074,
+          "dev": [
+            7,
+            59
+          ],
+          "ino": 200074,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100075,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-linalg-document-inputs02/fresh928-mounted-original-lu-general-96-timing-preflight",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100075,
+          "dev": [
+            7,
+            59
+          ],
+          "ino": 200075,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100076,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-linalg-qr-tall-96x48-correctness-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100076,
+          "dev": [
+            7,
+            60
+          ],
+          "ino": 200076,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100077,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-linalg-document-inputs02/fresh928-mounted-original-qr-tall-96x48-correctness",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100077,
+          "dev": [
+            7,
+            60
+          ],
+          "ino": 200077,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100078,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-linalg-qr-tall-96x48-timing-preflight-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100078,
+          "dev": [
+            7,
+            61
+          ],
+          "ino": 200078,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100079,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-linalg-document-inputs02/fresh928-mounted-original-qr-tall-96x48-timing-preflight",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100079,
+          "dev": [
+            7,
+            61
+          ],
+          "ino": 200079,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100080,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-linalg-cholesky-spd-96-correctness-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100080,
+          "dev": [
+            7,
+            62
+          ],
+          "ino": 200080,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100081,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-linalg-document-inputs02/fresh928-mounted-original-cholesky-spd-96-correctness",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100081,
+          "dev": [
+            7,
+            62
+          ],
+          "ino": 200081,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100082,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-linalg-cholesky-spd-96-timing-preflight-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100082,
+          "dev": [
+            7,
+            63
+          ],
+          "ino": 200082,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100083,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/firefox-linalg-document-inputs02/fresh928-mounted-original-cholesky-spd-96-timing-preflight",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100083,
+          "dev": [
+            7,
+            63
+          ],
+          "ino": 200083,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100084,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-R/closed-canonical499-results-archive02/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100084,
+          "dev": [
+            7,
+            64
+          ],
+          "ino": 200084,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100085,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-R/empty-reducer-repair01/canonical-preservation01/results",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100085,
+          "dev": [
+            7,
+            64
+          ],
+          "ino": 200085,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100086,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-native-svd-tall-96x48-old05-correctness-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100086,
+          "dev": [
+            7,
+            65
+          ],
+          "ino": 200086,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100087,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build05/native-benchmark-correctness01/svd-tall-96x48",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100087,
+          "dev": [
+            7,
+            65
+          ],
+          "ino": 200087,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100088,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-native-eigen-symmetric-96-old05-correctness-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100088,
+          "dev": [
+            7,
+            66
+          ],
+          "ino": 200088,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100089,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build05/native-benchmark-correctness01/eigen-symmetric-96",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100089,
+          "dev": [
+            7,
+            66
+          ],
+          "ino": 200089,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100090,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node378-base-node378-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100090,
+          "dev": [
+            7,
+            67
+          ],
+          "ino": 200090,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100091,
+        "path": "/home/viktor/.cache/vkf-merger-0134/node-preserved378-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100091,
+          "dev": [
+            7,
+            67
+          ],
+          "ino": 200091,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100092,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node378-forward-default-node378-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100092,
+          "dev": [
+            7,
+            68
+          ],
+          "ino": 200092,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100093,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/node-preserved378-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100093,
+          "dev": [
+            7,
+            68
+          ],
+          "ino": 200093,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100094,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node378-realpart05-node378-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100094,
+          "dev": [
+            7,
+            69
+          ],
+          "ino": 200094,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100095,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build05/node-preserved378-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100095,
+          "dev": [
+            7,
+            69
+          ],
+          "ino": 200095,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100096,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node378-realpart06-node378-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100096,
+          "dev": [
+            7,
+            70
+          ],
+          "ino": 200096,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100097,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/node-preserved378-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100097,
+          "dev": [
+            7,
+            70
+          ],
+          "ino": 200097,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100098,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-base-historical69-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100098,
+          "dev": [
+            7,
+            71
+          ],
+          "ino": 200098,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100099,
+        "path": "/home/viktor/.cache/vkf-merger-0134/node-historical-error69-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100099,
+          "dev": [
+            7,
+            71
+          ],
+          "ino": 200099,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100100,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-base-matrix-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100100,
+          "dev": [
+            7,
+            72
+          ],
+          "ino": 200100,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100101,
+        "path": "/home/viktor/.cache/vkf-merger-0134/node-section-zero-matrix-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100101,
+          "dev": [
+            7,
+            72
+          ],
+          "ino": 200101,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100102,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-base-website51-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100102,
+          "dev": [
+            7,
+            73
+          ],
+          "ino": 200102,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100103,
+        "path": "/home/viktor/.cache/vkf-merger-0134/node-website51-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100103,
+          "dev": [
+            7,
+            73
+          ],
+          "ino": 200103,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100104,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-base-lifetime-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100104,
+          "dev": [
+            7,
+            74
+          ],
+          "ino": 200104,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100105,
+        "path": "/home/viktor/.cache/vkf-merger-0134/node-lifetime-selected-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100105,
+          "dev": [
+            7,
+            74
+          ],
+          "ino": 200105,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100106,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-base-layout29-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100106,
+          "dev": [
+            7,
+            75
+          ],
+          "ino": 200106,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100107,
+        "path": "/home/viktor/.cache/vkf-merger-0134/node-layout29-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100107,
+          "dev": [
+            7,
+            75
+          ],
+          "ino": 200107,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100108,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-forward-default-historical69-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100108,
+          "dev": [
+            7,
+            76
+          ],
+          "ino": 200108,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100109,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/node-historical-error69-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100109,
+          "dev": [
+            7,
+            76
+          ],
+          "ino": 200109,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100110,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-forward-default-matrix-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100110,
+          "dev": [
+            7,
+            77
+          ],
+          "ino": 200110,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100111,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/node-section-zero-matrix-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100111,
+          "dev": [
+            7,
+            77
+          ],
+          "ino": 200111,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100112,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-forward-default-website51-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100112,
+          "dev": [
+            7,
+            78
+          ],
+          "ino": 200112,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100113,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/node-website51-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100113,
+          "dev": [
+            7,
+            78
+          ],
+          "ino": 200113,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100114,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-forward-default-lifetime-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100114,
+          "dev": [
+            7,
+            79
+          ],
+          "ino": 200114,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100115,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/node-lifetime-selected-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100115,
+          "dev": [
+            7,
+            79
+          ],
+          "ino": 200115,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100116,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-forward-default-layout29-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100116,
+          "dev": [
+            7,
+            80
+          ],
+          "ino": 200116,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100117,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/node-layout29-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100117,
+          "dev": [
+            7,
+            80
+          ],
+          "ino": 200117,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100118,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-realpart05-historical69-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100118,
+          "dev": [
+            7,
+            81
+          ],
+          "ino": 200118,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100119,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build05/node-historical-error69-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100119,
+          "dev": [
+            7,
+            81
+          ],
+          "ino": 200119,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100120,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-realpart05-matrix-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100120,
+          "dev": [
+            7,
+            82
+          ],
+          "ino": 200120,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100121,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build05/node-section-zero-matrix-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100121,
+          "dev": [
+            7,
+            82
+          ],
+          "ino": 200121,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100122,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-ownership-base-ownership-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100122,
+          "dev": [
+            7,
+            83
+          ],
+          "ino": 200122,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100123,
+        "path": "/home/viktor/.cache/vkf-merger-0134/ownership",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100123,
+          "dev": [
+            7,
+            83
+          ],
+          "ino": 200123,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100124,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-realpart05-website51-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100124,
+          "dev": [
+            7,
+            84
+          ],
+          "ino": 200124,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100125,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build05/node-website51-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100125,
+          "dev": [
+            7,
+            84
+          ],
+          "ino": 200125,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100126,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-realpart05-lifetime-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100126,
+          "dev": [
+            7,
+            85
+          ],
+          "ino": 200126,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100127,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build05/node-lifetime-selected-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100127,
+          "dev": [
+            7,
+            85
+          ],
+          "ino": 200127,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100128,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-ownership-forward1-ownership-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100128,
+          "dev": [
+            7,
+            86
+          ],
+          "ino": 200128,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100129,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/all-ownership-part1-08",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100129,
+          "dev": [
+            7,
+            86
+          ],
+          "ino": 200129,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100130,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-realpart05-layout29-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100130,
+          "dev": [
+            7,
+            87
+          ],
+          "ino": 200130,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100131,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build05/node-layout29-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100131,
+          "dev": [
+            7,
+            87
+          ],
+          "ino": 200131,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100132,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-ownership-forward2-ownership-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100132,
+          "dev": [
+            7,
+            88
+          ],
+          "ino": 200132,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100133,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/all-ownership-part2-08",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100133,
+          "dev": [
+            7,
+            88
+          ],
+          "ino": 200133,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100134,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-realpart06-historical69-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100134,
+          "dev": [
+            7,
+            89
+          ],
+          "ino": 200134,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100135,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/node-historical-error69-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100135,
+          "dev": [
+            7,
+            89
+          ],
+          "ino": 200135,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100136,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-realpart06-matrix-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100136,
+          "dev": [
+            7,
+            90
+          ],
+          "ino": 200136,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100137,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/node-section-zero-matrix-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100137,
+          "dev": [
+            7,
+            90
+          ],
+          "ino": 200137,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100138,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-realpart06-website51-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100138,
+          "dev": [
+            7,
+            91
+          ],
+          "ino": 200138,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100139,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/node-website51-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100139,
+          "dev": [
+            7,
+            91
+          ],
+          "ino": 200139,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100140,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-realpart06-lifetime-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100140,
+          "dev": [
+            7,
+            92
+          ],
+          "ino": 200140,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100141,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/node-lifetime-selected-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100141,
+          "dev": [
+            7,
+            92
+          ],
+          "ino": 200141,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100142,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-older-node-rest-realpart06-layout29-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100142,
+          "dev": [
+            7,
+            93
+          ],
+          "ino": 200142,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100143,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/node-layout29-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100143,
+          "dev": [
+            7,
+            93
+          ],
+          "ino": 200143,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100144,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-cmake-base-closed-cmake-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100144,
+          "dev": [
+            7,
+            94
+          ],
+          "ino": 200144,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100145,
+        "path": "/home/viktor/.cache/vkf-merger-0134/native01/CMakeFiles",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100145,
+          "dev": [
+            7,
+            94
+          ],
+          "ino": 200145,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100146,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-cmake-forward-default-closed-cmake-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100146,
+          "dev": [
+            7,
+            95
+          ],
+          "ino": 200146,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100147,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/native01/CMakeFiles",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100147,
+          "dev": [
+            7,
+            95
+          ],
+          "ino": 200147,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100148,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-cmake-realpart06-closed-cmake-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100148,
+          "dev": [
+            7,
+            96
+          ],
+          "ino": 200148,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100149,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/native01/CMakeFiles",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100149,
+          "dev": [
+            7,
+            96
+          ],
+          "ino": 200149,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100150,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-node-small-base-focused-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100150,
+          "dev": [
+            7,
+            97
+          ],
+          "ino": 200150,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100151,
+        "path": "/home/viktor/.cache/vkf-merger-0134/node-focused-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100151,
+          "dev": [
+            7,
+            97
+          ],
+          "ino": 200151,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100152,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-node-small-base-syntax-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100152,
+          "dev": [
+            7,
+            98
+          ],
+          "ino": 200152,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100153,
+        "path": "/home/viktor/.cache/vkf-merger-0134/node-syntax-controls-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100153,
+          "dev": [
+            7,
+            98
+          ],
+          "ino": 200153,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100154,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-node-small-forward-default-focused-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100154,
+          "dev": [
+            7,
+            99
+          ],
+          "ino": 200154,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100155,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/node-focused-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100155,
+          "dev": [
+            7,
+            99
+          ],
+          "ino": 200155,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100156,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-node-small-forward-default-syntax-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100156,
+          "dev": [
+            7,
+            100
+          ],
+          "ino": 200156,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100157,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/node-syntax-controls-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100157,
+          "dev": [
+            7,
+            100
+          ],
+          "ino": 200157,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100158,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-node-small-realpart05-focused-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100158,
+          "dev": [
+            7,
+            101
+          ],
+          "ino": 200158,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100159,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build05/node-focused-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100159,
+          "dev": [
+            7,
+            101
+          ],
+          "ino": 200159,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100160,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-node-small-realpart05-syntax-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100160,
+          "dev": [
+            7,
+            102
+          ],
+          "ino": 200160,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100161,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build05/node-syntax-controls-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100161,
+          "dev": [
+            7,
+            102
+          ],
+          "ino": 200161,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100162,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-node-small-realpart06-focused-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100162,
+          "dev": [
+            7,
+            103
+          ],
+          "ino": 200162,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100163,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/node-focused-cases-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100163,
+          "dev": [
+            7,
+            103
+          ],
+          "ino": 200163,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100164,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-ownership-extra-realpart06-part1-ownership-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100164,
+          "dev": [
+            7,
+            104
+          ],
+          "ino": 200164,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100165,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/all-ownership-part1-08",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100165,
+          "dev": [
+            7,
+            104
+          ],
+          "ino": 200165,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100166,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-node-small-realpart06-syntax-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100166,
+          "dev": [
+            7,
+            105
+          ],
+          "ino": 200166,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100167,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/node-syntax-controls-01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100167,
+          "dev": [
+            7,
+            105
+          ],
+          "ino": 200167,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100168,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-ownership-extra-realpart06-part2-ownership-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100168,
+          "dev": [
+            7,
+            106
+          ],
+          "ino": 200168,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100169,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/all-ownership-part2-08",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100169,
+          "dev": [
+            7,
+            106
+          ],
+          "ino": 200169,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100170,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-c0-cmake-base-closed-c0-cmake-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100170,
+          "dev": [
+            7,
+            107
+          ],
+          "ino": 200170,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100171,
+        "path": "/home/viktor/.cache/vkf-merger-0134/native01/c0/CMakeFiles",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100171,
+          "dev": [
+            7,
+            107
+          ],
+          "ino": 200171,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100172,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-c0-cmake-forward-default-closed-c0-cmake-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100172,
+          "dev": [
+            7,
+            108
+          ],
+          "ino": 200172,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100173,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/native01/c0/CMakeFiles",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100173,
+          "dev": [
+            7,
+            108
+          ],
+          "ino": 200173,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100174,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-c0-cmake-realpart06-closed-c0-cmake-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100174,
+          "dev": [
+            7,
+            109
+          ],
+          "ino": 200174,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100175,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/native01/c0/CMakeFiles",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100175,
+          "dev": [
+            7,
+            109
+          ],
+          "ino": 200175,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100176,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-native-original-combined-kernels-large-closed-native-original-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100176,
+          "dev": [
+            7,
+            110
+          ],
+          "ino": 200176,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100177,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/native-benchmark-correctness03/combined-kernels-large",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100177,
+          "dev": [
+            7,
+            110
+          ],
+          "ino": 200177,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100178,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-native-original-combined-kernels-parallel-large-closed-native-original-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100178,
+          "dev": [
+            7,
+            111
+          ],
+          "ino": 200178,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100179,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/native-benchmark-correctness03/combined-kernels-parallel-large",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100179,
+          "dev": [
+            7,
+            111
+          ],
+          "ino": 200179,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100180,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-native-original-eigen-symmetric-96-closed-native-original-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100180,
+          "dev": [
+            7,
+            112
+          ],
+          "ino": 200180,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100181,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/native-benchmark-correctness03/eigen-symmetric-96",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100181,
+          "dev": [
+            7,
+            112
+          ],
+          "ino": 200181,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100182,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-native-original-fannkuch-redux-large-closed-native-original-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100182,
+          "dev": [
+            7,
+            113
+          ],
+          "ino": 200182,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100183,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/native-benchmark-correctness03/fannkuch-redux-large",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100183,
+          "dev": [
+            7,
+            113
+          ],
+          "ino": 200183,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100184,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-native-original-lazy-data-4096-closed-native-original-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100184,
+          "dev": [
+            7,
+            114
+          ],
+          "ino": 200184,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100185,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/native-benchmark-correctness03/lazy-data-4096",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100185,
+          "dev": [
+            7,
+            114
+          ],
+          "ino": 200185,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100186,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-native-original-n-body-large-closed-native-original-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100186,
+          "dev": [
+            7,
+            115
+          ],
+          "ino": 200186,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100187,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/native-benchmark-correctness03/n-body-large",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100187,
+          "dev": [
+            7,
+            115
+          ],
+          "ino": 200187,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100188,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-native-original-spectral-norm-large-closed-native-original-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100188,
+          "dev": [
+            7,
+            116
+          ],
+          "ino": 200188,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100189,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/symbolic-gate02/native-benchmark-correctness03/spectral-norm-large",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100189,
+          "dev": [
+            7,
+            116
+          ],
+          "ino": 200189,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100190,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0134/continuous/U/own-closed-compile-archive66/native-cmake/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100190,
+          "dev": [
+            7,
+            117
+          ],
+          "ino": 200190,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100191,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0134/continuous/U/repair-unit01/native01/CMakeFiles",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100191,
+          "dev": [
+            7,
+            117
+          ],
+          "ino": 200191,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100192,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-917-cmake-c0-closed-917-object-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100192,
+          "dev": [
+            7,
+            118
+          ],
+          "ino": 200192,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100193,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/nested-integration91702/native01/c0/CMakeFiles",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100193,
+          "dev": [
+            7,
+            118
+          ],
+          "ino": 200193,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100194,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0134/continuous/S/closed-uncompiled-replay-archive03/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100194,
+          "dev": [
+            7,
+            119
+          ],
+          "ino": 200194,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100195,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-S/known-String-math01/replay-candidate92901",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100195,
+          "dev": [
+            7,
+            119
+          ],
+          "ino": 200195,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100196,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0134/continuous/S/closed-uncompiled-replay-archive04/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100196,
+          "dev": [
+            7,
+            120
+          ],
+          "ino": 200196,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100197,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-S/f32-exact-constant01/replay-candidate92901",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100197,
+          "dev": [
+            7,
+            120
+          ],
+          "ino": 200197,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100198,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-R/closed-ELF-source-archives01/0/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100198,
+          "dev": [
+            7,
+            121
+          ],
+          "ino": 200198,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100199,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-R/elf-source-replay01/generated-seed",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100199,
+          "dev": [
+            7,
+            121
+          ],
+          "ino": 200199,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100200,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-R/closed-ELF-source-archives01/1/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100200,
+          "dev": [
+            7,
+            122
+          ],
+          "ino": 200200,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100201,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0134/continuous/S/closed-qualified-canonical499-archive05/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100201,
+          "dev": [
+            7,
+            123
+          ],
+          "ino": 200201,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100202,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-S/helper-default01/canonical49901",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100202,
+          "dev": [
+            7,
+            123
+          ],
+          "ino": 200202,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100203,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-R/closed-canonical-assets-archive01/0/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100203,
+          "dev": [
+            7,
+            124
+          ],
+          "ino": 200203,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100204,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-R/empty-reducer-repair01/canonical01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100204,
+          "dev": [
+            7,
+            124
+          ],
+          "ino": 200204,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100205,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-source-capacity04-realpart-build06-replay-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100205,
+          "dev": [
+            7,
+            125
+          ],
+          "ino": 200205,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100206,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/replay01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100206,
+          "dev": [
+            7,
+            125
+          ],
+          "ino": 200206,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100207,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-source-capacity04-realpart-build06-generated-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100207,
+          "dev": [
+            7,
+            126
+          ],
+          "ino": 200207,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100208,
+        "path": "/home/viktor/.cache/vkf-merger-0134/realpart-build06/native01/generated-seed",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100208,
+          "dev": [
+            7,
+            126
+          ],
+          "ino": 200208,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100209,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-source-capacity04-forward-default-build01-replay-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100209,
+          "dev": [
+            7,
+            127
+          ],
+          "ino": 200209,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100210,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/replay01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100210,
+          "dev": [
+            7,
+            127
+          ],
+          "ino": 200210,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100211,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-old-source-capacity04-forward-default-build01-generated-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100211,
+          "dev": [
+            7,
+            128
+          ],
+          "ino": 200211,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100212,
+        "path": "/home/viktor/.cache/vkf-merger-0134/forward-default-build01/native01/generated-seed",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100212,
+          "dev": [
+            7,
+            128
+          ],
+          "ino": 200212,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100213,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-base-source-capacity06-base-original-replay-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100213,
+          "dev": [
+            7,
+            129
+          ],
+          "ino": 200213,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100214,
+        "path": "/home/viktor/.cache/vkf-merger-0134/replay01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100214,
+          "dev": [
+            7,
+            129
+          ],
+          "ino": 200214,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100215,
+        "path": "/home/viktor/.cache/vkf-merger-parallel-0134/coordinator/continuous-M92801/closed-base-source-capacity06-base-original-generated-archive01/verify",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100215,
+          "dev": [
+            7,
+            130
+          ],
+          "ino": 200215,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100216,
+        "path": "/home/viktor/.cache/vkf-merger-0134/native01/generated-seed",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100216,
+          "dev": [
+            7,
+            130
+          ],
+          "ino": 200216,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100217,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0134/continuous/S/closed-qualified-native-objects-archive06/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100217,
+          "dev": [
+            7,
+            131
+          ],
+          "ino": 200217,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100218,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-S/helper-default01/native04/CMakeFiles",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100218,
+          "dev": [
+            7,
+            131
+          ],
+          "ino": 200218,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100219,
+        "path": "/home/viktor/snap/firefox/common/vkf-runtime-0135-document46",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100219,
+          "dev": [
+            0,
+            47
+          ],
+          "ino": 200219,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100220,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0135/Compiler/archives/closed-symbolic-native26-squash01/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100220,
+          "dev": [
+            7,
+            132
+          ],
+          "ino": 200220,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100221,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0135/Compiler/archives/closed-factory-diagnostics-quota02/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100221,
+          "dev": [
+            7,
+            133
+          ],
+          "ino": 200221,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100222,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0135/Compiler/archives/closed-numeric-private28-quota03/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100222,
+          "dev": [
+            7,
+            134
+          ],
+          "ino": 200222,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100223,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0135/Compiler/archives/closed-numeric-private29-quota03/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100223,
+          "dev": [
+            7,
+            135
+          ],
+          "ino": 200223,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100224,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0135/Compiler/archives/closed-numeric-private27-quota03/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100224,
+          "dev": [
+            7,
+            136
+          ],
+          "ino": 200224,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100225,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0135/Compiler/archives/closed-residual-eight-quota04/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100225,
+          "dev": [
+            7,
+            137
+          ],
+          "ino": 200225,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100226,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0135/Compiler/archives/closed-frontend-front33-quota05/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100226,
+          "dev": [
+            7,
+            138
+          ],
+          "ino": 200226,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100227,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0135/Compiler/archives/closed-frontend-front34-quota05/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100227,
+          "dev": [
+            7,
+            139
+          ],
+          "ino": 200227,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100228,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0135/Compiler/archives/closed-frontend-trace34-quota05/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100228,
+          "dev": [
+            7,
+            140
+          ],
+          "ino": 200228,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100229,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0135/Compiler/archives/closed-frontend-front35-quota06/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100229,
+          "dev": [
+            7,
+            141
+          ],
+          "ino": 200229,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100230,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0135/Compiler/archives/closed-frontend-native32-quota06/verified-readonly",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100230,
+          "dev": [
+            7,
+            142
+          ],
+          "ino": 200230,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100231,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-R/nominal-native-build02",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100231,
+          "dev": [
+            7,
+            160
+          ],
+          "ino": 200231,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100232,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-R/elf-native-build02",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100232,
+          "dev": [
+            7,
+            161
+          ],
+          "ino": 200232,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100233,
+        "path": "/home/viktor/.cache/vkf-continuous-0134-R/selected-null-native-build01",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100233,
+          "dev": [
+            7,
+            162
+          ],
+          "ino": 200233,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100234,
+        "path": "/home/viktor/Projects/Vektor Flow/site/.worktrees/migration-0084/.work/benchmark-release08/previews",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100234,
+          "dev": [
+            7,
+            163
+          ],
+          "ino": 200234,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100235,
+        "path": "/home/viktor/.cache/vkf-parallel-0128/targets/original-target-survey-rest-corrected",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100235,
+          "dev": [
+            7,
+            165
+          ],
+          "ino": 200235,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100236,
+        "path": "/home/viktor/.cache/vkf-parallel-0128/targets/target-51-all-original-canonical-readback",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100236,
+          "dev": [
+            7,
+            166
+          ],
+          "ino": 200236,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100237,
+        "path": "/home/viktor/.cache/vkf-parallel-0128/targets/target-16c-all-original-replay",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100237,
+          "dev": [
+            7,
+            167
+          ],
+          "ino": 200237,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100238,
+        "path": "/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100238,
+          "dev": [
+            7,
+            168
+          ],
+          "ino": 200238,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100239,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0136/Native-link-output-filesystem584-output/attempt02/volume",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100239,
+          "dev": [
+            7,
+            169
+          ],
+          "ino": 200239,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100240,
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/0136/Native-native04-transition599/attempt599/mount",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100240,
+          "dev": [
+            7,
+            171
+          ],
+          "ino": 200240,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100241,
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100241,
+          "dev": [
+            7,
+            4
+          ],
+          "ino": 200241,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100242,
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100242,
+          "dev": [
+            7,
+            6
+          ],
+          "ino": 200242,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100243,
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Native",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100243,
+          "dev": [
+            7,
+            10
+          ],
+          "ino": 200243,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100244,
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Wasm",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100244,
+          "dev": [
+            7,
+            11
+          ],
+          "ino": 200244,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100245,
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100245,
+          "dev": [
+            7,
+            14
+          ],
+          "ino": 200245,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100246,
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100246,
+          "dev": [
+            7,
+            16
+          ],
+          "ino": 200246,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100247,
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/parallel-0128",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100247,
+          "dev": [
+            7,
+            19
+          ],
+          "ino": 200247,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100248,
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/parallel-0129",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100248,
+          "dev": [
+            7,
+            19
+          ],
+          "ino": 200248,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100249,
+        "path": "/home/viktor/Projects/Cuvami/staging/artifacts/gpu-math/20261015",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100249,
+          "dev": [
+            8,
+            33
+          ],
+          "ino": 200249,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100250,
+        "path": "/home/viktor/Projects/Cuvami/staging/artifacts/gpu-math/20261014",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100250,
+          "dev": [
+            8,
+            33
+          ],
+          "ino": 200250,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100251,
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100251,
+          "dev": [
+            7,
+            172
+          ],
+          "ino": 200251,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100252,
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100252,
+          "dev": [
+            7,
+            173
+          ],
+          "ino": 200252,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100253,
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100253,
+          "dev": [
+            7,
+            174
+          ],
+          "ino": 200253,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100254,
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-E",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100254,
+          "dev": [
+            7,
+            176
+          ],
+          "ino": 200254,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100255,
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Native/reports/native3-integer-power01/independent-worker-C",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100255,
+          "dev": [
+            7,
+            177
+          ],
+          "ino": 200255,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100256,
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100256,
+          "dev": [
+            7,
+            178
+          ],
+          "ino": 200256,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100257,
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100257,
+          "dev": [
+            7,
+            179
+          ],
+          "ino": 200257,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100258,
+        "path": "/mnt",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100258,
+          "dev": [
+            252,
+            1
+          ],
+          "ino": 200258,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100259,
+        "path": "/mnt/development",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100259,
+          "dev": [
+            8,
+            33
+          ],
+          "ino": 200259,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100260,
+        "path": "/mnt/vkf-storage-2tb",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100260,
+          "dev": [
+            8,
+            33
+          ],
+          "ino": 200260,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100261,
+        "path": "/mnt/vkf-s0-retained",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100261,
+          "dev": [
+            7,
+            19
+          ],
+          "ino": 200261,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100262,
+        "path": "/mnt/vkf-worker-disks/worker-F",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100262,
+          "dev": [
+            7,
+            172
+          ],
+          "ino": 200262,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100263,
+        "path": "/mnt/vkf-worker-disks/worker-D",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100263,
+          "dev": [
+            7,
+            173
+          ],
+          "ino": 200263,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100264,
+        "path": "/mnt/vkf-worker-disks/worker-B",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100264,
+          "dev": [
+            7,
+            174
+          ],
+          "ino": 200264,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100265,
+        "path": "/mnt/vkf-s0-memory-retained",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100265,
+          "dev": [
+            7,
+            175
+          ],
+          "ino": 200265,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100266,
+        "path": "/mnt/vkf-worker-disks/worker-E",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100266,
+          "dev": [
+            7,
+            176
+          ],
+          "ino": 200266,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100267,
+        "path": "/mnt/vkf-worker-disks/worker-C",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100267,
+          "dev": [
+            7,
+            177
+          ],
+          "ino": 200267,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100268,
+        "path": "/mnt/vkf-worker-disks/worker-A",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100268,
+          "dev": [
+            7,
+            178
+          ],
+          "ino": 200268,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100269,
+        "path": "/mnt/vkf-worker-disks/coordinator",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100269,
+          "dev": [
+            7,
+            179
+          ],
+          "ino": 200269,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100270,
+        "path": "/dev",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100270,
+          "dev": [
+            0,
+            1000
+          ],
+          "ino": 200270,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100271,
+        "path": "/dev/pts",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100271,
+          "dev": [
+            0,
+            1001
+          ],
+          "ino": 200271,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100272,
+        "path": "/dev/null",
+        "result": "character-device",
+        "observation": {
+          "mount_id": 100272,
+          "dev": [
+            0,
+            7
+          ],
+          "ino": 200272,
+          "mode": 8630,
+          "rdev": [
+            1,
+            3
+          ],
+          "readonly": false,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100273,
+        "path": "/dev/zero",
+        "result": "character-device",
+        "observation": {
+          "mount_id": 100273,
+          "dev": [
+            0,
+            7
+          ],
+          "ino": 200273,
+          "mode": 8630,
+          "rdev": [
+            1,
+            5
+          ],
+          "readonly": false,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100274,
+        "path": "/dev/full",
+        "result": "character-device",
+        "observation": {
+          "mount_id": 100274,
+          "dev": [
+            0,
+            7
+          ],
+          "ino": 200274,
+          "mode": 8630,
+          "rdev": [
+            1,
+            7
+          ],
+          "readonly": false,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100275,
+        "path": "/dev/random",
+        "result": "character-device",
+        "observation": {
+          "mount_id": 100275,
+          "dev": [
+            0,
+            7
+          ],
+          "ino": 200275,
+          "mode": 8630,
+          "rdev": [
+            1,
+            8
+          ],
+          "readonly": false,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100276,
+        "path": "/dev/urandom",
+        "result": "character-device",
+        "observation": {
+          "mount_id": 100276,
+          "dev": [
+            0,
+            7
+          ],
+          "ino": 200276,
+          "mode": 8630,
+          "rdev": [
+            1,
+            9
+          ],
+          "readonly": false,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100277,
+        "path": "/dev/tty",
+        "result": "character-device",
+        "observation": {
+          "mount_id": 100277,
+          "dev": [
+            0,
+            7
+          ],
+          "ino": 200277,
+          "mode": 8630,
+          "rdev": [
+            5,
+            0
+          ],
+          "readonly": false,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100278,
+        "path": "/proc",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100278,
+          "dev": [
+            0,
+            1002
+          ],
+          "ino": 200278,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100279,
+        "path": "/dev/shm",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100279,
+          "dev": [
+            0,
+            27
+          ],
+          "ino": 200279,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100280,
+        "path": "/dev/shm/vkf-architecture-0136/pp-canonical499-56",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100280,
+          "dev": [
+            7,
+            7
+          ],
+          "ino": 200280,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100281,
+        "path": "/dev/shm/vkf-architecture-0136/canonical49902",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100281,
+          "dev": [
+            7,
+            154
+          ],
+          "ino": 200281,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100282,
+        "path": "/dev/shm/vkf-architecture-0136/canonical499-candidate04",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100282,
+          "dev": [
+            7,
+            155
+          ],
+          "ino": 200282,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100283,
+        "path": "/dev/shm/vkf-architecture-0136/canonical499-candidate07b",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100283,
+          "dev": [
+            7,
+            156
+          ],
+          "ino": 200283,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100284,
+        "path": "/dev/shm/vkf-architecture-0136/native-extra92/linalg-vkf",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100284,
+          "dev": [
+            7,
+            157
+          ],
+          "ino": 200284,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100285,
+        "path": "/dev/shm/vkf-architecture-0136/worker-startup13b/native",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100285,
+          "dev": [
+            7,
+            158
+          ],
+          "ino": 200285,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100286,
+        "path": "/dev/shm/vkf-architecture-0136/symbolic-peers105/julia-1.12.6",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100286,
+          "dev": [
+            7,
+            159
+          ],
+          "ino": 200286,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100287,
+        "path": "/dev/shm/vkf-architecture-0136/compressed-completed87/capacity120-mount",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100287,
+          "dev": [
+            7,
+            170
+          ],
+          "ino": 200287,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100288,
+        "path": "/dev/shm/vkf-architecture-0136/cutover-default19",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100288,
+          "dev": [
+            7,
+            170
+          ],
+          "ino": 200288,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100289,
+        "path": "/dev/shm/vkf-architecture-0136/default-source983-116",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100289,
+          "dev": [
+            7,
+            170
+          ],
+          "ino": 200289,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100290,
+        "path": "/dev/shm/vkf-architecture-0136/full-source04",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100290,
+          "dev": [
+            7,
+            170
+          ],
+          "ino": 200290,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100291,
+        "path": "/dev/shm/vkf-architecture-0136/full-source07",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100291,
+          "dev": [
+            7,
+            170
+          ],
+          "ino": 200291,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100292,
+        "path": "/dev/shm/vkf-architecture-0136/native-cache-proof07",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100292,
+          "dev": [
+            7,
+            170
+          ],
+          "ino": 200292,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100293,
+        "path": "/dev/shm/vkf-architecture-0136/worker-cache-startup16",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100293,
+          "dev": [
+            7,
+            170
+          ],
+          "ino": 200293,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100294,
+        "path": "/dev/shm/vkf-architecture-0136/worker-source983-104",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100294,
+          "dev": [
+            7,
+            170
+          ],
+          "ino": 200294,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100295,
+        "path": "/dev/shm/vkf-architecture-0136/worker-startup07",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100295,
+          "dev": [
+            7,
+            170
+          ],
+          "ino": 200295,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100296,
+        "path": "/dev/shm/vkf-architecture-0136/worker-startup08",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100296,
+          "dev": [
+            7,
+            170
+          ],
+          "ino": 200296,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100297,
+        "path": "/dev/shm/vkf-architecture-0136/worker-startup13",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100297,
+          "dev": [
+            7,
+            170
+          ],
+          "ino": 200297,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100298,
+        "path": "/dev/shm/vkf-architecture-0136/rust-wasm74",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100298,
+          "dev": [
+            7,
+            164
+          ],
+          "ino": 200298,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100299,
+        "path": "/dev/shm/vkf-architecture-0136/author-roots121/Frontend",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100299,
+          "dev": [
+            7,
+            4
+          ],
+          "ino": 200299,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100300,
+        "path": "/dev/shm/vkf-architecture-0136/author-roots121/Layout",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100300,
+          "dev": [
+            7,
+            6
+          ],
+          "ino": 200300,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100301,
+        "path": "/dev/shm/vkf-architecture-0136/author-roots121/Native",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100301,
+          "dev": [
+            7,
+            10
+          ],
+          "ino": 200301,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100302,
+        "path": "/dev/shm/vkf-architecture-0136/author-roots121/Wasm",
+        "result": "readonly",
+        "observation": {
+          "mount_id": 100302,
+          "dev": [
+            7,
+            11
+          ],
+          "ino": 200302,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": true,
+          "uid": 1000,
+          "gid": 1000
+        }
+      },
+      {
+        "id": 100303,
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live19-f-success-01",
+        "result": "charged-attempt",
+        "observation": {
+          "mount_id": 100303,
+          "dev": [
+            8,
+            33
+          ],
+          "ino": 200303,
+          "mode": 16877,
+          "rdev": [
+            0,
+            0
+          ],
+          "readonly": false,
+          "uid": 1000,
+          "gid": 1000
+        }
+      }
+    ]
+  }
+}

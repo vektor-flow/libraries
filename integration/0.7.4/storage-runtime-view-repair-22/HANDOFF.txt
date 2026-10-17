@@ -1,0 +1,101 @@
+STORAGE RUNTIME VIEW REPAIR22 — READY SOURCE PROPOSAL; NOT QUALIFIED
+2026-10-17. Worker 01a149ae-8341-7d13-ae1b-d1a37c1ce5d9.
+Coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31.
+Output integration/0.7.4/storage-runtime-view-repair-22.
+Grant source5a2edfee; root-authorized audit21 integration advances tod61a494.
+
+RESULT
+runtime-view.patch and proposed/private_workload.py concretely replace recursive
+host / with the root-reviewed explicit readonly /usr,/etc,/home,/mnt view.
+Exact compatibility links retained; private scaffold /run,/var,/tmp empty.
+Fresh /dev,/proc, readonly existing /dev/shm, exact single charged attempt bind,
+readonly /dev/pts,/dev,/proc retained. Final --remount-ro / freezes the scaffold
+after all mounts, without recursively freezing the charged root. No /sys is
+imported: no concrete workload helper/checker/compiler/adapter read requires it.
+Host controller cgroup/systemd/custody readers are outside this workload view.
+
+The inaccessible inherited /run/user/60578/doc, Docker netns and /var/lib/docker
+mounts are never copied into final newroot. This establishes source/model absence,
+not merely a late mask or hidden-record exemption. Actual final mountinfo remains
+unobserved. An unexpected inaccessible retained submount still rejects.
+
+NO SETUP OR PERMISSION EXCEPTION
+runtime-view-contract.json pins the construction/input placement contract.
+No immutable empty source, new binary/helper module, host setup, host mount,
+chmod, policy allow or checker exception is needed. Existing bwrap scaffold is
+made readonly before payload. Missing inputs/out-of-view dependencies or changed
+compatibility symlinks reject; no automatic additional bind or fallback.
+effective_storage.py and storage_paths.py are unchanged reference copies.
+
+REQUIRED ROOT COMBINATION WITH REPAIR20
+Only private_workload.py mount construction changes: constants/runtime_view()
+immediately before command(); replace its --ro-bind / / with *runtime_view(m);
+insert --remount-ro / directly after its charged --bind. No controller changes.
+Preserve repair20 command transport and lineage checks when combining.
+The new final / has a different dev/inode/owner from host /. Repair20 must handle
+that constructed root explicitly while authenticating retained source objects
+and strict readonly scaffold evidence. Root and repair20 were notified through
+the existing client, acknowledgments retained. This packet intentionally leaves
+all v8 trust/policy/gate functions unchanged; it is not independently runnable
+qualification or a substitute for repair20. No overflow-UID trust shortcut.
+
+CONCRETE READ PROOF
+1,155 distinct required paths opened read-only on host with resolved locations
+and descriptor metadata; zero missing required inputs. Includes216 live19 pins,
+all727 actual compiler inputs/eight stages, full tool/header/provider/ELF closure,
+generated VFS sources,190 current control paths,44 adapter authority paths,
+29 ELF-edge endpoints, real A347 font/language assets,16 Python/ctypes mapped
+runtime paths including libffi/loader, protected state/owner/lock and Git metadata.
+Future build outputs were not created. Historical plan is reference evidence,
+not a fresh admission or approval of its old HEAD. Root must regenerate/reseal
+the actual future plan; every required pin must remain in the reviewed read view.
+
+retained-mount-access.json:293 imported source/mount boundaries accessible via
+unchanged O_PATH/fdinfo/fstat/statvfs; stable complete host topology captured.
+model-final-mountinfo.txt/model-check.json:304 predicted final mount records,
+all inspected by unchanged checker, no hidden rows, one charged writable mount.
+No /run,/var,/sys mount records; empty runtime dirs share readonly scaffold.
+These are host/source/model results, not actual final namespace observations.
+
+VALIDATION
+44/44 bounded tests pass,0.616350s wall,36,584KiB peak RSS. One Python child20927
+joined/absent; no grandchildren.512MiB address-space,30CPU/60wall-second caps.
+17 new argv/topology/access regressions plus27 unchanged repair08 checker tests.
+Includes audit21 exact portal EACCES counterexample, old-root failure, captured
+topology inclusion, fresh inaccessible retained mount rejection, writable root/
+runtime/nested layer rejection, final-remount ordering, unchanged guard semantics,
+exact custody/payload suffix, full compiler canonical-input view checks, source
+symlink escape and changed compatibility-link refusal. No native/namespace code.
+Patch check and application to an owned frozen copy produce byte-identical
+proposed/private_workload.py. Frozen installed source pins are rechecked.
+
+An initial read-capture assertion treated three unbuilt explicit stage outputs
+as read inputs. Corrected by separating the plan's exact output set and asserting
+no input/output overlap. Initial logs retained; no required input removed.
+No test-suite failure occurred. Full Ubuntu package source trace and limits are
+in SOURCE-TRACE.txt. One unsuccessful upstream fetch returned HTTP429 before any
+file was saved; the final proof uses pinned existing exact-package sources.
+
+PRESERVATION / BOUNDARIES
+Old v8 stays unchanged.6attempts24MiB,activeRAM0,both owners live19 retained.
+All old guards, cumulative charges, D267/D289/A333 exclusions and held dispatcher
+preserved. No old grant reused, no attempt/root/service/namespace/compiler/native
+execution, system setup, policy load, host mount/permission change, peer edit,
+agent or commit. Writes only own output. Synchronous children joined.
+No native/build/release/performance or successful qualification credit.
+
+FILES FOR ROOT
+runtime-view.patch, proposed/private_workload.py, frozen-v8/.
+runtime-view-contract.json, SOURCE-TRACE.txt, input-pins.json,
+source-evidence-pins.json, read-closure.json, retained-mount-access.json,
+host-mountinfo.txt, model-final-mountinfo.txt, model-check.json,
+test_runtime_view.py, topology_model.py, test_effective_storage_regression.py,
+run_tests.py, tests-result.json/tests.stderr, patch-check.json,
+final-seal.json, artifact-pins.json and one DONE notification receipt.
+
+REMAINING LIVE LIMITS
+Exact combined trust/root proof, userns observer/map composition, inherited FD
+transport, real final mount/LSM accessibility, current input closure, fresh root
+grant/admission and exact independent service/process joins remain required.
+Model success is not permission to run. ONE DONE ID/result/path is sent via the
+existing notification client; then this worker stops.
