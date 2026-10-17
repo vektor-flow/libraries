@@ -1,0 +1,154 @@
+{
+  "passed": true,
+  "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+  "head": "5b6d933546020702c20d57d1bb1821c1b79266bd",
+  "available": 19372060672,
+  "active_ram": 0,
+  "offload": 0,
+  "lanes": {
+    "A": {
+      "owner": "01a149f1-6e6c-7683-8d76-43acab856af5",
+      "charge": 19864543232,
+      "properties": {
+        "memory.max": "8589934592",
+        "memory.high": "3221225472",
+        "memory.swap.max": "0",
+        "pids.max": "160",
+        "cgroup.events": "populated 0\nfrozen 0",
+        "cgroup.procs": ""
+      },
+      "old_volume": {
+        "free": 4276248576,
+        "used": 18778218496
+      },
+      "root_allocated": 2158592,
+      "root_identity": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017",
+        "dev": 2081,
+        "ino": 50601629,
+        "uid": 1000,
+        "gid": 1000,
+        "uuid": "d189b76f-1138-40a0-abdf-da48d249b679",
+        "size": 1967846068224,
+        "mount_id": 24653,
+        "source": "/dev/sdc1",
+        "mount_target": "/mnt/development",
+        "mount_root": "/",
+        "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628"
+      }
+    },
+    "F": {
+      "owner": "01a149d1-1ba6-77f0-904a-23fc7490075b",
+      "charge": 19821273088,
+      "properties": {
+        "memory.max": "3221225472",
+        "memory.high": "3221225472",
+        "memory.swap.max": "0",
+        "pids.max": "160",
+        "cgroup.events": "populated 0\nfrozen 0",
+        "cgroup.procs": ""
+      },
+      "old_volume": {
+        "free": 3270942720,
+        "used": 19783524352
+      },
+      "root_allocated": 2088960,
+      "root_identity": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017",
+        "dev": 2081,
+        "ino": 50601627,
+        "uid": 1000,
+        "gid": 1000,
+        "uuid": "d189b76f-1138-40a0-abdf-da48d249b679",
+        "size": 1967846068224,
+        "mount_id": 24653,
+        "source": "/dev/sdc1",
+        "mount_target": "/mnt/development",
+        "mount_root": "/",
+        "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628"
+      }
+    }
+  },
+  "joins": {
+    "A": {
+      "join": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native13-01/receipts/service-join.json",
+        "sha256": "d256ac9107872673b7751c4d7c2490b607ff23e6ec8c16b80257bd6ed63c2492"
+      },
+      "verified": true,
+      "controller_absent": true,
+      "service": {
+        "LoadState": "loaded",
+        "ActiveState": "failed",
+        "InvocationID": "470a40f36bbc4268b582fa0530fda4bb",
+        "TimeoutStopUSec": "10s",
+        "RuntimeMaxUSec": "20min 30s",
+        "MainPID": "0",
+        "Result": "exit-code",
+        "OOMPolicy": "kill",
+        "ExecMainCode": "1",
+        "ExecMainStatus": "199",
+        "ControlGroup": "",
+        "MemoryMax": "8589934592",
+        "MemorySwapMax": "0",
+        "TasksMax": "128",
+        "KillMode": "control-group"
+      }
+    },
+    "F": {
+      "join": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live24-f-timeout-01/receipts/service-join.json",
+        "sha256": "8c0e9bf22b982cf1449ef60ac3ebd49e6ba2a0ea74899ad50dd0b6924ae3c011"
+      },
+      "verified": true,
+      "controller_absent": true,
+      "service": {
+        "LoadState": "loaded",
+        "ActiveState": "failed",
+        "InvocationID": "6a5a332eb05942ad9c87c7e41b7f12d5",
+        "TimeoutStopUSec": "10s",
+        "RuntimeMaxUSec": "40s",
+        "MainPID": "0",
+        "Result": "exit-code",
+        "OOMPolicy": "kill",
+        "ExecMainCode": "1",
+        "ExecMainStatus": "199",
+        "ControlGroup": "",
+        "MemoryMax": "3221225472",
+        "MemorySwapMax": "0",
+        "TasksMax": "128",
+        "KillMode": "control-group"
+      }
+    }
+  },
+  "holds": {
+    "vkf-s0-synchronized-contexts.service": "ActiveState=inactive\nMainPID=0\n",
+    "vkf-s0-synchronized-contexts.timer": "ActiveState=inactive\n",
+    "vkf-s0-worker-done.path": "ActiveState=inactive\n"
+  },
+  "physical": {
+    "/": {
+      "free": 54837231616,
+      "used": 431631261696
+    },
+    "/mnt/development": {
+      "free": 1562306408448,
+      "used": 385518907392
+    },
+    "/mnt/vkf-storage-2tb": {
+      "free": 1562306408448,
+      "used": 385518907392
+    }
+  },
+  "state_pin": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/direct-state-v4.json",
+    "sha256": "6523363fe67cb65d370dee81e4eb37bb499b003b4105b990901cdcbcec7f9c0b"
+  },
+  "owner_pin": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/owners-v4.json",
+    "sha256": "6ba43deaa064cb96ac536ccb0008416871de78d10ba5aa700565baf5e6966236"
+  },
+  "artifact_count": 6,
+  "static_pins": 229,
+  "elapsed_seconds": 3.756454218062572
+}

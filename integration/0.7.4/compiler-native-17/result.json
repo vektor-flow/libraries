@@ -1,0 +1,179 @@
+{
+  "result": "NATIVE_BUILD_AND_CORE_REGRESSION_PASSED",
+  "attempt": "A:compiler-native17-01",
+  "controller_exit": 0,
+  "controller_seconds": 48.3664654919412,
+  "native_build_passed": true,
+  "core_regression_passed": true,
+  "compiler_stages_executed": 8,
+  "stages": [
+    {
+      "name": "compile-53",
+      "exit": 0,
+      "seconds": 4.689597134012729
+    },
+    {
+      "name": "compile-90",
+      "exit": 0,
+      "seconds": 0.12109250307548791
+    },
+    {
+      "name": "link-compiler",
+      "exit": 0,
+      "seconds": 0.5863765960093588
+    },
+    {
+      "name": "compile-regression",
+      "exit": 0,
+      "seconds": 2.0292179429670796
+    },
+    {
+      "name": "link-regression-baseline",
+      "exit": 0,
+      "seconds": 0.5462048520566896
+    },
+    {
+      "name": "run-regression-baseline",
+      "exit": -6,
+      "seconds": 0.12904157803859562
+    },
+    {
+      "name": "link-regression-candidate",
+      "exit": 0,
+      "seconds": 0.5522224090527743
+    },
+    {
+      "name": "run-regression-candidate",
+      "exit": 0,
+      "seconds": 0.01822336600162089
+    }
+  ],
+  "execution_summary": {
+    "all_recorded_children_joined": true,
+    "completed": 8,
+    "error": null,
+    "native_execution": true,
+    "planned": 8,
+    "release_qualified": false,
+    "seconds": 9.764557266957127
+  },
+  "compiler_receipt": {
+    "candidate_review": {
+      "accepted": true,
+      "baseline_failure_marker": "cross-ABI child was preserved",
+      "baseline_sha256": "6c9f9cf5d2b60c426f88402c0ae32c294191c26880614e71907354613e27c5bd",
+      "candidate": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-record-projection-repair-05/candidate/layouts_1.cpp",
+        "sha256": "226bb513fec0c2e1d9443fd9ac61d6ab863e9a3a136ab2238cf7d9346130307f"
+      },
+      "candidate_success_stdout": "ordinary counted metadata layout regressions passed\n",
+      "changed_units": [
+        53
+      ],
+      "executable": true,
+      "identity_tag": "compiler-build-preparation-03",
+      "independent_review": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-record-review-07/HANDOFF.txt",
+      "native_executed": false,
+      "regression": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-record-projection-repair-05/regression_layouts.cpp",
+        "sha256": "688a991c0821951d86c1b87330d2def7af6cd0423488c5350eb2005e48a81c86"
+      },
+      "scope": "Accepted source candidate for separately admitted native qualification; no native success or execution authorization",
+      "whole_record_projection_regression_reviewed": true
+    },
+    "candidate_sha256": "226bb513fec0c2e1d9443fd9ac61d6ab863e9a3a136ab2238cf7d9346130307f",
+    "compiler": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+      "sha256": "52116e581d041836505756fcde17d504422429e410f0c84cb353409e121948d9"
+    },
+    "core_regression_passed": true,
+    "identity": "340d32d743bfcd6da076840963974462ed590852314ae483bbde5b4cc20c2e74",
+    "native_build_passed": true,
+    "plan": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/plan.json",
+      "sha256": "8d2af24a53ed0a046e155a24f9ce4f35f23eeb2a19d3c971bb8085ea1619c00f"
+    },
+    "results": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/results.json",
+      "sha256": "ef0f1d9b6a7a44fc24e70aaea5d5b7ad9a7a0d4fd4f56eb673287921ea2e67f7"
+    }
+  },
+  "error": null,
+  "terminal_join_verified": true,
+  "join": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/receipts/service-join.json",
+    "sha256": "59a64d4dd9c467d71de4264ddf2c3f6fe8d62763ef9809c16f5ec56aef95b150"
+  },
+  "A_high_restored_bytes": 3221225472,
+  "permanent_charge_retained_bytes": 1073741824,
+  "attempt_allocated_bytes": 79290368,
+  "lanes": {
+    "A": {
+      "properties": {
+        "memory.max": "8589934592",
+        "memory.high": "3221225472",
+        "memory.swap.max": "0",
+        "pids.max": "160",
+        "cgroup.events": "populated 0\nfrozen 0",
+        "cgroup.procs": ""
+      },
+      "charge": 20938285056,
+      "remaining": 69681191680,
+      "old_volume": {
+        "free": 4276248576,
+        "used": 18778218496
+      },
+      "root_allocated": 81448960
+    },
+    "F": {
+      "properties": {
+        "memory.max": "3221225472",
+        "memory.high": "3221225472",
+        "memory.swap.max": "0",
+        "pids.max": "160",
+        "cgroup.events": "populated 0\nfrozen 0",
+        "cgroup.procs": ""
+      },
+      "charge": 19821273088,
+      "remaining": 70798203648,
+      "old_volume": {
+        "free": 3270942720,
+        "used": 19783524352
+      },
+      "root_allocated": 2088960
+    }
+  },
+  "tiny_attempts_unchanged": 12,
+  "tiny_bytes_unchanged": 50331648,
+  "active_ram": 0,
+  "overlap": 0,
+  "MemAvailable": 19317477376,
+  "offload": 0,
+  "holds": {
+    "vkf-s0-synchronized-contexts.service": "ActiveState=inactive\nMainPID=0\n",
+    "vkf-s0-synchronized-contexts.timer": "ActiveState=inactive\n",
+    "vkf-s0-worker-done.path": "ActiveState=inactive\n"
+  },
+  "physical": {
+    "/": {
+      "free": 54828322816,
+      "used": 431640170496
+    },
+    "/mnt/development": {
+      "free": 1562227118080,
+      "used": 385598197760
+    },
+    "/mnt/vkf-storage-2tb": {
+      "free": 1562227118080,
+      "used": 385598197760
+    }
+  },
+  "posthash": {
+    "plan_inputs": 727,
+    "static_pins": 229,
+    "grant_inputs": 898,
+    "passed": true
+  },
+  "head": "5b6d933546020702c20d57d1bb1821c1b79266bd",
+  "seconds": 4.4332098009763286
+}

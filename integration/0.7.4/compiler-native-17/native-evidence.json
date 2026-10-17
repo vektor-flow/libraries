@@ -1,0 +1,324 @@
+{
+  "stages": [
+    {
+      "name": "compile-53",
+      "exit": 0,
+      "seconds": 4.689597134012729,
+      "dependencies": 302,
+      "depfile": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/objects/core-53.o.d",
+        "sha256": "5c70aa8028b09a43b9c8f6d1bf95e4ac4a55f92d794b7b5acb701c16a26c30e1"
+      },
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/objects/core-53.o",
+          "sha256": "f943354bdab79f2a01fd746317d408baefe7728ca788b7b4823c26b2d2393d47"
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 6,
+            "pid": 6,
+            "ppid": 2,
+            "session": 6,
+            "starttime": 75610322,
+            "state": "R"
+          }
+        ]
+      }
+    },
+    {
+      "name": "compile-90",
+      "exit": 0,
+      "seconds": 0.12109250307548791,
+      "dependencies": 70,
+      "depfile": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/objects/core-90.o.d",
+        "sha256": "958f873df4e566fae69df73503fb797d317c0819af2dc9cc7dd844c507000582"
+      },
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/objects/core-90.o",
+          "sha256": "a260dbbb12f8e2a56565de65441261a2d8b70ceedc1a86810b305119267103bc"
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 7,
+            "pid": 7,
+            "ppid": 2,
+            "session": 7,
+            "starttime": 75610797,
+            "state": "R"
+          }
+        ]
+      }
+    },
+    {
+      "name": "link-compiler",
+      "exit": 0,
+      "seconds": 0.5863765960093588,
+      "dependencies": 255,
+      "depfile": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict.d",
+        "sha256": "ec6b06a05e06963d3f795ad476d09e2cac8bbdaa9f0299963090e00ae59cb5a5"
+      },
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+          "sha256": "52116e581d041836505756fcde17d504422429e410f0c84cb353409e121948d9"
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 8,
+            "pid": 8,
+            "ppid": 2,
+            "session": 8,
+            "starttime": 75610812,
+            "state": "R"
+          },
+          {
+            "pgrp": 8,
+            "pid": 9,
+            "ppid": 8,
+            "session": 8,
+            "starttime": 75610814,
+            "state": "R"
+          }
+        ]
+      }
+    },
+    {
+      "name": "compile-regression",
+      "exit": 0,
+      "seconds": 2.0292179429670796,
+      "dependencies": 303,
+      "depfile": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/objects/regression.o.d",
+        "sha256": "c519129fe115c29b97947cec0a1b9cacf806efff74a8c395f40d9386b3fa0332"
+      },
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/objects/regression.o",
+          "sha256": "342ccd65485cfddc005def63de621f63d0590c60a31957397c2cf98aa5f9be4b"
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 10,
+            "pid": 10,
+            "ppid": 2,
+            "session": 10,
+            "starttime": 75610882,
+            "state": "R"
+          }
+        ]
+      }
+    },
+    {
+      "name": "link-regression-baseline",
+      "exit": 0,
+      "seconds": 0.5462048520566896,
+      "dependencies": 255,
+      "depfile": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/regression-baseline.d",
+        "sha256": "52b5f21ed1be0d267982f731d2c5a9318ae9b097127300e520bda132c7aef776"
+      },
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/regression-baseline",
+          "sha256": "a58ba52398f378b920f40cd45854ab8dc50433154dea7b3ec78ca0cdb220db07"
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 11,
+            "pid": 11,
+            "ppid": 2,
+            "session": 11,
+            "starttime": 75611092,
+            "state": "R"
+          },
+          {
+            "pgrp": 11,
+            "pid": 12,
+            "ppid": 11,
+            "session": 11,
+            "starttime": 75611094,
+            "state": "R"
+          }
+        ]
+      }
+    },
+    {
+      "name": "run-regression-baseline",
+      "exit": -6,
+      "seconds": 0.12904157803859562,
+      "dependencies": 0,
+      "depfile": null,
+      "outputs": [],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 13,
+            "pid": 13,
+            "ppid": 2,
+            "session": 13,
+            "starttime": 75611161,
+            "state": "R"
+          }
+        ]
+      }
+    },
+    {
+      "name": "link-regression-candidate",
+      "exit": 0,
+      "seconds": 0.5522224090527743,
+      "dependencies": 255,
+      "depfile": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/regression-candidate.d",
+        "sha256": "2068d1089e21a161b136db33bc6a8722f9f210212fd9a627073f61b3d64b1331"
+      },
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/regression-candidate",
+          "sha256": "4dbce163056d7c9068bca26424d8d36d42296e0ce3954a52b114a0767f1f5fe5"
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 14,
+            "pid": 14,
+            "ppid": 2,
+            "session": 14,
+            "starttime": 75611175,
+            "state": "R"
+          },
+          {
+            "pgrp": 14,
+            "pid": 15,
+            "ppid": 14,
+            "session": 14,
+            "starttime": 75611177,
+            "state": "R"
+          }
+        ]
+      }
+    },
+    {
+      "name": "run-regression-candidate",
+      "exit": 0,
+      "seconds": 0.01822336600162089,
+      "dependencies": 0,
+      "depfile": null,
+      "outputs": [],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 16,
+            "pid": 16,
+            "ppid": 2,
+            "session": 16,
+            "starttime": 75611240,
+            "state": "R"
+          }
+        ]
+      }
+    }
+  ],
+  "ELF": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+    "sha256": "52116e581d041836505756fcde17d504422429e410f0c84cb353409e121948d9"
+  },
+  "identity": "340d32d743bfcd6da076840963974462ed590852314ae483bbde5b4cc20c2e74",
+  "baseline_stderr": "terminate called after throwing an instance of 'std::runtime_error'\n  what():  cross-ABI child was preserved\n",
+  "candidate_stdout": "ordinary counted metadata layout regressions passed\n",
+  "systemd": "ExecMainStartTimestampMonotonic=756086503142\nExecMainExitTimestampMonotonic=756115735032\nMemoryPeak=287600640\nMemorySwapPeak=0\nCPUUsageNSec=36028394000\n"
+}
