@@ -1,0 +1,5200 @@
+{
+  "evidence": "Python decoding/format model plus pinned source analysis, not VKF execution",
+  "items_inspected": 223,
+  "items_with_nonzero_numbers": 220,
+  "first_item": {
+    "item_index": 0,
+    "raw": "{\"kind\":\"rule\",\"x\":2,\"y\":3,\"width\":4,\"height\":0.5}",
+    "numeric_values": [
+      {
+        "path": "/x",
+        "decoded": 2,
+        "model_encoded": "2e0"
+      },
+      {
+        "path": "/y",
+        "decoded": 3,
+        "model_encoded": "3e0"
+      },
+      {
+        "path": "/width",
+        "decoded": 4,
+        "model_encoded": "4e0"
+      },
+      {
+        "path": "/height",
+        "decoded": 0.5,
+        "model_encoded": "5e-1"
+      }
+    ]
+  },
+  "formatter_witness": {
+    "raw": "2",
+    "typed_model": "2e0",
+    "numeric_equal": true,
+    "byte_equal": false
+  },
+  "strict_nonempty_and_export_assertions_retained": true,
+  "all_items_with_numeric_values": [
+    {
+      "item_index": 0,
+      "raw": "{\"kind\":\"rule\",\"x\":2,\"y\":3,\"width\":4,\"height\":0.5}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 2,
+          "model_encoded": "2e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 3,
+          "model_encoded": "3e0"
+        },
+        {
+          "path": "/width",
+          "decoded": 4,
+          "model_encoded": "4e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 0.5,
+          "model_encoded": "5e-1"
+        }
+      ]
+    },
+    {
+      "item_index": 1,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"math/A\",\"x\":2,\"y\":-3,\"sx\":1.25,\"sy\":0.8,\"cropX\":[null,4],\"crop\":[-2,null],\"glyphParts\":[\"alpha\",\"beta\"],\"equationTag\":true,\"tagWidth\":9,\"flowLine\":17,\"color\":[0.2,0.3,0.4,0.5],\"destinationIds\":[\"math-origin\"],\"footnoteNumber\":3}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 2,
+          "model_encoded": "2e0"
+        },
+        {
+          "path": "/y",
+          "decoded": -3,
+          "model_encoded": "-3e0"
+        },
+        {
+          "path": "/sx",
+          "decoded": 1.25,
+          "model_encoded": "1.25e0"
+        },
+        {
+          "path": "/sy",
+          "decoded": 0.8,
+          "model_encoded": "8.0000000000000004e-1"
+        },
+        {
+          "path": "/cropX/1",
+          "decoded": 4,
+          "model_encoded": "4e0"
+        },
+        {
+          "path": "/crop/0",
+          "decoded": -2,
+          "model_encoded": "-2e0"
+        },
+        {
+          "path": "/tagWidth",
+          "decoded": 9,
+          "model_encoded": "9e0"
+        },
+        {
+          "path": "/flowLine",
+          "decoded": 17,
+          "model_encoded": "1.7e1"
+        },
+        {
+          "path": "/color/0",
+          "decoded": 0.2,
+          "model_encoded": "2.0000000000000001e-1"
+        },
+        {
+          "path": "/color/1",
+          "decoded": 0.3,
+          "model_encoded": "2.9999999999999999e-1"
+        },
+        {
+          "path": "/color/2",
+          "decoded": 0.4,
+          "model_encoded": "4.0000000000000002e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 0.5,
+          "model_encoded": "5e-1"
+        },
+        {
+          "path": "/footnoteNumber",
+          "decoded": 3,
+          "model_encoded": "3e0"
+        }
+      ]
+    },
+    {
+      "item_index": 2,
+      "raw": "{\"kind\":\"field\",\"key\":\"field/b\",\"x\":3,\"y\":1}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 3,
+          "model_encoded": "3e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 3,
+      "raw": "{\"kind\":\"rule\",\"x\":1,\"y\":2,\"width\":3,\"height\":0.4}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 2,
+          "model_encoded": "2e0"
+        },
+        {
+          "path": "/width",
+          "decoded": 3,
+          "model_encoded": "3e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 0.4,
+          "model_encoded": "4.0000000000000002e-1"
+        }
+      ]
+    },
+    {
+      "item_index": 4,
+      "raw": "{\"kind\":\"link\",\"x\":0,\"y\":1,\"width\":10,\"height\":5,\"target\":{\"type\":\"uri\",\"value\":\"https://example.test/a\"},\"borderWidth\":0.5,\"color\":[1,0,0],\"flowX\":-2,\"flowWidth\":20}",
+      "numeric_values": [
+        {
+          "path": "/y",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/width",
+          "decoded": 10,
+          "model_encoded": "1e1"
+        },
+        {
+          "path": "/height",
+          "decoded": 5,
+          "model_encoded": "5e0"
+        },
+        {
+          "path": "/borderWidth",
+          "decoded": 0.5,
+          "model_encoded": "5e-1"
+        },
+        {
+          "path": "/color/0",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/flowX",
+          "decoded": -2,
+          "model_encoded": "-2e0"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 20,
+          "model_encoded": "2e1"
+        }
+      ]
+    },
+    {
+      "item_index": 5,
+      "raw": "{\"kind\":\"image\",\"x\":1,\"y\":2,\"width\":3,\"height\":4,\"asset\":\"asset\"}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 2,
+          "model_encoded": "2e0"
+        },
+        {
+          "path": "/width",
+          "decoded": 3,
+          "model_encoded": "3e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4,
+          "model_encoded": "4e0"
+        }
+      ]
+    },
+    {
+      "item_index": 6,
+      "raw": "{\"kind\":\"segment\",\"x\":1,\"y\":2,\"delta\":[3,4],\"lineWidth\":0.6,\"strokeColor\":[0,1,0],\"dash\":\"dotted\"}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 2,
+          "model_encoded": "2e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": 3,
+          "model_encoded": "3e0"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 4,
+          "model_encoded": "4e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.6,
+          "model_encoded": "5.9999999999999998e-1"
+        },
+        {
+          "path": "/strokeColor/1",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 7,
+      "raw": "{\"kind\":\"bezier\",\"x\":1,\"y\":2,\"delta\":[3,4],\"controls\":[{\"x\":0.5,\"y\":-0.5},{\"x\":2,\"y\":3}],\"fill\":true,\"fillColor\":[0,0,1,0.25]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 2,
+          "model_encoded": "2e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": 3,
+          "model_encoded": "3e0"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 4,
+          "model_encoded": "4e0"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": 0.5,
+          "model_encoded": "5e-1"
+        },
+        {
+          "path": "/controls/0/y",
+          "decoded": -0.5,
+          "model_encoded": "-5e-1"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": 2,
+          "model_encoded": "2e0"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": 3,
+          "model_encoded": "3e0"
+        },
+        {
+          "path": "/fillColor/2",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/fillColor/3",
+          "decoded": 0.25,
+          "model_encoded": "2.5e-1"
+        }
+      ]
+    },
+    {
+      "item_index": 8,
+      "raw": "{\"kind\":\"circle\",\"x\":1,\"y\":2,\"width\":3,\"height\":3}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 2,
+          "model_encoded": "2e0"
+        },
+        {
+          "path": "/width",
+          "decoded": 3,
+          "model_encoded": "3e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 3,
+          "model_encoded": "3e0"
+        }
+      ]
+    },
+    {
+      "item_index": 9,
+      "raw": "{\"kind\":\"vectorrect\",\"x\":1,\"y\":2,\"width\":3,\"height\":4}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 2,
+          "model_encoded": "2e0"
+        },
+        {
+          "path": "/width",
+          "decoded": 3,
+          "model_encoded": "3e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4,
+          "model_encoded": "4e0"
+        }
+      ]
+    },
+    {
+      "item_index": 10,
+      "raw": "{\"kind\":\"placeholder\",\"x\":1,\"y\":2,\"width\":3,\"height\":4}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 2,
+          "model_encoded": "2e0"
+        },
+        {
+          "path": "/width",
+          "decoded": 3,
+          "model_encoded": "3e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4,
+          "model_encoded": "4e0"
+        }
+      ]
+    },
+    {
+      "item_index": 11,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"tail\",\"x\":4,\"y\":5,\"destinationIds\":[]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 4,
+          "model_encoded": "4e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 5,
+          "model_encoded": "5e0"
+        }
+      ]
+    },
+    {
+      "item_index": 12,
+      "raw": "{\"kind\":\"link\",\"x\":1,\"y\":2,\"target\":{\"type\":\"destination\",\"value\":\"one\"}}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 2,
+          "model_encoded": "2e0"
+        }
+      ]
+    },
+    {
+      "item_index": 14,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:14\",\"x\":5.852990251400996,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 5.852990251400996,
+          "model_encoded": "5.8529902514009962e0"
+        }
+      ]
+    },
+    {
+      "item_index": 15,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:99\",\"x\":15.60797400373599,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 15.60797400373599,
+          "model_encoded": "1.560797400373599e1"
+        }
+      ]
+    },
+    {
+      "item_index": 16,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:101\",\"x\":20.810632004981322,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 20.810632004981322,
+          "model_encoded": "2.0810632004981322e1"
+        }
+      ]
+    },
+    {
+      "item_index": 17,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:97\",\"x\":29.91528350716065,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 29.91528350716065,
+          "model_encoded": "2.9915283507160652e1"
+        }
+      ]
+    },
+    {
+      "item_index": 18,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:14\",\"x\":35.76827375856165,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 35.76827375856165,
+          "model_encoded": "3.5768273758561648e1"
+        }
+      ]
+    },
+    {
+      "item_index": 19,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:110\",\"x\":45.52325751089664,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 45.52325751089664,
+          "model_encoded": "4.5523257510896642e1"
+        }
+      ]
+    },
+    {
+      "item_index": 20,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:101\",\"x\":52.02658001245331,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 52.02658001245331,
+          "model_encoded": "5.2026580012453309e1"
+        }
+      ]
+    },
+    {
+      "item_index": 21,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:97\",\"x\":61.13123151463263,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 61.13123151463263,
+          "model_encoded": "6.1131231514632631e1"
+        }
+      ]
+    },
+    {
+      "item_index": 22,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:110\",\"x\":66.98422176603363,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 66.98422176603363,
+          "model_encoded": "6.6984221766033627e1"
+        }
+      ]
+    },
+    {
+      "item_index": 23,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:100\",\"x\":73.4875442675903,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 73.4875442675903,
+          "model_encoded": "7.3487544267590295e1"
+        }
+      ]
+    },
+    {
+      "item_index": 24,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:111\",\"x\":83.89286027008094,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 83.89286027008094,
+          "model_encoded": "8.3892860270080945e1"
+        }
+      ]
+    },
+    {
+      "item_index": 25,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:114\",\"x\":89.74585052148194,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 89.74585052148194,
+          "model_encoded": "8.9745850521481941e1"
+        }
+      ]
+    },
+    {
+      "item_index": 26,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:100\",\"x\":94.29817627257161,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 94.29817627257161,
+          "model_encoded": "9.429817627257161e1"
+        }
+      ]
+    },
+    {
+      "item_index": 27,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:105\",\"x\":100.80149877412828,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 100.80149877412828,
+          "model_encoded": "1.0080149877412828e2"
+        }
+      ]
+    },
+    {
+      "item_index": 28,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:110\",\"x\":104.0531600249066,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 104.0531600249066,
+          "model_encoded": "1.040531600249066e2"
+        }
+      ]
+    },
+    {
+      "item_index": 29,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:97\",\"x\":110.55648252646327,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 110.55648252646327,
+          "model_encoded": "1.1055648252646327e2"
+        }
+      ]
+    },
+    {
+      "item_index": 30,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:114\",\"x\":116.40947277786427,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 116.40947277786427,
+          "model_encoded": "1.1640947277786427e2"
+        }
+      ]
+    },
+    {
+      "item_index": 31,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:121\",\"x\":120.96179852895392,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 120.96179852895392,
+          "model_encoded": "1.2096179852895392e2"
+        }
+      ]
+    },
+    {
+      "item_index": 32,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:119\",\"x\":131.04194840636674,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 131.04194840636674,
+          "model_encoded": "1.3104194840636674e2"
+        }
+      ]
+    },
+    {
+      "item_index": 33,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:111\",\"x\":139.17110153331257,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 139.17110153331257,
+          "model_encoded": "1.3917110153331257e2"
+        }
+      ]
+    },
+    {
+      "item_index": 34,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:114\",\"x\":145.02409178471356,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 145.02409178471356,
+          "model_encoded": "1.4502409178471356e2"
+        }
+      ]
+    },
+    {
+      "item_index": 35,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:100\",\"x\":149.57641753580322,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 149.57641753580322,
+          "model_encoded": "1.4957641753580322e2"
+        }
+      ]
+    },
+    {
+      "item_index": 36,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:115\",\"x\":156.0797400373599,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 156.0797400373599,
+          "model_encoded": "1.560797400373599e2"
+        }
+      ]
+    },
+    {
+      "item_index": 37,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:46\",\"x\":160.69709901346513,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 160.69709901346513,
+          "model_encoded": "1.6069709901346513e2"
+        }
+      ]
+    },
+    {
+      "item_index": 39,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:112\",\"x\":12.67732879144614,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 12.67732879144614,
+          "model_encoded": "1.267732879144614e1"
+        }
+      ]
+    },
+    {
+      "item_index": 40,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:97\",\"x\":19.180651293002803,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 19.180651293002803,
+          "model_encoded": "1.9180651293002803e1"
+        }
+      ]
+    },
+    {
+      "item_index": 41,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:114\",\"x\":25.0336415444038,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 25.0336415444038,
+          "model_encoded": "2.50336415444038e1"
+        }
+      ]
+    },
+    {
+      "item_index": 42,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:97\",\"x\":29.585967295493464,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 29.585967295493464,
+          "model_encoded": "2.9585967295493464e1"
+        }
+      ]
+    },
+    {
+      "item_index": 43,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:103\",\"x\":35.43895754689446,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 35.43895754689446,
+          "model_encoded": "3.5438957546894457e1"
+        }
+      ]
+    },
+    {
+      "item_index": 44,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:114\",\"x\":41.29194779829545,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 41.29194779829545,
+          "model_encoded": "4.1291947798295453e1"
+        }
+      ]
+    },
+    {
+      "item_index": 45,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:97\",\"x\":45.84427354938512,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 45.84427354938512,
+          "model_encoded": "4.5844273549385122e1"
+        }
+      ]
+    },
+    {
+      "item_index": 46,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:112\",\"x\":51.69726380078612,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 51.69726380078612,
+          "model_encoded": "5.1697263800786118e1"
+        }
+      ]
+    },
+    {
+      "item_index": 47,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:104\",\"x\":58.20058630234277,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 58.20058630234277,
+          "model_encoded": "5.8200586302342771e1"
+        }
+      ]
+    },
+    {
+      "item_index": 48,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:119\",\"x\":68.60590230483344,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 68.60590230483344,
+          "model_encoded": "6.8605902304833435e1"
+        }
+      ]
+    },
+    {
+      "item_index": 49,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:105\",\"x\":77.0602215568571,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 77.0602215568571,
+          "model_encoded": "7.7060221556857101e1"
+        }
+      ]
+    },
+    {
+      "item_index": 50,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:116\",\"x\":80.31188280763543,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 80.31188280763543,
+          "model_encoded": "8.0311882807635428e1"
+        }
+      ]
+    },
+    {
+      "item_index": 51,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:104\",\"x\":84.8642085587251,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 84.8642085587251,
+          "model_encoded": "8.4864208558725096e1"
+        }
+      ]
+    },
+    {
+      "item_index": 52,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:bold:98\",\"x\":95.26952456121575,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 95.26952456121575,
+          "model_encoded": "9.5269524561215746e1"
+        }
+      ]
+    },
+    {
+      "item_index": 53,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:bold:111\",\"x\":103.11510363967153,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 103.11510363967153,
+          "model_encoded": "1.0311510363967153e2"
+        }
+      ]
+    },
+    {
+      "item_index": 54,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:bold:108\",\"x\":109.83988570691936,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 109.83988570691936,
+          "model_encoded": "1.0983988570691936e2"
+        }
+      ]
+    },
+    {
+      "item_index": 55,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:bold:100\",\"x\":113.57587574427926,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 113.57587574427926,
+          "model_encoded": "1.1357587574427926e2"
+        }
+      ]
+    },
+    {
+      "item_index": 56,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:97\",\"x\":124.94984931993307,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 124.94984931993307,
+          "model_encoded": "1.2494984931993307e2"
+        }
+      ]
+    },
+    {
+      "item_index": 57,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:110\",\"x\":130.80283957133406,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 130.80283957133406,
+          "model_encoded": "1.3080283957133406e2"
+        }
+      ]
+    },
+    {
+      "item_index": 58,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:100\",\"x\":137.30616207289071,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 137.30616207289071,
+          "model_encoded": "1.3730616207289071e2"
+        }
+      ]
+    },
+    {
+      "item_index": 59,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/x\",\"x\":147.7114780753814,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 147.7114780753814,
+          "model_encoded": "1.4771147807538139e2"
+        }
+      ]
+    },
+    {
+      "item_index": 60,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/2\",\"x\":154.36356275782225,\"y\":-4.338436673023039,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 154.36356275782225,
+          "model_encoded": "1.5436356275782225e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -4.338436673023039,
+          "model_encoded": "-4.3384366730230388e0"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 61,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/+\",\"x\":161.75254006946608,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 161.75254006946608,
+          "model_encoded": "1.6175254006946608e2"
+        }
+      ]
+    },
+    {
+      "item_index": 62,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/y\",\"x\":173.51386109219334,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 173.51386109219334,
+          "model_encoded": "1.7351386109219334e2"
+        }
+      ]
+    },
+    {
+      "item_index": 63,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/1\",\"x\":179.22154620733772,\"y\":1.7932706573980388,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 179.22154620733772,
+          "model_encoded": "1.7922154620733772e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 1.7932706573980388,
+          "model_encoded": "1.7932706573980388e0"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 64,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:46\",\"x\":183.95386003050086,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 183.95386003050086,
+          "model_encoded": "1.8395386003050086e2"
+        }
+      ]
+    },
+    {
+      "item_index": 66,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:108\",\"x\":12.67732879144614,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 12.67732879144614,
+          "model_encoded": "1.267732879144614e1"
+        }
+      ]
+    },
+    {
+      "item_index": 67,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:105\",\"x\":15.928990042224472,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 15.928990042224472,
+          "model_encoded": "1.5928990042224472e1"
+        }
+      ]
+    },
+    {
+      "item_index": 68,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:110\",\"x\":19.180651293002803,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 19.180651293002803,
+          "model_encoded": "1.9180651293002803e1"
+        }
+      ]
+    },
+    {
+      "item_index": 69,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:107\",\"x\":25.683973794559463,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 25.683973794559463,
+          "model_encoded": "2.5683973794559463e1"
+        }
+      ]
+    },
+    {
+      "item_index": 70,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:101\",\"x\":31.536964045960463,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 31.536964045960463,
+          "model_encoded": "3.1536964045960463e1"
+        }
+      ]
+    },
+    {
+      "item_index": 71,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:100\",\"x\":36.7396220472058,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 36.7396220472058,
+          "model_encoded": "3.6739622047205799e1"
+        }
+      ]
+    },
+    {
+      "item_index": 72,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:116\",\"x\":47.14493804969646,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 47.14493804969646,
+          "model_encoded": "4.7144938049696457e1"
+        }
+      ]
+    },
+    {
+      "item_index": 73,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:105\",\"x\":51.69726380078612,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 51.69726380078612,
+          "model_encoded": "5.1697263800786118e1"
+        }
+      ]
+    },
+    {
+      "item_index": 74,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:116\",\"x\":54.94892505156445,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 54.94892505156445,
+          "model_encoded": "5.4948925051564451e1"
+        }
+      ]
+    },
+    {
+      "item_index": 75,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:108\",\"x\":59.50125080265411,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 59.50125080265411,
+          "model_encoded": "5.9501250802654113e1"
+        }
+      ]
+    },
+    {
+      "item_index": 76,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:101\",\"x\":62.752912053432446,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 62.752912053432446,
+          "model_encoded": "6.2752912053432446e1"
+        }
+      ]
+    },
+    {
+      "item_index": 77,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:46\",\"x\":67.95557005467778,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 67.95557005467778,
+          "model_encoded": "6.7955570054677779e1"
+        }
+      ]
+    },
+    {
+      "item_index": 78,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:104\",\"x\":76.40988930670143,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 76.40988930670143,
+          "model_encoded": "7.640988930670143e1"
+        }
+      ]
+    },
+    {
+      "item_index": 79,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:116\",\"x\":82.5618226085772,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 82.5618226085772,
+          "model_encoded": "8.2561822608577202e1"
+        }
+      ]
+    },
+    {
+      "item_index": 80,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:116\",\"x\":88.71375591045297,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 88.71375591045297,
+          "model_encoded": "8.8713755910452974e1"
+        }
+      ]
+    },
+    {
+      "item_index": 81,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:112\",\"x\":94.86568921232875,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 94.86568921232875,
+          "model_encoded": "9.4865689212328746e1"
+        }
+      ]
+    },
+    {
+      "item_index": 82,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:115\",\"x\":101.01762251420452,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 101.01762251420452,
+          "model_encoded": "1.0101762251420452e2"
+        }
+      ]
+    },
+    {
+      "item_index": 83,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:58\",\"x\":107.16955581608029,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 107.16955581608029,
+          "model_encoded": "1.0716955581608029e2"
+        }
+      ]
+    },
+    {
+      "item_index": 84,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:47\",\"x\":113.32148911795606,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 113.32148911795606,
+          "model_encoded": "1.1332148911795606e2"
+        }
+      ]
+    },
+    {
+      "item_index": 85,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:47\",\"x\":119.47342241983183,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 119.47342241983183,
+          "model_encoded": "1.1947342241983183e2"
+        }
+      ]
+    },
+    {
+      "item_index": 86,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:101\",\"x\":125.6253557217076,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 125.6253557217076,
+          "model_encoded": "1.2562535572170761e2"
+        }
+      ]
+    },
+    {
+      "item_index": 87,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:120\",\"x\":131.7772890235834,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 131.7772890235834,
+          "model_encoded": "1.3177728902358339e2"
+        }
+      ]
+    },
+    {
+      "item_index": 88,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:97\",\"x\":137.92922232545916,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 137.92922232545916,
+          "model_encoded": "1.3792922232545916e2"
+        }
+      ]
+    },
+    {
+      "item_index": 89,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:109\",\"x\":144.08115562733494,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 144.08115562733494,
+          "model_encoded": "1.4408115562733494e2"
+        }
+      ]
+    },
+    {
+      "item_index": 90,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:112\",\"x\":150.2330889292107,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 150.2330889292107,
+          "model_encoded": "1.5023308892921071e2"
+        }
+      ]
+    },
+    {
+      "item_index": 91,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:108\",\"x\":156.38502223108648,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 156.38502223108648,
+          "model_encoded": "1.5638502223108648e2"
+        }
+      ]
+    },
+    {
+      "item_index": 92,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:101\",\"x\":162.53695553296225,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 162.53695553296225,
+          "model_encoded": "1.6253695553296225e2"
+        }
+      ]
+    },
+    {
+      "item_index": 93,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:46\",\"x\":168.68888883483802,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 168.68888883483802,
+          "model_encoded": "1.6868888883483802e2"
+        }
+      ]
+    },
+    {
+      "item_index": 94,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:116\",\"x\":174.8408221367138,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 174.8408221367138,
+          "model_encoded": "1.748408221367138e2"
+        }
+      ]
+    },
+    {
+      "item_index": 95,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:101\",\"x\":180.99275543858957,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 180.99275543858957,
+          "model_encoded": "1.8099275543858957e2"
+        }
+      ]
+    },
+    {
+      "item_index": 96,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:115\",\"x\":187.14468874046534,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 187.14468874046534,
+          "model_encoded": "1.8714468874046534e2"
+        }
+      ]
+    },
+    {
+      "item_index": 97,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:116\",\"x\":193.2966220423411,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 193.2966220423411,
+          "model_encoded": "1.9329662204234111e2"
+        }
+      ]
+    },
+    {
+      "item_index": 98,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:47\",\"x\":199.44855534421689,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 199.44855534421689,
+          "model_encoded": "1.9944855534421689e2"
+        }
+      ]
+    },
+    {
+      "item_index": 99,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:100\",\"x\":205.60048864609266,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 205.60048864609266,
+          "model_encoded": "2.0560048864609266e2"
+        }
+      ]
+    },
+    {
+      "item_index": 100,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:97\",\"x\":211.75242194796843,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 211.75242194796843,
+          "model_encoded": "2.1175242194796843e2"
+        }
+      ]
+    },
+    {
+      "item_index": 101,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:116\",\"x\":217.9043552498442,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 217.9043552498442,
+          "model_encoded": "2.179043552498442e2"
+        }
+      ]
+    },
+    {
+      "item_index": 102,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:97\",\"x\":224.05628855171997,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 224.05628855171997,
+          "model_encoded": "2.2405628855171997e2"
+        }
+      ]
+    },
+    {
+      "item_index": 103,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:63\",\"x\":230.20822185359575,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 230.20822185359575,
+          "model_encoded": "2.3020822185359575e2"
+        }
+      ]
+    },
+    {
+      "item_index": 104,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:97\",\"x\":236.36015515547152,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 236.36015515547152,
+          "model_encoded": "2.3636015515547152e2"
+        }
+      ]
+    },
+    {
+      "item_index": 105,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:61\",\"x\":242.5120884573473,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 242.5120884573473,
+          "model_encoded": "2.4251208845734729e2"
+        }
+      ]
+    },
+    {
+      "item_index": 106,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:98\",\"x\":248.66402175922306,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 248.66402175922306,
+          "model_encoded": "2.4866402175922306e2"
+        }
+      ]
+    },
+    {
+      "item_index": 107,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:45\",\"x\":254.81595506109883,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 254.81595506109883,
+          "model_encoded": "2.5481595506109883e2"
+        }
+      ]
+    },
+    {
+      "item_index": 108,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:mono:99\",\"x\":260.96788836297463,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 260.96788836297463,
+          "model_encoded": "2.6096788836297463e2"
+        }
+      ]
+    },
+    {
+      "item_index": 109,
+      "raw": "{\"kind\":\"glyph\",\"key\":\"text/@document:roman:46\",\"x\":267.1198216648504,\"y\":0,\"flowLine\":0}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 267.1198216648504,
+          "model_encoded": "2.6711982166485041e2"
+        }
+      ]
+    },
+    {
+      "item_index": 110,
+      "raw": "{\"kind\":\"circle\",\"x\":0.19925280199252793,\"y\":-31.889767011402554,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 0.19925280199252793,
+          "model_encoded": "1.9925280199252793e-1"
+        },
+        {
+          "path": "/y",
+          "decoded": -31.889767011402554,
+          "model_encoded": "-3.1889767011402554e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 111,
+      "raw": "{\"kind\":\"circle\",\"x\":0.19925280199252793,\"y\":-17.716537228556973,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 0.19925280199252793,
+          "model_encoded": "1.9925280199252793e-1"
+        },
+        {
+          "path": "/y",
+          "decoded": -17.716537228556973,
+          "model_encoded": "-1.7716537228556973e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 112,
+      "raw": "{\"kind\":\"circle\",\"x\":0.19925280199252793,\"y\":-3.543307445711392,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 0.19925280199252793,
+          "model_encoded": "1.9925280199252793e-1"
+        },
+        {
+          "path": "/y",
+          "decoded": -3.543307445711392,
+          "model_encoded": "-3.5433074457113918e0"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 113,
+      "raw": "{\"kind\":\"circle\",\"x\":0.19925280199252793,\"y\":10.629922337134186,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 0.19925280199252793,
+          "model_encoded": "1.9925280199252793e-1"
+        },
+        {
+          "path": "/y",
+          "decoded": 10.629922337134186,
+          "model_encoded": "1.0629922337134186e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 114,
+      "raw": "{\"kind\":\"circle\",\"x\":0.19925280199252793,\"y\":24.803152119979767,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 0.19925280199252793,
+          "model_encoded": "1.9925280199252793e-1"
+        },
+        {
+          "path": "/y",
+          "decoded": 24.803152119979767,
+          "model_encoded": "2.4803152119979767e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 115,
+      "raw": "{\"kind\":\"circle\",\"x\":42.71894215052927,\"y\":-31.889767011402554,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 42.71894215052927,
+          "model_encoded": "4.2718942150529273e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -31.889767011402554,
+          "model_encoded": "-3.1889767011402554e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 116,
+      "raw": "{\"kind\":\"circle\",\"x\":42.71894215052927,\"y\":-17.716537228556973,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 42.71894215052927,
+          "model_encoded": "4.2718942150529273e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -17.716537228556973,
+          "model_encoded": "-1.7716537228556973e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 117,
+      "raw": "{\"kind\":\"circle\",\"x\":42.71894215052927,\"y\":-3.543307445711392,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 42.71894215052927,
+          "model_encoded": "4.2718942150529273e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -3.543307445711392,
+          "model_encoded": "-3.5433074457113918e0"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 118,
+      "raw": "{\"kind\":\"circle\",\"x\":42.71894215052927,\"y\":10.629922337134186,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 42.71894215052927,
+          "model_encoded": "4.2718942150529273e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 10.629922337134186,
+          "model_encoded": "1.0629922337134186e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 119,
+      "raw": "{\"kind\":\"circle\",\"x\":42.71894215052927,\"y\":24.803152119979767,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 42.71894215052927,
+          "model_encoded": "4.2718942150529273e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 24.803152119979767,
+          "model_encoded": "2.4803152119979767e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 120,
+      "raw": "{\"kind\":\"bezier\",\"x\":4.65047453883873,\"y\":-15.590552761130137,\"controls\":[{\"x\":5.527106602194895,\"y\":0},{\"x\":5.527106602194895,\"y\":14.173229782845581}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[0,14.173229782845581]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 4.65047453883873,
+          "model_encoded": "4.6504745388387301e0"
+        },
+        {
+          "path": "/y",
+          "decoded": -15.590552761130137,
+          "model_encoded": "-1.5590552761130137e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": 5.527106602194895,
+          "model_encoded": "5.5271066021948947e0"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": 5.527106602194895,
+          "model_encoded": "5.5271066021948947e0"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": 14.173229782845581,
+          "model_encoded": "1.4173229782845581e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 14.173229782845581,
+          "model_encoded": "1.4173229782845581e1"
+        }
+      ]
+    },
+    {
+      "item_index": 121,
+      "raw": "{\"kind\":\"bezier\",\"x\":4.65047453883873,\"y\":-29.76378254397572,\"controls\":[{\"x\":26.675583018757788,\"y\":0},{\"x\":11.193631790940225,\"y\":56.692919131382325}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[37.86921480969801,56.692919131382325]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 4.65047453883873,
+          "model_encoded": "4.6504745388387301e0"
+        },
+        {
+          "path": "/y",
+          "decoded": -29.76378254397572,
+          "model_encoded": "-2.9763782543975719e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": 26.675583018757788,
+          "model_encoded": "2.6675583018757788e1"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": 11.193631790940225,
+          "model_encoded": "1.1193631790940225e1"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": 56.692919131382325,
+          "model_encoded": "5.6692919131382325e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": 37.86921480969801,
+          "model_encoded": "3.7869214809698008e1"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 56.692919131382325,
+          "model_encoded": "5.6692919131382325e1"
+        }
+      ]
+    },
+    {
+      "item_index": 122,
+      "raw": "{\"kind\":\"bezier\",\"x\":4.65047453883873,\"y\":12.755906804561025,\"controls\":[{\"x\":18.51385247217466,\"y\":0},{\"x\":19.355362337523353,\"y\":-28.346459565691163}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[37.86921480969801,-28.346459565691163]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 4.65047453883873,
+          "model_encoded": "4.6504745388387301e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 12.755906804561025,
+          "model_encoded": "1.2755906804561025e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": 18.51385247217466,
+          "model_encoded": "1.8513852472174658e1"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": 19.355362337523353,
+          "model_encoded": "1.9355362337523353e1"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": -28.346459565691163,
+          "model_encoded": "-2.8346459565691163e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": 37.86921480969801,
+          "model_encoded": "3.7869214809698008e1"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": -28.346459565691163,
+          "model_encoded": "-2.8346459565691163e1"
+        }
+      ]
+    },
+    {
+      "item_index": 123,
+      "raw": "{\"kind\":\"bezier\",\"x\":42.519689348536744,\"y\":-29.76378254397572,\"controls\":[{\"x\":-16.581401896209528,\"y\":2.847594379252557e-16},{\"x\":-16.581401896209528,\"y\":42.519689348536744}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[0,42.519689348536744]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 42.519689348536744,
+          "model_encoded": "4.2519689348536744e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -29.76378254397572,
+          "model_encoded": "-2.9763782543975719e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": -16.581401896209528,
+          "model_encoded": "-1.6581401896209528e1"
+        },
+        {
+          "path": "/controls/0/y",
+          "decoded": 2.847594379252557e-16,
+          "model_encoded": "2.847594379252557e-16"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": -16.581401896209528,
+          "model_encoded": "-1.6581401896209528e1"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": 42.519689348536744,
+          "model_encoded": "4.2519689348536744e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 42.519689348536744,
+          "model_encoded": "4.2519689348536744e1"
+        }
+      ]
+    },
+    {
+      "item_index": 124,
+      "raw": "{\"kind\":\"circle\",\"x\":16.088200079778954,\"y\":-31.889767011402554,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 16.088200079778954,
+          "model_encoded": "1.6088200079778954e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -31.889767011402554,
+          "model_encoded": "-3.1889767011402554e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 125,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/l\",\"x\":3.9015982545921517,\"y\":-26.509329454243854,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 3.9015982545921517,
+          "model_encoded": "3.9015982545921517e0"
+        },
+        {
+          "path": "/y",
+          "decoded": -26.509329454243854,
+          "model_encoded": "-2.6509329454243854e1"
+        }
+      ]
+    },
+    {
+      "item_index": 126,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/1\",\"x\":7.388491647532687,\"y\":-24.716058796845815,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 7.388491647532687,
+          "model_encoded": "7.3884916475326872e0"
+        },
+        {
+          "path": "/y",
+          "decoded": -24.716058796845815,
+          "model_encoded": "-2.4716058796845815e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 127,
+      "raw": "{\"kind\":\"circle\",\"x\":16.088200079778954,\"y\":-17.716537228556973,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 16.088200079778954,
+          "model_encoded": "1.6088200079778954e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -17.716537228556973,
+          "model_encoded": "-1.7716537228556973e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 128,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/l\",\"x\":3.9015982545921517,\"y\":-12.336099671398273,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 3.9015982545921517,
+          "model_encoded": "3.9015982545921517e0"
+        },
+        {
+          "path": "/y",
+          "decoded": -12.336099671398273,
+          "model_encoded": "-1.2336099671398273e1"
+        }
+      ]
+    },
+    {
+      "item_index": 129,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/2\",\"x\":7.388491647532687,\"y\":-10.542829014000233,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 7.388491647532687,
+          "model_encoded": "7.3884916475326872e0"
+        },
+        {
+          "path": "/y",
+          "decoded": -10.542829014000233,
+          "model_encoded": "-1.0542829014000233e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 130,
+      "raw": "{\"kind\":\"circle\",\"x\":16.088200079778954,\"y\":-3.543307445711392,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 16.088200079778954,
+          "model_encoded": "1.6088200079778954e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -3.543307445711392,
+          "model_encoded": "-3.5433074457113918e0"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 131,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/l\",\"x\":3.9015982545921517,\"y\":1.8371301114473084,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 3.9015982545921517,
+          "model_encoded": "3.9015982545921517e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 1.8371301114473084,
+          "model_encoded": "1.8371301114473084e0"
+        }
+      ]
+    },
+    {
+      "item_index": 132,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/3\",\"x\":7.388491647532687,\"y\":3.6304007688453446,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 7.388491647532687,
+          "model_encoded": "7.3884916475326872e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 3.6304007688453446,
+          "model_encoded": "3.6304007688453446e0"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 133,
+      "raw": "{\"kind\":\"circle\",\"x\":16.088200079778954,\"y\":10.629922337134186,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 16.088200079778954,
+          "model_encoded": "1.6088200079778954e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 10.629922337134186,
+          "model_encoded": "1.0629922337134186e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 134,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/l\",\"x\":3.9015982545921517,\"y\":16.010359894292893,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 3.9015982545921517,
+          "model_encoded": "3.9015982545921517e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 16.010359894292893,
+          "model_encoded": "1.6010359894292893e1"
+        }
+      ]
+    },
+    {
+      "item_index": 135,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/4\",\"x\":7.388491647532687,\"y\":17.803630551690933,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 7.388491647532687,
+          "model_encoded": "7.3884916475326872e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 17.803630551690933,
+          "model_encoded": "1.7803630551690933e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 136,
+      "raw": "{\"kind\":\"circle\",\"x\":16.088200079778954,\"y\":24.803152119979767,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 16.088200079778954,
+          "model_encoded": "1.6088200079778954e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 24.803152119979767,
+          "model_encoded": "2.4803152119979767e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 137,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/l\",\"x\":3.9015982545921517,\"y\":30.183589677138475,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 3.9015982545921517,
+          "model_encoded": "3.9015982545921517e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 30.183589677138475,
+          "model_encoded": "3.0183589677138475e1"
+        }
+      ]
+    },
+    {
+      "item_index": 138,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/5\",\"x\":7.388491647532687,\"y\":31.976860334536514,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 7.388491647532687,
+          "model_encoded": "7.3884916475326872e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 31.976860334536514,
+          "model_encoded": "3.1976860334536514e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 139,
+      "raw": "{\"kind\":\"circle\",\"x\":16.088200079778954,\"y\":38.97638190282535,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 16.088200079778954,
+          "model_encoded": "1.6088200079778954e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 38.97638190282535,
+          "model_encoded": "3.8976381902825352e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 140,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/l\",\"x\":3.9015982545921517,\"y\":44.35681945998405,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 3.9015982545921517,
+          "model_encoded": "3.9015982545921517e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 44.35681945998405,
+          "model_encoded": "4.4356819459984052e1"
+        }
+      ]
+    },
+    {
+      "item_index": 141,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/6\",\"x\":7.388491647532687,\"y\":46.15009011738209,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 7.388491647532687,
+          "model_encoded": "7.3884916475326872e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 46.15009011738209,
+          "model_encoded": "4.6150090117382092e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 142,
+      "raw": "{\"kind\":\"circle\",\"x\":16.088200079778954,\"y\":53.14961168567093,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 16.088200079778954,
+          "model_encoded": "1.6088200079778954e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 53.14961168567093,
+          "model_encoded": "5.3149611685670934e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 143,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/l\",\"x\":3.9015982545921517,\"y\":58.530049242829634,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 3.9015982545921517,
+          "model_encoded": "3.9015982545921517e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 58.530049242829634,
+          "model_encoded": "5.8530049242829634e1"
+        }
+      ]
+    },
+    {
+      "item_index": 144,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/7\",\"x\":7.388491647532687,\"y\":60.32331990022767,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 7.388491647532687,
+          "model_encoded": "7.3884916475326872e0"
+        },
+        {
+          "path": "/y",
+          "decoded": 60.32331990022767,
+          "model_encoded": "6.0323319900227673e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 145,
+      "raw": "{\"kind\":\"circle\",\"x\":186.16695747392595,\"y\":-31.889767011402554,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 186.16695747392595,
+          "model_encoded": "1.8616695747392595e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -31.889767011402554,
+          "model_encoded": "-3.1889767011402554e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 146,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/r\",\"x\":194.3863210178627,\"y\":-28.0867341864979,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 194.3863210178627,
+          "model_encoded": "1.9438632101786271e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -28.0867341864979,
+          "model_encoded": "-2.80867341864979e1"
+        }
+      ]
+    },
+    {
+      "item_index": 147,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/1\",\"x\":199.6616330995097,\"y\":-26.293463529099864,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 199.6616330995097,
+          "model_encoded": "1.9966163309950969e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -26.293463529099864,
+          "model_encoded": "-2.6293463529099864e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 148,
+      "raw": "{\"kind\":\"circle\",\"x\":186.16695747392595,\"y\":-17.716537228556973,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 186.16695747392595,
+          "model_encoded": "1.8616695747392595e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -17.716537228556973,
+          "model_encoded": "-1.7716537228556973e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 149,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/r\",\"x\":194.3863210178627,\"y\":-13.91350440365232,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 194.3863210178627,
+          "model_encoded": "1.9438632101786271e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -13.91350440365232,
+          "model_encoded": "-1.391350440365232e1"
+        }
+      ]
+    },
+    {
+      "item_index": 150,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/2\",\"x\":199.6616330995097,\"y\":-12.120233746254282,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 199.6616330995097,
+          "model_encoded": "1.9966163309950969e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -12.120233746254282,
+          "model_encoded": "-1.2120233746254282e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 151,
+      "raw": "{\"kind\":\"circle\",\"x\":186.16695747392595,\"y\":-3.543307445711392,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 186.16695747392595,
+          "model_encoded": "1.8616695747392595e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -3.543307445711392,
+          "model_encoded": "-3.5433074457113918e0"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 152,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/r\",\"x\":194.3863210178627,\"y\":0.25972537919325944,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 194.3863210178627,
+          "model_encoded": "1.9438632101786271e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 0.25972537919325944,
+          "model_encoded": "2.5972537919325944e-1"
+        }
+      ]
+    },
+    {
+      "item_index": 153,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/3\",\"x\":199.6616330995097,\"y\":2.052996036591299,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 199.6616330995097,
+          "model_encoded": "1.9966163309950969e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 2.052996036591299,
+          "model_encoded": "2.0529960365912991e0"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 154,
+      "raw": "{\"kind\":\"circle\",\"x\":186.16695747392595,\"y\":10.629922337134186,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 186.16695747392595,
+          "model_encoded": "1.8616695747392595e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 10.629922337134186,
+          "model_encoded": "1.0629922337134186e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 155,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/r\",\"x\":194.3863210178627,\"y\":14.43295516203884,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 194.3863210178627,
+          "model_encoded": "1.9438632101786271e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 14.43295516203884,
+          "model_encoded": "1.4432955162038841e1"
+        }
+      ]
+    },
+    {
+      "item_index": 156,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/4\",\"x\":199.6616330995097,\"y\":16.22622581943688,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 199.6616330995097,
+          "model_encoded": "1.9966163309950969e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 16.22622581943688,
+          "model_encoded": "1.622622581943688e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 157,
+      "raw": "{\"kind\":\"circle\",\"x\":186.16695747392595,\"y\":24.803152119979767,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 186.16695747392595,
+          "model_encoded": "1.8616695747392595e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 24.803152119979767,
+          "model_encoded": "2.4803152119979767e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 158,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/r\",\"x\":194.3863210178627,\"y\":28.606184944884422,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 194.3863210178627,
+          "model_encoded": "1.9438632101786271e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 28.606184944884422,
+          "model_encoded": "2.8606184944884422e1"
+        }
+      ]
+    },
+    {
+      "item_index": 159,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/5\",\"x\":199.6616330995097,\"y\":30.399455602282462,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 199.6616330995097,
+          "model_encoded": "1.9966163309950969e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 30.399455602282462,
+          "model_encoded": "3.0399455602282462e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 160,
+      "raw": "{\"kind\":\"circle\",\"x\":186.16695747392595,\"y\":38.97638190282535,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 186.16695747392595,
+          "model_encoded": "1.8616695747392595e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 38.97638190282535,
+          "model_encoded": "3.8976381902825352e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 161,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/r\",\"x\":194.3863210178627,\"y\":42.77941472773,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 194.3863210178627,
+          "model_encoded": "1.9438632101786271e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 42.77941472773,
+          "model_encoded": "4.277941472773e1"
+        }
+      ]
+    },
+    {
+      "item_index": 162,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/6\",\"x\":199.6616330995097,\"y\":44.57268538512804,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 199.6616330995097,
+          "model_encoded": "1.9966163309950969e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 44.57268538512804,
+          "model_encoded": "4.457268538512804e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 163,
+      "raw": "{\"kind\":\"circle\",\"x\":186.16695747392595,\"y\":53.14961168567093,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 186.16695747392595,
+          "model_encoded": "1.8616695747392595e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 53.14961168567093,
+          "model_encoded": "5.3149611685670934e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 164,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/r\",\"x\":194.3863210178627,\"y\":56.95264451057558,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 194.3863210178627,
+          "model_encoded": "1.9438632101786271e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 56.95264451057558,
+          "model_encoded": "5.6952644510575581e1"
+        }
+      ]
+    },
+    {
+      "item_index": 165,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/7\",\"x\":199.6616330995097,\"y\":58.74591516797362,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 199.6616330995097,
+          "model_encoded": "1.9966163309950969e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 58.74591516797362,
+          "model_encoded": "5.8745915167973621e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 166,
+      "raw": "{\"kind\":\"circle\",\"x\":16.088200079778954,\"y\":-31.889767011402554,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 16.088200079778954,
+          "model_encoded": "1.6088200079778954e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -31.889767011402554,
+          "model_encoded": "-3.1889767011402554e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 167,
+      "raw": "{\"kind\":\"circle\",\"x\":16.088200079778954,\"y\":-17.716537228556973,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 16.088200079778954,
+          "model_encoded": "1.6088200079778954e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -17.716537228556973,
+          "model_encoded": "-1.7716537228556973e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 168,
+      "raw": "{\"kind\":\"circle\",\"x\":16.088200079778954,\"y\":-3.543307445711392,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 16.088200079778954,
+          "model_encoded": "1.6088200079778954e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -3.543307445711392,
+          "model_encoded": "-3.5433074457113918e0"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 169,
+      "raw": "{\"kind\":\"circle\",\"x\":16.088200079778954,\"y\":10.629922337134186,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 16.088200079778954,
+          "model_encoded": "1.6088200079778954e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 10.629922337134186,
+          "model_encoded": "1.0629922337134186e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 170,
+      "raw": "{\"kind\":\"circle\",\"x\":16.088200079778954,\"y\":24.803152119979767,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 16.088200079778954,
+          "model_encoded": "1.6088200079778954e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 24.803152119979767,
+          "model_encoded": "2.4803152119979767e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 171,
+      "raw": "{\"kind\":\"circle\",\"x\":16.088200079778954,\"y\":38.97638190282535,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 16.088200079778954,
+          "model_encoded": "1.6088200079778954e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 38.97638190282535,
+          "model_encoded": "3.8976381902825352e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 172,
+      "raw": "{\"kind\":\"circle\",\"x\":16.088200079778954,\"y\":53.14961168567093,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 16.088200079778954,
+          "model_encoded": "1.6088200079778954e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 53.14961168567093,
+          "model_encoded": "5.3149611685670934e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 173,
+      "raw": "{\"kind\":\"circle\",\"x\":101.12757877685245,\"y\":-31.889767011402554,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 101.12757877685245,
+          "model_encoded": "1.0112757877685245e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -31.889767011402554,
+          "model_encoded": "-3.1889767011402554e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 174,
+      "raw": "{\"kind\":\"circle\",\"x\":101.12757877685245,\"y\":-17.716537228556973,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 101.12757877685245,
+          "model_encoded": "1.0112757877685245e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -17.716537228556973,
+          "model_encoded": "-1.7716537228556973e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 175,
+      "raw": "{\"kind\":\"circle\",\"x\":101.12757877685245,\"y\":-3.543307445711392,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 101.12757877685245,
+          "model_encoded": "1.0112757877685245e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -3.543307445711392,
+          "model_encoded": "-3.5433074457113918e0"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 176,
+      "raw": "{\"kind\":\"circle\",\"x\":101.12757877685245,\"y\":10.629922337134186,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 101.12757877685245,
+          "model_encoded": "1.0112757877685245e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 10.629922337134186,
+          "model_encoded": "1.0629922337134186e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 177,
+      "raw": "{\"kind\":\"circle\",\"x\":101.12757877685245,\"y\":24.803152119979767,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 101.12757877685245,
+          "model_encoded": "1.0112757877685245e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 24.803152119979767,
+          "model_encoded": "2.4803152119979767e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 178,
+      "raw": "{\"kind\":\"circle\",\"x\":101.12757877685245,\"y\":38.97638190282535,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 101.12757877685245,
+          "model_encoded": "1.0112757877685245e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 38.97638190282535,
+          "model_encoded": "3.8976381902825352e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 179,
+      "raw": "{\"kind\":\"circle\",\"x\":101.12757877685245,\"y\":53.14961168567093,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 101.12757877685245,
+          "model_encoded": "1.0112757877685245e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 53.14961168567093,
+          "model_encoded": "5.3149611685670934e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 180,
+      "raw": "{\"kind\":\"circle\",\"x\":186.16695747392595,\"y\":-31.889767011402554,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 186.16695747392595,
+          "model_encoded": "1.8616695747392595e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -31.889767011402554,
+          "model_encoded": "-3.1889767011402554e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 181,
+      "raw": "{\"kind\":\"circle\",\"x\":186.16695747392595,\"y\":-17.716537228556973,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 186.16695747392595,
+          "model_encoded": "1.8616695747392595e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -17.716537228556973,
+          "model_encoded": "-1.7716537228556973e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 182,
+      "raw": "{\"kind\":\"circle\",\"x\":186.16695747392595,\"y\":-3.543307445711392,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 186.16695747392595,
+          "model_encoded": "1.8616695747392595e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -3.543307445711392,
+          "model_encoded": "-3.5433074457113918e0"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 183,
+      "raw": "{\"kind\":\"circle\",\"x\":186.16695747392595,\"y\":10.629922337134186,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 186.16695747392595,
+          "model_encoded": "1.8616695747392595e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 10.629922337134186,
+          "model_encoded": "1.0629922337134186e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 184,
+      "raw": "{\"kind\":\"circle\",\"x\":186.16695747392595,\"y\":24.803152119979767,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 186.16695747392595,
+          "model_encoded": "1.8616695747392595e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 24.803152119979767,
+          "model_encoded": "2.4803152119979767e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 185,
+      "raw": "{\"kind\":\"circle\",\"x\":186.16695747392595,\"y\":38.97638190282535,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 186.16695747392595,
+          "model_encoded": "1.8616695747392595e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 38.97638190282535,
+          "model_encoded": "3.8976381902825352e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 186,
+      "raw": "{\"kind\":\"circle\",\"x\":186.16695747392595,\"y\":53.14961168567093,\"width\":4.251968934853674,\"height\":4.251968934853674,\"radius\":2.125984467426837,\"lineWidth\":0.3985056039850561,\"fill\":true,\"color\":[0,0,0,1],\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 186.16695747392595,
+          "model_encoded": "1.8616695747392595e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 53.14961168567093,
+          "model_encoded": "5.3149611685670934e1"
+        },
+        {
+          "path": "/width",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/height",
+          "decoded": 4.251968934853674,
+          "model_encoded": "4.2519689348536742e0"
+        },
+        {
+          "path": "/radius",
+          "decoded": 2.125984467426837,
+          "model_encoded": "2.1259844674268371e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 0.3985056039850561,
+          "model_encoded": "3.9850560398505608e-1"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        }
+      ]
+    },
+    {
+      "item_index": 187,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/m\",\"x\":121.27958855950344,\"y\":-28.0867341864979,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 121.27958855950344,
+          "model_encoded": "1.2127958855950344e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -28.0867341864979,
+          "model_encoded": "-2.80867341864979e1"
+        }
+      ]
+    },
+    {
+      "item_index": 188,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/1\",\"x\":131.51885132413605,\"y\":-26.293463529099864,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 131.51885132413605,
+          "model_encoded": "1.3151885132413605e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -26.293463529099864,
+          "model_encoded": "-2.6293463529099864e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 189,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/m\",\"x\":74.50793027611302,\"y\":-13.91350440365232,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 74.50793027611302,
+          "model_encoded": "7.4507930276113015e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -13.91350440365232,
+          "model_encoded": "-1.391350440365232e1"
+        }
+      ]
+    },
+    {
+      "item_index": 190,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/2\",\"x\":84.74719304074564,\"y\":-12.120233746254282,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 84.74719304074564,
+          "model_encoded": "8.4747193040745643e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -12.120233746254282,
+          "model_encoded": "-1.2120233746254282e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 191,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/m\",\"x\":74.50793027611302,\"y\":0.25972537919325944,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 74.50793027611302,
+          "model_encoded": "7.4507930276113015e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 0.25972537919325944,
+          "model_encoded": "2.5972537919325944e-1"
+        }
+      ]
+    },
+    {
+      "item_index": 192,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/3\",\"x\":84.74719304074564,\"y\":2.052996036591299,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 84.74719304074564,
+          "model_encoded": "8.4747193040745643e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 2.052996036591299,
+          "model_encoded": "2.0529960365912991e0"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 193,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/m\",\"x\":118.7284102389477,\"y\":14.43295516203884,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 118.7284102389477,
+          "model_encoded": "1.187284102389477e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 14.43295516203884,
+          "model_encoded": "1.4432955162038841e1"
+        }
+      ]
+    },
+    {
+      "item_index": 194,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/4\",\"x\":128.96767300358033,\"y\":16.22622581943688,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 128.96767300358033,
+          "model_encoded": "1.2896767300358033e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 16.22622581943688,
+          "model_encoded": "1.622622581943688e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 195,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/m\",\"x\":142.53943323377183,\"y\":28.606184944884422,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 142.53943323377183,
+          "model_encoded": "1.4253943323377183e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 28.606184944884422,
+          "model_encoded": "2.8606184944884422e1"
+        }
+      ]
+    },
+    {
+      "item_index": 196,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/5\",\"x\":152.77869599840443,\"y\":30.399455602282462,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 152.77869599840443,
+          "model_encoded": "1.5277869599840443e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 30.399455602282462,
+          "model_encoded": "3.0399455602282462e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 197,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/m\",\"x\":129.78352642921078,\"y\":42.77941472773,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 129.78352642921078,
+          "model_encoded": "1.2978352642921078e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 42.77941472773,
+          "model_encoded": "4.277941472773e1"
+        }
+      ]
+    },
+    {
+      "item_index": 198,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/6\",\"x\":140.0227891938434,\"y\":44.57268538512804,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 140.0227891938434,
+          "model_encoded": "1.4002278919384341e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 44.57268538512804,
+          "model_encoded": "4.457268538512804e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 199,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"text/m\",\"x\":74.50793027611302,\"y\":56.95264451057558,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 74.50793027611302,
+          "model_encoded": "7.4507930276113015e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 56.95264451057558,
+          "model_encoded": "5.6952644510575581e1"
+        }
+      ]
+    },
+    {
+      "item_index": 200,
+      "raw": "{\"kind\":\"glyph\",\"color\":null,\"key\":\"script/7\",\"x\":84.74719304074564,\"y\":58.74591516797362,\"flowX\":0,\"flowWidth\":4.234181818181819,\"flowLine\":0,\"tikz\":true}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 84.74719304074564,
+          "model_encoded": "8.4747193040745643e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 58.74591516797362,
+          "model_encoded": "5.8745915167973621e1"
+        },
+        {
+          "path": "/flowWidth",
+          "decoded": 4.234181818181819,
+          "model_encoded": "4.2341818181818187e0"
+        }
+      ]
+    },
+    {
+      "item_index": 201,
+      "raw": "{\"kind\":\"segment\",\"x\":117.71026066313824,\"y\":-29.76378254397572,\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"dash\":\"dotted\",\"tikz\":true,\"delta\":[-12.131460149439604,5.695188758505114e-16]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 117.71026066313824,
+          "model_encoded": "1.1771026066313824e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -29.76378254397572,
+          "model_encoded": "-2.9763782543975719e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": -12.131460149439604,
+          "model_encoded": "-1.2131460149439604e1"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 5.695188758505114e-16,
+          "model_encoded": "5.6951887585051141e-16"
+        }
+      ]
+    },
+    {
+      "item_index": 202,
+      "raw": "{\"kind\":\"segment\",\"x\":93.04883476027398,\"y\":-15.590552761130137,\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"dash\":\"dotted\",\"tikz\":true,\"delta\":[7.87949121458594,0]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 93.04883476027398,
+          "model_encoded": "9.3048834760273976e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -15.590552761130137,
+          "model_encoded": "-1.5590552761130137e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": 7.87949121458594,
+          "model_encoded": "7.8794912145859399e0"
+        }
+      ]
+    },
+    {
+      "item_index": 203,
+      "raw": "{\"kind\":\"segment\",\"x\":93.04883476027398,\"y\":-1.417322978284556,\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"dash\":\"dotted\",\"tikz\":true,\"delta\":[7.87949121458594,0]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 93.04883476027398,
+          "model_encoded": "9.3048834760273976e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -1.417322978284556,
+          "model_encoded": "-1.417322978284556e0"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": 7.87949121458594,
+          "model_encoded": "7.8794912145859399e0"
+        }
+      ]
+    },
+    {
+      "item_index": 204,
+      "raw": "{\"kind\":\"segment\",\"x\":115.15908234258251,\"y\":12.755906804561025,\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"dash\":\"dotted\",\"tikz\":true,\"delta\":[-9.58028182888387,0]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 115.15908234258251,
+          "model_encoded": "1.1515908234258251e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 12.755906804561025,
+          "model_encoded": "1.2755906804561025e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": -9.58028182888387,
+          "model_encoded": "-9.5802818288838694e0"
+        }
+      ]
+    },
+    {
+      "item_index": 205,
+      "raw": "{\"kind\":\"segment\",\"x\":138.9701053374066,\"y\":26.929136587406607,\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"dash\":\"dotted\",\"tikz\":true,\"delta\":[-33.39130482370797,0]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 138.9701053374066,
+          "model_encoded": "1.3897010533740661e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 26.929136587406607,
+          "model_encoded": "2.6929136587406607e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": -33.39130482370797,
+          "model_encoded": "-3.3391304823707969e1"
+        }
+      ]
+    },
+    {
+      "item_index": 206,
+      "raw": "{\"kind\":\"segment\",\"x\":126.21419853284559,\"y\":41.102366370252184,\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"dash\":\"dotted\",\"tikz\":true,\"delta\":[-20.635398019146947,0]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 126.21419853284559,
+          "model_encoded": "1.2621419853284559e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 41.102366370252184,
+          "model_encoded": "4.1102366370252184e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": -20.635398019146947,
+          "model_encoded": "-2.0635398019146947e1"
+        }
+      ]
+    },
+    {
+      "item_index": 207,
+      "raw": "{\"kind\":\"segment\",\"x\":93.04883476027398,\"y\":55.275596153097766,\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"dash\":\"dotted\",\"tikz\":true,\"delta\":[7.87949121458594,0]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 93.04883476027398,
+          "model_encoded": "9.3048834760273976e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 55.275596153097766,
+          "model_encoded": "5.5275596153097766e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": 7.87949121458594,
+          "model_encoded": "7.8794912145859399e0"
+        }
+      ]
+    },
+    {
+      "item_index": 208,
+      "raw": "{\"kind\":\"bezier\",\"x\":20.539421816625154,\"y\":12.755906804561025,\"controls\":[{\"x\":33.29250844002958,\"y\":0},{\"x\":47.09639571820517,\"y\":28.346459565691163}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[80.38890415823477,28.346459565691163]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 20.539421816625154,
+          "model_encoded": "2.0539421816625154e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 12.755906804561025,
+          "model_encoded": "1.2755906804561025e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": 33.29250844002958,
+          "model_encoded": "3.3292508440029579e1"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": 47.09639571820517,
+          "model_encoded": "4.7096395718205173e1"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": 28.346459565691163,
+          "model_encoded": "2.8346459565691163e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": 80.38890415823477,
+          "model_encoded": "8.0388904158234766e1"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 28.346459565691163,
+          "model_encoded": "2.8346459565691163e1"
+        }
+      ]
+    },
+    {
+      "item_index": 209,
+      "raw": "{\"kind\":\"bezier\",\"x\":20.539421816625154,\"y\":-29.76378254397572,\"controls\":[{\"x\":38.36560165006227,\"y\":0},{\"x\":42.02330250817248,\"y\":56.692919131382325}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[80.38890415823477,56.692919131382325]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 20.539421816625154,
+          "model_encoded": "2.0539421816625154e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -29.76378254397572,
+          "model_encoded": "-2.9763782543975719e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": 38.36560165006227,
+          "model_encoded": "3.8365601650062267e1"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": 42.02330250817248,
+          "model_encoded": "4.2023302508172478e1"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": 56.692919131382325,
+          "model_encoded": "5.6692919131382325e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": 80.38890415823477,
+          "model_encoded": "8.0388904158234766e1"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 56.692919131382325,
+          "model_encoded": "5.6692919131382325e1"
+        }
+      ]
+    },
+    {
+      "item_index": 210,
+      "raw": "{\"kind\":\"bezier\",\"x\":20.539421816625154,\"y\":-15.590552761130137,\"controls\":[{\"x\":31.844933914811644,\"y\":0},{\"x\":48.543970243423104,\"y\":-14.173229782845581}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[80.38890415823477,-14.173229782845581]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 20.539421816625154,
+          "model_encoded": "2.0539421816625154e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -15.590552761130137,
+          "model_encoded": "-1.5590552761130137e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": 31.844933914811644,
+          "model_encoded": "3.1844933914811644e1"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": 48.543970243423104,
+          "model_encoded": "4.8543970243423104e1"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": -14.173229782845581,
+          "model_encoded": "-1.4173229782845581e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": 80.38890415823477,
+          "model_encoded": "8.0388904158234766e1"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": -14.173229782845581,
+          "model_encoded": "-1.4173229782845581e1"
+        }
+      ]
+    },
+    {
+      "item_index": 211,
+      "raw": "{\"kind\":\"bezier\",\"x\":20.539421816625154,\"y\":-1.417322978284556,\"controls\":[{\"x\":22.10860274945517,\"y\":0},{\"x\":22.10860274945517,\"y\":56.692919131382325}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[0,56.692919131382325]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 20.539421816625154,
+          "model_encoded": "2.0539421816625154e1"
+        },
+        {
+          "path": "/y",
+          "decoded": -1.417322978284556,
+          "model_encoded": "-1.417322978284556e0"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": 22.10860274945517,
+          "model_encoded": "2.2108602749455169e1"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": 22.10860274945517,
+          "model_encoded": "2.2108602749455169e1"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": 56.692919131382325,
+          "model_encoded": "5.6692919131382325e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 56.692919131382325,
+          "model_encoded": "5.6692919131382325e1"
+        }
+      ]
+    },
+    {
+      "item_index": 212,
+      "raw": "{\"kind\":\"bezier\",\"x\":20.539421816625154,\"y\":26.929136587406607,\"controls\":[{\"x\":5.527106602194895,\"y\":0},{\"x\":5.527106602194895,\"y\":14.173229782845581}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[0,14.173229782845581]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 20.539421816625154,
+          "model_encoded": "2.0539421816625154e1"
+        },
+        {
+          "path": "/y",
+          "decoded": 26.929136587406607,
+          "model_encoded": "2.6929136587406607e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": 5.527106602194895,
+          "model_encoded": "5.5271066021948947e0"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": 5.527106602194895,
+          "model_encoded": "5.5271066021948947e0"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": 14.173229782845581,
+          "model_encoded": "1.4173229782845581e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 14.173229782845581,
+          "model_encoded": "1.4173229782845581e1"
+        }
+      ]
+    },
+    {
+      "item_index": 213,
+      "raw": "{\"kind\":\"bezier\",\"x\":100.92832597485992,\"y\":-15.590552761130137,\"controls\":[{\"x\":-5.527106602194905,\"y\":0},{\"x\":-5.527106602194905,\"y\":14.173229782845581}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[0,14.173229782845581]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 100.92832597485992,
+          "model_encoded": "1.0092832597485992e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -15.590552761130137,
+          "model_encoded": "-1.5590552761130137e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": -5.527106602194905,
+          "model_encoded": "-5.5271066021949053e0"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": -5.527106602194905,
+          "model_encoded": "-5.5271066021949053e0"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": 14.173229782845581,
+          "model_encoded": "1.4173229782845581e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 14.173229782845581,
+          "model_encoded": "1.4173229782845581e1"
+        }
+      ]
+    },
+    {
+      "item_index": 214,
+      "raw": "{\"kind\":\"bezier\",\"x\":100.92832597485992,\"y\":-15.590552761130137,\"controls\":[{\"x\":-5.527106602194905,\"y\":0},{\"x\":-5.527106602194905,\"y\":14.173229782845581}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[0,14.173229782845581]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 100.92832597485992,
+          "model_encoded": "1.0092832597485992e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -15.590552761130137,
+          "model_encoded": "-1.5590552761130137e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": -5.527106602194905,
+          "model_encoded": "-5.5271066021949053e0"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": -5.527106602194905,
+          "model_encoded": "-5.5271066021949053e0"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": 14.173229782845581,
+          "model_encoded": "1.4173229782845581e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 14.173229782845581,
+          "model_encoded": "1.4173229782845581e1"
+        }
+      ]
+    },
+    {
+      "item_index": 215,
+      "raw": "{\"kind\":\"bezier\",\"x\":100.92832597485992,\"y\":12.755906804561025,\"controls\":[{\"x\":-16.58140189620954,\"y\":0},{\"x\":-16.58140189620954,\"y\":42.519689348536744}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[0,42.519689348536744]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 100.92832597485992,
+          "model_encoded": "1.0092832597485992e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 12.755906804561025,
+          "model_encoded": "1.2755906804561025e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": -16.58140189620954,
+          "model_encoded": "-1.6581401896209542e1"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": -16.58140189620954,
+          "model_encoded": "-1.6581401896209542e1"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": 42.519689348536744,
+          "model_encoded": "4.2519689348536744e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 42.519689348536744,
+          "model_encoded": "4.2519689348536744e1"
+        }
+      ]
+    },
+    {
+      "item_index": 216,
+      "raw": "{\"kind\":\"bezier\",\"x\":185.9677046719334,\"y\":-29.76378254397572,\"controls\":[{\"x\":-22.108602749455173,\"y\":2.847594379252557e-16},{\"x\":-22.108602749455173,\"y\":56.692919131382325}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[0,56.692919131382325]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 185.9677046719334,
+          "model_encoded": "1.859677046719334e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -29.76378254397572,
+          "model_encoded": "-2.9763782543975719e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": -22.108602749455173,
+          "model_encoded": "-2.2108602749455173e1"
+        },
+        {
+          "path": "/controls/0/y",
+          "decoded": 2.847594379252557e-16,
+          "model_encoded": "2.847594379252557e-16"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": -22.108602749455173,
+          "model_encoded": "-2.2108602749455173e1"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": 56.692919131382325,
+          "model_encoded": "5.6692919131382325e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 56.692919131382325,
+          "model_encoded": "5.6692919131382325e1"
+        }
+      ]
+    },
+    {
+      "item_index": 217,
+      "raw": "{\"kind\":\"bezier\",\"x\":185.9677046719334,\"y\":12.755906804561025,\"controls\":[{\"x\":-16.58140189620954,\"y\":0},{\"x\":-16.58140189620954,\"y\":42.519689348536744}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[0,42.519689348536744]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 185.9677046719334,
+          "model_encoded": "1.859677046719334e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 12.755906804561025,
+          "model_encoded": "1.2755906804561025e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": -16.58140189620954,
+          "model_encoded": "-1.6581401896209542e1"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": -16.58140189620954,
+          "model_encoded": "-1.6581401896209542e1"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": 42.519689348536744,
+          "model_encoded": "4.2519689348536744e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 42.519689348536744,
+          "model_encoded": "4.2519689348536744e1"
+        }
+      ]
+    },
+    {
+      "item_index": 218,
+      "raw": "{\"kind\":\"bezier\",\"x\":105.57880051369864,\"y\":-29.76378254397572,\"controls\":[{\"x\":16.581401896209528,\"y\":0},{\"x\":16.581401896209528,\"y\":42.519689348536744}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[0,42.519689348536744]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 105.57880051369864,
+          "model_encoded": "1.0557880051369864e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -29.76378254397572,
+          "model_encoded": "-2.9763782543975719e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": 16.581401896209528,
+          "model_encoded": "1.6581401896209528e1"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": 16.581401896209528,
+          "model_encoded": "1.6581401896209528e1"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": 42.519689348536744,
+          "model_encoded": "4.2519689348536744e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": 42.519689348536744,
+          "model_encoded": "4.2519689348536744e1"
+        }
+      ]
+    },
+    {
+      "item_index": 219,
+      "raw": "{\"kind\":\"bezier\",\"x\":105.57880051369864,\"y\":-1.417322978284556,\"controls\":[{\"x\":5.527106602194891,\"y\":0},{\"x\":5.527106602194891,\"y\":-14.173229782845581}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[0,-14.173229782845581]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 105.57880051369864,
+          "model_encoded": "1.0557880051369864e2"
+        },
+        {
+          "path": "/y",
+          "decoded": -1.417322978284556,
+          "model_encoded": "-1.417322978284556e0"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": 5.527106602194891,
+          "model_encoded": "5.5271066021948911e0"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": 5.527106602194891,
+          "model_encoded": "5.5271066021948911e0"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": -14.173229782845581,
+          "model_encoded": "-1.4173229782845581e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": -14.173229782845581,
+          "model_encoded": "-1.4173229782845581e1"
+        }
+      ]
+    },
+    {
+      "item_index": 220,
+      "raw": "{\"kind\":\"bezier\",\"x\":105.57880051369864,\"y\":26.929136587406607,\"controls\":[{\"x\":33.29250844002958,\"y\":0},{\"x\":47.09639571820516,\"y\":-28.346459565691163}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[80.38890415823475,-28.346459565691163]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 105.57880051369864,
+          "model_encoded": "1.0557880051369864e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 26.929136587406607,
+          "model_encoded": "2.6929136587406607e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": 33.29250844002958,
+          "model_encoded": "3.3292508440029579e1"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": 47.09639571820516,
+          "model_encoded": "4.7096395718205159e1"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": -28.346459565691163,
+          "model_encoded": "-2.8346459565691163e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": 80.38890415823475,
+          "model_encoded": "8.0388904158234752e1"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": -28.346459565691163,
+          "model_encoded": "-2.8346459565691163e1"
+        }
+      ]
+    },
+    {
+      "item_index": 221,
+      "raw": "{\"kind\":\"bezier\",\"x\":105.57880051369864,\"y\":55.275596153097766,\"controls\":[{\"x\":31.844933914811648,\"y\":0},{\"x\":48.54397024342312,\"y\":-14.173229782845581}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[80.38890415823475,-14.173229782845581]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 105.57880051369864,
+          "model_encoded": "1.0557880051369864e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 55.275596153097766,
+          "model_encoded": "5.5275596153097766e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": 31.844933914811648,
+          "model_encoded": "3.1844933914811648e1"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": 48.54397024342312,
+          "model_encoded": "4.8543970243423118e1"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": -14.173229782845581,
+          "model_encoded": "-1.4173229782845581e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": 80.38890415823475,
+          "model_encoded": "8.0388904158234752e1"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": -14.173229782845581,
+          "model_encoded": "-1.4173229782845581e1"
+        }
+      ]
+    },
+    {
+      "item_index": 222,
+      "raw": "{\"kind\":\"bezier\",\"x\":105.57880051369864,\"y\":41.102366370252184,\"controls\":[{\"x\":38.365601650062274,\"y\":0},{\"x\":42.02330250817248,\"y\":-56.692919131382325}],\"lineWidth\":1.1955168119551682,\"color\":[0,0,0,1],\"tikz\":true,\"delta\":[80.38890415823475,-56.692919131382325]}",
+      "numeric_values": [
+        {
+          "path": "/x",
+          "decoded": 105.57880051369864,
+          "model_encoded": "1.0557880051369864e2"
+        },
+        {
+          "path": "/y",
+          "decoded": 41.102366370252184,
+          "model_encoded": "4.1102366370252184e1"
+        },
+        {
+          "path": "/controls/0/x",
+          "decoded": 38.365601650062274,
+          "model_encoded": "3.8365601650062274e1"
+        },
+        {
+          "path": "/controls/1/x",
+          "decoded": 42.02330250817248,
+          "model_encoded": "4.2023302508172478e1"
+        },
+        {
+          "path": "/controls/1/y",
+          "decoded": -56.692919131382325,
+          "model_encoded": "-5.6692919131382325e1"
+        },
+        {
+          "path": "/lineWidth",
+          "decoded": 1.1955168119551682,
+          "model_encoded": "1.1955168119551682e0"
+        },
+        {
+          "path": "/color/3",
+          "decoded": 1,
+          "model_encoded": "1e0"
+        },
+        {
+          "path": "/delta/0",
+          "decoded": 80.38890415823475,
+          "model_encoded": "8.0388904158234752e1"
+        },
+        {
+          "path": "/delta/1",
+          "decoded": -56.692919131382325,
+          "model_encoded": "-5.6692919131382325e1"
+        }
+      ]
+    }
+  ]
+}

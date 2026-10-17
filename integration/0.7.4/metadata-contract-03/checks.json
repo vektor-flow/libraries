@@ -1,0 +1,265 @@
+{
+  "base": "84ebd6d761b61e544dd304859ac33fcd94064fa3",
+  "observed_head": "c7310d4ee3007d198eebc058da9256571064098b",
+  "native_execution": false,
+  "acceptance_ready": false,
+  "checks": [
+    {
+      "check": "authorized base is ancestor of observed HEAD",
+      "passed": true
+    },
+    {
+      "check": "metadata source directory unchanged since authorized base",
+      "passed": true
+    },
+    {
+      "check": "F303 original pin document_scene_export.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 unchanged except import aliases ref_f303_document_scene_export.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original pin document_scene.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 unchanged except import aliases ref_f303_document_scene.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original pin text_chunks.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 unchanged except import aliases ref_f303_text_chunks.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original pin json_numbers.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 unchanged except import aliases ref_f303_json_numbers.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original pin tex_text.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 unchanged except import aliases ref_f303_tex_text.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original pin resource_json.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 unchanged except import aliases ref_f303_resource_json.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original pin resource_numbers.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 unchanged except import aliases ref_f303_resource_numbers.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original pin binary_decimal.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 unchanged except import aliases ref_f303_binary_decimal.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original pin document_scene_paragraph.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 unchanged except import aliases ref_f303_document_scene_paragraph.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original pin document_scene_json.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 unchanged except import aliases ref_f303_document_scene_json.vkf",
+      "passed": true
+    },
+    {
+      "check": "reference imports remain independent",
+      "passed": true
+    },
+    {
+      "check": "only declared helper, tests, one operand boundary and invocation changed",
+      "passed": true
+    },
+    {
+      "check": "all existing predicates preserved except one declared boundary",
+      "passed": true
+    },
+    {
+      "check": "225 authored literal assertions byte-exact",
+      "passed": true
+    },
+    {
+      "check": "five captured fixtures byte-exact",
+      "passed": true
+    },
+    {
+      "check": "strict export equality retained",
+      "passed": true
+    },
+    {
+      "check": "new checks execute before blocked renderer path",
+      "passed": true
+    },
+    {
+      "check": "present-value strict equality retained",
+      "passed": true
+    },
+    {
+      "check": "sixteen source-authored boundary cases",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Absent extra matches absent root",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Absent extra in nonempty metadata arena",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Empty object is not absent extra",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Null is not absent extra",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Whitespace is not absent extra",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Absent extra is not present object",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Absent extra is not present null",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Explicit empty object matches",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Explicit null matches",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Nonzero metadata root matches",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Null is not an empty object",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Empty object is not null",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: General encoder still returns valid JSON",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Present metadata retains exact encoded bytes",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Equivalent numeric spelling stays a visible mismatch",
+      "passed": true
+    },
+    {
+      "check": "Python source-derived helper model: Changed metadata value is rejected",
+      "passed": true
+    },
+    {
+      "check": "negative mutation detected: restore buggy encode-only comparison",
+      "passed": true
+    },
+    {
+      "check": "negative mutation detected: collapse root zero into absence",
+      "passed": true
+    },
+    {
+      "check": "negative mutation detected: accept any absent-root text",
+      "passed": true
+    },
+    {
+      "check": "negative mutation detected: ignore present values",
+      "passed": true
+    },
+    {
+      "check": "nonempty raw-number hazard actually in retained fixtures",
+      "passed": true
+    },
+    {
+      "check": "concrete exact integer formatter witness",
+      "passed": true
+    },
+    {
+      "check": "patch exactly matches candidate",
+      "passed": true
+    },
+    {
+      "check": "git apply --check only",
+      "passed": true
+    },
+    {
+      "check": "all pinned inputs unchanged",
+      "passed": true
+    }
+  ],
+  "existing_assertions": 286,
+  "literal_assertions": 225,
+  "fixtures": 5,
+  "model_cases": 16,
+  "mutation_failures": {
+    "restore buggy encode-only comparison": [
+      "Absent extra matches absent root",
+      "Absent extra in nonempty metadata arena",
+      "Empty object is not absent extra"
+    ],
+    "collapse root zero into absence": [
+      "Absent extra is not present object",
+      "Absent extra is not present null",
+      "Explicit empty object matches",
+      "Explicit null matches",
+      "Present metadata retains exact encoded bytes"
+    ],
+    "accept any absent-root text": [
+      "Empty object is not absent extra",
+      "Null is not absent extra",
+      "Whitespace is not absent extra"
+    ],
+    "ignore present values": [
+      "Null is not an empty object",
+      "Empty object is not null",
+      "Equivalent numeric spelling stays a visible mismatch",
+      "Changed metadata value is rejected"
+    ]
+  },
+  "frozen_modules": 10,
+  "owned_jobs_joined": true,
+  "outstanding_children": 0,
+  "git_apply_check_stderr": ""
+}

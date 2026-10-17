@@ -29,6 +29,38 @@ Paint:(red:num,green:num,blue:num,alpha:num)
 Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
 Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
 Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+# Test-only comparison across the old extras/new typed-metadata boundary.
+# Empty legacy text is absence, not JSON. Do not encode it as an empty object.
+# Present values still require exact bytes; raw/typed spelling differences remain
+# visible failures until their separate compatibility contract is resolved.
+extra_matches(original:str,metadata:Metadata,root:int)->bit:
+    root<0? @:original=""
+    original=""? @:false
+    @:original=metadata_json.encode(metadata,root)
+extra_contract_tests()->bit:
+    absent:(kinds:[0:0],ends:[0:0],texts:document_scene.strings(0),numbers:[0.0:0],count:0)
+    object:(kinds:[1],ends:[1],texts:[""],numbers:[0.0],count:1)
+    null_value:(kinds:[7],ends:[1],texts:[""],numbers:[0.0],count:1)
+    number:(kinds:[4],ends:[1],texts:[""],numbers:[2.0],count:1)
+    # A missing root may belong to a shared nonempty arena. Presence is root-based.
+    offset:(kinds:[7,1],ends:[1,2],texts:["",""],numbers:[0.0,0.0],count:2)
+    extra_matches("",absent,-1)?! "Absent extra matches absent root"
+    extra_matches("",offset,-1)?! "Absent extra in nonempty metadata arena"
+    (~extra_matches("{}",absent,-1))?! "Empty object is not absent extra"
+    (~extra_matches("null",absent,-1))?! "Null is not absent extra"
+    (~extra_matches(" ",absent,-1))?! "Whitespace is not absent extra"
+    (~extra_matches("",object,0))?! "Absent extra is not present object"
+    (~extra_matches("",null_value,0))?! "Absent extra is not present null"
+    extra_matches("{}",object,0)?! "Explicit empty object matches"
+    extra_matches("null",null_value,0)?! "Explicit null matches"
+    extra_matches("{}",offset,1)?! "Nonzero metadata root matches"
+    (~extra_matches("null",object,0))?! "Null is not an empty object"
+    (~extra_matches("{}",null_value,0))?! "Empty object is not null"
+    (metadata_json.encode(absent,-1)="{}")?! "General encoder still returns valid JSON"
+    extra_matches("2e0",number,0)?! "Present metadata retains exact encoded bytes"
+    (~extra_matches("2",number,0))?! "Equivalent numeric spelling stays a visible mismatch"
+    (~extra_matches("3e0",number,0))?! "Changed metadata value is rejected"
+    @:true
 fixture(case:int):
     q:(keys:fixture_keys(),xs:fixture_xs(),ys:fixture_ys(),flow_lines:fixture_flow_lines(),glyph_operations:fixture_glyph_operations(),scenes:fixture_scenes(),scene_xs:fixture_scene_xs(),scene_ys:fixture_scene_ys(),scene_lines:fixture_scene_lines(),scene_operations:fixture_scene_operations(),scene_count:2,pending:ints(0),pending_count:0,complete:true,lowering_complete:true,glyph_count:2,line_heights:fixture_line_heights(),line_depths:fixture_line_depths(),line_widths:fixture_line_widths(),line_baselines:fixture_line_baselines(),line_ratios:fixture_line_ratios(),line_indents:fixture_line_indents(),line_flagged:fixture_line_flagged(),line_count:2,width:30.0,height:7.0,depth:14.0,measurement_work:0,diagnostics:"",solved:true,pass:0)
     case=1?
@@ -63,7 +95,7 @@ compare(q:Packet)->bit:
         (a.equation_tags.(i)=b.equation_tags.(i))?! "column equation_tags exact"
         (a.tag_widths.(i)=b.tag_widths.(i))?! "column tag_widths exact"
         (a.draws.(i)=b.draws.(i))?! "column draws exact"
-        (a.extras.(i)=metadata_json.encode(b.metadata,b.metadata_roots.(i)))?! "column extras exact"
+        extra_matches(a.extras.(i),b.metadata,b.metadata_roots.(i))?! "column extras exact"
         (a.flow_xs.(i)=b.flow_xs.(i))?! "column flow_xs exact"
         (a.flow_widths.(i)=b.flow_widths.(i))?! "column flow_widths exact"
         (a.has_flows.(i)=b.has_flows.(i))?! "column has_flows exact"
@@ -376,6 +408,7 @@ renderer_tests()->bit:
     (arena4.kinds.(99)=6 /\ |arena4.xs.(99)-(110.57880051369864)|<0.000000001 /\ |arena4.ys.(99)-(41.102366370252184)|<0.000000001 /\ arena4.lines.(99)=0)?! "actual JS shifted geometry 4/98"
     (result4.anchor_count=1)?! "actual JS anchors 4"
     @:true
+extra_contract_tests()?! "Metadata absence boundary contract"
 renderer_tests()
 
 # Explicitly exercise the original synthetic cases, including glyphParts case1.

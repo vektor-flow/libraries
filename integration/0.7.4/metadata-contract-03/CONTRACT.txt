@@ -1,0 +1,122 @@
+METADATA ABSENCE CONTRACT — 2026-10-17 — SOURCE/MODEL EVIDENCE ONLY
+
+Decision and patch boundary
+The definite defect is the reference harness asking the general JSON encoder to
+represent a legacy absence sentinel. Fix that test boundary, not either renderer,
+F303 reference, authored fixture, literal oracle, or global JSON encoding.
+final.patch modifies only typed_packet_reference_harness_tests.vkf. The helper
+extra_matches compares original="" exactly when root<0; for present roots it
+rejects blank text and retains the original exact encoded-byte comparison.
+No missing-to-object normalization is introduced. No JSON value is rewritten.
+The existing debug export byte comparison, geometry checks and literals remain.
+
+Contract established from producers and consumers
+- F303 document_scene.glyph initializes extra:""; from_leaves stores it unchanged.
+  Frozen document_scene_json instead stores raw(q,node) for imported leaf objects.
+  Thus "" is an out-of-band absent value, never a JSON empty string literal.
+- Current document_scene.glyph uses scene_metadata.empty() (zero nodes).
+  document_scene.from_leaves initializes metadata_roots=-1 and only assigns a
+  root when that leaf has metadata.count>0. Linear assembly follows this contract.
+  In a shared arena the total metadata count may be positive for OTHER leaves;
+  presence must depend on this leaf's root, not arena count.
+- scene_metadata_json.import_node explicitly removes source spans and JSON text.
+  It retains kinds, relative subtree ends, decoded strings and numeric values.
+  An empty object has one kind1 node; null has one kind7 node. Neither is absent.
+  scene_metadata.member/subtree/shift use negative roots for absence. Root0 is
+  present. Positive roots are valid after append/rebasing.
+- scene_metadata_json.encode(root<0) returns "{}", a general JSON fallback. Its
+  result cannot recover whether the original root was absent. Keep that API and
+  valid JSON output unchanged; returning "" globally would produce invalid JSON.
+- Both debug exporters preserve the distinction before formatting. F303 records
+  blank=(original="") before using {} as a parseable scratch input. Current uses
+  blank=(root<0). Only blank causes fallback kind/key emission and default line
+  presence for ordinary glyphs. An explicit {} does not have those effects.
+  The harness's unchanged exact leaf export comparison still checks observable
+  output. The new helper adds correct presence checking BEFORE encoding.
+- A null scalar is supported by the generic typed metadata codec. It is not a
+  valid imported leaf object (resource_json.member requires an object). The null
+  tests exercise the comparison/codec boundary, not a newly admitted null leaf.
+
+Evidence locations (all exact bytes pinned in input-pins.json)
+ref_f303_document_scene.vkf: glyph/from_leaves; ref_f303_document_scene_json.vkf:82;
+document_scene.vkf:16,63,116; document_scene_paragraph_linear.vkf: metadata roots;
+scene_metadata.vkf: empty/shift/member/subtree; scene_metadata_json.vkf:2,8,26;
+ref_f303_document_scene_export.vkf:26-34 and blank branch;
+document_scene_export.vkf:26-35 and blank branch;
+paragraph_scene_export.vkf:48 and placed(); paragraph_scene_legacy/store.
+Original F303 files were re-read from their authenticated historical paths and
+match the prior provenance hashes. All ten current frozen files match original
+bytes after import-target-only renaming, with a closed independent dependency set.
+
+Nonempty raw-versus-typed comparison: unresolved, deliberately still strict
+The first retained raw item is:
+  {"kind":"rule","x":2,"y":3,"width":4,"height":0.5}
+Current import/encode cannot return those exact bytes: json_numbers.roundtrip
+always emits scientific notation for nonzero values; 2 becomes 2e0 and 0.5 becomes
+5e-1. This exact simple witness follows directly from formatter source. The
+separate Python model documents the same result, not a native observation.
+The harness will therefore still reject that nonempty item at column extras exact
+if execution reaches it. It is NOT a passing acceptance gate after this patch.
+
+The debug-export byte comparison also has an independent nonempty witness:
+synthetic case1 glyph has cropX:[null,4], sx:1.25, sy:0.8, color:[0.2,0.3,0.4,0.5].
+Mode1 drops sx/sy but retains cropX and color. F303 emits the original retained
+value spans; current emits typed metadata values, e.g. cropX:[null,4e0]. The
+unchanged debug leaf export exact assertion continues to detect this difference.
+JSON string escape choices/insignificant whitespace can likewise differ because
+F303 copies raw spans while current import decodes strings and export quotes them.
+Object/array member order remains observable and is retained by both traversals;
+no ordering normalization or sorting is proposed. Duplicate members must not be
+silently collapsed by any future semantic comparator.
+
+Specifications and contradictory retained expectations
+The code's explicit import-boundary comment defines typed storage as discarding
+JSON text/source spans. json_numbers.vkf:1-4 documents 17-digit binary64 roundtrip,
+and its nonzero return unconditionally appends e plus exponent. The historical
+VKF_LATEX_RENDERING_HANDOVER.md:917-929 specifies exact numeric roundtrip with
+signed-zero canonicalization and warns that generic resource number parsing has
+a different rounding path. verify_json_numbers.py compares decoded binary64 values.
+These support numeric-value preservation, NOT identity of original JSON lexemes.
+
+However retained scene_metadata_regression_tests.vkf and export/edit regressions
+contain authored exact strings with short numeric spellings (2, 0.8, etc.). Their
+wording includes exact metadata value/order. document_scene_export_tests.vkf also
+has a separate semantic JSON comparator, but it ignores object order and uses a
+1e-9 numeric tolerance; adopting it here would weaken this independent gate.
+Neither handover nor local code establishes permission to discard the retained
+literal byte expectations. No external specification overrides them in this task.
+Therefore this patch fixes only the well-established absence mismatch and does
+not assert a broader byte-versus-value compatibility decision. A broad parser
+normalization would additionally risk hiding missing/null/empty distinctions,
+duplicates, order, numeric changes, or string/parser defects. It is not justified
+as a way to get this gate green.
+
+Checks and limits
+check.py runs 56 source/model checks: sixteen source-authored boundary cases,
+four rejected comparator mutations, 286 original assertion lines (only the named
+absence predicate adapted), 225 exact literal assertion lines, five byte-exact
+fixtures, ten authenticated independent modules, deterministic one-file patch,
+source pins, unchanged-input recheck and git apply --check without applying.
+The helper model translates only its three straight-line guards to Python. The
+formatter model uses Python binary64 formatting according to the documented
+17-digit contract. Neither executes VKF, proves compiler behavior, or qualifies
+resource_json rounding on arbitrary numbers. nonempty-audit.json retains raw item
+spans and model numbers: 223 inspected item occurrences, 220 with nonzero numbers.
+This is a hazard inventory, not 220 native failures or a complete semantic audit.
+
+The first check attempt stopped on HEAD inequality: root independently integrated
+storage/PDF artifacts as c7310d4ee3007d198eebc058da9256571064098b. Inspection proved
+no change anywhere in examples/gpu-math/native-vkf since authorized84ebd6d. The
+checker now verifies ancestry AND unchanged entire native source directory; it
+does not waive any metadata/source change. Current coordinator status is pinned
+as read. No metadata overlap or memory failure occurred.
+
+Next step
+Root can review/integrate this one-file absence fix and refresh the derivative
+entry/manifest under its own scope. Keep the gate unqualified. Before any native
+admission, resolve the separate raw/typed serialization contract against retained
+literal oracles and roundtrip requirements, including exact field presence,
+member/array order, duplicate keys, decoded text and binary64 distinctions. Any
+chosen semantic test boundary needs independent parsing and negative controls;
+any production byte-compatibility repair needs its own justification and scope.
+The known from_leaves compiler barrier still forbids unchanged native retries.
