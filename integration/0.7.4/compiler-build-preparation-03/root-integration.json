@@ -1,0 +1,27 @@
+{
+  "source_evidence_commit": "6e54f42",
+  "applied_patch": "integration/0.7.4/compiler-package-review-06/orchestration.patch",
+  "files": [
+    {
+      "path": "prepare.py",
+      "sha256": "fd49773772924b2ccf59b4a9386dc5e22a1062cc8176391c6a0ed5058713ffda"
+    },
+    {
+      "path": "payload.py",
+      "sha256": "30dc03fbbd778efa4d4bd94c7357e5072dbe03fd0af6da41ac18a841ebc730c3"
+    },
+    {
+      "path": "SPEC.txt",
+      "sha256": "ec3738bf845754de54ac5a893367c4bef92882b52ac690589f0ed4acfc6ab272"
+    },
+    {
+      "path": "test_preparation.py",
+      "sha256": "cb4eb254a6085532fe9fc4fc03cce328d5f86a5e30601e7b23b32209827a03ff"
+    }
+  ],
+  "root_host_tests": 24,
+  "root_test_seconds": 6.434,
+  "native_execution": false,
+  "historical_pins_note": "Original artifact and review input pins refer to prepatch evidence at source_evidence_commit; current package changes explicitly sealed here.",
+  "candidate_binding": "repair05 root-candidate-review.json; final baseline oracle under fresh binding08 review"
+}

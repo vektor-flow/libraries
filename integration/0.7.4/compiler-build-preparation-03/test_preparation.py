@@ -86,7 +86,7 @@ class Preparation(unittest.TestCase):
         fake=self.basepath/'FAKE-NOT-A-COMPILER';fake.write_bytes(b'not executable')
         parent=read(D/'delta-profile.json')['identity']
         # Fixture metadata only, never native evidence; tests_plan does not execute it.
-        receipt=dict(compiler=pin(fake),candidate_sha256=self.r['candidate']['sha256'],native_build_passed=True,identity=identity(parent,[self.r['candidate']['sha256']],'compiler-build-preparation-03'))
+        receipt=dict(compiler=pin(fake),candidate_sha256=self.r['candidate']['sha256'],native_build_passed=True,core_regression_passed=True,candidate_review=self.r,identity=identity(parent,[self.r['candidate']['sha256']],'compiler-build-preparation-03'))
         counts={};application={}
         for selection in ['d288','metadata','a345','f364','a347','full-app']:
             p=tests_plan(self.basepath/selection,self.r,self.auth,receipt,selection);self.assertFalse(p['executable'])

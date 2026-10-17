@@ -153,6 +153,8 @@ def tests_plan(out,r,auth,compiler_receipt,selection):
     head=current_head();recipe=read(CACHE/'Frontend/experiments/independent-worker-A/iteration347/recipe.json')
     verify(compiler_receipt['compiler']);require(compiler_receipt['candidate_sha256']==r['candidate']['sha256'],'wrong compiler candidate')
     require(compiler_receipt['native_build_passed'] is True,'compiler build not passed')
+    require(compiler_receipt.get('core_regression_passed') is True,'core regression not passed')
+    require(compiler_receipt.get('candidate_review')==r,'compiler regression review mismatch')
     expected_id=identity(read(read(REPAIR/'build-prerequisites.json')['D288_profile']['path'])['identity'],[r['candidate']['sha256']],TAG)
     require(compiler_receipt['identity']==expected_id,'compiler identity mismatch')
     normalizer=next(p for p in recipe['tools'] if Path(p['path']).name=='normalize_module_aliases.py')
@@ -215,7 +217,7 @@ def tests_plan(out,r,auth,compiler_receipt,selection):
     require(current_head()==head,'shared HEAD changed during materialization')
     for p in source_pins.values():verify(p)
     # The new closure is authenticated at each phase, never inherited from this packet's HEAD.
-    plan=dict(schema=1,kind='vkf',selection=selection,out=str(out),candidate_review=r,compiler_receipt=compiler_receipt,executable=r['executable'],application_head_at_preparation=head,application_inputs=list(source_pins.values()),inputs=auth['inputs'],cases=cases,stages=stages,generated=[])
+    plan=dict(schema=1,kind='vkf',selection=selection,out=str(out),candidate_review=r,compiler_receipt=compiler_receipt,executable=r['executable'],application_head_at_preparation=head,application_inputs=list(source_pins.values()),inputs=auth['inputs']+[compiler_receipt['compiler']],cases=cases,stages=stages,generated=[])
     plan['generated']=[pin(p) for p in sorted(out.rglob('*')) if p.is_file() and not p.is_symlink()]
     save(out/'plan.json',plan);return plan
 

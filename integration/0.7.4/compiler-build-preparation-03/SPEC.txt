@@ -102,6 +102,9 @@ The exact payload script and package pins belong in the external grant too.
 These fields bind an existing admitted controller run. They are NOT a grant,
 proof of namespace operation, or a claim that arbitrary JSON can authorize work.
 Operational service/cgroup/namespace joining and admission remain root-owned.
+The bound candidate-review file must match the complete normalized review in
+the plan, including regression pin, whole-record review, identity recipe and both
+output oracles. Matching only the candidate source is insufficient.
 
 After the compiler phase has genuinely passed, independently admit each control:
   python3 -B "$P/prepare.py" vkf --candidate-review "$R" --compiler-receipt "$B/compiler-receipt.json" --selection metadata --out "$T"
@@ -111,6 +114,11 @@ for selections d288,a345,f364,a347,full-app. Recommended qualification order:
 real C++ core (in compiler phase), d288, metadata, a345, f364, a347, full-app.
 Each stops on the first failure. Preserve unsuccessful outputs and charge them.
 Do not combine unadmitted phases or infer admission from any forecast.
+VKF preparation requires both native_build_passed and core_regression_passed,
+the same complete candidate review, and the expected identity. The compiler ELF
+pin is carried in the VKF plan inputs and checked before and after execution.
+Older receipts without these fields must not be upgraded by toggling booleans;
+they need a separately reviewed evidence migration or a genuinely completed run.
 
 CONTROL CONTENT / CURRENT CLOSURE
 - d288: all10 original numeric/String adaptation and ownership controls unchanged;
@@ -157,3 +165,25 @@ FAIL-CLOSED LIMITS / UNKNOWN INPUTS
 7 Forecasts include unsuccessful artifacts; actual peaks are unknown. Native
   admission, RAM limits, namespace enforcement and cumulative accounting are
   exclusively coordinator decisions after real qualification.
+
+REVIEW06 ORCHESTRATION CORRECTIONS (SOURCE-ONLY PROPOSAL)
+Every declared output, depfile, report and stage log must be absent and inside
+the charged attempt before the first child. Stage names must be unique single
+path components. No stale file can satisfy a missing producer's output check.
+Results retain joins even if a subsequent log-size/oracle check fails. Orphan
+cleanup, timeout, guard failure or remaining identities cannot qualify the
+expected baseline failure. The external cgroup join remains independently required.
+Successful stage rows pin outputs, depfiles, stdout/stderr and A347 reports.
+Generated objects/executables used by later commands are rechecked; all declared
+outputs and materialized immutable inputs are rechecked before completion.
+Compiler receipts bind the complete review, exact plan and final results pins.
+
+The original 36 observed-only rows are 10 metadata/authority files, 7 tool paths
+and 19 ELF dependency paths, not 36 unpinned compiler headers. One ELF path is
+the same resolved loader as a recorded-pin-match path with identical bytes.
+Thus 36 is correct for literal-path classification; 35 rows lack corroboration
+through either their literal path or a recorded alias in this selected packet.
+Do not infer historical provenance for the remaining observed bytes. No broader
+graph search was used, and authentication.json's original classifications remain
+unchanged. Repair05's later correction stays separately owned and requires root
+review; these orchestration changes neither adopt it nor lift the old hash hold.
