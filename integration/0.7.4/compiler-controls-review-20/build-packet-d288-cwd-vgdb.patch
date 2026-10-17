@@ -1,0 +1,24 @@
+--- compiler-controls-preparation-18/build_packet.py
++++ compiler-controls-review-20/build_packet.py
+@@ -48,6 +48,21 @@
+  for selection in SELECTIONS:
+   out=HERE/'staging'/selection
+   plan=p.tests_plan(out,review,auth,receipt,selection)
++  if selection == 'd288':
++   # The pinned driver resolves cwd/compiler/self_hosted/stdlib, not VKF_HOME.
++   # Sources/output argv stay absolute; RUN/Valgrind cwd stays per-case.
++   compile_stages = [stage for stage in plan['stages'] if stage['name'].endswith('-compile')]
++   assert len(compile_stages) == 10 and len(plan['stages']) == 20
++   for stage in compile_stages:
++    stage['cwd'] = str(out/'home')
++   valgrind_stages = [stage for stage in plan['stages'] if stage.get('valgrind') is True]
++   assert len(valgrind_stages) == 10
++   for stage in valgrind_stages:
++    assert stage['argv'][0] == '/usr/bin/valgrind'
++    assert not any(arg.startswith('--vgdb') for arg in stage['argv'])
++    # Optional debugger IPC creates FIFOs rejected by installed accounting.
++    # Keep every original Memcheck/leak/error option and oracle unchanged.
++    stage['argv'].insert(1, '--vgdb=no')
+   plan['directories']=[str(x) for x in sorted(out.rglob('*')) if x.is_dir() and not x.is_symlink()]
+   plan['symlinks']=[dict(path=str(x),target=str(x.resolve()),sha256=sha(x)) for x in sorted(out.rglob('*')) if x.is_symlink()]
+   merged={x['path']:x for x in plan['inputs']+extra+origins+plan['application_inputs']}

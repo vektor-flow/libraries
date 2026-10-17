@@ -1,0 +1,67 @@
+# One request owns this dictionary. Commands store small IDs instead of
+# copying a large string-pointer table for every repeated glyph/shape record.
+text:.tex_text
+chunks:.text_chunks
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+nil(size:int)->[int]:[-1:size]
+
+empty()->Pool:
+    @:(values:chunks.empty(64),slots:nil(128),hashes:nil(64),count:0)
+
+hash(value:str)->int:
+    result:0
+    position:0
+    ~vkf_string_eof(value,position)?>
+        scalar:0
+        c:text.at(value,position)
+        c >>
+            .scalar:int($)
+            $
+        .result:(result*131+scalar)%2147483647
+        .position:text.next(value,position)
+    @:result
+
+# Read-only queries return a scalar ID. Returning a whole unchanged Pool inside
+# a result triggers vector ownership copies in the packaged native backend.
+find(pool:Pool,value:str)->int:
+    count:pool.count
+    count>0 /\ pool.values.(count-1)=value? @:count-1
+    slot:hash(value)%pool.slots.length()
+    id:pool.slots.(slot)
+    id>=0?>
+        pool.values.(id)=value? @:id
+        .slot:(slot+1)%pool.slots.length()
+        .id:pool.slots.(slot)
+    @: -1
+
+intern(pool:Pool,value:str):
+    count:pool.count
+    count>0 /\ pool.values.(count-1)=value? @:(pool:pool,id:count-1)
+    key:hash(value)
+    slot:key%pool.slots.length()
+    id:pool.slots.(slot)
+    id>=0?>
+        pool.values.(id)=value? @:(pool:pool,id:id)
+        .slot:(slot+1)%pool.slots.length()
+        .id:pool.slots.(slot)
+    # Reads use the indexed pool directly. Own copies only for an insertion.
+    values:pool.values
+    slots:pool.slots
+    hashes:pool.hashes
+    count*2>=slots.length()?
+        .slots:nil(slots.length()*2)
+        index:0
+        index<count?>
+            target:hashes.(index)%slots.length()
+            slots.(target)>=0?> .target:(target+1)%slots.length()
+            slots.(target):index
+            .index:index+1
+        .slot:key%slots.length()
+        slots.(slot)>=0?> .slot:(slot+1)%slots.length()
+    count>=values.length()?
+        .values:values&chunks.empty(values.length())
+        .hashes:hashes&nil(hashes.length())
+    values.(count):value
+    hashes.(count):key
+    slots.(slot):count
+    @:(pool:(values:values,slots:slots,hashes:hashes,count:count+1),id:count)

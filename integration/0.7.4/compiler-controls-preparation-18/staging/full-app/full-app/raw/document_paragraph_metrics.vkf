@@ -1,0 +1,107 @@
+# Typed paragraph metrics. JSON is accepted only at the legacy scene boundary.
+resource_json:.resource_json
+Columns:(heights:[num],depths:[num],natural_depths:[num],widths:[num],baselines:[num],indents:[num],flagged:[bit],count:int,width:num,height:num,depth:num,has_last_row:bit,last_row_baseline:num,last_row_depth:num,tag_width:num)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+number(tape:Tape,node:int,key:str,fallback:num=0)->num:
+    (~tape.valid \/ node<0 \/ node>=tape.count)? @:fallback
+    at:resource_json.member(tape,node,key)
+    at<0? @:fallback
+    @:resource_json.number(tape,at)
+flag(tape:Tape,node:int,key:str)->bit:
+    (~tape.valid \/ node<0 \/ node>=tape.count)? @:false
+    at:resource_json.member(tape,node,key)
+    at<0? @:false
+    @:tape.kinds.(at)=5
+empty()->Columns:
+    @:(heights:[0.0:0],depths:[0.0:0],natural_depths:[0.0:0],widths:[0.0:0],baselines:[0.0:0],indents:[0.0:0],flagged:[false:0],count:0,width:0.0,height:0.0,depth:0.0,has_last_row:false,last_row_baseline:0.0,last_row_depth:0.0,tag_width:0.0)
+paragraph(heights:[num],depths:[num],widths:[num],baselines:[num],indents:[num],flagged:[bit],count:int,width:num,height:num,depth:num,tag_width:num=0)->Columns:
+    @:(heights:heights,depths:depths,natural_depths:depths,widths:widths,baselines:baselines,indents:indents,flagged:flagged,count:count,width:width,height:height,depth:depth,has_last_row:false,last_row_baseline:0.0,last_row_depth:0.0,tag_width:tag_width)
+tag_width(tape:Tape)->num:
+    items:resource_json.member(tape,0,"items")
+    items<0? @:0
+    ends:tape.ends
+    at:items+1
+    width:0.0
+    at<ends.(items)?>
+        flag(tape,at,"equationTag")?
+            next:number(tape,at,"tagWidth")
+            next>width? .width:next
+        .at:ends.(at)
+    @:width
+# Inline native scenes still use legacy output until the retained arena lands.
+# Scan only those fragments; ordinary paragraph glyphs never enter a JSON parser.
+retained_tag_width(scenes:[str],count:int)->num:
+    width:0.0
+    at:0
+    at<count?>
+        next:tag_width(resource_json.parse(scenes.(at)))
+        next>width? .width:next
+        .at:at+1
+    @:width
+legacy(source:str)->Columns:
+    tape:resource_json.parse(source)
+    list:resource_json.member(tape,0,"lines")
+    ends:tape.ends
+    count:0
+    at:list+1
+    list>=0?
+        at<ends.(list)?>
+            .count:count+1
+            .at:ends.(at)
+    out:paragraph([0.0:count],[0.0:count],[0.0:count],[0.0:count],[0.0:count],[false:count],count,number(tape,0,"width"),number(tape,0,"height"),number(tape,0,"depth"),tag_width(tape))
+    out.natural_depths:[0.0:count]
+    natural:out.natural_depths
+    heights:out.heights
+    depths:out.depths
+    widths:out.widths
+    baselines:out.baselines
+    indents:out.indents
+    flagged:out.flagged
+    .at:list+1
+    line:0
+    line<count?>
+        heights.(line):number(tape,at,"height")
+        depths.(line):number(tape,at,"depth")
+        natural.(line):depths.(line)
+        natural_node:resource_json.member(tape,at,"naturalDepth")
+        natural_node>=0 /\ tape.kinds.(natural_node)~=7? natural.(line):resource_json.number(tape,natural_node)
+        widths.(line):number(tape,at,"width")
+        baselines.(line):number(tape,at,"baseline")
+        indents.(line):number(tape,at,"indent")
+        flagged.(line):flag(tape,at,"flagged")
+        .at:ends.(at)
+        .line:line+1
+    out.heights:heights
+    out.depths:depths
+    out.natural_depths:natural
+    out.widths:widths
+    out.baselines:baselines
+    out.indents:indents
+    out.flagged:flagged
+    row:resource_json.member(tape,0,"lastRow")
+    row>=0?
+        out.has_last_row:true
+        out.last_row_baseline:number(tape,row,"baseline")
+        out.last_row_depth:number(tape,row,"depth")
+    @:out
+last_depth(input:Columns)->num:
+    input.count>0? @:input.natural_depths.(input.count-1)
+    @:input.depth
+
+trim_numbers(values:[num],count:int)->[num]:
+    count=0? @:[0.0:0]
+    @:[..count-1 >> values.($)]
+trim_ints(values:[int],count:int)->[int]:
+    count=0? @:[0:0]
+    @:[..count-1 >> values.($)]
+trim_flags(values:[bit],count:int)->[bit]:
+    count=0? @:[false:0]
+    @:[..count-1 >> values.($)]
+
+line_natural_depth(input:Columns,line:int)->num:
+    line<input.count? @:input.natural_depths.(line)
+    @:input.depth
+label_natural_depth(natural:num,label_depth:num,unit:num)->num:
+    raised:label_depth/unit
+    raised>natural? @:raised
+    @:natural

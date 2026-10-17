@@ -1,0 +1,20 @@
+--- compiler-controls-preparation-18/adapter.py
++++ compiler-controls-review-20/adapter.py
+@@ -170,9 +170,15 @@
+         dest = canonical(link['path']); source = canonical(link['target'])
+         require(dest.is_relative_to(target), 'symlink materialization escape')
+         require(dict(path=str(source), sha256=link['sha256']) in controller_inputs(plan['inputs']), 'unpinned stdlib link')
+-        verify(dict(path=str(source), sha256=link['sha256']))
++        # The sealed legacy 'symlinks' rows bind original stdlib sources.
++        # Installed accounting requires regular files in the charged attempt.
++        # Retain those canonical input pins and copy their exact bytes; do not
++        # link/hardlink an external file into the writable attempt.
++        data = raw(source)
++        require(digest(data) == link['sha256'], 'changed stdlib source')
+         dest.parent.mkdir(parents=True, exist_ok=True)
+-        dest.symlink_to(source)
++        with dest.open('xb') as f: f.write(data)
++        verify(dict(path=str(dest), sha256=link['sha256']))
+     for item in assets:
+         dest = canonical(item['target'])
+         require(dest.is_relative_to(target), 'materialization escape')

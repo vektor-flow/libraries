@@ -1,0 +1,109 @@
+# ECMAScript default Unicode casing. Final_Sigma tests ORIGINAL source context.
+# Generic installed Unicode data is versioned with its actual JS reference.
+unicode_case_data:.unicode_case_data
+font_catalog:.font_catalog
+resource_json:.resource_json
+tex_text:.tex_text
+text_chunks:.text_chunks
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+load()->Catalog:font_catalog.load(unicode_case_data.directory())
+version()->str:unicode_case_data.version()
+property(code:int,ranges:str)->bit:
+    low:0
+    high:tex_text.byte_length(ranges)//24
+    low<high?>
+        mid:(low+high)//2
+        start:font_catalog.fixed(ranges,mid*24)
+        stop:font_catalog.fixed(ranges,mid*24+12)
+        code<start?
+            .high:mid
+            @>
+        code>stop?
+            .low:mid+1
+            @>
+        @:true
+    @:false
+cased(c:str)->bit:
+    (c>="A" /\ c<="Z") \/ (c>="a" /\ c<="z")? @:true
+    @:property(resource_json.scalar(c),unicode_case_data.cased_ranges())
+ignorable(c:str)->bit:property(resource_json.scalar(c),unicode_case_data.ignorable_ranges())
+scalar(c:str,fonts:Catalog,upper:bit)->str:
+    code:resource_json.scalar(c)
+    upper /\ code>=97 /\ code<=122? @:str(chr(code-32))
+    ~upper /\ code>=65 /\ code<=90? @:str(chr(code+32))
+    prefix:"lower/"
+    upper? .prefix:"upper/"
+    raw:font_catalog.raw(fonts,prefix&c)
+    raw=""? @:c
+    @:resource_json.string(resource_json.parse(raw),0)
+upper(source:str,fonts:Catalog)->str:
+    parts:text_chunks.empty(tex_text.byte_length(source)+1)
+    at:0
+    count:0
+    ~vkf_string_eof(source,at)?>
+        c:tex_text.at(source,at)
+        parts.(count):scalar(c,fonts,true)
+        .count:count+1
+        .at:tex_text.next(source,at)
+    @:text_chunks.join(parts,0,count)
+lower(source:str,fonts:Catalog)->str:
+    parts:text_chunks.empty(tex_text.byte_length(source)+1)
+    at:0
+    count:0
+    prior_cased:false
+    contextual:tex_text.find(source,"Σ")>=0
+    ~vkf_string_eof(source,at)?>
+        c:tex_text.at(source,at)
+        next:tex_text.next(source,at)
+        value:scalar(c,fonts,false)
+        c="Σ" /\ prior_cased?
+            scan:next
+            after:false
+            ~vkf_string_eof(source,scan)?>
+                following:tex_text.at(source,scan)
+                ~ignorable(following)?
+                    .after:cased(following)
+                    @|
+                .scan:tex_text.next(source,scan)
+            ~after? .value:"ς"
+        parts.(count):value
+        .count:count+1
+        contextual /\ ~ignorable(c)? .prior_cased:cased(c)
+        .at:next
+    @:text_chunks.join(parts,0,count)
+uppercase(source:str)->str:upper(source,load())
+lowercase(source:str)->str:lower(source,load())
+# AMS title/author regex preserves ASCII command names and complete $...$ spans.
+upper_tex(source:str,fonts:Catalog)->str:
+    parts:text_chunks.empty(tex_text.byte_length(source)+1)
+    at:0
+    count:0
+    ~vkf_string_eof(source,at)?>
+        c:tex_text.at(source,at)
+        stop:tex_text.next(source,at)
+        c="\\"?
+            tex_text.letter(tex_text.at(source,stop)) /\ tex_text.at(source,stop)~="@"?
+                stop<tex_text.byte_length(source)?>
+                    letter:tex_text.at(source,stop)
+                    ~((letter>="a" /\ letter<="z") \/ (letter>="A" /\ letter<="Z"))? @|
+                    .stop:tex_text.next(source,stop)
+            parts.(count):tex_text.span(source,at,stop)
+            .count:count+1
+            .at:stop
+            @>
+        c="\$"?
+            close:tex_text.find(source,"\$",stop)
+            close>=0? .stop:close+1
+            parts.(count):tex_text.span(source,at,stop)
+            .count:count+1
+            .at:stop
+            @>
+        .stop:at
+        ~vkf_string_eof(source,stop)?>
+            raw:tex_text.at(source,stop)
+            raw="\\" \/ raw="\$"? @|
+            .stop:tex_text.next(source,stop)
+        parts.(count):upper(tex_text.span(source,at,stop),fonts)
+        .count:count+1
+        .at:stop
+    @:text_chunks.join(parts,0,count)

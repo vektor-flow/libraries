@@ -1,0 +1,21 @@
+text_source_paragraph:.text_source_paragraph
+text_parser:.text_parser
+paragraph_breaking:.paragraph_breaking
+paragraph_nodes:.paragraph_nodes
+resource_json:.resource_json
+document_materialize_config:.document_materialize_config
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+PageConfig:(values:[num],flags:[bit],penalties:[int])
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Configuration:(config:str,pages:PageConfig,packages:[str],math:MathContext,overrides:[str],class_name:str,optical:bit,hyperref:bit,diagnostics:str)
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+measure(source:str,role:str,fonts:Catalog,roles:[str],language:Language,c:Configuration,tables:Tables,prepared:bit,document_boxes_json:str="{}"):
+    context:text_parser.context(role,roles,c.optical,c.hyperref)
+    options:paragraph_breaking.options(1000000)
+    options.justify:false
+    options.hyphens:false
+    settings:resource_json.parse(c.config)
+    links:document_materialize_config.raw_member(settings,0,"linkAppearance","{}")
+    text_options:paragraph_nodes.text_options()
+    @:text_source_paragraph.typeset_core(source,fonts,context,c.math,language,c.overrides,options,text_options,tables,prepared,document_boxes_json,links)

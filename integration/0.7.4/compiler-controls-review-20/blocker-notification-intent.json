@@ -1,0 +1,7 @@
+{
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "worker": "01a14a19-1922-77b1-b91c-1cc12cf98f70",
+  "message": "BLOCKER compiler-controls-review-20 owner 01a14a19-1922-77b1-b91c-1cc12cf98f70: HOLD controls18 adapter176cc933 for D288 admission. Actual adapter.materialize creates 30 stdlib symlinks; installed v9 storage_paths.allocated (5d8e720b) rejects them as \"symlink or special file\". Reproduced using exact materialize with one actual sealed stdlib input under own TEST_ONLY temp, then exact installed allocated(); no controller/state/native calls. Ledger.check/guard_service recursively accounts entire lane root, so this is a launch/guard blocker and potentially leaves retained lane artifacts unaccountable. Concrete source-only regular-file materialization fix and focused regression follow. Evidence integration/0.7.4/compiler-controls-review-20/blocker-reproduction.json. No shared edits or operational mutations.\n",
+  "utc": "2026-10-17T13:43:37.990110+00:00",
+  "attempts": 1
+}

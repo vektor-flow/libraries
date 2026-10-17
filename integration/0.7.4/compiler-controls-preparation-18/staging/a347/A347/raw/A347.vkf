@@ -1,0 +1,57 @@
+# Diagnostic only, not yet compiled. Materialize beside normalized shared modules.
+# Stdin: font catalog path, language path, ordered roles JSON, owner scope, report path.
+# Empty/nonempty owner scope exercises the same conditional scene producer.
+io:.io
+font_catalog:.font_catalog
+hyphenation:.hyphenation
+text_parser_kernel:.text_parser_kernel
+math_profiles:.math_profiles
+config:.document_materialize_config
+label_measure:.document_materialize_label_measure
+labels:.document_materialize_labels
+scene_json:.document_scene_json
+scene_paragraph:.document_scene_paragraph_linear
+tex_text:.tex_text
+resource_json:.resource_json
+label_scene:.document_label_scene
+
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+
+run()->int:
+    catalog_path:io.read_line()
+    language_path:io.read_line()
+    roles_json:io.read_line()
+    scope:io.read_line()
+    report_path:io.read_line()
+    fonts:font_catalog.load(io.read_text(catalog_path))
+    language:hyphenation.load(io.read_text(language_path))
+    roles:text_parser_kernel.roles(roles_json)
+    c:config.configure("article","[]","[]",fonts)
+    tables:math_profiles.load(fonts)
+    primary:scene_json.empty()
+    q:label_measure.measure("1.","roman",fonts,roles,language,c,tables,true,"{}")
+    scope=""? .primary:scene_paragraph.from_paragraph(q)
+    scope~=""? .primary:scene_paragraph.from_paragraph_owned(q,scope&":primary")
+    [int] blocks:[]
+    [str] scopes:[]
+    [str] texts:[]
+    [str] kinds:[]
+    scope~=""?
+        .blocks:[0]
+        .scopes:[scope&":outer"]
+        .texts:["a."]
+        .kinds:["outer:0"]
+    tape:resource_json.parse("[{\"source\":\"a.\",\"font\":\"roman\",\"left\":0}]")
+    measured:labels.measure_outer(tape,1,fonts,roles,language,c,"{}",0,0,blocks,scopes,texts,kinds)
+    [Scene] outers:[measured.scene]
+    result:label_scene.compose(primary,outers,[0.0],0,5)
+    combined:(scene:result,diagnostics:measured.diagnostics)
+    .primary:combined.scene
+    diagnostics:config.merge(q.diagnostics,combined.diagnostics)
+    io.write_text(report_path,tex_text.integer(primary.arena.count)&"\n"&diagnostics)
+    @:0
+run()

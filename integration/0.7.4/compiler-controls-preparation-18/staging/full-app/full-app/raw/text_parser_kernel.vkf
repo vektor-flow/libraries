@@ -1,0 +1,27 @@
+f:.font_catalog
+p:.text_parser
+j:.resource_json
+chunks:.text_chunks
+out:.text_parser_output
+
+roles(raw:str)->[str]:
+    tape:j.parse(raw)
+    values:chunks.empty(tape.count)
+    count:0
+    true?>
+        at:j.element(tape,0,count)
+        at<0? @|
+        values.(count):j.string(tape,at)
+        .count:count+1
+    count=0? @:chunks.empty(0)
+    @:[..count-1 >> values.(int($))]
+text_parse(font_source:str,source:str,font:str,ordered_roles:str,optical:bit,hyperref:bit,literal:bit,literal_input:bit,legacy:bit,bib_url:bit)->str:
+    context:p.context(font,roles(ordered_roles),optical,hyperref)
+    context.literal:literal
+    context.literal_input:literal_input
+    context.legacy_symbols:legacy
+    context.bib_url:bib_url
+    parsed:p.parse(source,f.load(font_source),context)
+    @:out.json(parsed.stream)
+noop()->int:0
+noop()

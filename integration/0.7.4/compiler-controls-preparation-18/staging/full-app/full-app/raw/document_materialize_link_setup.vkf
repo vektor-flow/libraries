@@ -1,0 +1,22 @@
+# Document-wide hyperref options and preamble setup, before paragraph shaping.
+document_materialize_config:.document_materialize_config
+document_link_policy:.document_link_policy
+text_link_context:.text_link_context
+tex_groups:.tex_groups
+tex_text:.tex_text
+prepare(source:str,class_name:str,imports:str,enabled:bit=false):
+    options:document_materialize_config.requested_options(class_name,imports,"hyperref")
+    limit:tex_text.find(source,"\\begin{document}")
+    limit<0? .limit:tex_text.byte_length(source)
+    at:0
+    at<limit?>
+        found:tex_text.find(source,"\\hypersetup",at)
+        (found<0 \/ found>=limit)? @|
+        .at:found+11
+        group:tex_groups.read(source,at)
+        group.present /\ group.closed /\ group.stop<=limit?
+            .options:options&text_link_context.split_options(group.value)
+            .at:group.stop
+    initial:"{\"enabled\":false}"
+    enabled? .initial:"{\"enabled\":true}"
+    @:document_link_policy.configure(options,initial)

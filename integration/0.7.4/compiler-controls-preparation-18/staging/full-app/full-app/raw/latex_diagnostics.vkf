@@ -1,0 +1,183 @@
+# Parser-owned diagnostics. Ranges are original UTF-8 bytes [start,stop).
+# Lines/columns are one-based Unicode scalars; tabs count as one column.
+text:.tex_text
+j:.resource_json
+tokens:.math_tokens
+catalog:.font_catalog
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+
+location(source:str,offset:int)->str:
+    position:0
+    line:1
+    column:1
+    position<offset?>
+        c:text.at(source,position)
+        .position:text.next(source,position)
+        c="\n"?
+            .line:line+1
+            .column:1
+        c~="\n"? .column:column+1
+    @:"{\"byte\":"&text.integer(offset)&",\"line\":"&text.integer(line)&",\"column\":"&text.integer(column)&"}"
+
+# A partial name is appendable only when a real installed glyph or a supported
+# parser command starts with it. Unknown names at EOF are not assumed fixable.
+command_prefix(raw:str,fonts:Catalog)->bit:
+    raw="\\"? @:true
+    commands:["\\frac","\\dfrac","\\tfrac","\\cfrac","\\binom","\\dbinom","\\tbinom","\\genfrac","\\sqrt","\\left","\\right","\\begin","\\end","\\text","\\textnormal","\\textrm","\\textbf","\\textit","\\textsf","\\texttt","\\mathrm","\\mathbf","\\mathit","\\mathsf","\\mathtt","\\mathfrak","\\mathcal","\\mathscr","\\mathbb","\\mathbbold","\\mathnormal","\\boldsymbol","\\bm","\\overline","\\underline","\\hat","\\widehat","\\tilde","\\widetilde","\\vec","\\dot","\\ddot","\\overset","\\underset","\\stackrel","\\operatorname","\\xrightarrow","\\xleftarrow","\\color","\\textcolor","\\label","\\tag","\\hspace","\\kern","\\mkern","\\mskip","\\qty","\\SI","\\unit","\\si","\\num","\\ang"]
+    index:0
+    size:text.byte_length(raw)
+    index<commands.length()?>
+        candidate:commands.(index)
+        text.byte_length(candidate)>size /\ text.matches(candidate,0,raw)? @:true
+        .index:index+1
+    prefix:"math/display/"&raw
+    .index:0
+    index<fonts.capacity?>
+        entry:catalog.slot(fonts,index)
+        entry.found?
+            key_size:catalog.fixed(fonts.source,catalog.header_size()+index*catalog.slot_size()+12)
+            key_size>text.byte_length(prefix) /\ text.matches(fonts.source,entry.start,prefix)? @:true
+        .index:index+1
+    @:false
+
+record(messages:str,source:str,start:int,stop:int,code:str,appendable:bit,message:str,hint:str,origin:int= -1)->str:
+    tape:j.parse("["&messages&"]")
+    # Objects occupy multiple tape entries; count direct children only.
+    index:0
+    j.element(tape,0,index)>=0?> .index:index+1
+    index>=25? @:messages
+    recovery:"edit-existing"
+    severity:"error"
+    appendable?
+        .recovery:"append"
+        .severity:"incomplete"
+    item:"{\"code\":"&j.quote("VKF-LATEX-"&code)&",\"severity\":"&j.quote(severity)&",\"recovery\":"&j.quote(recovery)&",\"message\":"&j.quote(message)&",\"hint\":"&j.quote(hint)&",\"range\":{\"start\":"&location(source,start)&",\"end\":"&location(source,stop)&"}}"
+    origin>=0?
+        .item:text.span(item,0,text.byte_length(item)-1)&",\"relatedStart\":"&location(source,origin)&"}"
+    text.find(","&messages&",",","&item&",")>=0? @:messages
+    messages=""? @:item
+    @:messages&","&item
+
+add(messages:str,source:str,start:int,stop:int,message:str,fonts:Catalog,origin:int= -1)->str:
+    size:text.byte_length(source)
+    at_end:tokens.skip_space(source,stop)>=size
+    appendable:false
+    code:"INVALID-ARGUMENT"
+    hint:"Edit the highlighted argument."
+    explanation:message
+    tokens.one_of(message,["Inferred a closing brace","Finish the braced argument","Empty operand placeholder","Inferred a closing option bracket","Inferred a closing label bracket","Inferred an invisible delimiter","Inferred \\right.","Inferred an invisible closing scope","Inferred the matrix body","Empty spacing dimension","Inferred a closing text brace","Missing text formatting argument"])?
+        .appendable:at_end
+        .code:"MISSING-ARGUMENT"
+        .explanation:"An argument is missing or unfinished."
+        .hint:"Complete the argument at this position."
+    (message="Inferred a closing brace" \/ message="Inferred a closing text brace")?
+        .code:"MISSING-CLOSE-BRACE"
+        .explanation:"The group is missing a closing brace (})."
+        .hint:"Add } to close the group."
+    message="Finish the braced argument"?
+        .explanation:"This command requires a braced argument."
+        .hint:"Add {argument} after the command."
+    message="Empty operand placeholder"?
+        .explanation:"An operand is missing."
+        .hint:"Add the missing operand; for a fraction provide both numerator and denominator."
+    (message="Inferred a closing option bracket" \/ message="Inferred a closing label bracket")?
+        .code:"MISSING-CLOSE-BRACKET"
+        .explanation:"The optional argument is missing a closing bracket (])."
+        .hint:"Add ] to close the optional argument."
+    message="Inferred \\right."?
+        .code:"MISSING-RIGHT"
+        .explanation:"A \\left delimiter has no matching \\right."
+        .hint:"Add \\right followed by a delimiter, or \\right. for an invisible delimiter."
+    text.matches(message,0,"Inferred \\end{")?
+        .appendable:at_end
+        .code:"MISSING-END"
+        .explanation:"The environment is missing its closing command."
+        .hint:"Add "&text.span(message,9,text.byte_length(message))&"."
+    message="Completed a matrix environment for preview"?
+        .code:"INCOMPLETE-ENVIRONMENT"
+        .appendable:at_end /\ stop>start /\ text.at(source,stop-1)~="}"
+        .explanation:"The environment name is unfinished or abbreviated."
+        .hint:"Complete the environment name inside the braces."
+    text.matches(message,0,"Unknown environment ")?
+        .code:"UNKNOWN-ENVIRONMENT"
+        .hint:"Check the environment name and whether the engine supports it."
+    message="Ignored an unmatched closing brace"?
+        .code:"UNMATCHED-CLOSE-BRACE"
+        .explanation:"This closing brace (}) has no opening brace."
+        .hint:"Remove this } or insert its missing { before the group."
+    message="Grouped repeated scripts for preview"?
+        .code:"REPEATED-SCRIPT"
+        .explanation:"This base already has a script of the same kind."
+        .hint:"Combine the scripts in one braced argument, for example x^{a+b}."
+    message="Empty base placeholder"?
+        .code:"MISSING-BASE"
+        .explanation:"This script has no preceding base."
+        .hint:"Insert a base before ^ or _, for example x^{2}."
+    message="Unmatched right delimiter"?
+        .code:"UNMATCHED-RIGHT"
+        .explanation:"This \\right has no matching \\left."
+        .hint:"Insert \\left before its opening delimiter or remove this \\right."
+    (message="Unmatched environment end" \/ message="Matched the unfinished environment")?
+        .code:"MISMATCHED-END"
+        .explanation:"This environment closing command does not match the open environment."
+        .hint:"Use the same environment name in \\begin{name} and \\end{name}."
+    text.matches(message,0,"Unfinished or unsupported command: ")?
+        .code:"UNKNOWN-COMMAND"
+        .explanation:"The engine does not recognize this command."
+        .hint:"Check its spelling and whether its macro or package is supported."
+        raw:text.span(source,start,stop)
+        stop=size /\ command_prefix(raw,fonts)?
+            .appendable:true
+            .code:"INCOMPLETE-COMMAND"
+            .explanation:"This command name is unfinished."
+            .hint:"Continue typing the command name."
+    text.matches(message,0,"Unsupported text command: ")?
+        .code:"UNKNOWN-TEXT-COMMAND"
+        .hint:"Check the command spelling and use a supported text formatting command."
+    text.matches(message,0,"Unsupported symbol: ")?
+        .code:"UNSUPPORTED-SYMBOL"
+        .hint:"Replace the symbol with a supported LaTeX command or character."
+    # A zero-width range marks the required insertion; nonempty ranges identify
+    # offending tokens/arguments. Never classify interior damage as append-only.
+    @:record(messages,source,start,stop,code,appendable,explanation,hint,origin)
+
+raw(messages:str,source:str,start:int,stop:int,present:bit,closed:bit)->str:
+    present /\ closed? @:messages
+    code:"MISSING-ARGUMENT"
+    message:"This command requires a braced argument."
+    hint:"Add {argument} after the command."
+    present?
+        .code:"MISSING-CLOSE-BRACE"
+        .message:"The braced argument is missing its closing brace (})."
+        .hint:"Add } to close this argument."
+    @:record(messages,source,start,stop,code,tokens.skip_space(source,stop)>=text.byte_length(source),message,hint)
+
+merge(messages:str,source:str,start:int,stop:int,additional:str,fonts:Catalog)->str:
+    additional=""? @:messages
+    tape:j.parse("["&additional&"]")
+    result:messages
+    index:0
+    true?>
+        node:j.element(tape,0,index)
+        node<0? @|
+        .result:add(result,source,start,stop,j.string(tape,node),fonts)
+        .index:index+1
+    @:result
+
+report(messages:str,legacy:str,source_name:str)->str:
+    status:"valid"
+    (legacy~="" \/ messages~="")? .status:"edit-required"
+    tape:j.parse("["&messages&"]")
+    index:0
+    append_only:messages~=""
+    true?>
+        node:j.element(tape,0,index)
+        node<0? @|
+        j.string(tape,j.member(tape,node,"recovery"))~="append"? .append_only:false
+        .index:index+1
+    append_only? .status:"incomplete"
+    truncated:"false"
+    index>=25?
+        .truncated:"true"
+        .status:"edit-required"
+    @:"{\"sourceName\":"&j.quote(source_name)&",\"status\":"&j.quote(status)&",\"columnEncoding\":\"unicode-scalar\",\"offsetEncoding\":\"utf-8\",\"truncated\":"&truncated&",\"issues\":["&messages&"]}"

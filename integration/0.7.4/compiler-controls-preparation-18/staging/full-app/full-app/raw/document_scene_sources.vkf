@@ -1,0 +1,67 @@
+a267_provenance:.latex_note_provenance
+A267Origins:(scopes:[str],texts:[str],operations:[int],starts:[int],stops:[int],parts:[int],count:int)
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+# Join typed body scenes with legacy provider boundaries without serializing body.
+document_scene:.document_scene
+document_scene_json:.document_scene_json
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
+source(body:[Scene],tail:[str],index:int):
+    result:document_scene_json.empty()
+    index<body.length()? .result:body.(index)
+    index>=body.length()? .result:document_scene_json.decode(tail.(index-body.length()))
+    @:result
+source_range(body:[Scene],tail:[str],start:int,stop:int)->[Scene]:
+    start=stop? @:[]
+    stop-start=1?
+        item:source(body,tail,start)
+        [Scene] one:[item]
+        @:one
+    middle:(start+stop)//2
+    before:source_range(body,tail,start,middle)
+    after:source_range(body,tail,middle,stop)
+    @:before&after
+combine(body:[Scene],tail:[str])->[Scene]:
+    @:source_range(body,tail,0,body.length()+tail.length())
+decoration(source:str):
+    @:document_scene_json.decode("{\"items\":"&source&"}")
+decorations_range(sources:[str],start:int,stop:int)->[Scene]:
+    start=stop? @:[]
+    stop-start=1?
+        item:decoration(sources.(start))
+        [Scene] one:[item]
+        @:one
+    middle:(start+stop)//2
+    before:decorations_range(sources,start,middle)
+    after:decorations_range(sources,middle,stop)
+    @:before&after
+decorations(sources:[str])->[Scene]:
+    @:decorations_range(sources,0,sources.length())
+empty_document()->PageDocument:
+    [num] widths:[]
+    [num] heights:[]
+    [int] firsts:[]
+    [int] counts:[]
+    arena:document_scene.empty()
+    names:document_scene.strings(0)
+    [int] pages:[]
+    [num] xs:[]
+    [num] ys:[]
+    @:(widths:widths,heights:heights,firsts:firsts,counts:counts,arena:arena,destination_names:names,destination_pages:pages,destination_xs:xs,destination_ys:ys,page_count:0,destination_count:0)
+
+# The note producer captures operation/span columns in serializer encounter order.
+# This adapter copies fields only; it never guesses identity from geometry/keys.
+a267_combine_notes(body:[Scene],tail:[str],origins:[A267Origins])->[Scene]:
+    origins.length()=tail.length()?! "Missing note provenance rows"
+    out:combine(body,tail)
+    i:0
+    i<tail.length()?>
+        at:body.length()+i
+        item:out.(at)
+        item.arena:a267_provenance.attach(item.arena,origins.(i))
+        out.(at):item
+        .i:i+1
+    @:out

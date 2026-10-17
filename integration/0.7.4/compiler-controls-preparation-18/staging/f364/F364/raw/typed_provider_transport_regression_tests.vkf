@@ -1,0 +1,41 @@
+# UNCOMPILED. Earlier independent reference sources/oracles are unchanged.
+boxes:.text_inline_boxes
+legacy:.paragraph_scene_legacy
+store:.paragraph_scene_store
+metadata:.scene_metadata
+encoded:.scene_metadata_json
+export:.typed_provider_export
+native_gate_main():
+    empty:boxes.empty(0)
+    absent:boxes.append(empty,1,5)
+    absent.scene_ids.(0)= -1?! "Absent scene sentinel"
+    absent.scenes.count=0?! "Absent scene allocates no retained scene"
+    present:boxes.append(absent,2,0,scene:"{\"items\":[],\"inlineDestinations\":true,\"destinations\":[{\"id\":\"a\",\"x\":3,\"y\":4,\"extra\":[true,null]}]}")
+    present.scene_ids.(1)=0?! "Present empty scene has ID"
+    restored:boxes.scene_at(present,1)
+    restored.inline_destinations?! "Ordinary Provider inline flag"
+    (restored.anchor_xs.(0)=3 /\ restored.anchor_ys.(0)=4)?! "Provider destination placement"
+    encoded.encode(restored.anchor_metadata,restored.anchor_roots.(0))="{\"id\":\"a\",\"x\":3,\"y\":4,\"extra\":[true,null]}"?! "Destination extras ordering"
+    glyph:legacy.import_scene("{\"items\":[{\"kind\":\"glyph\",\"key\":\"k\",\"glyphParts\":[\"alpha\",{\"key\":\"beta\"}],\"destinationIds\":[\"old\"]}]}")
+    typed:boxes.append_typed(present,3,0,glyph,width:7)
+    selected:boxes.scene_at(typed,2)
+    part:selected.arena.glyph_parts.(0)
+    encoded.encode(selected.arena.metadata,part)="[\"alpha\",{\"key\":\"beta\"}]"?! "Typed Provider nested glyphParts"
+    copied:boxes.append_typed(boxes.empty(),3,0,selected,width:7)
+    packet:store.append(store.empty(),boxes.scene_at(copied,0))
+    marked:store.mark(packet,0,["new"])
+    marked.arena.destination_counts.(0)=2?! "Typed packet destination update"
+    copied.scenes.arena.destination_counts.(0)=1?! "Provider earlier value independent"
+    (present.count=2 /\ present.scenes.count=1 /\ absent.scenes.count=0 /\ empty.count=0)?! "Earlier Provider values independent"
+    last:boxes.scene_at(copied,0)
+    last.arena.count=1?! "Typed copy retains scene"
+    envelope:"{\"tagWidth\":9,\"items\":[],\"custom\":{\"nested\":[null,true,\"keep\"]},\"width\":2}"
+    imported:boxes.append(empty,4,0,scene:envelope)
+    transferred:boxes.append_typed(empty,4,0,boxes.scene_at(imported,0),metadata:boxes.metadata_at(imported,0))
+    export.scene(imported,0)=envelope?! "Public import envelope value/order"
+    export.scene(transferred,0)=envelope?! "Typed copy preserves complete import envelope"
+
+
+f358_gate()->bit:
+    native_gate_main()
+    @:true

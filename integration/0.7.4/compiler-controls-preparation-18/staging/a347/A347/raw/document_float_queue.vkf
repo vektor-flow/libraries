@@ -1,0 +1,121 @@
+# Bounded top/bottom queue and float-page decisions from document-layout.mjs.
+# Descriptors use document block ids; scene placement remains provider-owned.
+float_queue_text:.tex_text
+Queue:(ids:[int],head:int,count:int,top_count:int,bottom_count:int,top_height:num,bottom_reserve:num)
+Actions:(ids:[int],tops:[num],kinds:[int],count:int)
+Encounter:(queue:Queue,actions:Actions,shift:num,shrink:num,stretch:num)
+Page:(queue:Queue,actions:Actions,y:num,shrink:num,stretch:num,full:bit,float_page:bit,diagnostics:str)
+float_queue_json:.resource_json
+ints(size:int)->[int]:[0:size]
+zeros(size:int)->[num]:[0.0:size]
+empty(capacity:int)->Queue:@:(ids:ints(capacity),head:0,count:0,top_count:0,bottom_count:0,top_height:0,bottom_reserve:0)
+actions(capacity:int)->Actions:@:(ids:ints(capacity),tops:zeros(capacity),kinds:ints(capacity),count:0)
+add(table:Actions,id:int,top:num,kind:int)->Actions:
+    out:table
+    ids:table.ids
+    tops:table.tops
+    kinds:table.kinds
+    ids.(table.count):id
+    tops.(table.count):top
+    kinds.(table.count):kind
+    out.ids:ids
+    out.tops:tops
+    out.kinds:kinds
+    out.count:table.count+1
+    @:out
+has(source:str,wanted:str)->bit:
+    at:0
+    size:float_queue_text.byte_length(source)
+    at<size?>
+        float_queue_text.at(source,at)=wanted? @:true
+        .at:at+1
+    @:false
+pending(queue:Queue)->bit:queue.head<queue.count
+encounter(queue:Queue,id:int,height:num,placement:str,y:num,has_title:bit,top:num,text_height:num)->Encounter:
+    out:queue
+    result:actions(1)
+    pt:72/72.27
+    shift:height+20*pt
+    queue.top_count>0? .shift:height+12*pt
+    (~has_title /\ ~pending(queue) /\ has(placement,"t") /\ queue.top_count<2 /\ queue.top_height+shift-20*pt<=0.7*text_height /\ y+shift<=top+text_height-queue.bottom_reserve)?
+        shrink:4*pt
+        queue.top_count>0? .shrink:2*pt
+        position:top
+        queue.top_count>0? .position:top+queue.top_height-8*pt
+        .result:add(result,id,position,3)
+        out.top_height:queue.top_height+shift
+        out.top_count:queue.top_count+1
+        @:(queue:out,actions:result,shift:shift,shrink:shrink,stretch:2*pt)
+    (~pending(queue) /\ has(placement,"b") /\ queue.bottom_count<1 /\ height<=0.3*text_height /\ y+height+20*pt<=top+text_height)?
+        out.bottom_reserve:queue.bottom_reserve+height+20*pt
+        out.bottom_count:queue.bottom_count+1
+        .result:add(result,id,top+text_height-height,4)
+        @:(queue:out,actions:result,shift:0,shrink:0,stretch:0)
+    ids:queue.ids
+    ids.(queue.count):id
+    out.ids:ids
+    out.count:queue.count+1
+    @:(queue:out,actions:result,shift:0,shrink:0,stretch:0)
+new_page(queue:Queue,heights:[num],placements:[str],top:num,text_height:num,for_text:bit=true)->Page:
+    out:queue
+    out.top_count:0
+    out.bottom_count:0
+    out.top_height:0
+    out.bottom_reserve:0
+    result:actions(queue.ids.length())
+    selected:0
+    total:0.0
+    ids:queue.ids
+    pt:72/72.27
+    at:queue.head
+    at<queue.count?>
+        id:ids.(at)
+        for_text /\ ~has(placements.(id),"p")? @|
+        needed:heights.(id)
+        selected>0? .needed:needed+8*pt
+        selected>0 /\ total+needed>text_height? @|
+        .selected:selected+1
+        .total:total+needed
+        total>text_height? @|
+        .at:at+1
+    diagnostics:""
+    selected>0 /\ (~for_text \/ total>=0.5*text_height)?
+        free:text_height-total
+        free<0? .free:0
+        unit:free/(2*selected)
+        y:top+unit
+        .at:0
+        at<selected?>
+            id:ids.(queue.head+at)
+            heights.(id)>text_height? .diagnostics:float_queue_json.quote("Float exceeds text height")
+            .result:add(result,id,y,5)
+            .y:y+heights.(id)+8*pt+2*unit
+            .at:at+1
+        out.head:queue.head+selected
+        @:(queue:out,actions:result,y:top+text_height,shrink:0,stretch:0,full:true,float_page:true,diagnostics:diagnostics)
+    y:top
+    true?>
+        ~pending(out) \/ out.top_count>=2? @|
+        id:ids.(out.head)
+        ~has(placements.(id),"t") \/ y-top+heights.(id)>0.7*text_height? @|
+        .result:add(result,id,y,3)
+        out.head:out.head+1
+        out.top_count:out.top_count+1
+        .y:y+heights.(id)+12*pt
+    shrink:0.0
+    stretch:0.0
+    out.top_count>0?
+        .y:y+8*pt
+        .shrink:(4+2*(out.top_count-1))*pt
+        .stretch:2*out.top_count*pt
+    out.top_height:y-top
+    out.top_count=0 /\ pending(out)?
+        id:ids.(out.head)
+        (~has(placements.(id),"t") \/ heights.(id)>0.7*text_height)?
+            out.head:out.head+1
+            heights.(id)>text_height? .diagnostics:float_queue_json.quote("Float exceeds text height")
+            free:(text_height-heights.(id))/2
+            free<0? .free:0
+            .result:add(result,id,top+free,5)
+            @:(queue:out,actions:result,y:top+text_height,shrink:shrink,stretch:stretch,full:true,float_page:false,diagnostics:diagnostics)
+    @:(queue:out,actions:result,y:y,shrink:shrink,stretch:stretch,full:false,float_page:false,diagnostics:diagnostics)

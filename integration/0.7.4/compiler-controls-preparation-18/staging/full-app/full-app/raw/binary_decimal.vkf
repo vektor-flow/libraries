@@ -1,0 +1,209 @@
+# Correctly rounded finite decimal -> binary64. The caller validates JSON
+# grammar and supplies token byte boundaries. No host number parser is used.
+text:.tex_text
+Result:(value:num,valid:bit)
+zeros(size:int)->[int]:[0:size]
+
+signed(value:num,negative:bit)->Result:
+    result:value
+    negative? .result:num(-1)*value
+    @:(value:result,valid:value-value=0)
+
+decode(source:str,begin:int,stop:int)->Result:
+    position:begin
+    negative:text.at(source,position)="-"
+    negative? .position:position+1
+    coefficient_start:position
+    fraction:0
+    decimal:false
+    count:0
+    coefficient:0
+    small:true
+    position<stop?>
+        c:text.at(source,position)
+        (c="e" \/ c="E")? @|
+        c="."?
+            .decimal:true
+            .position:position+1
+            @>
+        digit:int(vkf_decimal_parse(c))
+        (count>0 \/ digit>0)? .count:count+1
+        decimal? .fraction:fraction+1
+        small?
+            (coefficient>900719925474099 \/ (coefficient=900719925474099 /\ digit>2))? .small:false
+            small? .coefficient:coefficient*10+digit
+        .position:position+1
+    coefficient_stop:position
+    exponent:0
+    exponent_sign:1
+    position<stop?
+        .position:position+1
+        c:text.at(source,position)
+        c="-"? .exponent_sign: -1
+        (c="+" \/ c="-")? .position:position+1
+        position<stop?>
+            exponent<stop-begin+2000? .exponent:exponent*10+int(vkf_decimal_parse(text.at(source,position)))
+            .position:position+1
+    count=0? @:signed(0,negative)
+    scale:fraction-exponent_sign*exponent
+    order:count-scale-1
+    order>308? @:(value:0,valid:false)
+    order< -324? @:signed(0,negative)
+    # Both operands are exact integers here, so one hardware multiply/divide
+    # performs the only rounding. All powers10 through22 are exact binary64.
+    small /\ scale>= -22 /\ scale<=22?
+        power:1.0
+        i:0
+        i<|scale|?>
+            .power:power*10
+            .i:i+1
+        value:num(coefficient)
+        scale>0? .value:value/power
+        scale<0? .value:value*power
+        @:signed(value,negative)
+    capacity:stop-begin+1100
+    digits:zeros(capacity)
+    .position:coefficient_start
+    .count:0
+    position<coefficient_stop?>
+        c:text.at(source,position)
+        c~="."?
+            digit:int(vkf_decimal_parse(c))
+            (count>0 \/ digit>0)?
+                digits.(count):digit
+                .count:count+1
+        .position:position+1
+    count>0 /\ digits.(count-1)=0?>
+        .count:count-1
+        .scale:scale-1
+    index:0
+    index<count//2?>
+        saved:digits.(index)
+        digits.(index):digits.(count-index-1)
+        digits.(count-index-1):saved
+        .index:index+1
+    scale<0?
+        shift: -scale
+        .index:count-1
+        index>=0?>
+            digits.(index+shift):digits.(index)
+            .index:index-1
+        .index:0
+        index<shift?>
+            digits.(index):0
+            .index:index+1
+        .count:count+shift
+        .scale:0
+    whole_count:count-scale
+    whole_count<0? .whole_count:0
+    significand:0
+    bits:0
+    binary_exponent:0
+    whole_count<=15?
+        .index:count-1
+        index>=scale?>
+            .significand:significand*10+digits.(index)
+            .index:index-1
+        magnitude:significand
+        magnitude>0?>
+            .bits:bits+1
+            .magnitude:magnitude//2
+        bits>0? .binary_exponent:bits-1
+    whole_count>15?
+        whole:zeros(whole_count)
+        binary:zeros(whole_count*4)
+        .index:0
+        index<whole_count?>
+            whole.(index):digits.(index+scale)
+            .index:index+1
+        remaining:whole_count
+        remaining>0?>
+            carry:0
+            .index:remaining-1
+            index>=0?>
+                value:carry*10+whole.(index)
+                whole.(index):value//2
+                .carry:value%2
+                .index:index-1
+            binary.(bits):carry
+            .bits:bits+1
+            remaining>0 /\ whole.(remaining-1)=0?> .remaining:remaining-1
+        .binary_exponent:bits-1
+        take:bits
+        take>53? .take:53
+        .index:bits-1
+        index>=bits-take?>
+            .significand:significand*2+binary.(index)
+            .index:index-1
+        bits>53?
+            guard:binary.(bits-54)
+            sticky:false
+            .index:bits-55
+            index>=0?>
+                binary.(index)=1? .sticky:true
+                .index:index-1
+            .index:0
+            index<scale /\ index<count?>
+                digits.(index)>0? .sticky:true
+                .index:index+1
+            guard=1 /\ (sticky \/ significand%2=1)? .significand:significand+1
+            @:signed(num(significand)*2.0^(bits-53),negative)
+    count>scale? .count:scale
+    count>0 /\ digits.(count-1)=0?> .count:count-1
+    # Extract fractional bits directly from an exact decimal remainder. The
+    # leading-bit search includes the half-minimum-subnormal boundary.
+    bits=0 /\ count>0?>
+        carry:0
+        .index:0
+        index<count?>
+            product:digits.(index)*2+carry
+            digits.(index):product%10
+            .carry:product//10
+            .index:index+1
+        carry>0?
+            digits.(count):carry
+            .count:count+1
+        .binary_exponent:binary_exponent-1
+        count>scale?
+            .index:scale
+            digits.(index)=0?>
+                digits.(index):9
+                .index:index+1
+            digits.(index):digits.(index)-1
+            count>0 /\ digits.(count-1)=0?> .count:count-1
+            .significand:1
+            .bits:1
+        binary_exponent= -1075?
+            tiny:0.0
+            bits=1 /\ count>0? .tiny:2.0^(-1074)
+            @:signed(tiny,negative)
+    bits=0? @:signed(0,negative)
+    precision:53
+    binary_exponent< -1022? .precision:binary_exponent+1075
+    guard:0
+    step:bits
+    step<=precision?>
+        carry:0
+        .index:0
+        index<count?>
+            product:digits.(index)*2+carry
+            digits.(index):product%10
+            .carry:product//10
+            .index:index+1
+        carry>0?
+            digits.(count):carry
+            .count:count+1
+        digit:0
+        count>scale?
+            .index:scale
+            digits.(index)=0?>
+                digits.(index):9
+                .index:index+1
+            digits.(index):digits.(index)-1
+            count>0 /\ digits.(count-1)=0?> .count:count-1
+            .digit:1
+        step<precision? .significand:significand*2+digit
+        step=precision? .guard:digit
+        .step:step+1
+    guard=1 /\ (count>0 \/ significand%2=1)? .significand:significand+1
+    @:signed(num(significand)*2.0^(binary_exponent-precision+1),negative)

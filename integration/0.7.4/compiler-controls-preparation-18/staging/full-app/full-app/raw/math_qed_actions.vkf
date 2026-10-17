@@ -1,0 +1,47 @@
+# Resume actions for the retained renderer. An emitted capture is an execution,
+# never a memoized box: child QED mutations survive the matching finish action.
+qed:.math_qed
+arena_import:.math_arena_import
+Stack:(roots:[int],used:[bit],count:int,depth:int)
+Arena:(kinds:[str],attrs:[str],first:[int],last:[int],nexts:[int],a:[int],b:[int],sup:[int],sub:[int],limits:[int],count:int,diagnostics:str,atoms:int)
+Action:(stack:Stack,operation:int,root:int,style:int,cramped:bit,font:str,color:str,tag:bit,qed_tag:bit,space:bit,entry_depth:int,needs_finish:bit,fresh:bit,diagnostic:str)
+
+empty_operation()->int:0
+symbol_operation()->int:1
+evaluate_operation()->int:2
+hole_operation()->int:3
+
+enter(stack:Stack,kind:str,captured_root:int,style:int,cramped:bit,font:str,color:str,display:bit)->Action:
+    (kind="qedpush" \/ kind="qedpop" \/ kind="qedhere" \/ kind="qed")?! "Invalid QED action kind"
+    next:stack
+    operation:0
+    root: -1
+    tag:false
+    diagnostic:""
+    kind="qedpush"? .next:qed.push(stack,captured_root)
+    kind="qed"?
+        .operation:1
+        .tag:qed.tag(stack,display)
+    (kind="qedhere" \/ kind="qedpop")?
+        outcome:qed.pop(stack)
+        kind="qedhere"? .outcome:qed.here(stack)
+        .next:outcome.stack
+        .diagnostic:outcome.diagnostic
+        outcome.emit?
+            .operation:2
+            .root:outcome.root
+            .tag:true
+            .next:qed.begin_symbol(next)
+        outcome.diagnostic~=""? .operation:3
+    @:(stack:next,operation:operation,root:root,style:style,cramped:cramped,font:font,color:color,tag:tag,qed_tag:tag,space:operation=0,entry_depth:stack.depth,needs_finish:operation=2,fresh:operation=2,diagnostic:diagnostic)
+
+finish(stack:Stack,entry_depth:int)->Stack:
+    (stack.depth=entry_depth+1)?! "Unbalanced captured QED continuation"
+    @:qed.end_symbol(stack)
+
+# Each capture execution receives isolated retained owners. Existing output
+# references continue to point at their original snapshot even after another
+# here evaluates the same source with a different style or mutated QED stack.
+instantiate(arena:Arena,action:Action):
+    (action.operation=2 /\ action.fresh /\ action.root>=0)?! "QED action has no captured execution"
+    @:arena_import.import_into(arena,arena,action.root)

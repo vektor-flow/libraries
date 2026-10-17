@@ -1,0 +1,204 @@
+tikz_option_text:.tex_text
+tikz_option_groups:.tex_groups
+tikz_option_syntax:.tikz_syntax
+tikz_option_numbers:.tikz_numbers
+tikz_option_chunks:.text_chunks
+tikz_option_colors:.math_colors
+tikz_option_json:.resource_json
+tikz_option_decimals:.json_numbers
+Styles:(names:[str],values:[str],count:int)
+Context:(dimensions:(names:[str],values:[num],count:int),em:num,ex:num)
+Style:(x:num,y:num,scale:num,line_width:num,draw:bit,fill:bit,color:str,fill_color:str,draw_color:str,shape:str,minimum:num,inner_sep:num,outer_sep:num,has_outer:bit,baseline:num,has_baseline:bit,sides:int,dash:str,position:str,separation:num,out:num,has_out:bit,into:num,has_in:bit,looseness:num)
+Result:(style:Style,diagnostic:str)
+Color:(value:str,diagnostic:str)
+
+empty()->Styles:(names:tikz_option_chunks.empty(16),values:tikz_option_chunks.empty(16),count:0)
+index(styles:Styles,name:str)->int:
+    names:styles.names
+    i:0
+    i<styles.count?>
+        names.(i)=name? @:i
+        .i:i+1
+    @: -1
+set(styles:Styles,name:str,value:str)->Styles:
+    out:styles
+    names:styles.names
+    values:styles.values
+    chosen:index(styles,name)
+    chosen<0?
+        .chosen:styles.count
+        chosen>=names.length()?
+            .names:names&tikz_option_chunks.empty(names.length())
+            .values:values&tikz_option_chunks.empty(values.length())
+        names.(chosen):name
+        out.count:chosen+1
+    values.(chosen):value
+    out.names:names
+    out.values:values
+    @:out
+defaults(quad:num)->Style:
+    @:(x:72.0/2.54,y:72.0/2.54,scale:1,line_width:0.4*72.0/72.27,draw:false,fill:false,color:"[0,0,0,1]",fill_color:"",draw_color:"",shape:"rectangle",minimum:0,inner_sep:tikz_option_numbers.scaled(quad*0.3333),outer_sep:0,has_outer:false,baseline:0,has_baseline:false,sides:0,dash:"",position:"",separation:0,out:0,has_out:false,into:0,has_in:false,looseness:1)
+
+color(source:str)->str:
+    parts:tikz_option_syntax.split(source,"!")
+    # String.split preserves empty components; the general argument splitter
+    # omits them, so reject empty color components explicitly first.
+    (source="" \/ tikz_option_text.matches(source,0,"!") \/ tikz_option_text.matches(source,tikz_option_text.byte_length(source)-1,"!") \/ tikz_option_text.find(source,"!!")>=0)? @:"null"
+    values:parts.values
+    parts.count=0? @:"null"
+    base:tikz_option_colors.parse(values.(0))
+    base="null"? @:base
+    channels:tikz_option_json.parse(base)
+    r:tikz_option_json.number(channels,tikz_option_json.element(channels,0,0))
+    g:tikz_option_json.number(channels,tikz_option_json.element(channels,0,1))
+    b:tikz_option_json.number(channels,tikz_option_json.element(channels,0,2))
+    at:1
+    at<parts.count?>
+        raw:values.(at)
+        amount:tikz_option_numbers.parse(raw,tikz_option_numbers.context(tikz_option_numbers.empty()))
+        (amount.diagnostic~="" \/ amount.dimensioned \/ amount.value<0 \/ amount.value>100)? @:"null"
+        # Actual grammar accepts unsigned decimal only, without exponents.
+        cursor:0
+        dots:0
+        digits:0
+        cursor<tikz_option_text.byte_length(raw)?>
+            c:tikz_option_text.at(raw,cursor)
+            c="."? .dots:dots+1
+            tikz_option_numbers.digit(c)? .digits:digits+1
+            (~tikz_option_numbers.digit(c) /\ c~=".")? @:"null"
+            .cursor:cursor+1
+        (dots>1 \/ digits=0)? @:"null"
+        other:"[1,1,1,1]"
+        at+1<parts.count? .other:tikz_option_colors.parse(values.(at+1))
+        other="null"? @:"null"
+        rgba:tikz_option_json.parse(other)
+        t:amount.value/100
+        .r:r*t+tikz_option_json.number(rgba,tikz_option_json.element(rgba,0,0))*(1-t)
+        .g:g*t+tikz_option_json.number(rgba,tikz_option_json.element(rgba,0,1))*(1-t)
+        .b:b*t+tikz_option_json.number(rgba,tikz_option_json.element(rgba,0,2))*(1-t)
+        .at:at+2
+    @:"["&tikz_option_decimals.roundtrip(r)&","&tikz_option_decimals.roundtrip(g)&","&tikz_option_decimals.roundtrip(b)&",1]"
+
+resolve(raw:str,base:Style,styles:Styles,ctx:Context,chain:str="",depth:int=0)->Result:
+    result:base
+    parts:tikz_option_syntax.split(raw)
+    parts.diagnostic~=""? @:(style:result,diagnostic:parts.diagnostic)
+    values:parts.values
+    i:0
+    i<parts.count?>
+        item:values.(i)
+        equal:tikz_option_text.find(item,"=")
+        name:item
+        value:"true"
+        equal>=0?
+            .name:tikz_option_text.trim(tikz_option_text.span(item,0,equal))
+            .value:tikz_option_text.trim(tikz_option_text.span(item,equal+1,tikz_option_text.byte_length(item)))
+        chosen:index(styles,name)
+        chosen>=0?
+            (depth>=16 \/ tikz_option_text.find(chain,"|"&name&"|")>=0)? @:(style:result,diagnostic:"Recursive TikZ style: "&name)
+            entries:styles.values
+            nested:resolve(entries.(chosen),result,styles,ctx,chain&"|"&name&"|",depth+1)
+            nested.diagnostic~=""? @:nested
+            .result:nested.style
+            .i:i+1
+            @>
+        lengths:["x","y","baseline","line width","minimum size","inner sep","outer sep"]
+        length_index: -1
+        k:0
+        k<7?>
+            name=lengths.(k)? .length_index:k
+            .k:k+1
+        length_index>=0?
+            parsed:tikz_option_numbers.parse(value,ctx)
+            parsed.diagnostic~=""? @:(style:result,diagnostic:parsed.diagnostic)
+            factor:tikz_option_numbers.pt()
+            parsed.dimensioned? .factor:1
+            number:tikz_option_numbers.scaled(parsed.value*factor)
+            length_index=0? result.x:number
+            length_index=1? result.y:number
+            length_index=2?
+                result.baseline:number
+                result.has_baseline:true
+            length_index=3? result.line_width:number
+            length_index=4? result.minimum:number
+            length_index=5? result.inner_sep:number
+            length_index=6?
+                result.outer_sep:number
+                result.has_outer:true
+            .i:i+1
+            @>
+        name="scale"?
+            parsed:tikz_option_numbers.parse(value,ctx)
+            parsed.diagnostic~=""? @:(style:result,diagnostic:parsed.diagnostic)
+            (parsed.dimensioned \/ parsed.value<=0)? @:(style:result,diagnostic:"Invalid TikZ scale")
+            result.scale:result.scale*parsed.value
+            .i:i+1
+            @>
+        (name="circle" \/ name="rectangle" \/ name="regular polygon")?
+            result.shape:name
+            name="regular polygon"? result.shape:"polygon"
+            .i:i+1
+            @>
+        name="regular polygon sides"?
+            value~="4"? @:(style:result,diagnostic:"Unsupported TikZ polygon side count: "&value)
+            result.sides:4
+            .i:i+1
+            @>
+        (name="fill" \/ name="draw")?
+            enabled:value~="none" /\ value~="false"
+            name="fill"? result.fill:enabled
+            name="draw"? result.draw:enabled
+            equal>=0 /\ enabled?
+                rgba:color(value)
+                rgba="null"? @:(style:result,diagnostic:"Unsupported TikZ color: "&value)
+                name="fill"? result.fill_color:rgba
+                name="draw"? result.draw_color:rgba
+            .i:i+1
+            @>
+        widths:["ultra thin","very thin","thin","semithick","thick","very thick","ultra thick"]
+        width_values:[0.1,0.2,0.4,0.6,0.8,1.2,1.6]
+        width_index: -1
+        .k:0
+        k<7?>
+            name=widths.(k)? .width_index:k
+            .k:k+1
+        width_index>=0?
+            result.line_width:width_values.(width_index)*tikz_option_numbers.pt()
+            .i:i+1
+            @>
+        (name="dotted" \/ name="densely dotted" \/ name="loosely dotted" \/ name="dashed" \/ name="solid")?
+            result.dash:name
+            .i:i+1
+            @>
+        (name="left" \/ name="right" \/ name="above" \/ name="below")?
+            result.position:name
+            result.separation:0
+            equal>=0?
+                parsed:tikz_option_numbers.parse(value,ctx)
+                parsed.diagnostic~=""? @:(style:result,diagnostic:parsed.diagnostic)
+                factor:tikz_option_numbers.pt()
+                parsed.dimensioned? .factor:1
+                result.separation:tikz_option_numbers.scaled(parsed.value*factor)
+            .i:i+1
+            @>
+        (name="out" \/ name="in" \/ name="looseness")?
+            parsed:tikz_option_numbers.parse(value,ctx)
+            parsed.diagnostic~=""? @:(style:result,diagnostic:parsed.diagnostic)
+            parsed.dimensioned? @:(style:result,diagnostic:"Invalid TikZ angle/looseness")
+            name="out"?
+                result.out:parsed.value
+                result.has_out:true
+            name="in"?
+                result.into:parsed.value
+                result.has_in:true
+            name="looseness"? result.looseness:parsed.value
+            .i:i+1
+            @>
+        equal<0?
+            rgba:color(name)
+            rgba~="null"?
+                result.color:rgba
+                .i:i+1
+                @>
+        @:(style:result,diagnostic:"Unsupported TikZ option: "&name)
+    @:(style:result,diagnostic:"")

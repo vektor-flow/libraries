@@ -1,0 +1,201 @@
+# Document-scoped generations: stable run IDs, missing-run shaping only.
+# Columns are reused by value; actual compiler borrowing/allocation needs IR qualification.
+text_prepared_runs:.text_prepared_runs
+text_font_metrics:.text_font_metrics
+text_shaping:.text_shaping
+font_catalog:.font_catalog
+text_chunks:.text_chunks
+tex_text:.tex_text
+resource_json:.resource_json
+math_glyphs:.math_glyphs
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+FontState:(slots:[int],keys:[str],raws:[str],names:[str],advances:[num],heights:[num],depths:[num],italics:[num],kern_starts:[int],kern_stops:[int],kern_codes:[str],kern_values:[num],kern_count:int,count:int,role_names:[str],role_ready:[int],role_sizes:[num],role_quads:[num],role_sources:[str],role_spaces:[num],role_stretches:[num],role_shrinks:[num],role_extras:[num],role_slants:[num],role_starts:[int],role_stops:[int],role_count:int,lig_first:[int],lig_second:[int],lig_result:[int],lig_count:int)
+Prepared:(font_slots:[int],font_keys:[str],font_raws:[str],font_names:[str],font_advances:[num],font_heights:[num],font_depths:[num],font_italics:[num],font_kern_starts:[int],font_kern_stops:[int],font_kern_codes:[str],font_kern_values:[num],font_kern_count:int,font_count:int,font_role_names:[str],font_role_ready:[int],font_role_sizes:[num],font_role_quads:[num],font_role_sources:[str],font_role_spaces:[num],font_role_stretches:[num],font_role_shrinks:[num],font_role_extras:[num],font_role_slants:[num],font_role_starts:[int],font_role_stops:[int],font_role_count:int,font_lig_first:[int],font_lig_second:[int],font_lig_result:[int],font_lig_count:int,run_keys:[str],run_xs:[num],run_metrics:[str],run_codes:[int],run_starts:[int],run_stops:[int],run_offsets:[int],run_counts:[int],run_widths:[num],run_heights:[num],run_depths:[num],run_italics:[num],run_atoms:[int],run_diagnostics:[str],run_count:int,run_glyph_count:int,texts:[str],roles:[str],slots:[int],ids:[int],bases:[int],count:int,misses:int,hits:int)
+Collection:(sources:[str],roles:[str],starts:[int],stops:[int],count:int,context_roles:[str])
+extend_fonts(seed:FontState,fonts:Catalog,requested:[str])->FontState:
+    state:seed
+    r:0
+    r<requested.length()?>
+        text_font_metrics.context_index(state,requested.(r))<0?
+            resolved:text_font_metrics.context(state,fonts,requested.(r))
+            .state:resolved.state
+        .r:r+1
+    state.role_count=seed.role_count? @:seed
+    keys:state.keys
+    raws:state.raws
+    names:state.names
+    advances:state.advances
+    heights:state.heights
+    depths:state.depths
+    italics:state.italics
+    kern_starts:state.kern_starts
+    kern_stops:state.kern_stops
+    kern_codes:state.kern_codes
+    kern_values:state.kern_values
+    count:seed.count
+    kern_count:seed.kern_count
+    directory:0
+    directory<fonts.capacity?>
+        entry:font_catalog.slot(fonts,directory)
+        .directory:directory+1
+        ~entry.found? @>
+        key_size:font_catalog.fixed(fonts.source,font_catalog.header_size()+(directory-1)*font_catalog.slot_size()+12)
+        key:tex_text.span(fonts.source,entry.start,entry.start+key_size)
+        selected:tex_text.matches(key,0,"math/text/@text:")
+        role:0
+        role<state.role_count?>
+            tex_text.matches(key,0,"text/"&state.role_names.(role)&"/")? .selected:true
+            .role:role+1
+        ~selected \/ text_font_metrics.find(seed,key)>=0? @>
+        source:tex_text.span(fonts.source,entry.start+key_size,entry.stop)
+        tape:resource_json.parse(source)
+        (tape.valid)?! "Invalid text font glyph"
+        count>=keys.length()?
+            .keys:keys&text_chunks.empty(keys.length())
+            .raws:raws&text_chunks.empty(raws.length())
+            .names:names&text_chunks.empty(names.length())
+            .advances:advances&text_font_metrics.nums(advances.length())
+            .heights:heights&text_font_metrics.nums(heights.length())
+            .depths:depths&text_font_metrics.nums(depths.length())
+            .italics:italics&text_font_metrics.nums(italics.length())
+            .kern_starts:kern_starts&text_font_metrics.ints(kern_starts.length())
+            .kern_stops:kern_stops&text_font_metrics.ints(kern_stops.length())
+        kern_starts.(count):kern_count
+        kerns:resource_json.member(tape,0,"kerns")
+        kerns>=0?
+            node:kerns+1
+            node<tape.ends.(kerns)?>
+                kern_count>=kern_codes.length()?
+                    .kern_codes:kern_codes&text_chunks.empty(kern_codes.length())
+                    .kern_values:kern_values&text_font_metrics.nums(kern_values.length())
+                kern_codes.(kern_count):resource_json.string(tape,node)
+                kern_values.(kern_count):math_glyphs.numeric(tape,kerns,kern_codes.(kern_count))
+                .kern_count:kern_count+1
+                .node:tape.ends.(node+1)
+        kern_stops.(count):kern_count
+        keys.(count):key
+        raws.(count):source
+        names.(count):math_glyphs.string(tape,"key")
+        width:math_glyphs.numeric(tape,0,"width")
+        advances.(count):math_glyphs.numeric(tape,0,"advance",width)
+        heights.(count):math_glyphs.numeric(tape,0,"height")
+        depths.(count):math_glyphs.numeric(tape,0,"depth")
+        italics.(count):math_glyphs.numeric(tape,0,"italic")
+        .count:count+1
+    slots:text_font_metrics.ints(2*count+64)
+    id:0
+    id<count?>
+        bucket:font_catalog.hash(keys.(id))%slots.length()
+        slots.(bucket)>0?>
+            .bucket:(bucket+1)%slots.length()
+        slots.(bucket):id+1
+        .id:id+1
+    @:(slots:slots,keys:keys,raws:raws,names:names,advances:advances,heights:heights,depths:depths,italics:italics,kern_starts:kern_starts,kern_stops:kern_stops,kern_codes:kern_codes,kern_values:kern_values,kern_count:kern_count,count:count,role_names:state.role_names,role_ready:state.role_ready,role_sizes:state.role_sizes,role_quads:state.role_quads,role_sources:state.role_sources,role_spaces:state.role_spaces,role_stretches:state.role_stretches,role_shrinks:state.role_shrinks,role_extras:state.role_extras,role_slants:state.role_slants,role_starts:state.role_starts,role_stops:state.role_stops,role_count:state.role_count,lig_first:state.lig_first,lig_second:state.lig_second,lig_result:state.lig_result,lig_count:state.lig_count)
+
+extend(seed:Prepared,fonts:Catalog,c:Collection)->Prepared:
+    c.count=0 /\ c.context_roles.length()=0? @:seed
+    d:(sources:c.sources,roles:c.roles,starts:c.starts,stops:c.stops,count:c.count)
+    context_roles:c.context_roles
+    requested:text_chunks.empty(d.count+context_roles.length())
+    r:0
+    r<d.count?>
+        requested.(r):d.roles.(r)
+        .r:r+1
+    .r:0
+    r<context_roles.length()?>
+        requested.(d.count+r):context_roles.(r)
+        .r:r+1
+    font_seed:(slots:seed.font_slots,keys:seed.font_keys,raws:seed.font_raws,names:seed.font_names,advances:seed.font_advances,heights:seed.font_heights,depths:seed.font_depths,italics:seed.font_italics,kern_starts:seed.font_kern_starts,kern_stops:seed.font_kern_stops,kern_codes:seed.font_kern_codes,kern_values:seed.font_kern_values,kern_count:seed.font_kern_count,count:seed.font_count,role_names:seed.font_role_names,role_ready:seed.font_role_ready,role_sizes:seed.font_role_sizes,role_quads:seed.font_role_quads,role_sources:seed.font_role_sources,role_spaces:seed.font_role_spaces,role_stretches:seed.font_role_stretches,role_shrinks:seed.font_role_shrinks,role_extras:seed.font_role_extras,role_slants:seed.font_role_slants,role_starts:seed.font_role_starts,role_stops:seed.font_role_stops,role_count:seed.font_role_count,lig_first:seed.font_lig_first,lig_second:seed.font_lig_second,lig_result:seed.font_lig_result,lig_count:seed.font_lig_count)
+    prepared:extend_fonts(font_seed,fonts,requested)
+    capacity:0
+    ci:0
+    ci<d.count?>
+        .capacity:capacity+d.stops.(ci)-d.starts.(ci)
+        .ci:ci+1
+    run_keys:seed.run_keys
+    run_xs:seed.run_xs
+    run_metrics:seed.run_metrics
+    run_codes:seed.run_codes
+    run_starts:seed.run_starts
+    run_stops:seed.run_stops
+    run_offsets:seed.run_offsets
+    run_counts:seed.run_counts
+    run_widths:seed.run_widths
+    run_heights:seed.run_heights
+    run_depths:seed.run_depths
+    run_italics:seed.run_italics
+    run_atoms:seed.run_atoms
+    run_diagnostics:seed.run_diagnostics
+    run_count:seed.run_count
+    run_glyph_count:seed.run_glyph_count
+    texts:seed.texts
+    roles:seed.roles
+    slots:text_shaping.ints(2*(seed.run_count+d.count)+1)
+    old:0
+    old<seed.run_count?>
+        bucket:font_catalog.hash(roles.(old)&"/"&texts.(old))%slots.length()
+        slots.(bucket)>0?>
+            .bucket:(bucket+1)%slots.length()
+        slots.(bucket):old+1
+        .old:old+1
+    ids:text_shaping.ints(d.count)
+    bases:text_shaping.ints(d.count)
+    at:0
+    misses:0
+    at<d.count?>
+        value:text_shaping.slice16(d.sources.(at),d.starts.(at),d.stops.(at))
+        role_index:text_font_metrics.context_index(prepared,d.roles.(at))
+        role_index<0? .role_index:text_font_metrics.context_index(prepared,"roman")
+        ctx:text_font_metrics.context_value(prepared,role_index)
+        id:text_prepared_runs.find(texts,roles,slots,value,ctx.role)
+        id<0?
+            run:text_shaping.shape_frozen(value,ctx,prepared)
+            .id:run_count
+            run_glyph_count+run.count>run_keys.length()?
+                .run_keys:run_keys&text_chunks.empty(capacity)
+                .run_xs:run_xs&text_shaping.nums(capacity)
+                .run_metrics:run_metrics&text_chunks.empty(capacity)
+                .run_codes:run_codes&text_shaping.ints(capacity)
+                .run_starts:run_starts&text_shaping.ints(capacity)
+                .run_stops:run_stops&text_shaping.ints(capacity)
+            run_count>=run_offsets.length()?
+                .run_offsets:run_offsets&text_shaping.ints(d.count+1)
+                .run_counts:run_counts&text_shaping.ints(d.count+1)
+                .run_widths:run_widths&text_shaping.nums(d.count+1)
+                .run_heights:run_heights&text_shaping.nums(d.count+1)
+                .run_depths:run_depths&text_shaping.nums(d.count+1)
+                .run_italics:run_italics&text_shaping.nums(d.count+1)
+                .run_atoms:run_atoms&text_shaping.ints(d.count+1)
+                .run_diagnostics:run_diagnostics&text_chunks.empty(d.count+1)
+                .texts:texts&text_chunks.empty(d.count+1)
+                .roles:roles&text_chunks.empty(d.count+1)
+            run_offsets.(id):run_glyph_count
+            run_counts.(id):run.count
+            run_widths.(id):run.width
+            run_heights.(id):run.height
+            run_depths.(id):run.depth
+            run_italics.(id):run.italic
+            run_atoms.(id):run.atoms
+            run_diagnostics.(id):run.diagnostics
+            gi:0
+            gi<run.count?>
+                run_keys.(run_glyph_count+gi):run.keys.(gi)
+                run_xs.(run_glyph_count+gi):run.xs.(gi)
+                run_metrics.(run_glyph_count+gi):run.metrics.(gi)
+                run_codes.(run_glyph_count+gi):run.codes.(gi)
+                run_starts.(run_glyph_count+gi):run.starts.(gi)
+                run_stops.(run_glyph_count+gi):run.stops.(gi)
+                .gi:gi+1
+            .run_glyph_count:run_glyph_count+run.count
+            .run_count:run_count+1
+            texts.(id):value
+            roles.(id):ctx.role
+            bucket:font_catalog.hash(ctx.role&"/"&value)%slots.length()
+            slots.(bucket)>0?>
+                .bucket:(bucket+1)%slots.length()
+            slots.(bucket):id+1
+            .misses:misses+1
+        ids.(at):id
+        bases.(at):d.starts.(at)
+        .at:at+1
+    @:(font_slots:prepared.slots,font_keys:prepared.keys,font_raws:prepared.raws,font_names:prepared.names,font_advances:prepared.advances,font_heights:prepared.heights,font_depths:prepared.depths,font_italics:prepared.italics,font_kern_starts:prepared.kern_starts,font_kern_stops:prepared.kern_stops,font_kern_codes:prepared.kern_codes,font_kern_values:prepared.kern_values,font_kern_count:prepared.kern_count,font_count:prepared.count,font_role_names:prepared.role_names,font_role_ready:prepared.role_ready,font_role_sizes:prepared.role_sizes,font_role_quads:prepared.role_quads,font_role_sources:prepared.role_sources,font_role_spaces:prepared.role_spaces,font_role_stretches:prepared.role_stretches,font_role_shrinks:prepared.role_shrinks,font_role_extras:prepared.role_extras,font_role_slants:prepared.role_slants,font_role_starts:prepared.role_starts,font_role_stops:prepared.role_stops,font_role_count:prepared.role_count,font_lig_first:prepared.lig_first,font_lig_second:prepared.lig_second,font_lig_result:prepared.lig_result,font_lig_count:prepared.lig_count,run_keys:run_keys,run_xs:run_xs,run_metrics:run_metrics,run_codes:run_codes,run_starts:run_starts,run_stops:run_stops,run_offsets:run_offsets,run_counts:run_counts,run_widths:run_widths,run_heights:run_heights,run_depths:run_depths,run_italics:run_italics,run_atoms:run_atoms,run_diagnostics:run_diagnostics,run_count:run_count,run_glyph_count:run_glyph_count,texts:texts,roles:roles,slots:slots,ids:ids,bases:bases,count:d.count,misses:misses,hits:d.count-misses)

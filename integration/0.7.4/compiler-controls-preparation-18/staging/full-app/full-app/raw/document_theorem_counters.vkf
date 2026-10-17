@@ -1,0 +1,47 @@
+# Resolve declared shared counters before their first environment is used.
+# Declaration order does not require the parent environment to occur first.
+j:.resource_json
+text:.tex_text
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+field(tape:Tape,node:int,key:str)->str:
+    at:j.member(tape,node,key)
+    at<0? @:""
+    tape.kinds.(at)=7? @:""
+    @:j.string(tape,at)
+find(tape:Tape,name:str)->int:
+    node:1
+    node<tape.count?>
+        field(tape,node,"name")=name? @:node
+        .node:tape.ends.(node)
+    @: -1
+root(declarations:str,name:str)->str:
+    tape:j.parse(declarations)
+    tape.valid?! "Invalid theorem declarations"
+    key:name
+    remaining:tape.count
+    remaining>0?>
+        node:find(tape,key)
+        node<0? @:key
+        shared:field(tape,node,"shared")
+        shared=""? @:key
+        shared=key? @:key
+        .key:shared
+        .remaining:remaining-1
+    false?! "Cyclic shared theorem counters"
+    @:key
+within(declarations:str,name:str)->str:
+    tape:j.parse(declarations)
+    tape.valid?! "Invalid theorem declarations"
+    key:name
+    remaining:tape.count
+    remaining>0?>
+        node:find(tape,key)
+        node<0? @:""
+        scope:field(tape,node,"within")
+        scope~=""? @:scope
+        shared:field(tape,node,"shared")
+        shared="" \/ shared=key? @:""
+        .key:shared
+        .remaining:remaining-1
+    false?! "Cyclic shared theorem counters"
+    @:""

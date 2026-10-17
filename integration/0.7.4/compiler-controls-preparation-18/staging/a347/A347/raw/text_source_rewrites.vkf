@@ -1,0 +1,28 @@
+# Lowercase appends a literal word, rather than recursively parsing its text.
+rewrite_ops:.text_parser_stream
+rewrite_args:.text_inline_arguments
+rewrite_case:.unicode_case
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+lowercase(stream:Stream)->Stream:
+    directory:rewrite_args.build(stream)
+    first:directory.first
+    hidden:directory.hidden
+    out:stream
+    index:0
+    index<stream.count?>
+        current:index
+        .index:index+1
+        hidden.(current)? @>
+        kind:rewrite_ops.value(stream,current,"kind")
+        kind="diagnostic" /\ rewrite_ops.value(stream,current,"value")="Unfinished URL"?
+            .out:rewrite_ops.replace(out,current,"command",rewrite_ops.value(stream,current,"role"),"relax",rewrite_ops.attributes(action:"ignore"))
+            @>
+        kind~="command"? @>
+        rewrite_ops.value(stream,current,"value")~="lowercase"? @>
+        argument:first.(current)
+        value:""
+        argument>=0? .value:rewrite_ops.value(stream,argument,"value")
+        role:rewrite_ops.value(stream,current,"role")
+        .out:rewrite_ops.replace(out,current,"word",role,rewrite_case.lowercase(value),rewrite_ops.attributes())
+    @:out

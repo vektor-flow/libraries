@@ -1,0 +1,117 @@
+COMPILER CONTROLS REVIEW20 — ACCEPT THREE SOURCE FIXES; FROZEN CONTROLS18 HELD
+2026-10-17. Worker01a14a19-1922-77b1-b91c-1cc12cf98f70.
+Root01a14893-cb1e-7203-97dd-de3da44dcf31. Exact grant compiler-controls-review-20-visible-chat-grant.json.
+Inspected HEAD4302f7a03a5d812bf1eaf35848557d157d2e5aae. No subagents/commits/native run.
+Own output only. Root owns integration, new source seal, grants and execution.
+
+DECISION / THREE CONCRETE ISSUES
+1 P1: frozen adapter176cc933 materializes30 stdlib symlinks. Exact installed v9
+storage_paths.allocated5d8e720b rejects the entire materialized D288 tree with
+"symlink or special file". Ledger.check accounts the entire lane and each attempt;
+guard_service calls it during workload execution. Retained links can also obstruct
+later accounting. No allocator/controller exception is appropriate.
+2 P2: frozen compile cwd is each case directory, but stdlib is under d288/home.
+Actual native17 linked driver-0.o a770df41 is authenticated against profile646db3bd,
+MD87bbaf5e/source6ac2ba36. resolve_dot_module searches local/ancestor stdlib, cwd
+stdlib, then executable-relative bundle; it does not read VKF_HOME. Original D288
+runners supplied case/compiler symlinks. This is a proven lookup wiring gap;
+NO native compile failure is claimed, especially for intrinsic IO/error controls.
+3 P1: installed Valgrind defaults --vgdb=yes; its documented debugger transport
+creates2 FIFOs and a mmap file. Original10commands omit an override. Payload TMPDIR
+is inside the charged tree; exact installed allocated rejects a TEMP FIFO too.
+A running monitor can reject this special-file state, and interrupted IPC can be
+retained. This is a documented compatibility risk, NOT an observed native failure.
+Root explicitly authorized all three narrow source proposals in current messages.
+
+CURRENT PATCHES — APPLY THESE, NOT THE SUPERSEDED CWD-ONLY PATCH
+adapter-regular-stdlib.patch -> adapter.py: ONLY materialize() changes. Existing
+canonical original source pins/membership and destination containment stay strict.
+Read and hash original bytes, exclusive xb copy, verify copied digest; no symlink,
+hardlink, caller exemption, source search, fallback or allocator relaxation.
+build-packet-d288-cwd-vgdb.patch -> build_packet.py: ONLY selection=='d288'. Set
+exactly10 COMPILE cwd values to out/home; insert --vgdb=no at argv index1 in exactly
+10 Valgrind RUN stages. All original arguments remain in order, run cwd unchanged,
+all source/input/generated pins and all output/stdin/stdout/exit/leak/error/heap
+oracles unchanged. Other5 phase plans unchanged. No operational plan generated.
+test-controls-regular.patch -> test_controls.py: companion update to old test's
+symlink-only assertion; now checks regular non-symlink single-link file and digest.
+The full old13-test suite must run on root's regenerated packet. This companion
+was syntax checked; it was not executed as a newly sealed packet here.
+Focused executable regression: test_review.py and verify_cwd_delta.py.
+
+EXACT VALIDATION
+11 focused host tests PASS3.504s. Entire old TEMP D288 tree reproduces rejection;
+entire corrected tree passes the exact installed allocator before/at each of
+20 fake stage boundaries and after retained fake outputs. No native code executed.
+Checks include fresh exclusive files, duplicate/alias/escape/changed-byte negatives,
+original inputs rehashed, original ten source bodies and20oracles/flags preserved,
+A347 stdin relocation, prior-ELF-only exemption, protected canonical aliases,
+installed read-only /mnt with ONLY new attempt rw, unchanged lock/runtime code.
+Combined generator proof PASS1.751s: exact AST delta only, recursive whole-plan
+allowed diff exactly10cwd+10argv insertions; other5phases identical; old seal
+correctly rejects changed plan. Host model of PINNED driver source resolves both
+io/errors at all10 compile sites to exact regular original-pin copies. Before
+change those stdlib search paths miss the prepared files. Model is not native.
+Combined full materialization and20fake stages pass exact allocator again.
+Remaining review PASS1.338s: all428 frozen artifact pins,255static/915combined pins,
+104ELF edges, real native17 receipt byte identity/ELFidentity/eight actual recorded
+stage oracles/logs/MD/outputs/joins verified. No replay or rebuild. Both source
+patches reconstructed exactly with host patch; two patch children joined/absent.
+TEMP FIFO rejection and installed Valgrind manual/tool pins recorded. No Valgrind
+probe. All own TEMP trees removed; outer host runners completed/joined.
+Every host verification bounded512MiB/60s; maximum measured VmHWM153676kB.
+Initial cwd-only proof hit the adapter's16MiB JSON read bound on the historical
+profile; review-only reader was explicitly bounded64MiB under512MiB process cap.
+Failure log retained; production adapter bounds unchanged. Final combined proof
+supersedes cwd-only evidence. No new staging or native artifact was retained.
+
+BUDGET / COMPILER PATH EFFECTS
+30stdlib copies:614150 logical bytes/696320 allocated bytes. Entire corrected TEMP
+tree1368064 bytes,1531904 after synthetic outputs; copied files charged INSIDE
+2147483648-byte phase forecast. Fixture remaining2146115584bytes BEFORE real compiler
+outputs/caches/receipts/scratch. These are host measurements, not native demand.
+All source/-o arguments are absolute. Real driver build_dir_for remains adjacent
+to each case's source under raw/.vkfbuild; output remains case.exe at original
+absolute path. Payload HOME/TMP/TMPDIR/TEMP/cache remain under charged d288.
+Regular stdlib copies canonicalize inside d288/home; driver stdlib caches now
+resolve to d288/home/.vkfbuild/stdlib-cache, also charged. IO/errors source metadata
+uses same original bytes; no rewritten source/alias/oracle. Driver paths inspected
+use regular writes/copies and refuse symlink build workspaces. No native claim
+that all compiler/Valgrind output is regular: actual execution must verify that,
+including absence of vgdb FIFOs after --vgdb=no and on failures.
+
+REMAINING INTEROPERABILITY REVIEW
+Exact native17 ELF52116e58/identity340d32d7 is DATA exception only. Receipt snapshot
+is byte-identical to original actual receipt, outside job roots; all authority/
+source seal/config remain protected. No caller-controlled exemption or seal/plan/
+receipt hash cycle found. D288 full-plan equality retains phase/budget/oracle binding.
+Installed v9 source679a3264/private viewbb337ff5 is unchanged and recognizes read
+inputs in prior roots while authority stays protected. No new operational policy.
+Runtime closure verifies wrapper4652774b, launcher b8d6a521, shell, amd64 memcheck
+cff90a9f, core/memcheck preloads, default.supp, loader cache and all104recorded ELF
+edges. Optional debugger IPC is now disabled by the proposal; real runtime closure
+and no-special-file behavior remain for actual separately admitted qualification.
+acquire_runtime_lock and validate_runtime are unchanged by review20 patch; running
+ledger + payload admission stay under SH, materialization/payload outside lock,
+remaining local time includes validation/lock/materialization. Outer controller
+2400s remains authoritative;10s lock bound and original phase budget unchanged.
+Read-only unlocked state matched native17 sequence13/current used owner/join59a64d4d,
+activeRAM0; A20938285056/F19821273088 charges retained. This is advisory inspection,
+not fresh locked root admission or a new service/cgroup join. No source blocker
+remains unaddressed within reviewed scope after these three proposals.
+
+ROOT INTEGRATION / STOP
+Frozen controls18/source-contract d9d9d89c remains HELD. Review/integrate adapter,
+generator and companion test changes ONCE; regenerate in a new sibling packet at
+final HEAD. Update build_packet.py and seal_source.py HEAD constants, rerun sealing
+and packet tests, refresh exact artifacts/forecasts. Schema unchanged; legacy
+'symlinks' rows now describe pinned original-to-destination materialization, whose
+runtime destinations are REGULAR copies. Plan bytes change only authorized20fields
+apart from normal new packet/output-root/HEAD relocation. Adapter hash, plan hash
+and source seal MUST change. Old source seal correctly refuses this plan delta.
+Do not copy old source-contract to proposal directory or treat these host tests as
+an admitted packet. No source-receipt cycle is needed to reseal. Root issues any
+fresh owner/sequence successor grant only after its usual actual locked checks.
+One current DONE with ID/result/HANDOFF is sent next, then stop.
+D267/D289 excluded,A333 reopened,dispatcher held. Credits/native47/original419/PDF
+unchanged. No grant/state/authority/services/mount/policy/native mutation occurred.

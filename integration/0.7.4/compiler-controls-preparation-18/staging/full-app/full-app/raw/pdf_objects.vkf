@@ -1,0 +1,50 @@
+syntax:.pdf_syntax
+text:.tex_text
+chunks:.text_chunks
+ObjectTape:(bodies:str,starts:[int],stops:[int],count:int)
+
+pack(bodies:[str:n])->ObjectTape:
+    count:bodies.length()
+    [int] starts:[0:count]
+    [int] stops:[0:count]
+    offset:0
+    index:0
+    index<count?>
+        body:bodies.(index)
+        starts.(index):offset
+        .offset:offset+text.byte_length(body)
+        stops.(index):offset
+        .index:index+1
+    @:(bodies:chunks.join(bodies,0,count),starts:starts,stops:stops,count:count)
+
+encode_objects(tape:ObjectTape,begin:int,stop:int)->str:
+    begin>=stop? @:""
+    stop-begin=1?
+        body:text.span(tape.bodies,tape.starts.(begin),tape.stops.(begin))
+        @:syntax.object(begin+1,body)
+    middle:(begin+stop)//2
+    @:encode_objects(tape,begin,middle)&encode_objects(tape,middle,stop)
+
+encode_xref(offsets:[int],begin:int,stop:int)->str:
+    begin>=stop? @:""
+    stop-begin=1? @:syntax.xref_row(offsets.(begin))
+    middle:(begin+stop)//2
+    @:encode_xref(offsets,begin,middle)&encode_xref(offsets,middle,stop)
+
+serialize(tape:ObjectTape,catalog:int)->str:
+    (tape.count>0 /\ tape.count<=100000)?! "Invalid PDF object count"
+    (catalog>0 /\ catalog<=tape.count)?! "Invalid PDF catalog reference"
+    header:"%PDF-1.7\n%VKF vector PDF\n"
+    [int] offsets:[0:tape.count]
+    offset:text.byte_length(header)
+    index:0
+    index<tape.count?>
+        (tape.starts.(index)>=0 /\ tape.stops.(index)>=tape.starts.(index))?! "Invalid PDF object range"
+        offsets.(index):offset
+        body_length:tape.stops.(index)-tape.starts.(index)
+        .offset:offset+text.byte_length(syntax.integer(index+1))+15+body_length
+        .index:index+1
+    objects:encode_objects(tape,0,tape.count)
+    xref:"xref\n0 "&syntax.integer(tape.count+1)&"\n0000000000 65535 f \n"&encode_xref(offsets,0,tape.count)
+    trailer:"trailer\n<< /Size "&syntax.integer(tape.count+1)&" /Root "&syntax.reference(catalog)&" >>\nstartxref\n"&syntax.integer(offset)&"\n%%EOF\n"
+    @:header&objects&xref&trailer

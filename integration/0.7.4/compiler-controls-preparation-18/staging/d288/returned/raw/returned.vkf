@@ -1,0 +1,9 @@
+io:.io
+Demand:(sources:[str],count:int)
+echo(d:Demand)->Demand:@:d
+run()->bit:
+    s:io.read_line()
+    d:(sources:[s,s],count:2)
+    result:echo(d)
+    @:result.sources.(0)="0" /\ result.sources.(1)="0" /\ d.sources.(0)="0" /\ s="0"
+::run()

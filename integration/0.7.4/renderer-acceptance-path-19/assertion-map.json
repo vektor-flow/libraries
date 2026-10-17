@@ -1,0 +1,72 @@
+[
+  {
+    "id": "C0",
+    "owner": "peer18/root",
+    "fixture": "current fullcaller/controls/full-app",
+    "assertions": [
+      "actual control receipts pass",
+      "full-app ELF produced from current normalized closure",
+      "authenticated joins"
+    ],
+    "status": "not executed here; prerequisite"
+  },
+  {
+    "id": "R40",
+    "fixture": "original40 exact D301 binding",
+    "command": "write_stdin.py --case original; root controller run; verify_artifacts.py --case original",
+    "assertions": [
+      "complete true;40pages;430blocks;empty diagnostics/unresolved",
+      "PDF exact b07821c2...",
+      "pypdf strict40 and pdfinfo40;byte count",
+      "root verifies source/build/runtime custody and terminal join"
+    ],
+    "status": "checker control passed on historical PDF only"
+  },
+  {
+    "id": "E40-FRESH",
+    "fixture": "fixtures/original40-title-edit.tex; edit.json UTF16[2142,2143) s->x",
+    "command": "write_stdin.py --case edited-full; root controller run; verify_artifacts.py --case edited-full",
+    "assertions": [
+      "full source/resources retained",
+      "40pages/430blocks/changed PDF",
+      "review actual title change and full geometry; no generated oracle yet"
+    ],
+    "status": "fixture ready; native output absent"
+  },
+  {
+    "id": "E40-RETAINED",
+    "fixture": "same edit applied to actual original loaded document",
+    "command": "verify_artifacts.py --case updated --reference-pdf FRESH_PDF --reference-report FRESH_REPORT",
+    "assertions": [
+      "real session/current revision",
+      "exact PDF parity to separate reviewed fresh edit render",
+      "source/map/geometry authenticated separately",
+      "stale/no-op/concurrent/failed commit preserves prior state"
+    ],
+    "status": "persistent native entry/atomic integration missing"
+  },
+  {
+    "id": "API",
+    "fixture": "../pdf-api-acceptance/cases.json/source.tex/selection.json",
+    "assertions": [
+      "six direct named calls",
+      "default true/false;editable implies selectable",
+      "source-only internal resource binding",
+      "destination atomicity and omission",
+      "source/map identity;ToUnicode/ActualText;Poppler/PDF.js;Adobe/Edge interactions",
+      "read-only/edit/selection UI behavior"
+    ],
+    "status": "surface preflight exit2; missing API/backend integration"
+  },
+  {
+    "id": "TIME",
+    "fixture": "successful R40 and actual E40-RETAINED",
+    "assertions": [
+      "save call/startup-to-committed-output boundaries explicit",
+      "cold process versus OS cache labeled honestly",
+      "persistent update includes revision/native regeneration/encode/publication",
+      "<1s save and ~10ms update not inferred from compiler/host timings"
+    ],
+    "status": "no native timings"
+  }
+]

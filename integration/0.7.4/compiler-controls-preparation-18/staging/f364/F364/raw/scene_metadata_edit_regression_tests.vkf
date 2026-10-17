@@ -1,0 +1,35 @@
+# UNCOMPILED: compare with original text_link_render on its unchanged ABI.
+legacy:.paragraph_scene_legacy
+store:.paragraph_scene_store
+packet:.paragraph_scene_export
+metadata:.scene_metadata_json
+native_gate_main():
+    original:legacy.import_scene("{\"items\":[{\"kind\":\"link\",\"color\":[0,1,0],\"target\":{\"type\":\"uri\",\"value\":\"https://example.test\"}},{\"kind\":\"glyph\",\"key\":\"k\",\"glyphParts\":[\"part\"],\"color\":[0,0,1],\"destinationIds\":[\"old\"],\"extra\":true}]}")
+    typed:legacy.edit_typed(original,[1.0,0.0,0.0],["new"],false)
+    earlier:metadata.encode(original.arena.metadata,original.arena.metadata_roots.(1))
+    link:metadata.encode(typed.arena.metadata,typed.arena.metadata_roots.(0))
+    link="{\"kind\":\"link\",\"color\":[0,1,0],\"target\":{\"type\":\"uri\",\"value\":\"https://example.test\"}}"?! "Excluded link paint preserves exact metadata"
+    packet.leaf(typed.arena,1,10,20,7)="{\"kind\":\"glyph\",\"key\":\"k\",\"glyphParts\":[\"part\"],\"extra\":true,\"color\":[1,0,0],\"destinationIds\":[\"old\",\"new\"],\"x\":10,\"y\":20,\"flowLine\":7}"?! "RGB arity and paint-before-destination ordering"
+    shim:legacy.edit(original,"[1,0,0]","[\"new\"]",false)
+    (packet.leaf(shim.arena,1,10,20,7)=packet.leaf(typed.arena,1,10,20,7))?! "Legacy edge and typed edit parity"
+    metadata.encode(original.arena.metadata,original.arena.metadata_roots.(1))=earlier?! "Earlier metadata independence"
+    rgba:legacy.edit_typed(original,[1.0,0.0,0.0,0.5],[],true)
+    rgba.arena.paint_table.(rgba.arena.paints.(0)).alpha=0.5?! "Included link RGBA paint"
+    untouched:legacy.edit_typed(original,[],[],true)
+    metadata.encode(untouched.arena.metadata,untouched.arena.metadata_roots.(1))=earlier?! "Absent paint and IDs"
+    point:legacy.point_scene(["skip","one","two"],1)
+    point.inline_destinations?! "Point constructor owns inline flag"
+    (point.anchor_count=2 /\ point.anchor_roots.length()=2)?! "Aligned anchor metadata roots"
+    point.anchor_ids.(0)="one"?! "Point begin offset"
+    retained:store.append(store.empty(),point)
+    retained.inline_destinations.(0)?! "Default append preserves point placement"
+    edited:legacy.edit_typed(store.get(retained,0),[],[])
+    edited.inline_destinations?! "Point edit roundtrip flag"
+    (edited.anchor_xs.(1)=0 /\ edited.anchor_ys.(1)=0)?! "Point coordinates"
+    empty:legacy.point_scene([],0)
+    (empty.inline_destinations /\ empty.anchor_count=0)?! "Empty point flag"
+
+
+f358_gate()->bit:
+    native_gate_main()
+    @:true

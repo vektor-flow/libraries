@@ -1,0 +1,295 @@
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+document_shaping_request:.document_shaping_request
+text_prepared_runs:.text_prepared_runs
+document_materialize_measure:.document_materialize_measure
+Prepared:(font_slots:[int],font_keys:[str],font_raws:[str],font_names:[str],font_advances:[num],font_heights:[num],font_depths:[num],font_italics:[num],font_kern_starts:[int],font_kern_stops:[int],font_kern_codes:[str],font_kern_values:[num],font_kern_count:int,font_count:int,font_role_names:[str],font_role_ready:[int],font_role_sizes:[num],font_role_quads:[num],font_role_sources:[str],font_role_spaces:[num],font_role_stretches:[num],font_role_shrinks:[num],font_role_extras:[num],font_role_slants:[num],font_role_starts:[int],font_role_stops:[int],font_role_count:int,font_lig_first:[int],font_lig_second:[int],font_lig_result:[int],font_lig_count:int,run_keys:[str],run_xs:[num],run_metrics:[str],run_codes:[int],run_starts:[int],run_stops:[int],run_offsets:[int],run_counts:[int],run_widths:[num],run_heights:[num],run_depths:[num],run_italics:[num],run_atoms:[int],run_diagnostics:[str],run_count:int,run_glyph_count:int,texts:[str],roles:[str],slots:[int],ids:[int],bases:[int],count:int,misses:int,hits:int)
+math_retained_directory:.math_retained_directory
+Directory:(source:str,boxes:[str],count:int,prepared:bit)
+# Runtime source scenes and metrics passed to the independent page engine.
+document_present:.document_present
+document_present_context:.document_present_context
+document_materialize_config:.document_materialize_config
+document_resolve:.document_resolve
+document_present_maps:.document_present_maps
+document_pages:.document_pages
+document_paragraph_metrics:.document_paragraph_metrics
+document_materialize_groups:.document_materialize_groups
+text_source_paragraph:.text_source_paragraph
+text_source_paragraph_output:.text_source_paragraph_output
+text_parser:.text_parser
+paragraph_breaking:.paragraph_breaking
+paragraph_nodes:.paragraph_nodes
+font_catalog:.font_catalog
+resource_json:.resource_json
+json_numbers:.json_numbers
+tex_numeric:.tex_numeric
+tex_text:.tex_text
+text_chunks:.text_chunks
+math_qed_output:.math_qed_output
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+PageConfig:(values:[num],flags:[bit],penalties:[int])
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Configuration:(config:str,pages:PageConfig,packages:[str],math:MathContext,overrides:[str],class_name:str,optical:bit,hyperref:bit,diagnostics:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Map:(keys:Pool,values:[str])
+Plan:(kinds:[str],sources:[str],contexts:[str],attrs:[str],origins:[int],scenes:[str],count:int,references:Map,reference_destinations:Map,footnotes:str,diagnostics:str,unresolved:str)
+Blocks:(texts:[str],indices:[int],numbers:[num],booleans:[bit],count:int)
+Lines:(scenes:[int],source_lines:[int],heights:[num],depths:[num],natural_depths:[num],widths:[num],indents:[num],baselines:[num],flagged:[bit],marker_firsts:[int],marker_counts:[int],count:int)
+Columns:(heights:[num],depths:[num],natural_depths:[num],widths:[num],baselines:[num],indents:[num],flagged:[bit],count:int,width:num,height:num,depth:num,has_last_row:bit,last_row_baseline:num,last_row_depth:num,tag_width:num)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Measured:(scene:Scene,columns:Columns,label:Scene,legacy_scene:str,legacy_label:str,diagnostics:str,unresolved:str,pending_pages:bit)
+Result:(blocks:Blocks,lines:Lines,scenes:[str],labels:[str],diagnostics:str,unresolved:str,pending_pages:bit,typed_scenes:[Scene],typed_labels:[Scene])
+number(tape:Tape,node:int,key:str,fallback:num=0)->num:document_materialize_config.number(tape,node,key,fallback)
+flag(tape:Tape,node:int,key:str)->bit:document_present.flag(tape,node,key)
+raw(tape:Tape,node:int)->str:document_materialize_config.raw(tape,node)
+string(tape:Tape,node:int,key:str)->str:document_present.string(tape,node,key)
+array_count(tape:Tape,node:int)->int:
+    node<0? @:0
+    ends:tape.ends
+    count:0
+    at:node+1
+    at<ends.(node)?>
+        .count:count+1
+        .at:ends.(at)
+    @:count
+shape_core(plan:Plan,fonts:Catalog,roles:[str],language:Language,c:Configuration,page_values:Map,tables:Tables,prepared:bit,document_boxes_json:str="{}",citation_labels_json:str="{}",citation_separator:str=",~",legacy_output:bit=false):
+    @:shape_retained_core(plan,fonts,roles,language,c,page_values,tables,prepared,math_retained_directory.unprepared(document_boxes_json),citation_labels_json,citation_separator,legacy_output)
+shape_retained_core(plan:Plan,fonts:Catalog,roles:[str],language:Language,c:Configuration,page_values:Map,tables:Tables,prepared:bit,retained_directory:Directory,citation_labels_json:str="{}",citation_separator:str=",~",legacy_output:bit=false,a261_blocks:[int]=[],a261_scopes:[str]=[],a261_texts:[str]=[],a263_kinds:[str]=[]):
+    seed:text_prepared_runs.seal(fonts,text_prepared_runs.empty_collection())
+    generation:prepare_main_request(seed,text_chunks.empty(0),plan,fonts,roles,language,c,page_values,citation_labels_json,citation_separator)
+    @:shape_request_core(generation.request,plan,fonts,roles,language,c,page_values,tables,prepared,retained_directory,citation_labels_json,citation_separator,legacy_output,a261_blocks,a261_scopes,a261_texts,a263_kinds)
+
+shape_request_core(request:Prepared,plan:Plan,fonts:Catalog,roles:[str],language:Language,c:Configuration,page_values:Map,tables:Tables,prepared:bit,retained_directory:Directory,citation_labels_json:str="{}",citation_separator:str=",~",legacy_output:bit=false,a261_blocks:[int]=[],a261_scopes:[str]=[],a261_texts:[str]=[],a263_kinds:[str]=[]):
+    block_count:plan.count
+    config:resource_json.parse(c.config)
+    global_links_json:document_materialize_config.raw_member(config,0,"linkAppearance","{}")
+    ams:c.class_name="amsart"
+    display_font:font_catalog.style(fonts,"display")
+    unit:number(config,0,"fontSize")/number(display_font,0,"em")
+    |unit-1|<0.000000000001? .unit:1
+    pt:tex_numeric.pt()
+    modes:(prepared:prepared,legacy_output:legacy_output)
+    measured:document_materialize_groups.measure_range_request(request,plan,fonts,roles,language,c,page_values,retained_directory,citation_labels_json,citation_separator,config,unit,global_links_json,tables,modes,0,block_count,a261_blocks,a261_scopes,a261_texts,a263_kinds)
+    typed_scenes:document_materialize_groups.scenes_range(measured,0,block_count)
+    typed_labels:document_materialize_groups.labels_range(measured,0,block_count)
+    scenes:text_chunks.empty(block_count)
+    labels:text_chunks.empty(block_count)
+    lines:document_pages.empty_lines(block_count+1)
+    ids:lines.scenes
+    source_lines:lines.source_lines
+    heights:lines.heights
+    depths:lines.depths
+    natural:lines.natural_depths
+    widths:lines.widths
+    indents:lines.indents
+    baselines:lines.baselines
+    flagged:lines.flagged
+    offset:0
+    label_init:0
+    label_init<block_count?>
+        labels.(label_init):"{}"
+        .label_init:label_init+1
+    kinds:plan.kinds
+    sources:plan.sources
+    contexts:plan.contexts
+    attrs:plan.attrs
+    retained:plan.scenes
+    diagnostics:plan.diagnostics
+    unresolved:plan.unresolved
+    initial_blocks:document_pages.empty_blocks(block_count)
+    block_texts:initial_blocks.texts
+    block_index_values:initial_blocks.indices
+    block_numbers:initial_blocks.numbers
+    block_booleans:initial_blocks.booleans
+    total_lines:0
+    pending_pages:false
+    index:0
+    index<block_count?>
+        kind:kinds.(index)
+        context:document_present_context.parse(contexts.(index))
+        properties:resource_json.parse("{"&attrs.(index)&"}")
+        heading_config:resource_json.member(config,0,kind)
+        titlepart:string(properties,0,"titlePart")
+        heading:kind="section" \/ kind="subsection" \/ kind="title" \/ kind="author"
+        paragraph:kind="paragraph"
+        caption:kind="caption"
+        verbatim:kind="verbatim"
+        block:measured.(index)
+        columns:block.columns
+        .diagnostics:document_materialize_config.merge(diagnostics,block.diagnostics)
+        block.pending_pages? .pending_pages:true
+        block.unresolved~=""?
+            unresolved~=""? .unresolved:unresolved&","
+            .unresolved:unresolved&block.unresolved
+        scenes.(index):block.legacy_scene
+        labels.(index):block.legacy_label
+        label_width:block.label.width
+        label_height:block.label.height
+        label_depth:block.label.depth
+        count:columns.count
+        count=0 /\ ~(kind="pagebreak" \/ kind="vspace" \/ kind="bibliographysetup")? .count:1
+        block_texts.(0*block_count+index):kind
+        block_texts.(1*block_count+index):context.kind
+        block_index_values.(0*block_count+index):total_lines
+        block_index_values.(1*block_count+index):count
+        block_numbers.(1*block_count+index):unit
+        block_numbers.(0*block_count+index):columns.width
+        block_numbers.(2*block_count+index):context.left
+        block_numbers.(3*block_count+index):context.right
+        block_numbers.(4*block_count+index):context.indent
+        .total_lines:total_lines+count
+        before:context.before
+        heading? .before:number(config,heading_config,"before",12*pt)
+        kind="math"? .before:number(config,0,"displaySkip",10*pt)
+        caption? .before:0
+        verbatim? .before:number(properties,0,"before",12*pt)
+        titlepart~=""? .before:0
+        kind="vspace"? .before:document_materialize_config.length(sources.(index),c.config,0)
+        block_numbers.(5*block_count+index):before
+        block_numbers.(6*block_count+index):number(properties,0,"beforeShrink",context.before_shrink)
+        block_numbers.(7*block_count+index):number(properties,0,"beforeStretch",context.before_stretch)
+        after:0.0
+        heading? .after:number(config,heading_config,"after",8*pt)
+        kind="title"? .after:15*pt
+        titlepart="author"? .after:10*pt
+        titlepart="date"? .after:25*pt
+        ams /\ titlepart="title"? .after:18*pt
+        ams /\ titlepart="author"? .after:18*pt
+        kind="abstractHeading"? .after:10*pt-0.5*document_present.quad(fonts,"smallbold")
+        titlepart="abstract"?
+            last_depth:document_paragraph_metrics.last_depth(columns)
+            abstract_config:resource_json.member(config,0,"abstract")
+            .after:34*pt-number(config,0,"lineHeight")+last_depth*unit+0.175*number(config,abstract_config,"lineHeight")
+        caption? .after:12*pt
+        verbatim? .after:8*pt
+        kind="vspace"? .after:0
+        block_numbers.(8*block_count+index):after
+        block_numbers.(11*block_count+index):context.leading
+        baseline_leading:number(config,heading_config,"lineHeight",context.leading)
+        kind="section" /\ resource_json.member(config,heading_config,"lineHeight")<0? .baseline_leading:18*pt
+        kind="subsection" /\ resource_json.member(config,heading_config,"lineHeight")<0? .baseline_leading:14*pt
+        kind="title" /\ resource_json.member(config,heading_config,"lineHeight")<0? .baseline_leading:22*pt
+        titlepart="author" /\ ~ams? .baseline_leading:14*pt
+        block_numbers.(18*block_count+index):baseline_leading
+        centered:context.align="center" \/ string(config,heading_config,"align")="center" \/ kind="math" \/ kind="abstractHeading" \/ kind="title" \/ kind="author" \/ caption
+        block_booleans.(0*block_count+index):centered
+        block_booleans.(3*block_count+index):context.paragraph_after_display
+        block_booleans.(4*block_count+index):context.no_indent_after_list
+        block_booleans.(7*block_count+index):context.after_display
+        block_booleans.(8*block_count+index):context.center_awaiting
+        block_booleans.(9*block_count+index):context.list_end_display
+        block_numbers.(20*block_count+index):context.list_top
+        block_numbers.(23*block_count+index):context.list_top_shrink
+        block_numbers.(24*block_count+index):context.list_top_stretch
+        block_numbers.(19*block_count+index):context.list_parsep
+        block_numbers.(21*block_count+index):context.list_parsep_shrink
+        block_numbers.(22*block_count+index):context.list_parsep_stretch
+        block_booleans.(1*block_count+index):flag(properties,0,"singleDisplay")
+        block_booleans.(2*block_count+index):flag(properties,0,"fromParagraph")
+        block_booleans.(5*block_count+index):flag(properties,0,"verticalBracket")
+        titlepart="title"?
+            block_index_values.(2*block_count+index):1
+            title_config:resource_json.member(config,0,"title")
+            block_numbers.(15*block_count+index):number(config,title_config,"firstBaseline",52*pt)
+        titlepart="abstract"?
+            block_index_values.(2*block_count+index):2
+            abstract_config:resource_json.member(config,0,"abstract")
+            block_numbers.(15*block_count+index):20*pt+0.175*number(config,abstract_config,"lineHeight")
+        columns.has_last_row?
+            block_booleans.(6*block_count+index):true
+            block_numbers.(13*block_count+index):columns.last_row_baseline
+            block_numbers.(14*block_count+index):columns.last_row_depth
+        block_numbers.(12*block_count+index):columns.tag_width
+        total_lines>ids.length()?>
+            capacity:ids.length()
+            .ids:ids&[-1:capacity]
+            .source_lines:source_lines&[0:capacity]
+            .heights:heights&[0.0:capacity]
+            .depths:depths&[0.0:capacity]
+            .natural:natural&[0.0:capacity]
+            .widths:widths&[0.0:capacity]
+            .indents:indents&[0.0:capacity]
+            .baselines:baselines&[0.0:capacity]
+            .flagged:flagged&[false:capacity]
+        line:0
+        line<count?>
+            ids.(offset):index
+            source_lines.(offset):line
+            heights.(offset):columns.height
+            depths.(offset):columns.depth
+            widths.(offset):columns.width
+            line<columns.count?
+                heights.(offset):columns.heights.(line)
+                depths.(offset):columns.depths.(line)
+                widths.(offset):columns.widths.(line)
+                indents.(offset):columns.indents.(line)
+                baselines.(offset):columns.baselines.(line)
+                flagged.(offset):columns.flagged.(line)
+            natural.(offset):document_paragraph_metrics.line_natural_depth(columns,line)
+            ams /\ line=0 /\ label_width>0?
+                heights.(offset):document_present.maximum(heights.(offset),label_height/unit)
+                depths.(offset):document_present.maximum(depths.(offset),label_depth/unit)
+                natural.(offset):document_paragraph_metrics.label_natural_depth(natural.(offset),label_depth,unit)
+            ~ams /\ titlepart="author"?
+                heights.(offset):document_present.maximum(heights.(offset),9.8*pt)
+                depths.(offset):document_present.maximum(depths.(offset),4.2*pt)
+                natural.(offset):depths.(offset)
+            .offset:offset+1
+            .line:line+1
+        .index:index+1
+    lines.count:total_lines
+    lines.marker_firsts:[0:total_lines]
+    lines.marker_counts:[0:total_lines]
+    lines.scenes:document_pages.prefix_ints(ids,total_lines)
+    lines.source_lines:document_pages.prefix_ints(source_lines,total_lines)
+    lines.heights:document_pages.prefix_numbers(heights,total_lines)
+    lines.depths:document_pages.prefix_numbers(depths,total_lines)
+    lines.natural_depths:document_pages.prefix_numbers(natural,total_lines)
+    lines.widths:document_pages.prefix_numbers(widths,total_lines)
+    lines.indents:document_pages.prefix_numbers(indents,total_lines)
+    lines.baselines:document_pages.prefix_numbers(baselines,total_lines)
+    lines.flagged:document_pages.prefix_flags(flagged,total_lines)
+    blocks:document_pages.blocks_from_columns(block_texts,block_index_values,block_numbers,block_booleans,block_count)
+    @:(blocks:blocks,lines:lines,scenes:scenes,labels:labels,diagnostics:diagnostics,unresolved:unresolved,pending_pages:pending_pages,typed_scenes:typed_scenes,typed_labels:typed_labels)
+
+shape(plan:Plan,fonts:Catalog,roles:[str],language:Language,c:Configuration,page_values:Map,document_boxes_json:str="{}",citation_labels_json:str="{}",citation_separator:str=",~",legacy_output:bit=false):
+    tables:text_source_paragraph.empty_tables()
+    @:shape_core(plan,fonts,roles,language,c,page_values,tables,false,document_boxes_json,citation_labels_json,citation_separator,legacy_output)
+shape_prepared(plan:Plan,fonts:Catalog,roles:[str],language:Language,c:Configuration,page_values:Map,tables:Tables,document_boxes_json:str="{}",citation_labels_json:str="{}",citation_separator:str=",~",legacy_output:bit=false):
+    @:shape_core(plan,fonts,roles,language,c,page_values,tables,true,document_boxes_json,citation_labels_json,citation_separator,legacy_output)
+
+shape_prepared_retained(plan:Plan,fonts:Catalog,roles:[str],language:Language,c:Configuration,page_values:Map,tables:Tables,retained:Directory,citation_labels_json:str="{}",citation_separator:str=",~",legacy_output:bit=false,a261_blocks:[int]=[],a261_scopes:[str]=[],a261_texts:[str]=[],a263_kinds:[str]=[]):
+    @:shape_retained_core(plan,fonts,roles,language,c,page_values,tables,true,retained,citation_labels_json,citation_separator,legacy_output,a261_blocks,a261_scopes,a261_texts,a263_kinds)
+
+# Each reference pass resolves the current sources before assigning run IDs.
+# Stable content/role lookup reuses unchanged runs; changed resolved text adds demands.
+prepare_main_request(seed:Prepared,previous_sources:[str],plan:Plan,fonts:Catalog,roles:[str],language:Language,c:Configuration,page_values:Map,citation_labels_json:str,citation_separator:str,reuse_fixed_context:bit=false):
+    # Opt in only within the same immutable Plan/catalog/config/roles/language.
+    # Style, overrides, block order or any context change invalidates BOTH caches.
+    request_seed:seed
+    ~reuse_fixed_context? .request_seed:text_prepared_runs.seal(fonts,text_prepared_runs.empty_collection())
+    config:resource_json.parse(c.config)
+    global_links_json:document_materialize_config.raw_member(config,0,"linkAppearance","{}")
+    display_font:font_catalog.style(fonts,"display")
+    unit:number(config,0,"fontSize")/number(display_font,0,"em")
+    |unit-1|<0.000000000001? .unit:1
+    collection:text_prepared_runs.empty_collection()
+    sources:text_chunks.empty(plan.count)
+    changed:[false:plan.count]
+    index:0
+    index<plan.count?>
+        prior:""
+        known:reuse_fixed_context /\ index<previous_sources.length()
+        known? .prior:previous_sources.(index)
+        block:document_materialize_measure.collect_block_request(collection,prior,known,plan,index,fonts,roles,language,c,page_values,citation_labels_json,citation_separator,config,unit,global_links_json)
+        .collection:block.collection
+        sources.(index):block.source
+        changed.(index):block.changed
+        .index:index+1
+    @:(request:document_shaping_request.extend(request_seed,fonts,collection),sources:sources,changed:changed)

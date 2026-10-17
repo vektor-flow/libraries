@@ -1,0 +1,257 @@
+# Indexed JSON reader for the generic prepared font metrics/vector resources.
+# Nodes retain UTF-8 source spans; child subtrees can be skipped in constant time.
+text:.tex_text
+numbers:.resource_numbers
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Span:(stop:int,valid:bit)
+
+zeros(capacity:int)->[int]:[0:capacity]
+
+character(source:str,position:int)->str:
+    vkf_string_eof(source,position)? @:""
+    @:text.at(source,position)
+
+scalar(c:str)->int:
+    value:0
+    c >>
+        .value:int($)
+        $
+    @:value
+
+hex(c:str)->int:
+    c>="0" /\ c<="9"? @:scalar(c)-48
+    c>="a" /\ c<="f"? @:scalar(c)-87
+    c>="A" /\ c<="F"? @:scalar(c)-55
+    @: -1
+
+hex_quad(source:str,begin:int)->int:
+    value:0
+    index:0
+    index<4?>
+        digit:hex(character(source,begin+index))
+        digit<0? @: -1
+        .value:value*16+digit
+        .index:index+1
+    @:value
+
+unicode_span(source:str,position:int)->Span:
+    value:hex_quad(source,position+1)
+    value<0? @:(stop:position,valid:false)
+    stop:position+5
+    value>=56320 /\ value<=57343? @:(stop:stop,valid:false)
+    value>=55296 /\ value<=56319?
+        (character(source,stop)~="\\" \/ character(source,stop+1)~="u")? @:(stop:stop,valid:false)
+        low:hex_quad(source,stop+2)
+        (low<56320 \/ low>57343)? @:(stop:stop,valid:false)
+        .stop:stop+6
+    @:(stop:stop,valid:true)
+
+string_span(source:str,begin:int)->Span:
+    position:begin+1
+    ~vkf_string_eof(source,position)?>
+        c:character(source,position)
+        c="\""? @:(stop:position+1,valid:true)
+        c<" "? @:(stop:position,valid:false)
+        c="\\"?
+            .position:position+1
+            escape:character(source,position)
+            (escape="\"" \/ escape="\\" \/ escape="/" \/ escape="b" \/ escape="f" \/ escape="n" \/ escape="r" \/ escape="t")?
+                .position:position+1
+                @>
+            escape~="u"? @:(stop:position,valid:false)
+            unicode:unicode_span(source,position)
+            ~unicode.valid? @:unicode
+            .position:unicode.stop
+            @>
+        .position:text.next(source,position)
+    @:(stop:position,valid:false)
+
+parse(source:str)->Tape:
+    capacity:128
+    [int] kinds:[0:capacity]
+    [int] starts:[0:capacity]
+    [int] stops:[0:capacity]
+    [int] ends:[0:capacity]
+    # Stack states: object key/colon/value/comma/key, array value/comma/value.
+    [int] stack_nodes:[-1:257]
+    [int] stack_kinds:[0:257]
+    [int] states:[0:257]
+    depth:0
+    count:0
+    position:0
+    size:text.byte_length(source)
+    valid:true
+    position<size /\ valid?>
+        c:character(source,position)
+        (c=" " \/ c="\t" \/ c="\r" \/ c="\n")?
+            .position:position+1
+            @>
+        parent:stack_kinds.(depth)
+        state:states.(depth)
+        depth=0 /\ state=1?
+            .valid:false
+            @>
+        ((parent=1 /\ (state=0 \/ state=3) /\ c="}") \/ (parent=2 /\ (state=0 \/ state=1) /\ c="]"))?
+            node:stack_nodes.(depth)
+            stops.(node):position+1
+            ends.(node):count
+            .depth:depth-1
+            .position:position+1
+            @>
+        parent=1 /\ state=1?
+            .valid:c=":"
+            states.(depth):2
+            .position:position+1
+            @>
+        ((parent=1 /\ state=3) \/ (parent=2 /\ state=1))?
+            .valid:c=","
+            parent=1? states.(depth):4
+            parent=2? states.(depth):2
+            .position:position+1
+            @>
+        key:parent=1 /\ (state=0 \/ state=4)
+        key /\ c~="\""?
+            .valid:false
+            @>
+        kind:0
+        stop:position+1
+        c="{"? .kind:1
+        c="["? .kind:2
+        c="\""?
+            span:string_span(source,position)
+            .valid:span.valid
+            .stop:span.stop
+            .kind:3
+        (c="-" \/ numbers.digit(c))?
+            number:numbers.boundary(source,position)
+            .valid:number.valid
+            .stop:number.stop
+            .kind:4
+        c="t" /\ text.matches(source,position,"true")?
+            .kind:5
+            .stop:position+4
+        c="f" /\ text.matches(source,position,"false")?
+            .kind:6
+            .stop:position+5
+        c="n" /\ text.matches(source,position,"null")?
+            .kind:7
+            .stop:position+4
+        kind=0? .valid:false
+        ~valid? @>
+        count=capacity?
+            capacity>=2097152?
+                .valid:false
+                @>
+            .kinds:kinds&zeros(capacity)
+            .starts:starts&zeros(capacity)
+            .stops:stops&zeros(capacity)
+            .ends:ends&zeros(capacity)
+            .capacity:capacity*2
+        kinds.(count):kind
+        starts.(count):position
+        stops.(count):stop
+        ends.(count):count+1
+        key? states.(depth):1
+        ~key /\ parent=0? states.(depth):1
+        ~key /\ parent=1? states.(depth):3
+        ~key /\ parent=2? states.(depth):1
+        (kind=1 \/ kind=2)?
+            depth=256?
+                .valid:false
+                @>
+            .depth:depth+1
+            stack_nodes.(depth):count
+            stack_kinds.(depth):kind
+            states.(depth):0
+        .count:count+1
+        .position:stop
+    @:(source:source,kinds:kinds,starts:starts,stops:stops,ends:ends,count:count,valid:valid /\ depth=0 /\ states.(0)=1)
+
+# Decode a quoted span already validated by string_span or a valid Tape.
+decode_string_span(source:str,begin:int,stop:int)->str:
+    position:begin+1
+    limit:stop-1
+    result:""
+    segment:position
+    position<limit?>
+        c:character(source,position)
+        c~="\\"?
+            .position:text.next(source,position)
+            @>
+        .result:result&text.span(source,segment,position)
+        escape:character(source,position+1)
+        .position:position+2
+        escape="\""? .result:result&"\""
+        escape="\\"? .result:result&"\\"
+        escape="/"? .result:result&"/"
+        escape="b"? .result:result&str(chr(8))
+        escape="f"? .result:result&str(chr(12))
+        escape="n"? .result:result&"\n"
+        escape="r"? .result:result&"\r"
+        escape="t"? .result:result&"\t"
+        escape="u"?
+            value:hex_quad(source,position)
+            .position:position+4
+            value>=55296 /\ value<=56319?
+                low:hex_quad(source,position+2)
+                .value:65536+(value-55296)*1024+(low-56320)
+                .position:position+6
+            .result:result&str(chr(value))
+        .segment:position
+    @:result&text.span(source,segment,limit)
+
+string(tape:Tape,node:int)->str:
+    (tape.valid /\ node>=0 /\ node<tape.count /\ tape.kinds.(node)=3)?! "JSON string required"
+    @:decode_string_span(tape.source,tape.starts.(node),tape.stops.(node))
+
+member(tape:Tape,node:int,key:str)->int:
+    (tape.valid /\ node>=0 /\ node<tape.count /\ tape.kinds.(node)=1)?! "JSON object required"
+    index:node+1
+    limit:tape.ends.(node)
+    found: -1
+    index<limit?>
+        string(tape,index)=key? .found:index+1
+        .index:tape.ends.(index+1)
+    @:found
+
+element(tape:Tape,node:int,position:int)->int:
+    (tape.valid /\ node>=0 /\ node<tape.count /\ tape.kinds.(node)=2 /\ position>=0)?! "JSON array required"
+    index:node+1
+    remaining:position
+    index<tape.ends.(node)?>
+        remaining=0? @:index
+        .remaining:remaining-1
+        .index:tape.ends.(index)
+    @: -1
+
+number(tape:Tape,node:int)->num:
+    (tape.valid /\ node>=0 /\ node<tape.count /\ tape.kinds.(node)=4)?! "JSON number required"
+    parsed:numbers.scan(tape.source,tape.starts.(node))
+    (parsed.valid /\ parsed.stop=tape.stops.(node))?! "JSON number is outside the supported finite resource range"
+    @:parsed.value
+
+quote_scalar(value:int)->str:
+    value=34? @:"\\\""
+    value=92? @:"\\\\"
+    value<32?
+        high:value//16
+        low:value%16
+        @:"\\u00"&text.slice("0123456789abcdef",high,high+1)&text.slice("0123456789abcdef",low,low+1)
+    @:str(chr(value))
+
+# Bounded leaves avoid building a growing result for every scalar of a large
+# source/PDF packet. The split cursor always lies on a UTF-8 scalar boundary.
+quote_span(value:str,begin:int,stop:int)->str:
+    stop-begin>128?
+        middle:(begin+stop)//2
+        boundary:begin
+        boundary<middle?> .boundary:text.next(value,boundary)
+        @:quote_span(value,begin,boundary)&quote_span(value,boundary,stop)
+    encoded:""
+    at:begin
+    at<stop?>
+        .encoded:encoded&quote_scalar(scalar(text.at(value,at)))
+        .at:text.next(value,at)
+    @:encoded
+quote(value:str)->str:
+    @:"\""&quote_span(value,0,text.byte_length(value))&"\""

@@ -1,0 +1,105 @@
+# Explicit package hooks precede builtin parsing. The default math-expression
+# API keeps permissive builtin AMS syntax and activates no package extensions.
+tokens:.math_tokens
+text:.tex_text
+groups:.tex_groups
+j:.resource_json
+Context:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Hook:(kind:str,name:str,token:str,arity:int,reparse:bit)
+
+defaults()->Context:
+    @:(restricted:false,amsmath:true,amsthm:false,bbm:false,latexsym:false,faktor:false,qed_symbol:"")
+
+from_names(names:[str],class_name:str="article")->Context:
+    ams:class_name="amsart"
+    theorem:ams
+    bbm:false
+    latexsym:false
+    faktor:false
+    i:0
+    i<names.length()?>
+        name:names.(i)
+        name="amsmath"? .ams:true
+        name="amsthm"? .theorem:true
+        name="bbm"? .bbm:true
+        name="latexsym"? .latexsym:true
+        name="faktor"? .faktor:true
+        .i:i+1
+    symbol:""
+    class_name="amsart"? .symbol:"\\square"
+    @:(restricted:true,amsmath:ams,amsthm:theorem,bbm:bbm,latexsym:latexsym,faktor:faktor,qed_symbol:symbol)
+
+ams_command(raw:str)->bit:
+    @:tokens.one_of(raw,["\\binom","\\dbinom","\\tbinom","\\genfrac","\\pmod","\\pod","\\mod","\\bmod","\\tag","\\notag","\\nonumber","\\operatorname"])
+
+requires_amsmath(ctx:Context,raw:str)->bit:ctx.restricted /\ ~ctx.amsmath /\ ams_command(raw)
+
+dispatch(ctx:Context,raw:str)->Hook:
+    ctx.bbm /\ tokens.one_of(raw,["\\mathbbm","\\mathbbmss","\\mathbbmtt"])?
+        @:(kind:"font",name:text.span(raw,1,text.byte_length(raw)),token:"",arity:1,reparse:false)
+    ctx.latexsym /\ tokens.one_of(raw,["\\mho","\\Join","\\Box","\\Diamond","\\leadsto","\\sqsubset","\\sqsupset","\\lhd","\\unlhd","\\rhd","\\unrhd"])?
+        @:(kind:"glyph",name:"",token:"@latexsym:"&raw,arity:0,reparse:false)
+    ctx.amsthm?
+        raw="\\qed"? @:(kind:"qed",name:"",token:"",arity:0,reparse:false)
+        raw="\\qedhere"? @:(kind:"qedhere",name:"",token:"",arity:0,reparse:false)
+        raw="\\popQED"? @:(kind:"qedpop",name:"",token:"",arity:0,reparse:false)
+        raw="\\pushQED"? @:(kind:"qedpush",name:"",token:"",arity:1,reparse:true)
+    ctx.faktor /\ raw="\\faktor"? @:(kind:"quotient",name:"",token:"",arity:2,reparse:true)
+    @:(kind:"",name:"",token:"",arity:0,reparse:false)
+
+extension_limit(depth:int)->bit:depth>32
+
+# Supplement structured diagnostics only for activated extension spellings.
+# Disabled commands keep the existing default parser's completion behavior.
+command_prefix(ctx:Context,raw:str)->bit:
+    candidates:["\\mathbbm","\\mathbbmss","\\mathbbmtt","\\mho","\\Join","\\Box","\\Diamond","\\leadsto","\\sqsubset","\\sqsupset","\\lhd","\\unlhd","\\rhd","\\unrhd","\\qed","\\qedhere","\\pushQED","\\popQED","\\faktor"]
+    i:0
+    size:text.byte_length(raw)
+    i<candidates.length()?>
+        candidate:candidates.(i)
+        text.byte_length(candidate)>size /\ text.matches(candidate,0,raw)?
+            dispatch(ctx,candidate).kind~=""? @:true
+        .i:i+1
+    @:false
+
+# rawArgument differs from ordinary operand parsing: it takes one token or a
+# raw group, then parses it as a fresh math expression, including empty input.
+raw_argument(source:str,begin:int):
+    start:tokens.skip_space(source,begin)
+    value:groups.argument(source,start)
+    diagnostic:""
+    value.present /\ ~value.closed? .diagnostic:"Inferred a closing brace"
+    @:(value:value.value,start:start,stop:value.stop,present:value.present,closed:value.closed,diagnostic:diagnostic)
+
+option(source:str,begin:int):
+    position:tokens.skip_space(source,begin)
+    start:position
+    token:tokens.peek(source,position)
+    token.raw~="["? @:(value:"",start:start,stop:position,present:false,closed:false)
+    .position:token.stop
+    content:position
+    braces:0
+    ~vkf_string_eof(source,position)?>
+        c:text.at(source,position)
+        .position:text.next(source,position)
+        c="{"? .braces:braces+1
+        c="}"? .braces:braces-1
+        c="]" /\ braces=0? @:(value:text.span(source,content,position-1),start:start,stop:position,present:true,closed:true)
+    @:(value:text.span(source,content,position),start:start,stop:position,present:true,closed:false)
+
+add(messages:str,message:str)->str:
+    message=""? @:messages
+    quoted:j.quote(message)
+    text.find(","&messages&",",","&quoted&",")>=0? @:messages
+    messages=""? @:quoted
+    @:messages&","&quoted
+
+faktor_sources(source:str,begin:int):
+    modifier:option(source,begin)
+    numerator:raw_argument(source,modifier.stop)
+    denominator:raw_argument(source,numerator.stop)
+    diagnostics:""
+    modifier.present /\ ~modifier.closed? .diagnostics:add(diagnostics,"Inferred a closing option bracket")
+    .diagnostics:add(diagnostics,numerator.diagnostic)
+    .diagnostics:add(diagnostics,denominator.diagnostic)
+    @:(numerator:modifier.value&"{"&numerator.value&"}",denominator:modifier.value&"{"&denominator.value&"}",stop:denominator.stop,diagnostics:diagnostics,option_start:modifier.start,option_stop:modifier.stop,numerator_start:numerator.start,numerator_stop:numerator.stop,denominator_start:denominator.start,denominator_stop:denominator.stop)

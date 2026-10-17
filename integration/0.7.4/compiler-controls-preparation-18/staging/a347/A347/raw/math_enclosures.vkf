@@ -1,0 +1,38 @@
+# Enclose the completed real delimiter body BEFORE generic scripts execute.
+# Geometry and diagnostics share the same source-order continuation.
+math_assembly:.math_assembly
+math_commands:.math_commands
+resource_json:.resource_json
+json_numbers:.json_numbers
+tex_numeric:.tex_numeric
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Buffer:(heads:[[int]],tails:[[int]],boxes:int,nexts:[[int]],children:[[int]],pool:Pool,payload_ids:[[int]],xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int)
+Shape:(width:num,height:num,depth:num,keys:[str],xs:[num],ys:[num],count:int,diagnostic:str,placeholder:bit,nucleus:str,italic:num,token:str)
+Size:(width:num,height:num,depth:num)
+emit(buffer:Buffer,owner:int,shape:Shape,x:num,color:str)->Buffer:
+    out:buffer
+    keys:shape.keys
+    xs:shape.xs
+    ys:shape.ys
+    part:0
+    part<shape.count?>
+        value:"\"kind\":\"glyph\",\"color\":"&color&",\"key\":"&resource_json.quote(keys.(part))
+        shape.placeholder? .value:"\"kind\":\"placeholder\",\"color\":"&color&",\"width\":"&json_numbers.roundtrip(shape.width)&",\"height\":"&json_numbers.roundtrip(shape.height)
+        .out:math_commands.append(out,owner, -1,value,x+xs.(part),ys.(part))
+        .part:part+1
+    @:out
+layout(buffer:Buffer,owner:int,child:int,fonts:Catalog,body:Size,left_token:str,right_token:str,style:int,required:num,scalable:bit,font:str="",color:str="null"):
+    left:math_assembly.delimiter(fonts,left_token,style,required,font)
+    right:math_assembly.delimiter(fonts,right_token,style,required,font)
+    out:emit(buffer,owner,left,0,color)
+    .out:math_commands.append(out,owner,child,"",left.width,0)
+    .out:emit(out,owner,right,left.width+body.width,color)
+    class_id:7
+    end_class: -1
+    character:false
+    ~scalable?
+        .class_id:4
+        .end_class:5
+        .character:true
+    @:(buffer:out,width:left.width+body.width+right.width,height:tex_numeric.maximum(left.height,tex_numeric.maximum(body.height,right.height)),depth:tex_numeric.maximum(left.depth,tex_numeric.maximum(body.depth,right.depth)),class_id:class_id,end_class:end_class,character:character,left_diagnostic:left.diagnostic,right_diagnostic:right.diagnostic)

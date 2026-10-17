@@ -1,0 +1,158 @@
+tikz_control:.tikz_control
+# Arithmetic and scaled-point assignments from actual tikz-layout.mjs.
+# Request-owned dimensions; source expressions are never executed as host code.
+tikz_text:.tex_text
+tikz_groups:.tex_groups
+tikz_decimal:.binary_decimal
+tikz_chunks:.text_chunks
+Dimensions:(names:[str],values:[num],count:int)
+Context:(dimensions:Dimensions,em:num,ex:num)
+Result:(value:num,stop:int,dimensioned:bit,diagnostic:str)
+
+empty()->Dimensions:(names:tikz_chunks.empty(16),values:[0.0:16],count:0)
+context(dimensions:Dimensions,em:num=9.962640099626402,ex:num=4.289454545454546)->Context:(dimensions:dimensions,em:em,ex:ex)
+index(dimensions:Dimensions,name:str)->int:
+    names:dimensions.names
+    i:0
+    i<dimensions.count?>
+        names.(i)=name? @:i
+        .i:i+1
+    @: -1
+set(dimensions:Dimensions,name:str,value:num)->Dimensions:
+    out:dimensions
+    names:dimensions.names
+    values:dimensions.values
+    chosen:index(dimensions,name)
+    chosen<0?
+        .chosen:dimensions.count
+        chosen>=names.length()?
+            capacity:names.length()
+            .names:names&tikz_chunks.empty(capacity)
+            .values:values&[0.0:capacity]
+        names.(chosen):name
+        out.count:chosen+1
+    values.(chosen):value
+    out.names:names
+    out.values:values
+    @:out
+pt()->num:72.0/72.27
+sp()->num:pt()/65536
+floor(value:num)->num:value//1
+round(value:num)->num:floor(value+0.5)
+scaled(value:num)->num:round(value/sp())*sp()
+character(source:str,at:int)->str:
+    vkf_string_eof(source,at)? @:""
+    @:tikz_text.at(source,at)
+digit(c:str)->bit:c>="0" /\ c<="9"
+word(c:str)->bit:tikz_text.letter(c) \/ digit(c) \/ c="_"
+failure(message:str,stop:int)->Result:(value:0,stop:stop,dimensioned:false,diagnostic:message)
+
+primary(source:str,begin:int,ctx:Context,depth:int)->Result:
+    depth>=256? @:failure("Unbalanced TikZ arithmetic",begin)
+    at:tikz_groups.skip_space(source,begin)
+    sign:1
+    true?>
+        c:character(source,at)
+        (c~="+" /\ c~="-")? @|
+        c="-"? .sign: -sign
+        .at:tikz_groups.skip_space(source,at+1)
+    value:0.0
+    dimensioned:false
+    first:character(source,at)
+    (first="(" \/ first="{")?
+        close:")"
+        first="{"? .close:"}"
+        nested:sum(source,at+1,ctx,depth+1)
+        nested.diagnostic~=""? @:nested
+        .at:tikz_groups.skip_space(source,nested.stop)
+        character(source,at)~=close? @:failure("Unbalanced TikZ arithmetic",at)
+        .at:at+1
+        .value:nested.value
+        .dimensioned:nested.dimensioned
+    first="\\"?
+        control:tikz_control.read(source,at)
+        found:index(ctx.dimensions,control.name)
+        (found<0 \/ ~control.word)? @:failure("Unknown TikZ dimension: "&control.spelling,at)
+        values:ctx.dimensions.values
+        .value:values.(found)
+        .at:control.stop
+        .dimensioned:true
+    ~(first="(" \/ first="{" \/ first="\\")?
+        start:at
+        digits:0
+        digit(character(source,at))?>
+            .at:at+1
+            .digits:digits+1
+        character(source,at)="."?
+            .at:at+1
+            digit(character(source,at))?>
+                .at:at+1
+                .digits:digits+1
+        digits=0? @:failure("Unsupported TikZ arithmetic: "&tikz_text.span(source,start,tikz_text.byte_length(source)),start)
+        exponent:character(source,at)
+        (exponent="e" \/ exponent="E")?
+            probe:at+1
+            c:character(source,probe)
+            (c="+" \/ c="-")? .probe:probe+1
+            digit(character(source,probe))?
+                .at:probe+1
+                digit(character(source,at))?> .at:at+1
+        decoded:tikz_decimal.decode(source,start,at)
+        ~decoded.valid? @:failure("Invalid or excessive TikZ coordinate: "&source,at)
+        .value:decoded.value
+    .at:tikz_groups.skip_space(source,at)
+    units:["bp","pt","cm","mm","in","pc","em","ex"]
+    factors:[1.0,pt(),72.0/2.54,72.0/25.4,72.0,12*pt(),ctx.em,ctx.ex]
+    i:0
+    i<8?>
+        tikz_text.matches(source,at,units.(i)) /\ ~word(character(source,at+2))?
+            .value:value*factors.(i)
+            .dimensioned:true
+            .at:at+2
+            @|
+        .i:i+1
+    @:(value:num(sign)*value,stop:at,dimensioned:dimensioned,diagnostic:"")
+
+product(source:str,begin:int,ctx:Context,depth:int)->Result:
+    first:primary(source,begin,ctx,depth)
+    first.diagnostic~=""? @:first
+    value:first.value
+    dimensioned:first.dimensioned
+    at:first.stop
+    true?>
+        .at:tikz_groups.skip_space(source,at)
+        op:character(source,at)
+        (op~="*" /\ op~="/")? @|
+        rhs:primary(source,at+1,ctx,depth)
+        rhs.diagnostic~=""? @:rhs
+        op="/" /\ rhs.value=0? @:failure("TikZ division by zero",rhs.stop)
+        op="*"? .value:value*rhs.value
+        op="/"? .value:value/rhs.value
+        rhs.dimensioned? .dimensioned:true
+        .at:rhs.stop
+    @:(value:value,stop:at,dimensioned:dimensioned,diagnostic:"")
+
+sum(source:str,begin:int,ctx:Context,depth:int)->Result:
+    first:product(source,begin,ctx,depth)
+    first.diagnostic~=""? @:first
+    value:first.value
+    dimensioned:first.dimensioned
+    at:first.stop
+    true?>
+        .at:tikz_groups.skip_space(source,at)
+        op:character(source,at)
+        (op~="+" /\ op~="-")? @|
+        rhs:product(source,at+1,ctx,depth)
+        rhs.diagnostic~=""? @:rhs
+        op="+"? .value:value+rhs.value
+        op="-"? .value:value-rhs.value
+        rhs.dimensioned? .dimensioned:true
+        .at:rhs.stop
+    @:(value:value,stop:at,dimensioned:dimensioned,diagnostic:"")
+
+parse(source:str,ctx:Context)->Result:
+    result:sum(source,0,ctx,0)
+    result.diagnostic~=""? @:result
+    stop:tikz_groups.skip_space(source,result.stop)
+    (stop~=tikz_text.byte_length(source) \/ result.value-result.value~=0 \/ |result.value|>1000000)? @:failure("Invalid or excessive TikZ coordinate: "&source,stop)
+    @:(value:result.value,stop:stop,dimensioned:result.dimensioned,diagnostic:"")

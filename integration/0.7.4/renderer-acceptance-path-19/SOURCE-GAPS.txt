@@ -1,0 +1,96 @@
+Current source evidence at4302f7a; paths below relative to examples/gpu-math/native-vkf.
+All cited sources pinned in input-pins.json or review-input-pins.json.
+
+Public direct named API
+  latex.vkf:7-8 and latex_library.vkf:71-72 have17 positional/optional inputs.
+  Four resources remain required after source: fonts/operators/ordered_roles/language.
+  dest/selectable/editable absent. Current preflight exits2 (api-surface.stdout).
+  latex.prepare:20 and library fragment Resources do not bind operators or a
+  source-only full-document public call. Need a genuine internal resource binding
+  and native named syntax proof, preserving legacy calls. No facade-only patch.
+
+Source -> typed document -> PDF
+  document_materialize.vkf:43 prepares/expands frontend; :78-82 creates a new staged
+  text request; :104-111 initializes page document/page state; :114-117 reshapes
+  per reference pass; :136-144 convergence/complete/typed document result.
+  :147-151 render forwards eight owner columns, calls encode only if complete,
+  then returns PDF/diagnostics/counts WITHOUT typed document or authenticated
+  revision/map. latex_library.document_owned:65-66 exposes the typed layout path.
+  document_materialize_output_typed.vkf:217-222 copies the six provenance columns.
+  This transport is implemented; authentic authored-source mapping/embedding isn't.
+
+Owner authentication
+  host/latex_source_binding_bridge.mjs:35-75 validates exact snapshot/source
+  revisions, scalar-safe authored groups/operations/emissions/resources.
+  :84-85 creates an in-memory revision session without publicationPath.
+  :93-115 prepares caller-supplied route columns/source file map.
+  :118-129 checks issued capability/current snapshot and requires a complete
+  TypedDocumentResult; render-shaped results fail at:125 as intended.
+  :138-145 exposes exact PDF positional argument preparation, not PDF auth.
+  :156-166 applies edits and returns boundDocument only, no PDF/publication.
+  host/latex_operation_binding.mjs:112-145 enforces all six arena columns,
+  exact parser text/span/operation/part, no duplicate/missing/unconsumed emission,
+  contiguous groups, link targets and explicit byte-to-UTF16 origin conversion.
+  Unbound generated/decorative leaves fail at:120; do not weaken this to get a PDF.
+  Caller assertions are not an automatically generated expansion/include map.
+  Required integration: real producer source identity/expansion-origin transport,
+  returned typed document tied to encoded bytes and current revision; native/host
+  resource marshalling; authenticated source/map/PDF serialization. Consider an
+  internal typed render result consumed before public serialization, but do not
+  change its record shape during peer18's full-app compile. No patch here because
+  the source contract is not a safe one-field forwarding repair.
+
+Selectable output
+  document_pdf_bulk.vkf:235 makes outline Form XObjects; :264-265 emits glyph
+  draw operators; :393 emits page content, :397-400 serializes resources/catalog.
+  :405-418 resources contain XObject and ExtGState, no standard text/font layer.
+  Six a260 columns appear in its type declaration:20 but are not consumed in
+  encoding. No ToUnicode/ActualText or authenticated source/map attachment path.
+  pdf_selection.vkf:27-29 UTF16BE/BOM serializer and:41-42 ActualText helper exist
+  independently; not imported by current full-app closure. Native helper tests
+  still require execution. Never wrap the repeated whole parser input per glyph.
+  Need exact grouped logical text plus complete graphics/text object boundaries,
+  cluster deduplication and page-split handling. Preserve graphics bytes/positions.
+  Legacy original40 byte equality is a strict initial regression gate; adding a
+  real selection layer necessarily needs a separately reviewed geometry/raster
+  comparison and reader tests, not declaring changed legacy bytes equivalent.
+  document_pdf_bulk.vkf:384 explicitly rejects kind4 illustrations.
+
+dest and edit commit
+  native_document_cli.vkf:30 calls existing positional API; :32-34 on complete
+  writes pdf_path directly, :35 optional layout, :37 report, :38 returns0 even
+  when rendering incomplete. Exit0 alone never qualifies a document.
+  Current pinned stdlib/io.vkf:9 direct list contains print/eprint/read_line/
+  read_text/write_text/append_text/read_bytes/write_bytes, no rename/fsync atomic
+  transaction. Need actual runtime capability and compiler/runtime contract,
+  with separately owned work; do not invent an io.rename call.
+  host/latex_source_revision.mjs:84-87 stage->await render->stale check;
+  :92 stages publication only afterward; :97-100 final guard/commit/state update.
+  host/latex_source_publication.mjs:52-70 stage immutable snapshot/map/PDF into
+  temp bundle; :95-98 exclusive cooperative lock + generation check + one rename;
+  :102-108 committed warnings/directory fsync. This is a JSON bundle, not the
+  public standalone dest PDF, and is not wired to bridge/native tex2pdf.
+  Saving in the render callback bypasses the later stale guard: prohibited design.
+  Use one actual publication unit carrying source/map/PDF, e.g. appropriately
+  authenticated embedded source/map inside the final PDF with revision guard;
+  choose/implement the real format/atomic primitive before promising behavior.
+  Preserve current bundle API semantics and explicit postrename committed warnings.
+
+Preserve existing contracts
+  tests/document-text.test.mjs (one directory above native-vkf):10 strips only
+  four provenance fields for geometry comparison; :23-28 and:134-148 separately
+  assert exact authored origin ranges. No broader field suppression.
+  Reference-review02, metadata03 then serialization04 are chronological; current
+  harness has40-field adapter, independent frozen31-field references, absence
+  distinction and ordered-tree/binary64 differential oracle. Native proof pending,
+  no current metadata mismatch normalized/waived or old raw-string candidate used.
+  Accepted core53 unchanged; D267/D289 excluded; no original419/general audit.
+
+Closure evidence
+  source-closure.json has178 current local modules reachable conservatively from
+  native_document_cli plus external io/math. input-pins.json pins this graph and
+  retained40-page input/output authority. review-input-pins.json additionally
+  pins current bridge/tests/helper, handovers, fullcaller, API fixtures, historical
+  failure and existing stdlib io/math. This is not a fresh normalized/compiler/
+  linked closure. Root must use peer18 actual build receipts and runtime identity,
+  retaining all normalization ambiguity checks and pre/post hashes.

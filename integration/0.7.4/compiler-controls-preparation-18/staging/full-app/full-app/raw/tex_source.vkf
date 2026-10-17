@@ -1,0 +1,45 @@
+text:.tex_text
+groups:.tex_groups
+
+literal_stop(source:str,name:str,position:int)->int:
+    begin:groups.skip_space(source,position)
+    name="url" \/ name="nolinkurl"? @:text.literal_stop(source,begin)
+    name="href"?
+        vkf_string_eof(source,begin)? @:position
+        text.at(source,begin)="{"? @:text.literal_stop(source,begin,true)
+    name="verb"?
+        at:position
+        ~vkf_string_eof(source,at)?
+            text.at(source,at)="*"? .at:text.next(source,at)
+        @:text.literal_stop(source,at)
+    name="begin"?
+        environment:groups.read(source,position)
+        environment.present /\ environment.closed?
+            label:environment.value
+            label="verbatim" \/ label="verbatim*" \/ label="lstlisting" \/ label="comment"?
+                close:"\\end{"&label&"}"
+                stop:text.find(source,close,environment.stop)
+                stop<0? @:text.byte_length(source)
+                @:stop+text.byte_length(close)
+    @:position
+
+strip_comments(source:str)->str:
+    size:text.byte_length(source)
+    position:0
+    copied:0
+    result:""
+    position<size?>
+        c:text.at(source,position)
+        c="\\"?
+            command:groups.control(source,position)
+            .position:literal_stop(source,command.name,command.stop)
+            @>
+        c="%"?
+            .result:result&text.span(source,copied,position)
+            newline:text.find(source,"\n",position)
+            .position:size
+            newline>=0? .position:newline+1
+            .copied:position
+            @>
+        .position:text.next(source,position)
+    @:result&text.span(source,copied,size)

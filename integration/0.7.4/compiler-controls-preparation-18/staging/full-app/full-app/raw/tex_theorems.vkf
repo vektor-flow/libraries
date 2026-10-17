@@ -1,0 +1,72 @@
+# Extract document theorem declarations after conditional/macro expansion.
+# Metadata is portable JSON data, retaining arbitrary names/styles and titles.
+text:.tex_text
+groups:.tex_groups
+literals:.tex_source
+j:.resource_json
+Declarations:(source:str,declarations:str,count:int)
+
+extract(source:str)->Declarations:
+    position:0
+    copied:0
+    size:text.byte_length(source)
+    output:""
+    entries:""
+    count:0
+    style:"plain"
+    position<size?>
+        c:text.at(source,position)
+        c="%"?
+            newline:text.find(source,"\n",position)
+            newline<0? @:(source:output&text.span(source,copied,size),declarations:"["&entries&"]",count:count)
+            .position:newline+1
+            @>
+        c~="\\"?
+            .position:text.next(source,position)
+            @>
+        command:groups.control(source,position)
+        begin:position
+        .position:command.stop
+        literal:literals.literal_stop(source,command.name,position)
+        literal>position?
+            .position:literal
+            @>
+        command.name="theoremstyle"?
+            selected:groups.read(source,position)
+            (selected.present /\ selected.closed)?! "Unfinished theorem style"
+            .style:selected.value
+            .output:output&text.span(source,copied,begin)
+            .position:selected.stop
+            .copied:position
+            @>
+        command.name~="newtheorem"? @>
+        star:false
+        position<size /\ text.at(source,position)="*"?
+            .star:true
+            .position:position+1
+        name:groups.read(source,position)
+        (name.present /\ name.closed /\ name.value~="")?! "Unfinished theorem name"
+        .position:name.stop
+        shared:groups.read(source,position,"[","]")
+        shared.present?
+            shared.closed?! "Unfinished shared theorem counter"
+            .position:shared.stop
+        title:groups.read(source,position)
+        (title.present /\ title.closed)?! "Unfinished theorem title"
+        .position:title.stop
+        within:groups.read(source,position,"[","]")
+        within.present?
+            within.closed?! "Unfinished theorem counter scope"
+            .position:within.stop
+        count>0? .entries:entries&","
+        flag:"false"
+        star? .flag:"true"
+        .entries:entries&"{\"name\":"&j.quote(name.value)&",\"title\":"&j.quote(title.value)&",\"style\":"&j.quote(style)&",\"star\":"&flag
+        shared.present? .entries:entries&",\"shared\":"&j.quote(shared.value)
+        within.present? .entries:entries&",\"within\":"&j.quote(within.value)
+        .entries:entries&"}"
+        .count:count+1
+        (count<=4096)?! "Theorem declaration limit: 4096"
+        .output:output&text.span(source,copied,begin)
+        .copied:position
+    @:(source:output&text.span(source,copied,size),declarations:"["&entries&"]",count:count)

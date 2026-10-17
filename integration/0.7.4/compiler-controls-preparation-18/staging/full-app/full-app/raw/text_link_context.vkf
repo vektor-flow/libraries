@@ -1,0 +1,233 @@
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Store:(arena:Arena,firsts:[int],counts:[int],anchor_firsts:[int],anchor_counts:[int],anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int,widths:[num],heights:[num],depths:[num],tag_widths:[num],inline_destinations:[bit],count:int)
+# Source-order link appearance and nearest-fragment ownership. Line rectangles
+# and actual-node nested-link diagnostics are emitted by paragraph lowering.
+link_context_ops:.text_parser_stream
+link_context_arguments:.text_inline_arguments
+link_context_pages:.math_command_pages
+link_context_policy:.document_link_policy
+link_context_uri:.document_uri
+link_context_json:.resource_json
+link_context_text:.tex_text
+link_context_chunks:.text_chunks
+link_context_boxes:.text_inline_boxes
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:Store,scene_ids:[int],scene_metadata:Metadata,scene_roots:[int],diagnostics:[str],count:int)
+Context:(operation_scopes:[int],scopes_json:str,styles:[str],provider:Provider,anchor_operations:[int],anchor_ids:[str],anchor_count:int,diagnostics:str,complete:bit,nested_outer_counts:[int],close_operations:[int],close_scope_first:[int],close_scope_last:[int],a268_scope_owners:[int])
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Parts:(values:[str],count:int)
+ints(size:int)->[int]:[0:size]
+nil(size:int)->[int]:[-1:size]
+exact_ints(values:[int],count:int)->[int]:
+    count=0? @:ints(0)
+    @:[..count-1 >> values.(int($))]
+exact_strings(values:[str],count:int)->[str]:
+    count=0? @:link_context_chunks.empty(0)
+    @:[..count-1 >> values.(int($))]
+raw(tape:Tape,node:int)->str:
+    starts:tape.starts
+    stops:tape.stops
+    @:link_context_text.span(tape.source,starts.(node),stops.(node))
+member(tape:Tape,node:int,name:str,fallback:str)->str:
+    found:link_context_json.member(tape,node,name)
+    found<0? @:fallback
+    value:raw(tape,found)
+    value="null"? @:fallback
+    @:value
+append_message(previous:str,next:str)->str:
+    previous=""? @:next
+    next=""? @:previous
+    @:previous&","&next
+split_options(value:str)->[str]:
+    # Literal JS /,(?![^{}]*\})/ semantics, including empty components.
+    parts:link_context_chunks.empty(16)
+    count:0
+    start:0
+    at:0
+    size:link_context_text.byte_length(value)
+    at<size?>
+        c:link_context_text.at(value,at)
+        c=","?
+            cursor:at+1
+            blocked:false
+            cursor<size?>
+                ahead:link_context_text.at(value,cursor)
+                ahead="{"? @|
+                ahead="}"?
+                    .blocked:true
+                    @|
+                .cursor:link_context_text.next(value,cursor)
+            ~blocked?
+                count>=parts.length()? .parts:parts&link_context_chunks.empty(parts.length())
+                parts.(count):link_context_text.span(value,start,at)
+                .count:count+1
+                .start:at+1
+        .at:link_context_text.next(value,at)
+    count>=parts.length()? .parts:parts&link_context_chunks.empty(parts.length())
+    parts.(count):link_context_text.span(value,start,size)
+    @:exact_strings(parts,count+1)
+appearance(style:str,kind:str,target:str)->str:
+    tape:link_context_json.parse(style)
+    color:member(tape,0,kind,"[1,0,0,1]")
+    border:member(tape,0,"borderWidth","1")
+    colorlinks:member(tape,0,"colorlinks","false")
+    @:"{\"color\":"&color&",\"borderWidth\":"&border&",\"target\":"&target&",\"colorlinks\":"&colorlinks&"}"
+argument(stream:Stream,operation:int)->str:
+    operation<0? @:""
+    @:link_context_ops.value(stream,operation,"value")
+nullable_argument(stream:Stream,operation:int)->str:
+    operation<0? @:"null"
+    ~link_context_ops.flag(stream,operation,"found")? @:"null"
+    @:link_context_ops.value(stream,operation,"value")
+
+build(stream:Stream,initial_appearance:str="{}",enabled:bit=false)->Context:
+    directory:link_context_arguments.build(stream)
+    first:directory.first
+    second:directory.second
+    hidden:directory.hidden
+    operations:stream.count
+    operation_scopes:nil(operations)
+    scopes:link_context_chunks.empty(operations)
+    styles:link_context_chunks.empty(operations)
+    scope_owners:ints(operations)
+    scope_count:0
+    depth:ints(operations)
+    nested_outer_counts:ints(operations)
+    subtree_stops:ints(operations)
+    optional:nil(operations)
+    index:0
+    index<operations?>
+        subtree_stops.(index):index+1
+        parent:link_context_pages.integer(stream.parents,index)
+        (parent>=0 /\ link_context_ops.value(stream,index,"kind")="optional")? optional.(parent):index
+        .index:index+1
+    .index:operations-1
+    index>=0?>
+        parent:link_context_pages.integer(stream.parents,index)
+        parent>=0 /\ subtree_stops.(index)>subtree_stops.(parent)? subtree_stops.(parent):subtree_stops.(index)
+        .index:index-1
+    provider:link_context_boxes.empty()
+    anchor_operations:ints(operations)
+    anchor_ids:link_context_chunks.empty(operations)
+    anchor_count:0
+    diagnostics:""
+    complete:true
+    active:initial_appearance
+    active=""? .active:"{}"
+    .index:0
+    index<operations?>
+        current:index
+        .index:index+1
+        styles.(current):active
+        parent:link_context_pages.integer(stream.parents,current)
+        parent>=0?
+            operation_scopes.(current):operation_scopes.(parent)
+            depth.(current):depth.(parent)
+        depth.(current)>0? nested_outer_counts.(current):depth.(current)-1
+        hidden.(current)? @>
+        kind:link_context_ops.value(stream,current,"kind")
+        kind~="command"? @>
+        name:link_context_ops.value(stream,current,"value")
+        first_value:argument(stream,first.(current))
+        second_value:argument(stream,second.(current))
+        own:false
+        link_kind:"ref"
+        target:""
+        message:""
+        resolved_empty:false
+        (name="href" \/ name="url" \/ name="nolinkurl")?
+            .resolved_empty:true
+            .own:name="href" \/ (name="url" /\ enabled)
+            .link_kind:"url"
+            uri:link_context_ops.attribute(stream,current,"target")
+            .target:"{\"type\":\"uri\",\"value\":"&link_context_json.quote(uri)&"}"
+        name="hyperlink"?
+            .resolved_empty:true
+            .own:true
+            key:nullable_argument(stream,first.(current))
+            .target:"{\"type\":\"destination\",\"value\":"&link_context_json.quote("named:"&key)&"}"
+        name="hyperref"?
+            .resolved_empty:true
+            optional.(current)>=0?
+                .own:true
+                .target:"{\"type\":\"destination\",\"value\":"&link_context_json.quote("label:"&argument(stream,optional.(current)))&"}"
+        name="documentlinkspan"?
+            .resolved_empty:true
+            decoded:link_context_uri.decode_destination(second_value)
+            decoded.valid?
+                .own:true
+                .link_kind:first_value
+                .target:"{\"type\":\"destination\",\"value\":"&link_context_json.quote(decoded.value)&"}"
+            ~decoded.valid?
+                .complete:false
+                .message:link_context_json.quote(decoded.diagnostic)
+        (name="documentanchor" \/ name="hypertarget")?
+            .resolved_empty:true
+            id:"named:"&nullable_argument(stream,first.(current))
+            valid:true
+            name="documentanchor"?
+                decoded:link_context_uri.decode_destination(first_value)
+                .valid:decoded.valid
+                .id:decoded.value
+                ~valid?
+                    .complete:false
+                    .message:link_context_json.quote(decoded.diagnostic)
+            valid?
+                anchor_operations.(anchor_count):current
+                anchor_ids.(anchor_count):id
+                .anchor_count:anchor_count+1
+        own?
+            operation_scopes.(current):scope_count
+            depth.(current):depth.(current)+1
+            nested_outer_counts.(current):depth.(current)-1
+            prefix:""
+            scope_count>0? .prefix:","
+            scopes.(scope_count):prefix&link_context_json.quote(link_context_text.integer(scope_count))&":"&appearance(active,link_kind,target)
+            scope_owners.(scope_count):current
+            .scope_count:scope_count+1
+        name="hypersetup"?
+            .resolved_empty:true
+            setup:link_context_policy.configure(split_options(first_value),active)
+            .active:setup.appearance
+            .message:append_message(message,setup.diagnostics)
+            setup.diagnostics~=""? .complete:false
+        message~=""? .diagnostics:append_message(diagnostics,message)
+        resolved_empty? .provider:link_context_boxes.append(provider,current,5,diagnostics:message)
+    # Bucket close events by first following operation. Inserting owners in
+    # preorder gives inner-first order at equal closing positions.
+    close_heads:nil(operations+1)
+    close_next:nil(scope_count)
+    scope:0
+    scope<scope_count?>
+        close:subtree_stops.(scope_owners.(scope))
+        close_next.(scope):close_heads.(close)
+        close_heads.(close):scope
+        .scope:scope+1
+    close_operations:ints(scope_count)
+    close_scope_first:ints(scope_count)
+    close_scope_last:ints(scope_count)
+    count:0
+    operation:0
+    operation<=operations?>
+        .scope:close_heads.(operation)
+        scope>=0?>
+            # Last scope whose owner lies strictly before this outer close.
+            low:scope
+            high:scope_count
+            high-low>1?>
+                middle:(low+high)//2
+                scope_owners.(middle)<operation? .low:middle
+                scope_owners.(middle)>=operation? .high:middle
+            close_operations.(count):operation
+            close_scope_first.(count):scope+1
+            close_scope_last.(count):low
+            .count:count+1
+            .scope:close_next.(scope)
+        .operation:operation+1
+    @:(operation_scopes:operation_scopes,scopes_json:"{"&link_context_chunks.join(scopes,0,scope_count)&"}",styles:styles,provider:provider,anchor_operations:exact_ints(anchor_operations,anchor_count),anchor_ids:exact_strings(anchor_ids,anchor_count),anchor_count:anchor_count,diagnostics:diagnostics,complete:complete,nested_outer_counts:nested_outer_counts,close_operations:close_operations,close_scope_first:close_scope_first,close_scope_last:close_scope_last,a268_scope_owners:exact_ints(scope_owners,scope_count))

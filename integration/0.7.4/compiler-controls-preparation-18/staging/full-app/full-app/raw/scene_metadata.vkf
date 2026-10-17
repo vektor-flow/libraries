@@ -1,0 +1,62 @@
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+chunks:.text_chunks
+empty()->Metadata:
+    @:(kinds:[0:0],ends:[0:0],texts:chunks.empty(0),numbers:[0.0:0],count:0)
+shift(id:int,base:int)->int:
+    id<0? @:id
+    @:id+base
+append(a:Metadata,b:Metadata)->Metadata:
+    [int] shifted_ends:[0:b.count]
+    i:0
+    i<b.count?>
+        shifted_ends.(i):b.ends.(i)+a.count
+        .i:i+1
+    @:(kinds:a.kinds&b.kinds,ends:a.ends&shifted_ends,texts:a.texts&b.texts,numbers:a.numbers&b.numbers,count:a.count+b.count)
+member(a:Metadata,root:int,key:str)->int:
+    root<0 \/ root>=a.count? @: -1
+    a.kinds.(root)~=1? @: -1
+    at:root+1
+    at<a.ends.(root)?>
+        a.texts.(at)=key? @:at+1
+        .at:a.ends.(at+1)
+    @: -1
+subtree(a:Metadata,root:int)->Metadata:
+    root<0? @:empty()
+    count:a.ends.(root)-root
+    [int] indices:[0:count]
+    @:(kinds:indices >> a.kinds.(root+$0),ends:indices >> a.ends.(root+$0)-root,texts:indices >> a.texts.(root+$0),numbers:indices >> a.numbers.(root+$0),count:count)
+
+replace_member(input:Metadata,root:int,key:str,value:Metadata)->Metadata:
+    root>=0 /\ root<input.count?! "Invalid metadata root"
+    out:empty()
+    # Rebuild this object's children in order; untouched subtrees retain values.
+    out.kinds:[1]
+    out.ends:[1]
+    out.texts:[""]
+    out.numbers:[0.0]
+    out.count:1
+    at:root+1
+    at<input.ends.(root)?>
+        input.texts.(at)~=key?
+            .out:append(out,subtree(input,at))
+            .out:append(out,subtree(input,at+1))
+        .at:input.ends.(at+1)
+    key_node:(kinds:[3],ends:[1],texts:[key],numbers:[0.0],count:1)
+    .out:append(out,key_node)
+    .out:append(out,value)
+    ends:out.ends
+    ends.(0):out.count
+    out.ends:ends
+    @:out
+
+string_array(values:[str])->Metadata:
+    count:values.length()+1
+    [int] kinds:[3:count]
+    [int] ends:[0:count]
+    kinds.(0):2
+    ends.(0):count
+    i:1
+    i<count?>
+        ends.(i):i+1
+        .i:i+1
+    @:(kinds:kinds,ends:ends,texts:[""]&values,numbers:[0.0:count],count:count)

@@ -1,0 +1,49 @@
+p:.pdf_syntax
+n:.tex_numeric
+paths:.pdf_paths
+
+percent_byte(value:int)->str:"%"&p.hex_byte(value)
+
+percent_scalar(value:int)->str:
+    value<128? @:percent_byte(value)
+    value<2048? @:percent_byte(192+value//64)&percent_byte(128+value%64)
+    value<65536? @:percent_byte(224+value//4096)&percent_byte(128+(value//64)%64)&percent_byte(128+value%64)
+    @:percent_byte(240+value//262144)&percent_byte(128+(value//4096)%64)&percent_byte(128+(value//64)%64)&percent_byte(128+value%64)
+
+uri(value:str)->str:
+    normalized:value >>
+        code:int($)
+        (code>=32 /\ code~=127)?! "Invalid PDF link URI control character"
+        code>126 \/ code=32? @:percent_scalar(code)
+        str($)
+    @:normalized
+
+rectangle(page_width:num,page_height:num,x:num,y:num,width:num,height:num)->str:
+    (width>0 /\ height>0)?! "Invalid PDF link rectangle"
+    left:n.maximum(0,x-1)
+    bottom:n.maximum(0,page_height-y-height-1)
+    right:n.minimum(page_width,x+width+1)
+    top:n.minimum(page_height,page_height-y+1)
+    right<=left \/ top<=bottom? @:""
+    @:"["&p.number(left)&" "&p.number(bottom)&" "&p.number(right)&" "&p.number(top)&"]"
+
+annotation(page:int,rectangle:str,action:str)->str:
+    rectangle=""? @:""
+    @:"<< /Type /Annot /Subtype /Link /P "&p.reference(page)&" /Rect "&rectangle&" /Border [0 0 0] /H /I "&action&" >>"
+
+external(page:int,page_width:num,page_height:num,x:num,y:num,width:num,height:num,target:str)->str:
+    (target~="")?! "Empty PDF link URI"
+    rect:rectangle(page_width,page_height,x,y,width,height)
+    action:"/A << /S /URI /URI "&p.hex_string(uri(target))&" >>"
+    @:annotation(page,rect,action)
+
+internal(page:int,page_width:num,page_height:num,x:num,y:num,width:num,height:num,
+         target_page:int,target_height:num,target_x:num,target_y:num)->str:
+    rect:rectangle(page_width,page_height,x,y,width,height)
+    action:"/Dest ["&p.reference(target_page)&" /XYZ "&p.number(target_x)&" "&p.number(target_height-target_y)&" null]"
+    @:annotation(page,rect,action)
+
+border(x:num,y:num,width:num,height:num,stroke:num)->str:
+    (stroke>=0)?! "Invalid PDF link border width"
+    stroke=0? @:""
+    @:"q "&p.number(stroke)&" w "&paths.rectangle(x-1,y-1,width+2,height+2)&" S Q"

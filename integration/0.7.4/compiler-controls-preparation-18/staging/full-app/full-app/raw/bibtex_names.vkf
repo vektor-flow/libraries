@@ -1,0 +1,156 @@
+bib_name_text:.tex_text
+bib_name_groups:.tex_groups
+bib_name_chunks:.text_chunks
+bib_name_json:.resource_json
+bib_name_data:.bibtex_data
+Names:(family:[str],given:[str],suffix:[str],corporate:[int],count:int,error:str)
+split(source:str,comma:bit=false)->[str]:
+    result:bib_name_chunks.empty(0)
+    start:0
+    at:0
+    depth:0
+    size:bib_name_text.byte_length(source)
+    at<size?>
+        c:bib_name_text.at(source,at)
+        c="\\"?
+            .at:bib_name_text.next(source,at)
+            at<size? .at:bib_name_text.next(source,at)
+            @>
+        c="{"? .depth:depth+1
+        c="}"? .depth:depth-1
+        separator:false
+        comma /\ c="," /\ depth=0? .separator:true
+        ~comma /\ depth=0 /\ at>0 /\ at+3<size?
+            bib_name_text.matches(source,at,"and") /\ bib_name_text.space(bib_name_text.at(source,at-1)) /\ bib_name_text.space(bib_name_text.at(source,at+3))? .separator:true
+        separator?
+            part:bib_name_text.trim(bib_name_text.span(source,start,at))
+            part~=""? .result:bib_name_data.append(result,part)
+            comma? .at:at+1
+            ~comma? .at:at+3
+            .start:at
+            @>
+        .at:bib_name_text.next(source,at)
+    part:bib_name_text.trim(bib_name_text.span(source,start,size))
+    part~=""? .result:bib_name_data.append(result,part)
+    @:result
+plain(source:str)->str:
+    result:""
+    at:0
+    size:bib_name_text.byte_length(source)
+    accents:"\"'`^~=.uvHc"
+    at<size?>
+        c:bib_name_text.at(source,at)
+        c="\\" /\ at+1<size?
+            mark:bib_name_text.at(source,at+1)
+            bib_name_text.find(accents,mark)>=0?
+                letter:bib_name_groups.skip_space(source,at+2)
+                letter<size /\ bib_name_text.at(source,letter)="{"? .letter:letter+1
+                letter<size /\ bib_name_data.alpha(bib_name_text.at(source,letter))?
+                    .result:result&bib_name_text.at(source,letter)
+                    .at:letter+1
+                    at<size /\ bib_name_text.at(source,at)="}"? .at:at+1
+                    @>
+            bib_name_data.alpha(mark)?
+                .at:at+2
+                at<size /\ bib_name_data.alpha(bib_name_text.at(source,at))?> .at:at+1
+                .at:bib_name_groups.skip_space(source,at)
+                @>
+        .at:bib_name_text.next(source,at)
+        (c="{" \/ c="}")? @>
+        c="~"? .c:" "
+        .result:result&c
+    @:bib_name_data.collapse(result)
+words(source:str)->[str]:
+    result:bib_name_chunks.empty(0)
+    at:0
+    size:bib_name_text.byte_length(source)
+    at<size?>
+        .at:bib_name_groups.skip_space(source,at)
+        at>=size? @>
+        start:at
+        # JS tokenization recognizes one level of brace protected words.
+        bib_name_text.at(source,at)="{"?
+            group:bib_name_groups.read(source,at)
+            group.closed /\ bib_name_text.find(group.value,"{")<0?
+                .result:bib_name_data.append(result,bib_name_text.span(source,at,group.stop))
+                .at:group.stop
+                @>
+        at<size /\ ~bib_name_text.space(bib_name_text.at(source,at))?> .at:bib_name_text.next(source,at)
+        .result:bib_name_data.append(result,bib_name_text.span(source,start,at))
+    @:result
+join_words(values:[str],start:int,stop:int)->str:
+    result:""
+    i:start
+    i<stop?>
+        i>start? .result:result&" "
+        .result:result&values.(i)
+        .i:i+1
+    @:result
+integers(count:int)->[int]:[0:count]
+append_int(values:[int],value:int)->[int]:
+    result:[0:values.length()+1]
+    i:0
+    i<values.length()?>
+        result.(i):values.(i)
+        .i:i+1
+    result.(i):value
+    @:result
+parse(source:str)->Names:
+    family:bib_name_chunks.empty(0)
+    given:bib_name_chunks.empty(0)
+    suffix:bib_name_chunks.empty(0)
+    corporate:integers(0)
+    names:split(source)
+    i:0
+    i<names.length()?>
+        name:names.(i)
+        f:""
+        g:""
+        s:""
+        corp:0
+        group:bib_name_groups.read(name,0)
+        group.present /\ group.closed /\ group.stop=bib_name_text.byte_length(name)?
+            .f:plain(name)
+            .corp:1
+        corp=0?
+            parts:split(name,true)
+            parts.length()>3? @:(family:family,given:given,suffix:suffix,corporate:corporate,count:i,error:"Invalid BibTeX name: "&name)
+            parts.length()>=2?
+                .corp:2
+                .f:parts.(0)
+                .g:parts.(parts.length()-1)
+                parts.length()=3? .s:parts.(1)
+            parts.length()<2?
+                tokens:words(name)
+                family_start:tokens.length()-1
+                found:false
+                j:0
+                j<tokens.length()-1 /\ ~found?>
+                    word:plain(tokens.(j))
+                    word~="" /\ bib_name_text.at(word,0)>="a" /\ bib_name_text.at(word,0)<="z"?
+                        .family_start:j
+                        .found:true
+                    .j:j+1
+                .f:join_words(tokens,family_start,tokens.length())
+                .g:join_words(tokens,0,family_start)
+        .family:bib_name_data.append(family,f)
+        .given:bib_name_data.append(given,g)
+        .suffix:bib_name_data.append(suffix,s)
+        .corporate:append_int(corporate,corp)
+        .i:i+1
+    @:(family:family,given:given,suffix:suffix,corporate:corporate,count:i,error:"")
+author_text(names:Names)->str:
+    result:""
+    i:0
+    i<names.count?>
+        i>0?
+            names.count<3? .result:result&" and "
+            names.count>=3 /\ i=names.count-1? .result:result&", and "
+            names.count>=3 /\ i<names.count-1? .result:result&", "
+        parts:bib_name_chunks.empty(0)
+        names.given.(i)~=""? .parts:bib_name_data.append(parts,names.given.(i))
+        names.family.(i)~=""? .parts:bib_name_data.append(parts,names.family.(i))
+        names.suffix.(i)~=""? .parts:bib_name_data.append(parts,names.suffix.(i))
+        .result:result&join_words(parts,0,parts.length())
+        .i:i+1
+    @:result

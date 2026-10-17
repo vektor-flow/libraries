@@ -1,0 +1,60 @@
+text:.tex_text
+
+integer(value:int)->str:text.integer(value)
+
+number(value:num)->str:
+    magnitude:|value|
+    (magnitude<=1000000000)?! "Invalid PDF coordinate"
+    (value=magnitude \/ value= -magnitude)?! "PDF coordinate must be real"
+    whole:int(magnitude//1)
+    fraction:int((((magnitude-whole)*1000000000000)+0.5)//1)
+    fraction>=1000000000000?
+        .whole:whole+1
+        .fraction:0
+    sign:""
+    value<0? .sign:"-"
+    fraction=0?
+        whole=0? @:"0"
+        @:sign&integer(whole)
+    digits:integer(fraction)
+    padding:text.slice("000000000000",0,12-text.byte_length(digits))
+    result:sign&integer(whole)&"."&padding&digits
+    stop:text.byte_length(result)
+    true?>
+        text.slice(result,stop-1,stop)~="0"? @:text.slice(result,0,stop)
+        .stop:stop-1
+    @:result
+
+reference(identifier:int)->str:
+    (identifier>0)?! "Invalid PDF object reference"
+    @:integer(identifier)&" 0 R"
+
+hex_byte(value:int)->str:
+    (value>=0 /\ value<=255)?! "Invalid PDF string byte"
+    high:value//16
+    low:value%16
+    @:text.slice("0123456789ABCDEF",high,high+1)&text.slice("0123456789ABCDEF",low,low+1)
+
+hex_scalar(value:int)->str:
+    value<128? @:hex_byte(value)
+    value<2048? @:hex_byte(192+value//64)&hex_byte(128+value%64)
+    value<65536? @:hex_byte(224+value//4096)&hex_byte(128+(value//64)%64)&hex_byte(128+value%64)
+    @:hex_byte(240+value//262144)&hex_byte(128+(value//4096)%64)&hex_byte(128+(value//64)%64)&hex_byte(128+value%64)
+
+hex_string(value:str)->str:
+    encoded:value >> hex_scalar(int($))
+    @:"<"&encoded&">"
+
+stream(dictionary:str,body:str)->str:
+    length:text.byte_length(body)
+    @:"<< "&dictionary&" /Length "&integer(length)&" >>\nstream\n"&body&"\nendstream"
+
+object(identifier:int,body:str)->str:
+    (identifier>0)?! "Invalid PDF object number"
+    @:integer(identifier)&" 0 obj\n"&body&"\nendobj\n"
+
+xref_row(offset:int)->str:
+    (offset>=0 /\ offset<10000000000)?! "PDF exceeds classic xref offset range"
+    digits:integer(offset)
+    padding:text.slice("0000000000",0,10-text.byte_length(digits))
+    @:padding&digits&" 00000 n \n"

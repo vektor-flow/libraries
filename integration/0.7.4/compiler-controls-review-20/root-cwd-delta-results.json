@@ -1,0 +1,547 @@
+{
+  "TEST_ONLY": true,
+  "passed": true,
+  "allowed_differences": [
+    {
+      "path": [
+        "stages",
+        0,
+        "cwd"
+      ],
+      "before": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/numeric_only",
+      "after": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/home"
+    },
+    {
+      "path": [
+        "stages",
+        1,
+        "argv"
+      ],
+      "before": [
+        "/usr/bin/valgrind",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/numeric_only/case.exe"
+      ],
+      "after": [
+        "/usr/bin/valgrind",
+        "--vgdb=no",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/numeric_only/case.exe"
+      ]
+    },
+    {
+      "path": [
+        "stages",
+        2,
+        "cwd"
+      ],
+      "before": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/string_only",
+      "after": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/home"
+    },
+    {
+      "path": [
+        "stages",
+        3,
+        "argv"
+      ],
+      "before": [
+        "/usr/bin/valgrind",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/string_only/case.exe"
+      ],
+      "after": [
+        "/usr/bin/valgrind",
+        "--vgdb=no",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/string_only/case.exe"
+      ]
+    },
+    {
+      "path": [
+        "stages",
+        4,
+        "cwd"
+      ],
+      "before": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/individual_control",
+      "after": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/home"
+    },
+    {
+      "path": [
+        "stages",
+        5,
+        "argv"
+      ],
+      "before": [
+        "/usr/bin/valgrind",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/individual_control/case.exe"
+      ],
+      "after": [
+        "/usr/bin/valgrind",
+        "--vgdb=no",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/individual_control/case.exe"
+      ]
+    },
+    {
+      "path": [
+        "stages",
+        6,
+        "cwd"
+      ],
+      "before": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/scalar_control",
+      "after": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/home"
+    },
+    {
+      "path": [
+        "stages",
+        7,
+        "argv"
+      ],
+      "before": [
+        "/usr/bin/valgrind",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/scalar_control/case.exe"
+      ],
+      "after": [
+        "/usr/bin/valgrind",
+        "--vgdb=no",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/scalar_control/case.exe"
+      ]
+    },
+    {
+      "path": [
+        "stages",
+        8,
+        "cwd"
+      ],
+      "before": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/borrowed_alias",
+      "after": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/home"
+    },
+    {
+      "path": [
+        "stages",
+        9,
+        "argv"
+      ],
+      "before": [
+        "/usr/bin/valgrind",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/borrowed_alias/case.exe"
+      ],
+      "after": [
+        "/usr/bin/valgrind",
+        "--vgdb=no",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/borrowed_alias/case.exe"
+      ]
+    },
+    {
+      "path": [
+        "stages",
+        10,
+        "cwd"
+      ],
+      "before": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/owned",
+      "after": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/home"
+    },
+    {
+      "path": [
+        "stages",
+        11,
+        "argv"
+      ],
+      "before": [
+        "/usr/bin/valgrind",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/owned/case.exe"
+      ],
+      "after": [
+        "/usr/bin/valgrind",
+        "--vgdb=no",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/owned/case.exe"
+      ]
+    },
+    {
+      "path": [
+        "stages",
+        12,
+        "cwd"
+      ],
+      "before": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/returned",
+      "after": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/home"
+    },
+    {
+      "path": [
+        "stages",
+        13,
+        "argv"
+      ],
+      "before": [
+        "/usr/bin/valgrind",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/returned/case.exe"
+      ],
+      "after": [
+        "/usr/bin/valgrind",
+        "--vgdb=no",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/returned/case.exe"
+      ]
+    },
+    {
+      "path": [
+        "stages",
+        14,
+        "cwd"
+      ],
+      "before": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/independence",
+      "after": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/home"
+    },
+    {
+      "path": [
+        "stages",
+        15,
+        "argv"
+      ],
+      "before": [
+        "/usr/bin/valgrind",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/independence/case.exe"
+      ],
+      "after": [
+        "/usr/bin/valgrind",
+        "--vgdb=no",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/independence/case.exe"
+      ]
+    },
+    {
+      "path": [
+        "stages",
+        16,
+        "cwd"
+      ],
+      "before": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/nested",
+      "after": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/home"
+    },
+    {
+      "path": [
+        "stages",
+        17,
+        "argv"
+      ],
+      "before": [
+        "/usr/bin/valgrind",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/nested/case.exe"
+      ],
+      "after": [
+        "/usr/bin/valgrind",
+        "--vgdb=no",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/nested/case.exe"
+      ]
+    },
+    {
+      "path": [
+        "stages",
+        18,
+        "cwd"
+      ],
+      "before": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/error_cleanup",
+      "after": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/home"
+    },
+    {
+      "path": [
+        "stages",
+        19,
+        "argv"
+      ],
+      "before": [
+        "/usr/bin/valgrind",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/error_cleanup/case.exe"
+      ],
+      "after": [
+        "/usr/bin/valgrind",
+        "--vgdb=no",
+        "--tool=memcheck",
+        "--leak-check=full",
+        "--show-leak-kinds=all",
+        "--errors-for-leak-kinds=definite,indirect",
+        "--error-exitcode=97",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/error_cleanup/case.exe"
+      ]
+    }
+  ],
+  "only_ten_compile_cwd_and_ten_vgdb_insertions": true,
+  "original_memcheck_options_and_oracles_unchanged": true,
+  "other_five_phase_plans_unchanged": true,
+  "old_seal_rejects_delta": true,
+  "new_source_seal_required": true,
+  "plan_schema_unchanged": true,
+  "source_plan": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/d288/plan.json",
+    "sha256": "c1cf0257270b111078656e7c5f65a5c1857197c522967f5fd4b2586efa29ed3a"
+  },
+  "generator_before": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/build_packet.py",
+    "sha256": "30e73079598782249310a1242c958c708a6f9f630fdd929f84182a75a260207b"
+  },
+  "generator_proposal": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/build_packet.py",
+    "sha256": "9427f921b88f83e52e3e9197f65337eaf21cf12a144b992bdfd8e452d3517edb"
+  },
+  "driver_profile": {
+    "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iteration303-compose01/native-profile.json",
+    "sha256": "646db3bd165325ce7e859039a972fed28f1b37a1c5ca7dcd3942489fe0e2ffab"
+  },
+  "driver_object": {
+    "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration323-resume01/driver-0.o",
+    "sha256": "a770df41ad4201e4d575ba0fb94e97701df811b4fbb7e7f73779aea197f4d983"
+  },
+  "driver_MD": {
+    "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration323-resume01/driver-0.o.d",
+    "sha256": "87bbaf5ef8074cb3bd5fe24272e92799169ff79c46dbe0813e7a3aa1b6b0e3f1"
+  },
+  "driver_source": {
+    "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f192-A137-B177-compose01/source/compiler/native/vkf_driver_artifact_smoke.cpp",
+    "sha256": "6ac2ba36118df58f2fc841decfcbc2f70697e4923b30b889e368d635421ac09d"
+  },
+  "resolver_model": "Pinned C++ source branch order; no C++ or native execution",
+  "resolver_matches": [
+    {
+      "stage": "numeric_only-compile",
+      "module": "io",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/io.vkf",
+      "sha256": "0df4f64fa1597f619743fb0ff01105f59c1e7883e19bc095f00ba48e9a3e7d80",
+      "old_search_result": null
+    },
+    {
+      "stage": "numeric_only-compile",
+      "module": "errors",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/errors.vkf",
+      "sha256": "150851cae3b6b1f2fc275de0d8678435a2e765f6b8f085a2c76c06584b7a7345",
+      "old_search_result": null
+    },
+    {
+      "stage": "string_only-compile",
+      "module": "io",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/io.vkf",
+      "sha256": "0df4f64fa1597f619743fb0ff01105f59c1e7883e19bc095f00ba48e9a3e7d80",
+      "old_search_result": null
+    },
+    {
+      "stage": "string_only-compile",
+      "module": "errors",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/errors.vkf",
+      "sha256": "150851cae3b6b1f2fc275de0d8678435a2e765f6b8f085a2c76c06584b7a7345",
+      "old_search_result": null
+    },
+    {
+      "stage": "individual_control-compile",
+      "module": "io",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/io.vkf",
+      "sha256": "0df4f64fa1597f619743fb0ff01105f59c1e7883e19bc095f00ba48e9a3e7d80",
+      "old_search_result": null
+    },
+    {
+      "stage": "individual_control-compile",
+      "module": "errors",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/errors.vkf",
+      "sha256": "150851cae3b6b1f2fc275de0d8678435a2e765f6b8f085a2c76c06584b7a7345",
+      "old_search_result": null
+    },
+    {
+      "stage": "scalar_control-compile",
+      "module": "io",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/io.vkf",
+      "sha256": "0df4f64fa1597f619743fb0ff01105f59c1e7883e19bc095f00ba48e9a3e7d80",
+      "old_search_result": null
+    },
+    {
+      "stage": "scalar_control-compile",
+      "module": "errors",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/errors.vkf",
+      "sha256": "150851cae3b6b1f2fc275de0d8678435a2e765f6b8f085a2c76c06584b7a7345",
+      "old_search_result": null
+    },
+    {
+      "stage": "borrowed_alias-compile",
+      "module": "io",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/io.vkf",
+      "sha256": "0df4f64fa1597f619743fb0ff01105f59c1e7883e19bc095f00ba48e9a3e7d80",
+      "old_search_result": null
+    },
+    {
+      "stage": "borrowed_alias-compile",
+      "module": "errors",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/errors.vkf",
+      "sha256": "150851cae3b6b1f2fc275de0d8678435a2e765f6b8f085a2c76c06584b7a7345",
+      "old_search_result": null
+    },
+    {
+      "stage": "owned-compile",
+      "module": "io",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/io.vkf",
+      "sha256": "0df4f64fa1597f619743fb0ff01105f59c1e7883e19bc095f00ba48e9a3e7d80",
+      "old_search_result": null
+    },
+    {
+      "stage": "owned-compile",
+      "module": "errors",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/errors.vkf",
+      "sha256": "150851cae3b6b1f2fc275de0d8678435a2e765f6b8f085a2c76c06584b7a7345",
+      "old_search_result": null
+    },
+    {
+      "stage": "returned-compile",
+      "module": "io",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/io.vkf",
+      "sha256": "0df4f64fa1597f619743fb0ff01105f59c1e7883e19bc095f00ba48e9a3e7d80",
+      "old_search_result": null
+    },
+    {
+      "stage": "returned-compile",
+      "module": "errors",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/errors.vkf",
+      "sha256": "150851cae3b6b1f2fc275de0d8678435a2e765f6b8f085a2c76c06584b7a7345",
+      "old_search_result": null
+    },
+    {
+      "stage": "independence-compile",
+      "module": "io",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/io.vkf",
+      "sha256": "0df4f64fa1597f619743fb0ff01105f59c1e7883e19bc095f00ba48e9a3e7d80",
+      "old_search_result": null
+    },
+    {
+      "stage": "independence-compile",
+      "module": "errors",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/errors.vkf",
+      "sha256": "150851cae3b6b1f2fc275de0d8678435a2e765f6b8f085a2c76c06584b7a7345",
+      "old_search_result": null
+    },
+    {
+      "stage": "nested-compile",
+      "module": "io",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/io.vkf",
+      "sha256": "0df4f64fa1597f619743fb0ff01105f59c1e7883e19bc095f00ba48e9a3e7d80",
+      "old_search_result": null
+    },
+    {
+      "stage": "nested-compile",
+      "module": "errors",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/errors.vkf",
+      "sha256": "150851cae3b6b1f2fc275de0d8678435a2e765f6b8f085a2c76c06584b7a7345",
+      "old_search_result": null
+    },
+    {
+      "stage": "error_cleanup-compile",
+      "module": "io",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/io.vkf",
+      "sha256": "0df4f64fa1597f619743fb0ff01105f59c1e7883e19bc095f00ba48e9a3e7d80",
+      "old_search_result": null
+    },
+    {
+      "stage": "error_cleanup-compile",
+      "module": "errors",
+      "relative_to_attempt": "home/compiler/self_hosted/stdlib/errors.vkf",
+      "sha256": "150851cae3b6b1f2fc275de0d8678435a2e765f6b8f085a2c76c06584b7a7345",
+      "old_search_result": null
+    }
+  ],
+  "regular_materialized_allocated_bytes": 1368064,
+  "regular_retained_fake_output_bytes": 1531904,
+  "fake_stages": 20,
+  "actual_fifo_absence_requires_native_qualification": true,
+  "all_temp_cleaned": true,
+  "native_execution": false,
+  "operational_mutations": 0,
+  "children": [],
+  "all_children_joined": true,
+  "seconds": 1.7231359449215233,
+  "memory": [
+    "VmPeak:\t  168236 kB",
+    "VmHWM:\t  153748 kB"
+  ]
+}

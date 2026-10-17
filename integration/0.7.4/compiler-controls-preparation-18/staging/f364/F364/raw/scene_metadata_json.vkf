@@ -1,0 +1,47 @@
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+# Explicit parser/export boundary. Import removes source spans and JSON text.
+m:.scene_metadata
+j:.resource_json
+n:.json_numbers
+chunks:.text_chunks
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+import_node(q:Tape,root:int)->Metadata:
+    q.valid?! "Invalid metadata input"
+    root<0? @:m.empty()
+    count:q.ends.(root)-root
+    [int] kinds:[0:count]
+    [int] ends:[0:count]
+    texts:chunks.empty(count)
+    [num] numbers:[0.0:count]
+    i:0
+    i<count?>
+        at:root+i
+        kinds.(i):q.kinds.(at)
+        ends.(i):q.ends.(at)-root
+        q.kinds.(at)=3? texts.(i):j.string(q,at)
+        q.kinds.(at)=4? numbers.(i):j.number(q,at)
+        .i:i+1
+    @:(kinds:kinds,ends:ends,texts:texts,numbers:numbers,count:count)
+encode(a:Metadata,root:int)->str:
+    root<0? @:"{}"
+    kind:a.kinds.(root)
+    kind=3? @:j.quote(a.texts.(root))
+    kind=4? @:n.roundtrip(a.numbers.(root))
+    kind=5? @:"true"
+    kind=6? @:"false"
+    kind=7? @:"null"
+    (kind=1 \/ kind=2)?! "Invalid typed metadata kind"
+    out:"["
+    kind=1? .out:"{"
+    at:root+1
+    first:true
+    at<a.ends.(root)?>
+        ~first? .out:out&"," 
+        kind=1?
+            .out:out&j.quote(a.texts.(at))&":"
+            .at:at+1
+        .out:out&encode(a,at)
+        .at:a.ends.(at)
+        .first:false
+    kind=1? @:out&"}"
+    @:out&"]"

@@ -1,0 +1,75 @@
+# Modulo noads retain their argument and use the installed roman text metrics.
+commands:.math_commands
+glyphs:.math_glyphs
+parser:.math_parser
+j:.resource_json
+numbers:.json_numbers
+tex:.tex_numeric
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Glyph:(token:str,key:str,width:num,height:num,depth:num,class_id:int,italic:num,character:bit,metric:str,diagnostic:str,placeholder:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Buffer:(heads:[[int]],tails:[[int]],boxes:int,nexts:[[int]],children:[[int]],pool:Pool,payload_ids:[[int]],xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int)
+Size:(width:num,height:num,depth:num)
+
+add(buffer:Buffer,owner:int,glyph:Glyph,color:str,x:num)->Buffer:
+    value:"\"kind\":\"glyph\",\"color\":"&color&",\"key\":"&j.quote(glyph.key)
+    y:0.0
+    glyph.placeholder?
+        .value:"\"kind\":\"placeholder\",\"color\":"&color&",\"width\":"&numbers.roundtrip(glyph.width)&",\"height\":"&numbers.roundtrip(glyph.height)
+        .y: -glyph.height
+    @:commands.append(buffer,owner, -1,value,x,y)
+
+layout(buffer:Buffer,owner:int,child:int,fonts:Catalog,body:Size,name:str,style:int,display:bit,mu:num,font:str,color:str):
+    lead:8
+    name="mod"? .lead:12
+    display? .lead:18
+    side:1
+    style>=2? .side:5
+    name="bmod"? .lead:side
+    width:num(lead)*mu
+    height:0.0
+    depth:0.0
+    out:buffer
+    diagnostic:""
+    (name="pmod" \/ name="pod")?
+        opening:glyphs.glyph(fonts,"(",style,font)
+        .out:add(out,owner,opening,color,width)
+        .width:width+opening.width
+        .height:tex.maximum(height,opening.height)
+        .depth:tex.maximum(depth,opening.depth)
+        opening.diagnostic~=""? .diagnostic:parser.repair(diagnostic,opening.diagnostic)
+    name~="pod"?
+        letters:["m","o","d"]
+        prior:glyphs.hole(fonts,style)
+        has_prior:false
+        part:0
+        part<3?>
+            char:letters.(part)
+            token:glyphs.text_token(fonts,char,"mathrm",style)
+            letter:glyphs.glyph(fonts,token,style,font)
+            has_prior /\ ~letter.placeholder? .width:width+glyphs.kern(prior,letter,true)
+            .out:add(out,owner,letter,color,width)
+            advance:letter.width
+            ~letter.placeholder? .advance:glyphs.numeric(j.parse(letter.metric),0,"advance",letter.width)
+            .width:width+advance
+            .height:tex.maximum(height,letter.height)
+            .depth:tex.maximum(depth,letter.depth)
+            letter.diagnostic~=""? .diagnostic:parser.repair(diagnostic,letter.diagnostic)
+            letter.placeholder? .diagnostic:parser.repair(diagnostic,"Unsupported text character: "&char)
+            .prior:letter
+            .has_prior:~letter.placeholder
+            .part:part+1
+    (name="pmod" \/ name="mod")? .width:width+6*mu
+    .out:commands.append(out,owner,child,"",width,0)
+    .width:width+body.width
+    .height:tex.maximum(height,body.height)
+    .depth:tex.maximum(depth,body.depth)
+    (name="pmod" \/ name="pod")?
+        closing:glyphs.glyph(fonts,")",style,font)
+        .out:add(out,owner,closing,color,width)
+        .width:width+closing.width
+        .height:tex.maximum(height,closing.height)
+        .depth:tex.maximum(depth,closing.depth)
+        closing.diagnostic~=""? .diagnostic:parser.repair(diagnostic,closing.diagnostic)
+    name="bmod"? .width:width+num(side)*mu
+    @:(buffer:out,width:width,height:height,depth:depth,diagnostic:diagnostic)

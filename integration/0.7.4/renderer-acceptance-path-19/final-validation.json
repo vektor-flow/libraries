@@ -1,0 +1,83 @@
+{
+  "passed": true,
+  "stages": [
+    {
+      "name": "stdin-original",
+      "argv": [
+        "/home/viktor/.local/share/cuvami-vkf/reference-venv-314/bin/python",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/renderer-acceptance-path-19/write_stdin.py",
+        "--case",
+        "original",
+        "--run-dir",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/renderer-acceptance-path-19/future-not-created"
+      ],
+      "pid": 157634,
+      "exit": 0,
+      "seconds": 0.06530091096647084,
+      "joined": true,
+      "timed_out": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "stdin-edited",
+      "argv": [
+        "/home/viktor/.local/share/cuvami-vkf/reference-venv-314/bin/python",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/renderer-acceptance-path-19/write_stdin.py",
+        "--case",
+        "edited-full",
+        "--layout",
+        "--run-dir",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/renderer-acceptance-path-19/future-not-created"
+      ],
+      "pid": 157635,
+      "exit": 0,
+      "seconds": 0.06638697697781026,
+      "joined": true,
+      "timed_out": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "reference-checker",
+      "argv": [
+        "/home/viktor/.local/share/cuvami-vkf/reference-venv-314/bin/python",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/renderer-acceptance-path-19/verify_artifacts.py",
+        "--case",
+        "original",
+        "--pdf",
+        "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/documents/original40/document.pdf",
+        "--report",
+        "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/documents/original40/report.json"
+      ],
+      "pid": 157636,
+      "exit": 0,
+      "seconds": 0.16614794894121587,
+      "joined": true,
+      "timed_out": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "reference-pdfinfo",
+      "argv": [
+        "/usr/bin/pdfinfo",
+        "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/documents/original40/document.pdf"
+      ],
+      "pid": 157637,
+      "exit": 0,
+      "seconds": 0.024898752919398248,
+      "joined": true,
+      "timed_out": false,
+      "as_limit_bytes": 536870912
+    }
+  ],
+  "all_children_joined": true,
+  "git_read_children_joined": true,
+  "source_commit": "4302f7a03a5d812bf1eaf35848557d157d2e5aae",
+  "tracked_diff_empty": true,
+  "input_pins_verified": 225,
+  "native_execution": false,
+  "reference_only": true,
+  "child_maxrss_kib": 46072
+}

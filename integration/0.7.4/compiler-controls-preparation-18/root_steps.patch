@@ -1,0 +1,51 @@
+--- compiler-runtime-binding-16/root_steps.py
++++ compiler-controls-preparation-18/root_steps.py
+@@ -27,11 +27,11 @@
+               'genuine separate root execution/rotation/publication authorization required')
+     a.require(d['source_contract']==a.pin(HERE/'source-contract.json')
+               and d['source_commit']==s['source_commit']==a.current_head(), 'root seal/HEAD decision')
+-    a.require(d['worker']=='A' and d['ram_bytes']==8*a.GIB and d['disk_bytes']==a.GIB
+-              and d['timeout_seconds']==1200 and d['observed_only_toolchain_accepted'] is True,
++    a.require(d['phase']==a.PHASE and d['worker']=='A' and d['ram_bytes']==8*a.GIB and d['disk_bytes']==a.DISK
++              and d['timeout_seconds']==a.TIMEOUT and d['observed_only_toolchain_accepted'] is True,
+               'root resource/toolchain decision required')
+     a.require(isinstance(d['owner'],str) and d['owner'] and type(d['iteration']) is int
+-              and d['iteration']>25, 'fresh root execution owner/iteration required')
++              and d['iteration']>26, 'fresh root execution owner/iteration required')
+     a.require(d['boot']==Path('/proc/sys/kernel/random/boot_id').read_text().strip(), 'boot changed')
+     q=a.load_pin(s['qualification_review'])
+     a.require(d['boot']==q['boot'] and q['v6_bundle']==s['v6_bundle'], 'qualified installed bundle')
+@@ -83,10 +83,10 @@
+         before=ledger.snapshot();quiescent(before)
+         phases=[(k,r) for k,r in before['phases'].items() if r['worker']=='A']
+         key,row=max(phases,key=lambda x:x[1]['sequence'])
+-        assert key=='A:compiler-native13-01' and row['sequence']==12 and row['stage']=='joined'
+-        assert ledger.owner(before,'A')=='01a149f1-6e6c-7683-8d76-43acab856af5'
++        assert key=='A:compiler-native17-01' and row['sequence']==13 and row['stage']=='joined'
++        assert ledger.owner(before,'A')=='01a14a07-a6c3-7941-b133-31fe3cbbee71'
+         assert d['owner'] != row['owner'], 'fresh execution owner required'
+-        assert row['join'] == {'path': '/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native13-01/receipts/service-join.json', 'sha256': 'd256ac9107872673b7751c4d7c2490b607ff23e6ec8c16b80257bd6ed63c2492'}
++        assert row['join'] == {'path': '/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/receipts/service-join.json', 'sha256': '59a64d4dd9c467d71de4264ddf2c3f6fe8d62763ef9809c16f5ec56aef95b150'}
+         assert row['owner']==ledger.owner(before,'A') and verify_join(row,pinned_json(row['join'])) is True
+         root.mkdir(mode=0o700)
+         immutable(root/'state-before.json',a.encoded(before))
+@@ -111,7 +111,7 @@
+         assert data['lanes']['A']['transitions'][-1]==tp and ledger.owner(data,'A')==d['owner']
+         request={k:d[k] for k in ('coordinator','native_execution','worker','ram_bytes','disk_bytes',
+             'timeout_seconds','source_commit','owner','iteration','attempt','boot','observed_only_toolchain_accepted')}
+-        request.update(phase='compiler',qualification_review=s['qualification_review'],owner_receipt=op,
++        request.update(phase=a.PHASE,qualification_review=s['qualification_review'],owner_receipt=op,
+             owner_transition=tp,publication_authorization=ref,publication_receipt_path=str(root/'publication.json'),
+             grant_path=str(root/'grant.json'),manifest_path=str(root/'manifest.json'))
+         a.evidence(request,s)
+@@ -128,8 +128,8 @@
+         assert m['grant']==gp and all(m[k]==g[k] for k in a.MATCH)
+         assert g['owner']==d['owner'] and g['iteration']==d['iteration'] and g['attempt']==d['attempt']
+         assert g['controller']==s['v6_bundle']['controller'] and g['runtime_config']==s['v6_bundle']['config']
+-        assert g['helpers']==s['v6_bundle']['helpers'] and g['phase_scope']=='compiler'
+-        assert (g['ram_peak_bytes'],g['phase_bytes'],g['timeout_seconds'])==(8*a.GIB,a.GIB,1200)
++        assert g['helpers']==s['v6_bundle']['helpers'] and g['phase_scope']==a.PHASE
++        assert (g['ram_peak_bytes'],g['phase_bytes'],g['timeout_seconds'])==(8*a.GIB,a.DISK,a.TIMEOUT)
+         assert g['source_commit']==d['source_commit'] and all(x in g['inputs'] for x in s['pins'])
+         private_workload.runtime_view(m)
+         for pp in g['inputs']:pinned(pp)

@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/verify_cwd_delta.py", line 37, in <module>
+    prof=a.read(profile);driver=next(r for r in prof['drivers'] if r['label']=='driver-0')
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/adapter.py", line 57, in read
+    return decode(raw(path))
+                  ~~~^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/adapter.py", line 39, in raw
+    require(p.is_file() and p.stat().st_size <= limit, 'missing/oversized file: '+str(p))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/adapter.py", line 34, in require
+    raise ValueError(message)
+ValueError: missing/oversized file: /home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iteration303-compose01/native-profile.json

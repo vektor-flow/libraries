@@ -1,0 +1,5 @@
+prepare(sources:[str],starts:[int],count:int)->bit:
+    @:sources.(0)="ffi" /\ sources.length()=2 /\ starts.(1)=0 /\ count=2
+check()->bit:
+    @:prepare(["ffi","ffi"],[0,0],2)
+::check()

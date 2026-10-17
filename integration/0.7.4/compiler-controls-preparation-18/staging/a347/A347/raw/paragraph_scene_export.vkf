@@ -1,0 +1,61 @@
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Store:(arena:Arena,firsts:[int],counts:[int],anchor_firsts:[int],anchor_counts:[int],anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int,widths:[num],heights:[num],depths:[num],tag_widths:[num],inline_destinations:[bit],count:int)
+export:.document_scene_export
+metadata_json:.scene_metadata_json
+j:.resource_json
+t:.tex_text
+chunks:.text_chunks
+json_numbers:.json_numbers
+Parts:(values:[str],count:int)
+add(input:Parts,value:str)->Parts:
+    out:input
+    out.count>=out.values.length()? out.values:out.values&chunks.empty(out.values.length()+1)
+    prefix:""
+    out.count>0? .prefix:","
+    values:out.values
+    values.(out.count):prefix&value
+    out.values:values
+    out.count:out.count+1
+    @:out
+placed(metadata:Metadata,node:int,x:num,y:num,line:int)->str:
+    ends:metadata.ends
+    limit:ends.(node)
+    index:node+1
+    parts:(values:chunks.empty(8),count:0)
+    dx:0.0
+    dy:0.0
+    index<limit?>
+        key:metadata.texts.(index)
+        key="x"?
+            metadata.kinds.(index+1)=4?! "JSON number required"
+            .dx:metadata.numbers.(index+1)
+        key="y"?
+            metadata.kinds.(index+1)=4?! "JSON number required"
+            .dy:metadata.numbers.(index+1)
+        key~="x" /\ key~="y" /\ key~="flowLine"? .parts:add(parts,j.quote(key)&":"&metadata_json.encode(metadata,index+1))
+        .index:ends.(index+1)
+    .parts:add(parts,"\"x\":"&json_numbers.roundtrip(x+dx))
+    .parts:add(parts,"\"y\":"&json_numbers.roundtrip(y+dy))
+    .parts:add(parts,"\"flowLine\":"&t.integer(line))
+    @:"{"&chunks.join(parts.values,0,parts.count)&"}"
+
+leaf(arena:Arena,index:int,x:num,y:num,line:int)->str:
+    root:arena.metadata_roots.(index)
+    root>=0?
+        @:placed(arena.metadata,root,x,y,line)
+    positioned:arena
+    xs:positioned.xs
+    ys:positioned.ys
+    lines:positioned.lines
+    xs.(index):arena.xs.(index)+x
+    ys.(index):arena.ys.(index)+y
+    lines.(index):line
+    positioned.xs:xs
+    positioned.ys:ys
+    positioned.lines:lines
+    @:export.leaf(positioned,index,0,1)

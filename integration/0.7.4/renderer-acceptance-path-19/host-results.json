@@ -1,0 +1,56 @@
+{
+  "stages": [
+    {
+      "name": "prepare",
+      "argv": [
+        "/home/viktor/.local/share/cuvami-vkf/reference-venv-314/bin/python",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/renderer-acceptance-path-19/prepare.py"
+      ],
+      "pid": 151586,
+      "exit": 0,
+      "expected_exit": 0,
+      "seconds": 0.46571861091069877,
+      "joined": true,
+      "timed_out": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "host-tests",
+      "argv": [
+        "/home/viktor/.local/share/cuvami-vkf/reference-venv-314/bin/python",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/renderer-acceptance-path-19/test_acceptance_path.py"
+      ],
+      "pid": 151590,
+      "exit": 0,
+      "expected_exit": 0,
+      "seconds": 0.3166789509123191,
+      "joined": true,
+      "timed_out": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "api-surface",
+      "argv": [
+        "/home/viktor/.local/share/cuvami-vkf/reference-venv-314/bin/python",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/pdf-api-acceptance/check_surface.py",
+        "--repo",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries"
+      ],
+      "pid": 151591,
+      "exit": 2,
+      "expected_exit": 2,
+      "seconds": 0.06654002901632339,
+      "joined": true,
+      "timed_out": false,
+      "as_limit_bytes": 536870912
+    }
+  ],
+  "passed": true,
+  "child_maxrss_kib": 93596,
+  "native_execution": false,
+  "all_children_joined": true,
+  "native_save_seconds": null
+}

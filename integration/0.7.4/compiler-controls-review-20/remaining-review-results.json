@@ -1,0 +1,144 @@
+{
+  "TEST_ONLY": true,
+  "passed": true,
+  "source_commit": "4302f7a03a5d812bf1eaf35848557d157d2e5aae",
+  "artifact_pins_verified": 428,
+  "inspected_versions": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/inspected-pins.json",
+    "sha256": "588ef98382fe9d218c1c77771f9d50c0e1b559924e81b9d63eefd004fef202da"
+  },
+  "compiler_snapshot_byte_identical_to_real_receipt": true,
+  "eight_actual_native17_stage_oracles_and_MD_reverified": true,
+  "compiler": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+    "sha256": "52116e581d041836505756fcde17d504422429e410f0c84cb353409e121948d9"
+  },
+  "identity": "340d32d743bfcd6da076840963974462ed590852314ae483bbde5b4cc20c2e74",
+  "static_pins": 255,
+  "combined_runtime_inputs": 915,
+  "ELF_dependency_edges_checked": 104,
+  "valgrind_pins": [
+    {
+      "path": "/usr/bin/valgrind",
+      "sha256": "4652774bd116cb49951ef74115ad4237cad5021b2bd4d80002f09d986ec438b9"
+    },
+    {
+      "path": "/usr/bin/valgrind.bin",
+      "sha256": "b8d6a5217e6a34d020265be01eb6a243ce5914fe2eac44890140e1787142047b"
+    },
+    {
+      "path": "/usr/bin/dash",
+      "sha256": "c626229526bb58ec2d0f585f3c3ae1412e6f973b4353385042d11c38d8426917"
+    },
+    {
+      "path": "/usr/libexec/valgrind/memcheck-amd64-linux",
+      "sha256": "cff90a9f9b4ed5a6c73537e2d6110b097a463ba3adf1aa3055cbce3419c39186"
+    },
+    {
+      "path": "/usr/libexec/valgrind/vgpreload_core-amd64-linux.so",
+      "sha256": "084a1c02c0842b8e2dafbac7ddcbee0b27547d77a3c75b73bf1916ff723dd523"
+    },
+    {
+      "path": "/usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so",
+      "sha256": "7ebb98da78c4be177fd3a2ea58098ebb645c6583192400f1f1ee9755f77941e9"
+    },
+    {
+      "path": "/usr/libexec/valgrind/default.supp",
+      "sha256": "7b440af776e3766468ef2c1ff5b57c2478a089202f2312c1348912643ed23546"
+    },
+    {
+      "path": "/etc/ld.so.cache",
+      "sha256": "49105b209751b898650daa0de9e23cee862cfcdf3c98f80b59b7d6e1474d834d"
+    }
+  ],
+  "vgdb_evidence": {
+    "manual": {
+      "path": "/usr/share/doc/valgrind/html/manual-core.html",
+      "sha256": "1dffe11c4f0b12b38ba6f8185d7575c0c4d0e97ec0315b027fdae77a83833df7"
+    },
+    "advanced": {
+      "path": "/usr/share/doc/valgrind/html/manual-core-adv.html",
+      "sha256": "93ad55ca1d65e1062fa486dc7d3b018efd3953b1c9d4ae58ccfb54bf2c1026c6"
+    },
+    "installed_allocator": {
+      "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/storage_paths.py",
+      "sha256": "5d8e720b1c15ae97dc06e4bb05fe1da6287739f37d525f13d93d38e922760b7d"
+    },
+    "default_vgdb_yes": true,
+    "default_IPC_FIFOs": 2,
+    "original_no_override": true,
+    "TEMP_fifo_rejection": "symlink or special file",
+    "actual_native_IPC_not_run": true,
+    "proposed_vgdb_no_must_be_verified_in_actual_future_run": true
+  },
+  "succession": {
+    "advisory_unlocked_read": true,
+    "state": {
+      "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/direct-state-v4.json",
+      "sha256": "b82715674bde92856e1e05937e9fd51ea327e71e33b36f45c58b577626413804"
+    },
+    "key": "A:compiler-native17-01",
+    "sequence": 13,
+    "owner": "01a14a07-a6c3-7941-b133-31fe3cbbee71",
+    "stage": "joined",
+    "join": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/receipts/service-join.json",
+      "sha256": "59a64d4dd9c467d71de4264ddf2c3f6fe8d62763ef9809c16f5ec56aef95b150"
+    },
+    "active_ram_intent": 0,
+    "charges": {
+      "A": 20938285056,
+      "F": 19821273088
+    },
+    "fresh_locked_root_verification_still_required": true
+  },
+  "source_receipt_cycle": false,
+  "prior_compiler_data_exception_not_authority": true,
+  "patches": [
+    {
+      "patch": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/adapter-regular-stdlib.patch",
+        "sha256": "5378d55f66abad8fe856ba4eee0077a9718cabc38790703b04a652b321cc9fab"
+      },
+      "reconstructed": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/adapter.py",
+        "sha256": "bacd5d8b64ee6ca3fd012df2b51b900d70d5ba155107f5cdab3fc6f7ab480fd0"
+      },
+      "passed": true
+    },
+    {
+      "patch": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/build-packet-d288-cwd-vgdb.patch",
+        "sha256": "be56c192ff31507ff0727fed36912e84d693a958d0a2fe671d2b51b733af8334"
+      },
+      "reconstructed": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/build_packet.py",
+        "sha256": "9427f921b88f83e52e3e9197f65337eaf21cf12a144b992bdfd8e452d3517edb"
+      },
+      "passed": true
+    }
+  ],
+  "children": [
+    {
+      "pid": 179954,
+      "exit": 0,
+      "joined": true,
+      "absent": true
+    },
+    {
+      "pid": 179955,
+      "exit": 0,
+      "joined": true,
+      "absent": true
+    }
+  ],
+  "all_children_joined": true,
+  "all_TEMP_cleaned": true,
+  "seconds": 1.3378154060337692,
+  "native_execution": false,
+  "operational_mutations": 0,
+  "memory": [
+    "VmPeak:\t   70300 kB",
+    "VmHWM:\t   40716 kB"
+  ]
+}

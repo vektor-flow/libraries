@@ -1,0 +1,93 @@
+names:.tex_names
+text:.tex_text
+groups:.tex_groups
+Definitions:(names:(keys:str,starts:[int],stops:[int],hashes:[int],values:[int],count:int,capacity:int),storage:str,starts:[int],stops:[int],counts:[int],optional:[int],default_starts:[int],default_stops:[int],count:int,capacity:int)
+
+create(capacity:int=32)->Definitions:
+    [int] starts:[0:capacity]
+    [int] stops:[0:capacity]
+    [int] counts:[0:capacity]
+    [int] optional:[0:capacity]
+    [int] default_starts:[0:capacity]
+    [int] default_stops:[0:capacity]
+    @:(names:names.create(capacity),storage:"",starts:starts,stops:stops,counts:counts,optional:optional,default_starts:default_starts,default_stops:default_stops,count:0,capacity:capacity)
+
+define(table:Definitions,name:str,count:int,body:str,has_default:bit=false,default:str="",provide:bit=false)->Definitions:
+    (count>=0 /\ count<=9)?! "Macro argument count must be 0-9"
+    (~has_default \/ count>0)?! "Optional macro argument requires an argument"
+    identifier:names.get(table.names,name)
+    identifier>=0 /\ provide? @:table
+    int capacity:table.capacity
+    starts:table.starts
+    stops:table.stops
+    counts:table.counts
+    optional:table.optional
+    default_starts:table.default_starts
+    default_stops:table.default_stops
+    size:table.count
+    dictionary:table.names
+    identifier<0?
+        .identifier:size
+        .size:size+1
+        .dictionary:names.put(dictionary,name,identifier)
+        size>capacity?
+            .starts:starts&[0:capacity]
+            .stops:stops&[0:capacity]
+            .counts:counts&[0:capacity]
+            .optional:optional&[0:capacity]
+            .default_starts:default_starts&[0:capacity]
+            .default_stops:default_stops&[0:capacity]
+            .capacity:capacity*2
+    storage:table.storage&body&default
+    start:text.byte_length(table.storage)
+    starts.(identifier):start
+    stops.(identifier):start+text.byte_length(body)
+    counts.(identifier):count
+    optional.(identifier):0
+    has_default? optional.(identifier):1
+    default_starts.(identifier):stops.(identifier)
+    default_stops.(identifier):text.byte_length(storage)
+    @:(names:dictionary,storage:storage,starts:starts,stops:stops,counts:counts,optional:optional,default_starts:default_starts,default_stops:default_stops,count:size,capacity:capacity)
+
+body(table:Definitions,identifier:int)->str:
+    (identifier>=0 /\ identifier<table.count)?! "Invalid macro identifier"
+    @:text.span(table.storage,table.starts.(identifier),table.stops.(identifier))
+
+default(table:Definitions,identifier:int)->str:
+    (identifier>=0 /\ identifier<table.count)?! "Invalid macro identifier"
+    @:text.span(table.storage,table.default_starts.(identifier),table.default_stops.(identifier))
+
+ends_control_word(value:str)->bit:
+    position:0
+    size:text.byte_length(value)
+    position<size?>
+        text.at(value,position)="\\"?
+            command:groups.control(value,position)
+            command.stop=size /\ command.word? @:true
+            .position:command.stop
+            @>
+        .position:text.next(value,position)
+    @:false
+
+substitute(body:str,arguments:str,starts:[int],stops:[int])->str:
+    size:text.byte_length(body)
+    position:0
+    result:""
+    position<size?>
+        found:text.find(body,"#",position)
+        found<0? @:result&text.span(body,position,size)
+        .result:result&text.span(body,position,found)
+        .position:found+1
+        position<size?
+            digit:text.at(body,position)
+            digit>="1" /\ digit<="9"?
+                identifier:int(vkf_decimal_parse(digit))-1
+                (identifier<starts.length() /\ identifier<stops.length())?! "Macro argument index"
+                value:text.span(arguments,starts.(identifier),stops.(identifier))
+                ends_control_word(result) /\ ~vkf_string_eof(value,0) /\ text.letter(text.at(value,0))? .result:result&" "
+                .result:result&value
+                .position:position+1
+                ends_control_word(value) /\ position<size /\ text.letter(text.at(body,position))? .result:result&" "
+                @>
+        .result:result&"#"
+    @:result

@@ -1,0 +1,31 @@
+# faktor's two independently shaped operands share the surrounding style and
+# cramped context. This helper retains their draws around an installed slash.
+commands:.math_commands
+glyphs:.math_glyphs
+j:.resource_json
+numbers:.json_numbers
+tex:.tex_numeric
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Buffer:(heads:[[int]],tails:[[int]],boxes:int,nexts:[[int]],children:[[int]],pool:Pool,payload_ids:[[int]],xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int)
+Size:(width:num,height:num,depth:num)
+
+placement(numerator:Size,denominator:Size,slash:Size,mu:num):
+    up:numerator.height*0.5
+    down:denominator.height*0.5
+    slash_x:numerator.width-5*mu
+    denominator_x:slash_x+slash.width-4*mu
+    @:(width:denominator_x+denominator.width,height:tex.maximum(tex.maximum(numerator.height+up,slash.height),denominator.height-down),depth:tex.maximum(tex.maximum(numerator.depth-up,slash.depth),denominator.depth+down),numerator_y: -up,slash_x:slash_x,denominator_x:denominator_x,denominator_y:down)
+
+layout(buffer:Buffer,owner:int,num_child:int,den_child:int,fonts:Catalog,numerator:Size,denominator:Size,style:int,mu:num,font:str="",color:str="null"):
+    slash:glyphs.glyph(fonts,"\\diagup",style,font)
+    position:placement(numerator,denominator,(width:slash.width,height:slash.height,depth:slash.depth),mu)
+    out:commands.append(buffer,owner,num_child,"",0,position.numerator_y)
+    value:"\"kind\":\"glyph\",\"color\":"&color&",\"key\":"&j.quote(slash.key)
+    y:0.0
+    slash.placeholder?
+        .value:"\"kind\":\"placeholder\",\"color\":"&color&",\"width\":"&numbers.roundtrip(slash.width)&",\"height\":"&numbers.roundtrip(slash.height)
+        .y: -slash.height
+    .out:commands.append(out,owner, -1,value,position.slash_x,y)
+    .out:commands.append(out,owner,den_child,"",position.denominator_x,position.denominator_y)
+    @:(buffer:out,width:position.width,height:position.height,depth:position.depth,diagnostic:slash.diagnostic)

@@ -1,0 +1,10 @@
+# TikZ command regex is ASCII [A-Za-z]+, independent of TeX's @ catcode.
+tikz_control_text:.tex_text
+Control:(name:str,spelling:str,stop:int,word:bit)
+letter(c:str)->bit:(c>="a" /\ c<="z") \/ (c>="A" /\ c<="Z")
+read(source:str,begin:int)->Control:
+    (vkf_string_eof(source,begin) \/ tikz_control_text.at(source,begin)~="\\")? @:(name:"",spelling:"",stop:begin,word:false)
+    at:begin+1
+    start:at
+    ~vkf_string_eof(source,at) /\ letter(tikz_control_text.at(source,at))?> .at:at+1
+    @:(name:tikz_control_text.span(source,start,at),spelling:tikz_control_text.span(source,begin,at),stop:at,word:at>start)

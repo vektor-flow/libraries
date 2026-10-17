@@ -1,0 +1,72 @@
+# Document-level lexical boundaries from document-layout.mjs. Inline source is
+# retained for the connected text/math parsers rather than interpreted here.
+docblock_text:.tex_text
+docblock_groups:.tex_groups
+docblock_tokens:.math_tokens
+
+group(source:str,begin:int):
+    start:docblock_groups.skip_space(source,begin)
+    open:docblock_text.at(source,start)
+    open="["? @:docblock_groups.read(source,start,"[","]")
+    @:docblock_groups.read(source,start)
+
+command(source:str,begin:int):
+    token:docblock_groups.control(source,begin)
+    name:token.name
+    stop:token.stop
+    token.word /\ docblock_text.at(source,stop)="*"?
+        .name:name&"*"
+        .stop:stop+1
+    @:(name:name,stop:stop,found:name~="")
+
+environment_end(source:str,name:str,begin:int)->int:
+    position:begin
+    depth:1
+    true?>
+        slash:docblock_text.find(source,"\\",position)
+        slash<0? @: -1
+        .position:slash+1
+        opening:docblock_text.matches(source,slash,"\\begin{")
+        closing:docblock_text.matches(source,slash,"\\end{")
+        (opening \/ closing)?
+            argument:slash+4
+            opening? .argument:slash+6
+            parsed:docblock_groups.read(source,argument)
+            parsed.closed /\ parsed.value=name?
+                opening? .depth:depth+1
+                closing? .depth:depth-1
+                depth=0? @:slash
+            parsed.stop>position? .position:parsed.stop
+    @: -1
+
+math_environment(name:str)->bit:
+    @:docblock_tokens.one_of(name,["eqnarray","eqnarray*","equation","equation*","align","align*","gather","gather*","multline","multline*","displaymath","alignat","alignat*"])
+
+container(name:str)->bit:
+    @:docblock_tokens.one_of(name,["abstract","center","description","em","quote","quotation","itemize","enumerate","verse","proof","thebibliography","figure","figure*"])
+
+meaningful(value:str)->bit:
+    position:0
+    ~vkf_string_eof(value,position)?>
+        c:docblock_text.at(value,position)
+        (c~="{" /\ c~="}" /\ ~docblock_text.space(c))? @:true
+        .position:docblock_text.next(value,position)
+    @:false
+
+inline_end(source:str,begin:int,opening:str,closing:str)->int:
+    position:begin+docblock_text.byte_length(opening)
+    ~vkf_string_eof(source,position)?>
+        docblock_text.matches(source,position,closing)? @:position+docblock_text.byte_length(closing)
+        c:docblock_text.at(source,position)
+        .position:docblock_text.next(source,position)
+        c="\\" /\ ~vkf_string_eof(source,position)? .position:docblock_text.next(source,position)
+    @: -1
+
+blank_stop(source:str,begin:int)->int:
+    docblock_text.at(source,begin)~="\n"? @:begin
+    position:begin+1
+    last:begin
+    ~vkf_string_eof(source,position) /\ docblock_text.space(docblock_text.at(source,position))?>
+        docblock_text.at(source,position)="\n"? .last:position+1
+        .position:docblock_text.next(source,position)
+    @:last

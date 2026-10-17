@@ -1,0 +1,6 @@
+Demand:(sources:[str],count:int)
+prepare(d:Demand)->int:d.count
+check()->bit:
+    demand:(sources:["ffi","ffi"],count:2)
+    @:prepare(demand)=2
+::check()

@@ -1,0 +1,151 @@
+Renderer19: shortest current acceptance path (2026-10-17, source 4302f7a03a5d812bf1eaf35848557d157d2e5aae)
+
+1. Consume peer18 controls, including full-app compile, under fresh root admission.
+   Native17's ELF is the COMPILER, not the document renderer. Keep it at its
+   charged path; do not rebuild/copy it. Peer18 owns native control adapter,
+   staging, normalized sources, full-app build and its provenance. Require actual
+   successful controls, current normalized source hashes, emitted renderer ELF,
+   runtime/stdlib/link identities and authenticated terminal join. Compilation
+   alone does not run native_document_cli.run or create a PDF.
+
+   Fullcaller evidence: baseline01/native-full-build.stderr names the normalized
+   document_label_scene.compose fixed-shape failure. Current CLI line30 calls
+   latex.tex2pdf -> latex_library:72 -> document_materialize.render:147.
+   Current compose:23 calls from_leaves:35 and meta.append:55. The retained
+   real_caller_A347_unchanged.vkf:36-53 creates the real primary and owned/unowned
+   outer scenes, then invokes compose; it is a control, not a forty-page render.
+   Do not substitute a small compose pass for fullcaller or full-app success.
+   D288/metadata/A345/F364/A347 controls remain peer18/root responsibilities.
+   Metadata/reference acceptance uses the current integrated independent
+   serialization boundary, not historical held raw-JSON equality candidates.
+
+2. Run the exact retained original40 once through the newly built renderer.
+   Rebind D301 driver.py to root's fresh attempt/launch manifest; never execute
+   old launch templates unchanged. D301 binding.json still verifies all five
+   input pins, original stdin, PDF/layout/report and parity authority here.
+   Source 140814 bytes, 40 pages, 430 blocks; PDF5752962 bytes.
+   Expected legacy PDF SHA256:
+     b07821c28efadcd51fccc3ba6c75dd957ab6f95bde323f3c519d48edb41d1eb2
+   Fonts11866638 bytes, operators9197368, hyphenation228922; exact files JSON
+   and role ordering also mandatory. No shortened source or resource substitute.
+   D301 already checks PDF SHA, strict pypdf/pdfinfo40, complete/430/empty errors,
+   byte count, subprocess exit, pre/post pins, timeout and wait. The root must
+   authenticate source/build/runtime provenance and service join outside it.
+   Use current D301 script read-only or a root-reviewed relocation of the same
+   driver; add all actual Python/parser/pdfinfo dependencies to the new manifest.
+   This proposal does not authorize a direct host native launch.
+
+   Runnable input generation, after root assigns a NEW absolute admitted path:
+     export PATH=/home/viktor/.local/bin:$PATH
+     review_root='/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/renderer-acceptance-path-19'
+     verifier_python='/home/viktor/.local/share/cuvami-vkf/reference-venv-314/bin/python'
+     # Root sets render_attempt to the fresh admitted output directory.
+     "$verifier_python" -B "$review_root/write_stdin.py" --case original --run-dir "$render_attempt"
+   That command prints exact11-line stdin; it creates/runs nothing. Feed it to
+   the admitted full-app ELF via root's controller payload. First eight lines
+   equal D301; lines9/10 are document.pdf/report.json; line11 empty.
+   D301's existing run() generates these same lines and measures actual execution.
+
+   Artifact verification after an authenticated run:
+     "$verifier_python" -B "$review_root/verify_artifacts.py" --case original --pdf "$render_attempt/document.pdf" --report "$render_attempt/report.json"
+     /usr/bin/pdfinfo "$render_attempt/document.pdf"
+   Exit0 means artifact checks only, never automatic native/release credit.
+   The offline verifier deliberately returns all API/selection/edit/performance
+   qualification fields false. Historical reference success in host tests proves
+   only the checker operates. Preserve every geometry/PDF mismatch for diagnosis.
+
+3. Establish the full-document small-edit correctness baseline.
+   fixtures/original40-title-edit.tex changes exactly byte/UTF16[2142,2143), s->x
+   in the title's "diagram algebras". Same140814 bytes, body/includes/resources.
+   Updated SHA aa65e9a3c4d2351e1b86265f17c97ee168ce9ee957cae6f729b6f7956c0851c3.
+   This is a real full-document edit, not a fragment/string/microbenchmark.
+   The chosen edit is intentionally easy to locate visually in the title.
+   No updated PDF exists yet;40pages/430blocks are proposed acceptance assertions,
+   not observations. If they fail, inspect the real page/geometry result; do not
+   lower the requirement or fabricate an updated oracle.
+     "$verifier_python" -B "$review_root/write_stdin.py" --case edited-full --run-dir "$edited_attempt"
+   Run with the same admitted full-app ELF/resources. First inspect actual title
+   glyphs and full page layout against original; resolve any unexplained change.
+   --case edited-full checks complete/40/430/media boxes plus changed PDF only;
+   it explicitly leaves edit correctness pending. A changed hash is insufficient.
+
+   Use write_stdin.py --layout in a separately admitted correctness run for
+   layout.json. Do not include layout export in the no-layout save measurement.
+   Freeze the reviewed fresh edited-full PDF/report/layout as a reference for a
+   later persistent edit implementation. That implementation must begin from the
+   original loaded document and apply edit.json with actual current revision.
+     "$verifier_python" -B "$review_root/verify_artifacts.py" --case updated --pdf "$update_attempt/document.pdf" --report "$update_attempt/report.json" --reference-pdf "$edited_attempt/document.pdf" --reference-report "$edited_attempt/report.json"
+   Root independently binds both outputs to their actual executions and same
+   updated source/resources. Compare typed geometry/metadata and authored source
+   mapping separately; never drop provenance fields from provenance checks.
+   Repeating the CLI is a full rerender, NOT a persistent small-update timing.
+   The current CLI/tex2pdf have no persistent full-document update entry.
+
+4. Implement missing public behavior before applying public acceptance credit.
+   Exact gap lines and dependency order are in SOURCE-GAPS.txt. Rendering can be
+   qualified first while this implementation proceeds; don't delay original40
+   behind an all419 audit or reopen accepted core53. Do not expose ignored flags.
+   Native named-call syntax must pass the existing dedicated syntax control;
+   source presence of other named calls isn't execution evidence. Bind resources
+   internally through a real established runtime interface, not extra required
+   public arguments or an options record replacing dest/selectable/editable.
+
+   Then run integration/0.7.4/pdf-api-acceptance/cases.json's six direct-call
+   cases on exact source.tex (CRLF, Unicode, ligature, math, macro), plus original40
+   and the same full-document edit. All four pairs must implement effective
+   selectable = selectable OR editable; defaults true/false; omitted dest no save.
+   Successful dest bytes must equal returned PDF; old destination sentinel must
+   survive render/precommit failures. Inject actual write/fsync/rename failures,
+   check old/new reader atomicity, stale/no-op/concurrent revisions and explicit
+   committed warnings after rename. No independent source/map/PDF renames.
+
+   Validate source/map embedding and identity against real producer output.
+   Partial selections must follow authored order, deduplicate clusters, preserve
+   exact UTF16/scalar boundaries, ligatures, math scopes, CRLF and macro invocation
+   ownership across page splits. Never infer source from glyph key or parse text.
+   Qualify the helper's existing41 native assertions before using ActualText.
+   Require positioned standard PDF text/ToUnicode + matching ActualText, exact
+   extraction with Poppler AND PDF.js, then actual Adobe/Edge copy interactions.
+   Attachments alone, synthetic PDFs, outlines alone and extraction-only proxies
+   cannot satisfy the reader gates. False/false has no selection payload/layer.
+   Editable false is our editor's read-only policy, not external-reader DRM.
+   Pixel/image provider remains a separate explicit rejection gate; don't silently
+   vectorize/drop kind4 or declare bitmap support.
+
+5. Time only successful actual work with explicit boundaries.
+   Native17 payload9.764557s/controller48.366465s are compiler/core evidence ONLY.
+   D301's monotonic Popen->communicate return measures process startup, stdin,
+   resource/source loading, preprocessing, all shaping/layout passes, PDF encode,
+   PDF and report write and process exit. It excludes compilation, prehashes and
+   post-validation. Existing io.write_text is not an atomic/durable commit API.
+   Label first run "new process, filesystem cache unknown/warm" unless independent
+   evidence proves more. No cache flush, global RAM reclaim or warm-cache fiction.
+   For the eventual public dest save measure from public call entry to successful
+   atomic committed result (include fsync policy and report durability separately).
+   Target <1s remains unmeasured. Preserve complete raw elapsed even on failure.
+
+   For persistent small edit measure from version check/edit application through
+   dependency invalidation, native full-document regeneration, source/map/PDF
+   encode and atomic commit. Record initial load separately; reused resources and
+   live document state must be real and their memory included. End at committed
+   result; if including viewer repaint state that separately. Compare the final
+   full40 output with the independently fresh updated baseline. Target ~10ms is
+   not met by host session tests, resource preparation, repeated CLI or warm
+   fragment shaping. No selected best-only repetition. Current map/authentication
+   and full-document persistent state gaps prevent this measurement today.
+
+Provisional resources (estimates, NOT a grant)
+Host delivery: three serial children,512MiB address-space/55s CPU/60s wall caps;
+8tests passed in0.317s outer, max child RSS93596KiB. Only owned output written.
+Root runtime-only original40: D301 proposes180s child/210s outer from historical
+75-80s full save. Current new ELF performance unknown. Existing controls and
+service admission limits take precedence; do not extend a timeout implicitly.
+Suggest256MiB accounted disk for one render+logs+optional correctness layout,
+subject to exact input/ELF/receipt/output/temp staging calculation. PDF5.75MB,
+layout~13MB and resources~22MB provide a starting size estimate, not a guarantee.
+Three/four retained render cases must be cumulatively charged, not reused/reset.
+Full-app compilation budget belongs entirely to peer18/root. Full-document peak
+RAM is unmeasured with the new compiler; request the existing3GiB lane ceiling
+only if root admits it, preserve swap/tasks/join controls, stop on pressure.
+Small-update live memory must include retained state and previous/new outputs.
+No controller/owner/mount/service/policy/namespace mutation is performed here.

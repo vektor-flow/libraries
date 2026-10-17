@@ -1,0 +1,14 @@
+# Immutable request-owned retained scenes already produced by the TikZ compiler.
+# General JSON entry points remain unprepared and use the original JSON parser.
+text_chunks:.text_chunks
+Directory:(source:str,boxes:[str],count:int,prepared:bit)
+unprepared(source:str="{}")->Directory:
+    @:(source:source,boxes:text_chunks.empty(0),count:0,prepared:false)
+from_boxes(source:str,boxes:[str],count:int)->Directory:
+    (count>=0 /\ count<=boxes.length())?! "Invalid prepared retained directory"
+    @:(source:source,boxes:boxes,count:count,prepared:true)
+Lookup:(found:bit,scene:str)
+lookup(directory:Directory,index:int)->Lookup:
+    (index<0 \/ index>=directory.count)? @:(found:false,scene:"")
+    scene:directory.boxes.(index)
+    @:(found:scene~="",scene:scene)

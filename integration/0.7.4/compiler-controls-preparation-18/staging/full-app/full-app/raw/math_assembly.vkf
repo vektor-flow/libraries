@@ -1,0 +1,191 @@
+# Extensible native-font pieces. Arrays are owned by one assembly operation;
+# enclosing layout will retain the result instead of copying descendant items.
+glyphs:.math_glyphs
+geometry:.math_geometry
+catalog:.font_catalog
+j:.resource_json
+text:.tex_text
+tex:.tex_numeric
+chunks:.text_chunks
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Glyph:(token:str,key:str,width:num,height:num,depth:num,class_id:int,italic:num,character:bit,metric:str,diagnostic:str,placeholder:bit)
+Shape:(width:num,height:num,depth:num,keys:[str],xs:[num],ys:[num],count:int,diagnostic:str,placeholder:bit,nucleus:str,italic:num,token:str)
+
+zeros(size:int)->[num]:[0.0:size]
+
+single(g:Glyph)->Shape:
+    keys:chunks.empty(1)
+    xs:zeros(1)
+    ys:zeros(1)
+    keys.(0):g.key
+    g.placeholder? ys.(0): -g.height
+    @:(width:g.width,height:g.height,depth:g.depth,keys:keys,xs:xs,ys:ys,count:1,diagnostic:g.diagnostic,placeholder:g.placeholder,nucleus:g.metric,italic:g.italic,token:g.token)
+
+empty(width:num)->Shape:
+    @:(width:width,height:0,depth:0,keys:chunks.empty(1),xs:zeros(1),ys:zeros(1),count:0,diagnostic:"",placeholder:false,nucleus:"",italic:0,token:"")
+
+repeat_horizontal(fonts:Catalog,token:str,style:int,count:int,step:num,active_font:str="")->Shape:
+    (count>0)?! "Invalid horizontal glyph count"
+    g:glyphs.glyph(fonts,token,style,active_font)
+    keys:chunks.empty(count)
+    xs:zeros(count)
+    ys:zeros(count)
+    index:0
+    index<count?>
+        keys.(index):g.key
+        xs.(index):num(index)*step
+        g.placeholder? ys.(index): -g.height
+        .index:index+1
+    @:(width:g.width+num(count-1)*step,height:g.height,depth:g.depth,keys:keys,xs:xs,ys:ys,count:count,diagnostic:g.diagnostic,placeholder:g.placeholder,nucleus:"",italic:0,token:"")
+
+assemble(fonts:Catalog,initial:str,style:int,required:num,active_font:str="")->Shape:
+    key:initial
+    chosen:glyphs.glyph(fonts,key,style,active_font)
+    chosen.placeholder? @:single(chosen)
+    seen:chunks.empty(8)
+    seen_count:0
+    chosen.height+chosen.depth<required?>
+        metric:j.parse(chosen.metric)
+        larger:j.member(metric,0,"nextLarger")
+        larger<0? @| 
+        kinds:metric.kinds
+        kinds.(larger)=7? @|
+        prior:0
+        found:false
+        prior<seen_count?>
+            seen.(prior)=key? .found:true
+            .prior:prior+1
+        found? @|
+        seen_count>=seen.length()? .seen:seen&chunks.empty(seen.length())
+        seen.(seen_count):key
+        .seen_count:seen_count+1
+        .key:"@ext:"&text.integer(int(j.number(metric,larger)))
+        .chosen:glyphs.glyph(fonts,key,style,active_font)
+        chosen.placeholder? @:single(chosen)
+    chosen.height+chosen.depth>=required? @:single(chosen)
+    metric:j.parse(chosen.metric)
+    recipe:j.member(metric,0,"extension")
+    recipe<0? @:single(chosen)
+    kinds:metric.kinds
+    kinds.(recipe)=7? @:single(chosen)
+    repeat_code:int(glyphs.numeric(metric,recipe,"rep"))
+    repeat:glyphs.glyph(fonts,"@ext:"&text.integer(repeat_code),style,active_font)
+    repeat.placeholder? @:single(repeat)
+    top_code:int(glyphs.numeric(metric,recipe,"top"))
+    mid_code:int(glyphs.numeric(metric,recipe,"mid"))
+    bot_code:int(glyphs.numeric(metric,recipe,"bot"))
+    top:repeat
+    mid:repeat
+    bot:repeat
+    top_code~=0? .top:glyphs.glyph(fonts,"@ext:"&text.integer(top_code),style,active_font)
+    mid_code~=0? .mid:glyphs.glyph(fonts,"@ext:"&text.integer(mid_code),style,active_font)
+    bot_code~=0? .bot:glyphs.glyph(fonts,"@ext:"&text.integer(bot_code),style,active_font)
+    fixed:0.0
+    fixed_count:0
+    top_code~=0?
+        .fixed:fixed+top.height+top.depth
+        .fixed_count:fixed_count+1
+    mid_code~=0?
+        .fixed:fixed+mid.height+mid.depth
+        .fixed_count:fixed_count+1
+    bot_code~=0?
+        .fixed:fixed+bot.height+bot.depth
+        .fixed_count:fixed_count+1
+    repetitions:geometry.extension_count(required,fixed,repeat.height+repeat.depth,mid_code~=0)
+    count:fixed_count+repetitions
+    mid_code~=0? .count:count+repetitions
+    keys:chunks.empty(count+1)
+    xs:zeros(count+1)
+    ys:zeros(count+1)
+    height:0.0
+    position:0
+    y:0.0
+    # Piece order matches TeX: top, repeats, middle, repeats, bottom.
+    phase:0
+    phase<5?>
+        piece:repeat
+        copies:repetitions
+        phase=0?
+            .piece:top
+            .copies:0
+            top_code~=0? .copies:1
+        phase=2?
+            .piece:mid
+            .copies:0
+            mid_code~=0? .copies:1
+        phase=3 /\ mid_code=0? .copies:0
+        phase=4?
+            .piece:bot
+            .copies:0
+            bot_code~=0? .copies:1
+        copy:0
+        copy<copies?>
+            position=0?
+                .height:piece.height
+                .y: -height
+            .y:y+piece.height
+            keys.(position):piece.key
+            ys.(position):y
+            .y:y+piece.depth
+            .position:position+1
+            .copy:copy+1
+        .phase:phase+1
+    @:(width:repeat.width,height:height,depth:y,keys:keys,xs:xs,ys:ys,count:position,diagnostic:"",placeholder:false,nucleus:"",italic:0,token:"")
+
+alias(token:str)->str:
+    (token="\\{" )? @:"\\lbrace"
+    (token="\\}" )? @:"\\rbrace"
+    (token="\\vert" \/ token="\\lvert" \/ token="\\rvert")? @:"|"
+    token="\\|"? @:"\\Vert"
+    @:token
+
+initial(token:str)->int:
+    token="("? @:0
+    token=")"? @:1
+    token="["? @:2
+    token="]"? @:3
+    token="\\lfloor"? @:4
+    token="\\rfloor"? @:5
+    token="\\lceil"? @:6
+    token="\\rceil"? @:7
+    token="\\lbrace"? @:8
+    token="\\rbrace"? @:9
+    token="\\langle"? @:10
+    token="\\rangle"? @:11
+    token="|"? @:12
+    token="\\Vert"? @:13
+    token="/"? @:14
+    token="\\backslash"? @:15
+    token="\\uparrow"? @:120
+    token="\\downarrow"? @:121
+    token="\\updownarrow"? @:63
+    token="\\Uparrow"? @:126
+    token="\\Downarrow"? @:127
+    token="\\Updownarrow"? @:119
+    @: -1
+
+delimiter(fonts:Catalog,raw:str,style:int,required:num,active_font:str="")->Shape:
+    token:alias(raw)
+    token="."? @:empty(1.2*tex.pt())
+    chosen:single(glyphs.glyph(fonts,token,style,active_font))
+    larger:2
+    style=2? .larger:1
+    style<2? .larger:0
+    larger>=1 /\ chosen.height+chosen.depth<required?>
+        .chosen:single(glyphs.glyph(fonts,token,larger,active_font))
+        .larger:larger-1
+    chosen.height+chosen.depth<required?
+        code:initial(token)
+        key:"@ext:"&text.integer(code)
+        (code<0 \/ ~catalog.find(fonts,"math/"&glyphs.style_name(style)&"/"&key).found)?
+            @:single(glyphs.hole(fonts,style,"Unsupported extensible delimiter: "&token))
+        .chosen:assemble(fonts,key,style,required,active_font)
+    profile:catalog.style(fonts,glyphs.style_name(style))
+    p:geometry.parameters(profile,active_font="boldsymbol")
+    shift:(chosen.height-chosen.depth)/2-p.axis
+    ys:chosen.ys
+    index:0
+    index<chosen.count?>
+        ys.(index):ys.(index)+shift
+        .index:index+1
+    @:(width:chosen.width,height:chosen.height-shift,depth:chosen.depth+shift,keys:chosen.keys,xs:chosen.xs,ys:ys,count:chosen.count,diagnostic:chosen.diagnostic,placeholder:chosen.placeholder,nucleus:chosen.nucleus,italic:chosen.italic,token:chosen.token)

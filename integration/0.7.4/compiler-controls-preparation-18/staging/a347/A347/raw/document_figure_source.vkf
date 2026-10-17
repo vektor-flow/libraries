@@ -1,0 +1,90 @@
+# Built-in figure extraction follows document-layout's declared subset. Text
+# remains source for native paragraph shaping; no prepared scenes are accepted.
+figure_source_text:.tex_text
+figure_source_groups:.tex_groups
+figure_source_json:.resource_json
+figure_source_chunks:.text_chunks
+figure_source_options:.document_graphic_options
+figure_source_numbers:.json_numbers
+figure_source_config:.document_materialize_config
+Result:(attrs:str,labels:[str],diagnostics:str,here:bit,immediate:bit)
+append(current:str,extra:str)->str:
+    extra=""? @:current
+    current=""? @:extra
+    @:current&","&extra
+extract(content:str,option:str,number:int,config_json:str)->Result:
+    children:""
+    labels:figure_source_chunks.empty(16)
+    label_count:0
+    diagnostics:""
+    image_count:0
+    previous_image_end: -1
+    caption:false
+    at:0
+    size:figure_source_text.byte_length(content)
+    at<size?>
+        figure_source_text.at(content,at)~="\\"?
+            .at:figure_source_text.next(content,at)
+            @>
+        command:figure_source_groups.control(content,at)
+        command.name="label" /\ figure_source_text.at(content,command.stop)="{"?
+            label:figure_source_groups.read(content,command.stop)
+            label.value~=""?
+                label_count>=labels.length()? .labels:labels&figure_source_chunks.empty(labels.length())
+                labels.(label_count):label.value
+                .label_count:label_count+1
+        command.name="includegraphics"?
+            position:command.stop
+            options:figure_source_groups.read(content,position,"[","]")
+            options.present? .position:options.stop
+            asset:figure_source_groups.read(content,position)
+            asset.present /\ asset.closed?
+                parsed:figure_source_options.parse(options.value)
+                .diagnostics:append(diagnostics,parsed.diagnostics)
+                child:"{\"kind\":\"image\",\"asset\":"&figure_source_json.quote(asset.value)&",\"options\":"&parsed.json&",\"figure\":true}"
+                children=""? .child:figure_source_text.span(child,0,figure_source_text.byte_length(child)-1)&",\"destinationIds\":["&figure_source_json.quote("figure:"&figure_source_text.integer(number))&"]}"
+                .children:append(children,child)
+                .image_count:image_count+1
+                .previous_image_end:asset.stop
+        command.name="caption" /\ ~caption?
+            argument:figure_source_groups.read(content,command.stop)
+            argument.present?
+                .caption:true
+                child:"{\"kind\":\"caption\",\"source\":"&figure_source_json.quote("Figure "&figure_source_text.integer(number)&": \\hspace{0bp}"&argument.value)&"}"
+                children=""? .child:figure_source_text.span(child,0,figure_source_text.byte_length(child)-1)&",\"destinationIds\":["&figure_source_json.quote("figure:"&figure_source_text.integer(number))&"]}"
+                .children:append(children,child)
+        command.name="vspace"?
+            position:command.stop
+            figure_source_text.at(content,position)="*"? .position:position+1
+            space:figure_source_groups.read(content,position)
+            space.present?
+                trailing:false
+                previous_image_end>=0 /\ previous_image_end<at?
+                    gap:figure_source_text.span(content,previous_image_end,at)
+                    figure_source_text.trim(gap)=""? .trailing:true
+                boolean:"false"
+                trailing? .boolean:"true"
+                amount:figure_source_config.length(space.value,config_json,0)
+                child:"{\"kind\":\"vspace\",\"amount\":"&figure_source_numbers.roundtrip(amount)&",\"trailingLine\":"&boolean&"}"
+                children=""? .child:figure_source_text.span(child,0,figure_source_text.byte_length(child)-1)&",\"destinationIds\":["&figure_source_json.quote("figure:"&figure_source_text.integer(number))&"]}"
+                .children:append(children,child)
+        .at:at+1
+    image_count=0? .diagnostics:append(diagnostics,figure_source_json.quote("Figure contains no supported includegraphics"))
+    image_count>1? .diagnostics:append(diagnostics,figure_source_json.quote("Multiple image figure layout is not implemented"))
+    center:"false"
+    figure_source_text.find(content,"\\begin{center}",0)>=0? .center:"true"
+    placement:"tbp"
+    valid:option~=""
+    .at:0
+    at<figure_source_text.byte_length(option)?>
+        c:figure_source_text.at(option,at)
+        ~(c="h" \/ c="t" \/ c="b" \/ c="p" \/ c="!" \/ c="H")? .valid:false
+        .at:at+1
+    valid? .placement:option
+    result_labels:figure_source_chunks.empty(label_count)
+    .at:0
+    at<label_count?>
+        result_labels.(at):labels.(at)
+        .at:at+1
+    attrs:"\"blocks\":["&children&"],\"center\":"&center&",\"placement\":"&figure_source_json.quote(placement)&",\"destinationIds\":["&figure_source_json.quote("figure:"&figure_source_text.integer(number))&"]"
+    @:(attrs:attrs,labels:result_labels,diagnostics:diagnostics,here:option="h",immediate:placement="H")

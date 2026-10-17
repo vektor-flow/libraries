@@ -1,0 +1,549 @@
+# Source-to-block IR for native paragraph/page assembly. Run tex_frontend first:
+# expanded source and theorem declarations are explicit ordinary inputs.
+# Geometry-dependent class/list/heading choices belong to assembly, while these
+# ordered directives preserve their exact source boundaries and metadata.
+docblock_lex:.document_block_lex
+docblock_text:.tex_text
+docblock_groups:.tex_groups
+docblock_tokens:.math_tokens
+docblock_inline:.text_parser_lex
+docblock_utf16:.text_shaping
+docblock_chunks:.text_chunks
+docblock_j:.resource_json
+docblock_link_policy:.document_link_policy
+docblock_link_context:.text_link_context
+State:(kinds:[str],sources:[str],attrs:[str],starts:[int],stops:[int],parents:[int],count:int,parts:[str],part_count:int,buffer_start:int,buffer_stop:int,names:[str],environments:[int],depth:int,diagnostics:str)
+Document:(kinds:[str],sources:[str],attrs:[str],starts:[int],stops:[int],parents:[int],count:int,metadata:str,footnotes:str,diagnostics:str,class_name:str,class_options:str,imports:str,body_start:int,body_stop:int)
+
+ints(size:int)->[int]:[0:size]
+nil(size:int)->[int]:[-1:size]
+bits(size:int)->[bit]:[false:size]
+period(value:str)->str:
+    end:docblock_text.at(value,docblock_text.byte_length(value)-1)
+    (end="." \/ end="!" \/ end="?")? @:value
+    @:value&"."
+
+empty()->State:
+    @:(kinds:docblock_chunks.empty(64),sources:docblock_chunks.empty(64),attrs:docblock_chunks.empty(64),starts:ints(64),stops:ints(64),parents:nil(64),count:0,parts:docblock_chunks.empty(32),part_count:0,buffer_start:0,buffer_stop:0,names:docblock_chunks.empty(32),environments:nil(32),depth:0,diagnostics:"")
+
+diagnostic(state:State,message:str)->State:
+    out:state
+    messages:state.diagnostics
+    messages~=""? .messages:messages&","
+    out.diagnostics:messages&docblock_j.quote(message)
+    @:out
+
+emit(state:State,kind:str,source:str,attrs:str,start:int,stop:int)->State:
+    kinds:state.kinds
+    sources:state.sources
+    properties:state.attrs
+    starts:state.starts
+    stops:state.stops
+    parents:state.parents
+    capacity:kinds.length()
+    state.count>=capacity?
+        .kinds:kinds&docblock_chunks.empty(capacity)
+        .sources:sources&docblock_chunks.empty(capacity)
+        .properties:properties&docblock_chunks.empty(capacity)
+        .starts:starts&ints(capacity)
+        .stops:stops&ints(capacity)
+        .parents:parents&nil(capacity)
+    kinds.(state.count):kind
+    sources.(state.count):source
+    properties.(state.count):attrs
+    starts.(state.count):start
+    stops.(state.count):stop
+    state.depth>0?
+        environments:state.environments
+        parents.(state.count):environments.(state.depth-1)
+    out:state
+    out.kinds:kinds
+    out.sources:sources
+    out.attrs:properties
+    out.starts:starts
+    out.stops:stops
+    out.parents:parents
+    out.count:state.count+1
+    @:out
+
+part(state:State,value:str,start:int,stop:int)->State:
+    value=""? @:state
+    parts:state.parts
+    state.part_count>=parts.length()? .parts:parts&docblock_chunks.empty(parts.length())
+    parts.(state.part_count):value
+    out:state
+    state.part_count=0? out.buffer_start:start
+    out.buffer_stop:stop
+    out.parts:parts
+    out.part_count:state.part_count+1
+    @:out
+
+flush(state:State)->State:
+    source:docblock_chunks.join(state.parts,0,state.part_count)
+    out:state
+    docblock_lex.meaningful(source)? .out:emit(state,"paragraph",docblock_text.trim(source),"",state.buffer_start,state.buffer_stop)
+    out.part_count:0
+    @:out
+
+push(state:State,name:str,node:int)->State:
+    (state.depth<32)?! "Document environment nesting limit: 32"
+    names:state.names
+    environments:state.environments
+    names.(state.depth):name
+    environments.(state.depth):node
+    out:state
+    out.names:names
+    out.environments:environments
+    out.depth:state.depth+1
+    @:out
+
+meta_index(name:str)->int:
+    names:["title","author","date","address","email","subjclass","keywords","abstract"]
+    i:0
+    i<names.length()?>
+        names.(i)=name? @:i
+        .i:i+1
+    @: -1
+
+declaration(declarations:str,name:str)->str:
+    tape:docblock_j.parse(declarations)
+    i:0
+    true?>
+        node:docblock_j.element(tape,0,i)
+        node<0? @: ""
+        field:docblock_j.member(tape,node,"name")
+        field>=0?
+            docblock_j.string(tape,field)=name?
+                starts:tape.starts
+                stops:tape.stops
+                @:docblock_text.span(declarations,starts.(node),stops.(node))
+        .i:i+1
+    @:""
+
+has_package(imports:str,name:str)->bit:
+    tape:docblock_j.parse("["&imports&"]")
+    i:0
+    true?>
+        node:docblock_j.element(tape,0,i)
+        node<0? @:false
+        names:docblock_j.string(tape,docblock_j.member(tape,node,"names"))
+        position:0
+        size:docblock_text.byte_length(names)
+        position<size?>
+            comma:docblock_text.find(names,",",position)
+            comma<0? .comma:size
+            docblock_text.trim(docblock_text.span(names,position,comma))=name? @:true
+            .position:comma+1
+        .i:i+1
+    @:false
+
+parse(source:str,class_name:str="",declarations_json:str="[]")->Document:
+    size:docblock_text.byte_length(source)
+    (size<=1000000)?! "Document limit: 1000000 UTF-8 bytes"
+    marker:docblock_text.find(source,"\\begin{document}")
+    body_start:0
+    marker>=0? .body_start:marker+16
+    body_stop:docblock_text.find(source,"\\end{document}",body_start)
+    body_stop<0? .body_stop:size
+    state:empty()
+    marker<0? .state:diagnostic(state,"Missing document environment")
+    chosen_class:class_name
+    options:""
+    imports:""
+    meta:docblock_chunks.empty(8)
+    meta_options:docblock_chunks.empty(8)
+    present:bits(8)
+    preamble:0
+    # Class/package commands are declarative, never executed as host code.
+    preamble<size?>
+        slash:docblock_text.find(source,"\\",preamble)
+        slash<0? @|
+        preamble_command:docblock_groups.control(source,slash)
+        .preamble:preamble_command.stop
+        (preamble_command.name="documentclass" \/ preamble_command.name="usepackage" \/ preamble_command.name="RequirePackage")?
+            at:docblock_groups.skip_space(source,preamble_command.stop)
+            option:docblock_groups.read(source,at,"[","]")
+            option.present? .at:option.stop
+            argument:docblock_groups.read(source,at)
+            argument.present?
+                preamble_command.name="documentclass"?
+                    chosen_class=""? .chosen_class:argument.value
+                    options="" /\ option.present? .options:option.value
+                preamble_command.name~="documentclass"?
+                    imports~=""? .imports:imports&","
+                    .imports:imports&"{\"names\":"&docblock_j.quote(argument.value)&",\"options\":"&docblock_j.quote(option.value)&"}"
+                .preamble:argument.stop
+        meta_slot:meta_index(preamble_command.name)
+        meta_slot>=0 /\ slash<marker /\ ~present.(meta_slot)?
+            meta_from:preamble_command.stop
+            meta_option:docblock_groups.read(source,meta_from,"[","]")
+            meta_option.present? .meta_from:meta_option.stop
+            argument:docblock_groups.read(source,meta_from)
+            argument.present?
+                meta.(meta_slot):argument.value
+                present.(meta_slot):true
+                meta_option.present? meta_options.(meta_slot):meta_option.value
+                .preamble:argument.stop
+    chosen_class=""? .chosen_class:"article"
+    amsmath:chosen_class="amsart" \/ has_package(imports,"amsmath")
+    urls:has_package(imports,"url") \/ has_package(imports,"hyperref") \/ has_package(imports,"biblatex")
+    graphicx:has_package(imports,"graphicx")
+    footnotes:""
+    footnote_count:0
+    body_footnote_count:0
+    at:body_start
+    at<body_stop?>
+        begin:at
+        c:docblock_text.at(source,at)
+        url:docblock_inline.target(source,at,false)
+        href:docblock_inline.target(source,at,true)
+        (url.found \/ href.found)?
+            stop:url.end
+            href.found?
+                href_label:docblock_lex.group(source,href.end)
+                .stop:href_label.stop
+            ~href.found /\ ~url.closed? .state:diagnostic(state,"Unfinished URL")
+            ~href.found /\ ~urls? .state:diagnostic(state,"Command requires url: url")
+            .state:part(state,docblock_text.span(source,at,stop),at,stop)
+            .at:stop
+            @>
+        ((c="\$" /\ ~docblock_text.matches(source,at,"\$\$")) \/ docblock_text.matches(source,at,"\\("))?
+            opening:"\$"
+            closing:"\$"
+            c~="\$"?
+                .opening:"\\("
+                .closing:"\\)"
+            stop:docblock_lex.inline_end(source,at,opening,closing)
+            stop<0 \/ stop>body_stop?
+                .state:diagnostic(state,"Inferred inline math closing delimiter")
+                .state:part(state,docblock_text.span(source,at,body_stop)&closing,at,body_stop)
+                .at:body_stop
+            stop>=0 /\ stop<=body_stop?
+                .state:part(state,docblock_text.span(source,at,stop),at,stop)
+                .at:stop
+            .at:at
+            @>
+        (docblock_text.matches(source,at,"\\[") \/ docblock_text.matches(source,at,"\$\$"))?
+            from_paragraph:docblock_text.trim(docblock_chunks.join(state.parts,0,state.part_count))~=""
+            .state:flush(state)
+            closing:"\\]"
+            c="\$"? .closing:"\$\$"
+            stop:docblock_text.find(source,closing,at+2)
+            stop<0 \/ stop>body_stop?
+                .stop:body_stop
+                .state:diagnostic(state,"Inferred display closing delimiter")
+            flag:"false"
+            from_paragraph? .flag:"true"
+            vertical:"false"
+            docblock_text.matches(source,at,"\\[") /\ ~from_paragraph /\ ~amsmath? .vertical:"true"
+            .state:emit(state,"math",docblock_text.span(source,at+2,stop),"\"singleDisplay\":true,\"fromParagraph\":"&flag&",\"verticalBracket\":"&vertical,at,stop)
+            .at:stop
+            stop<body_stop? .at:stop+2
+            .at:at
+            @>
+        c="\n"?
+            stop:docblock_lex.blank_stop(source,at)
+            stop>at?
+                .state:flush(state)
+                .at:stop
+                @>
+        c~="\\"?
+            stop:docblock_text.next(source,at)
+            stop<body_stop?>
+                next:docblock_text.at(source,stop)
+                (next="\\" \/ next="\$" \/ next="\n")? @|
+                .stop:docblock_text.next(source,stop)
+            .state:part(state,docblock_text.span(source,at,stop),at,stop)
+            .at:stop
+            @>
+        command:docblock_lex.command(source,at)
+        name:command.name
+        end:command.stop
+        name="begin"?
+            environment:docblock_lex.group(source,end)
+            ~environment.closed?
+                .state:diagnostic(state,"Unfinished environment")
+                .at:body_stop
+                @>
+            label:environment.value
+            stop:docblock_lex.environment_end(source,label,environment.stop)
+            stop<0 \/ stop>body_stop?
+                .stop:body_stop
+                .state:diagnostic(state,"Inferred end of "&label)
+            after:stop
+            stop<body_stop? .after:stop+docblock_text.byte_length("\\end{"&label&"}")
+            label="math"?
+                .state:part(state,"\$"&docblock_text.span(source,environment.stop,stop)&"\$",at,after)
+                .at:after
+                @>
+            from_paragraph:docblock_text.trim(docblock_chunks.join(state.parts,0,state.part_count))~=""
+            .state:flush(state)
+            (docblock_lex.math_environment(label) \/ label="verbatim" \/ (chosen_class="amsart" /\ label="abstract"))?
+                value:docblock_text.span(source,environment.stop,stop)
+                kind:"verbatim"
+                docblock_lex.math_environment(label)?
+                    .kind:"math"
+                    label~="displaymath"? .value:docblock_text.span(source,at,after)
+                    ~docblock_tokens.one_of(label,["eqnarray","eqnarray*","equation","equation*","displaymath"]) /\ ~amsmath? .state:diagnostic(state,"Environment requires amsmath: "&label)
+                (chosen_class="amsart" /\ label="abstract")?
+                    meta.(7):value
+                    present.(7):true
+                properties:"\"environment\":"&docblock_j.quote(label)
+                kind="math"?
+                    single:"false"
+                    docblock_tokens.one_of(label,["equation","equation*","displaymath"])? .single:"true"
+                    paragraph:"false"
+                    from_paragraph? .paragraph:"true"
+                    numbered:"false"
+                    docblock_text.at(label,docblock_text.byte_length(label)-1)~="*" /\ label~="displaymath"? .numbered:"true"
+                    .properties:properties&",\"singleDisplay\":"&single&",\"fromParagraph\":"&paragraph&",\"numbered\":"&numbered
+                ~(chosen_class="amsart" /\ label="abstract")? .state:emit(state,kind,value,properties,at,after)
+                .at:after
+                @>
+            theorem:declaration(declarations_json,label)
+            (label="figure" \/ label="figure*") /\ ~graphicx? .state:diagnostic(state,"Figure requires graphicx for images")
+            properties:"\"name\":"&docblock_j.quote(label)
+            theorem~=""? .properties:properties&",\"theorem\":"&theorem
+            option:docblock_groups.read("",0)
+            (label="proof" \/ label="figure" \/ label="figure*" \/ theorem~="")? .option:docblock_groups.read(source,environment.stop,"[","]")
+            option.present? .properties:properties&",\"option\":"&docblock_j.quote(option.value)
+            (~docblock_lex.container(label) /\ theorem="")? .state:diagnostic(state,"Unsupported document environment: "&label)
+            environment_stop:environment.stop
+            option.present? .environment_stop:option.stop
+            label="thebibliography"?
+                widest:docblock_lex.group(source,environment_stop)
+                .properties:properties&",\"widest\":"&docblock_j.quote(widest.value)
+                .environment_stop:widest.stop
+            .state:emit(state,"environment_start","",properties,at,environment_stop)
+            .state:push(state,label,state.count-1)
+            .at:environment_stop
+            .at:at
+            @>
+        name="end"?
+            environment:docblock_lex.group(source,end)
+            environment_names:state.names
+            state.depth>0?
+                environment_names.(state.depth-1)=environment.value?
+                    .state:flush(state)
+                    environment.value="proof"? .state:emit(state,"proofend","","",at,environment.stop)
+                    .state:emit(state,"environment_end","","\"name\":"&docblock_j.quote(environment.value),at,environment.stop)
+                    state.depth:state.depth-1
+                    .at:environment.stop
+                    @>
+        (name="section" \/ name="section*" \/ name="subsection" \/ name="subsection*" \/ name="subsubsection" \/ name="subsubsection*")?
+            .state:flush(state)
+            argument:docblock_lex.group(source,end)
+            short_option:""
+            docblock_text.at(source,docblock_groups.skip_space(source,end))="["?
+                .short_option:argument.value
+                .argument:docblock_lex.group(source,argument.stop)
+            kind:name
+            star:docblock_text.at(name,docblock_text.byte_length(name)-1)="*"
+            star? .kind:docblock_text.span(name,0,docblock_text.byte_length(name)-1)
+            flag:"false"
+            star? .flag:"true"
+            .state:emit(state,kind,argument.value,"\"star\":"&flag&",\"short\":"&docblock_j.quote(short_option),at,argument.stop)
+            .at:argument.stop
+            @>
+        meta_slot:meta_index(name)
+        chosen_class="amsart" /\ meta_slot>=0?
+            option:docblock_groups.read(source,end,"[","]")
+            from:end
+            option.present? .from:option.stop
+            meta_value:docblock_lex.group(source,from)
+            ~meta_value.closed? .state:diagnostic(state,"Unclosed "&name&" argument")
+            name="author" /\ meta.(meta_slot)~=""? meta.(meta_slot):meta.(meta_slot)&" and "
+            name="author"? meta.(meta_slot):meta.(meta_slot)&meta_value.value
+            name~="author"? meta.(meta_slot):meta_value.value
+            present.(meta_slot):true
+            option.present? meta_options.(meta_slot):option.value
+            .at:meta_value.stop
+            @>
+        name="maketitle"?
+            .state:flush(state)
+            chosen_class~="amsart" /\ meta.(1)~=""?
+                # Thanks definitions are inserted when the title executes,
+                # sharing the document's note namespace while leaving body
+                # marker counters independent. Preserve author separators for
+                # the presentation pass, which measures their real widths.
+                author_source:meta.(1)
+                author_out:""
+                author_at:0
+                ~vkf_string_eof(author_source,author_at)?>
+                    thanks_at:docblock_text.find(author_source,"\\thanks",author_at)
+                    thanks_at<0? @|
+                    thanks_group:docblock_groups.read(author_source,thanks_at+7)
+                    ~thanks_group.present?
+                        .author_out:author_out&docblock_text.span(author_source,author_at,thanks_at+7)
+                        .author_at:thanks_at+7
+                        @>
+                    .author_out:author_out&docblock_text.span(author_source,author_at,thanks_at)
+                    .footnote_count:footnote_count+1
+                    footnotes~=""? .footnotes:footnotes&","
+                    .footnotes:footnotes&"{\"number\":"&docblock_text.integer(footnote_count)&",\"symbol\":"&docblock_text.integer(footnote_count)&",\"source\":"&docblock_j.quote(thanks_group.value)&"}"
+                    .author_out:author_out&"\\symbolfootnotemark{"&docblock_text.integer(footnote_count)&"}"
+                    .author_at:thanks_group.stop
+                meta.(1):author_out&docblock_text.span(author_source,author_at,docblock_text.byte_length(author_source))
+            chosen_class="amsart"?
+                admin_sources:docblock_chunks.empty(3)
+                meta.(2)~=""? admin_sources.(0):"\\textit{Date}: "&period(meta.(2))
+                classification_year:meta_options.(5)
+                classification_year=""? .classification_year:"2020"
+                meta.(5)~=""? admin_sources.(1):"\\textit{\\textrm{"&classification_year&"} Mathematics Subject Classification.}\\hspace{0.5em}"&period(meta.(5))
+                meta.(6)~=""? admin_sources.(2):"\\textit{Key words and phrases.}\\hspace{0.5em}"&period(meta.(6))
+                admin_index:0
+                admin_index<3?>
+                    admin_sources.(admin_index)~=""?
+                        .footnote_count:footnote_count+1
+                        footnotes~=""? .footnotes:footnotes&","
+                        .footnotes:footnotes&"{\"number\":"&docblock_text.integer(footnote_count)&",\"admin\":true,\"source\":"&docblock_j.quote(admin_sources.(admin_index))&"}"
+                    .admin_index:admin_index+1
+            i:0
+            i<3?>
+                kind:"title"
+                i=1? .kind:"author"
+                i=2? .kind:"date"
+                meta.(i)~="" /\ ~(chosen_class="amsart" /\ i=2)? .state:emit(state,kind,meta.(i),"\"frontmatter\":true",at,end)
+                .i:i+1
+            chosen_class="amsart" /\ present.(7)? .state:emit(state,"abstract",meta.(7),"\"frontmatter\":true",at,end)
+            .at:end
+            @>
+        (name="newpage" \/ name="clearpage" \/ name="par" \/ name="qed" \/ name="smallskip" \/ name="medskip" \/ name="bigskip" \/ name="item" \/ name="bibitem" \/ name="includegraphics" \/ name="caption" \/ name="verbatiminput")?
+            .state:flush(state)
+            kind:name
+            properties:""
+            value:""
+            stop:end
+            (name="newpage" \/ name="clearpage")? .kind:"pagebreak"
+            name="qed"? .kind:"proofend"
+            (name="smallskip" \/ name="medskip" \/ name="bigskip")?
+                .kind:"vspace"
+                .properties:"\"skip\":"&docblock_j.quote(name)
+            docblock_tokens.one_of(name,["item","bibitem","includegraphics","caption","verbatiminput"])?
+                option:docblock_groups.read(source,end,"[","]")
+                .properties:"\"option\":"&docblock_j.quote(option.value)
+                option.present? .stop:option.stop
+                name~="item"?
+                    argument:docblock_lex.group(source,stop)
+                    .value:argument.value
+                    .stop:argument.stop
+                name="includegraphics"? .kind:"image"
+                inside_figure:false
+                graphic_depth:0
+                graphic_depth<state.depth?>
+                    graphic_name:state.names.(graphic_depth)
+                    (graphic_name="figure" \/ graphic_name="figure*")? .inside_figure:true
+                    .graphic_depth:graphic_depth+1
+                name="includegraphics" /\ ~graphicx /\ ~inside_figure? .state:diagnostic(state,"Command requires graphicx: includegraphics")
+            name~="par"? .state:emit(state,kind,value,properties,at,stop)
+            .at:stop
+            @>
+        name="footnote"?
+            argument:docblock_lex.group(source,end)
+            .footnote_count:footnote_count+1
+            .body_footnote_count:body_footnote_count+1
+            footnotes~=""? .footnotes:footnotes&","
+            .footnotes:footnotes&"{\"number\":"&docblock_text.integer(footnote_count)&",\"marker\":"&docblock_text.integer(body_footnote_count)&",\"source\":"&docblock_j.quote(argument.value)&"}"
+            .state:emit(state,"directive","","\"name\":\"footnotedefinition\",\"number\":"&docblock_text.integer(footnote_count),at,argument.stop)
+            .state:part(state,"\\footnotemark{"&docblock_text.integer(footnote_count)&":"&docblock_text.integer(body_footnote_count)&"}",at,argument.stop)
+            .at:argument.stop
+            @>
+        name="hypersetup"?
+            setup_argument:docblock_lex.group(source,end)
+            setup_buffered:docblock_text.trim(docblock_chunks.join(state.parts,0,state.part_count))~=""
+            setup_flag:"false"
+            setup_buffered? .setup_flag:"true"
+            # Validation depends on the option text, not the prior style.
+            # Capture these messages in parser encounter order, alongside URL
+            # and environment diagnostics; presentation applies actual state.
+            setup_validation:docblock_link_policy.configure(docblock_link_context.split_options(setup_argument.value))
+            setup_validation.diagnostics~=""?
+                state.diagnostics~=""? state.diagnostics:state.diagnostics&","
+                state.diagnostics:state.diagnostics&setup_validation.diagnostics
+            .state:emit(state,"directive",setup_argument.value,"\"name\":\"hypersetup\",\"buffered\":"&setup_flag&",\"diagnosticsCaptured\":true",at,setup_argument.stop)
+            setup_buffered? .state:part(state,docblock_text.span(source,at,setup_argument.stop),at,setup_argument.stop)
+            .at:setup_argument.stop
+            @>
+        name="verb"?
+            delimiter:docblock_text.at(source,end)
+            close:docblock_text.find(source,delimiter,end+docblock_text.byte_length(delimiter))
+            delimiter~="" /\ close>=0?
+                literal:docblock_utf16.units(docblock_text.span(source,end+docblock_text.byte_length(delimiter),close))
+                codes:literal.codes
+                encoded:docblock_chunks.empty(literal.count)
+                i:0
+                i<literal.count?>
+                    encoded.(i):"\\char"&docblock_text.integer(codes.(i))&" "
+                    .i:i+1
+                .state:part(state,"\\mbox{\\ttfamily "&docblock_chunks.join(encoded,0,literal.count)&"}",at,close+docblock_text.byte_length(delimiter))
+                .at:close+docblock_text.byte_length(delimiter)
+                @>
+        (name="label" \/ name="markboth" \/ name="pagestyle" \/ name="noindent" \/ name="centering" \/ name="footnotesize" \/ name="makeatletter" \/ name="makeatother")?
+            stop:end
+            value:""
+            (name="label" \/ name="markboth" \/ name="pagestyle")?
+                argument:docblock_lex.group(source,end)
+                .value:argument.value
+                .stop:argument.stop
+                name="markboth"?
+                    second:docblock_lex.group(source,stop)
+                    .stop:second.stop
+            .state:emit(state,"directive",value,"\"name\":"&docblock_j.quote(name),at,stop)
+            .at:stop
+            @>
+        stop:end
+        recognized:false
+        docblock_tokens.one_of(name,["textbf","textit","textrm","textsf","texttt","textnormal","emph","mbox","textup","textsc","lowercase","hspace","hspace*","phantom","hphantom","vphantom","smash","fbox","vkftikzbox","hypersetup","ref","eqref","pageref","ref*","eqref*","pageref*"])?
+            argument:docblock_lex.group(source,end)
+            .stop:argument.stop
+            .recognized:true
+        docblock_tokens.one_of(name,["cite","parencite","autocite","textcite"])?
+            option:docblock_groups.read(source,end,"[","]")
+            option.present? .stop:option.stop
+            second:docblock_groups.read(source,stop,"[","]")
+            second.present? .stop:second.stop
+            argument:docblock_lex.group(source,stop)
+            .stop:argument.stop
+            .recognized:true
+        name="hyperref"?
+            option:docblock_groups.read(source,end,"[","]")
+            option.present? .stop:option.stop
+            argument:docblock_lex.group(source,stop)
+            .stop:argument.stop
+            .recognized:true
+        (name="hyperlink" \/ name="hypertarget")?
+            key:docblock_lex.group(source,end)
+            link_label:docblock_lex.group(source,key.stop)
+            .stop:link_label.stop
+            .recognized:true
+        name="char"?
+            cursor:docblock_groups.skip_space(source,end)
+            start:cursor
+            digit:docblock_text.at(source,cursor)
+            digit>="0" /\ digit<="9"?>
+                .cursor:cursor+1
+                .digit:docblock_text.at(source,cursor)
+            cursor>start?
+                .stop:docblock_groups.skip_space(source,cursor)
+                .recognized:true
+        docblock_tokens.one_of(name,["%","\$","#","&","_","{","}"," ","LaTeX","TeX","@","ldots",",","textbullet","quad","qquad","lq","rq","normalfont","rmfamily","ttfamily","bfseries","itshape","sffamily","slshape","sc","scshape","em","rm","bf","it","tt","protect","relax","ignorespaces","\\","newblock","'","`","^","~","\"","=",".","v","u","r","c"])? .recognized:true
+        docblock_tokens.one_of(name,["'","`","^","~","\"","=",".","v","u","r","c"])?
+            argument:docblock_groups.argument(source,end)
+            .stop:argument.stop
+        recognized?
+            .state:part(state,docblock_text.span(source,at,stop),at,stop)
+        ~recognized?
+            .state:diagnostic(state,"Unsupported document command: \\"&name)
+            .state:part(state,"□",at,end)
+        .at:stop
+    .state:flush(state)
+    metadata:""
+    metadata_names:["title","author","date","address","email","subjclass","keywords","abstract"]
+    i:0
+    i<8?>
+        present.(i)?
+            metadata~=""? .metadata:metadata&","
+            .metadata:metadata&docblock_j.quote(metadata_names.(i))&":"&docblock_j.quote(meta.(i))
+            meta_options.(i)~=""? .metadata:metadata&","&docblock_j.quote(metadata_names.(i)&"Option")&":"&docblock_j.quote(meta_options.(i))
+        .i:i+1
+    @:(kinds:state.kinds,sources:state.sources,attrs:state.attrs,starts:state.starts,stops:state.stops,parents:state.parents,count:state.count,metadata:"{"&metadata&"}",footnotes:"["&footnotes&"]",diagnostics:state.diagnostics,class_name:chosen_class,class_options:options,imports:"["&imports&"]",body_start:body_start,body_stop:body_stop)

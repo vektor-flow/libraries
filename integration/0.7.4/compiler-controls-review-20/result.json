@@ -1,0 +1,141 @@
+{
+  "result": "ACCEPT_THREE_SOURCE_FIX_PROPOSALS_FROZEN_CONTROLS18_HELD",
+  "owner": "01a14a19-1922-77b1-b91c-1cc12cf98f70",
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "source_commit": "4302f7a03a5d812bf1eaf35848557d157d2e5aae",
+  "inspected_adapter": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/adapter.py",
+    "sha256": "176cc93360e5474d0840f5ceec7eead1e97856cfa109f11d33658199d5d5daad"
+  },
+  "inspected_source_seal": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/source-contract.json",
+    "sha256": "d9d9d89c966bfd84f4bbd82b04288673169734cfff2372dad655eb7000af5f70"
+  },
+  "inspected_pins": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/inspected-pins.json",
+    "sha256": "588ef98382fe9d218c1c77771f9d50c0e1b559924e81b9d63eefd004fef202da"
+  },
+  "patches": [
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/adapter-regular-stdlib.patch",
+      "sha256": "5378d55f66abad8fe856ba4eee0077a9718cabc38790703b04a652b321cc9fab"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/build-packet-d288-cwd-vgdb.patch",
+      "sha256": "be56c192ff31507ff0727fed36912e84d693a958d0a2fe671d2b51b733af8334"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/test-controls-regular.patch",
+      "sha256": "993402cbea6d856a6ccdf2d778a7c9f3b8e99a5f63875f6b4bcb3234c14b6231"
+    }
+  ],
+  "proposal_files": [
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/adapter.py",
+      "sha256": "bacd5d8b64ee6ca3fd012df2b51b900d70d5ba155107f5cdab3fc6f7ab480fd0"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/build_packet.py",
+      "sha256": "9427f921b88f83e52e3e9197f65337eaf21cf12a144b992bdfd8e452d3517edb"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/test_controls.py",
+      "sha256": "9ad870380551074aa6f34a61436074bf7351282221c3c3e6e83d47151c52bc2b"
+    }
+  ],
+  "tests": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/test-results.json",
+    "sha256": "d17e9bfd6af5f07bcba43088e02c1a9b560350b9ab2a75bac90fd3d4dca7737c"
+  },
+  "allowed_diff_and_resolver_proof": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/cwd-delta-results.json",
+    "sha256": "7611d9ea8e73af28f069293c35eb5bc17cd36fdf6d11f5e18dbf9dcb14e1f8c3"
+  },
+  "provenance_closure_and_fifo_proof": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/remaining-review-results.json",
+    "sha256": "5fe2a47f2807c5a87755d5716f42131863217327d52b9502520d4cf21db939d3"
+  },
+  "handoff": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-review-20/HANDOFF.txt",
+    "sha256": "30bed5fb69c91301b3e02da6e884378e6582af8b06d511db98e05aa7095001f0"
+  },
+  "findings": [
+    {
+      "id": "R20-1",
+      "severity": "P1",
+      "finding": "stdlib symlinks rejected by installed allocator",
+      "fix": "fresh exclusive exact-byte regular copies"
+    },
+    {
+      "id": "R20-2",
+      "severity": "P2",
+      "finding": "prepared stdlib outside pinned driver search paths",
+      "fix": "D288 compile cwd only to d288/home",
+      "native_failure_observed": false
+    },
+    {
+      "id": "R20-3",
+      "severity": "P1",
+      "finding": "default optional Valgrind debugger FIFO incompatible with installed allocator",
+      "fix": "explicit --vgdb=no in all ten D288 runs",
+      "native_failure_observed": false
+    }
+  ],
+  "host_tests": 11,
+  "host_tests_seconds": 3.5042006699368358,
+  "combined_proof_seconds": 1.7513303339947015,
+  "remaining_review_seconds": 1.3378154060337692,
+  "exact_plan_diff_fields": 20,
+  "old_plan_shape_unchanged": true,
+  "new_plan_and_source_seal_required": true,
+  "unaddressed_source_blockers_in_reviewed_scope": [],
+  "runtime_qualification": false,
+  "actual_fifo_absence_requires_future_admitted_run": true,
+  "forecast": {
+    "inclusive_phase_disk_bytes": 2147483648,
+    "stdlib_copied_logical_bytes": 614150,
+    "stdlib_copied_allocated_bytes": 696320,
+    "whole_TEMP_tree_before_fake": 1368064,
+    "whole_TEMP_tree_after_fake": 1531904,
+    "remaining_before_native_artifacts": 2146115584,
+    "native_demand_measured": false
+  },
+  "max_host_VmHWM_kB": 153676,
+  "limits": {
+    "address_space_bytes": 536870912,
+    "wall_seconds": 60
+  },
+  "native_execution": false,
+  "operational_mutations": 0,
+  "shared_source_edits": 0,
+  "subagents": 0,
+  "commits": 0,
+  "children": [
+    {
+      "pid": 179954,
+      "exit": 0,
+      "joined": true,
+      "absent": true
+    },
+    {
+      "pid": 179955,
+      "exit": 0,
+      "joined": true,
+      "absent": true
+    },
+    {
+      "pid": 183586,
+      "exit": 0,
+      "joined": true,
+      "absent": true
+    }
+  ],
+  "all_own_children_joined": true,
+  "all_TEMP_trees_cleaned": true,
+  "artifact_428_final_recheck_passed": true,
+  "lock_AST_binding16_unchanged": true,
+  "admission_under_shared_lock_preserved": true,
+  "local_remaining_budget_preserved": true,
+  "companion_test_patch_reconstructed_and_syntax_checked": true,
+  "companion_full_suite_requires_root_regenerated_packet": true
+}

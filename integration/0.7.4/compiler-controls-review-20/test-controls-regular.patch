@@ -1,0 +1,16 @@
+--- compiler-controls-preparation-18/test_controls.py
++++ compiler-controls-review-20/test_controls.py
+@@ -24,7 +24,12 @@
+   p,assets,ref=self.moved();a.check_plan(p,a.current_head(),self.review)
+   a.materialize(p,assets,ref,Path(p['out']))
+   for item in p['generated']:a.verify(item)
+-  for link in p['symlinks']:self.assertEqual(Path(link['path']).resolve(),Path(link['target']))
++  for link in p['symlinks']:
++   dest=Path(link['path'])
++   self.assertFalse(dest.is_symlink())
++   self.assertTrue(dest.is_file())
++   self.assertEqual(dest.stat().st_nlink,1)
++   self.assertEqual(a.pin(dest)['sha256'],link['sha256'])
+   back,_=a.relocate(p,self.plan['out']);self.assertEqual(back,self.plan)
+   self.assertTrue(all(not Path(s['outputs'][0]).exists() for s in p['stages'] if s['outputs']))
+  def test_all_phase_assets_and_A347_report_relocation(self):

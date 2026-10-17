@@ -1,0 +1,219 @@
+--- compiler-runtime-binding-16/adapter.py
++++ compiler-controls-preparation-18/adapter.py
+@@ -126,18 +126,60 @@
+                         sha256=p['sha256']) for p in pins])
+ 
+ 
++PHASE = 'd288'
++DISK = 2*GIB
++TIMEOUT = 2400
++
++
+ def check_plan(plan, head, review):
+-    require(plan['kind'] == 'compiler' and 'selection' not in plan, 'compiler phase only')
++    require(plan['kind'] == 'vkf' and plan.get('selection') == PHASE, 'D288 phase only')
+     require(plan['application_head_at_preparation'] == head, 'stale plan HEAD')
+     require(plan['candidate_review'] == dict(review, executable=True), 'complete corrected review')
+     require(plan['executable'] is True, 'held plan')
+-    require([s['name'] for s in plan['stages']] == STAGES, 'exact eight stages')
+-    require([s['timeout'] for s in plan['stages']] == [180,180,180,180,180,30,180,30], 'stage budgets')
+-    negative, positive = plan['stages'][5], plan['stages'][7]
+-    require(negative['expected_exit'] == 'nonzero' and
+-            negative['stderr_contains'] == 'cross-ABI child was preserved', 'baseline oracle')
+-    require(positive['expected_exit'] == 0 and
+-            positive['stdout'] == review['candidate_success_stdout'], 'candidate oracle')
++    seal = read(HERE/'source-contract.json')
++    expected = load_pin(seal['control_plan'])
++    expected, _ = relocate(expected, plan['out'])
++    require(plan == expected, 'complete sealed D288 plan mismatch')
++    require(plan['compiler_receipt'] == load_pin(seal['compiler_receipt']), 'actual native17 receipt')
++    require(len(plan['cases']) == 10 and len(plan['stages']) == 20, 'all ten original D288 cases')
++
++
++def protected_inputs(pins, roots, target):
++    # Only the exact accepted prior ELF may be in an enrolled job root. The
++    # installed namespace ro-binds /mnt and rebinds ONLY this fresh attempt rw.
++    # No receipt, config, source seal, ledger or owner authority gets an exception.
++    receipt = load_pin(read(HERE/'source-contract.json')['compiler_receipt'])
++    compiler = receipt['compiler']
++    for p in pins:
++        canonical(p['path']) if p == compiler else None
++        if p == compiler:
++            require(not Path(p['path']).is_relative_to(Path(target)), 'compiler overlaps new attempt')
++            verify(p)
++        else:
++            protected([os.path.abspath(p['path'])], roots)
++
++
++def materialize(plan, assets, plan_pin, target):
++    require(not target.exists(), 'fresh D288 subdirectory')
++    target.mkdir()
++    for path in plan['directories']:
++        dest = canonical(path)
++        require(dest.is_relative_to(target), 'directory materialization escape')
++        dest.mkdir(parents=True, exist_ok=True)
++    for link in plan['symlinks']:
++        dest = canonical(link['path']); source = canonical(link['target'])
++        require(dest.is_relative_to(target), 'symlink materialization escape')
++        require(dict(path=str(source), sha256=link['sha256']) in controller_inputs(plan['inputs']), 'unpinned stdlib link')
++        verify(dict(path=str(source), sha256=link['sha256']))
++        dest.parent.mkdir(parents=True, exist_ok=True)
++        dest.symlink_to(source)
++    for item in assets:
++        dest = canonical(item['target'])
++        require(dest.is_relative_to(target), 'materialization escape')
++        verify(item['source'])
++        dest.parent.mkdir(parents=True, exist_ok=True)
++        with dest.open('xb') as f: f.write(raw(item['source']['path']))
++    with (target/'plan.json').open('xb') as f: f.write(raw(plan_pin['path']))
+ 
+ 
+ def relocate(plan, target):
+@@ -159,6 +201,7 @@
+         b = raw(source)
+         require(digest(b) == p['sha256'], 'changed generated source')
+         if source.suffix == '.json': b = encoded(move(decode(b)))
++        elif source.suffix == '.stdin': b = move(b.decode('utf-8')).encode('utf-8')
+         dest = move(str(source))
+         hashes[dest] = digest(b)
+         assets.append((dest, b))
+@@ -170,8 +213,7 @@
+         elif isinstance(x, list):
+             for v in x: update(v)
+     update(result)
+-    require(result['stages'][5] == move(plan['stages'][5]) and
+-            result['stages'][7] == move(plan['stages'][7]), 'oracle transformation')
++    require(result['stages'] == move(plan['stages']), 'oracle transformation')
+     return result, assets
+ 
+ 
+@@ -192,9 +234,9 @@
+     # These are root review exports of REAL receipts, never substitutes for them.
+     require(request['coordinator'] == COORDINATOR and request['native_execution'] is True,
+             'actual root execution decision required')
+-    require(request['phase'] == 'compiler' and request['worker'] == 'A' and
+-            request['ram_bytes'] == 8*GIB and request['disk_bytes'] == GIB and
+-            request['timeout_seconds'] == 1200, 'root must admit A8GiB/1GiB/1200s explicitly')
++    require(request['phase'] == PHASE and request['worker'] == 'A' and
++            request['ram_bytes'] == 8*GIB and request['disk_bytes'] == DISK and
++            request['timeout_seconds'] == TIMEOUT, 'root must admit D288 A8GiB/2GiB/2400s explicitly')
+     require(request['source_commit'] == s['source_commit'], 'source transition needs resealed packet')
+     q = load_pin(request['qualification_review'])
+     require(q['coordinator'] == COORDINATOR and q['qualified'] is True and q['worker'] == 'A'
+@@ -235,13 +277,13 @@
+     policy = load_pin(policy_pin)
+     require(re.fullmatch(r'[A-Za-z0-9_.-]+', r['attempt']) and r['attempt'] not in ('.','..'), 'attempt name')
+     attempt = str(Path(policy['root']['path'])/r['attempt'])
+-    target = str(Path(attempt)/'compiler')
++    target = str(Path(attempt)/PHASE)
+     authority_paths = [str(out), r['grant_path'], r['manifest_path'], r['publication_receipt_path'],
+                        config['owner_state'], s['state_path'], s['lock_path'], str(plan_path), str(request_path)]
+     for path in authority_paths: canonical(path)
+     protected(authority_paths+[p['path'] for p in s['pins']+ep], roots)
+     # Nominal aliases must also stay outside every job-writable root.
+-    protected([os.path.abspath(p['path']) for p in plan['inputs']], roots)
++    protected_inputs(plan['inputs'], roots, attempt)
+     result, assets = relocate(plan, target)
+     check_plan(result, r['source_commit'], review)
+     out.mkdir()
+@@ -261,10 +303,10 @@
+             '--grant', r['grant_path'], '--manifest', r['manifest_path']]
+     inputs = unique(s['pins']+ep+controller_inputs(plan['inputs'])+[pin(HERE/'source-contract.json'), cp, c['plan']]
+                     +[x['source'] for x in sources])
+-    protected([p['path'] for p in inputs], roots)
++    protected_inputs(inputs, roots, attempt)
+     g = dict(storage_admission_version='direct-directory-v2', coordinator=COORDINATOR,
+              worker='A', owner=r['owner'], iteration=r['iteration'], attempt=r['attempt'],
+-             phase_scope='compiler', phase_bytes=GIB, ram_peak_bytes=8*GIB, timeout_seconds=1200,
++             phase_scope=PHASE, phase_bytes=DISK, ram_peak_bytes=8*GIB, timeout_seconds=TIMEOUT,
+              source_commit=r['source_commit'], owner_transition=r['owner_transition'],
+              runtime_config=s['v6_bundle']['config'], controller=s['v6_bundle']['controller'],
+              helpers=s['v6_bundle']['helpers'], storage_policy=policy_pin,
+@@ -282,7 +324,7 @@
+     require(current_head() == r['source_commit'], 'HEAD advanced during assembly; discard candidate')
+     save(out/'PREPARATION-ONLY.json', dict(native_executed=False, admitted=False,
+          grant=gp, manifest=dict(path=r['manifest_path'], sha256=digest(encoded(m))),
+-         forecast=dict(ram_bytes=4*GIB,disk_bytes=GIB,timeout_seconds=1200),
++         forecast=dict(ram_bytes=4*GIB,disk_bytes=DISK,timeout_seconds=TIMEOUT),
+          authority_publication='ROOT ONLY; exact bytes; owner file separate after rotation'))
+ 
+ 
+@@ -292,8 +334,8 @@
+     require(boot == r['boot'], 'stale boot/qualification')
+     require(g['worker'] == 'A' and g['owner'] == r['owner'] and g['iteration'] == r['iteration']
+             and g['owner_transition'] == r['owner_transition'], 'stale owner')
+-    require(g['ram_peak_bytes'] == 8*GIB and g['phase_bytes'] == GIB and
+-            g['timeout_seconds'] == 1200 and g['phase_scope'] == 'compiler', 'admission budget/scope')
++    require(g['ram_peak_bytes'] == 8*GIB and g['phase_bytes'] == DISK and
++            g['timeout_seconds'] == TIMEOUT and g['phase_scope'] == PHASE, 'admission budget/scope')
+     require(g['coordinator'] == COORDINATOR and g['storage_admission_version'] == 'direct-directory-v2', 'authority')
+     require(g['controller'] == s['v6_bundle']['controller'] and g['helpers'] == s['v6_bundle']['helpers']
+             and g['runtime_config'] == s['v6_bundle']['config'], 'complete installed v6 bundle')
+@@ -311,7 +353,7 @@
+     row = state['phases']['A:'+g['attempt']]
+     require(row['stage'] == 'running' and 'join' not in row and row['grant'] == gp and row['manifest'] == mp
+             and row['owner'] == r['owner'] and row['worker'] == 'A' and
+-            row['ram_bytes'] == 8*GIB and row['phase_bytes'] == GIB, 'actual running controller admission required')
++            row['ram_bytes'] == 8*GIB and row['phase_bytes'] == DISK, 'actual running controller admission required')
+     require(row['custody']['controller'] == g['controller'] and row['custody']['config'] == g['runtime_config']
+             and row['custody']['cgroup'] == cgroup and row['service']['identity']['cgroup'] == cgroup
+             and row['service']['invocation'], 'controller service custody')
+@@ -349,8 +391,8 @@
+ 
+ 
+ def run(contract, contract_sha256, grant_path, manifest_path):
+-    # Consume preflight/lock/materialization time from the existing 1200s budget.
+-    deadline = time.monotonic() + 1200
++    # Consume preflight/lock/materialization time from the exact D288 phase budget.
++    deadline = time.monotonic() + TIMEOUT
+     # Only ROOT may arrange this invocation inside v6's already qualified namespace.
+     cp = dict(path=contract, sha256=contract_sha256)
+     c = load_pin(cp)
+@@ -366,8 +408,9 @@
+     require(c['roots'] == [load_pin(p)['root']['path'] for p in config['approved_policies']],
+             'all enrolled writable roots required')
+     for path in (grant_path,manifest_path,r['publication_receipt_path'],s['state_path'],config['owner_state']): canonical(path)
+-    protected([p['path'] for p in g['inputs']]+[grant_path,manifest_path,r['publication_receipt_path'],
++    protected([grant_path,manifest_path,r['publication_receipt_path'],
+                s['state_path'],s['lock_path'],config['owner_state']], c['roots'])
++    protected_inputs(g['inputs'], c['roots'], c['attempt_root'])
+     expected_argv = [s['python']['path'], '-I', '-B', str(HERE/'adapter.py'), 'run', '--contract',
+                      contract, '--contract-sha256', contract_sha256, '--grant', grant_path, '--manifest', manifest_path]
+     require(g['argv'] == expected_argv, 'exact adapter argv')
+@@ -375,7 +418,7 @@
+         require(p in g['inputs'], 'binding/materialization input omitted'); verify(p)
+     plan = load_pin(c['plan'])
+     check_plan(plan, r['source_commit'], load_pin(c['candidate_review']))
+-    protected([os.path.abspath(p['path']) for p in plan['inputs']], c['roots'])
++    protected_inputs(plan['inputs'], c['roots'], c['attempt_root'])
+     require(all(p in g['inputs'] for p in controller_inputs(plan['inputs'])), 'plan inputs omitted')
+     # Use pinned package, isolated Python invocation and no editable cwd imports.
+     sys.path.insert(0, str(PACKAGE))
+@@ -393,7 +436,7 @@
+         validate_runtime(c,s,g,m,gp,mp,state,owners,publication,cgroup,
+                          Path('/proc/sys/kernel/random/boot_id').read_text().strip())
+         binding = dict(coordinator=COORDINATOR, plan=c['plan'], charged_attempt=plan['out'],
+-                       phase='compiler', native_execution=True, environment_qualified=True,
++                       phase=PHASE, native_execution=True, environment_qualified=True,
+                        ram_bytes=g['ram_peak_bytes'], disk_bytes=g['phase_bytes'],
+                        timeout_seconds=g['timeout_seconds'], grant=gp, controller_receipt=state_pin,
+                        environment_qualification=r['qualification_review'], candidate_review=c['candidate_review'])
+@@ -403,16 +446,9 @@
+     for p in g['inputs']: verify(p)
+     require(current_head() == r['source_commit'], 'HEAD changed before materialization')
+     target = canonical(plan['out'])
+-    require(target == Path(c['attempt_root'])/'compiler' and not target.exists(), 'fresh compiler subdirectory')
++    require(target == Path(c['attempt_root'])/PHASE and not target.exists(), 'fresh compiler subdirectory')
+     require(time.monotonic() < deadline, 'phase deadline before materialization')
+-    target.mkdir()
+-    for name in ('tmp','cache','home','logs','objects','sources'): (target/name).mkdir()
+-    for a in c['assets']:
+-        dest = canonical(a['target'])
+-        require(dest.is_relative_to(target), 'materialization escape')
+-        verify(a['source'])
+-        with dest.open('xb') as f: f.write(raw(a['source']['path']))
+-    with (target/'plan.json').open('xb') as f: f.write(raw(c['plan']['path']))
++    materialize(plan, c['assets'], c['plan'], target)
+     # v6 guards/accounting and its independently joined service remain authoritative.
+     remaining = deadline - time.monotonic()
+     require(remaining > 0, 'phase deadline before payload')
