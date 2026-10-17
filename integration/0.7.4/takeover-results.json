@@ -18,7 +18,7 @@
     "examples/gpu-math/tests/source-revision.test.mjs": "d6674ac51fd8b99f34b5552ed2f87d1c64a49c94623113fbf6420ce8a427f0f8"
   },
   "native": {
-    "status": "A348 whole-Leaf assignment overlay rejected: unsupported dynamic list update; no production fix. Existing diagnostics review underway.",
+    "status": "A349 diagnostic omitting returned arena still fails same compose fixed-shape diagnostic; no application-side repair established; no further variant admitted",
     "used_bytes": 21838598144,
     "retained_charge_bytes": 60000000,
     "budget_bytes": 21900000000,
@@ -46,6 +46,13 @@
         "attempt": "A346-03",
         "result": "new width mismatch; possible inferred-singleton fixture artifact, not original-failure localization",
         "compile_seconds": 76.087
+      },
+      {
+        "attempt": "A349-01",
+        "result": "same compose fixed-shape error despite omitting returned arena; diagnostic-only, not production patch",
+        "compile_seconds": 120.4144831970334,
+        "runtime_executed": false,
+        "timing_caveat": "initial lane soft limit3GiB then corrected to authorized7GiB; not comparable full-save timing"
       }
     ],
     "rejected_overlay": {
@@ -53,6 +60,12 @@
       "seconds": 75.938,
       "error": "dynamic list update value requires scalar values",
       "production_adopted": false
+    },
+    "A349_evidence": {
+      "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A/iteration349/verification.json",
+      "root_verified_unique_pins": 308,
+      "remaining_lane_cap_bytes": 3121785600,
+      "joined": true
     }
   },
   "unchanged_limits": true,
@@ -128,6 +141,7 @@
     "root_verified_F356_pins": 133,
     "root_verified_F357_pins": 215,
     "outer_fixture_fix": "Parenthesize negated predicates before assertion; dynamic/literal and true/false controls verified",
-    "evidence": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iteration357-grouped04/reviewed-results.json"
+    "evidence": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iteration357-grouped04/reviewed-results.json",
+    "F358": "Harness grouping defect: function definition misclassified as call; stopped before runtime, no application credit"
   }
 }
