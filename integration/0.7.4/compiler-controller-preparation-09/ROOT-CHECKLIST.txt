@@ -8,11 +8,14 @@ input schema below. Source/schema validation cannot authenticate a claim merely
 because a JSON boolean is true. The root exports are trusted root decisions,
 anchored to genuine pinned evidence; this packet never produces them. No native
 execution is admitted by source-contract.json or the forecast.
-Live12 stopped before mutation. Live13 (01a14972-499b-7330-bb24-ce7985131252)
-owns qualification and operational rotations. Root separately authorized owner-file
-compare-and-atomic-publication after genuine API rotations, under capacity.lock.
-Ledger.rotate_owner only changes the ledger. THERE IS NO owners-v4 publication API
-in that method. Do not assume rotation publishes the owner file; do not invent one.
+Live14 failed at the origin capability gate before namespace/payload execution.
+It supplies NO successful environment qualification. Its3GiB RAM reservation remains
+pending authenticated recovery; permanent charges are4attempts/16MiB. Recovery16
+and capability-repair15 are source-only work. Require a future successful complete
+qualification and fresh owner/publication evidence for the actually installed
+successor. Never treat a historical worker ID or source-only review as admission.
+Ledger.rotate_owner changes the ledger only; root-authorized lock-protected atomic
+owners-v4 publication remains separate.
 
 HASH ORDER / EMPTY ATTEMPT SOLUTION
 1 Root final qualification + actual A owner transition/receipt + separate publication
@@ -37,7 +40,7 @@ HASH ORDER / EMPTY ATTEMPT SOLUTION
   separately. The binding is not emitted as authority. Writable admission.json is
   never trusted. Controller guards/terminal joins remain authoritative throughout.
 
-ROOT PRECONDITIONS (AFTER LIVE13 FINAL HANDOFF, NOT INTERMEDIATE OUTCOMES)
+ROOT PRECONDITIONS (AFTER SUCCESSFUL SUCCESSOR QUALIFICATION, NOT INTERMEDIATE OUTCOMES)
 - Accept actual A-lane success/nonzero/timeout namespace/policy/storage checks and
   independently authenticated service/cgroup/descendant joins with exact v6 bundle,
   same boot, actual loaded-policy equivalence. Installed source is not qualification.
@@ -109,7 +112,7 @@ owner_transition:{path,sha256} is the REAL ledger transition, not a review subst
   its worker/to_owner/coordinator must match. Full history remains controller-enforced.
 publication_authorization:{path,sha256} contains the explicit root decision:
   coordinator,owner_file_publication_authorized=true, and root's real authorization
-  reference/context (live13 permission). It is separate from rotation, no new API.
+  reference/context for the actual execution owner. It is separate from rotation, no new API.
 The future publication_receipt_path must contain ROOT's actual post-publication
 record with coordinator,published=true,under_capacity_lock=true,grant={path,sha256},
 manifest={path,sha256},owner_transition={path,sha256},owner_entry={grant,thread,iteration}.
