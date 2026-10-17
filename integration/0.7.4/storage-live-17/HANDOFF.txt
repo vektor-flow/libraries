@@ -1,0 +1,129 @@
+STORAGE LIVE17 — STOP / UNQUALIFIED: FIRST F SANDBOX CHILD SIGSEGV
+2026-10-17. Worker 01a1498d-0c53-74c0-96a2-899999a3fc97.
+Coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31.
+HEAD ec72b6b21d813994a6e02c77164b8c3baf074ba0 preserved; no commits/agents.
+
+RESULT AND FIRST UNEXPECTED OPERATIONAL OUTCOME
+Exact installed immutable v7 was authenticated, ownership successfully succeeded,
+and one real F3GiB success-case attempt executed. Sandbox Popen child returned
+-11 (SIGSEGV); outer controller returned245; custody service intentionally exited199.
+The phase has a REAL independently authenticated normal join, not a recovery.
+STOP.json and live17-f-success-01-result.json retain the first failure unchanged.
+No retry, alternate launch, source/policy/config change or guard relaxation.
+F nonzero/timeout and all three A cases were NOT RUN. Zero qualified cases.
+No successful environment, native/compiler/link or fixture-result claim.
+
+EXACT FAILURE EVIDENCE
+Kernel journal, 2026-10-17 13:14:59 Europe/Stockholm:
+  apparmor="DENIED" operation="file_mmap" class="file"
+  profile="vkf-storage-private-v1" name="/usr/bin/python3.14"
+  pid=4165055 comm="python3.14" requested_mask="m" denied_mask="m"
+  fsuid=1000 ouid=0
+Journal query exited0; exact argv/stdout/stderr in kernel-journal-readonly.json.
+This identifies a denied executable mapping for the exact tracked sandbox child.
+Do not infer additional unobserved crash mechanics or successful pre/post gates.
+Payload stdout/stderr are both EMPTY. No pre/post policy diagnostic, mount
+snapshot, strict fixture report or payload.bin was produced. Frozen namespace
+binaries, strict mountrepair08 fixture/helper and installed policy remain unchanged.
+
+CAPABILITY DROP / OBSERVED GATES
+Actual service origin diagnostics: CapInh0000000800000000 before; zero after.
+CapPrm/CapEff/CapAmb zero throughout. CapBnd000001ffffffffff unchanged;
+ordinary Uid/Gid1000, supplementary groups, Threads1, NNP0, unconfined label
+unchanged. After record passed=true/error=null; all observation_errors empty.
+Independent strict parsing validated all actual records. Origin policy gate
+recorded zero inherited caps; source order plus sandbox child launch confirms
+origin gate returned. That is not environment/namespace qualification.
+security-observations.json explicitly records absent pre/post/fixture observations.
+Full v7 diagnostic validator is retained; it was NOT treated as passing when
+required pre/post records were absent. Initial/final loaded raw policy bytes
+match the reviewed existing3 and dedicated2 profiles, all enforce. No parser,
+compiler, loader, installer or host mount change was invoked.
+
+AUTHORITY / READ-ONLY PREPARATION
+Read exact live17 visible-chat grant, inherited instructions, shared handover and
+storage14/repair15/recovery16 contracts and root installation/recovery receipts.
+No repository-local AGENTS.md exists. Exact granted HEAD authenticated.
+Initial fresh v7 API observation under capacity.lock independently authenticated
+live14 terminal properties/typed argv/PID absence/empty service+A/F cgroups.
+Initial state exactly matched root-inspect:4 rows,2 events,activeRAM0,16MiB.
+The recover CLI was NEVER invoked. CLI observe requires prerecovery state, so
+read-only observe_live14/validate_live14_proof were used on recovered current data.
+MemAvailable19399221248 bytes (~18.07GiB), no active workers/legacy overlap;
+MEMORY/OVERLAP notification acknowledged by existing app-server.
+
+DRY VALIDATION BEFORE OPERATIONAL SETUP
+Complete adapted operational wrappers were compiled and validated before setup.
+Exact old owner bytes compared to live14 receipt.state AND receipt.pin, protected
+ordinary/no-follow/single-link authority paths checked, old grants/input pins and
+transition chains authenticated. Existing output directory was empty; initial
+exclusive mkdir returned EEXIST before any other action, then existing authorized
+output was used. This was a local nonoperational setup assumption, not a retry.
+In-memory v7 Ledger.rotate_owner projection performed real fresh terminal checks
+including precommit; forbidden join callback would fail if invoked. Exact unused-A
+full post-F snapshot and recovery-prefix validation passed. Six fresh schemas and
+seven owner selections passed, real ledger/owner bytes unchanged. No mock join
+or operational publication receipt. Ten isolated publication tests passed. Strict
+new security parser passed1 synthetic positive and10 negative cases.
+dry-validation.json, dry-script-pins.json, publication-tests.json and
+security-parser-tests.json retain evidence and explicitly distinguish projections.
+All operational scripts still match dry-script-pins after the failed run.
+
+ACTUAL OWNER SUCCESSION / PUBLICATION
+F transition kind live14-recovered-terminal-failure, phase_sequence4, exact
+live14 phase/recovery_events[1].sha256, from live14 to this chat, no prior_join.
+Installed v7 recover_live14.py rotate-f invoked ONCE with exact new installed
+authority838718dc30d4c4f749cd8dd189200b8d26e46662ae0e9f3a960bfdd3edb1c575.
+F append1.939681s succeeded. Then full current post-F state captured immutably
+under capacity.lock; installed Ledger.rotate_owner UNUSED A revocation1.955267s
+succeeded. Four original rows/events/policies/increments/charges unchanged.
+Six fresh iteration17 grants/manifests under v7/storage-live-17; no grant reuse.
+Exact v7 controller/FIVEhelpers/config/new authority, unchanged namespace binaries
+and POLICY_INPUTS in both arrays. Actual imported ctypes/_ctypes/ctypes._endian,
+loaded libffi/libc/loader and Python module dependency closure pinned.
+Two actual owner publications: initial fresh both-lane selections, then first F
+selection. Locked full validation and old-byte compare; same-parent exclusive
+mode0400 no-follow temp, ordinary single-link checks, fsync/rename/parent-fsync.
+Actual intent/receipt files preserve before/after bytes/hashes/state; untouched
+entries preserved. Ledger was NEVER directly written. Both current owners are
+this live17 chat; unstarted grants remain evidence only, not authorization to retry.
+
+ACTUAL CUSTODY / JOINS
+Unit vkfworkers-f-live17-f-success-01.service.
+Invocation4e4dab253dc94ec398ecc7dd604b25e8.
+Outer4164761/start74820618; inner4164959/start74821534;
+sandbox child4165055/start74821916. All independently absent after wait.
+Service failed/exit-code, MainPID0, ExecMainStatus199; exact invocation, typed
+D-Bus ExecStart/PID and argv authenticated. Empty service and both lane cgroups.
+Inner result exit-11, timed_out=false, guard_error=null, no remaining identities;
+input hashes reverified. Installed Controller.verify_join passed during qualifier
+and again during final sealing. Phase stage=joined, valid service-join receipt.
+Controller released this phase's3GiB RAM intent via normal join. Old live14 row
+remains its historical recovered running row unchanged. No new recovery event.
+Synchronous command children waited; owned execution receipts and final PID checks
+retained. No active service or descendant left running; no invented identity/join.
+
+RESOURCES / TIMING / ACCOUNTING
+Final MemAvailable19408031744 bytes (~18.08GiB); worker/legacy overlap0,
+offload remaining intent0, direct activeRAM0. Dispatcher service/timer/path remain
+inactive; runtime dispatcher mask symlink=/dev/null independently checked.
+A high3GiB throughout (no A launch); hardA8GiB/F3GiB, parent21GiB, swap0 preserved.
+Service TasksMax128; existing lane pids.max160 unchanged. F peak26,918,912bytes,
+swap peak0, CPU6,695,785,000ns, service6.829508s. Outer controller17.712205s;
+qualification observation21.305661s. Attempt allocated45,056bytes <=4MiB.
+These are failed controller/sandbox timings, NOT successful payload/native timing.
+4 prior attempts16MiB +1 new attempt4MiB =5/16 attempts,20MiB/64MiB.
+Remaining11 attempts44MiB is arithmetic only. No refund or cap/budget reset.
+Cumulative F19,804,495,872bytes; A18,778,218,496bytes. All prior history retained.
+
+EVIDENCE / DELIVERY
+qualification-result.json, final-state.json, final-owner-state.json,
+independent-terminal-join.json, security-observations.json, kernel-journal-readonly,
+raw receipts/pins, initial/final-loaded-policy.json, final-resources.json,
+initial-terminal-proof.json, owner transitions, publication intent/receipts,
+dry validation/tests, authenticated-input-pins.json, all-owned-joins.json,
+output-pins.json. All operational mutations only through authorized v7 APIs and
+owners publication; own setup under v7 plus one charged F root. Frozen v6/v7
+source/config/authorities/policy and shared HEAD are reauthenticated unchanged.
+One DONE ID/result/path follows through existing app-server notification; record
+acknowledgement or ambiguity without retry. Stop afterward; no successor work.

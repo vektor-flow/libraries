@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-17/finalize.py"
+  ],
+  "identity": {
+    "pid": 4167087,
+    "starttime": 74831414,
+    "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+    "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/codex-phone-host.service",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-17/finalize.py"
+    ]
+  },
+  "exit": 0,
+  "stdout": "{\n  \"passed\": false,\n  \"result\": \"STOP: first F success case sandbox child SIGSEGV; exact AppArmor file_mmap denial recorded\",\n  \"owner\": \"01a1498d-0c53-74c0-96a2-899999a3fc97\",\n  \"coordinator\": \"01a14893-cb1e-7203-97dd-de3da44dcf31\",\n  \"source_commit\": \"ec72b6b21d813994a6e02c77164b8c3baf074ba0\",\n  \"installed_v7_unchanged\": true,\n  \"old_rows_policies_recovery_events_unchanged\": true,\n  \"owners_rotated\": true,\n  \"owner_publications\": [\n    {\n      \"path\": \"/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-17/publication-00-initial-receipt.json\",\n      \"sha256\": \"388cc9c764bf6134e9189df35ab3193ce34ecdcb5580b51ce9720eb92405c666\"\n    },\n    {\n      \"path\": \"/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-17/publication-01-live17-f-success-01-receipt.json\",\n      \"sha256\": \"ce40d4d955522b491e12e921f2cd1e941021c8f47cff9b5b5f6769586ec73353\"\n    }\n  ],\n  \"attempts\": 5,\n  \"consumed_bytes\": 20971520,\n  \"max_attempts\": 16,\n  \"total_bytes\": 67108864,\n  \"remaining_attempts\": 11,\n  \"remaining_bytes\": 46137344,\n  \"active_ram_intent\": 0,\n  \"qualified_phases\": 0,\n  \"executed_cases\": [\n    \"F:success\"\n  ],\n  \"unrun_cases\": [\n    \"F:nonzero\",\n    \"F:timeout\",\n    \"A:success\",\n    \"A:nonzero\",\n    \"A:timeout\"\n  ],\n  \"outer_exit\": 245,\n  \"sandbox_exit\": -11,\n  \"service_exit\": 199,\n  \"normal_join_verified\": true,\n  \"native_execution\": false,\n  \"retry\": false,\n  \"MemAvailable\": 19408031744,\n  \"finalization_seconds\": 1.8484049240360036\n}\n",
+  "stderr": "",
+  "seconds": 1.9211414620513096,
+  "joined": true,
+  "observed": null
+}

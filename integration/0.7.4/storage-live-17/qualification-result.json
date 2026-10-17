@@ -1,0 +1,46 @@
+{
+  "passed": false,
+  "result": "STOP: first F success case sandbox child SIGSEGV; exact AppArmor file_mmap denial recorded",
+  "owner": "01a1498d-0c53-74c0-96a2-899999a3fc97",
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "source_commit": "ec72b6b21d813994a6e02c77164b8c3baf074ba0",
+  "installed_v7_unchanged": true,
+  "old_rows_policies_recovery_events_unchanged": true,
+  "owners_rotated": true,
+  "owner_publications": [
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-17/publication-00-initial-receipt.json",
+      "sha256": "388cc9c764bf6134e9189df35ab3193ce34ecdcb5580b51ce9720eb92405c666"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-17/publication-01-live17-f-success-01-receipt.json",
+      "sha256": "ce40d4d955522b491e12e921f2cd1e941021c8f47cff9b5b5f6769586ec73353"
+    }
+  ],
+  "attempts": 5,
+  "consumed_bytes": 20971520,
+  "max_attempts": 16,
+  "total_bytes": 67108864,
+  "remaining_attempts": 11,
+  "remaining_bytes": 46137344,
+  "active_ram_intent": 0,
+  "qualified_phases": 0,
+  "executed_cases": [
+    "F:success"
+  ],
+  "unrun_cases": [
+    "F:nonzero",
+    "F:timeout",
+    "A:success",
+    "A:nonzero",
+    "A:timeout"
+  ],
+  "outer_exit": 245,
+  "sandbox_exit": -11,
+  "service_exit": 199,
+  "normal_join_verified": true,
+  "native_execution": false,
+  "retry": false,
+  "MemAvailable": 19408031744,
+  "finalization_seconds": 1.8484049240360036
+}

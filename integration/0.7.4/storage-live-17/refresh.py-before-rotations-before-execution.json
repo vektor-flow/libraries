@@ -1,0 +1,28 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-17/refresh.py",
+    "before-rotations",
+    "before"
+  ],
+  "identity": {
+    "pid": 4163881,
+    "starttime": 74817284,
+    "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+    "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/codex-phone-host.service",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-17/refresh.py",
+      "before-rotations",
+      "before"
+    ]
+  },
+  "exit": 0,
+  "stdout": "{\n  \"failures\": [],\n  \"lanes\": {\n    \"A\": {\n      \"H\": 18778218496,\n      \"old_used\": {\n        \"free\": 4276248576,\n        \"used\": 18778218496\n      }\n    },\n    \"F\": {\n      \"H\": 19783524352,\n      \"old_used\": {\n        \"free\": 3270942720,\n        \"used\": 19783524352\n      }\n    }\n  },\n  \"elapsed\": 1.4645208439324051,\n  \"checks\": {\n    \"argv\": [\n      \"systemctl\",\n      \"list-units\",\n      \"--all\",\n      \"--plain\",\n      \"--no-legend\",\n      \"*dispatch*\"\n    ],\n    \"exit\": 0,\n    \"stdout\": \"networkd-dispatcher.service loaded active running Dispatcher daemon for systemd-networkd\\n\",\n    \"stderr\": \"\"\n  }\n}\n",
+  "stderr": "",
+  "seconds": 1.547957995091565,
+  "joined": true,
+  "observed": null
+}

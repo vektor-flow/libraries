@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "journalctl",
+    "-k",
+    "--since",
+    "2026-10-17T11:14:46.116653+00:00",
+    "--no-pager",
+    "--grep",
+    "4165055|apparmor|segfault"
+  ],
+  "exit": 0,
+  "stdout": "Oct 17 13:14:59 ubuntu-station kernel: audit: type=1400 audit(1792235699.097:19331): apparmor=\"DENIED\" operation=\"file_mmap\" class=\"file\" profile=\"vkf-storage-private-v1\" name=\"/usr/bin/python3.14\" pid=4165055 comm=\"python3.14\" requested_mask=\"m\" denied_mask=\"m\" fsuid=1000 ouid=0\n",
+  "stderr": ""
+}
