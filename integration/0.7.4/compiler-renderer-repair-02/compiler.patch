@@ -1,0 +1,49 @@
+--- a/compiler/native/value_layout/layouts_1.cpp
++++ b/compiler/native/value_layout/layouts_1.cpp
+@@ -400,12 +400,38 @@
+ }
+ 
+ namespace vkf::machine_ir::detail {
++namespace {
++// A counted primitive vector has no fixed extent. An inline actual with the
++// same element ABI cannot narrow that storage contract to its own length.
++// Keep this proof separate from numeric widening and non-primitive storage.
++bool preserves_counted_primitive_storage(const ValueLayout& current,
++                                         const ValueLayout& candidate) {
++    if (current.kind != ValueKind::DynamicF64List || current.width != 1 ||
++        !current.selectors.empty() || current.tuple_leaf || current.shared_element_count != 0 ||
++        current.concurrent_handle_kind != ConcurrentHandleKind::None ||
++        candidate.kind != ValueKind::Aggregate || is_record_layout(candidate) ||
++        candidate.tuple_leaf || candidate.dynamic_element || candidate.shared_element_count != 0 ||
++        candidate.concurrent_handle_kind != ConcurrentHandleKind::None) return false;
++    const auto element = current.dynamic_element ? *current.dynamic_element : ValueLayout{};
++    if (!element.selectors.empty() || element.dynamic_element || element.tuple_leaf ||
++        element.shared_element_count != 0 || element.concurrent_handle_kind != ConcurrentHandleKind::None ||
++        !((element.kind == ValueKind::Numeric && element.width == 1) ||
++          (element.kind == ValueKind::String && element.width == 2))) return false;
++    const auto items = indexed_element_layouts(candidate);
++    return same_inference_layout(candidate, indexed_layout(items)) &&
++        std::all_of(items.begin(), items.end(), [&](const auto& item) {
++            return same_inference_layout(item, element);
++        });
++}
++}
++
+ void merge_inferred_layout(
+     ValueLayout& current,
+     const ValueLayout& candidate,
+     bool grow_fixed_aggregates 
+ ) {
+     if (same_inference_layout(current, candidate)) return;
++    if (preserves_counted_primitive_storage(current, candidate)) return;
+     if(current.kind==ValueKind::Aggregate && !is_record_layout(current) && candidate.kind==ValueKind::DynamicF64List) {
+         const auto compatible_vector = [&](const auto& self, const ValueLayout& fixed,
+                                             const ValueLayout& counted) -> bool {
+@@ -705,6 +731,7 @@
+     std::size_t index 
+ ) {
+     if (index == path.size()) {
++        if (preserves_counted_primitive_storage(current, candidate)) return;
+         // A full demand selects existing backing; it does not make an unresolved
+         // caller environment an authoritative replacement for concrete storage.
+         // Keep concrete substitutions (including narrower and empty values) exact.

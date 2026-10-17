@@ -1,0 +1,63 @@
+COMPILER RENDERER REPAIR02 — SOURCE-ONLY CANDIDATE, 2026-10-17
+Owner01a14943-a8e5-7cf0-806c-71bf0ea90237
+Coordinator01a14893-cb1e-7203-97dd-de3da44dcf31
+
+RESULT: Concrete ordinary-layout narrowing defect identified; one-file compiler
+patch prepared, not applied, compiled, linked, installed or native-qualified.
+No application rewrite or additional provenance audit.
+
+Exact authenticated D288 inherited core53:
+/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/compiler/native/value_layout/layouts_1.cpp
+BaselineSHA2566c9f9cf5d2b60c426f88402c0ae32c294191c26880614e71907354613e27c5bd
+CandidateSHA2568ff80f95d154585cc0966cfb2b9b06ae441cb357017eb524c8b750616ae6161d
+Review compiler.patch, baseline/layouts_1.cpp, candidate/layouts_1.cpp.
+
+CAUSE: merge_inferred_layout can replace a counted primitive field with a
+larger inline actual by comparing slot width/selector count. Independently,
+refine_full_projection_path replaces a counted field with a fixed actual,
+including empty. Ordinary calls run both paths. Nonempty fixed String fields
+then fail to merge back into counted storage because the existing reverse
+compatibility branch covers numeric/complex leaves only. The ordinary record
+embedding code cannot satisfy counted->fixed; it emits the observed generic
+"numeric return paths require compatible fixed shapes" diagnostic for call
+arguments too. A345 had empty metadata; retained F364 real IR has nine-element
+glyph metadata and singleton key nodes used by original scene_metadata.append.
+from_leaves and compose call that same metadata operation. See CAUSE.txt and
+real-ir-evidence.json for the exact static chain and its evidence limits.
+
+PATCH: local exact primitive-vector proof and two early guards retain existing
+counted Numeric/String storage for canonical inline actuals of identical
+element ABI. No relaxed conversion/same-layout validation; no record-element,
+tuple, shared/channel or numeric-widening change. No edit to shared call-stage,
+allocator, typedArena or fixed-spread. A333 authorization read and authenticated;
+D267/D289 exclusions respected. No unavoidable shared-body overlap encountered.
+
+TESTS: Seven bounded Python NON-NATIVE reasoning tests passed; baseline model
+demonstrates both narrowing paths, candidate tests cover all24 orders for each
+primitive with zero/one/nine/counted actuals and negative storage controls.
+Patch reconstruction verified in memory.18 direct source/profile/authorization/
+application pins verified. All four analyzed production files match897e3802.
+regression_layouts.cpp and focused metadata VKF test supplied but UNEXECUTED.
+A345/A347 small complete entries retained byte-identically; their real modules
+must come from the current shared source on future qualification.
+
+LIMIT: We have no physical failed source/target layout dump. This proves a
+source defect on real caller shapes, not that this candidate clears every
+full-renderer failure. Native compilation and causal confirmation remain due.
+Original419/native47 counts and all performance claims unchanged.
+
+BUILD: Exact core53 argv/302dependency mappings, identity90 metadata, D288
+ordered link and profile pins retained.240/240link input paths exist; no object
+hash/ABI qualification claimed. QUALIFICATION.txt specifies live09 join, fresh
+cumulative grant, source/VFS/dependency authentication, rebuilt53/new90identity,
+ordered link, focused controls and unchanged current full-caller gates.
+
+SHARED SOURCE: assigned897e3802; initial observed559cd60c; coordinator updates
+aa4784f1(PDF optional bindings) and e669733b(storage evidence), latest observed
+e669733b. Future native work must freeze then-current HEAD, not an old closure.
+
+JOINS: No agents, native builds, renderer, service jobs or background processes
+started. All bounded read/hash/host-test subprocesses joined. Outputs confined
+to this directory; no commits, source-patch application or operational mutation.
+One DONE notification is sent through the existing app-server mechanism, with
+its acknowledgement retained here. Stop after handoff; no automatic retry.

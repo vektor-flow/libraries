@@ -1,0 +1,68 @@
+SOURCE-ONLY CAUSAL FINDING — NOT NATIVE CONFIRMATION
+
+Authenticated D288 unit53 value_layout/layouts_1.cpp has two independent ways
+to narrow counted primitive storage to an inline caller extent:
+
+1. merge_inferred_layout, original lines403-538. For a counted primitive vector
+   (DynamicF64List, width1) and a fixed singleton, the kind-specific cases do not
+   match. The final width/selector-count comparison replaces current with the
+   fixed candidate. A numeric singleton has width1 plus a selector; a String
+   singleton has width2. Nine-element inputs also replace it. This happens
+   recursively inside ordinary record fields, not only for top-level vectors.
+2. refine_full_projection_path, original lines701-750. A complete field demand
+   with different current/candidate kinds takes `else current = candidate`.
+   This can narrow even a counted field to a fixed EMPTY candidate. Ordinary
+   calls invoke this before refine_signature_parameter_from_argument, so
+   guarding only the width-based merge would leave the defect present.
+
+Why this is a defect: a field declared [str]/[int]/[num] accepts independently
+supplied lengths. One inline caller does not establish a fixed extent for all
+calls or for a counted producer. The single ordinary function signature is
+shared across those calls. Specialization requires an independent proof;
+slot width and one full-field use provide no such proof.
+
+The original fixed->counted compatible_vector branch also recognizes only
+numeric/complex leaves. Once a nonempty String field has become fixed, merely
+merging its later counted String producer cannot repair the narrowing. This
+patch prevents the wrong initial narrowing; it does not broaden that branch.
+
+Actual caller evidence, not a synthetic arena substitution:
+- Retained F364 typed IR: scene_metadata.append has both parameters expanded
+  to record{kinds:[int],ends:[int],texts:[str],numbers:[num],count:int}.
+- Its reachable wider closure contains paragraph_scene_legacy.glyph_leaf's
+  nine-element metadata and scene_metadata.replace_member's singleton key
+  node. The latter is passed to the original append as key_node.
+- document_scene.from_leaves invokes the same append for metadata; compose
+  invokes it for anchor_metadata. Both preserve the full production records.
+- A345's passing fixture uses empty Metadata; A347 real-producer fixture and
+  F364 fail. A349 removing the returned arena still fails. This is consistent
+  with ordinary Metadata call-signature contamination, without attributing
+  it to any arena/allocator mechanism or rewriting the application.
+- real-ir-evidence.json contains exact typed IR pin, literal lengths and
+  ordinary append call identities. source-pins.json authenticates the actual
+  compiler bodies used for this analysis, not rejected E prototype bodies.
+
+Diagnostic connection: D288 numeric_1.cpp's ordinary record conversion accepts
+fixed primitive child vectors into counted children. It cannot convert a
+counted child into a fixed-length child. Its subsequent fixed embedding plan
+rejects different kinds/extents and emits the observed diagnostic. Nested
+resource words participate in that plan through fixed_embedding_layout.
+The diagnostic is used for call arguments as well as function returns; the
+phrase "numeric return paths" does not localize the error to the final return.
+
+LIMIT OF EVIDENCE: No retained physical failing source/target layout pair was
+available. The host tests demonstrate these exact narrowing branches and the
+proposed invariant on real caller shapes, not the complete compiler execution.
+The exact first failing field/call and whether this single repair clears every
+full-renderer blocker remain to be established by admitted native tests.
+
+PATCH BOUNDARY
+One small local predicate plus two early returns in unit53. It preserves an
+existing plain counted Numeric or String vector only when the candidate is
+a canonical inline vector with exactly identical primitive element layouts.
+No numeric widening, tuple, record-element list, shared/channel, malformed
+layout or fixed-formal proof is newly accepted. Same-layout and conversion
+validation remain intact. No edit to embed_numeric_return, call-stage12685,
+function_lowering, allocator, typedArena or fixed-spread handling. A333 is
+reopened; D267/D289 and all other exclusions remain in force. There is no
+unavoidable overlap with their implementation bodies for this candidate.
