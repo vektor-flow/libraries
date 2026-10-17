@@ -2688,9 +2688,10 @@
     },
     "typed_packet_reference_harness_tests": {
       "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/typed_packet_reference_harness_tests.vkf",
-      "sha256": "aedb5f2ec2c312d5ecce2071a4236c7977203ea6d060ab09b4528a6a14dfbb6c",
+      "sha256": "d618fd2710b97b082774f4058940b2e153ca5e8389c1f08b143e447291bbc8f7",
       "imports": [
-        "document_scene_paragraph",
+        "ref_f303_document_scene_paragraph",
+        "ref_f303_document_scene_export",
         "document_scene_paragraph_linear",
         "document_scene_export",
         "document_scene",
@@ -2699,12 +2700,90 @@
       ],
       "reference": false
     },
-    "document_scene_paragraph": {
-      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/document_scene_paragraph.vkf",
-      "sha256": "ea618a95ca9647c1a2e9ff06414c0d1600fcf98d80dd92ddb0f1cb4b5dbcfbd8",
+    "ref_f303_document_scene_paragraph": {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/ref_f303_document_scene_paragraph.vkf",
+      "sha256": "f0bf52e9efdac137fe94ff9d12ecb1dbb751d6bcce0887ce197ee32c03177692",
       "imports": [
-        "document_scene_paragraph_linear",
-        "document_scene"
+        "ref_f303_document_scene",
+        "ref_f303_document_scene_json",
+        "ref_f303_resource_json"
+      ],
+      "reference": false
+    },
+    "ref_f303_document_scene": {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/ref_f303_document_scene.vkf",
+      "sha256": "90dc539e5a6255c6981d2d5348c0292239f2cef6eaa43fdcddfb63429a325b21",
+      "imports": [
+        "ref_f303_text_chunks"
+      ],
+      "reference": false
+    },
+    "ref_f303_text_chunks": {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/ref_f303_text_chunks.vkf",
+      "sha256": "d9bf26f67496ef830b8edb6a6ca9044e530eb35e023542c09359257e4909ac9d",
+      "imports": [],
+      "reference": false
+    },
+    "ref_f303_document_scene_json": {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/ref_f303_document_scene_json.vkf",
+      "sha256": "58fa36e01596d15fa461d2c33b78d17e39fcdb37d67229d3ecfbe95aabeef09c",
+      "imports": [
+        "ref_f303_document_scene",
+        "ref_f303_resource_json",
+        "ref_f303_tex_text"
+      ],
+      "reference": false
+    },
+    "ref_f303_resource_json": {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/ref_f303_resource_json.vkf",
+      "sha256": "baa2c5e14c3a09ddeb823c0b48ca2fbb3368fc75bc5a7713dfec83d1491bc661",
+      "imports": [
+        "ref_f303_tex_text",
+        "ref_f303_resource_numbers"
+      ],
+      "reference": false
+    },
+    "ref_f303_tex_text": {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/ref_f303_tex_text.vkf",
+      "sha256": "45306f67ccc97a6ecebc4d8eeb1755735e15ec87e176dda760d58d613f26384d",
+      "imports": [],
+      "reference": false
+    },
+    "ref_f303_resource_numbers": {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/ref_f303_resource_numbers.vkf",
+      "sha256": "96321de3d72aeb716e01c64302a7de8ca76e794d8c7a3cc0a573a5a1f277f940",
+      "imports": [
+        "ref_f303_tex_text",
+        "ref_f303_binary_decimal"
+      ],
+      "reference": false
+    },
+    "ref_f303_binary_decimal": {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/ref_f303_binary_decimal.vkf",
+      "sha256": "e8e0f2965682d55ddf5a85c8320a22a8ad49e87973a2ca038b3df8b743744fc1",
+      "imports": [
+        "ref_f303_tex_text"
+      ],
+      "reference": false
+    },
+    "ref_f303_document_scene_export": {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/ref_f303_document_scene_export.vkf",
+      "sha256": "856a0b49487adab9175527d50a3a98a65396777f152393eba02b46a582452978",
+      "imports": [
+        "ref_f303_resource_json",
+        "ref_f303_tex_text",
+        "ref_f303_text_chunks",
+        "ref_f303_json_numbers",
+        "ref_f303_document_scene"
+      ],
+      "reference": false
+    },
+    "ref_f303_json_numbers": {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/ref_f303_json_numbers.vkf",
+      "sha256": "1137f67ebced7c602a578556c7a374bdfd98a8e894b8615979bdb7c7ce81c4f3",
+      "imports": [
+        "ref_f303_tex_text",
+        "ref_f303_text_chunks"
       ],
       "reference": false
     },
@@ -2720,7 +2799,7 @@
     },
     "typed_packet_reference_adapter": {
       "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/typed_packet_reference_adapter.vkf",
-      "sha256": "7e0be4c1e7980fb98130f35e31359c0ed42aba4f150153e5fca2aaae6300bf28",
+      "sha256": "b4393e818045c8d4fa9dffbe0000e87026196fa4370657a4c11b8a83ce52c9ae",
       "imports": [
         "paragraph_scene_store",
         "paragraph_scene_legacy"
@@ -3223,6 +3302,15 @@
         "document_label_scene",
         "document_materialize_config",
         "resource_json"
+      ],
+      "reference": false
+    },
+    "document_scene_paragraph": {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/document_scene_paragraph.vkf",
+      "sha256": "ea618a95ca9647c1a2e9ff06414c0d1600fcf98d80dd92ddb0f1cb4b5dbcfbd8",
+      "imports": [
+        "document_scene_paragraph_linear",
+        "document_scene"
       ],
       "reference": false
     },
@@ -4837,18 +4925,27 @@
       "entry": "renderer_tests()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/typed_packet_reference_harness_tests.vkf",
-        "sha256": "03589985f2b52e7ce17245f928acb3d0aa7d7ffc842d981857e7a5556f99bb1a"
+        "sha256": "a4723bcace4889c308efb42e975313cabfb6af6205f1fbed094d75a901153f1f"
       },
       "closure": [
         "binary_decimal",
         "document_scene",
         "document_scene_export",
         "document_scene_json",
-        "document_scene_paragraph",
         "document_scene_paragraph_linear",
         "json_numbers",
         "paragraph_scene_legacy",
         "paragraph_scene_store",
+        "ref_f303_binary_decimal",
+        "ref_f303_document_scene",
+        "ref_f303_document_scene_export",
+        "ref_f303_document_scene_json",
+        "ref_f303_document_scene_paragraph",
+        "ref_f303_json_numbers",
+        "ref_f303_resource_json",
+        "ref_f303_resource_numbers",
+        "ref_f303_tex_text",
+        "ref_f303_text_chunks",
         "resource_json",
         "resource_numbers",
         "scene_metadata",

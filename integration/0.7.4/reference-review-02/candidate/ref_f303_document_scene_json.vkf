@@ -1,0 +1,181 @@
+# Temporary boundary for retained providers. A scene is decoded exactly once.
+# The PDF consumer imports document_scene, never this JSON document_scene_json.
+shared_module_document_scene_b31fd35b:.ref_f303_document_scene
+shared_module_resource_json_7fb5f9ee:.ref_f303_resource_json
+shared_module_tex_text_09640ead:.ref_f303_tex_text
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,extra:str,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+raw(q:Tape,n:int)->str:
+    n<0? @:"null"
+    @:shared_module_tex_text_09640ead.span(q.source,q.starts.(n),q.stops.(n))
+num_at(q:Tape,n:int,fallback:num=0)->num:
+    n<0? @:fallback
+    q.kinds.(n)=7? @:fallback
+    @:shared_module_resource_json_7fb5f9ee.number(q,n)
+number(q:Tape,n:int,k:str,fallback:num=0)->num:
+    n<0? @:fallback
+    @:num_at(q,shared_module_resource_json_7fb5f9ee.member(q,n,k),fallback)
+string(q:Tape,n:int,k:str,fallback:str="")->str:
+    n<0? @:fallback
+    at:shared_module_resource_json_7fb5f9ee.member(q,n,k)
+    at<0? @:fallback
+    q.kinds.(at)=7? @:fallback
+    @:shared_module_resource_json_7fb5f9ee.string(q,at)
+flag(q:Tape,n:int,k:str)->bit:
+    at:shared_module_resource_json_7fb5f9ee.member(q,n,k)
+    at<0? @:false
+    @:q.kinds.(at)=5
+present(q:Tape,n:int,k:str)->bit:
+    at:shared_module_resource_json_7fb5f9ee.member(q,n,k)
+    at<0? @:false
+    @:q.kinds.(at)~=7
+array_size(q:Tape,n:int)->int:
+    n<0? @:0
+    q.kinds.(n)~=2? @:0
+    at:n+1
+    count:0
+    at<q.ends.(n)?>
+        .count:count+1
+        .at:q.ends.(at)
+    @:count
+element(q:Tape,n:int,index:int)->int:
+    n<0? @: -1
+    q.kinds.(n)~=2? @: -1
+    @:shared_module_resource_json_7fb5f9ee.element(q,n,index)
+color(q:Tape,n:int)->Paint:
+    (array_size(q,n)=3 \/ array_size(q,n)=4)?! "Invalid typed scene color"
+    @:shared_module_document_scene_b31fd35b.paint(num_at(q,element(q,n,0)),num_at(q,element(q,n,1)),num_at(q,element(q,n,2)),num_at(q,element(q,n,3),1))
+kind(value:str)->int:
+    names:["glyph","field","rule","link","image","segment","bezier","circle","vectorrect","placeholder"]
+    i:0
+    i<names.length()?>
+        names.(i)=value? @:i
+        .i:i+1
+    @: -1
+dash(value:str)->int:
+    value="" \/ value="solid"? @:0
+    value="dashed"? @:1
+    value="dotted"? @:2
+    value="densely dotted"? @:3
+    value="loosely dotted"? @:4
+    @: -1
+leaf(q:Tape,node:int)->Leaf:
+    item:shared_module_document_scene_b31fd35b.leaf(string(q,node,"key"),number(q,node,"x"),number(q,node,"y"),int(number(q,node,"flowLine")))
+    item.kind:kind(string(q,node,"kind"))
+    (item.kind>=0)?! "Unsupported retained scene leaf kind"
+    item.sx:number(q,node,"sx",1)
+    item.sy:number(q,node,"sy",1)
+    item.width:number(q,node,"width")
+    item.height:number(q,node,"height")
+    item.footnote_number:int(number(q,node,"footnoteNumber"))
+    item.equation_tag:flag(q,node,"equationTag")
+    item.tag_width:number(q,node,"tagWidth")
+    item.flow_x:number(q,node,"flowX")
+    item.flow_width:number(q,node,"flowWidth")
+    item.has_flow:present(q,node,"flowX") \/ present(q,node,"flowWidth")
+    item.vertical_shrink:number(q,node,"verticalShrink")
+    item.vertical_stretch:number(q,node,"verticalStretch")
+    item.extra:raw(q,node)
+    item.has_paint:present(q,node,"color")
+    item.has_paint? item.paint:color(q,shared_module_resource_json_7fb5f9ee.member(q,node,"color"))
+    p:shared_module_document_scene_b31fd35b.payload()
+    crop:shared_module_resource_json_7fb5f9ee.member(q,node,"cropX")
+    p.crop_x:crop>=0
+    crop>=0? p.crop_x:q.kinds.(crop)~=7
+    p.crop_x?
+        left:element(q,crop,0)
+        right:element(q,crop,1)
+        p.crop_left:left>=0
+        p.crop_right:right>=0
+        left>=0? p.crop_left:q.kinds.(left)~=7
+        right>=0? p.crop_right:q.kinds.(right)~=7
+        p.left:num_at(q,left)
+        p.right:num_at(q,right)
+    .crop:shared_module_resource_json_7fb5f9ee.member(q,node,"crop")
+    p.crop_y:crop>=0
+    crop>=0? p.crop_y:q.kinds.(crop)~=7
+    p.crop_y?
+        top:element(q,crop,0)
+        bottom:element(q,crop,1)
+        p.crop_top:top>=0
+        p.crop_bottom:bottom>=0
+        top>=0? p.crop_top:q.kinds.(top)~=7
+        bottom>=0? p.crop_bottom:q.kinds.(bottom)~=7
+        p.top:num_at(q,top)
+        p.bottom:num_at(q,bottom)
+    delta:shared_module_resource_json_7fb5f9ee.member(q,node,"delta")
+    p.dx:num_at(q,element(q,delta,0))
+    p.dy:num_at(q,element(q,delta,1))
+    controls:shared_module_resource_json_7fb5f9ee.member(q,node,"controls")
+    first:element(q,controls,0)
+    second:element(q,controls,1)
+    p.c1x:number(q,first,"x")
+    p.c1y:number(q,first,"y")
+    p.c2x:number(q,second,"x")
+    p.c2y:number(q,second,"y")
+    p.line_width:number(q,node,"lineWidth")
+    p.fill:flag(q,node,"fill")
+    p.dash:dash(string(q,node,"dash"))
+    p.border_width:number(q,node,"borderWidth",1)
+    p.asset:string(q,node,"asset")
+    target:shared_module_resource_json_7fb5f9ee.member(q,node,"target")
+    p.target_type:0
+    target>=0?
+        q.kinds.(target)~=7?
+            target_kind:string(q,target,"type")
+            p.target_type: -1
+            target_kind="uri"? p.target_type:1
+            target_kind="destination"? p.target_type:2
+            p.target:string(q,target,"value")
+    item.has_payload:item.kind>=3 \/ p.crop_x \/ p.crop_y
+    item.payload:p
+    item.has_fill_paint:present(q,node,"fillColor")
+    item.has_fill_paint? item.fill_paint:color(q,shared_module_resource_json_7fb5f9ee.member(q,node,"fillColor"))
+    item.has_stroke_paint:present(q,node,"strokeColor")
+    item.has_stroke_paint? item.stroke_paint:color(q,shared_module_resource_json_7fb5f9ee.member(q,node,"strokeColor"))
+    ids:shared_module_resource_json_7fb5f9ee.member(q,node,"destinationIds")
+    id_count:array_size(q,ids)
+    [int] id_indices:[0:id_count]
+    item.destination_ids:id_indices >> shared_module_resource_json_7fb5f9ee.string(q,element(q,ids,$0))
+    @:item
+empty()->Scene:
+    @:(arena:shared_module_document_scene_b31fd35b.empty(),anchor_ids:shared_module_document_scene_b31fd35b.strings(0),anchor_xs:[0.0:0],anchor_ys:[0.0:0],anchor_lines:[0:0],anchor_count:0,width:0.0,height:0.0,depth:0.0,tag_width:0.0)
+decode(source:str)->Scene:
+    q:shared_module_resource_json_7fb5f9ee.parse(source)
+    q.valid?! "Invalid retained scene JSON"
+    items:shared_module_resource_json_7fb5f9ee.member(q,0,"items")
+    count:array_size(q,items)
+    [int] item_indices:[0:count]
+    at:items+1
+    i:0
+    i<count?>
+        item_indices.(i):at
+        .at:q.ends.(at)
+        .i:i+1
+    [Leaf] leaves:item_indices >> leaf(q,$)
+    arena:shared_module_document_scene_b31fd35b.from_leaves(leaves,count)
+    tag_width:0.0
+    .i:0
+    i<count?>
+        arena.equation_tags.(i) /\ arena.tag_widths.(i)>tag_width? .tag_width:arena.tag_widths.(i)
+        .i:i+1
+    anchors:shared_module_resource_json_7fb5f9ee.member(q,0,"destinations")
+    anchor_count:array_size(q,anchors)
+    anchor_ids:shared_module_document_scene_b31fd35b.strings(anchor_count)
+    [num] anchor_xs:[0.0:anchor_count]
+    [num] anchor_ys:[0.0:anchor_count]
+    [int] anchor_lines:[0:anchor_count]
+    .i:0
+    .at:anchors+1
+    i<anchor_count?>
+        anchor_ids.(i):string(q,at,"id")
+        anchor_xs.(i):number(q,at,"x")
+        anchor_ys.(i):number(q,at,"y")
+        anchor_lines.(i):int(number(q,at,"flowLine"))
+        .at:q.ends.(at)
+        .i:i+1
+    @:(arena:arena,anchor_ids:anchor_ids,anchor_xs:anchor_xs,anchor_ys:anchor_ys,anchor_lines:anchor_lines,anchor_count:anchor_count,width:number(q,0,"width"),height:number(q,0,"height"),depth:number(q,0,"depth"),tag_width:tag_width)

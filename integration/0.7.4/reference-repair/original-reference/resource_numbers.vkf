@@ -1,0 +1,60 @@
+# Strict decimal grammar for prepared font resources (JSON number production).
+# Scan returns a boundary, so commas/closing brackets remain with the caller.
+shared_module_tex_text_09640ead:.tex_text
+shared_module_binary_decimal_baa0b1b4:.binary_decimal
+Number:(value:num,stop:int,valid:bit)
+Span:(stop:int,valid:bit)
+
+character(source:str,position:int)->str:
+    vkf_string_eof(source,position)? @:""
+    @:shared_module_tex_text_09640ead.at(source,position)
+
+digit(c:str)->bit:c>="0" /\ c<="9"
+
+# JSON tokenization needs syntax and boundaries, not a floating-point value.
+# Convert a number only when the consumer actually requests its field.
+boundary(source:str,begin:int=0)->Span:
+    begin<0? @:(stop:begin,valid:false)
+    position:begin
+    c:character(source,position)
+    c="-"?
+        .position:position+1
+        .c:character(source,position)
+    ~digit(c)? @:(stop:position,valid:false)
+    zero:c="0"
+    .position:position+1
+    .c:character(source,position)
+    zero /\ digit(c)? @:(stop:position,valid:false)
+    ~zero?
+        digit(c)?>
+            .position:position+1
+            .c:character(source,position)
+    c="."?
+        .position:position+1
+        .c:character(source,position)
+        ~digit(c)? @:(stop:position,valid:false)
+        digit(c)?>
+            .position:position+1
+            .c:character(source,position)
+    (c="e" \/ c="E")?
+        .position:position+1
+        .c:character(source,position)
+        (c="+" \/ c="-")?
+            .position:position+1
+            .c:character(source,position)
+        ~digit(c)? @:(stop:position,valid:false)
+        digit(c)?>
+            .position:position+1
+            .c:character(source,position)
+    @:(stop:position,valid:true)
+
+scan(source:str,begin:int=0)->Number:
+    span:boundary(source,begin)
+    ~span.valid? @:(value:0,stop:span.stop,valid:false)
+    result:shared_module_binary_decimal_baa0b1b4.decode(source,begin,span.stop)
+    @:(value:result.value,stop:span.stop,valid:result.valid /\ |result.value|<=10.0^300)
+
+parse(source:str)->num:
+    result:scan(source)
+    (result.valid /\ vkf_string_eof(source,result.stop))?! "Invalid font-resource decimal"
+    @:result.value

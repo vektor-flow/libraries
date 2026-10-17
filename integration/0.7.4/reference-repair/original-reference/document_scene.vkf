@@ -1,0 +1,179 @@
+# Typed retained leaves; JSON is confined to separate adapters.
+# Kinds glyph0 field1 rule2 link3 image4 segment5 bezzier6 circle7 vectorrect8 placeholder9.
+shared_module_text_chunks_3b4ac16d:.text_chunks
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,extra:str,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num)
+PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
+strings(size:int)->[str]:shared_module_text_chunks_3b4ac16d.empty(size)
+paint(red:num=0,green:num=0,blue:num=0,alpha:num=1)->Paint:@:(red:red,green:green,blue:blue,alpha:alpha)
+payload()->Payload:@:(crop_x:false,crop_y:false,crop_left:false,crop_right:false,crop_top:false,crop_bottom:false,left:0.0,right:0.0,top:0.0,bottom:0.0,dx:0.0,dy:0.0,c1x:0.0,c1y:0.0,c2x:0.0,c2y:0.0,line_width:0.0,fill:false,fill_paint: -1,stroke_paint: -1,dash:0,target_type:0,target:"",border_width:1.0,asset:"")
+leaf(key:str="",x:num=0,y:num=0,line:int=0)->Leaf:
+    @:(kind:0,key:key,x:x,y:y,sx:1.0,sy:1.0,width:0.0,height:0.0,line:line,equation_tag:false,tag_width:0.0,draw:true,extra:"",flow_x:0.0,flow_width:0.0,has_flow:false,vertical_shrink:0.0,vertical_stretch:0.0,paint:paint(),has_paint:false,payload:payload(),has_payload:false,fill_paint:paint(),has_fill_paint:false,stroke_paint:paint(),has_stroke_paint:false,destination_ids:strings(0),footnote_number:0)
+paint_for(leaves:[Leaf],sources:[int],lanes:[int],i:int)->Paint:
+    source:sources.(i)
+    lanes.(i)=1? @:leaves.(source).fill_paint
+    lanes.(i)=2? @:leaves.(source).stroke_paint
+    @:leaves.(source).paint
+payload_for(leaves:[Leaf],sources:[int],fills:[int],strokes:[int],i:int)->Payload:
+    item:leaves.(sources.(i)).payload
+    item.fill_paint:fills.(i)
+    item.stroke_paint:strokes.(i)
+    @:item
+# Balanced record factories avoid singleton-concat MAP accumulation in the
+# published compiler while keeping compact paint/payload IDs in encounter order.
+paints_range(leaves:[Leaf],sources:[int],lanes:[int],start:int,stop:int)->[Paint]:
+    start=stop? @:[]
+    stop-start=1?
+        value:paint_for(leaves,sources,lanes,start)
+        [Paint] one:[value]
+        @:one
+    middle:(start+stop)//2
+    before:paints_range(leaves,sources,lanes,start,middle)
+    after:paints_range(leaves,sources,lanes,middle,stop)
+    @:before&after
+payloads_range(leaves:[Leaf],sources:[int],fills:[int],strokes:[int],start:int,stop:int)->[Payload]:
+    start=stop? @:[]
+    stop-start=1?
+        value:payload_for(leaves,sources,fills,strokes,start)
+        [Payload] one:[value]
+        @:one
+    middle:(start+stop)//2
+    before:payloads_range(leaves,sources,fills,strokes,start,middle)
+    after:payloads_range(leaves,sources,fills,strokes,middle,stop)
+    @:before&after
+from_leaves(leaves:[Leaf],count:int)->Arena:
+    [int] kinds:[0:count]
+    keys:strings(count)
+    [num] xs:[0.0:count]
+    [num] ys:[0.0:count]
+    [num] sxs:[1.0:count]
+    [num] sys:[1.0:count]
+    [num] widths:[0.0:count]
+    [num] heights:[0.0:count]
+    [int] lines:[0:count]
+    [bit] equation_tags:[false:count]
+    [num] tag_widths:[0.0:count]
+    [bit] draws:[true:count]
+    extras:strings(count)
+    [num] flow_xs:[0.0:count]
+    [num] flow_widths:[0.0:count]
+    [bit] has_flows:[false:count]
+    [num] vertical_shrinks:[0.0:count]
+    [num] vertical_stretches:[0.0:count]
+    [int] footnote_numbers:[0:count]
+    [int] paints:[-1:count]
+    [int] payloads:[-1:count]
+    [int] destination_firsts:[0:count]
+    [int] destination_counts:[0:count]
+    destination_size:0
+    i:0
+    i<count?>
+        .destination_size:destination_size+leaves.(i).destination_ids.length()
+        .i:i+1
+    destination_ids:strings(destination_size)
+    [int] paint_sources:[0:count*3]
+    [int] paint_lanes:[0:count*3]
+    [int] payload_sources:[0:count]
+    [int] payload_fills:[-1:count]
+    [int] payload_strokes:[-1:count]
+    paint_count:0
+    payload_count:0
+    destination_count:0
+    .i:0
+    i<count?>
+        footnote_numbers.(i):leaves.(i).footnote_number
+        kinds.(i):leaves.(i).kind
+        keys.(i):leaves.(i).key
+        xs.(i):leaves.(i).x
+        ys.(i):leaves.(i).y
+        sxs.(i):leaves.(i).sx
+        sys.(i):leaves.(i).sy
+        widths.(i):leaves.(i).width
+        heights.(i):leaves.(i).height
+        lines.(i):leaves.(i).line
+        equation_tags.(i):leaves.(i).equation_tag
+        tag_widths.(i):leaves.(i).tag_width
+        draws.(i):leaves.(i).draw
+        extras.(i):leaves.(i).extra
+        flow_xs.(i):leaves.(i).flow_x
+        flow_widths.(i):leaves.(i).flow_width
+        has_flows.(i):leaves.(i).has_flow
+        vertical_shrinks.(i):leaves.(i).vertical_shrink
+        vertical_stretches.(i):leaves.(i).vertical_stretch
+        leaves.(i).has_paint?
+            paints.(i):paint_count
+            paint_sources.(paint_count):i
+            paint_lanes.(paint_count):0
+            .paint_count:paint_count+1
+        leaves.(i).has_payload?
+            payload_sources.(payload_count):i
+            leaves.(i).has_fill_paint?
+                payload_fills.(payload_count):paint_count
+                paint_sources.(paint_count):i
+                paint_lanes.(paint_count):1
+                .paint_count:paint_count+1
+            leaves.(i).has_stroke_paint?
+                payload_strokes.(payload_count):paint_count
+                paint_sources.(paint_count):i
+                paint_lanes.(paint_count):2
+                .paint_count:paint_count+1
+            payloads.(i):payload_count
+            .payload_count:payload_count+1
+        destination_firsts.(i):destination_count
+        destination_counts.(i):leaves.(i).destination_ids.length()
+        j:0
+        j<leaves.(i).destination_ids.length()?>
+            destination_ids.(destination_count):leaves.(i).destination_ids.(j)
+            .destination_count:destination_count+1
+            .j:j+1
+        .i:i+1
+    paint_table:paints_range(leaves,paint_sources,paint_lanes,0,paint_count)
+    payload_table:payloads_range(leaves,payload_sources,payload_fills,payload_strokes,0,payload_count)
+    @:(kinds:kinds,keys:keys,xs:xs,ys:ys,sxs:sxs,sys:sys,widths:widths,heights:heights,lines:lines,equation_tags:equation_tags,tag_widths:tag_widths,draws:draws,extras:extras,flow_xs:flow_xs,flow_widths:flow_widths,has_flows:has_flows,vertical_shrinks:vertical_shrinks,vertical_stretches:vertical_stretches,paints:paints,payloads:payloads,destination_firsts:destination_firsts,destination_counts:destination_counts,destination_ids:destination_ids,count:count,paint_table:paint_table,paint_count:paint_count,payload_table:payload_table,payload_count:payload_count,footnote_numbers:footnote_numbers)
+empty()->Arena:
+    [Leaf] leaves:[]
+    @:from_leaves(leaves,0)
+kind_name(kind:int)->str:
+    names:["glyph","field","rule","link","image","segment","bezier","circle","vectorrect","placeholder"]
+    kind>=0 /\ kind<names.length()?! "Unknown scene leaf kind"
+    @:names.(kind)
+leaf_at(arena:Arena,index:int)->Leaf:
+    item:leaf(arena.keys.(index),arena.xs.(index),arena.ys.(index),arena.lines.(index))
+    item.kind:arena.kinds.(index)
+    item.sx:arena.sxs.(index)
+    item.sy:arena.sys.(index)
+    item.width:arena.widths.(index)
+    item.height:arena.heights.(index)
+    item.equation_tag:arena.equation_tags.(index)
+    item.tag_width:arena.tag_widths.(index)
+    item.draw:arena.draws.(index)
+    item.extra:arena.extras.(index)
+    item.flow_x:arena.flow_xs.(index)
+    item.flow_width:arena.flow_widths.(index)
+    item.has_flow:arena.has_flows.(index)
+    item.vertical_shrink:arena.vertical_shrinks.(index)
+    item.vertical_stretch:arena.vertical_stretches.(index)
+    item.footnote_number:arena.footnote_numbers.(index)
+    color:arena.paints.(index)
+    color>=0?
+        item.paint:arena.paint_table.(color)
+        item.has_paint:true
+    payload_index:arena.payloads.(index)
+    payload_index>=0?
+        item.payload:arena.payload_table.(payload_index)
+        item.has_payload:true
+        fill_color:item.payload.fill_paint
+        stroke_color:item.payload.stroke_paint
+        fill_color>=0?
+            item.fill_paint:arena.paint_table.(fill_color)
+            item.has_fill_paint:true
+        stroke_color>=0?
+            item.stroke_paint:arena.paint_table.(stroke_color)
+            item.has_stroke_paint:true
+    size:arena.destination_counts.(index)
+    [int] ids:[0:size]
+    item.destination_ids:ids >> arena.destination_ids.(arena.destination_firsts.(index)+$0)
+    @:item

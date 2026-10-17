@@ -1,0 +1,139 @@
+# Optional diagnostic/export boundary. Never used by typed PDF output.
+shared_module_resource_json_7fb5f9ee:.resource_json
+shared_module_tex_text_09640ead:.tex_text
+shared_module_text_chunks_3b4ac16d:.text_chunks
+shared_module_json_numbers_417d7020:.json_numbers
+shared_module_document_scene_b31fd35b:.document_scene
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
+PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+raw(tape:Tape,node:int)->str:
+    @:shared_module_tex_text_09640ead.span(tape.source,tape.starts.(node),tape.stops.(node))
+number_field(key:str,value:num)->str:@:shared_module_resource_json_7fb5f9ee.quote(key)&":"&shared_module_json_numbers_417d7020.roundtrip(value)
+ids(arena:Arena,index:int)->str:
+    count:arena.destination_counts.(index)
+    values:shared_module_text_chunks_3b4ac16d.empty(count)
+    i:0
+    i<count?>
+        prefix:""
+        i>0? .prefix:","
+        values.(i):prefix&shared_module_resource_json_7fb5f9ee.quote(arena.destination_ids.(arena.destination_firsts.(index)+i))
+        .i:i+1
+    @:"["&shared_module_text_chunks_3b4ac16d.join(values,0,count)&"]"
+leaf(arena:Arena,index:int,mode:int,has_line:int= -1)->str:
+    original:arena.extras.(index)
+    blank:original=""
+    blank? .original:"{}"
+    tape:shared_module_resource_json_7fb5f9ee.parse(original)
+    tape.valid?! "Invalid debug-only original leaf metadata"
+    kind:arena.kinds.(index)
+    line:has_line=1
+    has_line<0?
+        .line:shared_module_resource_json_7fb5f9ee.member(tape,0,"flowLine")>=0
+        blank /\ (kind=0 \/ kind=1) /\ mode~=7? .line:true
+    destination_present:shared_module_resource_json_7fb5f9ee.member(tape,0,"destinationIds")>=0
+    color_present:shared_module_resource_json_7fb5f9ee.member(tape,0,"color")>=0
+    parts:shared_module_text_chunks_3b4ac16d.empty(tape.count+20)
+    count:0
+    at:1
+    at<tape.ends.(0)?>
+        key:shared_module_resource_json_7fb5f9ee.string(tape,at)
+        keep:key~="x" /\ key~="y" /\ key~="destinationIds"
+        line /\ key="flowLine"? .keep:false
+        (mode=1 \/ mode=2 \/ mode=9) /\ (key="verticalShrink" \/ key="verticalStretch")? .keep:false
+        mode=1 /\ kind~=3 /\ (key="sx" \/ key="sy")? .keep:false
+        mode=1 /\ (kind=2 \/ kind=3 \/ kind=9) /\ (key="width" \/ key="height")? .keep:false
+        (mode=4 \/ mode=5 \/ mode=6) /\ key="floatPlacement"? .keep:false
+        keep?
+            parts.(count):raw(tape,at)&":"&raw(tape,at+1)
+            .count:count+1
+        .at:tape.ends.(at+1)
+    blank?
+        parts.(count):"\"kind\":"&shared_module_resource_json_7fb5f9ee.quote(shared_module_document_scene_b31fd35b.kind_name(kind))
+        .count:count+1
+        kind=0 \/ kind=1?
+            parts.(count):"\"key\":"&shared_module_resource_json_7fb5f9ee.quote(arena.keys.(index))
+            .count:count+1
+        mode=7 \/ (mode~=1 /\ (kind=2 \/ kind=3 \/ kind=4 \/ kind=7 \/ kind=8 \/ kind=9))?
+            parts.(count):number_field("width",arena.widths.(index))
+            .count:count+1
+            parts.(count):number_field("height",arena.heights.(index))
+            .count:count+1
+    parts.(count):number_field("x",arena.xs.(index))
+    .count:count+1
+    parts.(count):number_field("y",arena.ys.(index))
+    .count:count+1
+    line?
+        parts.(count):"\"flowLine\":"&shared_module_tex_text_09640ead.integer(arena.lines.(index))
+        .count:count+1
+    mode=1 \/ mode=2 \/ mode=9?
+        parts.(count):number_field("verticalShrink",arena.vertical_shrinks.(index))
+        .count:count+1
+        parts.(count):number_field("verticalStretch",arena.vertical_stretches.(index))
+        .count:count+1
+    mode=1?
+        kind~=3?
+            parts.(count):number_field("sx",arena.sxs.(index))
+            .count:count+1
+            parts.(count):number_field("sy",arena.sys.(index))
+            .count:count+1
+        kind=2 \/ kind=3 \/ kind=9?
+            parts.(count):number_field("width",arena.widths.(index))
+            .count:count+1
+            parts.(count):number_field("height",arena.heights.(index))
+            .count:count+1
+    mode=4 \/ mode=5 \/ mode=6?
+        placement:"top"
+        mode=5? .placement:"bottom"
+        mode=6? .placement:"page"
+        parts.(count):"\"floatPlacement\":"&shared_module_resource_json_7fb5f9ee.quote(placement)
+        .count:count+1
+    arena.destination_counts.(index)>0 \/ destination_present?
+        parts.(count):"\"destinationIds\":"&ids(arena,index)
+        .count:count+1
+    paint:arena.paints.(index)
+    paint>=0 /\ ~color_present?
+        color:arena.paint_table.(paint)
+        parts.(count):"\"color\":["&shared_module_json_numbers_417d7020.roundtrip(color.red)&","&shared_module_json_numbers_417d7020.roundtrip(color.green)&","&shared_module_json_numbers_417d7020.roundtrip(color.blue)&","&shared_module_json_numbers_417d7020.roundtrip(color.alpha)&"]"
+        .count:count+1
+    i:1
+    i<count?>
+        parts.(i):","&parts.(i)
+        .i:i+1
+    @:"{"&shared_module_text_chunks_3b4ac16d.join(parts,0,count)&"}"
+encode(doc:PageDocument,debug_modes:[int],flow_line_presence:[bit]=[false:0])->str:
+    # Project the nested Arena once; doing this in each leaf call clones it
+    # on the published compiler even though the callee only reads its columns.
+    arena:doc.arena
+    leaf_count:arena.count
+    (debug_modes.length()=leaf_count)?! "Debug leaf modes do not match typed document"
+    pages:shared_module_text_chunks_3b4ac16d.empty(doc.page_count)
+    page:0
+    page<doc.page_count?>
+        values:shared_module_text_chunks_3b4ac16d.empty(doc.counts.(page))
+        i:0
+        i<doc.counts.(page)?>
+            index:doc.firsts.(page)+i
+            line: -1
+            flow_line_presence.length()=leaf_count?
+                .line:0
+                flow_line_presence.(index)? .line:1
+            prefix:""
+            i>0? .prefix:","
+            debug_mode:debug_modes.(index)
+            values.(i):prefix&leaf(arena,index,debug_mode,line)
+            .i:i+1
+        prefix:""
+        page>0? .prefix:","
+        pages.(page):prefix&"{\"width\":"&shared_module_json_numbers_417d7020.roundtrip(doc.widths.(page))&",\"height\":"&shared_module_json_numbers_417d7020.roundtrip(doc.heights.(page))&",\"number\":"&shared_module_tex_text_09640ead.integer(page+1)&",\"items\":["&shared_module_text_chunks_3b4ac16d.join(values,0,doc.counts.(page))&"]}"
+        .page:page+1
+    destinations:shared_module_text_chunks_3b4ac16d.empty(doc.destination_count)
+    i:0
+    i<doc.destination_count?>
+        prefix:""
+        i>0? .prefix:","
+        destinations.(i):prefix&shared_module_resource_json_7fb5f9ee.quote(doc.destination_names.(i))&":{\"page\":"&shared_module_tex_text_09640ead.integer(doc.destination_pages.(i))&",\"x\":"&shared_module_json_numbers_417d7020.roundtrip(doc.destination_xs.(i))&",\"y\":"&shared_module_json_numbers_417d7020.roundtrip(doc.destination_ys.(i))&"}"
+        .i:i+1
+    @:"{\"pages\":["&shared_module_text_chunks_3b4ac16d.join(pages,0,doc.page_count)&"],\"destinations\":{"&shared_module_text_chunks_3b4ac16d.join(destinations,0,doc.destination_count)&"}}"

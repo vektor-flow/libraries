@@ -1,0 +1,1478 @@
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/ref_f303_binary_decimal.vkf
+@@ -0,0 +1,209 @@
++# Correctly rounded finite decimal -> binary64. The caller validates JSON
++# grammar and supplies token byte boundaries. No host number parser is used.
++shared_module_tex_text_09640ead:.ref_f303_tex_text
++Result:(value:num,valid:bit)
++zeros(size:int)->[int]:[0:size]
++
++signed(value:num,negative:bit)->Result:
++    result:value
++    negative? .result:num(-1)*value
++    @:(value:result,valid:value-value=0)
++
++decode(source:str,begin:int,stop:int)->Result:
++    position:begin
++    negative:shared_module_tex_text_09640ead.at(source,position)="-"
++    negative? .position:position+1
++    coefficient_start:position
++    fraction:0
++    decimal:false
++    count:0
++    coefficient:0
++    small:true
++    position<stop?>
++        c:shared_module_tex_text_09640ead.at(source,position)
++        (c="e" \/ c="E")? @|
++        c="."?
++            .decimal:true
++            .position:position+1
++            @>
++        digit:int(vkf_decimal_parse(c))
++        (count>0 \/ digit>0)? .count:count+1
++        decimal? .fraction:fraction+1
++        small?
++            (coefficient>900719925474099 \/ (coefficient=900719925474099 /\ digit>2))? .small:false
++            small? .coefficient:coefficient*10+digit
++        .position:position+1
++    coefficient_stop:position
++    exponent:0
++    exponent_sign:1
++    position<stop?
++        .position:position+1
++        c:shared_module_tex_text_09640ead.at(source,position)
++        c="-"? .exponent_sign: -1
++        (c="+" \/ c="-")? .position:position+1
++        position<stop?>
++            exponent<stop-begin+2000? .exponent:exponent*10+int(vkf_decimal_parse(shared_module_tex_text_09640ead.at(source,position)))
++            .position:position+1
++    count=0? @:signed(0,negative)
++    scale:fraction-exponent_sign*exponent
++    order:count-scale-1
++    order>308? @:(value:0,valid:false)
++    order< -324? @:signed(0,negative)
++    # Both operands are exact integers here, so one hardware multiply/divide
++    # performs the only rounding. All powers10 through22 are exact binary64.
++    small /\ scale>= -22 /\ scale<=22?
++        power:1.0
++        i:0
++        i<|scale|?>
++            .power:power*10
++            .i:i+1
++        value:num(coefficient)
++        scale>0? .value:value/power
++        scale<0? .value:value*power
++        @:signed(value,negative)
++    capacity:stop-begin+1100
++    digits:zeros(capacity)
++    .position:coefficient_start
++    .count:0
++    position<coefficient_stop?>
++        c:shared_module_tex_text_09640ead.at(source,position)
++        c~="."?
++            digit:int(vkf_decimal_parse(c))
++            (count>0 \/ digit>0)?
++                digits.(count):digit
++                .count:count+1
++        .position:position+1
++    count>0 /\ digits.(count-1)=0?>
++        .count:count-1
++        .scale:scale-1
++    index:0
++    index<count//2?>
++        saved:digits.(index)
++        digits.(index):digits.(count-index-1)
++        digits.(count-index-1):saved
++        .index:index+1
++    scale<0?
++        shift: -scale
++        .index:count-1
++        index>=0?>
++            digits.(index+shift):digits.(index)
++            .index:index-1
++        .index:0
++        index<shift?>
++            digits.(index):0
++            .index:index+1
++        .count:count+shift
++        .scale:0
++    whole_count:count-scale
++    whole_count<0? .whole_count:0
++    significand:0
++    bits:0
++    binary_exponent:0
++    whole_count<=15?
++        .index:count-1
++        index>=scale?>
++            .significand:significand*10+digits.(index)
++            .index:index-1
++        magnitude:significand
++        magnitude>0?>
++            .bits:bits+1
++            .magnitude:magnitude//2
++        bits>0? .binary_exponent:bits-1
++    whole_count>15?
++        whole:zeros(whole_count)
++        binary:zeros(whole_count*4)
++        .index:0
++        index<whole_count?>
++            whole.(index):digits.(index+scale)
++            .index:index+1
++        remaining:whole_count
++        remaining>0?>
++            carry:0
++            .index:remaining-1
++            index>=0?>
++                value:carry*10+whole.(index)
++                whole.(index):value//2
++                .carry:value%2
++                .index:index-1
++            binary.(bits):carry
++            .bits:bits+1
++            remaining>0 /\ whole.(remaining-1)=0?> .remaining:remaining-1
++        .binary_exponent:bits-1
++        take:bits
++        take>53? .take:53
++        .index:bits-1
++        index>=bits-take?>
++            .significand:significand*2+binary.(index)
++            .index:index-1
++        bits>53?
++            guard:binary.(bits-54)
++            sticky:false
++            .index:bits-55
++            index>=0?>
++                binary.(index)=1? .sticky:true
++                .index:index-1
++            .index:0
++            index<scale /\ index<count?>
++                digits.(index)>0? .sticky:true
++                .index:index+1
++            guard=1 /\ (sticky \/ significand%2=1)? .significand:significand+1
++            @:signed(num(significand)*2.0^(bits-53),negative)
++    count>scale? .count:scale
++    count>0 /\ digits.(count-1)=0?> .count:count-1
++    # Extract fractional bits directly from an exact decimal remainder. The
++    # leading-bit search includes the half-minimum-subnormal boundary.
++    bits=0 /\ count>0?>
++        carry:0
++        .index:0
++        index<count?>
++            product:digits.(index)*2+carry
++            digits.(index):product%10
++            .carry:product//10
++            .index:index+1
++        carry>0?
++            digits.(count):carry
++            .count:count+1
++        .binary_exponent:binary_exponent-1
++        count>scale?
++            .index:scale
++            digits.(index)=0?>
++                digits.(index):9
++                .index:index+1
++            digits.(index):digits.(index)-1
++            count>0 /\ digits.(count-1)=0?> .count:count-1
++            .significand:1
++            .bits:1
++        binary_exponent= -1075?
++            tiny:0.0
++            bits=1 /\ count>0? .tiny:2.0^(-1074)
++            @:signed(tiny,negative)
++    bits=0? @:signed(0,negative)
++    precision:53
++    binary_exponent< -1022? .precision:binary_exponent+1075
++    guard:0
++    step:bits
++    step<=precision?>
++        carry:0
++        .index:0
++        index<count?>
++            product:digits.(index)*2+carry
++            digits.(index):product%10
++            .carry:product//10
++            .index:index+1
++        carry>0?
++            digits.(count):carry
++            .count:count+1
++        digit:0
++        count>scale?
++            .index:scale
++            digits.(index)=0?>
++                digits.(index):9
++                .index:index+1
++            digits.(index):digits.(index)-1
++            count>0 /\ digits.(count-1)=0?> .count:count-1
++            .digit:1
++        step<precision? .significand:significand*2+digit
++        step=precision? .guard:digit
++        .step:step+1
++    guard=1 /\ (count>0 \/ significand%2=1)? .significand:significand+1
++    @:signed(num(significand)*2.0^(binary_exponent-precision+1),negative)
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/ref_f303_document_scene.vkf
+@@ -0,0 +1,179 @@
++# Typed retained leaves; JSON is confined to separate adapters.
++# Kinds glyph0 field1 rule2 link3 image4 segment5 bezzier6 circle7 vectorrect8 placeholder9.
++shared_module_text_chunks_3b4ac16d:.ref_f303_text_chunks
++Paint:(red:num,green:num,blue:num,alpha:num)
++Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
++Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,extra:str,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int)
++Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
++Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num)
++PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
++strings(size:int)->[str]:shared_module_text_chunks_3b4ac16d.empty(size)
++paint(red:num=0,green:num=0,blue:num=0,alpha:num=1)->Paint:@:(red:red,green:green,blue:blue,alpha:alpha)
++payload()->Payload:@:(crop_x:false,crop_y:false,crop_left:false,crop_right:false,crop_top:false,crop_bottom:false,left:0.0,right:0.0,top:0.0,bottom:0.0,dx:0.0,dy:0.0,c1x:0.0,c1y:0.0,c2x:0.0,c2y:0.0,line_width:0.0,fill:false,fill_paint: -1,stroke_paint: -1,dash:0,target_type:0,target:"",border_width:1.0,asset:"")
++leaf(key:str="",x:num=0,y:num=0,line:int=0)->Leaf:
++    @:(kind:0,key:key,x:x,y:y,sx:1.0,sy:1.0,width:0.0,height:0.0,line:line,equation_tag:false,tag_width:0.0,draw:true,extra:"",flow_x:0.0,flow_width:0.0,has_flow:false,vertical_shrink:0.0,vertical_stretch:0.0,paint:paint(),has_paint:false,payload:payload(),has_payload:false,fill_paint:paint(),has_fill_paint:false,stroke_paint:paint(),has_stroke_paint:false,destination_ids:strings(0),footnote_number:0)
++paint_for(leaves:[Leaf],sources:[int],lanes:[int],i:int)->Paint:
++    source:sources.(i)
++    lanes.(i)=1? @:leaves.(source).fill_paint
++    lanes.(i)=2? @:leaves.(source).stroke_paint
++    @:leaves.(source).paint
++payload_for(leaves:[Leaf],sources:[int],fills:[int],strokes:[int],i:int)->Payload:
++    item:leaves.(sources.(i)).payload
++    item.fill_paint:fills.(i)
++    item.stroke_paint:strokes.(i)
++    @:item
++# Balanced record factories avoid singleton-concat MAP accumulation in the
++# published compiler while keeping compact paint/payload IDs in encounter order.
++paints_range(leaves:[Leaf],sources:[int],lanes:[int],start:int,stop:int)->[Paint]:
++    start=stop? @:[]
++    stop-start=1?
++        value:paint_for(leaves,sources,lanes,start)
++        [Paint] one:[value]
++        @:one
++    middle:(start+stop)//2
++    before:paints_range(leaves,sources,lanes,start,middle)
++    after:paints_range(leaves,sources,lanes,middle,stop)
++    @:before&after
++payloads_range(leaves:[Leaf],sources:[int],fills:[int],strokes:[int],start:int,stop:int)->[Payload]:
++    start=stop? @:[]
++    stop-start=1?
++        value:payload_for(leaves,sources,fills,strokes,start)
++        [Payload] one:[value]
++        @:one
++    middle:(start+stop)//2
++    before:payloads_range(leaves,sources,fills,strokes,start,middle)
++    after:payloads_range(leaves,sources,fills,strokes,middle,stop)
++    @:before&after
++from_leaves(leaves:[Leaf],count:int)->Arena:
++    [int] kinds:[0:count]
++    keys:strings(count)
++    [num] xs:[0.0:count]
++    [num] ys:[0.0:count]
++    [num] sxs:[1.0:count]
++    [num] sys:[1.0:count]
++    [num] widths:[0.0:count]
++    [num] heights:[0.0:count]
++    [int] lines:[0:count]
++    [bit] equation_tags:[false:count]
++    [num] tag_widths:[0.0:count]
++    [bit] draws:[true:count]
++    extras:strings(count)
++    [num] flow_xs:[0.0:count]
++    [num] flow_widths:[0.0:count]
++    [bit] has_flows:[false:count]
++    [num] vertical_shrinks:[0.0:count]
++    [num] vertical_stretches:[0.0:count]
++    [int] footnote_numbers:[0:count]
++    [int] paints:[-1:count]
++    [int] payloads:[-1:count]
++    [int] destination_firsts:[0:count]
++    [int] destination_counts:[0:count]
++    destination_size:0
++    i:0
++    i<count?>
++        .destination_size:destination_size+leaves.(i).destination_ids.length()
++        .i:i+1
++    destination_ids:strings(destination_size)
++    [int] paint_sources:[0:count*3]
++    [int] paint_lanes:[0:count*3]
++    [int] payload_sources:[0:count]
++    [int] payload_fills:[-1:count]
++    [int] payload_strokes:[-1:count]
++    paint_count:0
++    payload_count:0
++    destination_count:0
++    .i:0
++    i<count?>
++        footnote_numbers.(i):leaves.(i).footnote_number
++        kinds.(i):leaves.(i).kind
++        keys.(i):leaves.(i).key
++        xs.(i):leaves.(i).x
++        ys.(i):leaves.(i).y
++        sxs.(i):leaves.(i).sx
++        sys.(i):leaves.(i).sy
++        widths.(i):leaves.(i).width
++        heights.(i):leaves.(i).height
++        lines.(i):leaves.(i).line
++        equation_tags.(i):leaves.(i).equation_tag
++        tag_widths.(i):leaves.(i).tag_width
++        draws.(i):leaves.(i).draw
++        extras.(i):leaves.(i).extra
++        flow_xs.(i):leaves.(i).flow_x
++        flow_widths.(i):leaves.(i).flow_width
++        has_flows.(i):leaves.(i).has_flow
++        vertical_shrinks.(i):leaves.(i).vertical_shrink
++        vertical_stretches.(i):leaves.(i).vertical_stretch
++        leaves.(i).has_paint?
++            paints.(i):paint_count
++            paint_sources.(paint_count):i
++            paint_lanes.(paint_count):0
++            .paint_count:paint_count+1
++        leaves.(i).has_payload?
++            payload_sources.(payload_count):i
++            leaves.(i).has_fill_paint?
++                payload_fills.(payload_count):paint_count
++                paint_sources.(paint_count):i
++                paint_lanes.(paint_count):1
++                .paint_count:paint_count+1
++            leaves.(i).has_stroke_paint?
++                payload_strokes.(payload_count):paint_count
++                paint_sources.(paint_count):i
++                paint_lanes.(paint_count):2
++                .paint_count:paint_count+1
++            payloads.(i):payload_count
++            .payload_count:payload_count+1
++        destination_firsts.(i):destination_count
++        destination_counts.(i):leaves.(i).destination_ids.length()
++        j:0
++        j<leaves.(i).destination_ids.length()?>
++            destination_ids.(destination_count):leaves.(i).destination_ids.(j)
++            .destination_count:destination_count+1
++            .j:j+1
++        .i:i+1
++    paint_table:paints_range(leaves,paint_sources,paint_lanes,0,paint_count)
++    payload_table:payloads_range(leaves,payload_sources,payload_fills,payload_strokes,0,payload_count)
++    @:(kinds:kinds,keys:keys,xs:xs,ys:ys,sxs:sxs,sys:sys,widths:widths,heights:heights,lines:lines,equation_tags:equation_tags,tag_widths:tag_widths,draws:draws,extras:extras,flow_xs:flow_xs,flow_widths:flow_widths,has_flows:has_flows,vertical_shrinks:vertical_shrinks,vertical_stretches:vertical_stretches,paints:paints,payloads:payloads,destination_firsts:destination_firsts,destination_counts:destination_counts,destination_ids:destination_ids,count:count,paint_table:paint_table,paint_count:paint_count,payload_table:payload_table,payload_count:payload_count,footnote_numbers:footnote_numbers)
++empty()->Arena:
++    [Leaf] leaves:[]
++    @:from_leaves(leaves,0)
++kind_name(kind:int)->str:
++    names:["glyph","field","rule","link","image","segment","bezier","circle","vectorrect","placeholder"]
++    kind>=0 /\ kind<names.length()?! "Unknown scene leaf kind"
++    @:names.(kind)
++leaf_at(arena:Arena,index:int)->Leaf:
++    item:leaf(arena.keys.(index),arena.xs.(index),arena.ys.(index),arena.lines.(index))
++    item.kind:arena.kinds.(index)
++    item.sx:arena.sxs.(index)
++    item.sy:arena.sys.(index)
++    item.width:arena.widths.(index)
++    item.height:arena.heights.(index)
++    item.equation_tag:arena.equation_tags.(index)
++    item.tag_width:arena.tag_widths.(index)
++    item.draw:arena.draws.(index)
++    item.extra:arena.extras.(index)
++    item.flow_x:arena.flow_xs.(index)
++    item.flow_width:arena.flow_widths.(index)
++    item.has_flow:arena.has_flows.(index)
++    item.vertical_shrink:arena.vertical_shrinks.(index)
++    item.vertical_stretch:arena.vertical_stretches.(index)
++    item.footnote_number:arena.footnote_numbers.(index)
++    color:arena.paints.(index)
++    color>=0?
++        item.paint:arena.paint_table.(color)
++        item.has_paint:true
++    payload_index:arena.payloads.(index)
++    payload_index>=0?
++        item.payload:arena.payload_table.(payload_index)
++        item.has_payload:true
++        fill_color:item.payload.fill_paint
++        stroke_color:item.payload.stroke_paint
++        fill_color>=0?
++            item.fill_paint:arena.paint_table.(fill_color)
++            item.has_fill_paint:true
++        stroke_color>=0?
++            item.stroke_paint:arena.paint_table.(stroke_color)
++            item.has_stroke_paint:true
++    size:arena.destination_counts.(index)
++    [int] ids:[0:size]
++    item.destination_ids:ids >> arena.destination_ids.(arena.destination_firsts.(index)+$0)
++    @:item
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/ref_f303_document_scene_export.vkf
+@@ -0,0 +1,139 @@
++# Optional diagnostic/export boundary. Never used by typed PDF output.
++shared_module_resource_json_7fb5f9ee:.ref_f303_resource_json
++shared_module_tex_text_09640ead:.ref_f303_tex_text
++shared_module_text_chunks_3b4ac16d:.ref_f303_text_chunks
++shared_module_json_numbers_417d7020:.ref_f303_json_numbers
++shared_module_document_scene_b31fd35b:.ref_f303_document_scene
++Paint:(red:num,green:num,blue:num,alpha:num)
++Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
++Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
++PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
++Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
++raw(tape:Tape,node:int)->str:
++    @:shared_module_tex_text_09640ead.span(tape.source,tape.starts.(node),tape.stops.(node))
++number_field(key:str,value:num)->str:@:shared_module_resource_json_7fb5f9ee.quote(key)&":"&shared_module_json_numbers_417d7020.roundtrip(value)
++ids(arena:Arena,index:int)->str:
++    count:arena.destination_counts.(index)
++    values:shared_module_text_chunks_3b4ac16d.empty(count)
++    i:0
++    i<count?>
++        prefix:""
++        i>0? .prefix:","
++        values.(i):prefix&shared_module_resource_json_7fb5f9ee.quote(arena.destination_ids.(arena.destination_firsts.(index)+i))
++        .i:i+1
++    @:"["&shared_module_text_chunks_3b4ac16d.join(values,0,count)&"]"
++leaf(arena:Arena,index:int,mode:int,has_line:int= -1)->str:
++    original:arena.extras.(index)
++    blank:original=""
++    blank? .original:"{}"
++    tape:shared_module_resource_json_7fb5f9ee.parse(original)
++    tape.valid?! "Invalid debug-only original leaf metadata"
++    kind:arena.kinds.(index)
++    line:has_line=1
++    has_line<0?
++        .line:shared_module_resource_json_7fb5f9ee.member(tape,0,"flowLine")>=0
++        blank /\ (kind=0 \/ kind=1) /\ mode~=7? .line:true
++    destination_present:shared_module_resource_json_7fb5f9ee.member(tape,0,"destinationIds")>=0
++    color_present:shared_module_resource_json_7fb5f9ee.member(tape,0,"color")>=0
++    parts:shared_module_text_chunks_3b4ac16d.empty(tape.count+20)
++    count:0
++    at:1
++    at<tape.ends.(0)?>
++        key:shared_module_resource_json_7fb5f9ee.string(tape,at)
++        keep:key~="x" /\ key~="y" /\ key~="destinationIds"
++        line /\ key="flowLine"? .keep:false
++        (mode=1 \/ mode=2 \/ mode=9) /\ (key="verticalShrink" \/ key="verticalStretch")? .keep:false
++        mode=1 /\ kind~=3 /\ (key="sx" \/ key="sy")? .keep:false
++        mode=1 /\ (kind=2 \/ kind=3 \/ kind=9) /\ (key="width" \/ key="height")? .keep:false
++        (mode=4 \/ mode=5 \/ mode=6) /\ key="floatPlacement"? .keep:false
++        keep?
++            parts.(count):raw(tape,at)&":"&raw(tape,at+1)
++            .count:count+1
++        .at:tape.ends.(at+1)
++    blank?
++        parts.(count):"\"kind\":"&shared_module_resource_json_7fb5f9ee.quote(shared_module_document_scene_b31fd35b.kind_name(kind))
++        .count:count+1
++        kind=0 \/ kind=1?
++            parts.(count):"\"key\":"&shared_module_resource_json_7fb5f9ee.quote(arena.keys.(index))
++            .count:count+1
++        mode=7 \/ (mode~=1 /\ (kind=2 \/ kind=3 \/ kind=4 \/ kind=7 \/ kind=8 \/ kind=9))?
++            parts.(count):number_field("width",arena.widths.(index))
++            .count:count+1
++            parts.(count):number_field("height",arena.heights.(index))
++            .count:count+1
++    parts.(count):number_field("x",arena.xs.(index))
++    .count:count+1
++    parts.(count):number_field("y",arena.ys.(index))
++    .count:count+1
++    line?
++        parts.(count):"\"flowLine\":"&shared_module_tex_text_09640ead.integer(arena.lines.(index))
++        .count:count+1
++    mode=1 \/ mode=2 \/ mode=9?
++        parts.(count):number_field("verticalShrink",arena.vertical_shrinks.(index))
++        .count:count+1
++        parts.(count):number_field("verticalStretch",arena.vertical_stretches.(index))
++        .count:count+1
++    mode=1?
++        kind~=3?
++            parts.(count):number_field("sx",arena.sxs.(index))
++            .count:count+1
++            parts.(count):number_field("sy",arena.sys.(index))
++            .count:count+1
++        kind=2 \/ kind=3 \/ kind=9?
++            parts.(count):number_field("width",arena.widths.(index))
++            .count:count+1
++            parts.(count):number_field("height",arena.heights.(index))
++            .count:count+1
++    mode=4 \/ mode=5 \/ mode=6?
++        placement:"top"
++        mode=5? .placement:"bottom"
++        mode=6? .placement:"page"
++        parts.(count):"\"floatPlacement\":"&shared_module_resource_json_7fb5f9ee.quote(placement)
++        .count:count+1
++    arena.destination_counts.(index)>0 \/ destination_present?
++        parts.(count):"\"destinationIds\":"&ids(arena,index)
++        .count:count+1
++    paint:arena.paints.(index)
++    paint>=0 /\ ~color_present?
++        color:arena.paint_table.(paint)
++        parts.(count):"\"color\":["&shared_module_json_numbers_417d7020.roundtrip(color.red)&","&shared_module_json_numbers_417d7020.roundtrip(color.green)&","&shared_module_json_numbers_417d7020.roundtrip(color.blue)&","&shared_module_json_numbers_417d7020.roundtrip(color.alpha)&"]"
++        .count:count+1
++    i:1
++    i<count?>
++        parts.(i):","&parts.(i)
++        .i:i+1
++    @:"{"&shared_module_text_chunks_3b4ac16d.join(parts,0,count)&"}"
++encode(doc:PageDocument,debug_modes:[int],flow_line_presence:[bit]=[false:0])->str:
++    # Project the nested Arena once; doing this in each leaf call clones it
++    # on the published compiler even though the callee only reads its columns.
++    arena:doc.arena
++    leaf_count:arena.count
++    (debug_modes.length()=leaf_count)?! "Debug leaf modes do not match typed document"
++    pages:shared_module_text_chunks_3b4ac16d.empty(doc.page_count)
++    page:0
++    page<doc.page_count?>
++        values:shared_module_text_chunks_3b4ac16d.empty(doc.counts.(page))
++        i:0
++        i<doc.counts.(page)?>
++            index:doc.firsts.(page)+i
++            line: -1
++            flow_line_presence.length()=leaf_count?
++                .line:0
++                flow_line_presence.(index)? .line:1
++            prefix:""
++            i>0? .prefix:","
++            debug_mode:debug_modes.(index)
++            values.(i):prefix&leaf(arena,index,debug_mode,line)
++            .i:i+1
++        prefix:""
++        page>0? .prefix:","
++        pages.(page):prefix&"{\"width\":"&shared_module_json_numbers_417d7020.roundtrip(doc.widths.(page))&",\"height\":"&shared_module_json_numbers_417d7020.roundtrip(doc.heights.(page))&",\"number\":"&shared_module_tex_text_09640ead.integer(page+1)&",\"items\":["&shared_module_text_chunks_3b4ac16d.join(values,0,doc.counts.(page))&"]}"
++        .page:page+1
++    destinations:shared_module_text_chunks_3b4ac16d.empty(doc.destination_count)
++    i:0
++    i<doc.destination_count?>
++        prefix:""
++        i>0? .prefix:","
++        destinations.(i):prefix&shared_module_resource_json_7fb5f9ee.quote(doc.destination_names.(i))&":{\"page\":"&shared_module_tex_text_09640ead.integer(doc.destination_pages.(i))&",\"x\":"&shared_module_json_numbers_417d7020.roundtrip(doc.destination_xs.(i))&",\"y\":"&shared_module_json_numbers_417d7020.roundtrip(doc.destination_ys.(i))&"}"
++        .i:i+1
++    @:"{\"pages\":["&shared_module_text_chunks_3b4ac16d.join(pages,0,doc.page_count)&"],\"destinations\":{"&shared_module_text_chunks_3b4ac16d.join(destinations,0,doc.destination_count)&"}}"
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/ref_f303_document_scene_json.vkf
+@@ -0,0 +1,181 @@
++# Temporary boundary for retained providers. A scene is decoded exactly once.
++# The PDF consumer imports document_scene, never this JSON document_scene_json.
++shared_module_document_scene_b31fd35b:.ref_f303_document_scene
++shared_module_resource_json_7fb5f9ee:.ref_f303_resource_json
++shared_module_tex_text_09640ead:.ref_f303_tex_text
++Paint:(red:num,green:num,blue:num,alpha:num)
++Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
++Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,extra:str,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int)
++Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
++Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num)
++Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
++raw(q:Tape,n:int)->str:
++    n<0? @:"null"
++    @:shared_module_tex_text_09640ead.span(q.source,q.starts.(n),q.stops.(n))
++num_at(q:Tape,n:int,fallback:num=0)->num:
++    n<0? @:fallback
++    q.kinds.(n)=7? @:fallback
++    @:shared_module_resource_json_7fb5f9ee.number(q,n)
++number(q:Tape,n:int,k:str,fallback:num=0)->num:
++    n<0? @:fallback
++    @:num_at(q,shared_module_resource_json_7fb5f9ee.member(q,n,k),fallback)
++string(q:Tape,n:int,k:str,fallback:str="")->str:
++    n<0? @:fallback
++    at:shared_module_resource_json_7fb5f9ee.member(q,n,k)
++    at<0? @:fallback
++    q.kinds.(at)=7? @:fallback
++    @:shared_module_resource_json_7fb5f9ee.string(q,at)
++flag(q:Tape,n:int,k:str)->bit:
++    at:shared_module_resource_json_7fb5f9ee.member(q,n,k)
++    at<0? @:false
++    @:q.kinds.(at)=5
++present(q:Tape,n:int,k:str)->bit:
++    at:shared_module_resource_json_7fb5f9ee.member(q,n,k)
++    at<0? @:false
++    @:q.kinds.(at)~=7
++array_size(q:Tape,n:int)->int:
++    n<0? @:0
++    q.kinds.(n)~=2? @:0
++    at:n+1
++    count:0
++    at<q.ends.(n)?>
++        .count:count+1
++        .at:q.ends.(at)
++    @:count
++element(q:Tape,n:int,index:int)->int:
++    n<0? @: -1
++    q.kinds.(n)~=2? @: -1
++    @:shared_module_resource_json_7fb5f9ee.element(q,n,index)
++color(q:Tape,n:int)->Paint:
++    (array_size(q,n)=3 \/ array_size(q,n)=4)?! "Invalid typed scene color"
++    @:shared_module_document_scene_b31fd35b.paint(num_at(q,element(q,n,0)),num_at(q,element(q,n,1)),num_at(q,element(q,n,2)),num_at(q,element(q,n,3),1))
++kind(value:str)->int:
++    names:["glyph","field","rule","link","image","segment","bezier","circle","vectorrect","placeholder"]
++    i:0
++    i<names.length()?>
++        names.(i)=value? @:i
++        .i:i+1
++    @: -1
++dash(value:str)->int:
++    value="" \/ value="solid"? @:0
++    value="dashed"? @:1
++    value="dotted"? @:2
++    value="densely dotted"? @:3
++    value="loosely dotted"? @:4
++    @: -1
++leaf(q:Tape,node:int)->Leaf:
++    item:shared_module_document_scene_b31fd35b.leaf(string(q,node,"key"),number(q,node,"x"),number(q,node,"y"),int(number(q,node,"flowLine")))
++    item.kind:kind(string(q,node,"kind"))
++    (item.kind>=0)?! "Unsupported retained scene leaf kind"
++    item.sx:number(q,node,"sx",1)
++    item.sy:number(q,node,"sy",1)
++    item.width:number(q,node,"width")
++    item.height:number(q,node,"height")
++    item.footnote_number:int(number(q,node,"footnoteNumber"))
++    item.equation_tag:flag(q,node,"equationTag")
++    item.tag_width:number(q,node,"tagWidth")
++    item.flow_x:number(q,node,"flowX")
++    item.flow_width:number(q,node,"flowWidth")
++    item.has_flow:present(q,node,"flowX") \/ present(q,node,"flowWidth")
++    item.vertical_shrink:number(q,node,"verticalShrink")
++    item.vertical_stretch:number(q,node,"verticalStretch")
++    item.extra:raw(q,node)
++    item.has_paint:present(q,node,"color")
++    item.has_paint? item.paint:color(q,shared_module_resource_json_7fb5f9ee.member(q,node,"color"))
++    p:shared_module_document_scene_b31fd35b.payload()
++    crop:shared_module_resource_json_7fb5f9ee.member(q,node,"cropX")
++    p.crop_x:crop>=0
++    crop>=0? p.crop_x:q.kinds.(crop)~=7
++    p.crop_x?
++        left:element(q,crop,0)
++        right:element(q,crop,1)
++        p.crop_left:left>=0
++        p.crop_right:right>=0
++        left>=0? p.crop_left:q.kinds.(left)~=7
++        right>=0? p.crop_right:q.kinds.(right)~=7
++        p.left:num_at(q,left)
++        p.right:num_at(q,right)
++    .crop:shared_module_resource_json_7fb5f9ee.member(q,node,"crop")
++    p.crop_y:crop>=0
++    crop>=0? p.crop_y:q.kinds.(crop)~=7
++    p.crop_y?
++        top:element(q,crop,0)
++        bottom:element(q,crop,1)
++        p.crop_top:top>=0
++        p.crop_bottom:bottom>=0
++        top>=0? p.crop_top:q.kinds.(top)~=7
++        bottom>=0? p.crop_bottom:q.kinds.(bottom)~=7
++        p.top:num_at(q,top)
++        p.bottom:num_at(q,bottom)
++    delta:shared_module_resource_json_7fb5f9ee.member(q,node,"delta")
++    p.dx:num_at(q,element(q,delta,0))
++    p.dy:num_at(q,element(q,delta,1))
++    controls:shared_module_resource_json_7fb5f9ee.member(q,node,"controls")
++    first:element(q,controls,0)
++    second:element(q,controls,1)
++    p.c1x:number(q,first,"x")
++    p.c1y:number(q,first,"y")
++    p.c2x:number(q,second,"x")
++    p.c2y:number(q,second,"y")
++    p.line_width:number(q,node,"lineWidth")
++    p.fill:flag(q,node,"fill")
++    p.dash:dash(string(q,node,"dash"))
++    p.border_width:number(q,node,"borderWidth",1)
++    p.asset:string(q,node,"asset")
++    target:shared_module_resource_json_7fb5f9ee.member(q,node,"target")
++    p.target_type:0
++    target>=0?
++        q.kinds.(target)~=7?
++            target_kind:string(q,target,"type")
++            p.target_type: -1
++            target_kind="uri"? p.target_type:1
++            target_kind="destination"? p.target_type:2
++            p.target:string(q,target,"value")
++    item.has_payload:item.kind>=3 \/ p.crop_x \/ p.crop_y
++    item.payload:p
++    item.has_fill_paint:present(q,node,"fillColor")
++    item.has_fill_paint? item.fill_paint:color(q,shared_module_resource_json_7fb5f9ee.member(q,node,"fillColor"))
++    item.has_stroke_paint:present(q,node,"strokeColor")
++    item.has_stroke_paint? item.stroke_paint:color(q,shared_module_resource_json_7fb5f9ee.member(q,node,"strokeColor"))
++    ids:shared_module_resource_json_7fb5f9ee.member(q,node,"destinationIds")
++    id_count:array_size(q,ids)
++    [int] id_indices:[0:id_count]
++    item.destination_ids:id_indices >> shared_module_resource_json_7fb5f9ee.string(q,element(q,ids,$0))
++    @:item
++empty()->Scene:
++    @:(arena:shared_module_document_scene_b31fd35b.empty(),anchor_ids:shared_module_document_scene_b31fd35b.strings(0),anchor_xs:[0.0:0],anchor_ys:[0.0:0],anchor_lines:[0:0],anchor_count:0,width:0.0,height:0.0,depth:0.0,tag_width:0.0)
++decode(source:str)->Scene:
++    q:shared_module_resource_json_7fb5f9ee.parse(source)
++    q.valid?! "Invalid retained scene JSON"
++    items:shared_module_resource_json_7fb5f9ee.member(q,0,"items")
++    count:array_size(q,items)
++    [int] item_indices:[0:count]
++    at:items+1
++    i:0
++    i<count?>
++        item_indices.(i):at
++        .at:q.ends.(at)
++        .i:i+1
++    [Leaf] leaves:item_indices >> leaf(q,$)
++    arena:shared_module_document_scene_b31fd35b.from_leaves(leaves,count)
++    tag_width:0.0
++    .i:0
++    i<count?>
++        arena.equation_tags.(i) /\ arena.tag_widths.(i)>tag_width? .tag_width:arena.tag_widths.(i)
++        .i:i+1
++    anchors:shared_module_resource_json_7fb5f9ee.member(q,0,"destinations")
++    anchor_count:array_size(q,anchors)
++    anchor_ids:shared_module_document_scene_b31fd35b.strings(anchor_count)
++    [num] anchor_xs:[0.0:anchor_count]
++    [num] anchor_ys:[0.0:anchor_count]
++    [int] anchor_lines:[0:anchor_count]
++    .i:0
++    .at:anchors+1
++    i<anchor_count?>
++        anchor_ids.(i):string(q,at,"id")
++        anchor_xs.(i):number(q,at,"x")
++        anchor_ys.(i):number(q,at,"y")
++        anchor_lines.(i):int(number(q,at,"flowLine"))
++        .at:q.ends.(at)
++        .i:i+1
++    @:(arena:arena,anchor_ids:anchor_ids,anchor_xs:anchor_xs,anchor_ys:anchor_ys,anchor_lines:anchor_lines,anchor_count:anchor_count,width:number(q,0,"width"),height:number(q,0,"height"),depth:number(q,0,"depth"),tag_width:tag_width)
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/ref_f303_document_scene_paragraph.vkf
+@@ -0,0 +1,87 @@
++# Ordinary paragraph glyphs stay typed; retained provider fragments decode once.
++shared_module_document_scene_b31fd35b:.ref_f303_document_scene
++shared_module_document_scene_json_fee114fe:.ref_f303_document_scene_json
++shared_module_resource_json_7fb5f9ee:.ref_f303_resource_json
++Paint:(red:num,green:num,blue:num,alpha:num)
++Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
++Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,extra:str,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int)
++Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
++Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num)
++Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
++Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
++ordinary(q:Packet,index:int)->Leaf:@:shared_module_document_scene_b31fd35b.leaf(q.keys.(index),q.xs.(index),q.ys.(index),q.flow_lines.(index))
++merged_leaf(q:Packet,decoded:[Tape],sources:[int],indices:[int],fragments:[int],index:int)->Leaf:
++    item:shared_module_document_scene_b31fd35b.leaf()
++    source_index:indices.(index)
++    sources.(index)=0? .item:ordinary(q,source_index)
++    sources.(index)=1?
++        fragment:fragments.(index)
++        .item:shared_module_document_scene_json_fee114fe.leaf(decoded.(fragment),source_index)
++        item.x:item.x+q.scene_xs.(fragment)
++        item.y:item.y+q.scene_ys.(fragment)
++        item.line:q.scene_lines.(fragment)
++    @:item
++from_paragraph(q:Packet)->Scene:
++    [int] fragment_indices:[0:q.scene_count]
++    [Tape] decoded:fragment_indices >> shared_module_resource_json_7fb5f9ee.parse(q.scenes.($0))
++    count:q.glyph_count
++    anchor_count:0
++    tag_width:0.0
++    i:0
++    i<q.scene_count?>
++        .count:count+shared_module_document_scene_json_fee114fe.array_size(decoded.(i),shared_module_resource_json_7fb5f9ee.member(decoded.(i),0,"items"))
++        .anchor_count:anchor_count+shared_module_document_scene_json_fee114fe.array_size(decoded.(i),shared_module_resource_json_7fb5f9ee.member(decoded.(i),0,"destinations"))
++        .i:i+1
++    [int] sources:[0:count]
++    [int] indices:[0:count]
++    [int] fragments:[0:count]
++    glyph:0
++    fragment:0
++    at:0
++    glyph<q.glyph_count \/ fragment<q.scene_count?>
++        use_scene:fragment<q.scene_count
++        glyph<q.glyph_count /\ fragment<q.scene_count?
++            .use_scene:q.scene_lines.(fragment)<q.flow_lines.(glyph) \/ (q.scene_lines.(fragment)=q.flow_lines.(glyph) /\ q.scene_operations.(fragment)<=q.glyph_operations.(glyph))
++        use_scene?
++            leaf:0
++            item_node:shared_module_resource_json_7fb5f9ee.member(decoded.(fragment),0,"items")+1
++            item_count:shared_module_document_scene_json_fee114fe.array_size(decoded.(fragment),shared_module_resource_json_7fb5f9ee.member(decoded.(fragment),0,"items"))
++            leaf<item_count?>
++                sources.(at):1
++                indices.(at):item_node
++                .item_node:decoded.(fragment).ends.(item_node)
++                fragments.(at):fragment
++                .at:at+1
++                .leaf:leaf+1
++            .fragment:fragment+1
++            @>
++        indices.(at):glyph
++        .at:at+1
++        .glyph:glyph+1
++    [int] leaf_indices:[0:count]
++    [Leaf] leaves:leaf_indices >> merged_leaf(q,decoded,sources,indices,fragments,$0)
++    arena:shared_module_document_scene_b31fd35b.from_leaves(leaves,count)
++    .i:0
++    i<count?>
++        arena.equation_tags.(i) /\ arena.tag_widths.(i)>tag_width? .tag_width:arena.tag_widths.(i)
++        .i:i+1
++    anchor_ids:shared_module_document_scene_b31fd35b.strings(anchor_count)
++    [num] anchor_xs:[0.0:anchor_count]
++    [num] anchor_ys:[0.0:anchor_count]
++    [int] anchor_lines:[0:anchor_count]
++    .at:0
++    .fragment:0
++    fragment<q.scene_count?>
++        .i:0
++        anchor_node:shared_module_resource_json_7fb5f9ee.member(decoded.(fragment),0,"destinations")+1
++        fragment_anchor_count:shared_module_document_scene_json_fee114fe.array_size(decoded.(fragment),shared_module_resource_json_7fb5f9ee.member(decoded.(fragment),0,"destinations"))
++        i<fragment_anchor_count?>
++            anchor_ids.(at):shared_module_document_scene_json_fee114fe.string(decoded.(fragment),anchor_node,"id")
++            anchor_xs.(at):shared_module_document_scene_json_fee114fe.number(decoded.(fragment),anchor_node,"x")+q.scene_xs.(fragment)
++            anchor_ys.(at):shared_module_document_scene_json_fee114fe.number(decoded.(fragment),anchor_node,"y")+q.scene_ys.(fragment)
++            anchor_lines.(at):q.scene_lines.(fragment)
++            .anchor_node:decoded.(fragment).ends.(anchor_node)
++            .at:at+1
++            .i:i+1
++        .fragment:fragment+1
++    @:(arena:arena,anchor_ids:anchor_ids,anchor_xs:anchor_xs,anchor_ys:anchor_ys,anchor_lines:anchor_lines,anchor_count:anchor_count,width:q.width,height:q.height,depth:q.depth,tag_width:tag_width)
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/ref_f303_json_numbers.vkf
+@@ -0,0 +1,89 @@
++# Portable binary64 -> JSON decimal, without the backend's short str(num).
++# Exact power-of-two scaling extracts the significand. Decimal digit arithmetic
++# then produces the exact rational value and rounds to 17 significant digits,
++# sufficient to recover the original binary64 number when JSON is read.
++shared_module_tex_text_09640ead:.ref_f303_tex_text
++shared_module_text_chunks_3b4ac16d:.ref_f303_text_chunks
++
++roundtrip(value:num)->str:
++    (value=value /\ |value|<=10.0^300)?! "Finite JSON number in resource range required"
++    value=0? @:"0"
++    magnitude:|value|
++    exponent:0
++    magnitude<1?>
++        .magnitude:magnitude*2
++        .exponent:exponent-1
++    magnitude>=2?>
++        .magnitude:magnitude/2
++        .exponent:exponent+1
++    significand:int(magnitude*4503599627370496)
++    power:52-exponent
++    power>0 /\ significand%2=0?>
++        .significand:significand//2
++        .power:power-1
++    iterations:power
++    factor:5
++    power<0?
++        .iterations: -power
++        .factor:2
++        .power:0
++    # A binary64 significand has at most 16 decimal digits. Multiplication by
++    # 2 or 5 adds at most one digit per step; reserve the proven bound plus
++    # carry/rounding space instead of allocating 1200 slots for every coordinate.
++    capacity:20+iterations
++    digits:[0:capacity]
++    count:0
++    significand>0?>
++        digits.(count):significand%10
++        .significand:significand//10
++        .count:count+1
++    step:0
++    step<iterations?>
++        index:0
++        carry:0
++        index<count?>
++            product:digits.(index)*factor+carry
++            digits.(index):product%10
++            .carry:product//10
++            .index:index+1
++        carry>0?
++            (count<capacity)?! "JSON decimal digit capacity"
++            digits.(count):carry
++            .count:count+1
++        .step:step+1
++    decimal_exponent:count-power-1
++    drop:0
++    count>17?
++        .drop:count-17
++        rounding:digits.(drop-1)
++        sticky:false
++        index:0
++        index<drop-1?>
++            digits.(index)~=0? .sticky:true
++            .index:index+1
++        round_up:rounding>5 \/ (rounding=5 /\ (sticky \/ digits.(drop)%2=1))
++        round_up?
++            .index:drop
++            index<count /\ digits.(index)=9?>
++                digits.(index):0
++                .index:index+1
++            index<count? digits.(index):digits.(index)+1
++            index=count?
++                digits.(count):1
++                .count:count+1
++                .drop:drop+1
++                .decimal_exponent:decimal_exponent+1
++    low:drop
++    low<count-1 /\ digits.(low)=0?> .low:low+1
++    parts:shared_module_text_chunks_3b4ac16d.empty(17)
++    emitted:0
++    position:count-1
++    position>=low?>
++        parts.(emitted):shared_module_tex_text_09640ead.integer(digits.(position))
++        .emitted:emitted+1
++        .position:position-1
++    mantissa:parts.(0)
++    emitted>1? .mantissa:mantissa&"."&shared_module_text_chunks_3b4ac16d.join(parts,1,emitted)
++    sign:""
++    value<0? .sign:"-"
++    @:sign&mantissa&"e"&shared_module_tex_text_09640ead.integer(decimal_exponent)
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/ref_f303_resource_json.vkf
+@@ -0,0 +1,257 @@
++# Indexed JSON reader for the generic prepared font metrics/vector resources.
++# Nodes retain UTF-8 source spans; child subtrees can be skipped in constant time.
++shared_module_tex_text_09640ead:.ref_f303_tex_text
++shared_module_resource_numbers_8a32a940:.ref_f303_resource_numbers
++Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
++Span:(stop:int,valid:bit)
++
++zeros(capacity:int)->[int]:[0:capacity]
++
++character(source:str,position:int)->str:
++    vkf_string_eof(source,position)? @:""
++    @:shared_module_tex_text_09640ead.at(source,position)
++
++scalar(c:str)->int:
++    value:0
++    c >>
++        .value:int($)
++        $
++    @:value
++
++hex(c:str)->int:
++    c>="0" /\ c<="9"? @:scalar(c)-48
++    c>="a" /\ c<="f"? @:scalar(c)-87
++    c>="A" /\ c<="F"? @:scalar(c)-55
++    @: -1
++
++hex_quad(source:str,begin:int)->int:
++    value:0
++    index:0
++    index<4?>
++        digit:hex(character(source,begin+index))
++        digit<0? @: -1
++        .value:value*16+digit
++        .index:index+1
++    @:value
++
++unicode_span(source:str,position:int)->Span:
++    value:hex_quad(source,position+1)
++    value<0? @:(stop:position,valid:false)
++    stop:position+5
++    value>=56320 /\ value<=57343? @:(stop:stop,valid:false)
++    value>=55296 /\ value<=56319?
++        (character(source,stop)~="\\" \/ character(source,stop+1)~="u")? @:(stop:stop,valid:false)
++        low:hex_quad(source,stop+2)
++        (low<56320 \/ low>57343)? @:(stop:stop,valid:false)
++        .stop:stop+6
++    @:(stop:stop,valid:true)
++
++string_span(source:str,begin:int)->Span:
++    position:begin+1
++    ~vkf_string_eof(source,position)?>
++        c:character(source,position)
++        c="\""? @:(stop:position+1,valid:true)
++        c<" "? @:(stop:position,valid:false)
++        c="\\"?
++            .position:position+1
++            escape:character(source,position)
++            (escape="\"" \/ escape="\\" \/ escape="/" \/ escape="b" \/ escape="f" \/ escape="n" \/ escape="r" \/ escape="t")?
++                .position:position+1
++                @>
++            escape~="u"? @:(stop:position,valid:false)
++            unicode:unicode_span(source,position)
++            ~unicode.valid? @:unicode
++            .position:unicode.stop
++            @>
++        .position:shared_module_tex_text_09640ead.next(source,position)
++    @:(stop:position,valid:false)
++
++parse(source:str)->Tape:
++    capacity:128
++    [int] kinds:[0:capacity]
++    [int] starts:[0:capacity]
++    [int] stops:[0:capacity]
++    [int] ends:[0:capacity]
++    # Stack states: object key/colon/value/comma/key, array value/comma/value.
++    [int] stack_nodes:[-1:257]
++    [int] stack_kinds:[0:257]
++    [int] states:[0:257]
++    depth:0
++    count:0
++    position:0
++    size:shared_module_tex_text_09640ead.byte_length(source)
++    valid:true
++    position<size /\ valid?>
++        c:character(source,position)
++        (c=" " \/ c="\t" \/ c="\r" \/ c="\n")?
++            .position:position+1
++            @>
++        parent:stack_kinds.(depth)
++        state:states.(depth)
++        depth=0 /\ state=1?
++            .valid:false
++            @>
++        ((parent=1 /\ (state=0 \/ state=3) /\ c="}") \/ (parent=2 /\ (state=0 \/ state=1) /\ c="]"))?
++            node:stack_nodes.(depth)
++            stops.(node):position+1
++            ends.(node):count
++            .depth:depth-1
++            .position:position+1
++            @>
++        parent=1 /\ state=1?
++            .valid:c=":"
++            states.(depth):2
++            .position:position+1
++            @>
++        ((parent=1 /\ state=3) \/ (parent=2 /\ state=1))?
++            .valid:c=","
++            parent=1? states.(depth):4
++            parent=2? states.(depth):2
++            .position:position+1
++            @>
++        key:parent=1 /\ (state=0 \/ state=4)
++        key /\ c~="\""?
++            .valid:false
++            @>
++        kind:0
++        stop:position+1
++        c="{"? .kind:1
++        c="["? .kind:2
++        c="\""?
++            span:string_span(source,position)
++            .valid:span.valid
++            .stop:span.stop
++            .kind:3
++        (c="-" \/ shared_module_resource_numbers_8a32a940.digit(c))?
++            number:shared_module_resource_numbers_8a32a940.boundary(source,position)
++            .valid:number.valid
++            .stop:number.stop
++            .kind:4
++        c="t" /\ shared_module_tex_text_09640ead.matches(source,position,"true")?
++            .kind:5
++            .stop:position+4
++        c="f" /\ shared_module_tex_text_09640ead.matches(source,position,"false")?
++            .kind:6
++            .stop:position+5
++        c="n" /\ shared_module_tex_text_09640ead.matches(source,position,"null")?
++            .kind:7
++            .stop:position+4
++        kind=0? .valid:false
++        ~valid? @>
++        count=capacity?
++            capacity>=2097152?
++                .valid:false
++                @>
++            .kinds:kinds&zeros(capacity)
++            .starts:starts&zeros(capacity)
++            .stops:stops&zeros(capacity)
++            .ends:ends&zeros(capacity)
++            .capacity:capacity*2
++        kinds.(count):kind
++        starts.(count):position
++        stops.(count):stop
++        ends.(count):count+1
++        key? states.(depth):1
++        ~key /\ parent=0? states.(depth):1
++        ~key /\ parent=1? states.(depth):3
++        ~key /\ parent=2? states.(depth):1
++        (kind=1 \/ kind=2)?
++            depth=256?
++                .valid:false
++                @>
++            .depth:depth+1
++            stack_nodes.(depth):count
++            stack_kinds.(depth):kind
++            states.(depth):0
++        .count:count+1
++        .position:stop
++    @:(source:source,kinds:kinds,starts:starts,stops:stops,ends:ends,count:count,valid:valid /\ depth=0 /\ states.(0)=1)
++
++# Decode a quoted span already validated by string_span or a valid Tape.
++decode_string_span(source:str,begin:int,stop:int)->str:
++    position:begin+1
++    limit:stop-1
++    result:""
++    segment:position
++    position<limit?>
++        c:character(source,position)
++        c~="\\"?
++            .position:shared_module_tex_text_09640ead.next(source,position)
++            @>
++        .result:result&shared_module_tex_text_09640ead.span(source,segment,position)
++        escape:character(source,position+1)
++        .position:position+2
++        escape="\""? .result:result&"\""
++        escape="\\"? .result:result&"\\"
++        escape="/"? .result:result&"/"
++        escape="b"? .result:result&str(chr(8))
++        escape="f"? .result:result&str(chr(12))
++        escape="n"? .result:result&"\n"
++        escape="r"? .result:result&"\r"
++        escape="t"? .result:result&"\t"
++        escape="u"?
++            value:hex_quad(source,position)
++            .position:position+4
++            value>=55296 /\ value<=56319?
++                low:hex_quad(source,position+2)
++                .value:65536+(value-55296)*1024+(low-56320)
++                .position:position+6
++            .result:result&str(chr(value))
++        .segment:position
++    @:result&shared_module_tex_text_09640ead.span(source,segment,limit)
++
++string(tape:Tape,node:int)->str:
++    (tape.valid /\ node>=0 /\ node<tape.count /\ tape.kinds.(node)=3)?! "JSON string required"
++    @:decode_string_span(tape.source,tape.starts.(node),tape.stops.(node))
++
++member(tape:Tape,node:int,key:str)->int:
++    (tape.valid /\ node>=0 /\ node<tape.count /\ tape.kinds.(node)=1)?! "JSON object required"
++    index:node+1
++    limit:tape.ends.(node)
++    found: -1
++    index<limit?>
++        string(tape,index)=key? .found:index+1
++        .index:tape.ends.(index+1)
++    @:found
++
++element(tape:Tape,node:int,position:int)->int:
++    (tape.valid /\ node>=0 /\ node<tape.count /\ tape.kinds.(node)=2 /\ position>=0)?! "JSON array required"
++    index:node+1
++    remaining:position
++    index<tape.ends.(node)?>
++        remaining=0? @:index
++        .remaining:remaining-1
++        .index:tape.ends.(index)
++    @: -1
++
++number(tape:Tape,node:int)->num:
++    (tape.valid /\ node>=0 /\ node<tape.count /\ tape.kinds.(node)=4)?! "JSON number required"
++    parsed:shared_module_resource_numbers_8a32a940.scan(tape.source,tape.starts.(node))
++    (parsed.valid /\ parsed.stop=tape.stops.(node))?! "JSON number is outside the supported finite resource range"
++    @:parsed.value
++
++quote_scalar(value:int)->str:
++    value=34? @:"\\\""
++    value=92? @:"\\\\"
++    value<32?
++        high:value//16
++        low:value%16
++        @:"\\u00"&shared_module_tex_text_09640ead.slice("0123456789abcdef",high,high+1)&shared_module_tex_text_09640ead.slice("0123456789abcdef",low,low+1)
++    @:str(chr(value))
++
++# Bounded leaves avoid building a growing result for every scalar of a large
++# source/PDF packet. The split cursor always lies on a UTF-8 scalar boundary.
++quote_span(value:str,begin:int,stop:int)->str:
++    stop-begin>128?
++        middle:(begin+stop)//2
++        boundary:begin
++        boundary<middle?> .boundary:shared_module_tex_text_09640ead.next(value,boundary)
++        @:quote_span(value,begin,boundary)&quote_span(value,boundary,stop)
++    encoded:""
++    at:begin
++    at<stop?>
++        .encoded:encoded&quote_scalar(scalar(shared_module_tex_text_09640ead.at(value,at)))
++        .at:shared_module_tex_text_09640ead.next(value,at)
++    @:encoded
++quote(value:str)->str:
++    @:"\""&quote_span(value,0,shared_module_tex_text_09640ead.byte_length(value))&"\""
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/ref_f303_resource_numbers.vkf
+@@ -0,0 +1,60 @@
++# Strict decimal grammar for prepared font resources (JSON number production).
++# Scan returns a boundary, so commas/closing brackets remain with the caller.
++shared_module_tex_text_09640ead:.ref_f303_tex_text
++shared_module_binary_decimal_baa0b1b4:.ref_f303_binary_decimal
++Number:(value:num,stop:int,valid:bit)
++Span:(stop:int,valid:bit)
++
++character(source:str,position:int)->str:
++    vkf_string_eof(source,position)? @:""
++    @:shared_module_tex_text_09640ead.at(source,position)
++
++digit(c:str)->bit:c>="0" /\ c<="9"
++
++# JSON tokenization needs syntax and boundaries, not a floating-point value.
++# Convert a number only when the consumer actually requests its field.
++boundary(source:str,begin:int=0)->Span:
++    begin<0? @:(stop:begin,valid:false)
++    position:begin
++    c:character(source,position)
++    c="-"?
++        .position:position+1
++        .c:character(source,position)
++    ~digit(c)? @:(stop:position,valid:false)
++    zero:c="0"
++    .position:position+1
++    .c:character(source,position)
++    zero /\ digit(c)? @:(stop:position,valid:false)
++    ~zero?
++        digit(c)?>
++            .position:position+1
++            .c:character(source,position)
++    c="."?
++        .position:position+1
++        .c:character(source,position)
++        ~digit(c)? @:(stop:position,valid:false)
++        digit(c)?>
++            .position:position+1
++            .c:character(source,position)
++    (c="e" \/ c="E")?
++        .position:position+1
++        .c:character(source,position)
++        (c="+" \/ c="-")?
++            .position:position+1
++            .c:character(source,position)
++        ~digit(c)? @:(stop:position,valid:false)
++        digit(c)?>
++            .position:position+1
++            .c:character(source,position)
++    @:(stop:position,valid:true)
++
++scan(source:str,begin:int=0)->Number:
++    span:boundary(source,begin)
++    ~span.valid? @:(value:0,stop:span.stop,valid:false)
++    result:shared_module_binary_decimal_baa0b1b4.decode(source,begin,span.stop)
++    @:(value:result.value,stop:span.stop,valid:result.valid /\ |result.value|<=10.0^300)
++
++parse(source:str)->num:
++    result:scan(source)
++    (result.valid /\ vkf_string_eof(source,result.stop))?! "Invalid font-resource decimal"
++    @:result.value
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/ref_f303_tex_text.vkf
+@@ -0,0 +1,145 @@
++# UTF-8 byte offsets match the compiler's native/WASM cursor contract.
++length_bound(source:str)->int:
++    high:1
++    true?>
++        vkf_string_eof(source,high)? @:high
++        .high:high*2
++    @:high
++
++byte_length(source:str)->int:
++    vkf_string_eof(source,0)? @:0
++    low:0
++    high:length_bound(source)
++    true?>
++        high-low<=1? @:high
++        middle:(low+high)//2
++        vkf_string_eof(source,middle)? .high:middle
++        ~vkf_string_eof(source,middle)? .low:middle
++    @:high
++
++at(source:str,position:int)->str:vkf_string_peek_scalar(source,position)
++next(source:str,position:int)->int:int(vkf_utf8_advance(source,position))
++slice(source:str,start:int,stop:int)->str:vkf_utf8_slice(source,start,stop)
++
++# Parser-internal spans already have UTF-8 boundaries established by the cursor.
++# The pinned native slice intrinsic validates prefixes and builds its result one
++# scalar at a time. Balanced copying avoids quadratic copying of long tails.
++span(source:str,start:int,stop:int)->str:
++    (start>=0 /\ stop>=start)?! "Invalid parser span"
++    # Cursor positions are already byte offsets. Check the last byte directly
++    # instead of rediscovering the entire source length at every short span.
++    stop>0?
++        (~vkf_string_eof(source,stop-1))?! "Invalid parser span"
++    start=stop? @:""
++    start=0 /\ vkf_string_eof(source,stop)? @:source
++    @:copy_span(source,start,stop)
++
++copy_span(source:str,start:int,stop:int)->str:
++    stop-start>64?
++        middle:(start+stop)//2
++        boundary:start
++        boundary<middle?> .boundary:int(vkf_utf8_advance(source,boundary))
++        @:copy_span(source,start,boundary)&copy_span(source,boundary,stop)
++    result:""
++    position:start
++    position<stop?>
++        str scalar:at(source,position)
++        .result:result&scalar
++        .position:int(vkf_utf8_advance(source,position))
++    (position=stop)?! "Parser span splits a Unicode scalar"
++    @:result
++letter(c:str)->bit:(c>="a" /\ c<="z") \/ (c>="A" /\ c<="Z") \/ c="@"
++space(c:str)->bit:c=" " \/ c="\t" \/ c="\r" \/ c="\n"
++special(c:str)->bit:c="\\" \/ c="%" \/ c="{" \/ c="}" \/ c="\$" \/ c="^" \/ c="_" \/ c="&" \/ c="#" \/ space(c)
++
++scan_run(source:str,begin:int,mode:int)->int:
++    position:begin
++    true?>
++        vkf_string_eof(source,position)? @:position
++        c:at(source,position)
++        mode=1 /\ ~letter(c)? @:position
++        mode=2 /\ ~space(c)? @:position
++        mode=3 /\ special(c)? @:position
++        .position:next(source,position)
++        mode=4 /\ c="\n"? @:position
++    @:position
++
++group_stop(source:str,begin:int,escaped:bit=false)->int:
++    position:begin
++    vkf_string_eof(source,position)? @:position
++    at(source,position)~="{"? @:position
++    .position:next(source,position)
++    depth:1
++    true?>
++        vkf_string_eof(source,position)? @:position
++        c:at(source,position)
++        .position:next(source,position)
++        escaped /\ c="\\" /\ ~vkf_string_eof(source,position)?
++            following:at(source,position)
++            (following="{" \/ following="}")?
++                .position:next(source,position)
++                @>
++        c="{"? .depth:depth+1
++        c="}"? .depth:depth-1
++        depth=0? @:position
++    @:position
++
++literal_stop(source:str,begin:int,escaped:bit=false)->int:
++    vkf_string_eof(source,begin)? @:begin
++    delimiter:at(source,begin)
++    delimiter="{"? @:group_stop(source,begin,escaped)
++    position:next(source,begin)
++    true?>
++        vkf_string_eof(source,position)? @:position
++        c:at(source,position)
++        .position:next(source,position)
++        c=delimiter? @:position
++    @:position
++
++matches(source:str,begin:int,pattern:str)->bit:
++    position:begin
++    part:0
++    true?>
++        vkf_string_eof(pattern,part)? @:true
++        vkf_string_eof(source,position)? @:false
++        at(source,position)~=at(pattern,part)? @:false
++        .position:next(source,position)
++        .part:next(pattern,part)
++    @:false
++
++find(source:str,pattern:str,begin:int=0)->int:
++    vkf_string_eof(pattern,0)? @:begin
++    first:at(pattern,0)
++    position:begin
++    true?>
++        vkf_string_eof(source,position)? @: -1
++        at(source,position)=first?
++            matches(source,position,pattern)? @:position
++        .position:next(source,position)
++    @: -1
++
++integer(value:int)->str:
++    remaining:value
++    sign:""
++    remaining<0?
++        .sign:"-"
++        .remaining: -remaining
++    result:""
++    true?>
++        digit:remaining%10
++        .result:slice("0123456789",digit,digit+1)&result
++        .remaining:remaining//10
++        remaining=0? @:sign&result
++    @:sign&result
++
++
++trim(value:str)->str:
++    size:byte_length(value)
++    start:scan_run(value,0,2)
++    stop:start
++    position:start
++    position<size?>
++        c:at(value,position)
++        .position:next(value,position)
++        ~space(c)? .stop:position
++    @:span(value,start,stop)
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/ref_f303_text_chunks.vkf
+@@ -0,0 +1,16 @@
++# Owned chunk vectors let loops append without recopying the accumulated text.
++# A balanced final join copies each byte only logarithmically many times.
++# The published backend builds dynamic string repeats by repeated append.
++# Restrict that leaf to 0/1 and double owned columns once per recursion level.
++empty_leaf(capacity:int)->[str]:["":capacity]
++empty(capacity:int)->[str]:
++    (capacity%1=0)?!
++    (capacity>=0)?!
++    (capacity<=536870909)?!
++    @:["":capacity]
++
++join(chunks:[str],begin:int,stop:int)->str:
++    begin>=stop? @:""
++    stop-begin=1? @:chunks.(begin)
++    middle:(begin+stop)//2
++    @:join(chunks,begin,middle)&join(chunks,middle,stop)
+--- a/examples/gpu-math/native-vkf/typed_packet_reference_adapter.vkf
++++ b/examples/gpu-math/native-vkf/typed_packet_reference_adapter.vkf
+@@ -7,13 +7,35 @@
+ Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+ Store:(arena:Arena,firsts:[int],counts:[int],anchor_firsts:[int],anchor_counts:[int],anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int,widths:[num],heights:[num],depths:[num],tag_widths:[num],inline_destinations:[bit],count:int)
+ LegacyPacket:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
+-Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:Store,scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int,a260_text:str,a260_starts:[int],a260_stops:[int])
++Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:Store,scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int,a260_text:str,a260_starts:[int],a260_stops:[int],a272_anchor_operations:[int],a272_anchor_ids:[str],a277_anchor_scenes:[int],a280_anchor_leaves:[int],a280_anchor_slots:[int],a282_anchor_points:[int])
+ store:.paragraph_scene_store
+ legacy:.paragraph_scene_legacy
+ from_legacy(input:LegacyPacket)->Packet:
++    # Ordering ordinals are retained; absent authored provenance is explicitly unknown.
++    (input.glyph_count>=0 /\ input.glyph_count<=input.glyph_operations.length() /\ input.scene_count>=0 /\ input.scene_count<=input.scene_operations.length())?! "Legacy active operation bounds"
++    # Every column indexed by this adapter or the current linear consumer has an active prefix.
++    (input.glyph_count<=input.keys.length() /\ input.glyph_count<=input.xs.length() /\ input.glyph_count<=input.ys.length() /\ input.glyph_count<=input.flow_lines.length())?! "Legacy active glyph column bounds"
++    (input.scene_count<=input.scenes.length() /\ input.scene_count<=input.scene_xs.length() /\ input.scene_count<=input.scene_ys.length() /\ input.scene_count<=input.scene_lines.length())?! "Legacy active scene column bounds"
++    operations:0
++    at:0
++    at<input.glyph_count?>
++        op:input.glyph_operations.(at)
++        (op>= -1)?! "Legacy glyph operation domain"
++        op>=operations? .operations:op+1
++        .at:at+1
++    .at:0
++    at<input.scene_count?>
++        op:input.scene_operations.(at)
++        (op>= -1)?! "Legacy scene operation domain"
++        op>=operations? .operations:op+1
++        .at:at+1
++    [int] unknown_starts:[-1:operations]
++    [int] unknown_stops:[-1:operations]
++    [int] no_events:[0:0]
+     scenes:store.empty()
++    no_ids:scenes.anchor_ids
+     i:0
+     i<input.scene_count?>
+         .scenes:legacy.append_legacy(scenes,input.scenes.(i))
+         .i:i+1
+-    @:(keys:input.keys,xs:input.xs,ys:input.ys,flow_lines:input.flow_lines,glyph_operations:input.glyph_operations,scenes:scenes,scene_xs:input.scene_xs,scene_ys:input.scene_ys,scene_lines:input.scene_lines,scene_operations:input.scene_operations,scene_count:input.scene_count,pending:input.pending,pending_count:input.pending_count,complete:input.complete,lowering_complete:input.lowering_complete,glyph_count:input.glyph_count,line_heights:input.line_heights,line_depths:input.line_depths,line_widths:input.line_widths,line_baselines:input.line_baselines,line_ratios:input.line_ratios,line_indents:input.line_indents,line_flagged:input.line_flagged,line_count:input.line_count,width:input.width,height:input.height,depth:input.depth,measurement_work:input.measurement_work,diagnostics:input.diagnostics,solved:input.solved,pass:input.pass)
++    @:(keys:input.keys,xs:input.xs,ys:input.ys,flow_lines:input.flow_lines,glyph_operations:input.glyph_operations,scenes:scenes,scene_xs:input.scene_xs,scene_ys:input.scene_ys,scene_lines:input.scene_lines,scene_operations:input.scene_operations,scene_count:input.scene_count,pending:input.pending,pending_count:input.pending_count,complete:input.complete,lowering_complete:input.lowering_complete,glyph_count:input.glyph_count,line_heights:input.line_heights,line_depths:input.line_depths,line_widths:input.line_widths,line_baselines:input.line_baselines,line_ratios:input.line_ratios,line_indents:input.line_indents,line_flagged:input.line_flagged,line_count:input.line_count,width:input.width,height:input.height,depth:input.depth,measurement_work:input.measurement_work,diagnostics:input.diagnostics,solved:input.solved,pass:input.pass,a260_text:"",a260_starts:unknown_starts,a260_stops:unknown_stops,a272_anchor_operations:no_events,a272_anchor_ids:no_ids,a277_anchor_scenes:no_events,a280_anchor_leaves:no_events,a280_anchor_slots:no_events,a282_anchor_points:no_events)
+--- a/examples/gpu-math/native-vkf/typed_packet_reference_harness_tests.vkf
++++ b/examples/gpu-math/native-vkf/typed_packet_reference_harness_tests.vkf
+@@ -16,13 +16,14 @@
+ fixture_line_indents()->[num]:@:[0.0,0.0]
+ fixture_line_flagged()->[bit]:@:[false,false]
+ ints(size:int)->[int]:[0:size]
+-document_scene_paragraph:.document_scene_paragraph
++document_scene_paragraph:.ref_f303_document_scene_paragraph
++reference_export:.ref_f303_document_scene_export
+ document_scene_paragraph_linear:.document_scene_paragraph_linear
+ document_scene_export:.document_scene_export
+ document_scene:.document_scene
+ packet_adapter:.typed_packet_reference_adapter
+ metadata_json:.scene_metadata_json
+-Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int,a260_text:str,a260_starts:[int],a260_stops:[int])
++Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
+ Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+ Paint:(red:num,green:num,blue:num,alpha:num)
+ Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+@@ -42,7 +43,7 @@
+         q.glyph_count:0
+     @:q
+ compare(q:Packet)->bit:
+-    before:document_scene_paragraph.from_paragraph(packet_adapter.from_legacy(q))
++    before:document_scene_paragraph.from_paragraph(q)
+     after:document_scene_paragraph_linear.from_paragraph(packet_adapter.from_legacy(q))
+     (before.width=after.width /\ before.height=after.height /\ before.depth=after.depth /\ before.tag_width=after.tag_width /\ before.anchor_count=after.anchor_count)?! "scene metrics exact"
+     a:before.arena
+@@ -62,7 +63,7 @@
+         (a.equation_tags.(i)=b.equation_tags.(i))?! "column equation_tags exact"
+         (a.tag_widths.(i)=b.tag_widths.(i))?! "column tag_widths exact"
+         (a.draws.(i)=b.draws.(i))?! "column draws exact"
+-        (metadata_json.encode(a.metadata,a.metadata_roots.(i))=metadata_json.encode(b.metadata,b.metadata_roots.(i)))?! "column extras exact"
++        (a.extras.(i)=metadata_json.encode(b.metadata,b.metadata_roots.(i)))?! "column extras exact"
+         (a.flow_xs.(i)=b.flow_xs.(i))?! "column flow_xs exact"
+         (a.flow_widths.(i)=b.flow_widths.(i))?! "column flow_widths exact"
+         (a.has_flows.(i)=b.has_flows.(i))?! "column has_flows exact"
+@@ -73,7 +74,7 @@
+         (a.destination_firsts.(i)=b.destination_firsts.(i))?! "column destination_firsts exact"
+         (a.destination_counts.(i)=b.destination_counts.(i))?! "column destination_counts exact"
+         (a.footnote_numbers.(i)=b.footnote_numbers.(i))?! "column footnote_numbers exact"
+-        old_json:document_scene_export.leaf(a,i,1,1)
++        old_json:reference_export.leaf(a,i,1,1)
+         new_json:document_scene_export.leaf(b,i,1,1)
+         (old_json=new_json)?! "debug leaf export exact"
+         .i:i+1

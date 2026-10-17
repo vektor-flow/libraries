@@ -1,0 +1,89 @@
+# Portable binary64 -> JSON decimal, without the backend's short str(num).
+# Exact power-of-two scaling extracts the significand. Decimal digit arithmetic
+# then produces the exact rational value and rounds to 17 significant digits,
+# sufficient to recover the original binary64 number when JSON is read.
+shared_module_tex_text_09640ead:.tex_text
+shared_module_text_chunks_3b4ac16d:.text_chunks
+
+roundtrip(value:num)->str:
+    (value=value /\ |value|<=10.0^300)?! "Finite JSON number in resource range required"
+    value=0? @:"0"
+    magnitude:|value|
+    exponent:0
+    magnitude<1?>
+        .magnitude:magnitude*2
+        .exponent:exponent-1
+    magnitude>=2?>
+        .magnitude:magnitude/2
+        .exponent:exponent+1
+    significand:int(magnitude*4503599627370496)
+    power:52-exponent
+    power>0 /\ significand%2=0?>
+        .significand:significand//2
+        .power:power-1
+    iterations:power
+    factor:5
+    power<0?
+        .iterations: -power
+        .factor:2
+        .power:0
+    # A binary64 significand has at most 16 decimal digits. Multiplication by
+    # 2 or 5 adds at most one digit per step; reserve the proven bound plus
+    # carry/rounding space instead of allocating 1200 slots for every coordinate.
+    capacity:20+iterations
+    digits:[0:capacity]
+    count:0
+    significand>0?>
+        digits.(count):significand%10
+        .significand:significand//10
+        .count:count+1
+    step:0
+    step<iterations?>
+        index:0
+        carry:0
+        index<count?>
+            product:digits.(index)*factor+carry
+            digits.(index):product%10
+            .carry:product//10
+            .index:index+1
+        carry>0?
+            (count<capacity)?! "JSON decimal digit capacity"
+            digits.(count):carry
+            .count:count+1
+        .step:step+1
+    decimal_exponent:count-power-1
+    drop:0
+    count>17?
+        .drop:count-17
+        rounding:digits.(drop-1)
+        sticky:false
+        index:0
+        index<drop-1?>
+            digits.(index)~=0? .sticky:true
+            .index:index+1
+        round_up:rounding>5 \/ (rounding=5 /\ (sticky \/ digits.(drop)%2=1))
+        round_up?
+            .index:drop
+            index<count /\ digits.(index)=9?>
+                digits.(index):0
+                .index:index+1
+            index<count? digits.(index):digits.(index)+1
+            index=count?
+                digits.(count):1
+                .count:count+1
+                .drop:drop+1
+                .decimal_exponent:decimal_exponent+1
+    low:drop
+    low<count-1 /\ digits.(low)=0?> .low:low+1
+    parts:shared_module_text_chunks_3b4ac16d.empty(17)
+    emitted:0
+    position:count-1
+    position>=low?>
+        parts.(emitted):shared_module_tex_text_09640ead.integer(digits.(position))
+        .emitted:emitted+1
+        .position:position-1
+    mantissa:parts.(0)
+    emitted>1? .mantissa:mantissa&"."&shared_module_text_chunks_3b4ac16d.join(parts,1,emitted)
+    sign:""
+    value<0? .sign:"-"
+    @:sign&mantissa&"e"&shared_module_tex_text_09640ead.integer(decimal_exponent)

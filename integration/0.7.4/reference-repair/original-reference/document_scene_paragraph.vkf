@@ -1,0 +1,87 @@
+# Ordinary paragraph glyphs stay typed; retained provider fragments decode once.
+shared_module_document_scene_b31fd35b:.document_scene
+shared_module_document_scene_json_fee114fe:.document_scene_json
+shared_module_resource_json_7fb5f9ee:.resource_json
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,extra:str,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
+ordinary(q:Packet,index:int)->Leaf:@:shared_module_document_scene_b31fd35b.leaf(q.keys.(index),q.xs.(index),q.ys.(index),q.flow_lines.(index))
+merged_leaf(q:Packet,decoded:[Tape],sources:[int],indices:[int],fragments:[int],index:int)->Leaf:
+    item:shared_module_document_scene_b31fd35b.leaf()
+    source_index:indices.(index)
+    sources.(index)=0? .item:ordinary(q,source_index)
+    sources.(index)=1?
+        fragment:fragments.(index)
+        .item:shared_module_document_scene_json_fee114fe.leaf(decoded.(fragment),source_index)
+        item.x:item.x+q.scene_xs.(fragment)
+        item.y:item.y+q.scene_ys.(fragment)
+        item.line:q.scene_lines.(fragment)
+    @:item
+from_paragraph(q:Packet)->Scene:
+    [int] fragment_indices:[0:q.scene_count]
+    [Tape] decoded:fragment_indices >> shared_module_resource_json_7fb5f9ee.parse(q.scenes.($0))
+    count:q.glyph_count
+    anchor_count:0
+    tag_width:0.0
+    i:0
+    i<q.scene_count?>
+        .count:count+shared_module_document_scene_json_fee114fe.array_size(decoded.(i),shared_module_resource_json_7fb5f9ee.member(decoded.(i),0,"items"))
+        .anchor_count:anchor_count+shared_module_document_scene_json_fee114fe.array_size(decoded.(i),shared_module_resource_json_7fb5f9ee.member(decoded.(i),0,"destinations"))
+        .i:i+1
+    [int] sources:[0:count]
+    [int] indices:[0:count]
+    [int] fragments:[0:count]
+    glyph:0
+    fragment:0
+    at:0
+    glyph<q.glyph_count \/ fragment<q.scene_count?>
+        use_scene:fragment<q.scene_count
+        glyph<q.glyph_count /\ fragment<q.scene_count?
+            .use_scene:q.scene_lines.(fragment)<q.flow_lines.(glyph) \/ (q.scene_lines.(fragment)=q.flow_lines.(glyph) /\ q.scene_operations.(fragment)<=q.glyph_operations.(glyph))
+        use_scene?
+            leaf:0
+            item_node:shared_module_resource_json_7fb5f9ee.member(decoded.(fragment),0,"items")+1
+            item_count:shared_module_document_scene_json_fee114fe.array_size(decoded.(fragment),shared_module_resource_json_7fb5f9ee.member(decoded.(fragment),0,"items"))
+            leaf<item_count?>
+                sources.(at):1
+                indices.(at):item_node
+                .item_node:decoded.(fragment).ends.(item_node)
+                fragments.(at):fragment
+                .at:at+1
+                .leaf:leaf+1
+            .fragment:fragment+1
+            @>
+        indices.(at):glyph
+        .at:at+1
+        .glyph:glyph+1
+    [int] leaf_indices:[0:count]
+    [Leaf] leaves:leaf_indices >> merged_leaf(q,decoded,sources,indices,fragments,$0)
+    arena:shared_module_document_scene_b31fd35b.from_leaves(leaves,count)
+    .i:0
+    i<count?>
+        arena.equation_tags.(i) /\ arena.tag_widths.(i)>tag_width? .tag_width:arena.tag_widths.(i)
+        .i:i+1
+    anchor_ids:shared_module_document_scene_b31fd35b.strings(anchor_count)
+    [num] anchor_xs:[0.0:anchor_count]
+    [num] anchor_ys:[0.0:anchor_count]
+    [int] anchor_lines:[0:anchor_count]
+    .at:0
+    .fragment:0
+    fragment<q.scene_count?>
+        .i:0
+        anchor_node:shared_module_resource_json_7fb5f9ee.member(decoded.(fragment),0,"destinations")+1
+        fragment_anchor_count:shared_module_document_scene_json_fee114fe.array_size(decoded.(fragment),shared_module_resource_json_7fb5f9ee.member(decoded.(fragment),0,"destinations"))
+        i<fragment_anchor_count?>
+            anchor_ids.(at):shared_module_document_scene_json_fee114fe.string(decoded.(fragment),anchor_node,"id")
+            anchor_xs.(at):shared_module_document_scene_json_fee114fe.number(decoded.(fragment),anchor_node,"x")+q.scene_xs.(fragment)
+            anchor_ys.(at):shared_module_document_scene_json_fee114fe.number(decoded.(fragment),anchor_node,"y")+q.scene_ys.(fragment)
+            anchor_lines.(at):q.scene_lines.(fragment)
+            .anchor_node:decoded.(fragment).ends.(anchor_node)
+            .at:at+1
+            .i:i+1
+        .fragment:fragment+1
+    @:(arena:arena,anchor_ids:anchor_ids,anchor_xs:anchor_xs,anchor_ys:anchor_ys,anchor_lines:anchor_lines,anchor_count:anchor_count,width:q.width,height:q.height,depth:q.depth,tag_width:tag_width)

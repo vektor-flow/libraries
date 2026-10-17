@@ -1,0 +1,95 @@
+PRIVATE REVIEW PROPOSAL — 2026-10-17 — no native build or runtime claim
+
+Scope and exact artifacts
+review.patch changes ONLY the two stale reference-test files after root review.
+candidate/ contains their complete proposed contents and ten ref_f303_* test-only
+modules. original-reference/ preserves historical bytes, including the independent
+C278 copy. Nothing here is installed into production or the gate registry.
+prepare.py deterministically regenerates these artifacts and verifies their pins.
+Do not run an old renderer, old entrypoint, or historical production source tree.
+The production side remains the current shared document_scene_paragraph_linear,
+paragraph_scene_legacy/store, metadata and export implementations.
+
+Compatibility repair
+The input fixture and harness Packet both have the original 31 fields. The adapter
+output declaration is copied verbatim from current linear Packet (40 fields), and
+its returned record now supplies all 40. No operation ordering, fixture counts,
+geometry, source JSON, or expected geometry is rewritten.
+
+Legacy fixtures contain ordering operation ordinals but no authored TeX or parser
+source spans. a260_text="" means absent authored source; paired starts/stops=-1
+are the documented unknown representation in a265_provenance_valid (linear lines
+171-190) and the unbound output arrays (lines61-64). Span array capacity is one plus
+the largest nonnegative ACTIVE glyph/scene ordinal, or zero if none; both original
+operation vectors stay untouched. This is a compatibility index domain, not an
+invented parser stream or source mapping. Fixture0 thus has six unknown entries;
+zero entries would reject operation IDs1,2,4,5. Assigning all ordinals -1 instead
+would alter leaf ordering and is deliberately avoided. The adapter guards active
+prefix bounds and operation domain before allocating.
+
+All six a272/a277/a280/a282 event/receipt columns are empty: these inputs contain
+no parser-origin anchor events. They DO contain rendered destinations; those stay
+in decoded scenes and are checked by unchanged anchor comparisons. Empty event
+columns must never be read as a claim that rendered destination anchors are absent.
+No source spans, anchor identities, placement receipts, or expected results are
+fabricated. This gate qualifies legacy geometry compatibility only; it does not
+qualify selectable/editable origins, which retain their separate strict tests.
+
+Independent oracle and provenance
+Current document_scene_paragraph delegates to linear, so it cannot be 'before'.
+The restored reference is F303's historical JSON-decoding/leaf-merging assembler,
+with its complete ten-module dependency/export closure frozen and isolated under
+ref_f303_ names. Its original SHA256 is
+36e660604453a8274d4db39a94f370f68f60fc407c2806c1a7131aff1c39e830.
+All ten historical bytes match THREE existing receipts: F303 plan source pins,
+manifest inputs, and posthashes with unchanged=true. Exact absolute paths, SHA256s,
+and receipt hashes are in provenance.json. Existing historical receipts are not
+modified. This authenticates source identity, not historical or current success.
+The assembler equals C278's original source after undoing ONLY module alias names;
+C278 SHA256 f7ccd0759fe43e1b01c675c7f2372fcc65734039e21b79ed002018a1395a5525.
+Candidate frozen modules differ from original bytes ONLY in import target names.
+There is no reference dependency on current paragraph_linear or current scene
+assembly; reference decoding, merge, arena building, and export are independent.
+No B347 code is adopted.
+
+All286 existing harness assertion markers remain in order. Only the legacy side
+of the metadata comparison changes representation (a.extras versus current
+metadata encoding), and legacy debug leaf export uses its matching frozen exporter.
+The equality checks themselves remain strict. All225 literal 'actual JS' assertion
+lines and all five captured provider JSON fixture lines from the original
+ document_scene_paragraph_linear_reference_tests.vkf remain byte-exact.
+These literal JS captures are pre-existing oracles: their original generation
+history was not newly authenticated here; no new cross-language pass is claimed.
+Four synthetic cases and five actual provider cases remain in the harness.
+Reference metadata/export representation differences, if any, must be reported
+as failures with raw values; do not normalize away, delete, or refresh the oracles.
+
+Validation and admission plan (NOT an execution grant)
+1. Root reviews review.patch plus frozen dependency isolation and provenance.json.
+   Recheck all current pins against the exact chosen shared base; other agents may
+   have advanced it. Review this as source-only work, not a qualified gate.
+2. Before native admission, statically confirm 31-field fixture/input alignment,
+   exact40-field output/declaration order, frozen import closure, preserved all286
+   assertions and five literal JS fixtures. prepare.py already verifies historical
+   triple pins, 31/40 declarations, and assertion preservation without compiling.
+3. Under a new explicit resource admission only, use current shared production
+   modules plus these test-only modules, current approved compiler, current
+   normalization and gate harness. Do not rebuild old production snapshots.
+   No admission is supplied or implied by this proposal. Known scene/from_leaves
+   failures remain excluded from blind retry; coordinator must resolve admission
+   against that boundary before any execution.
+4. Require adapter runtime checks for fixture0 six unknown spans, unchanged active
+   operations and six empty event columns; scene_count0/glyph_count0 cases; decoded
+   rendered anchors retained; all resulting origin slots remain unknown. Keep all
+   original comparisons and literal expectations. Then run the original gate with
+   exact source/binary/log pins, expected markers, exit status, and child joins.
+   A compile failure yields no case credit and stops the phase.
+5. Use a separately admitted negative control changing one candidate output x or
+   payload while leaving frozen oracle untouched; the exact corresponding existing
+   assertion must fail. Never mutate the frozen oracle to manufacture a pass.
+
+Checks performed: source-only preparation and authenticated historical closure;
+static-checks.json records286 preserved markers,225 literal JS assertion lines,
+5 fixture lines,10 independent modules and ten triple-pin matches. No compiler,
+native runtime, resource grant, dispatcher, budget, ledger or production change.
+Native47 stays18passed/29unqualified; original419 stays293. Gate remains unqualified.

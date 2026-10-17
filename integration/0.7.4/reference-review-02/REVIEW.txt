@@ -1,0 +1,117 @@
+INDEPENDENT REFERENCE REVIEW — 2026-10-17 — SOURCE ONLY
+
+Verdict
+The original proposal is NOT fully correct/acceptance-ready. The 31-to-40
+transport and independent frozen reference are supported by source evidence.
+Two corrections are delivered in final.patch: complete patch packaging and
+active geometry/scene prefix guards. A definite metadata equality incompatibility
+is retained and reported, as required; this is an apply-ready source repair and
+strict diagnostic gate, NOT a claim of a passing repaired acceptance gate.
+
+Exact corrections relative to reference-repair
+1. final.patch includes all twelve files: the two proposed test files plus all ten
+   new ref_f303_* modules. The original review.patch only contained the two file
+   modifications, leaving unresolved imports if applied alone. reviewed-input.patch
+   is the byte-exact reviewed original. candidate/ contains final contents.
+2. Before ordinal scans, allocation, or decoding, the adapter now also requires
+   glyph_count<=length of keys/xs/ys/flow_lines and scene_count<=length of
+   scenes/scene_xs/scene_ys/scene_lines. Existing nonnegative count checks,
+   operation vector bounds, and op>=-1 guards remain. E.g. scene_count=1,
+   scene_operations=[0], scenes=[] passed the proposal's count guard and then
+   indexed input.scenes.(0). It is rejected by the new scene-prefix guard.
+   Spare capacity is allowed; no exact-capacity requirement is introduced.
+3. Harness and ten frozen modules are byte-exact copies of the proposal. No
+   predicate, literal expected value, geometry tolerance, fixture, production
+   consumer, native-gate manifest/entry, or frozen algorithm was changed here.
+
+Packet compatibility and ordinals
+Adapter.LegacyPacket, harness.Packet and F303 assembler.Packet agree exactly in
+31 fields, including scenes:[str]. Adapter.Packet agrees byte-for-byte with
+current document_scene_paragraph_linear.Packet's 40 fields. The returned record
+has those exact ordered field names; all 30 non-scene legacy fields are forwarded
+unchanged. Metadata/Paint/Payload/Leaf/Arena/Scene/Store declarations agree with
+current store, legacy decoder and linear consumer. F303 exporter uses its own
+matching old Arena. Current document_scene_paragraph delegates to linear and
+cannot serve as an independent before-side oracle.
+
+Capacity is max(nonnegative ACTIVE glyph/scene ordinals)+1, otherwise zero.
+Fixture0 needs six paired unknown entries for active glyphs[1,5], scenes[2,4].
+No-scene case retains six, no-glyph case needs five, both-empty needs zero.
+Inactive tail values are not scanned. Both unknown arrays contain only -1;
+source text is empty. Current a265_provenance_valid accepts these pairs; its
+operation upper bound includes the generated sentinel at starts.length().
+Using max+1 keeps every nonnegative fixture ordinal below that sentinel and
+preserves the old merge comparison. a266_scalar_spans_valid accepts paired
+unknowns; emission's start>=0 condition is false, leaving origin operation/start/
+stop/part at -1 and scope/text empty. This is not authored source provenance.
+No generic untrusted-packet allocation guarantee is claimed: operation magnitudes
+are fixture-controlled; native integer overflow/allocation behavior is untested.
+
+Current from_paragraph delegates to a278_from_paragraph_mapped. The adapter
+appends only active legacy scenes using the CURRENT paragraph_scene_legacy/store,
+and flat.count therefore tracks active scene_count. It captures no_ids from
+store.empty() before appending scenes. All six provenance event/receipt columns
+are empty. Rendered point anchors and leaf destinations remain in the decoded
+store and the linear emission path; those are distinct from parser events.
+The empty event columns satisfy the lengths in the current event helpers but
+claim no selectable/editable origin or reusable event binding. Existing anchor
+and destination comparisons remain strict. No native behavior was observed.
+
+Definite compatibility failure exposed by independent oracle (not waived)
+ref_f303_document_scene.vkf:14 initializes ordinary leaf extra:""; line100 copies
+it into arena.extras. F303 assembler.ordinary uses this factory. Current linear
+initializes metadata_roots to -1 (line47) and leaves ordinary glyph roots there.
+scene_metadata_json.vkf:26 encodes root<0 as "{}". Candidate harness line66
+compares a.extras.(i) with that encoding using strict string equality. The first
+ordinary glyph (text/a, operation1) precedes the retained scene (operation2) in
+fixture0 and every actual_fixture. Thus the source implies ""="{}" is false at
+"column extras exact", if native execution reaches it. No runtime failure is
+claimed. The frozen exporter already handles blank extras internally, but this
+does not change the earlier direct metadata comparison.
+
+The final patch deliberately retains this exact check and does not convert
+empty strings, parse-and-normalize metadata, replace source values, change
+production encoding, or refresh expected output. Coordinator must decide the
+metadata representation contract and grant any further correction explicitly.
+Nonempty F303 extras/export preserve raw JSON spelling; current metadata/export
+re-encodes typed values. Other literal spelling/order differences may also fail;
+none are waived or hidden. Original JS capture generator lineage remains
+unauthenticated beyond unchanged pre-existing source lines.
+
+Reference provenance
+All ten historical files were independently re-read at their absolute F303 paths
+and match plan.renderer_source_pins, manifest.inputs and posthashes with
+unchanged=true. All three receipt files match provenance.json SHA256 values.
+Frozen candidate changes are ONLY import target renaming to ref_f303_ names.
+The two reference roots reach exactly ten modules, with no current production
+imports anywhere in that closure. Original saved bytes match historical bytes;
+C278 assembler matches after alias-only canonicalization. These checks establish
+identity and isolation, not any historical or present runtime success.
+All 605 current source pins and 12 proposal candidate pins match. Full absolute
+input paths and hashes, including grant/handovers, are in input-pins.json.
+
+Preservation and checks
+source_check.py independently checks full harness assertion lines (the single
+metadata operand substitution is the proposal's declared representation change),
+286 markers/predicates, 225 exact literal JS assertion lines, all five captured
+JSON fixture lines, four synthetic cases, recursive record declarations, complete
+reference closure, and deterministic twelve-file patch contents. It evaluates
+12 malformed active-prefix cases against extracted source guard terms and 5,625
+small Python ordinal cases against the independent max+1 formula, including
+inactive invalid tails, -1, sparse ordinals and zero counts. These are source/
+Python model checks, not a VKF interpreter, compiler check, or runtime test.
+Git apply --check exits0 without applying; original source hashes remain unchanged.
+source-checks.json marks acceptance_ready=false despite source checks passing.
+
+Integration limits and next step
+Only the granted reference-review-02 directory was written. No commits or shared
+production/test edits. No jobs/services/threads were launched except joined local
+read/check processes. No native compiler, full suite, historical renderer, retry,
+resource/budget change, ledger credit, or excluded-scope work.
+The existing native-gates entry and manifest still describe/copy the stale harness;
+coordinator must regenerate/verify those under its own scope after choosing a
+patch. This worker has not edited or executed them. Both reference assembly and
+current legacy decode reach from_leaves; known compiler blocker remains. Do not
+retry it based on these source checks. Coordinator should review the concrete
+patch and the explicit metadata contract failure before integration or further
+admission. Native47 remains18pass/29unqualified; original419 remains293credited.

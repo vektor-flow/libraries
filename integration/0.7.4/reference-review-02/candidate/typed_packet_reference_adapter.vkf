@@ -1,0 +1,41 @@
+# Candidate reference boundary only; no production imports. UNCOMPILED.
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Store:(arena:Arena,firsts:[int],counts:[int],anchor_firsts:[int],anchor_counts:[int],anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int,widths:[num],heights:[num],depths:[num],tag_widths:[num],inline_destinations:[bit],count:int)
+LegacyPacket:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
+Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:Store,scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int,a260_text:str,a260_starts:[int],a260_stops:[int],a272_anchor_operations:[int],a272_anchor_ids:[str],a277_anchor_scenes:[int],a280_anchor_leaves:[int],a280_anchor_slots:[int],a282_anchor_points:[int])
+store:.paragraph_scene_store
+legacy:.paragraph_scene_legacy
+from_legacy(input:LegacyPacket)->Packet:
+    # Ordering ordinals are retained; absent authored provenance is explicitly unknown.
+    (input.glyph_count>=0 /\ input.glyph_count<=input.glyph_operations.length() /\ input.scene_count>=0 /\ input.scene_count<=input.scene_operations.length())?! "Legacy active operation bounds"
+    # Every column indexed by this adapter or the current linear consumer has an active prefix.
+    (input.glyph_count<=input.keys.length() /\ input.glyph_count<=input.xs.length() /\ input.glyph_count<=input.ys.length() /\ input.glyph_count<=input.flow_lines.length())?! "Legacy active glyph column bounds"
+    (input.scene_count<=input.scenes.length() /\ input.scene_count<=input.scene_xs.length() /\ input.scene_count<=input.scene_ys.length() /\ input.scene_count<=input.scene_lines.length())?! "Legacy active scene column bounds"
+    operations:0
+    at:0
+    at<input.glyph_count?>
+        op:input.glyph_operations.(at)
+        (op>= -1)?! "Legacy glyph operation domain"
+        op>=operations? .operations:op+1
+        .at:at+1
+    .at:0
+    at<input.scene_count?>
+        op:input.scene_operations.(at)
+        (op>= -1)?! "Legacy scene operation domain"
+        op>=operations? .operations:op+1
+        .at:at+1
+    [int] unknown_starts:[-1:operations]
+    [int] unknown_stops:[-1:operations]
+    [int] no_events:[0:0]
+    scenes:store.empty()
+    no_ids:scenes.anchor_ids
+    i:0
+    i<input.scene_count?>
+        .scenes:legacy.append_legacy(scenes,input.scenes.(i))
+        .i:i+1
+    @:(keys:input.keys,xs:input.xs,ys:input.ys,flow_lines:input.flow_lines,glyph_operations:input.glyph_operations,scenes:scenes,scene_xs:input.scene_xs,scene_ys:input.scene_ys,scene_lines:input.scene_lines,scene_operations:input.scene_operations,scene_count:input.scene_count,pending:input.pending,pending_count:input.pending_count,complete:input.complete,lowering_complete:input.lowering_complete,glyph_count:input.glyph_count,line_heights:input.line_heights,line_depths:input.line_depths,line_widths:input.line_widths,line_baselines:input.line_baselines,line_ratios:input.line_ratios,line_indents:input.line_indents,line_flagged:input.line_flagged,line_count:input.line_count,width:input.width,height:input.height,depth:input.depth,measurement_work:input.measurement_work,diagnostics:input.diagnostics,solved:input.solved,pass:input.pass,a260_text:"",a260_starts:unknown_starts,a260_stops:unknown_stops,a272_anchor_operations:no_events,a272_anchor_ids:no_ids,a277_anchor_scenes:no_events,a280_anchor_leaves:no_events,a280_anchor_slots:no_events,a282_anchor_points:no_events)

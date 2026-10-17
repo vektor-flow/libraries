@@ -1,0 +1,44 @@
+COMPLETED — reference-review-02 — stop for coordinator review
+Owner 01a148ef-89dc-7242-8374-5ae5df02e4a1; coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31.
+Source commit e4df9851f6c9973b78d784da45e094703f972762; branch consolidate/0.7.4-shared-base-20261017.
+
+Result: original proposal needs correction. final.patch is a self-contained
+12-file patch (two modified tests plus ten frozen F303 modules), adding eight
+missing active-column bounds checks to the proposed adapter. Harness equality,
+fixtures and all frozen algorithm bytes are unchanged from the proposal.
+Apply-ready source/diagnostic repair; NOT acceptance-ready. Source proves ordinary
+metadata compares frozen "" to current "{}" at "column extras exact". Retained
+strictly, not normalized or waived. See REVIEW.txt for exact source chain.
+
+Checks: 764 source checks passed; 605 current pins; ten triple-pinned F303
+sources/closed imports; C278 alias identity; exact31/40 ABI and nested records;
+286 assertion predicates,225 literal JS assertions,five fixtures retained;
+12 malformed prefix cases,5625 Python ordinal model cases; git apply --check exit0.
+No VKF compile/runtime executed. source-checks.json explicitly acceptance_ready=false.
+Reproduce from project cwd: python3 -B .worktrees/gpu-math-20261014-libraries/integration/0.7.4/reference-review-02/source_check.py
+
+SHA256
+final.patch 085df45465d853f45f3ffa1da665dceb2b70eb34d526b162d2056867b159eb58
+reviewed-input.patch 1b43c0914040e58ac3875dbe35dd4208c6e120732ed3a35341fe6945842f379a
+source_check.py a2abc38210a059895c419ff90d58929d7bbbeaf742ee4f1afa6d6abed15fcae0
+source-checks.json 76b10716dac4aa2abb6e5613de3a2c10d427ca66a2277a3f03fe1a80dd13c700
+input-pins.json 5046adef08ab7ff64fb289837dfe467dd211f931999a0630866427845342d6ec
+REVIEW.txt c40e22a842064e69c8a6b20e969a18e936784b2d74f694d596ede5f25e5d9e5e
+All source/input absolute paths and hashes: input-pins.json. Candidate and other
+artifact hashes: artifact-pins.json (excludes itself and notification receipt).
+
+Limitations: known from_leaves barrier unchanged; no native retry. Literal JS
+capture lineage not newly established. Other raw-vs-typed metadata/export spelling
+may fail exact equality. Stale native-gates entry/manifest not regenerated here.
+Native47 remains18pass/29unqualified; original419 remains293credited until root verification.
+No shared test/production edits, commits, coordinator state/ledger writes, resource
+changes, excluded scopes, subagents or successor chats. Sole allowed later external
+write is the explicitly authorized one-line completion notification.
+Owned-job join status: all local shell/Python/git checks exited; no background,
+native or service jobs owned; zero outstanding children before notification.
+Next: coordinator reviews final.patch and metadata incompatibility, decides contract
+and integration, refreshes gate entries under its scope if appropriate, and assigns
+any further correction to a fresh separate chat. This bounded task is complete.
+
+Completion notification text (one attempt; result in notification.json):
+DONE 01a148ef-89dc-7242-8374-5ae5df02e4a1 | 12-file patch and source checks complete; strict metadata mismatch remains, no native run | /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/reference-review-02/HANDOFF.txt

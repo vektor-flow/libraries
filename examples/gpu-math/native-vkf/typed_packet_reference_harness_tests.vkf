@@ -16,13 +16,14 @@ fixture_line_ratios()->[num]:@:[0.0,0.0]
 fixture_line_indents()->[num]:@:[0.0,0.0]
 fixture_line_flagged()->[bit]:@:[false,false]
 ints(size:int)->[int]:[0:size]
-document_scene_paragraph:.document_scene_paragraph
+document_scene_paragraph:.ref_f303_document_scene_paragraph
+reference_export:.ref_f303_document_scene_export
 document_scene_paragraph_linear:.document_scene_paragraph_linear
 document_scene_export:.document_scene_export
 document_scene:.document_scene
 packet_adapter:.typed_packet_reference_adapter
 metadata_json:.scene_metadata_json
-Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int,a260_text:str,a260_starts:[int],a260_stops:[int])
+Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
 Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
 Paint:(red:num,green:num,blue:num,alpha:num)
 Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
@@ -42,7 +43,7 @@ fixture(case:int):
         q.glyph_count:0
     @:q
 compare(q:Packet)->bit:
-    before:document_scene_paragraph.from_paragraph(packet_adapter.from_legacy(q))
+    before:document_scene_paragraph.from_paragraph(q)
     after:document_scene_paragraph_linear.from_paragraph(packet_adapter.from_legacy(q))
     (before.width=after.width /\ before.height=after.height /\ before.depth=after.depth /\ before.tag_width=after.tag_width /\ before.anchor_count=after.anchor_count)?! "scene metrics exact"
     a:before.arena
@@ -62,7 +63,7 @@ compare(q:Packet)->bit:
         (a.equation_tags.(i)=b.equation_tags.(i))?! "column equation_tags exact"
         (a.tag_widths.(i)=b.tag_widths.(i))?! "column tag_widths exact"
         (a.draws.(i)=b.draws.(i))?! "column draws exact"
-        (metadata_json.encode(a.metadata,a.metadata_roots.(i))=metadata_json.encode(b.metadata,b.metadata_roots.(i)))?! "column extras exact"
+        (a.extras.(i)=metadata_json.encode(b.metadata,b.metadata_roots.(i)))?! "column extras exact"
         (a.flow_xs.(i)=b.flow_xs.(i))?! "column flow_xs exact"
         (a.flow_widths.(i)=b.flow_widths.(i))?! "column flow_widths exact"
         (a.has_flows.(i)=b.has_flows.(i))?! "column has_flows exact"
@@ -73,7 +74,7 @@ compare(q:Packet)->bit:
         (a.destination_firsts.(i)=b.destination_firsts.(i))?! "column destination_firsts exact"
         (a.destination_counts.(i)=b.destination_counts.(i))?! "column destination_counts exact"
         (a.footnote_numbers.(i)=b.footnote_numbers.(i))?! "column footnote_numbers exact"
-        old_json:document_scene_export.leaf(a,i,1,1)
+        old_json:reference_export.leaf(a,i,1,1)
         new_json:document_scene_export.leaf(b,i,1,1)
         (old_json=new_json)?! "debug leaf export exact"
         .i:i+1
