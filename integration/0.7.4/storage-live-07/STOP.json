@@ -1,0 +1,8 @@
+{
+  "reason": "RuntimeError('Unexpected live result; see live07-f-success-01-result.json')",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-07/qualify.py\", line 152, in <module>\n    else:qualify(int(sys.argv[1]))\n         ~~~~~~~^^^^^^^^^^^^^^^^^^\n  File \"/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-07/qualify.py\", line 145, in qualify\n    if not checks['passed']:raise RuntimeError('Unexpected live result; see '+attempt+'-result.json')\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: Unexpected live result; see live07-f-success-01-result.json\n",
+  "command": [
+    ".worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-07/qualify.py",
+    "0"
+  ]
+}

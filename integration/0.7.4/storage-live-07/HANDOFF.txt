@@ -1,0 +1,74 @@
+STORAGE LIVE07 — FIRST REAL F PHASE FAILED; JOINED AND STOPPED — 2026-10-17
+Owner/chat 01a14932-e9b3-7a33-bff0-0486c870eed7
+Sole coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31
+Shared HEAD unchanged 11c7b8ab0985575bda8e9554023c347e2430871e
+Output integration/0.7.4/storage-live-07
+
+RESULT
+One new real F3GiB phase executed under installed v4. Fixture exited1 at line22:
+assert rw_storage == [attempt]. Its /proc/self/mountinfo selection included
+additional rw entries: binfmt_misc, document portal, Docker namespace/overlay
+mounts and device binds. Exact list is in live07-f-success-01-result.json and the
+charged receipts/stderr. The selector excludes proc/tmpfs/devpts but includes
+other mount types. This evidence does NOT establish that every listed path was
+accessible for writes; no writes to those paths were attempted. No fixture filter,
+sandbox/controller patch, assertion relaxation, retry or further phase was run.
+
+Earlier assertions in the same fixture passed: PID/net namespaces differed from
+host, root and /dev/shm were read-only, attempt statvfs was writable, opening the
+outside fixture for write failed EROFS. The single writable-storage assertion
+FAILED before payload.bin creation or success report. Zero qualified phases.
+F intended-nonzero/timeout and all A8GiB phases remain UNRUN. No native credit.
+
+SERVICE / JOINS
+ExecStart parser and real attachment succeeded. Exact D-Bus argv, invocation,
+cgroup, PID/starttime, inner result and service join retained. Unit:
+vkfworkers-f-live07-f-success-01.service
+Invocation e621740c17634563804bf458bc50937d
+Outer4002367/start74209334; inner4002684/start74209735;
+tracked bwrap4002702/start74209810. All independently observed absent.
+Controller returned payload exit1. Service intentionally retained terminal exit199;
+MainPID0, failed/exit-code, exact service cgroup empty. Controller.verify_join
+independently passed after failure; ledger stage=joined, active RAM=0. No missing
+custody or recovery needed for this new attempt. No active worker/offload services.
+
+ACTUAL TIMINGS
+Preflight0.416156s; outer controller5.826630s; total qualification wrapper6.027522s.
+Actual service duration1.352508s from D-Bus/systemd monotonic timestamps.
+Service MemoryPeak44,154,880bytes, swap peak0. Final direct evidence seal0.364544s.
+These are storage fixture/controller timings, not native/compiler performance.
+
+CHARGES — NO REFUND
+Original live04 attempt and4MiB remain unchanged; new attempt retains4MiB.
+Total2/16 attempts,8MiB/64MiB consumed;14 attempts and56MiB remain for a future
+separate authority, not an instruction to retry. F cumulative19,791,912,960bytes;
+A cumulative18,778,218,496bytes. New attempt allocated45,056bytes; F root81,920.
+Original v2 state/policies/config/controller/helpers and predecessor inputs unchanged.
+The original recovered phase remains launch_claimed, without fabricated join/pass.
+
+PREPARATION / LIMITS
+Read project instructions, repository STATUS/HANDOVER and newer scoped coordinator,
+live04, recovery06 handoffs, deployment plan and root-deployment. No local AGENTS.md.
+Fresh preflight authenticated recovered v4 state, exact root F/A transition pins,
+legacy terminal custody, offload completion, frozen actual registry, physical roots,
+old-volume use, memory and held dispatcher. No recovery/enrollment/rotation rerun.
+Six new grants/manifests and owners-v4.json prepared only in installed v4; exact
+current HEAD/controller/three helpers/config/root transition pinned. Existing config
+historical authority remains enrollment provenance. Only first grant was launched.
+All pending grants are unexecuted and must not be reused as a successor authorization.
+A memory.high was never raised; final3GiB, hard8GiB; F hard3GiB; parent21GiB,
+swap0 and service Tasks128 retained. No capacity increment/reset, mount changes,
+disk moves, native/compiler/GPU, dispatcher/peer changes, commits or new agents.
+
+EVIDENCE
+qualification-result.json: compact outcome, charges, metrics, joins, actual receipt
+pins and logs. final-state.json: snapshot. authenticated-input-pins.json: current
+execution/baseline pins, all reverified. output-pins.json: owned artifact pins.
+preflight.json and prepared.json: observations and exact new grant/manifest pins.
+STOP.json: first failure. live07-f-success-01-{observation,result}.json: raw evidence.
+postfailure-audit-note.txt records a read-only recursive historical-pin diagnostic
+that rejected an old python3 symlink; no operational mutation/retry resulted.
+Final evidence directly authenticates current execution and frozen baseline pins.
+
+Completed authorized stop condition. Root owns review and any fresh separate task.
+One DONE notification follows through the existing app-server Client; receipt saved.

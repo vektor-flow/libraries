@@ -1,0 +1,201 @@
+{
+  "result": "FAILED_FIRST_REAL_F_PHASE_STOPPED",
+  "qualified_phases": 0,
+  "native_credit": false,
+  "service_join_independently_authenticated": true,
+  "owned_joins": [
+    {
+      "saved": {
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/storage_controller.py",
+          "--config-sha256",
+          "8b8fd81b4ab997d282d5f53556169f23c976c5121895b95b1a071d7dd6deb7ff",
+          "--grant",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/storage-live-07/live07-f-success-01-grant.json",
+          "--grant-sha256",
+          "e37b6c4cf7eba269d13e33e6a19ca0a992b9093d9e9820df572829a30ea473b1",
+          "--manifest",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/storage-live-07/live07-f-success-01-manifest.json",
+          "--manifest-sha256",
+          "c62f973fdd54856cec530dc54d0f74aa04992dcfb1a934b4e412e659773023c1"
+        ],
+        "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+        "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/codex-phone-host.service",
+        "pid": 4002367,
+        "starttime": 74209334
+      },
+      "observed": null,
+      "absent_or_replaced": true
+    },
+    {
+      "saved": {
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/storage_controller.py",
+          "--config-sha256",
+          "8b8fd81b4ab997d282d5f53556169f23c976c5121895b95b1a071d7dd6deb7ff",
+          "--grant",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/storage-live-07/live07-f-success-01-grant.json",
+          "--grant-sha256",
+          "e37b6c4cf7eba269d13e33e6a19ca0a992b9093d9e9820df572829a30ea473b1",
+          "--manifest",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/storage-live-07/live07-f-success-01-manifest.json",
+          "--manifest-sha256",
+          "c62f973fdd54856cec530dc54d0f74aa04992dcfb1a934b4e412e659773023c1",
+          "--inside-service"
+        ],
+        "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+        "cgroup": "/user.slice/user-1000.slice/user@1000.service/vkfworkers.slice/vkfworkers-f.slice/vkfworkers-f-live07-f-success-01.service",
+        "pid": 4002684,
+        "starttime": 74209735
+      },
+      "observed": null,
+      "absent_or_replaced": true
+    },
+    {
+      "saved": {
+        "pgrp": 4002702,
+        "pid": 4002702,
+        "ppid": 4002684,
+        "session": 4002702,
+        "starttime": 74209810,
+        "state": "R"
+      },
+      "observed": null,
+      "absent_or_replaced": true
+    }
+  ],
+  "active_ram": 0,
+  "charges": {
+    "F": {
+      "historical": 19783524352,
+      "phase_bytes": 8388608,
+      "cumulative": 19791912960,
+      "root_allocated": 81920
+    },
+    "A": {
+      "historical": 18778218496,
+      "phase_bytes": 0,
+      "cumulative": 18778218496,
+      "root_allocated": 4096
+    }
+  },
+  "total_consumed_attempts": 2,
+  "total_consumed_bytes": 8388608,
+  "remaining_attempts": 14,
+  "remaining_bytes": 58720256,
+  "old_phase_unchanged": true,
+  "old_state_unchanged": true,
+  "installed_inputs_unchanged": true,
+  "head": "11c7b8ab0985575bda8e9554023c347e2430871e",
+  "properties": {
+    "LoadState": "loaded",
+    "ActiveState": "failed",
+    "InvocationID": "e621740c17634563804bf458bc50937d",
+    "TimeoutStopUSec": "10s",
+    "RuntimeMaxUSec": "40s",
+    "MainPID": "0",
+    "Result": "exit-code",
+    "OOMPolicy": "kill",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "199",
+    "ControlGroup": "",
+    "MemoryMax": "3221225472",
+    "MemorySwapMax": "0",
+    "TasksMax": "128",
+    "KillMode": "control-group"
+  },
+  "cgroup_empty": true,
+  "service_metrics": {
+    "argv": [
+      "systemctl",
+      "--user",
+      "show",
+      "vkfworkers-f-live07-f-success-01.service",
+      "-p",
+      "MemoryPeak",
+      "-p",
+      "MemorySwapPeak",
+      "-p",
+      "CPUUsageNSec",
+      "-p",
+      "ExecMainStartTimestampMonotonic",
+      "-p",
+      "ExecMainExitTimestampMonotonic"
+    ],
+    "exit": 0,
+    "stdout": "ExecMainStartTimestampMonotonic=742097352811\nExecMainExitTimestampMonotonic=742098705319\nMemoryPeak=44154880\nMemorySwapPeak=0\nCPUUsageNSec=1355010000\n",
+    "stderr": ""
+  },
+  "cgroups": {
+    "F": {
+      "memory.max": "3221225472",
+      "memory.high": "3221225472",
+      "memory.swap.max": "0",
+      "pids.max": "160",
+      "cgroup.events": "populated 0\nfrozen 0",
+      "cgroup.procs": ""
+    },
+    "parent": {
+      "memory.max": "22548578304",
+      "memory.swap.max": "0",
+      "pids.max": "1024"
+    },
+    "A": {
+      "memory.max": "8589934592",
+      "memory.high": "3221225472",
+      "memory.swap.max": "0",
+      "pids.max": "160",
+      "cgroup.events": "populated 0\nfrozen 0",
+      "cgroup.procs": ""
+    }
+  },
+  "attempt_files": [
+    {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live07-f-success-01/receipts/admission.json",
+      "sha256": "13d5fa416354de7a4da6632ce168a9da8c752bae7b8138d28bba24451b4e0d4e"
+    },
+    {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live07-f-success-01/receipts/outer.stderr",
+      "sha256": "a69478722f81637b8f6bf04512004645857d751c570f3d023ef225e30f170d27"
+    },
+    {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live07-f-success-01/receipts/outer.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live07-f-success-01/receipts/service-join.json",
+      "sha256": "530d35a17532d6e6f821b1bae58be0b700475715a3bb91aa82fb531048ed2c3f"
+    },
+    {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live07-f-success-01/receipts/stderr",
+      "sha256": "a88a161a573dea30a87d813955eab9f1c95b1947096777b06b8edfb0c7c58bce"
+    },
+    {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live07-f-success-01/receipts/stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "logs": {
+    "stderr": "Traceback (most recent call last):\n  File \"/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-07/fixture.py\", line 22, in <module>\n    assert rw_storage == [attempt], rw_storage\n           ^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ['/proc/sys/fs/binfmt_misc', '/run/user/60578/doc', '/run/docker/netns/default', '/run/docker/netns/ccf89eaf88d9', '/run/docker/netns/56b8196f62d5', '/run/docker/netns/550b6101a5d5', '/run/docker/netns/1647fe58af47', '/run/docker/netns/12749029b7f2', '/run/docker/netns/452ef990dc04', '/run/docker/netns/bb5833995188', '/run/docker/netns/32ed8209b308', '/run/docker/netns/ed1e9285d061', '/run/docker/netns/da662bffa4b8', '/run/docker/netns/8052909fdbae', '/run/docker/netns/07510d8223cc', '/run/docker/netns/eda5a07bc0b2', '/var/lib/docker/rootfs/overlayfs/e7fbfc51d51df68e0eeaf4e297d89ffa721bc5c6f6ca90d4994043475f317d79', '/var/lib/docker/rootfs/overlayfs/dd47f1349f6fd371f6938476ea65b6691a2378b46be55eb6bed7c1c7f4228721', '/var/lib/docker/rootfs/overlayfs/44ad5d2ab7a6db54bc16e2c40d8bbceb90000b387ac70a9f73255a6036b1df97', '/var/lib/docker/rootfs/overlayfs/f67df350df3e6608fea685d9e5497ec557b8aabd8a47cae20e9aff3e0e67784f', '/var/lib/docker/rootfs/overlayfs/513535e51d7b7d324b579e9485acd7c58c687a6a1aa878bf6c8d345d66d2bdd4', '/var/lib/docker/rootfs/overlayfs/1a5ae70caf36d5bbb917cd4f724eb15ecdea84b072426a9f9d5f9d810f2f4222', '/var/lib/docker/rootfs/overlayfs/fb2b68c91e1658543f71951c4761590eef486d9b2905e0aaed708a6b2713bf07', '/var/lib/docker/rootfs/overlayfs/c595066f0b2f34c5927f5ea831624bbb1b4b6c3b347b44e82cba2b0eb7b43b75', '/var/lib/docker/rootfs/overlayfs/c845bd15e54f1dc7012ddeb48fbd1c0f708b277b958ce3cc57fb53e58fa588b8', '/var/lib/docker/rootfs/overlayfs/4c0fd8c56902d33e246dd841e1fd6b7b8c9a87380e6d6ba1ecfc5452e1f3a3f9', '/var/lib/docker/rootfs/overlayfs/462c8087adb515d05325b612318eb3fd53934277f198bed8669dd548f3eb066e', '/var/lib/docker/rootfs/overlayfs/392ad02531ee392a4a52207ac83cb64d05212e57d1df0932c77560842adc0d97', '/var/lib/docker/rootfs/overlayfs/5466702ed63981fb0368dc2a0ca3a191d6a58fdf6c71787f91e8a11d322d6fa0', '/dev/null', '/dev/zero', '/dev/full', '/dev/random', '/dev/urandom', '/dev/tty', '/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live07-f-success-01']\n",
+    "stdout": "",
+    "outer.stdout": "",
+    "outer.stderr": "Running as unit: vkfworkers-f-live07-f-success-01.service; invocation ID: e621740c17634563804bf458bc50937d\n          Finished with result: exit-code\nMain processes terminated with: code=exited, status=199/n/a\n               Service runtime: 1.352s\n             CPU time consumed: 1.355s\n                   Memory peak: 42.1M (swap: 0B)\n"
+  },
+  "payload_file_exists": false,
+  "failure": "Fixture line22 single writable storage mount assertion failed; no attempt to write the additional listed mounts",
+  "unrun": [
+    "F nonzero",
+    "F timeout",
+    "A success",
+    "A nonzero",
+    "A timeout"
+  ],
+  "A_high_activation": false,
+  "controller_wall_seconds": 5.826629513059743,
+  "preflight_seconds": 0.41615616995841265,
+  "read_only_seal_seconds": 0.36454376904293895
+}
