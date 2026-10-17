@@ -1,0 +1,59 @@
+{
+  "utc": "2026-10-17T09:39:01.546736+00:00",
+  "runner_pid": 4011568,
+  "checks": [
+    {
+      "name": "head",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "pid": 4011633,
+      "returncode": 0,
+      "joined": true,
+      "seconds": 0.0018825179431587458
+    },
+    {
+      "name": "host-oracles",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/pdf-selection-encoding-03/verify_oracles.py"
+      ],
+      "pid": 4011634,
+      "returncode": 0,
+      "joined": true,
+      "seconds": 0.042979742982424796
+    },
+    {
+      "name": "patch-check",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "--whitespace=error-all",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/pdf-selection-encoding-03/selection-encoding.patch"
+      ],
+      "pid": 4011635,
+      "returncode": 0,
+      "joined": true,
+      "seconds": 0.0027287109987810254
+    }
+  ],
+  "native_tests": "UNEXECUTED",
+  "native_assertions": 41,
+  "pdf_generated": false,
+  "source_patch_applied": false,
+  "head": "ca3015b4e65a0627c65e2cdc4048b93a0c8673ad",
+  "changed_pinned_inputs": [
+    "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/COORDINATOR-STATUS.txt"
+  ],
+  "production_input_pins_unchanged": true,
+  "patch_matches_candidate": true,
+  "patch_sha256": "a7ee754e3a243c2b4495dcea821d5b2d58e782e49d67a0543084da4b432ab004",
+  "all_checks_passed": true,
+  "child_maxrss_kib": 18596,
+  "self_maxrss_kib": 625936,
+  "owned_children_joined": true
+}

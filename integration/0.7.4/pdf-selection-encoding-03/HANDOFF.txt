@@ -1,0 +1,50 @@
+PDF SELECTION ENCODING 03 — concrete source candidate; native UNEXECUTED
+Worker 01a14935-046e-71e3-935e-beca885ffe3c; coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31.
+Original grant HEAD 11c7b8ab0985575bda8e9554023c347e2430871e.
+User authorized evidence/status-only advance to ca3015b4e65a0627c65e2cdc4048b93a0c8673ad.
+input-pins.json preserves original hashes; head-advance.json records the advance.
+Production inputs unchanged. No commits, patch application or shared-source edits.
+
+DELIVERABLE
+selection-encoding.patch SHA256 a7ee754e3a243c2b4495dcea821d5b2d58e782e49d67a0543084da4b432ab004
+Adds only examples/gpu-math/native-vkf/pdf_selection.vkf and pdf_selection_tests.vkf.
+candidate/ contains the exact two-file payload (42-line helper, 62-line tests).
+utf16be_text_string emits ASCII PDF hex with FEFF, big-endian code units and
+supplementary surrogate pairs. Scalar helper rejects out-of-range/surrogate inputs.
+actual_text accepts supplied logical text and trusted drawing content, emits
+/Span << /ActualText ... >> BDC / EMC, and preserves drawing bytes exactly.
+Empty text retains BOM; CRLF, ligatures, combining marks and delimiters remain data.
+Existing pdf_syntax.hex_string remains UTF-8; outline renderer and tex2pdf unchanged.
+
+VALIDATION / LIMITS
+41 exact native assertions prepared: 16 text,15 scalar-boundary,7 wrapper,3 legacy.
+ALL native assertions UNEXECUTED, including compiler/string-map behavior; no native
+invalid-scalar rejection execution. Five independent Python oracle tests PASS
+(41 expected values),0.043s process elapsed; git apply --check --whitespace=error-all
+PASS,0.003s. Patch reconstruction equals candidate; source pre/post pins unchanged.
+Host codec validates expected values only, NOT execution of production VKF.
+validation.json retains exact argv/PIDs/exits/times and joined verification children.
+Reported child maxRSS18,596KiB; validator self high-water625,936KiB. No pressure or
+overlap observed. Spec fetch/extraction2.782s, subprocess joined, no PDF retained.
+All tool shells joined; no native/compiler/service/background job was launched.
+One notifier's acknowledgement and joined process receipt are recorded separately.
+
+INTEGRATION / NEXT REVIEW
+No call-site patch: current render invokes layout without source-owner bindings.
+a260_texts repeats entire parser input; its byte spans do not establish original
+file/revision ownership or grouped logical replacement. INTEGRATION.txt specifies
+required authenticated source mapping, scalar-safe offsets, ownership/order/groups,
+deduplication, page splits and complete graphics-object boundaries. No ID-to-text
+guessing. ActualText's visible-character semantics are distinct from raw TeX
+source-copy policy; the later authenticated mapping must resolve that choice.
+REFERENCES.txt retains authoritative PDF/Unicode links and exact sections.
+Root can review/apply the narrow patch, then seek a fresh grant for the standalone
+native test entry. No ToUnicode/font, reader selection, editing, PDF output or
+performance credit; native47/original419 counts unchanged. D267/D289/A333 and
+historically rejected variants untouched. No children/chats/subagents or peer edits.
+
+REPRODUCE HOST CHECKS (from any cwd; writes only this output)
+python3 -B <this-directory>/validate.py
+This checks the unapplied candidate against the original or authorized advanced HEAD.
+artifact-pins.json seals deliverables; notification-result.json records the one
+authorized DONE delivery. No ambiguous notification retry. Stop after delivery.

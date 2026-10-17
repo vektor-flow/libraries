@@ -1,0 +1,42 @@
+# Explicit PDF Unicode text strings; pdf_syntax.hex_string remains UTF-8.
+# ISO 32000-1:2008, 7.3.4.3, 7.9.2.2, 14.6 and 14.9.4:
+# https://opensource.adobe.com/dc-acrobat-sdk-docs/standards/pdfstandards/pdf/PDF32000_2008.pdf
+# Unicode 17.0, 3.9.2 (UTF-16) and 3.10 (UTF-16BE):
+# https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-3/
+syntax:.pdf_syntax
+
+# One code unit, most significant byte first. Surrogate code units are valid
+# here only as the paired output of utf16be_scalar_hex below.
+utf16be_unit_hex(value:int)->str:
+    (value>=0 /\ value<=65535)?! "Invalid UTF-16 code unit"
+    @:syntax.hex_byte(value//256)&syntax.hex_byte(value%256)
+
+# The input is a Unicode scalar, not a UTF-16 code unit or a glyph identifier.
+utf16be_scalar_hex(value:int)->str:
+    (value>=0 /\ value<=1114111 /\ (value<55296 \/ value>57343))?! "Invalid Unicode scalar for PDF text"
+    value<65536? @:utf16be_unit_hex(value)
+    supplementary:value-65536
+    high:55296+supplementary//1024
+    low:56320+supplementary%1024
+    @:utf16be_unit_hex(high)&utf16be_unit_hex(low)
+
+# VKF string mapping visits Unicode scalars, as in pdf_syntax.hex_string.
+# Always include the FE FF BOM, including for empty text. Preserve all supplied
+# scalars: no newline, normalization, ligature, TeX or whitespace rewriting.
+# Return an ASCII PDF hex string token, never literal UTF-16 in the UTF-8 stream.
+utf16be_text_string(value:str)->str:
+    encoded:value >> utf16be_scalar_hex(int($))
+    @:"<FEFF"&encoded&">"
+
+# PDF 1.5+ replacement text for ONE supplied logical span. The caller must
+# authenticate the text and associate it with exactly this drawing sequence;
+# this serializer cannot recover ownership/order/text from outlines or IDs.
+# ActualText substitutes equivalent visible character content (14.9.4); deciding
+# which authored source span supplies that replacement belongs to the caller.
+# drawing_content contains complete graphics objects within one page/content
+# stream, with balanced marked/text objects and no enclosing/nested ActualText.
+# Preserve its bytes and graphics operators; surrounding LF separates tokens
+# and terminates any trailing comment before EMC. No q/Q or font is introduced.
+# Empty logical_text is an intentional empty replacement, not missing provenance.
+actual_text(logical_text:str,drawing_content:str)->str:
+    @:"/Span << /ActualText "&utf16be_text_string(logical_text)&" >> BDC\n"&drawing_content&"\nEMC\n"

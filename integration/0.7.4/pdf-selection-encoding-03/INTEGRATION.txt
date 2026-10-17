@@ -1,0 +1,44 @@
+CURRENT BOUNDARY / NO CALL-SITE PATCH
+Pinned document_materialize.vkf:145-149 calls layout without the optional owner
+bindings, then document_pdf_bulk.encode(result.document,fonts,operators).
+latex_library.vkf:69-70 keeps that route; document_owned at :65-66 supplies owner
+bindings to layout but is not the PDF route. No signatures changed here.
+document_pdf_bulk.vkf:213-265 builds/reuses glyph outline forms; :388-390 appends
+per-leaf drawing commands. No existing PDF helper receives authenticated logical
+replacement text paired with its complete drawing span. The new helper is ready
+for a future authenticated producer; existing outline rendering stays untouched.
+
+WHY a260_texts CANNOT BE USED BLINDLY
+Arena columns include parser text, scope, operation, start, stop and part.
+document_scene_paragraph_linear.vkf:116-120,129-133 copies the SAME entire parser
+input onto multiple leaves, with operation byte spans. :26-27 validates UTF-8 byte
+ranges and scalar boundaries, not original-file/revision ownership. Defaults in
+document_scene.vkf:16 have empty scope/text and -1 unknown spans/operation/part.
+Empty text is therefore not evidence that an intentional empty replacement was
+supplied. Per-leaf whole-text wrapping duplicates text. Per-glyph slicing cannot
+establish macro invocation ownership, logical order, deduplication or page splits.
+
+DATA REQUIRED AT A LATER WIRING BOUNDARY
+1. Authenticated file/owner scope and source revision, exact original text and the
+   proven mapping from parser byte spans to authored source spans (including
+   macros, synthetic delimiters, labels, includes and generated decorations).
+   UTF-16 offsets from hosts must convert on scalar boundaries to native UTF-8
+   byte offsets. Do not infer text from a font key, outline digest or glyph ID.
+2. An explicit valid/available source binding, distinct from intentionally empty
+   logical text; exact replacement characters for this span. ActualText's visible
+   character semantics and the application's authored-TeX copying contract must
+   be resolved at that mapping boundary. This serializer does not equate them.
+3. Stable operation/cluster/part ownership, logical order, and complete groups of
+   drawn commands for each replacement, with deduplication and explicit policy
+   for multi-glyph ligatures, line/page breaks, synthetic hyphens and atomic math.
+   Do not repeat a complete logical span on each outline or on both page halves.
+4. Complete trusted PDF graphics objects within one page/content stream, existing
+   placement/clip/color/state already established, balanced marked/text objects,
+   no nested/enclosing ActualText, and PDF >=1.5. Call actual_text(logical_text,
+   drawing_content) once at that span boundary, between complete graphics objects.
+   Never split operands/operators or cross a page. Resources remain caller-owned.
+
+No integration patch is supplied because those data are not established at the
+existing PDF boundary. This delivery implements the actual source serializer and
+tests, not selectable/editable API flags. No ToUnicode/fonts, source attachments,
+reader selection, source editing or performance is implemented/claimed.

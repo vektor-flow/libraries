@@ -1,0 +1,22 @@
+Checked 2026-10-17 against the authoritative documents below.
+
+ISO 32000-1:2008 (PDF 1.7), Adobe's published standard:
+https://opensource.adobe.com/dc-acrobat-sdk-docs/standards/pdfstandards/pdf/PDF32000_2008.pdf
+7.3.4.3: angle-bracket hexadecimal strings represent bytes, two hex digits/byte.
+7.9.2.2: Unicode text strings use UTF-16BE with initial FE FF; supplementary
+characters must be supported. CR and LF are serialized explicitly as 000D/000A.
+14.6/Table 320: BDC attaches an inline property dictionary; EMC closes the span.
+14.9.4 (printed pages 615-616): PDF 1.5+ permits ActualText on a Span marked
+content sequence. It substitutes equivalent visible characters, including
+nonstandard representations such as ligatures/graphics, and supplies no implied
+word break between consecutive replacements. This is not font encoding or a
+ToUnicode CMap. Caller still owns semantic correctness and exact span grouping.
+The illustrative example has the spelling '/Actual Text'; the normative key is
+ActualText, used by this helper. spec-fetch.json pins the downloaded document;
+it was read in memory, not retained or generated as application PDF output.
+
+Unicode 17.0 core specification, 3.9.2/Table 3-5 and 3.10/D96:
+https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-3/
+Scalars exclude D800-DFFF and values beyond 10FFFF. For supplementary scalar U,
+subtract 10000 hex, divide by 400 hex for high/low ten-bit parts, add D800/DC00.
+Serialize each unit high byte first. PDF adds its own required BOM prefix.
