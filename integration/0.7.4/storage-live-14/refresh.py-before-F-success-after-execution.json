@@ -1,0 +1,11 @@
+{
+  "command": [
+    "refresh.py",
+    "before-F-success",
+    "after"
+  ],
+  "exit": 0,
+  "stdout": "{\n  \"failures\": [],\n  \"lanes\": {\n    \"A\": {\n      \"H\": 18778218496,\n      \"old_used\": {\n        \"free\": 4276248576,\n        \"used\": 18778218496\n      }\n    },\n    \"F\": {\n      \"H\": 19783524352,\n      \"old_used\": {\n        \"free\": 3270942720,\n        \"used\": 19783524352\n      }\n    }\n  },\n  \"elapsed\": 0.7403058419004083,\n  \"checks\": {\n    \"argv\": [\n      \"systemctl\",\n      \"list-units\",\n      \"--all\",\n      \"--plain\",\n      \"--no-legend\",\n      \"*dispatch*\"\n    ],\n    \"exit\": 0,\n    \"stdout\": \"networkd-dispatcher.service loaded active running Dispatcher daemon for systemd-networkd\\n\",\n    \"stderr\": \"\"\n  }\n}\n",
+  "stderr": "",
+  "seconds": 0.8182903550332412
+}

@@ -1,0 +1,112 @@
+DONE — SOURCE-ONLY EXACT LIVE14 TERMINAL RECOVERY16 / ROOT EXECUTION REQUIRED
+2026-10-17. Worker 01a1497e-aaf3-7643-ba86-f0aee201d7ea.
+Sole coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31.
+
+DELIVERY
+candidate.patch modifies exact installed v6 terminal_recovery.py and
+storage_admission.py; adds dedicated recover_live14.py CLI. Full resulting files
+are in candidate/. No controller/private_workload modification or overlapping patch.
+INSTALLATION-AND-AUTHORITY.txt is the concrete combined-successor procedure and
+exact authority/transition schema. authority.review-template.json has FALSE
+operational assertions and grants NO authority. required-v6-preserved-bundle.json
+is the exact historical bundle required in successor preserved_record_authorities.
+
+IMPLEMENTED
+Existing v4 ledger + same capacity.lock; append exactly one live14 event after
+exact full current snapshot, frozen source/failure/receipt/STOP/owner authentication.
+Fresh double service property/typed ExecStart/PID absence/cgroup checks, then
+another fresh double check after tempfile fsync immediately before atomic rename;
+five-second proof bound. Boot, outer4130800/start74671153, inner4130900/start74671625,
+Invocation83ab2d1849dd46768d1a150d473bbb1a, exact failed exit1 timestamps/argv,
+empty service and A/F lane cgroups, absent payload stdout/stderr. Original frozen
+traceback/source places nonzero CapInh origin failure before child Popen. No invented
+descendants, normal join, completion or payload result. Outer125 and transport/inner
+exit1 remain distinct. Changed/reused/unknown custody fails closed.
+
+Live14 row stays stage=running WITH original attached service and NO inner_result
+or join. Event is passed=false/workload_result=null, terminal-failed-at-origin-before-
+child. Only3GiB RAM intent is excluded by authenticated event membership. All four
+phase rows, lane policies, increments, permanent charges, existing owner-transition
+prefixes and historical recovery event0 are preserved exactly. All readers route
+through validated event membership; recovered lifecycle targets/replay reject.
+No reset or generalized cleanup/force-release. Legacy authority still validates
+old snapshots; it refuses a two-event state. New authority delegates old event
+validation to the unchanged pinned old authority; never replaces its event pin.
+
+OWNER COMPATIBILITY
+Adds exact kind=live14-recovered-terminal-failure for F's existing three-transition
+prefix, failed phase, event1 hash, owner and phase_sequence4. Requires latest F row,
+four total phases, all quiescent; repeats fresh terminal/current-owner checks at
+commit. Appends only one transition; no verify_join call and no owner publication.
+Stale F owner cannot admit between recovery and explicit succession. New owner
+admission tested, with fresh phase charge and5GiB floor for3GiB intent +2GiB guard.
+Old A unused-owner snapshots now compare authenticated recovery-event PREFIXES,
+not whole event-list equality. Both snapshots remain fully authenticated. This
+preserves original A transitions and supports a fresh unused-A revocation after F.
+Normal subsequent joined-owner behavior and old recovered-F behavior retained.
+
+ROOT MUST COMBINE / ISSUE / EXECUTE
+Read INSTALLATION-AND-AUTHORITY.txt. Root alone copies v6 to immutable successor,
+combines accepted repair15 two-file candidate with this disjoint patch, retains
+all existing historical bundles and appends exact v6 bundle. New runtime config
+must pin new reviewed recovery authority; OLD recovery authority/event unchanged.
+All readers/writers after event append must use new code/config; predecessor
+writers held, external unit mutation excluded. New authority file and owners
+must be protected regular files with ordinary UID custody. This worker issues no
+positive operational authority. Keep current owners-v4 untouched until recovery
+then F succession. A revocation, if needed, uses a fresh post-F full snapshot.
+Publish fresh grants/owners only afterward with existing locked atomic primitive.
+No current source SHA may be substituted into frozen live14 manifests. Fresh
+qualification remains separately required; no native/compiler or live retry here.
+
+VERIFICATION
+28/28 bounded tests pass (test_recovery16.py), including dozens of subcases for
+snapshot/custody/argv/timestamp/PID-start/boot/owner/proof changes, active descendants,
+replay, permanent charge/history/event corruption, every recovered lifecycle path,
+old authority and original recovery API, old/new A chain compatibility, exact F
+succession and next owner admission, precommit failure and uncertain post-rename
+fsync followed by authenticated durable reread. Source pins are real; mutable
+ledger/authority files are owned isolated fixtures only. Target-path enforcement,
+physical capacity and custody seams are explicitly mocked for mutation tests.
+No actual failure injection into operational state. Real observation is read-only.
+Two development failures were test-fixture errors (default writable owner mode;
+observer test accidentally using the fixture mock), corrected without relaxing
+production checks. Development logs/receipts retained; final suite clean.
+
+Final tests 44.755856s; read-only runner 0.415399s; max child RSS 42800 KiB.
+Final runner identities [{'pid': 4148929, 'starttime': 74748606}, {'pid': 4150188, 'starttime': 74753081}]; both waited exit0 and /proc absent.
+All foreground shell/tool sessions returned; no background workers or agents.
+Final read-only exact installed sources/current ledger/owners/systemd/DBus/proc/
+cgroup authentication passed. All14 inventory pins rechecked unchanged; additional
+frozen inputs authenticated by live14_sources and historical v4 validation.
+Patch --check and apply into own disposable directory passed; all3files byte-equal.
+Final MemAvailable19409100800 bytes; active worker/legacy overlap0; dispatcher still inactive.
+
+REAL STATE / LIMITS
+Still four attempts/16MiB charged,3GiB RAM intent retained. F cumulative
+19,800,301,568 bytes; A18,778,218,496 bytes. Twelve attempts/48MiB remaining is
+arithmetic only, no new authorization. No cap/budget reset; D267/D289 excluded.
+No operational source/config/policy mutation, release, rotation, owner publication,
+service launch, native/compiler, agents or commits. All writes confined here.
+Root integrated unrelated commits during work (grant base b1aaaecb, final HEAD
+f7a85973e41ae8d0f3e2e1f6017398ec35519ae7); installed storage pins remained unchanged. No redo of compiler review.
+
+Trust remains cooperative trusted-controller/OS-user, not defense against hostile
+same-UID writers or deliberate valid-state rollback. flock cannot police external
+systemd mutations; root exclusion assertions are prerequisites, not enforcement.
+Stored proof is historical after commit; active resurrection rejected by inherited
+host registry. All historical pins must remain available. Unit collection, new boot,
+PID reuse or any custody mismatch prevents exact recovery/succession. Physical
+quota/open-unlinked and hardware durability limitations unchanged. No combined
+repair15 live environment qualification or operational recovery has been performed.
+
+ARTIFACT HASHES
+candidate.patch SHA256 8fa6f8c8d7fbefd4fb7588375ec36f3c3e9e7f9c7e60811ae35970a956c169d6
+candidate/terminal_recovery.py SHA256 5d8bef94d375df2145d4345dcae271382e3cdb408a118f768ab3bb6a43dc489c
+candidate/storage_admission.py SHA256 3f81d95ab8efcaa469b7f5c7b7c9e401bebe1acabd2a1cf643ce9eb73394ed61
+candidate/recover_live14.py SHA256 d3448cb3a96c609ca7f900d7fbdd2a326baed5f805838ea2eab72ed89a282dd1
+test_recovery16.py SHA256 3e55e179ab76cf36bc879922e8baaea16792eb5e875fb51ab3916cedba7945d0
+INSTALLATION-AND-AUTHORITY.txt SHA256 1f3d7d46a35f82b9ac1aa30fb61a820ff3673bb637163b02d702637ac8c3ae80
+
+One DONE ID/result/path via existing app-server Client follows. No ambiguous retry.
+Stop after notification; no successor tasks in this chat.

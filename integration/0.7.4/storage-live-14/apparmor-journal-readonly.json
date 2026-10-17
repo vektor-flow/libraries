@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "sudo",
+    "-n",
+    "journalctl",
+    "-k",
+    "--since",
+    "@1792234040",
+    "--no-pager",
+    "-o",
+    "short-iso",
+    "--grep",
+    "apparmor|live14|vkf-storage"
+  ],
+  "exit": 1,
+  "stdout": "-- No entries --\n",
+  "stderr": ""
+}

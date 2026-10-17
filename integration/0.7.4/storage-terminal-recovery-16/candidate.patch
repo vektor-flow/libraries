@@ -1,0 +1,386 @@
+--- a/terminal_recovery.py
++++ b/terminal_recovery.py
+@@ -200,7 +200,7 @@
+         attempt_consumed=True, observation=proof)
+ 
+ 
+-def validate_state(data, authority_pin, state, lock):
++def _validate_legacy_state(data, authority_pin, state, lock):
+     authority(authority_pin, state, lock)
+     baseline, r = historical()
+     require(data['version'] == STATE_VERSION, 'mandatory v4 state')
+@@ -258,3 +258,254 @@
+             historical()
+         ledger.save(data, before_publish=final_check)
+         return copy.deepcopy(data['recovery_events'][0])
++
++
++# Exact attached-service recovery16 extension. Historical v4 event stays intact.
++LIVE14_KEY = "F:live14-f-success-01"
++LIVE14_SCHEMA = "live14-origin-failure-ram-release-v1"
++LIVE14_AUTH_SCHEMA = "live14-exact-recovery-authority-v1"
++LIVE14_ANCHORS = {'state': {'path': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-14/final-state.json', 'sha256': 'f943f65d2bbfd68324478286635d6ac8d6aa58265b76dec1b57d724ccf0f4e9f'}, 'owners': {'path': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-14/final-owner-state.json', 'sha256': '3112d1246009b72867555e067bdde675a42726625ba55611c287448eb4983f6f'}, 'failure': {'path': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-14/raw-controller-failure.json', 'sha256': '46e42dd511bd8c934a40d4954ce9099cce8e8f2b61a4f0ee7be75ec5bd9c09c7'}, 'stderr': {'path': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-14/raw-outer.stderr', 'sha256': 'a5441aa3a0d0da8b99316f488258cb3ab7e8b371843e6ea512292e8c160bc997'}, 'observation': {'path': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-14/independent-terminal-observation.json', 'sha256': '0b50464f1725f6eef814a152fa73cab3171b6cfae8ac8cf07fd42f314817ad4a'}, 'result': {'path': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-14/live14-f-success-01-result.json', 'sha256': '40861b12358a963c797a5e0ad6a52ae5e30aa6bb70ee5912fc61ea04e210520d'}, 'stop': {'path': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-14/STOP.json', 'sha256': '0e2b272350d73b423c9213f242acf0e5f197203c52357341ef195d8754d13394'}, 'legacy_authority': {'path': '/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/recovery-authority.json', 'sha256': 'e4253476c985463453aa469aac2dd2b7111a3ac67782007b6e935688c36f268f'}}
++LIVE14_STATE = '/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/direct-state-v4.json'
++LIVE14_LOCK = '/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/capacity.lock'
++
++
++def protected_pin(pin):
++    """No symlink components; ordinary-owner regular, single-link authority."""
++    import stat
++    from storage_paths import directory, strict_json
++    with directory(Path(pin['path']).parent) as parent:
++        ps = os.fstat(parent)
++        fd = os.open(Path(pin['path']).name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
++        try:
++            fs = os.fstat(fd)
++            require(ps.st_uid == fs.st_uid == os.getuid()
++                    and not (ps.st_mode | fs.st_mode) & 0o022
++                    and stat.S_ISREG(fs.st_mode) and fs.st_nlink == 1, 'unprotected recovery authority')
++            with os.fdopen(os.dup(fd), 'rb') as stream:
++                raw = stream.read()
++            require(hashlib.sha256(raw).hexdigest() == pin['sha256'], 'protected pin changed')
++        finally:
++            os.close(fd)
++    return strict_json(raw)
++
++
++def live14_authority(pin, state, lock):
++    a = protected_pin(pin)
++    require(exact(a, dict(schema=LIVE14_AUTH_SCHEMA, coordinator=ANCHORS['coordinator'],
++        anchors=LIVE14_ANCHORS, successor_state=LIVE14_STATE, capacity_lock=LIVE14_LOCK,
++        predecessor_writers_held=True, external_unit_mutations_excluded=True)),
++        'exact live14 recovery authority required')
++    require(str(state) == LIVE14_STATE and str(lock) == LIVE14_LOCK, 'live14 state/lock target')
++    authority(LIVE14_ANCHORS['legacy_authority'], state, lock)
++    return a
++
++
++def live14_sources():
++    """Immutable evidence only: this function never declares current custody dead."""
++    from storage_controller import parse_exec_start
++    a = LIVE14_ANCHORS
++    baseline = pinned_json(a['state']); r = baseline['phases'][LIVE14_KEY]
++    result, failure = pinned_json(a['result']), pinned_json(a['failure'])
++    independent = pinned_json(a['observation']); owners = pinned_json(a['owners'])
++    pinned(a['stop'])
++    require(exact(r, result['phase']) and r['stage'] == 'running'
++            and not {'inner_result','join','terminal_failure_release'} & r.keys(), 'exact incomplete live14 row')
++    require(r['worker'] == 'F' and r['owner'] == '01a14978-0c64-7903-aea1-f81eb80b1cf4'
++            and r['sequence'] == 3 and r['phase_bytes'] == 4194304
++            and r['ram_bytes'] == 3221225472 and len(baseline['phases']) == 4, 'live14 scope/charges')
++    require(result['passed'] is False and result['outer_exit'] == 125
++            and result['outer_joined'] is True and exact(result['outer_identity'], r['custody']['identity'])
++            and result['private_snapshots'] == [], 'real outer125 failure')
++    require(failure['schema'] == 'storage-controller-failure-v1' and failure['phase'] == LIVE14_KEY
++            and failure['stage'] == 'running' and failure['missing'] == ['inner_result']
++            and failure['outer_exit'] == 1 and failure['passed'] is False
++            and failure['workload_result'] is None and failure['recovery_required'] is True
++            and failure['disk_charge_retained'] == r['phase_bytes']
++            and failure['ram_intent_retained'] == r['ram_bytes'], 'original transport exit1 failure')
++    for key in ('custody','grant','manifest'):
++        require(exact(failure[key], r[key]), 'failure custody '+key)
++    # Authenticate original failure receipt as well as the retained copy.
++    receipt = json.loads(result['stderr'])['failure_receipt']
++    require(exact(pinned_json(receipt), failure), 'original failure receipt')
++    for p in failure['transport_logs']: pinned(p)
++    stderr = pinned(a['stderr']).decode()
++    require("private_workload.policy_gate('origin', context)" in stderr
++            and 'storage_paths.Rejected: nonzero CapInh' in stderr, 'pre-child origin traceback')
++    g, m = pinned_json(r['grant']), pinned_json(r['manifest'])
++    c = pinned_json(r['custody']['config'])
++    require(g['attempt'] == 'live14-f-success-01' and g['source_commit'] == 'b1aaaecb3702d86341c4366c91e09de2d8dd8e19'
++            and g['runtime_config'] == r['custody']['config'] and g['controller'] == r['custody']['controller']
++            and m['grant'] == r['grant'] and g['owner'] == r['owner']
++            and g['coordinator'] == c['coordinator'] == ANCHORS['coordinator'], 'live14 source authority')
++    for key in ('owner','worker','iteration','attempt','phase_scope','phase_bytes','ram_peak_bytes',
++                'timeout_seconds','source_commit','inputs','argv','controller'):
++        require(exact(g[key], m[key]), 'live14 manifest '+key)
++    for p in [g['controller'], *g['helpers'], *g['inputs'], *m['inputs'], g['owned_processes'],
++              g['resource_ledger'], g['predecessor_controller'], g['storage_policy']]: pinned(p)
++    controller = pinned(g['controller']).decode()
++    inner = controller[controller.index('    def inner(self):'):]
++    require(inner.index("private_workload.policy_gate('origin', context)") < inner.index('subprocess.Popen('),
++            'frozen failure must precede child launch')
++    expected = ['/usr/bin/python3','-B',g['controller']['path'],
++        '--config-sha256',r['custody']['config']['sha256'],'--grant',r['grant']['path'],
++        '--grant-sha256',r['grant']['sha256'],'--manifest',r['manifest']['path'],
++        '--manifest-sha256',r['manifest']['sha256'],'--inside-service']
++    outer, inner = r['custody']['identity'], r['service']['identity']
++    require(exact(outer['argv'], expected[:-1]) and exact(inner['argv'], expected)
++            and exact(r['custody']['service_argv'], expected)
++            and outer['pid'] == 4130800 and outer['starttime'] == 74671153
++            and inner['pid'] == 4130900 and inner['starttime'] == 74671625
++            and inner['boot'] == outer['boot'] == '36e567a7-0fa2-44a9-b95d-d93702c4b628'
++            and inner['cgroup'] == r['custody']['cgroup'] == c['lane_cgroups']['F']+'/'+r['custody']['unit']
++            and r['service']['invocation'] == '83ab2d1849dd46768d1a150d473bbb1a', 'live14 identities')
++    row = parse_exec_start(independent['dbus_execstart'])
++    require(exact(row, result['dbus_execstart']['parsed']) and row[1] == expected
++            and row[7:] == [inner['pid'],1,1] and row[4] // 10000 == inner['starttime']
++            and independent['ledger_join'] is False, 'independent attached identity')
++    require(owners['state']['workers']['F'] == dict(thread=r['owner'], iteration=14, grant=r['grant'])
++            and c['owner_state'] == owners['pin']['path'], 'live14 owner evidence')
++    # All history is authenticated by the original protocol too, without rewriting it.
++    _validate_legacy_state(baseline, a['legacy_authority'], LIVE14_STATE, LIVE14_LOCK)
++    return baseline, r, independent, owners
++
++
++def live14_current_owner():
++    owners = pinned_json(LIVE14_ANCHORS['owners'])
++    require(exact(protected_pin(owners['pin']), owners['state']), 'current owner changed')
++
++
++def validate_live14_proof(r, proof):
++    from storage_controller import parse_exec_start
++    require(type(proof) is dict and set(proof) == {
++        'boot','outer_identity','inner_identity','cgroup','lane_cgroups',
++        'properties_before','properties_after','execstart_before','execstart_after',
++        'outer_absent_before','outer_absent_after','inner_absent_before','inner_absent_after',
++        'empty_before','empty_after','lanes_empty_before','lanes_empty_after',
++        'payload_files_absent_before','payload_files_absent_after'}, 'live14 proof schema')
++    require(exact(proof['outer_identity'], r['custody']['identity'])
++            and exact(proof['inner_identity'], r['service']['identity'])
++            and proof['boot'] == r['service']['identity']['boot']
++            and proof['cgroup'] == r['custody']['cgroup'], 'live14 proof custody')
++    config = pinned_json(r['custody']['config'])
++    require(exact(proof['lane_cgroups'], config['lane_cgroups']), 'proof lanes')
++    independent = pinned_json(LIVE14_ANCHORS['observation'])
++    props = dict(independent['properties'], SubState='failed', ExecMainPID='4130900')
++    for suffix in ('before','after'):
++        require(exact(proof['properties_'+suffix], props), 'live14 terminal properties '+suffix)
++        require(exact(parse_exec_start(proof['execstart_'+suffix]), independent['parsed_execstart']),
++                'live14 exact ExecStart '+suffix)
++        for field in ('outer_absent','inner_absent','empty','lanes_empty','payload_files_absent'):
++            require(proof[field+'_'+suffix] is True, 'live14 not terminal: '+field)
++
++
++def observe_live14(r):
++    """Fresh dual systemd/DBus/proc/cgroup observations. No caller-supplied proof."""
++    from storage_controller import Linux, parse_get_unit
++    linux = Linux(); c = r['custody']; inner = r['service']['identity']
++    config = pinned_json(c['config']); m = pinned_json(r['manifest'])
++    proof = dict(boot=Path('/proc/sys/kernel/random/boot_id').read_text().strip(),
++        outer_identity=copy.deepcopy(c['identity']), inner_identity=copy.deepcopy(inner),
++        cgroup=c['cgroup'], lane_cgroups=config['lane_cgroups'])
++    keys = 'LoadState,ActiveState,SubState,MainPID,ControlGroup,InvocationID,Result,ExecMainCode,ExecMainStatus,MemoryMax,MemorySwapMax,TasksMax,KillMode,OOMPolicy,RuntimeMaxUSec,TimeoutStopUSec,ExecMainPID'
++    for suffix in ('before','after'):
++        proof['properties_'+suffix] = dict(line.split('=',1) for line in linux.output(
++            ['systemctl','--user','show',c['unit'],'-p',keys]).splitlines())
++        obj = parse_get_unit(linux.output(['busctl','--user','--json=short','call',
++            'org.freedesktop.systemd1','/org/freedesktop/systemd1','org.freedesktop.systemd1.Manager',
++            'GetUnit','s',c['unit']]))
++        proof['execstart_'+suffix] = linux.output(['busctl','--user','--json=short','get-property',
++            'org.freedesktop.systemd1',obj,'org.freedesktop.systemd1.Service','ExecStart'])
++        proof['outer_absent_'+suffix] = absent(Path('/proc')/str(c['identity']['pid']))
++        proof['inner_absent_'+suffix] = absent(Path('/proc')/str(inner['pid']))
++        proof['empty_'+suffix] = empty_cgroup(c['cgroup'])
++        proof['lanes_empty_'+suffix] = all(empty_cgroup(cg) for cg in config['lane_cgroups'].values())
++        # Frozen source opens these exclusive files before Popen. Absence supplements
++        # the pinned traceback/source ordering; missing files alone prove nothing.
++        from storage_paths import directory
++        with directory(m['receipts']):
++            proof['payload_files_absent_'+suffix] = all(absent(Path(m['receipts'])/n) for n in ('stdout','stderr'))
++    return proof
++
++
++def live14_event(r, proof, pin):
++    body = dict(schema=LIVE14_SCHEMA, phase=LIVE14_KEY, original_phase_sha256=digest(r),
++        original_state=LIVE14_ANCHORS['state'], authority=pin, anchors=LIVE14_ANCHORS,
++        result='terminal-failed-at-origin-before-child', passed=False, workload_result=None,
++        original_stage='running', invocation=r['service']['invocation'],
++        ram_released=3221225472, permanent_phase_charge=4194304,
++        cumulative_at_recovery=19800301568, attempts_consumed=4, permanent_attempt_bytes=16777216,
++        attempt_consumed=True, observation=proof)
++    return dict(body, sha256=digest(body))
++
++
++def validate_state(data, authority_pin, state, lock):
++    """Old authority still reads old states; extension requires explicit new authority."""
++    a = pinned_json(authority_pin)
++    if a.get('schema') != LIVE14_AUTH_SCHEMA:
++        return _validate_legacy_state(data, authority_pin, state, lock)
++    live14_authority(authority_pin, state, lock)
++    events = data['recovery_events']
++    require(type(events) is list and len(events) in (1,2), 'exact recovery event count')
++    legacy = dict(data, recovery_events=events[:1])
++    released = _validate_legacy_state(legacy, LIVE14_ANCHORS['legacy_authority'], state, lock)
++    if len(events) == 1:
++        return released  # Also permits immutable pre-live14 owner-chain snapshots.
++    baseline, r, _, _ = live14_sources()
++    require(exact(events[:1], baseline['recovery_events']), 'historical v4 event changed')
++    require(all(k in data['phases'] and exact(data['phases'][k], v)
++                for k,v in baseline['phases'].items()), 'live14 full phase history changed')
++    for lane, old in baseline['lanes'].items():
++        now = data['lanes'][lane]
++        require(exact(old, dict(now, transitions=now['transitions'][:len(old['transitions'])])),
++                'live14 lane history changed')
++    validate_live14_proof(r, events[1]['observation'])
++    require(exact(events[1], live14_event(r, events[1]['observation'], authority_pin)),
++            'live14 exact recovery event')
++    return released | {LIVE14_KEY}
++
++
++def recover_live14(ledger):
++    """Append exactly one event to the existing ledger under its original lock."""
++    with ledger.transaction() as data:
++        live14_authority(ledger.recovery_pin, ledger.state, ledger.lock)
++        baseline, r, _, _ = live14_sources()
++        require(exact(data, baseline), 'live14 exact current full snapshot required; no replay')
++        require(ledger.owner(data, 'F') == r['owner'], 'live14 ledger owner changed')
++        live14_current_owner()
++        before = hashlib.sha256(ledger.state.read_bytes()).hexdigest()
++        started = time.monotonic()
++        proof = observe_live14(r); validate_live14_proof(r, proof)
++        require(time.monotonic()-started <= 5.0, 'stale live14 proof')
++        event = live14_event(r, proof, ledger.recovery_pin)
++        data['recovery_events'].append(event)
++        def final_check():
++            live14_sources(); live14_current_owner()
++            live14_authority(ledger.recovery_pin, ledger.state, ledger.lock)
++            last = observe_live14(r); validate_live14_proof(r, last)
++            require(exact(last, proof) and time.monotonic()-started <= 5.0, 'changed/expired live14 proof')
++            require(hashlib.sha256(ledger.state.read_bytes()).hexdigest() == before,
++                    'state changed before live14 publication')
++        ledger.save(data, before_publish=final_check)
++        return copy.deepcopy(event)
++
++
++def validate_live14_transition(data, lane, index, transition, owner):
++    baseline, r, _, _ = live14_sources()
++    require(lane == 'F' and index == len(baseline['lanes']['F']['transitions'])
++            and transition['kind'] == 'live14-recovered-terminal-failure'
++            and transition['prior_phase'] == LIVE14_KEY and owner == r['owner']
++            and len(data['recovery_events']) == 2
++            and transition['recovery_event'] == data['recovery_events'][1]['sha256']
++            and type(transition['phase_sequence']) is int and transition['phase_sequence'] == 4
++            and 'prior_join' not in transition, 'exact live14 recovered owner anchor')
++    require(all(k in baseline['phases'] or p['worker'] != 'F' or
++                (p['sequence'] >= 4 and p['owner'] != owner) for k,p in data['phases'].items()),
++            'live14 retired owner reused')
++
++
++def history_prefix(before, after):
++    """Called only after both snapshots have authenticated event chains."""
++    left = {k:v for k,v in before.items() if k not in ('lanes','phases','recovery_events')}
++    right = {k:v for k,v in after.items() if k not in ('lanes','phases','recovery_events')}
++    return exact(left, right) and exact(before['recovery_events'],
++        after['recovery_events'][:len(before['recovery_events'])])
+--- a/storage_admission.py
++++ b/storage_admission.py
+@@ -230,6 +230,9 @@
+             lane = g['worker']
+             require(lane in data['lanes'], 'lane not enrolled')
+             rec = data['lanes'][lane]
++            if lane == 'F' and recovery.LIVE14_KEY in self.released(data):
++                require(self.owner(data, lane) != data['phases'][recovery.LIVE14_KEY]['owner'],
++                        'live14 recovered F requires explicit owner succession')
+             require(rec['transitions'], 'explicit successor owner transition required')
+             p = rec['policy']
+             e = current()
+@@ -363,6 +366,8 @@
+                 require(all(r['worker'] != lane or k == recovery.KEY or r['sequence'] >= t['phase_sequence']
+                             for k,r in data['phases'].items()), 'recovered owner history')
+                 require('prior_join' not in t, 'recovery is not a normal join')
++            elif kind == 'live14-recovered-terminal-failure':
++                recovery.validate_live14_transition(data, lane, index, t, owner)
+             elif kind == 'enrolled-unused':
+                 require(lane == 'A' and previous is None
+                         and t['enrollment'] == recovery.ANCHORS['state']
+@@ -394,10 +399,8 @@
+                                 for r in data['phases'].values()), 'unused owner history')
+                 require(not any(k in t for k in ('prior_join','prior_phase','recovery_event')),
+                         'unused revocation is not phase completion')
+-                require(recovery.exact(
+-                    {k:v for k,v in before.items() if k not in ('lanes','phases')},
+-                    {k:v for k,v in data.items() if k not in ('lanes','phases')}),
+-                    'unused snapshot global history changed')
++                require(recovery.history_prefix(before, data),
++                        'unused snapshot global history changed')
+                 require(set(before['lanes']) == set(data['lanes']), 'unused snapshot lanes')
+                 for other, old in before['lanes'].items():
+                     now = data['lanes'][other]
+@@ -431,6 +434,17 @@
+                 require(lane == 'F' and [k for k,_ in phases] == [recovery.KEY]
+                         and not rec['transitions'] and t['phase_sequence'] == 1,
+                         'exact recovered F transition only')
++            elif kind == 'live14-recovered-terminal-failure':
++                recovery.validate_live14_transition(data, lane, len(rec['transitions']), t,
++                                                    self.owner(data, lane))
++                require(max(phases, key=lambda item: item[1]['sequence'])[0] == recovery.LIVE14_KEY
++                        and len(data['phases']) == 4 and not self.active_rows(data),
++                        'live14 latest quiescent owner succession required')
++                recovery.live14_current_owner()
++                started = recovery.time.monotonic()
++                proof = recovery.observe_live14(data['phases'][recovery.LIVE14_KEY])
++                recovery.validate_live14_proof(data['phases'][recovery.LIVE14_KEY], proof)
++                require(recovery.time.monotonic()-started <= 5.0, 'stale live14 succession proof')
+             elif kind == 'enrolled-unused':
+                 require(lane == 'A' and not phases and not rec['transitions']
+                         and t['phase_sequence'] == len(data['phases']), 'exact unused A transition only')
+@@ -448,7 +462,15 @@
+             rec['transitions'].append(transition_pin)
+             self.owner(data, lane)
+             self.check(data)
+-            self.save(data)
++            def final_succession_check():
++                recovery.live14_current_owner()
++                pinned(transition_pin)
++                last = recovery.observe_live14(data['phases'][recovery.LIVE14_KEY])
++                recovery.validate_live14_proof(data['phases'][recovery.LIVE14_KEY], last)
++                require(recovery.exact(last, proof) and recovery.time.monotonic()-started <= 5.0,
++                        'changed/expired live14 succession proof')
++            self.save(data, before_publish=final_succession_check
++                      if kind == 'live14-recovered-terminal-failure' else None)
+ 
+     def claim_launch(self, key, *, authenticate, host):
+         """Commit one launch claim. A crash consumes it; retry cannot execute."""
+--- /dev/null
++++ b/recover_live14.py
+@@ -0,0 +1,48 @@
++"""Exact root-operated live14 recovery. No arbitrary phase, proof, reset or launch."""
++import argparse
++import json
++from pathlib import Path
++import time
++import terminal_recovery as recovery
++from storage_admission import Ledger
++from storage_paths import require
++
++
++def main():
++    p = argparse.ArgumentParser(description=__doc__)
++    p.add_argument('command', choices=('observe','recover','inspect','rotate-f'))
++    p.add_argument('--authority', type=Path, required=True)
++    p.add_argument('--authority-sha256', required=True)
++    p.add_argument('--transition', type=Path)
++    p.add_argument('--transition-sha256')
++    a = p.parse_args()
++    pin = dict(path=str(a.authority), sha256=a.authority_sha256)
++    recovery.live14_authority(pin, recovery.LIVE14_STATE, recovery.LIVE14_LOCK)
++    ledger = Ledger(recovery.LIVE14_STATE, recovery.LIVE14_LOCK, recovery_pin=pin)
++    if a.command == 'recover':
++        result = recovery.recover_live14(ledger)
++    elif a.command == 'rotate-f':
++        require(a.transition is not None and a.transition_sha256, 'reviewed transition pin required')
++        transition = dict(path=str(a.transition), sha256=a.transition_sha256)
++        t = recovery.protected_pin(transition)
++        require(t['worker'] == 'F' and t['kind'] == 'live14-recovered-terminal-failure', 'exact F transition only')
++        ledger.rotate_owner(transition, verify_join=lambda *_: False)
++        result = dict(result='F-owner-chain-appended', transition=transition, owner_publication=False)
++    else:
++        with ledger.transaction() as data:
++            if a.command == 'observe':
++                baseline, r, _, _ = recovery.live14_sources()
++                require(recovery.exact(data, baseline), 'exact prerecovery snapshot required')
++                recovery.live14_current_owner()
++                start = time.monotonic()
++                proof = recovery.observe_live14(r); recovery.validate_live14_proof(r, proof)
++                require(time.monotonic()-start <= 5.0, 'stale read-only proof')
++                result = dict(result='diagnostic-only', ram_released=False, passed=False, observation=proof)
++            else:
++                result = dict(state=data, released=sorted(ledger.released(data)),
++                    active_ram_intent=sum(r['ram_bytes'] for r in ledger.active_rows(data)))
++    print(json.dumps(result, sort_keys=True))
++
++
++if __name__ == '__main__':
++    main()

@@ -1,0 +1,449 @@
+test_append_only_precise_charge_and_failed_phase (__main__.Tests.test_append_only_precise_charge_and_failed_phase) ... ERROR
+test_authority_protection (__main__.Tests.test_authority_protection) ... ok
+test_authority_requires_explicit_exclusion (__main__.Tests.test_authority_requires_explicit_exclusion) ... ok
+test_event_tamper_charge_history_and_duplicates (__main__.Tests.test_event_tamper_charge_history_and_duplicates) ... ERROR
+test_exact_full_snapshot_mismatches (__main__.Tests.test_exact_full_snapshot_mismatches) ... ok
+test_exact_succession_preserves_A_and_phases (__main__.Tests.test_exact_succession_preserves_A_and_phases) ... ERROR
+test_final_deadline (__main__.Tests.test_final_deadline) ... ok
+test_final_descendant_appears (__main__.Tests.test_final_descendant_appears) ... ok
+test_final_owner_change (__main__.Tests.test_final_owner_change) ... ok
+test_five_second_deadline (__main__.Tests.test_five_second_deadline) ... ok
+test_invocation_exit_and_argv_mismatches (__main__.Tests.test_invocation_exit_and_argv_mismatches) ... ok
+test_old_A_unused_snapshot_prefix_and_new_A_rotation (__main__.Tests.test_old_A_unused_snapshot_prefix_and_new_A_rotation) ... ERROR
+test_old_authority_and_old_event_compatibility (__main__.Tests.test_old_authority_and_old_event_compatibility) ... ERROR
+test_owner_already_changed (__main__.Tests.test_owner_already_changed) ... ok
+test_postrename_uncertainty_authenticates_on_reread (__main__.Tests.test_postrename_uncertainty_authenticates_on_reread) ... ERROR
+test_precise_proof_mismatches (__main__.Tests.test_precise_proof_mismatches) ... ok
+test_recovered_lifecycle_blocked (__main__.Tests.test_recovered_lifecycle_blocked) ... ERROR
+test_recovered_owner_cannot_reserve_until_succession (__main__.Tests.test_recovered_owner_cannot_reserve_until_succession) ... ERROR
+test_replay_rejected (__main__.Tests.test_replay_rejected) ... ERROR
+test_save_failure_leaves_original (__main__.Tests.test_save_failure_leaves_original) ... ok
+test_sources_tamper_rejected (__main__.Tests.test_sources_tamper_rejected) ... ok
+test_succession_final_owner_changed (__main__.Tests.test_succession_final_owner_changed) ... ERROR
+test_succession_requires_fresh_absence (__main__.Tests.test_succession_requires_fresh_absence) ... ERROR
+test_successor_fields_mismatch (__main__.Tests.test_successor_fields_mismatch) ... ERROR
+test_wrong_lock_target (__main__.Tests.test_wrong_lock_target) ... ok
+
+======================================================================
+ERROR: test_append_only_precise_charge_and_failed_phase (__main__.Tests.test_append_only_precise_charge_and_failed_phase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 58, in test_append_only_precise_charge_and_failed_phase
+    event=self.recover();d=self.l.snapshot()
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 45, in recover
+    def recover(self):return tr.recover_live14(self.l)
+                             ~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 471, in recover_live14
+    live14_current_owner()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 33, in <lambda>
+    self.startpatch(patch.object(tr,'live14_current_owner',side_effect=lambda:tr.protected_pin(self.ownerpin)))
+                                                                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 281, in protected_pin
+    require(ps.st_uid == fs.st_uid == os.getuid()
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not (ps.st_mode | fs.st_mode) & 0o022
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and stat.S_ISREG(fs.st_mode) and fs.st_nlink == 1, 'unprotected recovery authority')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_paths.py", line 17, in require
+    raise Rejected(message)
+storage_paths.Rejected: unprotected recovery authority
+
+======================================================================
+ERROR: test_event_tamper_charge_history_and_duplicates (__main__.Tests.test_event_tamper_charge_history_and_duplicates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 123, in test_event_tamper_charge_history_and_duplicates
+    self.recover();good=self.l.snapshot()
+    ~~~~~~~~~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 45, in recover
+    def recover(self):return tr.recover_live14(self.l)
+                             ~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 471, in recover_live14
+    live14_current_owner()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 33, in <lambda>
+    self.startpatch(patch.object(tr,'live14_current_owner',side_effect=lambda:tr.protected_pin(self.ownerpin)))
+                                                                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 281, in protected_pin
+    require(ps.st_uid == fs.st_uid == os.getuid()
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not (ps.st_mode | fs.st_mode) & 0o022
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and stat.S_ISREG(fs.st_mode) and fs.st_nlink == 1, 'unprotected recovery authority')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_paths.py", line 17, in require
+    raise Rejected(message)
+storage_paths.Rejected: unprotected recovery authority
+
+======================================================================
+ERROR: test_exact_succession_preserves_A_and_phases (__main__.Tests.test_exact_succession_preserves_A_and_phases)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 150, in test_exact_succession_preserves_A_and_phases
+    self.recover();self.rotate();d=self.l.snapshot()
+    ~~~~~~~~~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 45, in recover
+    def recover(self):return tr.recover_live14(self.l)
+                             ~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 471, in recover_live14
+    live14_current_owner()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 33, in <lambda>
+    self.startpatch(patch.object(tr,'live14_current_owner',side_effect=lambda:tr.protected_pin(self.ownerpin)))
+                                                                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 281, in protected_pin
+    require(ps.st_uid == fs.st_uid == os.getuid()
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not (ps.st_mode | fs.st_mode) & 0o022
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and stat.S_ISREG(fs.st_mode) and fs.st_nlink == 1, 'unprotected recovery authority')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_paths.py", line 17, in require
+    raise Rejected(message)
+storage_paths.Rejected: unprotected recovery authority
+
+======================================================================
+ERROR: test_old_A_unused_snapshot_prefix_and_new_A_rotation (__main__.Tests.test_old_A_unused_snapshot_prefix_and_new_A_rotation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 171, in test_old_A_unused_snapshot_prefix_and_new_A_rotation
+    self.recover();self.rotate();d=self.l.snapshot();rec=d['lanes']['A'];before=copy.deepcopy(d)
+    ~~~~~~~~~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 45, in recover
+    def recover(self):return tr.recover_live14(self.l)
+                             ~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 471, in recover_live14
+    live14_current_owner()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 33, in <lambda>
+    self.startpatch(patch.object(tr,'live14_current_owner',side_effect=lambda:tr.protected_pin(self.ownerpin)))
+                                                                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 281, in protected_pin
+    require(ps.st_uid == fs.st_uid == os.getuid()
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not (ps.st_mode | fs.st_mode) & 0o022
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and stat.S_ISREG(fs.st_mode) and fs.st_nlink == 1, 'unprotected recovery authority')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_paths.py", line 17, in require
+    raise Rejected(message)
+storage_paths.Rejected: unprotected recovery authority
+
+======================================================================
+ERROR: test_old_authority_and_old_event_compatibility (__main__.Tests.test_old_authority_and_old_event_compatibility)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 70, in test_old_authority_and_old_event_compatibility
+    self.recover()
+    ~~~~~~~~~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 45, in recover
+    def recover(self):return tr.recover_live14(self.l)
+                             ~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 471, in recover_live14
+    live14_current_owner()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 33, in <lambda>
+    self.startpatch(patch.object(tr,'live14_current_owner',side_effect=lambda:tr.protected_pin(self.ownerpin)))
+                                                                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 281, in protected_pin
+    require(ps.st_uid == fs.st_uid == os.getuid()
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not (ps.st_mode | fs.st_mode) & 0o022
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and stat.S_ISREG(fs.st_mode) and fs.st_nlink == 1, 'unprotected recovery authority')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_paths.py", line 17, in require
+    raise Rejected(message)
+storage_paths.Rejected: unprotected recovery authority
+
+======================================================================
+ERROR: test_postrename_uncertainty_authenticates_on_reread (__main__.Tests.test_postrename_uncertainty_authenticates_on_reread)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 185, in test_postrename_uncertainty_authenticates_on_reread
+    with self.assertRaises(OSError):self.recover()
+                                    ~~~~~~~~~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 45, in recover
+    def recover(self):return tr.recover_live14(self.l)
+                             ~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 471, in recover_live14
+    live14_current_owner()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 33, in <lambda>
+    self.startpatch(patch.object(tr,'live14_current_owner',side_effect=lambda:tr.protected_pin(self.ownerpin)))
+                                                                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 281, in protected_pin
+    require(ps.st_uid == fs.st_uid == os.getuid()
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not (ps.st_mode | fs.st_mode) & 0o022
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and stat.S_ISREG(fs.st_mode) and fs.st_nlink == 1, 'unprotected recovery authority')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_paths.py", line 17, in require
+    raise Rejected(message)
+storage_paths.Rejected: unprotected recovery authority
+
+======================================================================
+ERROR: test_recovered_lifecycle_blocked (__main__.Tests.test_recovered_lifecycle_blocked)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 139, in test_recovered_lifecycle_blocked
+    self.recover()
+    ~~~~~~~~~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 45, in recover
+    def recover(self):return tr.recover_live14(self.l)
+                             ~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 471, in recover_live14
+    live14_current_owner()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 33, in <lambda>
+    self.startpatch(patch.object(tr,'live14_current_owner',side_effect=lambda:tr.protected_pin(self.ownerpin)))
+                                                                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 281, in protected_pin
+    require(ps.st_uid == fs.st_uid == os.getuid()
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not (ps.st_mode | fs.st_mode) & 0o022
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and stat.S_ISREG(fs.st_mode) and fs.st_nlink == 1, 'unprotected recovery authority')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_paths.py", line 17, in require
+    raise Rejected(message)
+storage_paths.Rejected: unprotected recovery authority
+
+======================================================================
+ERROR: test_recovered_owner_cannot_reserve_until_succession (__main__.Tests.test_recovered_owner_cannot_reserve_until_succession)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 146, in test_recovered_owner_cannot_reserve_until_succession
+    self.recover()
+    ~~~~~~~~~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 45, in recover
+    def recover(self):return tr.recover_live14(self.l)
+                             ~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 471, in recover_live14
+    live14_current_owner()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 33, in <lambda>
+    self.startpatch(patch.object(tr,'live14_current_owner',side_effect=lambda:tr.protected_pin(self.ownerpin)))
+                                                                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 281, in protected_pin
+    require(ps.st_uid == fs.st_uid == os.getuid()
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not (ps.st_mode | fs.st_mode) & 0o022
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and stat.S_ISREG(fs.st_mode) and fs.st_nlink == 1, 'unprotected recovery authority')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_paths.py", line 17, in require
+    raise Rejected(message)
+storage_paths.Rejected: unprotected recovery authority
+
+======================================================================
+ERROR: test_replay_rejected (__main__.Tests.test_replay_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 86, in test_replay_rejected
+    self.recover();self.reject_unchanged(self.recover)
+    ~~~~~~~~~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 45, in recover
+    def recover(self):return tr.recover_live14(self.l)
+                             ~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 471, in recover_live14
+    live14_current_owner()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 33, in <lambda>
+    self.startpatch(patch.object(tr,'live14_current_owner',side_effect=lambda:tr.protected_pin(self.ownerpin)))
+                                                                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 281, in protected_pin
+    require(ps.st_uid == fs.st_uid == os.getuid()
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not (ps.st_mode | fs.st_mode) & 0o022
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and stat.S_ISREG(fs.st_mode) and fs.st_nlink == 1, 'unprotected recovery authority')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_paths.py", line 17, in require
+    raise Rejected(message)
+storage_paths.Rejected: unprotected recovery authority
+
+======================================================================
+ERROR: test_succession_final_owner_changed (__main__.Tests.test_succession_final_owner_changed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 164, in test_succession_final_owner_changed
+    self.recover();n=[0]
+    ~~~~~~~~~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 45, in recover
+    def recover(self):return tr.recover_live14(self.l)
+                             ~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 471, in recover_live14
+    live14_current_owner()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 33, in <lambda>
+    self.startpatch(patch.object(tr,'live14_current_owner',side_effect=lambda:tr.protected_pin(self.ownerpin)))
+                                                                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 281, in protected_pin
+    require(ps.st_uid == fs.st_uid == os.getuid()
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not (ps.st_mode | fs.st_mode) & 0o022
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and stat.S_ISREG(fs.st_mode) and fs.st_nlink == 1, 'unprotected recovery authority')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_paths.py", line 17, in require
+    raise Rejected(message)
+storage_paths.Rejected: unprotected recovery authority
+
+======================================================================
+ERROR: test_succession_requires_fresh_absence (__main__.Tests.test_succession_requires_fresh_absence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 161, in test_succession_requires_fresh_absence
+    self.recover();p=copy.deepcopy(PROOF);p['inner_absent_after']=False;self.observer.return_value=p
+    ~~~~~~~~~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 45, in recover
+    def recover(self):return tr.recover_live14(self.l)
+                             ~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 471, in recover_live14
+    live14_current_owner()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 33, in <lambda>
+    self.startpatch(patch.object(tr,'live14_current_owner',side_effect=lambda:tr.protected_pin(self.ownerpin)))
+                                                                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 281, in protected_pin
+    require(ps.st_uid == fs.st_uid == os.getuid()
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not (ps.st_mode | fs.st_mode) & 0o022
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and stat.S_ISREG(fs.st_mode) and fs.st_nlink == 1, 'unprotected recovery authority')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_paths.py", line 17, in require
+    raise Rejected(message)
+storage_paths.Rejected: unprotected recovery authority
+
+======================================================================
+ERROR: test_successor_fields_mismatch (__main__.Tests.test_successor_fields_mismatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 156, in test_successor_fields_mismatch
+    self.recover()
+    ~~~~~~~~~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 45, in recover
+    def recover(self):return tr.recover_live14(self.l)
+                             ~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 471, in recover_live14
+    live14_current_owner()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/test_recovery16.py", line 33, in <lambda>
+    self.startpatch(patch.object(tr,'live14_current_owner',side_effect=lambda:tr.protected_pin(self.ownerpin)))
+                                                                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-16/candidate/terminal_recovery.py", line 281, in protected_pin
+    require(ps.st_uid == fs.st_uid == os.getuid()
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not (ps.st_mode | fs.st_mode) & 0o022
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and stat.S_ISREG(fs.st_mode) and fs.st_nlink == 1, 'unprotected recovery authority')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_paths.py", line 17, in require
+    raise Rejected(message)
+storage_paths.Rejected: unprotected recovery authority
+
+----------------------------------------------------------------------
+Ran 25 tests in 10.459s
+
+FAILED (errors=12)

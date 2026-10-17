@@ -1,0 +1,89 @@
+{
+  "result": "STOP_ORIGIN_POLICY_GATE_NONZERO_CAPINH",
+  "owner": "01a14978-0c64-7903-aea1-f81eb80b1cf4",
+  "head": "b1aaaecb3702d86341c4366c91e09de2d8dd8e19",
+  "rotations": 2,
+  "owner_publications": 2,
+  "new_grants": 6,
+  "new_manifests": 6,
+  "new_attempts": 1,
+  "new_phase_bytes": 4194304,
+  "qualified_phases": 0,
+  "unrun_cases": [
+    "F nonzero",
+    "F timeout",
+    "A success",
+    "A nonzero",
+    "A timeout"
+  ],
+  "total_consumed_attempts": 4,
+  "total_consumed_bytes": 16777216,
+  "remaining_attempts": 12,
+  "remaining_bytes": 50331648,
+  "retained_ram_intent": 3221225472,
+  "ledger_stage": "running",
+  "no_normal_join_or_release": true,
+  "terminal_observation": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-14/independent-terminal-observation.json",
+    "sha256": "0b50464f1725f6eef814a152fa73cab3171b6cfae8ac8cf07fd42f314817ad4a"
+  },
+  "mem_available_bytes": 19385446400,
+  "active_worker_services": [],
+  "active_legacy_services": [],
+  "offload_remaining_intent": 0,
+  "A_high_raised": false,
+  "charges": {
+    "F": {
+      "historical": 19783524352,
+      "phase_bytes": 16777216,
+      "cumulative": 19800301568
+    },
+    "A": {
+      "historical": 18778218496,
+      "phase_bytes": 0,
+      "cumulative": 18778218496
+    }
+  },
+  "controller_wall_seconds": 5.699234463972971,
+  "qualification_seconds": 6.825900877011009,
+  "attempt_allocated_bytes": 40960,
+  "initial_preflight_seconds": 0.6118459079880267,
+  "final_resource_seconds": 0.7804975010221824,
+  "dry_validation": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-14/dry-validation.json",
+    "sha256": "4e1a6a833afd5b2603c83f9e663f305de22a901818cf1de46080eaf0f25cfe82"
+  },
+  "publication_tests": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-14/publication-tests.json",
+    "sha256": "8c161c4b6098b47b2f78181036b1207e0938cc5c6ee091a2a8462eb048a6ec47"
+  },
+  "raw_receipts": [
+    {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live14-f-success-01/receipts/admission.json",
+      "sha256": "c100aeb034a77fccfd3e3f71272f444c1b917d3b1e7a2392aaf8ba0ffcf6a686"
+    },
+    {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live14-f-success-01/receipts/controller-failure.json",
+      "sha256": "46e42dd511bd8c934a40d4954ce9099cce8e8f2b61a4f0ee7be75ec5bd9c09c7"
+    },
+    {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live14-f-success-01/receipts/outer.stderr",
+      "sha256": "a5441aa3a0d0da8b99316f488258cb3ab7e8b371843e6ea512292e8c160bc997"
+    },
+    {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live14-f-success-01/receipts/outer.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "installed_files_unchanged": true,
+  "loaded_policy_bytes_reconfirmed": true,
+  "fixture_executed": false,
+  "namespace_helper_executed": false,
+  "payload_result": null,
+  "service_exit": 1,
+  "outer_controller_exit": 125,
+  "no_retry": true,
+  "no_recovery": true,
+  "no_native_credit": true,
+  "finalize_seconds": 0.7126367689343169
+}

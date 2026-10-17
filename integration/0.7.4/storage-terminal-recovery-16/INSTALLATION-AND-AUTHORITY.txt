@@ -1,0 +1,122 @@
+SOURCE-ONLY RECOVERY16 / ROOT COMBINATION CONTRACT
+2026-10-17; no installation, authority issuance or operational recovery performed.
+
+PATCH APPLICATION
+candidate.patch applies at a directory containing exact installed v6 files.
+It modifies ONLY terminal_recovery.py and storage_admission.py and adds
+recover_live14.py. Full candidate/ files are the exact resulting sources.
+patch-verification.json proves git apply --check, apply in this owned directory,
+and byte equality for all three files. input-pins.json authenticates the v6 base.
+Do not apply over or modify frozen v6. Root creates an immutable successor copy.
+Combine repair15's controller/private_workload candidates separately; no overlapping
+files. Root reported accepted repair15 controller SHA256
+520b46cae1e9def10320eed9d435df64299f8f5cca1188e02e3887ca698e699c,
+private_workload d9c460205d3512f0ec17c08c4150ed539648753a3c942306987c5cd00958ccc0.
+Root must authenticate those inputs before combination. This worker did not edit them.
+Keep unchanged storage_paths/effective_storage and exact binaries/policy inputs.
+The new CLI imports sibling helpers and controller parsing/readonly Linux adapter;
+all must be present in the reviewed successor. CLI is an administrative entrypoint,
+not a workload, and should be included in root's installed-source receipt.
+
+EXACT AUTHORITY
+authority.review-template.json is deliberately NON-AUTHORIZING: both operational
+assertions are false. Root must independently establish predecessor writers held
+and external systemd/unit mutations excluded, then issue an immutable reviewed
+copy with those two assertions true. The schema allows exactly its shown keys.
+No new phase selector, caller-supplied observation, force-release or reset exists.
+Both paths are fixed: existing storage-direct-v4/direct-state-v4.json and original
+storage20gb/capacity.lock. No second ledger, state migration or manual ledger edit.
+Authority and its immediate directory must have ordinary current UID ownership,
+no group/other write; regular single-link file, no symlink path components. Suggested
+file mode0400/parent0700. Owner snapshot/current owners get equivalent protection.
+Authority digest is supplied explicitly to the CLI and pinned by successor config.
+
+Successor runtime-config.recovery_authority must name the NEW reviewed authority.
+Its anchors retain the OLD recovery-authority pin unchanged. Never change the
+old authority file or replace the authority inside historical recovery event0.
+Preserve existing preserved_record_authorities entries for v2/v4/v5; append the
+EXACT v6 controller/FIVE-helper/config bundle in required-v6-preserved-bundle.json.
+This is necessary to authenticate old live14 records with the combined controller.
+Fresh config, source/helper hashes, grants and manifests must reflect the combined
+successor; preserve all policy/increment/history references and current ledger paths.
+Do not use this worker grant or review template as operational permission.
+
+RECOVERY ORDER (ROOT ONLY)
+1. Hold old dispatcher and ALL predecessor writers, including v6; no concurrent
+   live qualification. Exclude external unit restart/reset/recreation/mutation.
+   Recheck full host/legacy/offload demand and cgroup/quiescence guards.
+2. Authenticate/install the combined immutable successor sources and reviewed
+   new config/authority. Keep current owners-v4 bytes exactly as live14 published;
+   no owner publication or grant execution before recovery and F succession.
+3. Run sibling CLI with explicit --authority PATH --authority-sha256 SHA:
+     python3 -B /absolute/successor/recover_live14.py observe [authority options]
+     python3 -B /absolute/successor/recover_live14.py recover [authority options]
+     python3 -B /absolute/successor/recover_live14.py inspect [authority options]
+   Save exact outputs/exit statuses to newly owned root evidence. Observe is
+   diagnostic only. Recover re-observes independently under capacity.lock, then
+   again after tempfile fsync immediately before atomic replacement. Five-second
+   bound includes both proof sets. All state, source, owner and custody mismatches
+   fail closed. No automatic retry after ambiguous post-rename/directory-fsync error;
+   inspect performs inherited fsynced, authenticated durable reread first.
+4. Verify state contains exactly original event0 plus live14 event1; all four phase
+   rows and original lane policies/transitions are exactly preserved. Live14 still
+   stage=running with attached failed service, NO inner_result/join/completion.
+   Only its3GiB RAM intent is excluded by authenticated event membership. Four
+   attempts/16MiB permanent charges remain; F cumulative19,800,301,568 and
+   A18,778,218,496 bytes; no budget/cap reset. This never credits a successful run.
+
+EXPLICIT F SUCCESSION (ROOT ONLY)
+After authenticated durable recovery, root creates one immutable transition:
+ version: direct-directory-v2
+ worker: F
+ kind: live14-recovered-terminal-failure
+ coordinator: 01a14893-cb1e-7203-97dd-de3da44dcf31
+ policy: exact current F policy pin
+ previous: exact final live14 F transition pin
+ from_owner: 01a14978-0c64-7903-aea1-f81eb80b1cf4
+ to_owner: freshly authorized successor owner, not any prior owner
+ prior_phase: F:live14-f-success-01
+ recovery_event: SHA256 of durable recovery_events[1]
+ phase_sequence: 4
+ No prior_join. Root may also record its separately issued authority pin as metadata.
+
+Run CLI rotate-f with the same authority options plus --transition PATH and
+--transition-sha256 SHA. This invokes Ledger.rotate_owner, repeats fresh current
+owner/proof checks under the lock before commit, appends one F transition, and
+never calls a normal join verifier. Four exact prior rows, latest F=live14, no
+active rows, expected transition prefix, retired-owner exclusion are required.
+Root must perform F succession before changing owners-v4. F admission is blocked
+between recovery and this succession, even if a stale owner issues a new attempt.
+Old recovered attempt is rejected by every lifecycle entrypoint and by replay.
+
+A has no phase; if A changes owner, use unchanged unused-owner-revocation through
+Ledger.rotate_owner AFTER F succession, naming an immutable full snapshot captured
+then under capacity.lock. Do not reuse an earlier partial snapshot. The owner-chain
+reader now compares authenticated recovery-event prefixes, which preserves old
+unused-A transitions across the appended live14 event. This does not accept missing,
+reordered, altered, duplicate or unrecognized recovery events.
+
+Only after both required chain transitions may root issue/freeze fresh owner-bound
+grants/manifests and publish owners through the reviewed locked atomic primitive.
+Keep configured controller HELPERS exact; include changed helper pins and binaries/
+policy inputs in BOTH grant and manifest arrays. Keep live14's historical bundle
+available permanently. No live14 grant replay. Tiny live qualification still needed;
+no native/compiler execution or successful environment qualification is established.
+
+TRUST / BOUNDS
+Same cooperative trusted-controller/OS-user boundary as recovery06. Canonical
+hashes and protected pinned authority authenticate exact custody/history within
+that boundary; not cryptographic protection against a malicious same-UID writer.
+flock cannot exclude external systemd changes or deliberate valid-state rollback.
+Root's explicit exclusion obligations are real prerequisites, not claims enforced
+by a file flag. Retained evidence/pins must remain accessible and unchanged.
+Pre-child failure is supported jointly by frozen traceback, frozen source order,
+absent stdout/stderr payload files, exact original service identity, fresh PID
+absence and empty service plus both lane cgroups. No invented descendant list or
+inner completion. A collected unit, new boot, reused PID, changed timestamps,
+invocation, owner, state or cgroup makes this exact procedure inapplicable.
+Persistent readers use historical terminal proof after recovery; inherited host
+registry rejects later active resurrection as an unreserved worker service.
+Physical quota/open-unlinked accounting limitations remain those of the controller.
+No power-loss/hardware test, actual operational recovery, owner rotation, service
+launch or combined repair15 live qualification has been executed by recovery16.

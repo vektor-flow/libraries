@@ -1,0 +1,193 @@
+{
+  "outer_joined": true,
+  "outer_identity": {
+    "pid": 4130800,
+    "starttime": 74671153,
+    "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+    "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/codex-phone-host.service",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_controller.py",
+      "--config-sha256",
+      "2aa87046cd0606a79a656923301f14c1559b1e25f8aae14d47f25de0ae6a93f1",
+      "--grant",
+      "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage-live-14/live14-f-success-01-grant.json",
+      "--grant-sha256",
+      "41187e7f091a75b369bf673d4083c5f6330410d39a72d43e335c0c58fbde9ef4",
+      "--manifest",
+      "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage-live-14/live14-f-success-01-manifest.json",
+      "--manifest-sha256",
+      "5085845bd2f72d12707c870f4b42121bd5b0ee3f8916299e078ae28918572865"
+    ]
+  },
+  "outer_exit": 125,
+  "unit": "vkfworkers-f-live14-f-success-01.service",
+  "properties": {
+    "LoadState": "loaded",
+    "ActiveState": "failed",
+    "InvocationID": "83ab2d1849dd46768d1a150d473bbb1a",
+    "TimeoutStopUSec": "10s",
+    "RuntimeMaxUSec": "40s",
+    "MainPID": "0",
+    "Result": "exit-code",
+    "OOMPolicy": "kill",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "1",
+    "ControlGroup": "",
+    "MemoryMax": "3221225472",
+    "MemorySwapMax": "0",
+    "TasksMax": "128",
+    "KillMode": "control-group"
+  },
+  "cgroup_empty": true,
+  "phase": {
+    "admission": {
+      "available": 19309125632,
+      "policy": "Full v2 RAM intents plus measured adopted-offload demand",
+      "remaining_demand": 0,
+      "required": 5368709120,
+      "utc": "2026-10-17T10:49:51.860394+00:00"
+    },
+    "attempt_identity": {
+      "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+      "dev": 2081,
+      "gid": 1000,
+      "ino": 50601663,
+      "mount_id": 24653,
+      "mount_root": "/",
+      "mount_target": "/mnt/development",
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live14-f-success-01",
+      "size": 1967846068224,
+      "source": "/dev/sdc1",
+      "uid": 1000,
+      "uuid": "d189b76f-1138-40a0-abdf-da48d249b679"
+    },
+    "custody": {
+      "cgroup": "/user.slice/user-1000.slice/user@1000.service/vkfworkers.slice/vkfworkers-f.slice/vkfworkers-f-live14-f-success-01.service",
+      "config": {
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/runtime-config.json",
+        "sha256": "2aa87046cd0606a79a656923301f14c1559b1e25f8aae14d47f25de0ae6a93f1"
+      },
+      "controller": {
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_controller.py",
+        "sha256": "06a7c5bdbd93a6777173eab601f0883d5e3a69b7119d6568d4956db5eb370314"
+      },
+      "identity": {
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_controller.py",
+          "--config-sha256",
+          "2aa87046cd0606a79a656923301f14c1559b1e25f8aae14d47f25de0ae6a93f1",
+          "--grant",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage-live-14/live14-f-success-01-grant.json",
+          "--grant-sha256",
+          "41187e7f091a75b369bf673d4083c5f6330410d39a72d43e335c0c58fbde9ef4",
+          "--manifest",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage-live-14/live14-f-success-01-manifest.json",
+          "--manifest-sha256",
+          "5085845bd2f72d12707c870f4b42121bd5b0ee3f8916299e078ae28918572865"
+        ],
+        "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+        "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/codex-phone-host.service",
+        "pid": 4130800,
+        "starttime": 74671153
+      },
+      "service_argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_controller.py",
+        "--config-sha256",
+        "2aa87046cd0606a79a656923301f14c1559b1e25f8aae14d47f25de0ae6a93f1",
+        "--grant",
+        "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage-live-14/live14-f-success-01-grant.json",
+        "--grant-sha256",
+        "41187e7f091a75b369bf673d4083c5f6330410d39a72d43e335c0c58fbde9ef4",
+        "--manifest",
+        "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage-live-14/live14-f-success-01-manifest.json",
+        "--manifest-sha256",
+        "5085845bd2f72d12707c870f4b42121bd5b0ee3f8916299e078ae28918572865",
+        "--inside-service"
+      ],
+      "unit": "vkfworkers-f-live14-f-success-01.service"
+    },
+    "grant": {
+      "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage-live-14/live14-f-success-01-grant.json",
+      "sha256": "41187e7f091a75b369bf673d4083c5f6330410d39a72d43e335c0c58fbde9ef4"
+    },
+    "manifest": {
+      "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage-live-14/live14-f-success-01-manifest.json",
+      "sha256": "5085845bd2f72d12707c870f4b42121bd5b0ee3f8916299e078ae28918572865"
+    },
+    "owner": "01a14978-0c64-7903-aea1-f81eb80b1cf4",
+    "phase_bytes": 4194304,
+    "ram_bytes": 3221225472,
+    "ram_required_at_admission": 5368709120,
+    "sequence": 3,
+    "service": {
+      "identity": {
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_controller.py",
+          "--config-sha256",
+          "2aa87046cd0606a79a656923301f14c1559b1e25f8aae14d47f25de0ae6a93f1",
+          "--grant",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage-live-14/live14-f-success-01-grant.json",
+          "--grant-sha256",
+          "41187e7f091a75b369bf673d4083c5f6330410d39a72d43e335c0c58fbde9ef4",
+          "--manifest",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage-live-14/live14-f-success-01-manifest.json",
+          "--manifest-sha256",
+          "5085845bd2f72d12707c870f4b42121bd5b0ee3f8916299e078ae28918572865",
+          "--inside-service"
+        ],
+        "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+        "cgroup": "/user.slice/user-1000.slice/user@1000.service/vkfworkers.slice/vkfworkers-f.slice/vkfworkers-f-live14-f-success-01.service",
+        "pid": 4130900,
+        "starttime": 74671625
+      },
+      "invocation": "83ab2d1849dd46768d1a150d473bbb1a"
+    },
+    "stage": "running",
+    "worker": "F"
+  },
+  "stdout": "",
+  "stderr": "{\"result\": \"controller-failed-before-authenticated-completion\", \"passed\": false, \"failure_receipt\": {\"path\": \"/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live14-f-success-01/receipts/controller-failure.json\", \"sha256\": \"46e42dd511bd8c934a40d4954ce9099cce8e8f2b61a4f0ee7be75ec5bd9c09c7\"}}\n",
+  "elapsed_seconds": 6.825900877011009,
+  "controller_wall_seconds": 5.699234463972971,
+  "attempt_allocated_bytes": 40960,
+  "passed": false,
+  "dbus_execstart": {
+    "get_unit": "{\"type\":\"o\",\"data\":[\"/org/freedesktop/systemd1/unit/vkfworkers_2df_2dlive14_2df_2dsuccess_2d01_2eservice\"]}\n",
+    "raw": "{\"type\":\"a(sasbttttuii)\",\"data\":[[\"/usr/bin/python3\",[\"/usr/bin/python3\",\"-B\",\"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_controller.py\",\"--config-sha256\",\"2aa87046cd0606a79a656923301f14c1559b1e25f8aae14d47f25de0ae6a93f1\",\"--grant\",\"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage-live-14/live14-f-success-01-grant.json\",\"--grant-sha256\",\"41187e7f091a75b369bf673d4083c5f6330410d39a72d43e335c0c58fbde9ef4\",\"--manifest\",\"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage-live-14/live14-f-success-01-manifest.json\",\"--manifest-sha256\",\"5085845bd2f72d12707c870f4b42121bd5b0ee3f8916299e078ae28918572865\",\"--inside-service\"],false,1792234196189668,746716256177,1792234196921392,746716987901,4130900,1,1]]}\n",
+    "parsed": [
+      "/usr/bin/python3",
+      [
+        "/usr/bin/python3",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage_controller.py",
+        "--config-sha256",
+        "2aa87046cd0606a79a656923301f14c1559b1e25f8aae14d47f25de0ae6a93f1",
+        "--grant",
+        "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage-live-14/live14-f-success-01-grant.json",
+        "--grant-sha256",
+        "41187e7f091a75b369bf673d4083c5f6330410d39a72d43e335c0c58fbde9ef4",
+        "--manifest",
+        "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6/storage-live-14/live14-f-success-01-manifest.json",
+        "--manifest-sha256",
+        "5085845bd2f72d12707c870f4b42121bd5b0ee3f8916299e078ae28918572865",
+        "--inside-service"
+      ],
+      false,
+      1792234196189668,
+      746716256177,
+      1792234196921392,
+      746716987901,
+      4130900,
+      1,
+      1
+    ]
+  }
+}

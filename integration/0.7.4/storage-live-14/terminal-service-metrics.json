@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "systemctl",
+    "--user",
+    "show",
+    "vkfworkers-f-live14-f-success-01.service",
+    "-p",
+    "MemoryPeak",
+    "-p",
+    "MemorySwapPeak",
+    "-p",
+    "CPUUsageNSec",
+    "-p",
+    "ExecMainStartTimestampMonotonic",
+    "-p",
+    "ExecMainExitTimestampMonotonic",
+    "-p",
+    "AmbientCapabilities",
+    "-p",
+    "CapabilityBoundingSet",
+    "-p",
+    "NoNewPrivileges"
+  ],
+  "exit": 0,
+  "stdout": "ExecMainStartTimestampMonotonic=746716256177\nExecMainExitTimestampMonotonic=746716987901\nMemoryPeak=29396992\nMemorySwapPeak=0\nCPUUsageNSec=683061000\nCapabilityBoundingSet=cap_chown cap_dac_override cap_dac_read_search cap_fowner cap_fsetid cap_kill cap_setgid cap_setuid cap_setpcap cap_linux_immutable cap_net_bind_service cap_net_broadcast cap_net_admin cap_net_raw cap_ipc_lock cap_ipc_owner cap_sys_module cap_sys_rawio cap_sys_chroot cap_sys_ptrace cap_sys_pacct cap_sys_admin cap_sys_boot cap_sys_nice cap_sys_resource cap_sys_time cap_sys_tty_config cap_mknod cap_lease cap_audit_write cap_audit_control cap_setfcap cap_mac_override cap_mac_admin cap_syslog cap_wake_alarm cap_block_suspend cap_audit_read cap_perfmon cap_bpf cap_checkpoint_restore\nAmbientCapabilities=\nNoNewPrivileges=no\n",
+  "stderr": ""
+}
