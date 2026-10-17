@@ -1,0 +1,68 @@
+COMPILER RECORD PROJECTION REPAIR05 — DONE, SOURCE-ONLY — 2026-10-17
+Owner 01a14959-1ebe-7f00-8e66-b7b19808c048
+Coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31
+Assigned / observed HEAD 84689e30101b6e5f8b6e1da6c1f36bbbb4345255
+
+RESULT
+Concrete corrected one-file core53 candidate and patches, not another audit.
+Terminal whole/nested-record replacement now preserves proven counted Numeric/
+String children while unrelated fixed children substitute exactly, including3->1/0.
+Canonical record reconstruction uses existing indexed_layout then relabels complete
+slices, preserving metadata/offsets. Zero-width ties are validated correctly.
+Invalid/mismatched record structure aborts local transformation; no partial input
+mutation or shared-pointer writes. Existing numeric compatibility remains intact.
+
+EXACT CORE53 PINS
+Original authenticated D288 baseline:
+6c9f9cf5d2b60c426f88402c0ae32c294191c26880614e71907354613e27c5bd
+Prior held repair02 candidate (NOT adopted unchanged):
+8ff80f95d154585cc0966cfb2b9b06ae441cb357017eb524c8b750616ae6161d
+Corrected repair05 candidate:
+226bb513fec0c2e1d9443fd9ac61d6ab863e9a3a136ab2238cf7d9346130307f
+
+REVIEWABLE DELIVERABLES
+candidate/layouts_1.cpp complete corrected source.
+baseline/layouts_1.cpp exact ORIGINAL D288 baseline, not prior held candidate.
+compiler.patch complete patch against original baseline (4 hunks).
+held-candidate-delta.patch small review delta (2 hunks,95 lines including context).
+SOURCE-REVIEW.txt changed-function rationale, source trace, zero-width edge and limits.
+input-pins.json29 exact relevant input pins; artifact-pins.json output identities.
+context.json compact ownership/source context; reviewer-case-traces.json27 expected
+width traces, explicitly NOT executions. No build identity package duplicated.
+
+CHANGED FUNCTIONS
+Inherited preserves_counted_primitive_storage and merge_inferred_layout unchanged
+from repair02. New projection_record_layout, canonical_projection_record_fields,
+counted_record_projection construct a complete optional replacement. Only terminal
+fallback of refine_full_projection_path changes from held candidate. Its numeric
+compatibility predicate, merge branch, explicit path traversal and wrappers remain
+byte-identical. Transformation descends matching named records only; unsupported
+leaves retain exact actual layouts. No conversion/same-layout relaxation.
+
+REGRESSION EVIDENCE
+Original direct-leaf C++, seven-test Python model, real IR evidence and3VKF fixtures
+carried byte-identically in inherited/. Reviewer04 complete27 whole/nested/mixed
+record cases and all real-output negatives also byte-identical there, and unchanged
+within final regression_layouts.cpp. No inherited test correction was needed.
+Additional real-output cases cover malformed roots, structure mismatch, late nested
+failure, unsupported/cross-ABI children, fixed-only substitution, numeric widening,
+zero-width offsets, order and alias/snapshot integrity. No new predicate-clone tests.
+Source/packaging checks PASS:29pins,3exact in-memory patch reconstructions,7inherited
+file comparisons, exact held-source restoration after removing only new helpers/
+fallback.0.002063s. Original7 NON-NATIVE model tests PASS,0.043155s process elapsed.
+The model does NOT execute new record helpers. All native C++/VKF cases UNEXECUTED.
+
+BOUNDARIES / NEXT OWNER
+A333 reopening and exact owner grant read. D267 allocator,D289 typedArena/fixedspread
+and other excluded mechanisms untouched; no indispensable overlap encountered.
+No compiler/clang/g++/link/runtime/service/unshare, source installation, commits,
+new agents/chats, buildprep package edits or original candidate/review record edits.
+All writes confined here. No background work/child agents; all host children joined.
+Buildprep03 must rebind corrected core53 SHA above after root review. Native build,
+real regression execution and renderer causal confirmation still require fresh grant.
+No native/original419 pass credit, renderer/PDF result or performance claim.
+
+NOTIFICATION
+One DONE through existing app-server mechanism with corrected SHA and this path.
+notification-receipt.json records acknowledgement or exact uncertainty. No retry.
+Stop after that single notification. Coordinator retains sole adoption authority.

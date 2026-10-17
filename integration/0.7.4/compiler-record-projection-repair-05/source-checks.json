@@ -1,0 +1,35 @@
+{
+  "scope": "SOURCE/PACKAGING ONLY, no new helper execution",
+  "input_pins": 29,
+  "patches": [
+    {
+      "patch": "compiler.patch",
+      "hunks": 4,
+      "exact_byte_match": true
+    },
+    {
+      "patch": "held-candidate-delta.patch",
+      "hunks": 2,
+      "exact_byte_match": true
+    },
+    {
+      "patch": "regression-additions.patch",
+      "hunks": 1,
+      "exact_byte_match": true
+    }
+  ],
+  "byte_identical_inherited_files": [
+    "regression_layouts.cpp",
+    "test_reasoning.py",
+    "real-ir-evidence.json",
+    "regressions/metadata_actual_lengths.vkf",
+    "regressions/real_caller_A347_unchanged.vkf",
+    "regressions/small_control_A345_unchanged.vkf",
+    "regression_layouts_supplemented.cpp"
+  ],
+  "held_candidate_reconstructed_by_removing_only_helpers_and_fallback": true,
+  "reviewer_cases_and_negative_controls_unchanged": true,
+  "native_executed": false,
+  "seconds": 0.0020631010411307216,
+  "candidate_sha256": "226bb513fec0c2e1d9443fd9ac61d6ab863e9a3a136ab2238cf7d9346130307f"
+}

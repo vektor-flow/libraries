@@ -1,0 +1,142 @@
+--- a/compiler/native/value_layout/layouts_1.cpp
++++ b/compiler/native/value_layout/layouts_1.cpp
+@@ -400,12 +400,38 @@
+ }
+ 
+ namespace vkf::machine_ir::detail {
++namespace {
++// A counted primitive vector has no fixed extent. An inline actual with the
++// same element ABI cannot narrow that storage contract to its own length.
++// Keep this proof separate from numeric widening and non-primitive storage.
++bool preserves_counted_primitive_storage(const ValueLayout& current,
++                                         const ValueLayout& candidate) {
++    if (current.kind != ValueKind::DynamicF64List || current.width != 1 ||
++        !current.selectors.empty() || current.tuple_leaf || current.shared_element_count != 0 ||
++        current.concurrent_handle_kind != ConcurrentHandleKind::None ||
++        candidate.kind != ValueKind::Aggregate || is_record_layout(candidate) ||
++        candidate.tuple_leaf || candidate.dynamic_element || candidate.shared_element_count != 0 ||
++        candidate.concurrent_handle_kind != ConcurrentHandleKind::None) return false;
++    const auto element = current.dynamic_element ? *current.dynamic_element : ValueLayout{};
++    if (!element.selectors.empty() || element.dynamic_element || element.tuple_leaf ||
++        element.shared_element_count != 0 || element.concurrent_handle_kind != ConcurrentHandleKind::None ||
++        !((element.kind == ValueKind::Numeric && element.width == 1) ||
++          (element.kind == ValueKind::String && element.width == 2))) return false;
++    const auto items = indexed_element_layouts(candidate);
++    return same_inference_layout(candidate, indexed_layout(items)) &&
++        std::all_of(items.begin(), items.end(), [&](const auto& item) {
++            return same_inference_layout(item, element);
++        });
++}
++}
++
+ void merge_inferred_layout(
+     ValueLayout& current,
+     const ValueLayout& candidate,
+     bool grow_fixed_aggregates 
+ ) {
+     if (same_inference_layout(current, candidate)) return;
++    if (preserves_counted_primitive_storage(current, candidate)) return;
+     if(current.kind==ValueKind::Aggregate && !is_record_layout(current) && candidate.kind==ValueKind::DynamicF64List) {
+         const auto compatible_vector = [&](const auto& self, const ValueLayout& fixed,
+                                             const ValueLayout& counted) -> bool {
+@@ -698,6 +724,80 @@
+ }
+ 
+ namespace vkf::machine_ir::detail {
++namespace {
++using ProjectionRecordFields = std::vector<std::pair<std::string, ValueLayout>>;
++
++ValueLayout projection_record_layout(const ProjectionRecordFields& fields) {
++    std::vector<ValueLayout> elements;
++    for (const auto& [name, field] : fields) elements.push_back(field);
++    const auto indexed = indexed_layout(elements);
++    ValueLayout record{indexed.width, ValueKind::Aggregate, {}};
++    for (std::size_t index = 0; index < fields.size(); ++index) {
++        const auto key = std::to_string(index);
++        const auto& name = fields[index].first;
++        record.selectors[name] = indexed.selectors.at(key);
++        const auto prefix = key + ".";
++        for (auto child = indexed.selectors.lower_bound(prefix);
++             child != indexed.selectors.end() && child->first.rfind(prefix, 0) == 0; ++child)
++            record.selectors[qualified_name(name, child->first.substr(prefix.size()))] = child->second;
++    }
++    return record;
++}
++
++std::optional<ProjectionRecordFields> canonical_projection_record_fields(
++    const ValueLayout& layout
++) {
++    if (!is_record_layout(layout)) return std::nullopt;
++    ProjectionRecordFields fields;
++    for (const auto& [name, slice] : layout.selectors) {
++        if (name.find('.') == std::string::npos)
++            fields.push_back({name, record_field_layout(layout, name, slice)});
++    }
++    std::stable_sort(fields.begin(), fields.end(), [&](const auto& left, const auto& right) {
++        const auto& a = layout.selectors.at(left.first);
++        const auto& b = layout.selectors.at(right.first);
++        if (a.offset != b.offset) return a.offset < b.offset;
++        // An empty field at a boundary precedes the nonempty field starting
++        // there. Repeated assign_record_field_layout would lose this ordering.
++        return a.width == 0 && b.width != 0;
++    });
++    const auto rebuilt = projection_record_layout(fields);
++    // Also checks root tags, orphan selectors, total width and field offsets.
++    if (!same_inference_layout(layout, rebuilt)) return std::nullopt;
++    return fields;
++}
++
++// Overlay only proven counted primitive children on the exact replacement.
++// Do not merge unrelated fixed children: full demand must retain their actual
++// extents. Unsupported leaves keep the old replacement behavior. A malformed
++// or structurally different record aborts the entire overlay before publication.
++std::optional<ValueLayout> counted_record_projection(
++    const ValueLayout& current, const ValueLayout& candidate
++) {
++    if (preserves_counted_primitive_storage(current, candidate)) return current;
++    if (!is_record_layout(current) && !is_record_layout(candidate)) return candidate;
++    const auto required = canonical_projection_record_fields(current);
++    const auto supplied = canonical_projection_record_fields(candidate);
++    if (!required || !supplied || required->size() != supplied->size()) return std::nullopt;
++    ProjectionRecordFields fields;
++    bool changed = false;
++    for (const auto& [name, field] : *required) {
++        const auto existing = candidate.selectors.find(name);
++        if (existing == candidate.selectors.end()) return std::nullopt;
++        const auto supplied_field = record_field_layout(candidate, name, existing->second);
++        const auto child = counted_record_projection(field, supplied_field);
++        if (!child) return std::nullopt;
++        changed = changed || !same_inference_layout(*child, supplied_field);
++        fields.push_back({name, *child});
++    }
++    if (!changed) return candidate;
++    auto projected = projection_record_layout(fields);
++    projected.display_shape = candidate.display_shape;
++    // No input selector table or shared dynamic element is ever mutated.
++    return same_inference_layout(projected, candidate) ? candidate : projected;
++}
++}
++
+ void refine_full_projection_path(
+     ValueLayout& current,
+     const ValueLayout& candidate,
+@@ -705,6 +805,7 @@
+     std::size_t index 
+ ) {
+     if (index == path.size()) {
++        if (preserves_counted_primitive_storage(current, candidate)) return;
+         // A full demand selects existing backing; it does not make an unresolved
+         // caller environment an authoritative replacement for concrete storage.
+         // Keep concrete substitutions (including narrower and empty values) exact.
+@@ -745,7 +846,10 @@
+             };
+             if (compatible_numeric_shape(compatible_numeric_shape, current, candidate))
+                 merge_inferred_layout(current, candidate);
+-            else current = candidate;
++            else {
++                const auto projected = counted_record_projection(current, candidate);
++                current = projected ? *projected : candidate;
++            }
+         }
+         return;
+     }

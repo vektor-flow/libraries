@@ -1,0 +1,173 @@
+INDEPENDENT COMPILER RECORD REVIEW07 — 2026-10-17 — SOURCE ONLY
+Owner: 01a14961-866a-7d10-a11f-704b6579bf75
+
+RECOMMENDATION: ACCEPT-FOR-NATIVE-REVIEW the exact repair05 core53 candidate
+226bb513fec0c2e1d9443fd9ac61d6ab863e9a3a136ab2238cf7d9346130307f.
+No blocking source counterexample found in this narrow review. This is neither
+native qualification nor authorization to execute/install the compiler. Root
+retains integration authority; package review06 is independent and not duplicated.
+
+The four-hunk complete patch is exactly against original D288 core53 SHA256
+6c9f9cf5d2b60c426f88402c0ae32c294191c26880614e71907354613e27c5bd.
+The prior held repair02 SHA8ff80f95d154585cc0966cfb2b9b06ae441cb357017eb524c8b750616ae6161d
+is comparison evidence only. Both original cached source locations and the
+effective core51/54/56/header identities are independently rehashed in input-pins.
+
+ACTUAL SOURCE CHAIN REVIEWED
+All core53 line references below are to the exact repair05 candidate.
+ValueSlice/ValueLayout/SelectorMap: effective private vkf_value_layout.hpp90-160.
+Extraction and original assignment: core53175-244; record recognition248-255.
+Equality: core53103-135. Primitive proof407-425; ordinary merge428 onward.
+New record helpers730-798; terminal and explicit full paths801-872.
+Signature wrapper889-898; ordinary call full-before-argument sequence1031-1036.
+Effective core54 indexed_layout130-149 and indexed_element_layouts176-192.
+Effective core51 refine_parameter_from_argument43-73 and wrapper206-211.
+Effective core56 actual record construction363-377 and scope_identity420-436;
+environment call sequence977-980. Read only the relevant producer/call sections.
+This is source logic inspection, not an inference from seven Python model tests.
+
+WHY THE REVIEW04 HOLE IS CLOSED
+The original fallback replaced a terminal record wholesale when recursive numeric
+compatibility failed on DynamicF64List versus Aggregate. Repair05 leaves that
+compatibility predicate and its merge branch byte-identical but changes the
+fallback850-851 to first compute a record replacement. The helper777 retains a
+counted primitive only after the existing strict proof. Matching record children
+recurse at788; they need not be individually named in the demand path. Thus empty
+whole-record paths and a path ending at metadata now reach counted leaves.
+
+Unrelated fixed children are returned from the supplied layout at778, not merged.
+For a fixed sibling3->0/1 the resulting child therefore really has width0/1 and
+the supplied descendant selector set. Ordinary merge's keep-old-fixed-extent
+behavior does not intervene in this fallback. Nested record siblings with matching
+names receive the same selective recursion. With no preserved child793 returns
+the supplied record exactly, including its physical order and presentation pointer.
+
+REAL RECORD METADATA AND ZERO-WIDTH SEMANTICS
+The actual record producer constructs Aggregate records through the existing
+assign_record_field_layout; fields are identified by names, not map iteration
+order. record_field_layout copies width/kind/dynamic element/shared count/channel
+tag/tuple tag and rebases all descendants relative to the selected field. The new
+builder730 feeds those extracted layouts to the REAL indexed_layout, which emits
+prefix-sum widths and all seven ValueSlice members. Relabeling738/742 copies whole
+slices with their already absolute offsets. It does not drop resource metadata or
+confuse indexed prefix "1." with "10."; each lookup requires the dotted prefix.
+
+Record canonicality is tested on a newly built selector map, so the shared-storage
+equality shortcut does not conceal reconstruction differences. Root width/kind,
+tuple/shared/channel/dynamic tags, selector names/offsets/widths/tags and recursive
+dynamic element structure all participate in same_inference_layout. Orphans at
+the record level are omitted by extraction/reconstruction and hence fail equality.
+This is a record-boundary check, NOT a new general validator for arbitrary opaque
+leaf layouts; unsupported leaf contents intentionally remain supplied unchanged.
+
+The zero-width tie comparator759-762 is a strict ordering: offset first, then
+empty before nonempty at the same offset; equal empties remain equivalent. That
+matches packed storage: an empty field at a boundary contributes no words before
+the nonempty field beginning there. Several empty fields at the same boundary
+can be lexically reordered without changing any slice. An empty-only named
+record similarly round-trips at width0. The projection rebuild uses current
+physical field order, so an empty actual does not dictate a new counted ABI order.
+
+Concrete actual-producer trace: metadata(empty,empty) has numbers/texts/count at
+offset0, widths0/0/1. Lexical map order starts with count, but the new canonical
+ordering puts the two empty fields before count and reconstructs identical slices.
+If the old assignment builder subsequently adds fixed, it may move the two empty
+fields to offset1 after count; that is a different but still packed layout. The
+new validation accepts that actual as well, and maps by names into required order
+numbers/texts/count/fixed. It does not assume the empty actual's original order.
+An empty middle sibling at offset1 and the following nonempty field at offset1
+are likewise retained. No repeated assign_record_field_layout calls are used
+inside the new rebuild to scramble the tied fields.
+
+UNCHANGED 27 CASES — SOURCE EXPECTATIONS, NOT EXECUTED PASSES
+Review04's complete supplemented regression is byte-identical in inherited/.
+Its functions and call sites remain unchanged in repair05's final regression;
+only separate repair05 functions and calls were inserted. Independently compared
+all seven inherited files and regenerated all four relevant diffs exactly.
+
+For each n in {0,1,9}, review04 checks these three sibling situations:
+  no fixed sibling: result Metadata width3, outer width5
+  fixed3->0:        result Metadata width3, outer width5
+  fixed3->1:        result Metadata width4, outer width6
+For each situation, mode0 selects whole Metadata with empty path; mode1 selects
+the metadata field of an outer record; mode2 selects whole outer record with
+empty path. This is3 extents x3 sibling situations x3 modes =27 cases.
+
+Numbers/texts remain counted at offsets0/1; count remains Numeric at2. Mixed
+records put fixed at3 with exactly the supplied width and selectors. The enclosing
+tail String begins at3+s, where s is0/1 (or0 for no sibling). Explicit mode1 uses
+the unchanged path traversal866-871 to assign the complete reconstructed metadata
+back into its parent; mode2 rebuilds both levels through the new helper. The
+resulting positive widths and trailing empty fixed field do not introduce a
+different parent ordering in these cases.
+
+After full projection, core51's argument refinement resolves current slices
+afresh, merges each supplied child, then assigns it. The inherited primitive
+guard keeps the counted fields; the fixed child already equals its actual and
+short-circuits. Hence the subsequent call-stage expectations match the full-stage
+expectations. No 27-pass claim is made without native execution.
+
+ABI BOUNDARIES AND UNSUPPORTED LEAVES
+Primitive preservation407-425 requires current width1 DynamicF64List without
+selectors or tuple/resource tags. Null element means canonical Numeric width1;
+explicit Numeric and String width2 elements are independently checked. Candidate
+must be untagged nonrecord Aggregate with no dynamic element, round-trip through
+the actual indexed builder, and contain only exact same-inference elements.
+Empty candidate succeeds vacuously only after these root/element proofs.
+
+Consequently Complex, Numeric/String cross-ABI values, malformed primitive widths,
+tuple/shared/channel tags and record-element vectors do not gain preservation.
+At an unrelated nonrecord child778 the exact candidate layout is returned, including
+its dynamic pointer and resource tags. The new traversal never descends through
+an opaque vector, tuple, counted element or resource representation. If either
+operand looks like a named record, both must pass canonical boundary checks and
+have the same field-name set. Structural mismatch or invalid nested record aborts
+the ENTIRE terminal overlay. It intentionally falls back to the supplied record;
+it does not promise counted preservation across unsupported record boundaries.
+
+Numeric compatibility and its pre-existing merge behavior are unchanged. This
+review does not claim all malformed inputs reach the new validator: inputs that
+take the older numeric-compatible branch still follow that older branch. Likewise
+Any terminal candidates still preserve current at812. No same_layout relaxation,
+conversion change, tuple ABI change, or shared/channel traversal was introduced.
+
+ALIAS IMMUTABILITY AND FAILURE ATOMICITY
+All new helper operands are const. Field extraction, indexed construction and
+relabeling allocate new selector tables. SelectorMap is copy-on-write; no new
+code writes through dynamic_element or display_shape. Returning current for a
+proven leaf preserves null versus explicit Numeric pointers and shared pointees.
+The new root copies candidate's presentation-only display_shape at795, consistent
+with the header and inference equality excluding it from the storage contract.
+
+Child results live in local fields. A later invalid nested record propagates
+nullopt789; no earlier child has touched current or candidate. Publication happens
+only after the complete optional result returns850-851. On validation failure,
+the complete original candidate replaces current; failure atomicity here means
+no PARTIAL overlay, not that current remains its original value. Existing input
+snapshots and pointees remain untouched. This proof covers the new terminal
+transformation, not a newly invented transactional guarantee for the entire
+multi-path/signature inference pipeline. Self-alias input is also harmless:
+identical eligible layouts cannot require a counted-versus-fixed overlay, and
+the unchanged merge equality return handles identical layouts.
+
+Repair05 supplies real-function negative/snapshot checks for these properties,
+including16 malformed root variants, late nested failure, cross-ABI siblings,
+fixed-only replacement, zero-width middle fields, reordering and explicit pointer
+retention. They are independent output assertions, but remain UNEXECUTED here.
+No concrete counterexample requiring a new regression supplement was found.
+
+EVIDENCE / NEXT REVIEW BOUNDARY
+checks.json records independent bounded host checks:48 unique input pins, exact
+four diff regenerations,7 unchanged inherited files, exact held-source restoration,
+unchanged review04 cases/negatives, and final reread of every hashed input.
+No Python predicate model, C++ parser/compiler/linker, VKF, native binary, service
+or namespace was executed. Acceptance concerns this exact source candidate only.
+Native review should execute the retained real-core regressions against the
+authenticated candidate once separately admitted; the prior held candidate is
+still not acceptable. No renderer causal success or release qualification follows
+from this source review. Build-package identity/rebinding belongs to review06.
+
+No memory or excluded-scope overlap blocker encountered. A333 authorization is
+limited to this review; D267/D289 remain excluded. No agents, commits, background
+children, candidate/build-package edits or other shared-output writes. All host
+commands are synchronous and joined. The old dispatcher remains untouched.

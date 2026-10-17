@@ -1,0 +1,103 @@
+REPAIR05 SOURCE REVIEW — 2026-10-17 — NOT NATIVE EXECUTION
+
+Scope: authenticated original D288 core53, one candidate translation unit only.
+Source identity and exact patch reconstruction are in input-pins.json and
+source-checks.json. The held repair02 candidate is an input, not an accepted build.
+No overlap with excluded allocator, typedArena/fixedspread, conversion or shared
+call-stage bodies was needed. Build preparation03 remains sole owner of the
+240-object, identity, VFS and materializer package.
+
+Changed functions / reason (candidate/layouts_1.cpp lines):
+407 preserves_counted_primitive_storage: inherited BYTE-IDENTICAL from repair02.
+428 merge_inferred_layout: inherited BYTE-IDENTICAL from repair02, including its
+434 early guard. Original baseline delta still carries both direct-leaf fixes.
+730 projection_record_layout: NEW. Feed field layouts in physical order to the
+existing indexed_layout builder, then relabel its selectors with record names.
+Every width, offset, element pointer and resource/tuple tag comes from that
+canonical builder. No independent layout arithmetic or reinterpretation occurs.
+747 canonical_projection_record_fields: NEW. Extract named fields using existing
+record_field_layout, order by offset with zero-width fields before nonempty
+fields at that same boundary, and require same_inference_layout on reconstruction.
+This checks the whole selector map, root ABI tags, width, offsets and orphan paths.
+It does not relax same_layout/same_inference_layout or become a general validator
+for arbitrary unsupported leaf kinds; those leaves retain exact replacement.
+774 counted_record_projection: NEW pure construction. A proven counted primitive
+leaf returns the existing layout including null versus explicit Numeric pointer.
+Other nonrecord leaves return the supplied layout without descending into vectors,
+dynamic elements, tuples, record-element lists, shared or channel representations.
+Matching canonical named records recurse by field name. A noncanonical or different
+record structure returns nullopt, propagated through all ancestors. No partial
+result is published. Changed children are rebuilt in established CURRENT physical
+field order; if no leaf was preserved, the candidate is returned exactly. This
+keeps the established counted ABI and changes unrelated fixed children exactly,
+including 3->1/0. Candidate presentation-only root metadata is retained.
+801 refine_full_projection_path: only its terminal replacement fallback at850
+changes versus held candidate. Original compatible_numeric_shape lambda and its
+merge branch are BYTE-IDENTICAL. The direct-leaf guard remains. At mismatch,
+construct optional replacement, then assign current once; failed validation uses
+the original candidate. Explicit path traversal and signature wrappers unchanged.
+
+Why not accept counted/fixed in compatible_numeric_shape:
+A separately shrinking fixed sibling still fails child-count compatibility,
+causing whole-record replacement. Why not merge the whole record unconditionally:
+ordinary merge deliberately retains old fixed children when growth is disabled.
+The required full-demand sibling extent would remain3 instead of1/0.
+
+Zero-width boundary found during implementation source trace:
+metadata(empty,empty) built by the existing assign_record_field_layout has named
+numbers/texts/count all at offset0, width1. Lexical tie sorting would put nonempty
+count before empty numbers/texts; repeated field assignment also re-sorts existing
+fields and cannot reliably round-trip such boundaries. Single indexed_layout
+construction with empty fields first preserves that canonical physical metadata.
+The new result uses current field order (counted numbers0,texts1,count2), avoiding
+any inference of field order from the ambiguous empty actual. Reviewer zero cases
+remain unchanged. Added empty-middle-sibling test covers shared offset1 explicitly.
+
+Source trace of unchanged27 reviewer cases:
+For n=0,1,9, each plain Metadata current is width3, actual is width3*n+1.
+Both canonical records reconstruct exactly, including n=0 shared offsets. Numeric
+and String leaves match the inherited primitive proof and retain width1 each;
+count uses the exact supplied Numeric. Result is declared width3.
+For mixed siblings s=0,1, current fixed width3 is not a counted leaf and is not a
+record. That leaf returns supplied indexed layout of width s exactly. Rebuilt
+Metadata width is3+s, fields numbers0/texts1/count2/fixed3. No stale selectors.
+Modes0/1/2 respectively use whole Metadata, terminal metadata path on an outer
+record, and whole outer record. Existing path reconstruction (mode1) and the pure
+record recursion (mode2) both rebuild the tail String offset to3+s, total5+s.
+Subsequent real signature argument refinement recursively sees retained counted
+fields; the unchanged merge guard preserves them. Fixed sibling already equals
+supplied extent, so same-inference short circuit retains exact0/1. These are SOURCE
+TRACES/EXPECTED RESULTS, not27 executed passes or actual compiler output.
+
+Preserved tests and meaningful additions:
+Seven files under inherited/ are byte-identical: original C++ direct-leaf suite,
+original seven-test Python model and its real-IR input, three VKF entries, and
+review04 complete supplemented C++ suite. regression_layouts.cpp inserts only
+repair05 functions/calls; original reviewer27 cases and all negatives unchanged.
+No demonstrated inherited test bug and no correction to inherited tests.
+New real-output controls:16 invalid record roots (8 defects on either operand),
+added/removed fields, record-element vectors, late nested validation failure,
+cross-ABI/Complex children with valid String sibling, unchanged numeric widening,
+fixed-only exact replacement, independent expected layouts for shared snapshots,
+null/explicit Numeric distinction, pointer-pointee immutability, detached selectors,
+self alias, canonical offsets, empty middle sibling and reordered supplied fields.
+These additions do NOT reimplement the preservation predicate or compiler logic.
+
+Aliasing/atomicity source proof:
+Inputs to all three new helpers are const. record_field_layout reads source slices
+and constructs a fresh SelectorMap. indexed_layout builds a fresh map. Relabeling
+copies complete ValueSlices, never writes through a shared dynamic_element. The
+local fields/optional layouts may share immutable pointers, but do not mutate them.
+Even if a later child fails, earlier local changes are discarded. The only
+publication to current is after recursive return. Independent native snapshots
+and pointee assertions are supplied, but remain UNEXECUTED.
+
+Executed evidence and limits:
+29 pinned inputs checked,3 exact patch reconstructions in memory,7 inherited files
+byte-compared, exact restoration of held candidate after removal of only the new
+helpers/fallback. Source checks0.002063s. Original7 NON-NATIVE model tests pass in
+0.043155s including interpreter startup; model does not exercise new record helpers.
+No new Python predicate clone. No C++ parse/compile/link, VKF, service, namespace,
+renderer, PDF, release or performance qualification. No physical failing-layout
+dump or claim that every renderer blocker is solved. Native regression required
+under a future grant against real authenticated core objects, not stubs.

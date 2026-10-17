@@ -1,0 +1,36 @@
+scene:.document_scene
+labels:.document_label_scene
+meta:.scene_metadata
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+make(key:str,x:num)->Scene:
+    item:scene.leaf(key,x,3,4)
+    item.width:7
+    item.has_payload:true
+    payload:scene.payload()
+    payload.target:key
+    payload.dx:11
+    item.payload:payload
+    [Leaf] leaves:[item]
+    arena:scene.from_leaves(leaves,1)
+    @:(arena:arena,anchor_ids:[key],anchor_xs:[x],anchor_ys:[3.0],anchor_lines:[4],anchor_metadata:meta.empty(),anchor_roots:[-1],anchor_count:1,width:7.0,height:8.0,depth:9.0,tag_width:10.0,inline_destinations:true)
+primary:make("primary",2)
+outer:make("outer",5)
+[Scene] none:[]
+[num] no_lefts:[]
+zero:labels.compose(primary,none,no_lefts,0,0)
+zero.arena.count=1?! "zero count"
+zero.arena.keys.(0)="primary"?! "zero key"
+zero.arena.payload_table.(0).target="primary"?! "zero payload"
+zero.width=7 /\ zero.height=8 /\ zero.depth=9 /\ zero.tag_width=10?! "dimensions"
+[Scene] outers:[outer]
+combined:labels.compose(primary,outers,[20.0],1,2)
+combined.arena.count=2?! "combined count"
+combined.arena.keys.(1)="outer"?! "outer key"
+combined.arena.payload_table.(1).target="outer"?! "outer payload"
+combined.anchor_count=2?! "anchors"
+primary.arena.count=1 /\ outer.arena.count=1?! "input values"
