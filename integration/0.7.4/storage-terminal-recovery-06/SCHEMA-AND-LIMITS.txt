@@ -1,0 +1,85 @@
+V4 EXACT RECOVERY IMPLEMENTATION
+
+Five new source files, based on integrated repair05 v3. Protocol grants remain
+v2; v4 state is mandatory. The original v2 ledger is an immutable, pinned authority
+snapshot. V4 creation is itself the recovery commit: copy the exact original
+lanes/phases, change only the top-level state version, add recovery_events=[event].
+The original operational file is never written. Original phase JSON contents,
+policy records and their historical chains remain identical. Later v4 mutations
+may append owner transitions and new phases using the inherited transaction API.
+
+The event names exactly F:live04-f-success-01, the original full phase canonical
+SHA256, pinned original state/result, exact old source/config bundle, original
+InvocationID, raw dual systemd/ExecStart samples, boot/outer PID/starttime, absent
+outer/inner PIDs and empty service cgroup. Canonical event hash detects corruption;
+authentication comes from pinned root-issued authority, exact compiled-in historical
+anchors and a protected, durable state file. This is the same trusted-controller /
+trusted-OS-user boundary as storage03, not a signature against malicious same-UID
+writers. No user-supplied observation or generalized force-release CLI exists.
+
+Creation: existing flock -> authenticate old pins -> fresh proof -> construct
+candidate -> authenticate all invariants -> temp write/fsync -> fresh proof plus
+historical recheck -> atomic rename -> parent fsync -> return event. The entire
+observation interval is capped at five seconds; slow or changed observations fail
+closed. All semantic/source/observation failures before rename leave successor
+absent. Uncommitted temp files are never read as journals. Abrupt exits can leave
+small temp files; root may inspect/remove only those successor-owned leftovers.
+A post-rename failure may have committed; no successful release is reported.
+Every subsequent transaction fsyncs the opened state and its parent before using
+it. Failure stops admission. Validated durable reread resolves uncertainty.
+
+Every read requires exactly one valid recovery event, immutable old phase/policy,
+unique contiguous phase sequences and pinned old authority. Missing event/state,
+old state format, duplicate JSON keys, NaN, modified proof, wrong digest, changed
+pins and symlink state/lock paths fail closed. Enrollment/reset is disabled in v4;
+capacity amendment would fail exact-baseline validation. Only this original A/F
+scope is supported. The exact original phase is always rejected by monitor,
+claim, preexec, attach, guard, finish and join. The permanent key and unit also
+prevent replay through admission.
+
+Reader map:
+- Ledger.active_rows authenticates the event and excludes only the recovered key
+  and normally joined successors. No stage string or absent PID releases RAM.
+- reserve uses it for lane exclusivity and full outstanding RAM + fresh RAM +
+  measured legacy demand + 2GiB admission floor.
+- claim_launch and preexec use the same full outstanding RAM + legacy + 2GiB.
+- Controller.host validates active records, skips authenticated recovered F,
+  and rejects unreserved active units, including resurrection of the old unit.
+- guard_service and monitor authenticate state/target, retain the 1GiB host floor;
+  guard invokes the same host registry reader. Physical check keeps every disk
+  charge, retained root/attempt identities and complete added-capacity commitment.
+- owner and every transaction validate recovery. Explicit initial F/A transitions
+  are distinct from joined successors; no fake join enters either chain.
+- snapshot/inspect fails closed on invalid state, never reports invented free RAM.
+
+Owner transition records preserve policy owner and append pins. The F initial
+record requires the recovery event, original failed phase/owner and no other F
+phase. A requires the exact baseline enrollment and no earlier A phase. Both
+initial transitions are mandatory for fresh admission. Normal subsequent owner
+rotation still requires an independently verified real joined successor phase.
+Old/new mutable owner-state disagreement blocks launch. All rotations, claims and
+reservations serialize on the existing capacity.lock.
+
+Boundaries and actual limitations:
+- Root must prevent old v2 writers from running after cutover and prevent external
+  systemd mutations during recovery. flock cannot lock systemd or hostile same-UID
+  processes. The prerequisite assertions are explicit operational trust, not an
+  enforcement mechanism. No claim of adversarial same-user protection or rollback
+  protection against deliberate replacement with an older valid v4 state.
+- After a committed recovery, stored authenticated terminal proof is historical
+  authority. Readers need no surviving old unit or old PIDs; active unit reuse is
+  blocked by the host registry. Original evidence/source pins must remain available
+  permanently; changed/missing files stop admission. A later boot also fails the
+  inherited filesystem identity checks until a separately reviewed migration.
+- Only this one pre-attach failure is recoverable. No general crash/unfinished-inner,
+  later missing unit, other lane/phase, policy migration, force release or cap reset.
+- No service or payload was launched and no operational state was changed here.
+  Tests use genuine historical source pins and real flock/fsync/rename/process
+  exits but mocked observations/capacity for mutation fixtures. Read-only custody
+  observation is real. Hardware power-loss semantics, live v4 systemd/bwrap joins,
+  physical quota and fresh A8GiB qualification remain unqualified.
+- Direct-directory polling still lacks kernel physical quota and open-unlinked
+  census; original cooperative-authority and metadata sampling limits remain.
+- CLI source/config installation is a root operation with no auto-rollback. Existing
+  installed v2 remains untouched. owner-state/grant issuance follows recovery in
+  separate fail-closed steps. No source-only worker can silently activate a lane.

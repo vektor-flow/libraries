@@ -1,0 +1,122 @@
+ROOT REVIEW / EXECUTION PLAN — NOT EXECUTED BY THIS WORKER
+
+Review candidate-new-files.patch, review.diff, input-pins.json, verification.json,
+SCHEMA-AND-LIMITS.txt and the two config templates first. No new workload is
+admitted by this document. Fresh live qualification requires a separate fresh
+owner/grant/attempt after recovery and both explicit owner transitions.
+
+The only operational transaction implemented here is exact F live04 recovery.
+Old storage-direct-v2 source/config/state/grants/policies remain byte-identical.
+V4 has its own successor state and uses the EXISTING storage20gb/capacity.lock.
+This avoids teaching any predecessor reader to interpret recovery events. V2 and
+all predecessor writers must remain held permanently after the successor cutover.
+Do not run old code against either state. Keep dispatcher/timer/path holds.
+Exclude same-uid/systemd unit restart, collection and recreation during recovery;
+the capacity lock cannot enforce those actions. Retain the failed unit until the
+transaction has committed and been independently inspected. Do not reset-failed.
+No mounts, resource-limit changes, policy amendments or budget resets are needed.
+
+1. Apply only the new versioned source, once, after root approval.
+   Example shell variables (all paths with spaces are quoted):
+
+   set -euo pipefail
+   export PATH=/home/viktor/.local/bin:$PATH
+   PROJECT='/home/viktor/Projects/Vektor Flow'
+   REVIEW="$PROJECT/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-terminal-recovery-06"
+   STORAGE="$PROJECT/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb"
+   DEST="$STORAGE/storage-direct-v4"
+   test ! -e "$DEST"
+   test -f "$STORAGE/capacity.lock"
+   git -C "$PROJECT/.worktrees/gpu-math-20261014-libraries" apply --check --unsafe-paths --directory="$STORAGE" "$REVIEW/candidate-new-files.patch"
+   git -C "$PROJECT/.worktrees/gpu-math-20261014-libraries" apply --unsafe-paths --directory="$STORAGE" "$REVIEW/candidate-new-files.patch"
+
+   Root must rehash all installed files against output-pins.json. The patch does
+   not install config, create state, release RAM or launch a service.
+
+2. Review the new authority/config templates, including all exact historical
+   pins and prerequisite assertions; copy them only after those assertions are
+   true. They contain no new owner grants. Never copy an old v2 state into v4.
+
+   install -m 600 "$REVIEW/recovery-authority.template.json" "$DEST/recovery-authority.json"
+   install -m 600 "$REVIEW/runtime-config.template.json" "$DEST/runtime-config.json"
+   AUTH_SHA=$(sha256sum "$DEST/recovery-authority.json" | cut -d ' ' -f 1)
+
+   runtime-config authority/hold_evidence fields retain historical enrollment
+   provenance; they do not authorize fresh workloads. recovery_authority is the
+   new separately reviewed recovery binding. Preserve both historical meanings.
+   The template authority has exact successor and existing lock paths. The CLI
+   refuses execution outside the reviewed storage-direct-v4 installation path.
+   Do not create direct-state-v4.json manually. Do not initialize an empty journal.
+   Protect this directory, source/config/transition authority and all historical
+   pin ancestors from workload writes. Existing writable attempt roots stay as-is.
+
+3. Read-only preflight, then the SINGLE exact recovery command:
+
+   python3 -B "$DEST/recovery_admin.py" observe --authority-sha256 "$AUTH_SHA"
+   python3 -B "$DEST/recovery_admin.py" recover --authority-sha256 "$AUTH_SHA"
+   python3 -B "$DEST/recovery_admin.py" inspect --authority-sha256 "$AUTH_SHA"
+
+   The first sample is diagnostic only. recover independently authenticates all
+   historical evidence and performs fresh double observations under capacity.lock,
+   then a final observation pair after temp-file fsync and immediately before
+   atomic rename. No CLI accepts proof JSON or an arbitrary phase selector.
+   Only the exact failed F invocation can publish. The command rejects existing
+   successor state, including a previously committed recovery (no replay).
+   Expected inspect: active_ram=0; F charged=19787718656; A charged=18778218496;
+   exactly one recovery event with passed=false and workload_result=null.
+   Original phase still launch_claimed, its 4194304 charge and 3221225472 historical
+   RAM declaration unchanged, no service/inner_result/join. It is consumed forever.
+
+   Any error after rename is UNCERTAIN, not a successful release and not permission
+   to retry recover. inspect reopens the protected state under the same lock,
+   fsyncs the actual file and directory, then authenticates its complete recovery
+   event and historical bytes. If this succeeds, publication is durably committed.
+   If state is absent/corrupt, pins differ or fsync fails: hold all admissions and
+   escalate to root review. No automatic missing-state repair is provided.
+
+4. Explicit initial owner transitions, before ANY fresh phase. Root supplies the
+   actual separately authorized fresh chat/owner IDs; do not use the retired live04
+   owner or this source-only worker. F and A may have different authorized owners.
+
+   NEW_F_OWNER='<root-authorized fresh F owner>'
+   NEW_A_OWNER='<root-authorized fresh A owner>'
+   set -C
+   python3 -B "$DEST/recovery_admin.py" transition-plan --authority-sha256 "$AUTH_SHA" --worker F --to-owner "$NEW_F_OWNER" > "$DEST/F-owner-transition.json"
+   python3 -B "$DEST/recovery_admin.py" transition-plan --authority-sha256 "$AUTH_SHA" --worker A --to-owner "$NEW_A_OWNER" > "$DEST/A-owner-transition.json"
+
+   Review these exact files. F must have kind=recovered-terminal-failure, the
+   recovery event digest and prior_phase=F:live04-f-success-01. A must have
+   kind=enrolled-unused and the original pinned enrollment snapshot. Neither has
+   prior_join. Neither changes policy owner, increments, historical evidence,
+   charges or original phases. Each is appended to the existing transition chain.
+
+   F_TRANSITION_SHA=$(sha256sum "$DEST/F-owner-transition.json" | cut -d ' ' -f 1)
+   A_TRANSITION_SHA=$(sha256sum "$DEST/A-owner-transition.json" | cut -d ' ' -f 1)
+   python3 -B "$DEST/recovery_admin.py" rotate --authority-sha256 "$AUTH_SHA" --transition "$DEST/F-owner-transition.json" --transition-sha256 "$F_TRANSITION_SHA"
+   python3 -B "$DEST/recovery_admin.py" rotate --authority-sha256 "$AUTH_SHA" --transition "$DEST/A-owner-transition.json" --transition-sha256 "$A_TRANSITION_SHA"
+   python3 -B "$DEST/recovery_admin.py" inspect --authority-sha256 "$AUTH_SHA"
+
+   Each rotation is its own locked, atomic publication, with replay/stale-owner
+   rejection. A crash between rotations leaves the unrotated lane unadmittable.
+   Separate owners-v4.json publication is not atomic with rotation, intentionally:
+   any mismatch rejects admission until root publishes the correct fresh entries.
+   The pinned immutable transition is the ledger owner authority; the mutable
+   owner-state entry must match the new grant, owner and iteration too.
+
+5. Only after independent review of the transaction and owner receipts, root may
+   prepare a separate live qualification grant. Every new grant/manifest must pin
+   the installed v4 controller and all THREE helpers in this exact order:
+   storage_admission.py, storage_paths.py, terminal_recovery.py. Pin the new config;
+   keep protocol storage_admission_version=direct-directory-v2 (state version is
+   direct-directory-v4). Keep original policy pins, predecessor/ledger pins,
+   historical charges and capacity increments. Set owner_transition to the exact
+   lane transition pin. Create owners-v4.json with workers[A/F] entries containing
+   the fresh grant pin, thread and iteration. Protect it outside writable roots.
+   Use fresh attempt names/units and empty charged attempt directories; never
+   replay live04-f-success-01. Existing admission/launch/profile/quota checks apply.
+
+   The earlier 1/16 qualification attempt and 4MiB/64MiB remain consumed. Recovery
+   does not mint a qualification grant or reset its counters. Root must carry these
+   constraints into any fresh live grant. No native/compiler work is authorized.
+   A8GiB's separate high-limit preparation and post-join restoration remain the
+   original controller requirements; no such action is performed by recovery.

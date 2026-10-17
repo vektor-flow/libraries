@@ -1,0 +1,93 @@
+DONE — IMPLEMENTED EXACT TERMINAL RECOVERY06 — INACTIVE, ROOT REVIEW REQUIRED
+Worker/chat 01a14921-2eb4-7f41-b8d1-42a556397da6
+Sole coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31
+Shared HEAD unchanged fa4d26a6b64ca23395b05b19d153f73e44160d1b
+Output integration/0.7.4/storage-terminal-recovery-06
+
+DELIVERED
+candidate-new-files.patch creates five NEW storage-direct-v4 source files based
+on integrated repair05 v3. review.diff shows the exact delta. Executable admin
+commands: observe, recover, inspect, transition-plan, rotate. Config/authority
+review templates and complete root command sequence: DEPLOY-RECOVERY-PLAN.txt.
+No missing recovery writer or reader implementation remains in this candidate.
+
+One existing capacity.lock transaction creates successor direct-state-v4.json
+from the exact pinned v2 baseline plus ONE mandatory top-level recovery event.
+Original operational v2 file stays byte-identical; original phase/policy contents
+are checked against it on EVERY successor read. No empty-journal enrollment.
+No split commit between ledger and journal. Temp fsync, fresh final proof, atomic
+rename and directory fsync; uncertain post-rename results require authenticated
+fsynced reread. Missing/corrupt/uncertain state cannot admit or report free RAM.
+No arbitrary proof input, phase selector, reset or generalized force-release API.
+
+Only F:live04-f-success-01 can recover: original failed invocation, exact old
+source/config/grant/manifest/argv, boot, outer PID/starttime, absent outer/inner
+PIDs and empty exact service cgroup. Fresh dual observations plus final dual
+observation under the same lock; five-second bound. Pinned old state/result/STOP/
+root-review and source bundle reauthenticated. Event is passed=false,
+workload_result=null and releases ONLY 3221225472 RAM. Original phase remains
+launch_claimed, charge4194304, cumulative F19787718656, failed attempt consumed.
+No service/inner_result/join is fabricated; no payload result or live pass claimed.
+
+All successor readers wired: reserve RAM/lane gate, claim/preexec RAM, host active
+registry, runtime guard/monitor, physical checks, snapshot/inspect, owner chain.
+Authenticated recovery alone excludes the old F RAM intent. Old unit resurrection
+as active is rejected as unreserved. Every lifecycle action on recovered F rejects.
+New admission requires explicit owner transition first. F transition names the
+recovery event/failed phase; unused A names exact baseline enrollment. Neither
+pretends to be a normal join. Policies and history remain intact; transitions append.
+Normal later ownership still requires a real independently authenticated join.
+
+VERIFICATION
+49/49 tests pass: 26 recovery/core/controller/CLI tests +23 inherited repair05 tests.
+Recovery suite20.283s; final runner wall20.455s; inherited suite runner0.165s;
+real read-only custody checker runner0.164s. verify_candidate.py reproduces them.
+Real source pins and real flock/fsync/rename on owned fixtures; operational capacity
+and service responses mocked for mutations. Tests cover prepublication errors,
+hard process exits before file fsync/before rename/after rename, uncertain directory
+fsync, malformed/changed/stale proof, changed source, missing/duplicate journal,
+original-phase/disk immutability, replay, consumed lifecycle entries, stale owners,
+owner/admission/recovery races, both 3GiB and8GiB RAM profiles, every reader path,
+normal later joined-owner rotation and executable owner-plan/rotate/inspect commands.
+Actual recovery versus admission lock race proved admission waits for publication
+then rejects until explicit owner transition. Cross-lane RAM race admits only one.
+
+Final real READ-ONLY sample under EXISTING capacity.lock passed; unit still failed,
+InvocationID909c5163c9744502a918d265f61b8f71, boot unchanged, MainPID0,
+outer3956685/inner3956707 absent, exact cgroup empty. readonly-observation.json is
+DIAGNOSTIC ONLY; root recover will obtain its own fresh proof. No real RAM release.
+Patch --check + actual apply into owned disposable directory passed; all five
+files byte-matched. 145 pinned inputs rechecked unchanged, including original
+operational state/config/controller/helpers. No tracked repository diff.
+
+JOINS / PINS
+verification.json records three runner/checker children (3993975,3994358,3994359),
+all waited exit0 and /proc absent. owned-test-joins.json records13 final children,
+all joined/absent, including three deliberate crash exits70/71/72. Separate
+saved development joins also retained. All foreground tool sessions returned.
+final-seal.json records verifier identity absence, artifact pins and HEAD.
+output-pins.json seals deliverables except self/handoff/final-seal/notifications.
+
+ACTUAL LIMITS / ROOT NEXT STEP
+Read SCHEMA-AND-LIMITS.txt. Root must exclude predecessor writers after v4 cutover
+and external unit restarts/recreation during recovery; flock cannot police systemd
+or hostile same-UID writers. Authentication uses pinned authority/protected state,
+not a signature against its owning OS user; deliberate valid-state rollback is
+not detected. Historical pins must remain available. No generic recovery or
+power-loss hardware qualification. Existing polling/no-kernel-quota limits remain.
+Root reviews/applies new source, issues reviewed config, runs exact recovery once,
+inspects durable state, rotates recovered F and unused A explicitly, then separately
+issues fresh owner-bound grants/attempts for tiny live qualification. Preserve
+1/16 attempts and4MiB/64MiB consumed. No old phase replay or native budget reset.
+Fresh v4 service/bwrap/joins and A8GiB live qualification remain unexecuted.
+
+SCOPE
+All writes confined to this output directory. No operational deployment/release,
+service/payload/native/compiler execution, mounts, cap changes, historical mutation,
+dispatcher change, commits, peer edits or new agents. No memory/overlap blocker.
+Project instructions/grant, repository STATUS/HANDOVER and newer scoped coordinator
+status read; no repository-local AGENTS.md exists. Earlier handovers superseded
+only by dated scoped evidence. No performance/native/original419 credit.
+Completed iteration. One authorized coordinator DONE notification follows via
+existing app-server Client; intent/result are separate. No ambiguous retry.
+Stop after this handoff; root owns review, execution and fresh live qualification.

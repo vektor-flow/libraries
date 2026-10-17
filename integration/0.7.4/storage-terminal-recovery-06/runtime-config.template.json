@@ -1,0 +1,131 @@
+{
+  "version": "direct-directory-v2",
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "legacy_launchers_held": true,
+  "hold_evidence": {
+    "vkf-s0-synchronized-contexts.service": {
+      "argv": [
+        "systemctl",
+        "--user",
+        "show",
+        "vkf-s0-synchronized-contexts.service",
+        "-p",
+        "ActiveState",
+        "-p",
+        "MainPID"
+      ],
+      "exit": 0,
+      "stdout": "ActiveState=inactive\nMainPID=0\n",
+      "stderr": ""
+    },
+    "vkf-s0-synchronized-contexts.timer": {
+      "argv": [
+        "systemctl",
+        "--user",
+        "show",
+        "vkf-s0-synchronized-contexts.timer",
+        "-p",
+        "ActiveState",
+        "-p",
+        "MainPID"
+      ],
+      "exit": 0,
+      "stdout": "ActiveState=inactive\n",
+      "stderr": ""
+    },
+    "vkf-s0-worker-done.path": {
+      "argv": [
+        "systemctl",
+        "--user",
+        "show",
+        "vkf-s0-worker-done.path",
+        "-p",
+        "ActiveState",
+        "-p",
+        "MainPID"
+      ],
+      "exit": 0,
+      "stdout": "ActiveState=inactive\n",
+      "stderr": ""
+    },
+    "runtime_mask": "/run/user/1000/systemd/user/vkf-s0-synchronized-contexts.service"
+  },
+  "owner_state": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/owners-v4.json",
+  "source_repository": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+  "approved_policies": [
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage-live-04/F-policy.json",
+      "sha256": "0a2fdb1fc1c189e3f476494d7285905e9173684740e7784fd3c11c3a673bde2c"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage-live-04/A-policy.json",
+      "sha256": "fef897b7d261bd61b864c43e630f8889b8e2f222f88f39e5b91fcba77e725dbc"
+    }
+  ],
+  "development_uuid": "d189b76f-1138-40a0-abdf-da48d249b679",
+  "development_root": "/mnt/development/CompilerOptimization",
+  "lane_cgroups": {
+    "F": "/user.slice/user-1000.slice/user@1000.service/vkfworkers.slice/vkfworkers-f.slice",
+    "A": "/user.slice/user-1000.slice/user@1000.service/vkfworkers.slice/vkfworkers-a.slice"
+  },
+  "deployed_volumes": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/deployed-volumes.json",
+    "sha256": "14fad2d907cc9227a7fac4d1e2ec121291fc149d226031224ef2cb1ee7e30fc9"
+  },
+  "legacy_registry": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage-live-04/legacy-registry.json",
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+  },
+  "legacy_registry_source": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/live-capacity.json",
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+  },
+  "adopted_offload": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage-live-04/adopted-offload-terminal.json",
+    "sha256": "afa90e8c5d8d8c2a7ed0a24fcdde0b7cdbde6307085625754f6eee01d5a5cc65"
+  },
+  "legacy_joins": {
+    "A": {
+      "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A/receipts20gb/A349-without-arena01-service-join.json",
+      "sha256": "57f11a2207c7e03754070bae7006ad98a2760269b45337e67cd4d32408b2bfeb"
+    },
+    "F": {
+      "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/receipts20gb/f365-python-tokens01-service-join.json",
+      "sha256": "d6da02fcb1b35afc6dee6aa2ca812aa97602c082adb589cf44a2361627e5cfb0"
+    }
+  },
+  "legacy_cgroups": {
+    "A": "/user.slice/user-1000.slice/user@1000.service/vkfworkers.slice/vkfworkers-a.slice/vkfworkers-a-A349-without-arena01.service",
+    "F": "/user.slice/user-1000.slice/user@1000.service/vkfworkers.slice/vkfworkers-f.slice/vkfworkers-f-f365-python-tokens01.service"
+  },
+  "authority": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-live-04-visible-chat-grant.json",
+    "sha256": "e9ec18c6378cc4b430a282e792854350c938b2b377422f25d8cd4d08877dcf75"
+  },
+  "preserved_record_authorities": [
+    {
+      "controller": {
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_controller.py",
+        "sha256": "351b205d529f25ce4868132e47736645965b2b000504501d51f9cd91e2b69418"
+      },
+      "helpers": [
+        {
+          "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_admission.py",
+          "sha256": "9b409eb4cf7f0b34b1cf2f17d8e709877878afcb8a116dbe141116160fd4b6a8"
+        },
+        {
+          "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_paths.py",
+          "sha256": "3c7eee8d5c96d79fb70641749d6d1daae740578f2cc4666dc2c01d6e71ae1a92"
+        }
+      ],
+      "config": {
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/runtime-config.json",
+        "sha256": "c74c25834ac8ed6c277bed856d538bbce30d5a959515c347f065f792a8888220"
+      }
+    }
+  ],
+  "recovery_authority": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/recovery-authority.json",
+    "sha256": "e4253476c985463453aa469aac2dd2b7111a3ac67782007b6e935688c36f268f"
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "jobs": [
+    {
+      "script": "test_recovery.py",
+      "exit": 0,
+      "seconds": 20.258042201050557,
+      "joined": true,
+      "pid": 3996826,
+      "absent": true
+    },
+    {
+      "script": "test_inherited_repair.py",
+      "exit": 0,
+      "seconds": 0.1644295749720186,
+      "joined": true,
+      "pid": 3997275,
+      "absent": true
+    },
+    {
+      "script": "observe_readonly.py",
+      "exit": 0,
+      "seconds": 0.16433342394884676,
+      "joined": true,
+      "pid": 3997276,
+      "absent": true
+    }
+  ],
+  "first_root_fixture_error": "Copy omitted runtime-config.template.json; two tests could not open it. Corrected fixture, no candidate change.",
+  "input-pins.json": 145,
+  "output-pins.json": 23,
+  "child_joins": [
+    {
+      "pid": 3996909,
+      "exitcode": 70,
+      "joined": true,
+      "proc_absent": true,
+      "boundary": "before-file-fsync"
+    },
+    {
+      "pid": 3996910,
+      "exitcode": 71,
+      "joined": true,
+      "proc_absent": true,
+      "boundary": "before-replace"
+    },
+    {
+      "pid": 3996911,
+      "exitcode": 72,
+      "joined": true,
+      "proc_absent": true,
+      "boundary": "after-replace"
+    },
+    {
+      "pid": 3997155,
+      "exitcode": 0,
+      "joined": true,
+      "proc_absent": true
+    },
+    {
+      "pid": 3997156,
+      "exitcode": 0,
+      "joined": true,
+      "proc_absent": true
+    },
+    {
+      "pid": 3997179,
+      "exitcode": 0,
+      "joined": true,
+      "proc_absent": true
+    },
+    {
+      "pid": 3997180,
+      "exitcode": 0,
+      "joined": true,
+      "proc_absent": true
+    },
+    {
+      "pid": 3997186,
+      "exitcode": 0,
+      "joined": true,
+      "proc_absent": true
+    },
+    {
+      "pid": 3997187,
+      "exitcode": 0,
+      "joined": true,
+      "proc_absent": true
+    },
+    {
+      "pid": 3997247,
+      "exitcode": 0,
+      "joined": true,
+      "proc_absent": true
+    },
+    {
+      "pid": 3997248,
+      "exitcode": 0,
+      "joined": true,
+      "proc_absent": true
+    },
+    {
+      "pid": 3997251,
+      "exitcode": 0,
+      "joined": true,
+      "proc_absent": true
+    },
+    {
+      "pid": 3997252,
+      "exitcode": 0,
+      "joined": true,
+      "proc_absent": true
+    }
+  ]
+}
