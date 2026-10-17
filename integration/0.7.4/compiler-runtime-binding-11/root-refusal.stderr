@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-runtime-binding-11/root_steps.py", line 161, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-runtime-binding-11/root_steps.py", line 60, in main
+    d,s,config,root=decision(ref)  # NULL template stops before operational imports/writes.
+                    ~~~~~~~~^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-runtime-binding-11/root_steps.py", line 24, in decision
+    a.require(d['coordinator']==a.COORDINATOR and d['native_execution'] is True
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              and d['owner_rotation_authorized'] is True
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              and d['owner_file_publication_authorized'] is True,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              'genuine separate root execution/rotation/publication authorization required')
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-runtime-binding-11/adapter.py", line 32, in require
+    raise ValueError(message)
+ValueError: genuine separate root execution/rotation/publication authorization required

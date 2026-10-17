@@ -1,0 +1,130 @@
+NEXT ACTUAL COMPILER ATTEMPT — ROOT-ONLY RECIPE; NOT EXECUTED HERE
+
+Use the exact current168085c packet in place. Do not commit/adopt at a new HEAD
+and then run this seal unchanged. A HEAD advance requires a separately reviewed
+fresh plan and seal. adapter.py is byte-identical to adopted09+10; adapter.patch
+is intentionally empty. source-contract.patch documents only the new seal.
+
+FULFILLED ROOT DECISIONS
+Qualified-A export: compiler-qualified-v9-A-root-export-20261017.json
+SHA2568cdeb6a0051fa2274a94ca6086e518388ceb46b26f629d95d2c1c9404f4695fa.
+Current36 observed inputs and first bounded forecast accepted in
+compiler-first-attempt-provenance-decision-20261017.json
+SHA256ae5203824b584ed05e6e6e7ec0e9c1cceaeb6887746d80aa6241b66343d2bfbf.
+35 historical provenance gaps remain; no historical ABI equivalence asserted.
+The latter decision explicitly does NOT authorize native execution.
+
+UNFULFILLED REQUIRED ROOT DECISIONS
+Root reviews artifact-pins.json, exact seal60afc90d..., verification.json and
+root_steps.py (future operational recipe, never exercised operationally here).
+Root issues a NEW independently pinned actual execution decision from the
+root-decisions.REQUIRED.json template. Null fields are deliberately unusable:
+native_execution, owner_rotation_authorized, owner_file_publication_authorized;
+fresh execution owner/iteration>24, unique attempt and protected_directory;
+actual ram_bytes8589934592,disk_bytes1073741824,timeout_seconds1200.
+protected_directory must be a fresh child of installed storage-direct-v9.
+The separate root decision must explicitly authorize exactly these actions and
+identify accepted provenance/forecast evidence. Do not use this worker's
+preparation grant, or the provenance-only decision, as operational permission.
+Do not invent an owner receipt, publication receipt or running admission.
+
+COMMON SHELL SETUP (all subsequent commands are for ROOT after authorization)
+export PATH=/home/viktor/.local/bin:$PATH
+export REPO='/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries'
+export PACKET="$REPO/integration/0.7.4/compiler-runtime-binding-11"
+export STORAGE='/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb'
+export V9="$STORAGE/storage-direct-v9"
+: "${ROOT_DECISION:?UNFULFILLED actual separately issued root decision path}"
+: "${ROOT_DECISION_SHA256:?UNFULFILLED exact root decision SHA256}"
+
+1. Refresh real no-overlap/loaded-policy/physical/RAM observations before mutation.
+Keep dispatcher service/timer/path held, A/F cgroups empty, activeRAM0; require
+same boot, installed helper/config pins and seven actual loaded policy byte
+comparisons. Do not rerun tiny qualification. The existing live24/check_loaded.py
+check is read-only except its save callback: if reused, override its save callback
+to exclusive root-owned NEW evidence (never write live24), retaining its original
+ROOT/OUT source-reference constants. Preserve old backing>=250GB+10GiB and all
+installed controller admission/emergency/accounting guards. Audit12 resource-fit
+is a historical snapshot; the actual installed controller rechecks capacity.
+
+2. Perform normal JOINED A succession and export genuine root inputs:
+/usr/bin/python3 -I -B "$PACKET/root_steps.py" rotate \
+  --decision "$ROOT_DECISION" --decision-sha256 "$ROOT_DECISION_SHA256"
+/usr/bin/python3 -I -B "$PACKET/root_steps.py" export \
+  --decision "$ROOT_DECISION" --decision-sha256 "$ROOT_DECISION_SHA256"
+
+rotate authenticates latest A:live24-a-timeout-01 with installed
+Controller.verify_join before and inside Ledger.rotate_owner. It appends ONLY
+the A transition; compares full before/after state; writes a real completion
+receipt only after success. A is USED; unused-owner-revocation is invalid.
+The prior join SHA is aa026c44d268bd35427a2d7761fd470503b1d57889f8dd5d347d95e4d26a24c6.
+F remains live24. All12 tiny attempts/48MiB and all prior charges remain.
+No rerun on a failed/ambiguous operation; retain evidence and stop.
+
+3. Assemble from the ALREADY regenerated bounded staging, with actual inputs:
+/usr/bin/timeout --signal=TERM --kill-after=2s 60s \
+  /usr/bin/python3 -I -B "$PACKET/adapter.py" assemble \
+  --plan "$PACKET/staging/plan.json" --root-inputs "$PACKET/root-inputs.json" \
+  --out "$PACKET/root-packet"
+
+Review plan/assets/contract/grant.candidate.json/manifest.candidate.json.
+Only output relocation and generated-JSON hashes change. All8stages,240-provider
+order,production flags,full regression27cases/negatives and exact baseline oracle
+"cross-ABI child was preserved" remain. Actual future sources reside only under
+charged attempt/compiler; assembly must NOT prefill/create that attempt.
+source contract -> plan/assets -> contract -> grant -> manifest hash order stays.
+v6_bundle is merely the existing schema key; all its pins are installed v9.
+
+4. Publish exact candidate bytes and owner entry under the existing capacity lock:
+/usr/bin/python3 -I -B "$PACKET/root_steps.py" publish \
+  --decision "$ROOT_DECISION" --decision-sha256 "$ROOT_DECISION_SHA256"
+
+This uses the exact reviewed live24 atomic_publish primitive, with its caller
+adapted to this compiler grant. It compares original owner bytes, verifies new
+ledger A owner/transition and quiescence, preserves F entry, uses exclusive0400
+same-parent temp/fsync/rename/parent-fsync and records actual publication only.
+No fabricated receipt. The final receipt is deliberately NOT an immutable grant
+input: runtime cross-checks it against fresh owner/state under capacity.lock.
+The actual live ledger pin is read under lock and never installed as a static pin.
+
+5. Create only the fresh EMPTY attempt, then invoke installed v9 (never adapter run):
+export ROOT_DECISION ROOT_DECISION_SHA256
+/usr/bin/python3 -I -B - <<'PY'
+import json,os,pathlib
+p=pathlib.Path(os.environ['PACKET']);m=json.loads((p/'root-packet/manifest.candidate.json').read_text())
+root=pathlib.Path(m['attempt_root']);assert not root.exists() and not root.is_symlink()
+root.mkdir(mode=0o700);assert not list(root.iterdir())
+PY
+
+Root explicitly authorizes A high7GiB immediately before launch. Installed v9
+restores high3GiB only after its authenticated service join; failed/ambiguous
+launch requires fresh independent terminal proof before restoration/release.
+Do not lower high early or restore/refund ledger state manually.
+/usr/bin/systemctl --user set-property --runtime vkfworkers-a.slice MemoryHigh=7G
+
+/usr/bin/python3 -I -B - <<'PY'
+import json,os,pathlib,subprocess
+p=pathlib.Path(os.environ['PACKET']);s=json.loads((p/'source-contract.json').read_text())
+r=json.loads((p/'root-inputs.json').read_text());v=json.loads((p/'root-packet/PREPARATION-ONLY.json').read_text())
+cmd=['/usr/bin/python3','-B',s['v6_bundle']['controller']['path'],
+     '--config-sha256',s['v6_bundle']['config']['sha256'],
+     '--grant',r['grant_path'],'--grant-sha256',v['grant']['sha256'],
+     '--manifest',r['manifest_path'],'--manifest-sha256',v['manifest']['sha256']]
+result=subprocess.run(cmd)  # Synchronous root-owned controller; preserves its own deadlines/joins.
+raise SystemExit(result.returncode)
+PY
+
+Native admission remains A8GiB hard/high7, forecast4GiB, inclusive disk1GiB and
+1200s. Six180s stages+two30s=1140s unchanged;60s overhead is uncalibrated.
+Nominal subphase disk sum800MiB leaves224MiB; unknown peaks can fail. Failed
+attempts remain charged. No automatic retry or continuation to VKF/native phases.
+
+6. Independently reverify real controller/service/cgroup/descendant join and
+A high3 restoration. Collect8stage output/log/MD pins and full compiler receipt;
+baseline must actually fail nonzero with exact marker, candidate exit0/exact
+stdout, new ELF identity340d32d743bfcd6da076840963974462ed590852314ae483bbde5b4cc20c2e74,
+all actual MD/link dependencies and posthashes must pass. Positive source-review
+or TEST_ONLY output is never native credit. Then stop for root review.
+Later D288all10,metadata,A345,F364ten+unknown,A347both modes,full-app/native47,
+original419 and PDF/renderer acceptance remain separately required and uncredited.
+D267/D289 exclusions and dispatcher hold remain. No budget reset or release claim.

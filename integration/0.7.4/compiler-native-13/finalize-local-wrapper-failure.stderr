@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-native-13/finalize.py", line 42, in <module>
+    sys.path.insert(0,str(OUT.parent/'storage-live-24'));import check_loaded
+                                                         ^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-24/check_loaded.py", line 4, in <module>
+    from preflight import OUT,save,pin,pinned
+ImportError: cannot import name 'pin' from 'preflight' (/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-native-13/preflight.py)

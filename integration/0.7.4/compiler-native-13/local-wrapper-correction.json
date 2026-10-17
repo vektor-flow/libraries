@@ -1,0 +1,9 @@
+{
+  "error": "Read-only Controller.current() called before fresh attempt exists; contained() requires existing directory",
+  "operation_started": false,
+  "controller_launched": false,
+  "attempt_created": false,
+  "high_changed": false,
+  "correction": "Move read-only current() check after authorized empty mkdir and before high change/controller launch",
+  "no_source_or_guard_edits": true
+}

@@ -1,0 +1,768 @@
+{
+  "scope": "isolated host imports and mapped DSOs; not final-namespace execution",
+  "imports_successful": true,
+  "native_children": 0,
+  "runtime_pins": [
+    {
+      "path": "/etc/python3.14/sitecustomize.py",
+      "sha256": "43d81125d92376b1a69d53a71126a041cc9a18d8080e92dea0a2ae23be138b1e"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/owned-processes.py",
+      "sha256": "bdc2ccd9861d5a49f80875144963037255afef29f7ed932fea8da28ccb76c442"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-admission-audit-12/audit.py",
+      "sha256": "5f1b57de88a8e0e9026cec467de7a3506e15f6c2cc98fb701165e312ac60d6c3"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-build-preparation-03/authenticate.py",
+      "sha256": "72600f3c8362e090a5f4548491f297880465d384722473e3d5111ca3b8600ed0"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-build-preparation-03/payload.py",
+      "sha256": "30dc03fbbd778efa4d4bd94c7357e5072dbe03fd0af6da41ac18a841ebc730c3"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-build-preparation-03/prepare.py",
+      "sha256": "fd49773772924b2ccf59b4a9386dc5e22a1062cc8176391c6a0ed5058713ffda"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controller-preparation-09/adapter.py",
+      "sha256": "7c167a22524f2c35057b2ea094b2488a57d64c0c0307f3fdbeed2421365498c2"
+    },
+    {
+      "path": "/usr/bin/git",
+      "sha256": "5516c9f362c29376ab9a499a33082f9f611941d8c75930c880e30ad109e39c9a"
+    },
+    {
+      "path": "/usr/bin/python3.14",
+      "sha256": "52e0a13e60a981d8c4b6478be2ba5176f69da07948a056bf49cf6f077e30cb41"
+    },
+    {
+      "path": "/usr/lib/locale/C.utf8/LC_CTYPE",
+      "sha256": "40680545df4f92443c15e7c6f51a7fdc9154ebedd9eff1ed5c48437039add365"
+    },
+    {
+      "path": "/usr/lib/locale/locale-archive",
+      "sha256": "dc0d80629dd3c805aff420244f479eefb5f8a0c096a0eb30763961a080149c8a"
+    },
+    {
+      "path": "/usr/lib/python3.14/_collections_abc.py",
+      "sha256": "50beebb1f309d83fd3af45f0e4c98c9dbfe0edd2f40edc8dc79e5cf0072cfbea"
+    },
+    {
+      "path": "/usr/lib/python3.14/_py_warnings.py",
+      "sha256": "7728580177727fa3b295478cef4777a9d2a364c5cbd809efcea352db31144f85"
+    },
+    {
+      "path": "/usr/lib/python3.14/_sitebuiltins.py",
+      "sha256": "69e6a8fabad250f37a0d901aa5b186c5059b5e540575dfa8c0b8fbede089302b"
+    },
+    {
+      "path": "/usr/lib/python3.14/_weakrefset.py",
+      "sha256": "2dd7cb459d654fe78b00c5c47ee8e786c037ee77763304603f5e976dd62cbf81"
+    },
+    {
+      "path": "/usr/lib/python3.14/abc.py",
+      "sha256": "e558702a95cdce3febd289da021715d2b92bc43995b8a1bc58dfa1c3d8010287"
+    },
+    {
+      "path": "/usr/lib/python3.14/argparse.py",
+      "sha256": "104e328d7e5e6c04a5cd3052d0b866c16fcd5d5bd67426b6308bcbed061c91cb"
+    },
+    {
+      "path": "/usr/lib/python3.14/ast.py",
+      "sha256": "5ea9a796353544bea0d706153516f04ef3d92be305d15a73238403837d77e34c"
+    },
+    {
+      "path": "/usr/lib/python3.14/codecs.py",
+      "sha256": "718f39b3ea68fe934214d789c5bce3005fa828040b03a72d2f715fc5e2647b7e"
+    },
+    {
+      "path": "/usr/lib/python3.14/collections/__init__.py",
+      "sha256": "dbd563752a57c6633b7566b1e9c95bc8ea81df1a1d213b23f61c5335424e5af5"
+    },
+    {
+      "path": "/usr/lib/python3.14/contextlib.py",
+      "sha256": "c1e0d67b2007de11ae93cd36cf6faf38d9ab32656a832d592a49325eec579f96"
+    },
+    {
+      "path": "/usr/lib/python3.14/copy.py",
+      "sha256": "15154fde290d6e65b5007905689a47a9a5a724822c5e06eec35d9ffbb2a3aa69"
+    },
+    {
+      "path": "/usr/lib/python3.14/copyreg.py",
+      "sha256": "6376eb5722806396f5842997ac18add369ea9ac3ff4fcfe1460c41a088cac425"
+    },
+    {
+      "path": "/usr/lib/python3.14/ctypes/__init__.py",
+      "sha256": "72f2df568380c275a5596944810953124ff2ee8d678c5f8ddcf50f0f77577eb3"
+    },
+    {
+      "path": "/usr/lib/python3.14/ctypes/_endian.py",
+      "sha256": "499773a028a41ee18153fedfe0a00a26efb2a650f568b9bc17e2f3a914a23468"
+    },
+    {
+      "path": "/usr/lib/python3.14/encodings/__init__.py",
+      "sha256": "2b708410495acf12a6fad9d2de928dd89e567537c253eaa2b51aaae578e96c59"
+    },
+    {
+      "path": "/usr/lib/python3.14/encodings/aliases.py",
+      "sha256": "e38fc524cc8b2355807921411c918c0d971419c4d6ba6147409785db42d257a3"
+    },
+    {
+      "path": "/usr/lib/python3.14/encodings/utf_8.py",
+      "sha256": "ba0cac060269583523ca9506473a755203037c57d466a11aa89a30a5f6756f3d"
+    },
+    {
+      "path": "/usr/lib/python3.14/encodings/utf_8_sig.py",
+      "sha256": "1ef3da8d8aa08149e7f274dc64dbfce2155da812e5258ca8e8f832428d3b5c2d"
+    },
+    {
+      "path": "/usr/lib/python3.14/enum.py",
+      "sha256": "982843c2dd6dbec992bfed44abe9ef5464be81876a180d977ccd1a69e26ec16d"
+    },
+    {
+      "path": "/usr/lib/python3.14/fnmatch.py",
+      "sha256": "ce582bc266922e4c682e2a85d72095124430a6bf58716c6f2537103480eae742"
+    },
+    {
+      "path": "/usr/lib/python3.14/functools.py",
+      "sha256": "046ec9660146db48862c7b22c78e2ef3818eaed6920e5cbf35f551ef09fec6cd"
+    },
+    {
+      "path": "/usr/lib/python3.14/genericpath.py",
+      "sha256": "cdac5a68dd738051e0d66fc81d5947d6a1776248fc6fe862253477608d870ec4"
+    },
+    {
+      "path": "/usr/lib/python3.14/gettext.py",
+      "sha256": "00a96d626c8f53cdcb76e72386875dde4be222c7acacd046ad617e53553b31b8"
+    },
+    {
+      "path": "/usr/lib/python3.14/glob.py",
+      "sha256": "e3c82e6f0a1fe9442d4c5625e68cb206228408f0342326f6f5c8f59112091b59"
+    },
+    {
+      "path": "/usr/lib/python3.14/hashlib.py",
+      "sha256": "88fa624821fbdee7eb2ef87c2437b207afe328cf117c7463367e2db5eb1af492"
+    },
+    {
+      "path": "/usr/lib/python3.14/importlib/__init__.py",
+      "sha256": "72b07de4133a7e39b2f6a7920465669aa04626f217e800779587bc0713fe002e"
+    },
+    {
+      "path": "/usr/lib/python3.14/importlib/_abc.py",
+      "sha256": "80aab7931dc999dee581c8b8b56fcd973fe156335a96ceeaf6acfc03cebf10e8"
+    },
+    {
+      "path": "/usr/lib/python3.14/importlib/_bootstrap.py",
+      "sha256": "e50d35b1191ecbc5f7faecc73f54efd242bcf24c510e4ea5eb64bfba9458c0e3"
+    },
+    {
+      "path": "/usr/lib/python3.14/importlib/_bootstrap_external.py",
+      "sha256": "b9af1fb7b625030cf5ee06b39aeb7838c2a30c97ddee09410286b7afbd8b7098"
+    },
+    {
+      "path": "/usr/lib/python3.14/importlib/util.py",
+      "sha256": "7bdfadad42664ba169ffac8160765673cd79937f74324f4664de8d820c35b863"
+    },
+    {
+      "path": "/usr/lib/python3.14/io.py",
+      "sha256": "1b75584d4efcc612dc0db2ae98619408276585a106f0544879edb5e25b55430a"
+    },
+    {
+      "path": "/usr/lib/python3.14/json/__init__.py",
+      "sha256": "95022d150a27a2bfd54ac21bfce35812c96b53c420bb7b018dcb573f13e52da0"
+    },
+    {
+      "path": "/usr/lib/python3.14/json/decoder.py",
+      "sha256": "302ce57cb6f411122d7ef2ad2997c1fc0f184849fab3f1f585752f18f2195c73"
+    },
+    {
+      "path": "/usr/lib/python3.14/json/encoder.py",
+      "sha256": "d68a4d04d2cfd95897498307f29349058b42c3f48ea6aa6739714a09200a7d01"
+    },
+    {
+      "path": "/usr/lib/python3.14/json/scanner.py",
+      "sha256": "572958017eae8842eeddd0e3d18d3c56cc0a197348224915e1d87ce937841764"
+    },
+    {
+      "path": "/usr/lib/python3.14/keyword.py",
+      "sha256": "18c2be738c04ad20ad375f6a71db34b3823c7f40b0340f5294d0e89f3c9b093b"
+    },
+    {
+      "path": "/usr/lib/python3.14/lib-dynload/_ctypes.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "140e837f2bc9344f3a98dea90e8bdf6f208370e45f3eccbac759c59e59d4d045"
+    },
+    {
+      "path": "/usr/lib/python3.14/lib-dynload/_hashlib.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "f57bc22cc1b6f3b48c43778634af1a7e79c5ae0632350fa5144d050c7848112c"
+    },
+    {
+      "path": "/usr/lib/python3.14/lib-dynload/resource.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "56bc220a6a1b5fdd4bf652a47f6f137e36746b6eac65233a8d8cc1bd3538b9e4"
+    },
+    {
+      "path": "/usr/lib/python3.14/locale.py",
+      "sha256": "0e90907424b4bef150b00feb1bef4687bacb416e6e3f2b463e0758ee34979fe4"
+    },
+    {
+      "path": "/usr/lib/python3.14/ntpath.py",
+      "sha256": "7c5c992b1b52f97d7dc73ad09ea8b97917475e7e4474563379e71b03015f04ca"
+    },
+    {
+      "path": "/usr/lib/python3.14/operator.py",
+      "sha256": "a9f9910965c31f841caad0447ee47299ac539a371422aefe200c86c60f3b4697"
+    },
+    {
+      "path": "/usr/lib/python3.14/os.py",
+      "sha256": "1494f3b93c6714d7a511963586f2b392dc92f3181c0d1ead82c621a4b0aad969"
+    },
+    {
+      "path": "/usr/lib/python3.14/pathlib/__init__.py",
+      "sha256": "e82f9063fa8081136d04d27a79ba6fa44085ccb7ac78077e1095afce77f2a071"
+    },
+    {
+      "path": "/usr/lib/python3.14/pathlib/_os.py",
+      "sha256": "61e844988e54bdf47c0b11ad2b3fd961f058bb370793428f4c6868bd40cab6f2"
+    },
+    {
+      "path": "/usr/lib/python3.14/posixpath.py",
+      "sha256": "8a5bc2b6674e76efe0f507b873a41d746beba466a191153ed18a7580ef6e08e1"
+    },
+    {
+      "path": "/usr/lib/python3.14/re/__init__.py",
+      "sha256": "741a9de729ed8207bfa19db990f8826f1bf3661f33d0970a80c08cd1338ebc35"
+    },
+    {
+      "path": "/usr/lib/python3.14/re/_casefix.py",
+      "sha256": "1b12d9136f23db6c3f6f26053fefc15ca964b886838c7b9c1fabf8d2efc1e5c8"
+    },
+    {
+      "path": "/usr/lib/python3.14/re/_compiler.py",
+      "sha256": "d49f30cf9a1dbae33b200ed8befd9d0ce3ac612783a10ac35196536f98923e91"
+    },
+    {
+      "path": "/usr/lib/python3.14/re/_constants.py",
+      "sha256": "42253b3181b81aad6c46392f44a0ab26dcfa31feea411296f43ba16616a1ab0b"
+    },
+    {
+      "path": "/usr/lib/python3.14/re/_parser.py",
+      "sha256": "e57bd194a2d42398355ae7c1ccc2ddfb78421dd431eb81e3809dbe8ca9057dc4"
+    },
+    {
+      "path": "/usr/lib/python3.14/reprlib.py",
+      "sha256": "b04872e10d76252e44eae50cc785eb0fe478491afc4d7f0825a93f82b2eaba5f"
+    },
+    {
+      "path": "/usr/lib/python3.14/selectors.py",
+      "sha256": "4b8a60cfbb619d080f87dffe1578372e56e8c0ac826f043224a154cf7b77606d"
+    },
+    {
+      "path": "/usr/lib/python3.14/shlex.py",
+      "sha256": "aeda1c54188363d907654a19d338e5961416ebec2e2f506afab19be61ada8120"
+    },
+    {
+      "path": "/usr/lib/python3.14/signal.py",
+      "sha256": "0363c964c90ac0b3e515de5749205e6e6454051a1211058375d84d91eab6071a"
+    },
+    {
+      "path": "/usr/lib/python3.14/site.py",
+      "sha256": "b2c3a0d585c776f9b560c0fe0ed74f0f8e2fc29ad5c9af31a62579d59f5d89a3"
+    },
+    {
+      "path": "/usr/lib/python3.14/stat.py",
+      "sha256": "07217986d9b2172b509dab3578d18ac05ba768b418e1f1e8c90e38a8f7c2b3c6"
+    },
+    {
+      "path": "/usr/lib/python3.14/struct.py",
+      "sha256": "50c14e55f94957804c1e45e975fedbe8e86f7e1dbb745b150370ff681155370a"
+    },
+    {
+      "path": "/usr/lib/python3.14/subprocess.py",
+      "sha256": "6628ffdd65c093a6c08cae01ffe82877d3ced515aac9e7be0cff16512c30a7d9"
+    },
+    {
+      "path": "/usr/lib/python3.14/sysconfig/__init__.py",
+      "sha256": "516073395817d4babe5c301c1fa4a01b61f2dc56f69d3245cabe1d2fa512b533"
+    },
+    {
+      "path": "/usr/lib/python3.14/threading.py",
+      "sha256": "5323909624ec2165e70b6d31333e4191b63d383d2dc5a7d7d516a3475ea2b7e3"
+    },
+    {
+      "path": "/usr/lib/python3.14/types.py",
+      "sha256": "fcfdd1c5ae56a9c35f207743d774e236da0153bf78e6e4629193a8e0e9438a6b"
+    },
+    {
+      "path": "/usr/lib/python3.14/warnings.py",
+      "sha256": "142225786de63c593f1c9abdacf5b4fc0b05dd847f6bed0ebb4b4aa2d4d93b02"
+    },
+    {
+      "path": "/usr/lib/python3.14/weakref.py",
+      "sha256": "5e5f727a19a858cb4c56dbaf3e0a138ded02fb954a9a58a840a0764216ae9522"
+    },
+    {
+      "path": "/usr/lib/python3.14/zipimport.py",
+      "sha256": "4de64633a484e16c39fdb46a3f939ce7c577b14a6e9ee49b79871ec1880b4597"
+    },
+    {
+      "path": "/usr/lib/python3/dist-packages/_distutils_hack/__init__.py",
+      "sha256": "df81e6bcba34ee3e3952f776551fb669143b9490fdd6c4caeb32609f97e985b4"
+    },
+    {
+      "path": "/usr/lib/python3/dist-packages/apport_python_hook.py",
+      "sha256": "d48b4213025b71c4db81bd226977900a593a7baa4d81c3261ce9940ec188f450"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache",
+      "sha256": "52c227df9d53248238602c1ddaccd2c8ddc4cc6a61aa45d7c425af590b8806a5"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+      "sha256": "bda779ea9e9ad234f60315477d7cfd0bdde861cd8ddd9df8cdaf62f18c4cec14"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+      "sha256": "85e64f97e348786a8fb4d9f3d52fec289e2fb86bba20f0731dfe61990525e0f7"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libcrypto.so.3",
+      "sha256": "5385f0436ac2e284ba8c5fb1488874057c29c04be72dea32add832694f381e28"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libexpat.so.1.11.2",
+      "sha256": "2e5f66e2784c2746775567ff9916f6e7503182a8f1f2deb8ca729dfc1463849f"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libffi.so.8.2.0",
+      "sha256": "1a0dc86f787f73e025a6e521056360afcbe70f2a82cd808132fefc2b4ee95daa"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+      "sha256": "1c488db6f4fe8cecb72456bc018de000b7a9b539c2994864b0416b5e8371b3d8"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1",
+      "sha256": "47b61967895b30e8c0c6818dd633ffeb87711cf637c688f981896f0dd84ce23b"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.7",
+      "sha256": "060eeb79531d435306665fd78329d8a9dd579f95876c5960bb67937825362a80"
+    }
+  ],
+  "missing_from_historical_compiler_union": [
+    {
+      "path": "/etc/python3.14/sitecustomize.py",
+      "sha256": "43d81125d92376b1a69d53a71126a041cc9a18d8080e92dea0a2ae23be138b1e"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-admission-audit-12/audit.py",
+      "sha256": "5f1b57de88a8e0e9026cec467de7a3506e15f6c2cc98fb701165e312ac60d6c3"
+    },
+    {
+      "path": "/usr/lib/locale/C.utf8/LC_CTYPE",
+      "sha256": "40680545df4f92443c15e7c6f51a7fdc9154ebedd9eff1ed5c48437039add365"
+    },
+    {
+      "path": "/usr/lib/locale/locale-archive",
+      "sha256": "dc0d80629dd3c805aff420244f479eefb5f8a0c096a0eb30763961a080149c8a"
+    },
+    {
+      "path": "/usr/lib/python3.14/_collections_abc.py",
+      "sha256": "50beebb1f309d83fd3af45f0e4c98c9dbfe0edd2f40edc8dc79e5cf0072cfbea"
+    },
+    {
+      "path": "/usr/lib/python3.14/_py_warnings.py",
+      "sha256": "7728580177727fa3b295478cef4777a9d2a364c5cbd809efcea352db31144f85"
+    },
+    {
+      "path": "/usr/lib/python3.14/_sitebuiltins.py",
+      "sha256": "69e6a8fabad250f37a0d901aa5b186c5059b5e540575dfa8c0b8fbede089302b"
+    },
+    {
+      "path": "/usr/lib/python3.14/_weakrefset.py",
+      "sha256": "2dd7cb459d654fe78b00c5c47ee8e786c037ee77763304603f5e976dd62cbf81"
+    },
+    {
+      "path": "/usr/lib/python3.14/abc.py",
+      "sha256": "e558702a95cdce3febd289da021715d2b92bc43995b8a1bc58dfa1c3d8010287"
+    },
+    {
+      "path": "/usr/lib/python3.14/argparse.py",
+      "sha256": "104e328d7e5e6c04a5cd3052d0b866c16fcd5d5bd67426b6308bcbed061c91cb"
+    },
+    {
+      "path": "/usr/lib/python3.14/ast.py",
+      "sha256": "5ea9a796353544bea0d706153516f04ef3d92be305d15a73238403837d77e34c"
+    },
+    {
+      "path": "/usr/lib/python3.14/codecs.py",
+      "sha256": "718f39b3ea68fe934214d789c5bce3005fa828040b03a72d2f715fc5e2647b7e"
+    },
+    {
+      "path": "/usr/lib/python3.14/collections/__init__.py",
+      "sha256": "dbd563752a57c6633b7566b1e9c95bc8ea81df1a1d213b23f61c5335424e5af5"
+    },
+    {
+      "path": "/usr/lib/python3.14/contextlib.py",
+      "sha256": "c1e0d67b2007de11ae93cd36cf6faf38d9ab32656a832d592a49325eec579f96"
+    },
+    {
+      "path": "/usr/lib/python3.14/copy.py",
+      "sha256": "15154fde290d6e65b5007905689a47a9a5a724822c5e06eec35d9ffbb2a3aa69"
+    },
+    {
+      "path": "/usr/lib/python3.14/copyreg.py",
+      "sha256": "6376eb5722806396f5842997ac18add369ea9ac3ff4fcfe1460c41a088cac425"
+    },
+    {
+      "path": "/usr/lib/python3.14/ctypes/__init__.py",
+      "sha256": "72f2df568380c275a5596944810953124ff2ee8d678c5f8ddcf50f0f77577eb3"
+    },
+    {
+      "path": "/usr/lib/python3.14/ctypes/_endian.py",
+      "sha256": "499773a028a41ee18153fedfe0a00a26efb2a650f568b9bc17e2f3a914a23468"
+    },
+    {
+      "path": "/usr/lib/python3.14/encodings/__init__.py",
+      "sha256": "2b708410495acf12a6fad9d2de928dd89e567537c253eaa2b51aaae578e96c59"
+    },
+    {
+      "path": "/usr/lib/python3.14/encodings/aliases.py",
+      "sha256": "e38fc524cc8b2355807921411c918c0d971419c4d6ba6147409785db42d257a3"
+    },
+    {
+      "path": "/usr/lib/python3.14/encodings/utf_8.py",
+      "sha256": "ba0cac060269583523ca9506473a755203037c57d466a11aa89a30a5f6756f3d"
+    },
+    {
+      "path": "/usr/lib/python3.14/encodings/utf_8_sig.py",
+      "sha256": "1ef3da8d8aa08149e7f274dc64dbfce2155da812e5258ca8e8f832428d3b5c2d"
+    },
+    {
+      "path": "/usr/lib/python3.14/enum.py",
+      "sha256": "982843c2dd6dbec992bfed44abe9ef5464be81876a180d977ccd1a69e26ec16d"
+    },
+    {
+      "path": "/usr/lib/python3.14/fnmatch.py",
+      "sha256": "ce582bc266922e4c682e2a85d72095124430a6bf58716c6f2537103480eae742"
+    },
+    {
+      "path": "/usr/lib/python3.14/functools.py",
+      "sha256": "046ec9660146db48862c7b22c78e2ef3818eaed6920e5cbf35f551ef09fec6cd"
+    },
+    {
+      "path": "/usr/lib/python3.14/genericpath.py",
+      "sha256": "cdac5a68dd738051e0d66fc81d5947d6a1776248fc6fe862253477608d870ec4"
+    },
+    {
+      "path": "/usr/lib/python3.14/gettext.py",
+      "sha256": "00a96d626c8f53cdcb76e72386875dde4be222c7acacd046ad617e53553b31b8"
+    },
+    {
+      "path": "/usr/lib/python3.14/glob.py",
+      "sha256": "e3c82e6f0a1fe9442d4c5625e68cb206228408f0342326f6f5c8f59112091b59"
+    },
+    {
+      "path": "/usr/lib/python3.14/hashlib.py",
+      "sha256": "88fa624821fbdee7eb2ef87c2437b207afe328cf117c7463367e2db5eb1af492"
+    },
+    {
+      "path": "/usr/lib/python3.14/importlib/__init__.py",
+      "sha256": "72b07de4133a7e39b2f6a7920465669aa04626f217e800779587bc0713fe002e"
+    },
+    {
+      "path": "/usr/lib/python3.14/importlib/_abc.py",
+      "sha256": "80aab7931dc999dee581c8b8b56fcd973fe156335a96ceeaf6acfc03cebf10e8"
+    },
+    {
+      "path": "/usr/lib/python3.14/importlib/_bootstrap.py",
+      "sha256": "e50d35b1191ecbc5f7faecc73f54efd242bcf24c510e4ea5eb64bfba9458c0e3"
+    },
+    {
+      "path": "/usr/lib/python3.14/importlib/_bootstrap_external.py",
+      "sha256": "b9af1fb7b625030cf5ee06b39aeb7838c2a30c97ddee09410286b7afbd8b7098"
+    },
+    {
+      "path": "/usr/lib/python3.14/importlib/util.py",
+      "sha256": "7bdfadad42664ba169ffac8160765673cd79937f74324f4664de8d820c35b863"
+    },
+    {
+      "path": "/usr/lib/python3.14/io.py",
+      "sha256": "1b75584d4efcc612dc0db2ae98619408276585a106f0544879edb5e25b55430a"
+    },
+    {
+      "path": "/usr/lib/python3.14/json/__init__.py",
+      "sha256": "95022d150a27a2bfd54ac21bfce35812c96b53c420bb7b018dcb573f13e52da0"
+    },
+    {
+      "path": "/usr/lib/python3.14/json/decoder.py",
+      "sha256": "302ce57cb6f411122d7ef2ad2997c1fc0f184849fab3f1f585752f18f2195c73"
+    },
+    {
+      "path": "/usr/lib/python3.14/json/encoder.py",
+      "sha256": "d68a4d04d2cfd95897498307f29349058b42c3f48ea6aa6739714a09200a7d01"
+    },
+    {
+      "path": "/usr/lib/python3.14/json/scanner.py",
+      "sha256": "572958017eae8842eeddd0e3d18d3c56cc0a197348224915e1d87ce937841764"
+    },
+    {
+      "path": "/usr/lib/python3.14/keyword.py",
+      "sha256": "18c2be738c04ad20ad375f6a71db34b3823c7f40b0340f5294d0e89f3c9b093b"
+    },
+    {
+      "path": "/usr/lib/python3.14/lib-dynload/_ctypes.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "140e837f2bc9344f3a98dea90e8bdf6f208370e45f3eccbac759c59e59d4d045"
+    },
+    {
+      "path": "/usr/lib/python3.14/lib-dynload/_hashlib.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "f57bc22cc1b6f3b48c43778634af1a7e79c5ae0632350fa5144d050c7848112c"
+    },
+    {
+      "path": "/usr/lib/python3.14/lib-dynload/resource.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "56bc220a6a1b5fdd4bf652a47f6f137e36746b6eac65233a8d8cc1bd3538b9e4"
+    },
+    {
+      "path": "/usr/lib/python3.14/locale.py",
+      "sha256": "0e90907424b4bef150b00feb1bef4687bacb416e6e3f2b463e0758ee34979fe4"
+    },
+    {
+      "path": "/usr/lib/python3.14/ntpath.py",
+      "sha256": "7c5c992b1b52f97d7dc73ad09ea8b97917475e7e4474563379e71b03015f04ca"
+    },
+    {
+      "path": "/usr/lib/python3.14/operator.py",
+      "sha256": "a9f9910965c31f841caad0447ee47299ac539a371422aefe200c86c60f3b4697"
+    },
+    {
+      "path": "/usr/lib/python3.14/os.py",
+      "sha256": "1494f3b93c6714d7a511963586f2b392dc92f3181c0d1ead82c621a4b0aad969"
+    },
+    {
+      "path": "/usr/lib/python3.14/pathlib/__init__.py",
+      "sha256": "e82f9063fa8081136d04d27a79ba6fa44085ccb7ac78077e1095afce77f2a071"
+    },
+    {
+      "path": "/usr/lib/python3.14/pathlib/_os.py",
+      "sha256": "61e844988e54bdf47c0b11ad2b3fd961f058bb370793428f4c6868bd40cab6f2"
+    },
+    {
+      "path": "/usr/lib/python3.14/posixpath.py",
+      "sha256": "8a5bc2b6674e76efe0f507b873a41d746beba466a191153ed18a7580ef6e08e1"
+    },
+    {
+      "path": "/usr/lib/python3.14/re/__init__.py",
+      "sha256": "741a9de729ed8207bfa19db990f8826f1bf3661f33d0970a80c08cd1338ebc35"
+    },
+    {
+      "path": "/usr/lib/python3.14/re/_casefix.py",
+      "sha256": "1b12d9136f23db6c3f6f26053fefc15ca964b886838c7b9c1fabf8d2efc1e5c8"
+    },
+    {
+      "path": "/usr/lib/python3.14/re/_compiler.py",
+      "sha256": "d49f30cf9a1dbae33b200ed8befd9d0ce3ac612783a10ac35196536f98923e91"
+    },
+    {
+      "path": "/usr/lib/python3.14/re/_constants.py",
+      "sha256": "42253b3181b81aad6c46392f44a0ab26dcfa31feea411296f43ba16616a1ab0b"
+    },
+    {
+      "path": "/usr/lib/python3.14/re/_parser.py",
+      "sha256": "e57bd194a2d42398355ae7c1ccc2ddfb78421dd431eb81e3809dbe8ca9057dc4"
+    },
+    {
+      "path": "/usr/lib/python3.14/reprlib.py",
+      "sha256": "b04872e10d76252e44eae50cc785eb0fe478491afc4d7f0825a93f82b2eaba5f"
+    },
+    {
+      "path": "/usr/lib/python3.14/selectors.py",
+      "sha256": "4b8a60cfbb619d080f87dffe1578372e56e8c0ac826f043224a154cf7b77606d"
+    },
+    {
+      "path": "/usr/lib/python3.14/shlex.py",
+      "sha256": "aeda1c54188363d907654a19d338e5961416ebec2e2f506afab19be61ada8120"
+    },
+    {
+      "path": "/usr/lib/python3.14/signal.py",
+      "sha256": "0363c964c90ac0b3e515de5749205e6e6454051a1211058375d84d91eab6071a"
+    },
+    {
+      "path": "/usr/lib/python3.14/site.py",
+      "sha256": "b2c3a0d585c776f9b560c0fe0ed74f0f8e2fc29ad5c9af31a62579d59f5d89a3"
+    },
+    {
+      "path": "/usr/lib/python3.14/stat.py",
+      "sha256": "07217986d9b2172b509dab3578d18ac05ba768b418e1f1e8c90e38a8f7c2b3c6"
+    },
+    {
+      "path": "/usr/lib/python3.14/struct.py",
+      "sha256": "50c14e55f94957804c1e45e975fedbe8e86f7e1dbb745b150370ff681155370a"
+    },
+    {
+      "path": "/usr/lib/python3.14/subprocess.py",
+      "sha256": "6628ffdd65c093a6c08cae01ffe82877d3ced515aac9e7be0cff16512c30a7d9"
+    },
+    {
+      "path": "/usr/lib/python3.14/sysconfig/__init__.py",
+      "sha256": "516073395817d4babe5c301c1fa4a01b61f2dc56f69d3245cabe1d2fa512b533"
+    },
+    {
+      "path": "/usr/lib/python3.14/threading.py",
+      "sha256": "5323909624ec2165e70b6d31333e4191b63d383d2dc5a7d7d516a3475ea2b7e3"
+    },
+    {
+      "path": "/usr/lib/python3.14/types.py",
+      "sha256": "fcfdd1c5ae56a9c35f207743d774e236da0153bf78e6e4629193a8e0e9438a6b"
+    },
+    {
+      "path": "/usr/lib/python3.14/warnings.py",
+      "sha256": "142225786de63c593f1c9abdacf5b4fc0b05dd847f6bed0ebb4b4aa2d4d93b02"
+    },
+    {
+      "path": "/usr/lib/python3.14/weakref.py",
+      "sha256": "5e5f727a19a858cb4c56dbaf3e0a138ded02fb954a9a58a840a0764216ae9522"
+    },
+    {
+      "path": "/usr/lib/python3.14/zipimport.py",
+      "sha256": "4de64633a484e16c39fdb46a3f939ce7c577b14a6e9ee49b79871ec1880b4597"
+    },
+    {
+      "path": "/usr/lib/python3/dist-packages/_distutils_hack/__init__.py",
+      "sha256": "df81e6bcba34ee3e3952f776551fb669143b9490fdd6c4caeb32609f97e985b4"
+    },
+    {
+      "path": "/usr/lib/python3/dist-packages/apport_python_hook.py",
+      "sha256": "d48b4213025b71c4db81bd226977900a593a7baa4d81c3261ce9940ec188f450"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache",
+      "sha256": "52c227df9d53248238602c1ddaccd2c8ddc4cc6a61aa45d7c425af590b8806a5"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libcrypto.so.3",
+      "sha256": "5385f0436ac2e284ba8c5fb1488874057c29c04be72dea32add832694f381e28"
+    }
+  ],
+  "installed_v9_constants_missing_from_historical_union": [
+    {
+      "path": "/usr/local/libexec/vkf-storage-private-v2/unshare",
+      "sha256": "41c65e55107cbbb1a1f6994784a938dd7dbbe255d1fea6b7a58ec96eabe382ef"
+    },
+    {
+      "path": "/etc/apparmor.d/vkf-storage-private-v2",
+      "sha256": "8bd0a67dd92c2b7504d6c5c62ace5a450afc439f8ff3ae73f9c0bceb722b4029"
+    }
+  ],
+  "elf_metadata": [
+    {
+      "path": "/usr/bin/git",
+      "needs": [
+        "libpcre2-8.so.0",
+        "libz.so.1",
+        "libc.so.6"
+      ],
+      "interpreter": "/lib64/ld-linux-x86-64.so.2",
+      "search": []
+    },
+    {
+      "path": "/usr/bin/python3.14",
+      "needs": [
+        "libm.so.6",
+        "libz.so.1",
+        "libexpat.so.1",
+        "libc.so.6"
+      ],
+      "interpreter": "/lib64/ld-linux-x86-64.so.2",
+      "search": []
+    },
+    {
+      "path": "/usr/lib/python3.14/lib-dynload/_ctypes.cpython-314-x86_64-linux-gnu.so",
+      "needs": [
+        "libffi.so.8",
+        "libc.so.6"
+      ],
+      "interpreter": null,
+      "search": []
+    },
+    {
+      "path": "/usr/lib/python3.14/lib-dynload/_hashlib.cpython-314-x86_64-linux-gnu.so",
+      "needs": [
+        "libcrypto.so.3",
+        "libc.so.6"
+      ],
+      "interpreter": null,
+      "search": []
+    },
+    {
+      "path": "/usr/lib/python3.14/lib-dynload/resource.cpython-314-x86_64-linux-gnu.so",
+      "needs": [
+        "libc.so.6"
+      ],
+      "interpreter": null,
+      "search": []
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+      "needs": [
+        "ld-linux-x86-64.so.2"
+      ],
+      "interpreter": "/lib64/ld-linux-x86-64.so.2",
+      "search": []
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libcrypto.so.3",
+      "needs": [
+        "libz.so.1",
+        "libzstd.so.1",
+        "libc.so.6"
+      ],
+      "interpreter": null,
+      "search": []
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libexpat.so.1.11.2",
+      "needs": [
+        "libc.so.6"
+      ],
+      "interpreter": null,
+      "search": []
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libffi.so.8.2.0",
+      "needs": [
+        "libc.so.6"
+      ],
+      "interpreter": null,
+      "search": []
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+      "needs": [
+        "libc.so.6",
+        "ld-linux-x86-64.so.2"
+      ],
+      "interpreter": null,
+      "search": []
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1",
+      "needs": [
+        "libc.so.6"
+      ],
+      "interpreter": null,
+      "search": []
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.7",
+      "needs": [
+        "libc.so.6"
+      ],
+      "interpreter": null,
+      "search": []
+    }
+  ],
+  "limitation": "Loaded .pyc files may appear for stdlib. Root must seal exact loaded files and source; Git dependencies need explicit closure too."
+}

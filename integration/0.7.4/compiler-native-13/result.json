@@ -1,0 +1,91 @@
+{
+  "result": "FAILED_BEFORE_COMPILER_MATERIALIZATION",
+  "attempt": "A:compiler-native13-01",
+  "controller_exit": 1,
+  "controller_seconds": 37.747843564953655,
+  "native_build_passed": false,
+  "core_regression_passed": false,
+  "compiler_stages_executed": 0,
+  "baseline_oracle_executed": false,
+  "candidate_oracle_executed": false,
+  "actual_MD_link_ELF": "not produced",
+  "error": "adapter.py:352 nonblocking shared capacity.lock acquisition: BlockingIOError EAGAIN",
+  "lock_holder_at_failure": "not captured; no attribution claimed",
+  "terminal_join_verified": true,
+  "join": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native13-01/receipts/service-join.json",
+    "sha256": "d256ac9107872673b7751c4d7c2490b607ff23e6ec8c16b80257bd6ed63c2492"
+  },
+  "A_high_restored_bytes": 3221225472,
+  "permanent_charge_retained_bytes": 1073741824,
+  "attempt_allocated_bytes": 421888,
+  "lanes": {
+    "A": {
+      "properties": {
+        "memory.max": "8589934592",
+        "memory.high": "3221225472",
+        "memory.swap.max": "0",
+        "pids.max": "160",
+        "cgroup.events": "populated 0\nfrozen 0",
+        "cgroup.procs": ""
+      },
+      "charge": 19864543232,
+      "remaining": 70754933504,
+      "old_volume": {
+        "free": 4276248576,
+        "used": 18778218496
+      },
+      "root_allocated": 2158592
+    },
+    "F": {
+      "properties": {
+        "memory.max": "3221225472",
+        "memory.high": "3221225472",
+        "memory.swap.max": "0",
+        "pids.max": "160",
+        "cgroup.events": "populated 0\nfrozen 0",
+        "cgroup.procs": ""
+      },
+      "charge": 19821273088,
+      "remaining": 70798203648,
+      "old_volume": {
+        "free": 3270942720,
+        "used": 19783524352
+      },
+      "root_allocated": 2088960
+    }
+  },
+  "tiny_attempts_unchanged": 12,
+  "tiny_bytes_unchanged": 50331648,
+  "active_ram": 0,
+  "overlap": 0,
+  "MemAvailable": 19434434560,
+  "offload": 0,
+  "holds": {
+    "vkf-s0-synchronized-contexts.service": "ActiveState=inactive\nMainPID=0\n",
+    "vkf-s0-synchronized-contexts.timer": "ActiveState=inactive\n",
+    "vkf-s0-worker-done.path": "ActiveState=inactive\n"
+  },
+  "physical": {
+    "/": {
+      "free": 54848909312,
+      "used": 431619584000
+    },
+    "/mnt/development": {
+      "free": 1562306408448,
+      "used": 385518907392
+    },
+    "/mnt/vkf-storage-2tb": {
+      "free": 1562306408448,
+      "used": 385518907392
+    }
+  },
+  "posthash": {
+    "plan_inputs": 727,
+    "static_pins": 229,
+    "grant_inputs": 898,
+    "passed": true
+  },
+  "head": "168085c78e1a91f413aa9f1cfadd9f40c97c1894",
+  "seconds": 3.784036941942759
+}

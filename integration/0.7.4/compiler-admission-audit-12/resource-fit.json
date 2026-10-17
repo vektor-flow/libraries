@@ -1,0 +1,64 @@
+{
+  "state_observation": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/direct-state-v4.json",
+    "sha256": "05707907afbb11756d243f0a6a6be72cd0dbd3a1d8988357d08b2af6125f90b1"
+  },
+  "not_immutable_authority": true,
+  "budgets": {
+    "A": {
+      "budget": 90619476736,
+      "charge": 18790801408,
+      "remaining": 71828675328,
+      "first_compiler_charge": 1073741824,
+      "after_first": 19864543232,
+      "remaining_after_first": 70754933504,
+      "remaining_after_all_seven_forecasts": 50353838848
+    },
+    "F": {
+      "budget": 90619476736,
+      "charge": 19821273088,
+      "remaining": 70798203648
+    }
+  },
+  "physical_snapshot": {
+    "/": {
+      "free": 54861156352,
+      "used": 431607336960
+    },
+    "/mnt/development": {
+      "free": 1562306830336,
+      "used": 385518485504
+    },
+    "/mnt/vkf-worker-disks/worker-A": {
+      "free": 4276248576,
+      "used": 18778218496
+    },
+    "/mnt/vkf-worker-disks/worker-F": {
+      "free": 3270942720,
+      "used": 19783524352
+    }
+  },
+  "backing_floor": 398176371712,
+  "tiny_qualification": {
+    "attempts": 12,
+    "consumed_bytes": 50331648,
+    "remaining_attempts": 4,
+    "remaining_bytes": 16777216,
+    "cumulative_lane_charge": {
+      "F": 19821273088,
+      "A": 18790801408
+    },
+    "no_refund_or_reset": true
+  },
+  "compiler_forecast": {
+    "ram": 4294967296,
+    "actual_adapter_A_profile": 8589934592,
+    "disk": 1073741824,
+    "seconds": 1200,
+    "native_measurements_available": false,
+    "stage_timeout_sum": 1140,
+    "overhead_slack_seconds": 60,
+    "subphase_disk_sum": 838860800,
+    "disk_slack": 234881024
+  }
+}

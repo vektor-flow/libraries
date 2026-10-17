@@ -1,0 +1,63 @@
+{
+  "attempt_absent": true,
+  "dry_recipe_inspected": true,
+  "hash_order": [
+    "source-contract",
+    "plan/assets",
+    "contract",
+    "grant",
+    "manifest",
+    "separate publication"
+  ],
+  "inputs": 727,
+  "plan_keys": [
+    "application_head_at_preparation",
+    "candidate_review",
+    "executable",
+    "generated",
+    "identity",
+    "identity_recipe",
+    "inputs",
+    "kind",
+    "out",
+    "parent_identity",
+    "schema",
+    "stages",
+    "units"
+  ],
+  "preflight": 3.364029441960156,
+  "stages": [
+    {
+      "name": "compile-53",
+      "timeout": 180
+    },
+    {
+      "name": "compile-90",
+      "timeout": 180
+    },
+    {
+      "name": "link-compiler",
+      "timeout": 180
+    },
+    {
+      "name": "compile-regression",
+      "timeout": 180
+    },
+    {
+      "name": "link-regression-baseline",
+      "timeout": 180
+    },
+    {
+      "name": "run-regression-baseline",
+      "timeout": 30
+    },
+    {
+      "name": "link-regression-candidate",
+      "timeout": 180
+    },
+    {
+      "name": "run-regression-candidate",
+      "timeout": 30
+    }
+  ]
+}
