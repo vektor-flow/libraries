@@ -1,0 +1,110 @@
+STORAGE LIVE19 — STOP / UNQUALIFIED: FIRST F PRE-STAGE SYSTEM-PATH TRUST REJECTION
+2026-10-17. Worker 01a149a4-a1db-77a3-8094-f450e46d1ee8.
+Coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31.
+Fixed source HEAD 1b76a245c632e0b6b1b63eda740b14a49fc2f60d.
+
+RESULT / FIRST UNEXPECTED ACTUAL OUTCOME
+Exact installed storage-direct-v8/v2 was authenticated; normal F succession,
+unused-A revocation and separate atomic owner publication succeeded. First real
+F3GiB success-case attempt exited1. The pre-stage helper rejected:
+  storage_paths.Rejected: untrusted system path
+  /usr/local/libexec/vkf-storage-private-v2/unshare
+Trace: private_workload.py gate:226 -> verify_dependencies:184 ->
+trusted_system_file:33-34. This is BEFORE policy_gate/pre mount observation.
+Outerexit1, sandboxexit1, custody service intentionally exit199.
+STOP.json/live19-f-success-01-result.json retain the first failure. No retry,
+alternate launch, new recovery, source/config/policy edit, or guard relaxation.
+F nonzero/timeout and all A cases UNRUN. Zero qualified cases. No native claim.
+
+RAW EVIDENCE / LIMITS
+Payload stdout EMPTY; stderr preserves exact traceback in raw-stderr. No pre/post
+security diagnostics, private mount snapshots, strict mountrepair08 fixture report
+or payload.bin. Missing records are not accepted as passing gates. Actual origin
+CapInh0000000800000000 -> zero; CapPrm/Eff/Amb zero, bounding set unchanged,
+Uid/Gid1000, Threads1, NoNewPrivs0, unconfined label unchanged. Three actual origin
+records have no observation errors; origin policy gate returned before launch.
+Host-only final lstat: dedicated v2 binary uid0/gid0,0755,ordinary,single-link.
+The namespace lstat fields that failed were NOT emitted; do not present a guessed
+UID-mapping mechanism as an observed fact. failure-source-context.json identifies
+the exact predicate and stage. No speculative sandbox diagnostic was launched.
+Kernel query since actual launch 2026-10-17T11:38:29.812194+00:00 exited0 and
+returned '-- No entries --'. This is the query result, not a universal absence
+of kernel events. Host path metadata and exact source context retained.
+Initial, prelaunch and final raw loaded comparisons pass seven enforce profiles:
+bwrap,unpriv_bwrap,unprivileged_userns,private/pre-v1,private/pre-v2. v2 pieces
+reconstitute exact19465byte compiled contract hash8ee5871c...d2397. No compiler,
+parser, policy load, installer, system setup or host mount change was executed.
+
+DRY VALIDATION / PREPARATION
+Read inherited instructions (no repository-local AGENTS.md), shared handover/status,
+repair18 HANDOFF/SUCCESSOR/root-installed/root-install-after-lock-check and live17
+wrappers/reviewed atomic publication code. New root install receipts supersede
+repair18's earlier preparation-only state. Current HEAD exactly matches grant.
+Fresh physical/RAM/offload/registry/holds and both legacy receipts authenticated.
+Initial memory/overlap notification acknowledged by existing app-server.
+Actual v8 dependencies, original v7 authority bundle and original v7 recovery
+authority authenticate; exact five phase rows/two recovery events preserved.
+Dry in-memory Ledger.rotate_owner uses actual Controller.verify_join on latest
+F:live17-f-success-01 exit-11, then projects unused-A with full post-F snapshot.
+Six fresh schemas, seven publication selections, ordered FIVEhelpers/config,
+mandatory BINARIES/POLICY_INPUTS in BOTH input arrays, imported ctypes/_ctypes/
+ctypes._endian and actually mapped libffi/DSO closure checked. No old grants reused.
+Dry6.778460s; ten isolated atomic-publication tests pass; parser controls1positive,
+18negative pass including old-v1/extra labels, missing records, observation errors
+and inherited capabilities. A local nonoperational dry-script KeyError was fixed:
+'attempt' is in the grant, not the phase row. Original failed dry receipt retained;
+corrected dry passed before ANY operational mutation. No actual retry occurred.
+All dry-pinned operational scripts remain unchanged after validation.
+
+AUTHORIZED OPERATIONS
+Protected own setup only: storage-direct-v8/storage-live-19,mode0700,immutable
+mode0400 records. F transition kind='joined',prior_phase=F:live17-f-success-01,
+prior_join exact old receipt, from live17 to this worker. Installed Ledger.rotate_owner
+called once with fresh actual verify_join callback. No recovery-kind transition.
+Then fresh FULL post-F snapshot taken under capacity.lock; A unused-owner-revocation
+via Ledger.rotate_owner,phase_sequence5. All original rows/events/policies/charges
+unchanged. Ledger API did not publish owners; separate explicitly authorized
+locked compare-and-atomic publication performed initial selections and F selection.
+Both publications preserve other entries, verify authority/HEAD/current ledger,
+no-follow paths, ordinary single-link files, exclusive same-parent0400 temporary,
+file fsync/rename/parent fsync. Intent/receipt bytes and hashes retained.
+Both current owners are this live19 chat. Six fresh iteration19 manifests/grants
+remain evidence; five unstarted grants do NOT authorize an automatic retry.
+
+AUTHENTICATED CUSTODY / RESERVATIONS
+Unit vkfworkers-f-live19-f-success-01.service. Outer454/start74962987;
+service725/start74963900; sandbox842/start74964358, all independently absent.
+Exact typed D-Bus ExecStart argv/PID, invocation, terminal service properties,
+empty service+A/F cgroups authenticated. Normal join passed during qualifier
+and again during final sealing. Phase stage=joined, timed_out=false,
+guard_error=null, remaining identities empty; input hashes reverified.
+No recovery needed or performed. Active RAM intent0. Thirteen wrapper execution
+receipts retain child identity/wait/absence, including failed dry and stopped
+qualifier. No fabricated completion or successful payload claim.
+
+RESOURCE / CHARGE PRESERVATION
+Final MemAvailable19480301568bytes (~18.14GiB), worker/legacy overlap0;
+offload remaining intent0. Dispatcher service/timer/path inactive; service runtime
+mask=/dev/null. A high3GiB throughout; hardA8GiB/F3GiB,parent21GiB,swap0 unchanged.
+Service TasksMax128; lane pids.max160 unchanged.
+F peak41,721,856bytes,swap peak0,CPU8,116,608,000ns,service8.160787s;
+outer19.360117s,full observation23.872798s. Attempt allocation49,152bytes<=4MiB.
+These are FAILED controller/pre-stage timings, not payload/native performance.
+Original5attempts20MiB +1attempt4MiB =6/16attempts,24/64MiB consumed.
+Remaining10attempts40MiB is arithmetic only. No refund/reset. Cumulative charged
+F19,808,690,176bytes; A18,778,218,496bytes. Historical rows/events unchanged.
+
+DELIVERY / BOUNDARIES
+qualification-result.json,final-state.json,final-owner-state.json,
+independent-terminal-join.json,security-observations.json,raw-* receipts,
+kernel-journal-readonly.json,host-path-metadata-readonly.json,
+failure-source-context.json,final-resources.json,final-loaded-policy.json,
+authenticated-input-pins.json(216pins),all-owned-joins.json,output-pins.json.
+Own output/protected v8 setup/authorized API+owner publication/one charged F root
+are the only written scopes. Original v1/v7, installed v8/config/policies and
+recovery authority remain pinned. No agents, commits, compiler/native/link,
+system setup, host mount or frozen-source writes. Existing unrelated untracked
+repository files untouched. Qualification must remain false.
+ONE DONE storage-live-19-01a149a4-stop ID/result/path delivered via existing
+app-server notification; acknowledgment or uncertainty recorded without retry.
+Stop after delivery; no successor work in this chat.

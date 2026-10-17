@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-19/dry_validate.py"
+  ],
+  "identity": {
+    "pid": 4192752,
+    "starttime": 74955753,
+    "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+    "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/codex-phone-host.service",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-19/dry_validate.py"
+    ]
+  },
+  "exit": 1,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-19/dry_validate.py\", line 18, in <module>\n    pre,auth,authority,cp,c,real,before,adapter,owner_bytes=rot.validate_before()\n                                                            ~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-19/rotate_owners.py\", line 53, in validate_before\n    ledger.check(before);verify_normal_join(before['phases'][KEY],pinned_json(before['phases'][KEY]['join']))\n                         ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-19/rotate_owners.py\", line 19, in verify_normal_join\n    assert row['attempt']=='live17-f-success-01'\n           ~~~^^^^^^^^^^^\nKeyError: 'attempt'\n",
+  "seconds": 1.886563197011128,
+  "joined": true,
+  "observed": null
+}

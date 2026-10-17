@@ -1,0 +1,90 @@
+{
+  "verified": true,
+  "seconds": 0.06600013095885515,
+  "join": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/F/direct-v2-20261017/live19-f-success-01/receipts/service-join.json",
+    "sha256": "6cd94505581b5b8e123d2d09632ee691f5dfa8c40224fe2a808a290c56e43699"
+  },
+  "properties": {
+    "LoadState": "loaded",
+    "ActiveState": "failed",
+    "InvocationID": "eb619dd275bf4d17a7b1f542d2328d9f",
+    "TimeoutStopUSec": "10s",
+    "RuntimeMaxUSec": "40s",
+    "MainPID": "0",
+    "Result": "exit-code",
+    "OOMPolicy": "kill",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "199",
+    "ControlGroup": "",
+    "MemoryMax": "3221225472",
+    "MemorySwapMax": "0",
+    "TasksMax": "128",
+    "KillMode": "control-group"
+  },
+  "dbus_get_unit": "{\"type\":\"o\",\"data\":[\"/org/freedesktop/systemd1/unit/vkfworkers_2df_2dlive19_2df_2dsuccess_2d01_2eservice\"]}\n",
+  "dbus_exec_start": "{\"type\":\"a(sasbttttuii)\",\"data\":[[\"/usr/bin/python3\",[\"/usr/bin/python3\",\"-B\",\"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v8/storage_controller.py\",\"--config-sha256\",\"6698f7e3e7c422e3cd978837f025d1fa76ef2dadbf0d10e29a600d47fa36f41e\",\"--grant\",\"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v8/storage-live-19/live19-f-success-01-grant.json\",\"--grant-sha256\",\"0a217a900b0810ebb93df89180aaa3c6f01b5c03d1a5bc08b9fb94b23f1d9b73\",\"--manifest\",\"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v8/storage-live-19/live19-f-success-01-manifest.json\",\"--manifest-sha256\",\"d249eeb112674ec29360f150dc76f0ad2d1d481dd82bd9cb90fe0ef1c2255660\",\"--inside-service\"],false,1792237118941779,749639008288,1792237127102566,749647169075,725,1,199]]}\n",
+  "identities": [
+    {
+      "saved": {
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v8/storage_controller.py",
+          "--config-sha256",
+          "6698f7e3e7c422e3cd978837f025d1fa76ef2dadbf0d10e29a600d47fa36f41e",
+          "--grant",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v8/storage-live-19/live19-f-success-01-grant.json",
+          "--grant-sha256",
+          "0a217a900b0810ebb93df89180aaa3c6f01b5c03d1a5bc08b9fb94b23f1d9b73",
+          "--manifest",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v8/storage-live-19/live19-f-success-01-manifest.json",
+          "--manifest-sha256",
+          "d249eeb112674ec29360f150dc76f0ad2d1d481dd82bd9cb90fe0ef1c2255660"
+        ],
+        "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+        "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/codex-phone-host.service",
+        "pid": 454,
+        "starttime": 74962987
+      },
+      "observed": null
+    },
+    {
+      "saved": {
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v8/storage_controller.py",
+          "--config-sha256",
+          "6698f7e3e7c422e3cd978837f025d1fa76ef2dadbf0d10e29a600d47fa36f41e",
+          "--grant",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v8/storage-live-19/live19-f-success-01-grant.json",
+          "--grant-sha256",
+          "0a217a900b0810ebb93df89180aaa3c6f01b5c03d1a5bc08b9fb94b23f1d9b73",
+          "--manifest",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v8/storage-live-19/live19-f-success-01-manifest.json",
+          "--manifest-sha256",
+          "d249eeb112674ec29360f150dc76f0ad2d1d481dd82bd9cb90fe0ef1c2255660",
+          "--inside-service"
+        ],
+        "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+        "cgroup": "/user.slice/user-1000.slice/user@1000.service/vkfworkers.slice/vkfworkers-f.slice/vkfworkers-f-live19-f-success-01.service",
+        "pid": 725,
+        "starttime": 74963900
+      },
+      "observed": null
+    },
+    {
+      "saved": {
+        "pgrp": 842,
+        "pid": 842,
+        "ppid": 725,
+        "session": 842,
+        "starttime": 74964358,
+        "state": "R"
+      },
+      "observed": null
+    }
+  ],
+  "cgroups_empty": true
+}

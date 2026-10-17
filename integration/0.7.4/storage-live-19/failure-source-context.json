@@ -1,0 +1,21 @@
+{
+  "pin": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v8/private_workload.py",
+    "sha256": "0a9d6b0c79689c9fce488188b26392fc7cf07aae393848a9cd35c4315f252301"
+  },
+  "sections": [
+    {
+      "start": 25,
+      "text": "\n\ndef trusted_system_file(path):\n    \"\"\"No symlink, privileged bits, filecaps or non-root-writable system input.\"\"\"\n    import stat\n    path = Path(path)\n    for p in (path, *path.parents):\n        s = p.lstat()\n        require(not stat.S_ISLNK(s.st_mode) and s.st_uid == 0\n                and not s.st_mode & 0o022, 'untrusted system path '+str(p))\n    s = path.stat()\n    require(stat.S_ISREG(s.st_mode) and not s.st_mode & 0o6000, 'privileged system input')\n    require('security.capability' not in os.listxattr(path), 'file capabilities forbidden')\n\n\ndef _security_snapshot():"
+    },
+    {
+      "start": 178,
+      "text": "\ndef verify_dependencies():\n    require([p['path'] for p in BINARIES] == [UNSHARE, PYTHON, BWRAP], 'exact binary contract')\n    require(Path(sys.executable).resolve() == Path(PYTHON), 'executing interpreter contract')\n    for p in BINARIES:\n        pinned(p)\n        trusted_system_file(p['path'])\n    for p in POLICY_INPUTS:\n        pinned(p)\n        trusted_system_file(p['path'])\n    for p in ABSENT_INCLUDES:\n        require(not os.path.lexists(p), 'policy include appeared '+p)\n    require(Path('/proc/sys/kernel/apparmor_restrict_unprivileged_userns').read_text().strip() == '1',\n            'userns restriction changed')\n"
+    },
+    {
+      "start": 218,
+      "text": "    require(sum(m.parent not in mounts for m in mounts.values()) == 1, 'disconnected mount roots')\n    # PRIVATE has no shared/master/propagate_from/unbindable optional field.\n    require(all(not m.optional for m in mounts.values()), 'workload tree is not entirely private')\n    return len(mounts)\n\n\ndef gate(stage, origin, attempt, argv):\n    require(stage in ('pre', 'post') and argv and Path(argv[0]).is_absolute(), 'private gate command')\n    verify_dependencies()\n    security = policy_gate(stage, origin)\n    now = context()\n    require(now['cgroup'] == origin['cgroup'] and origin['cgroup'].endswith('.service'), 'wrapper cgroup changed')\n    require(now['uid'] == origin['uid'] != 0 and now['gid'] == origin['gid'], 'wrapper identity changed')\n    for n in ('mnt','user','pid','net'):\n        changed = now['namespaces'][n] != origin['namespaces'][n]\n        require(changed == (stage == 'post' or n in ('mnt','user')), 'wrapper namespace '+n)\n    if stage == 'pre':\n        require(argv[0] == BWRAP, 'pre gate must exec bwrap')\n        for kind, value in (('uid',origin['uid']), ('gid',origin['gid'])):\n            fields = Path('/proc/self/'+kind+'_map').read_text().split()\n            require(fields == [str(value), str(value), '1'], 'single current-user mapping required')\n    raw = Path('/proc/self/mountinfo').read_text()\n    print(json.dumps(dict(private_workload_snapshot=stage, context=now, policy=security,\n        sha256=hashlib.sha256(raw.encode()).hexdigest(), mountinfo=raw)), flush=True)\n    count = private_snapshot(raw)\n    if stage == 'post':\n        # Preserve the strict effective-storage checker unchanged; a future\n        # payload cannot bypass it simply by omitting the qualification fixture.\n        report = effective_storage.check(raw, attempt)\n        require(Path('/proc/self/mountinfo').read_text() == raw, 'mount topology changed at payload gate')\n        print(json.dumps(dict(private_workload_postcondition=True, mounts=count,\n                              private_workload_storage=report)), flush=True)\n    else:\n        print(json.dumps(dict(private_workload_precondition=True, mounts=count)), flush=True)\n    os.execv(argv[0], argv)\n    raise RuntimeError('exec unexpectedly returned')\n\n\ndef main(argv):\n    require(len(argv) >= 5 and argv[3] == '--', 'exact gate argument shape')\n    gate(argv[0], json.loads(argv[1]), argv[2], argv[4:])\n\n"
+    }
+  ],
+  "inference": "The failing predicate is lstat symlink/uid/mode trust, before any pre-policy diagnostic or mount snapshot. Host metadata passes and no namespace lstat fields were emitted. No speculative mechanism is treated as an observation."
+}
