@@ -1,0 +1,144 @@
+{
+  "compiler_subphases": [
+    {
+      "disk_bytes": 134217728,
+      "inclusions": "new object,MD,partial object/compiler temp,logs",
+      "name": "compile53",
+      "ram_bytes": 2147483648,
+      "time_seconds": 180
+    },
+    {
+      "disk_bytes": 33554432,
+      "inclusions": "identity source/header/object,MD,failed temp/logs",
+      "name": "compile90",
+      "ram_bytes": 536870912,
+      "time_seconds": 180
+    },
+    {
+      "disk_bytes": 268435456,
+      "inclusions": "new ELF,linker temp,map/MD,failed ELF/logs",
+      "name": "link compiler",
+      "ram_bytes": 3221225472,
+      "time_seconds": 180
+    },
+    {
+      "disk_bytes": 402653184,
+      "inclusions": "test object,baseline and candidate ELFs,MD,link scratch,failed artifacts/logs",
+      "name": "C++ regression compile+2links+2runs",
+      "ram_bytes": 3221225472,
+      "time_seconds": 600
+    }
+  ],
+  "cumulative_retained_disk_upper_if_all_attempts_run": 21474836480,
+  "estimates_not_admission": true,
+  "historical_inputs_read_only_no_copy_bytes": 67103824,
+  "native_measurements_available": false,
+  "notes": [
+    "These are conservative planning allowances, not calibrated peak measurements or controller requests.",
+    "Sequential compiler subphases retain prior outputs;1GiB compiler phase allowance includes aggregate residue.",
+    "Every new failed retry adds a separately accounted charge. Root must choose actual RAM,disk,time after live qualification.",
+    "Full-app is compile-only. Remaining native47/original419 and renderer/PDF tests need distinct forecasts/grants."
+  ],
+  "parallel_jobs": 1,
+  "phases": [
+    {
+      "includes": [
+        "private sources and VFS/manifests",
+        "objects,typed IR,generated C++ and assembler if emitted",
+        "link outputs and all test executables",
+        "tmp/cache and linker/compiler scratch",
+        "stdout/stderr,depfiles,join receipts",
+        "unsuccessful and interrupted artifacts; no cleanup credit"
+      ],
+      "inclusive_new_attempt_disk_bytes": 1073741824,
+      "name": "compiler",
+      "ram_bytes": 4294967296,
+      "timeout_seconds": 1200
+    },
+    {
+      "includes": [
+        "private sources and VFS/manifests",
+        "objects,typed IR,generated C++ and assembler if emitted",
+        "link outputs and all test executables",
+        "tmp/cache and linker/compiler scratch",
+        "stdout/stderr,depfiles,join receipts",
+        "unsuccessful and interrupted artifacts; no cleanup credit"
+      ],
+      "inclusive_new_attempt_disk_bytes": 2147483648,
+      "name": "d288",
+      "ram_bytes": 4294967296,
+      "timeout_seconds": 2400
+    },
+    {
+      "includes": [
+        "private sources and VFS/manifests",
+        "objects,typed IR,generated C++ and assembler if emitted",
+        "link outputs and all test executables",
+        "tmp/cache and linker/compiler scratch",
+        "stdout/stderr,depfiles,join receipts",
+        "unsuccessful and interrupted artifacts; no cleanup credit"
+      ],
+      "inclusive_new_attempt_disk_bytes": 1073741824,
+      "name": "metadata",
+      "ram_bytes": 4294967296,
+      "timeout_seconds": 300
+    },
+    {
+      "includes": [
+        "private sources and VFS/manifests",
+        "objects,typed IR,generated C++ and assembler if emitted",
+        "link outputs and all test executables",
+        "tmp/cache and linker/compiler scratch",
+        "stdout/stderr,depfiles,join receipts",
+        "unsuccessful and interrupted artifacts; no cleanup credit"
+      ],
+      "inclusive_new_attempt_disk_bytes": 2147483648,
+      "name": "a345",
+      "ram_bytes": 4294967296,
+      "timeout_seconds": 300
+    },
+    {
+      "includes": [
+        "private sources and VFS/manifests",
+        "objects,typed IR,generated C++ and assembler if emitted",
+        "link outputs and all test executables",
+        "tmp/cache and linker/compiler scratch",
+        "stdout/stderr,depfiles,join receipts",
+        "unsuccessful and interrupted artifacts; no cleanup credit"
+      ],
+      "inclusive_new_attempt_disk_bytes": 4294967296,
+      "name": "f364",
+      "ram_bytes": 8589934592,
+      "timeout_seconds": 2700
+    },
+    {
+      "includes": [
+        "private sources and VFS/manifests",
+        "objects,typed IR,generated C++ and assembler if emitted",
+        "link outputs and all test executables",
+        "tmp/cache and linker/compiler scratch",
+        "stdout/stderr,depfiles,join receipts",
+        "unsuccessful and interrupted artifacts; no cleanup credit"
+      ],
+      "inclusive_new_attempt_disk_bytes": 4294967296,
+      "name": "a347",
+      "ram_bytes": 8589934592,
+      "timeout_seconds": 2100
+    },
+    {
+      "includes": [
+        "private sources and VFS/manifests",
+        "objects,typed IR,generated C++ and assembler if emitted",
+        "link outputs and all test executables",
+        "tmp/cache and linker/compiler scratch",
+        "stdout/stderr,depfiles,join receipts",
+        "unsuccessful and interrupted artifacts; no cleanup credit"
+      ],
+      "inclusive_new_attempt_disk_bytes": 6442450944,
+      "name": "full-app",
+      "ram_bytes": 8589934592,
+      "timeout_seconds": 2100
+    }
+  ],
+  "root_owns_all_budget_decisions": true
+}

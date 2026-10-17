@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controller-preparation-09/adapter.py", line 371, in <module>
+    main()
+    ~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controller-preparation-09/adapter.py", line 367, in main
+    if args.mode == 'assemble': assemble(args.plan,args.root_inputs,args.out)
+                                ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controller-preparation-09/adapter.py", line 205, in assemble
+    ep = evidence(r, s)  # Fail before any output if actual root inputs are absent.
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controller-preparation-09/adapter.py", line 172, in evidence
+    require(request['coordinator'] == COORDINATOR and request['native_execution'] is True,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            'actual root execution decision required')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controller-preparation-09/adapter.py", line 31, in require
+    raise ValueError(message)
+ValueError: actual root execution decision required

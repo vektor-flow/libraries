@@ -1,0 +1,48 @@
+test_01_original_real_plan_assemble_reproduces_noncanonical_input_failure (__main__.Tests.test_01_original_real_plan_assemble_reproduces_noncanonical_input_failure) ... ok
+test_02_installed_v6_rejects_original_alias_then_accepts_canonical_pin (__main__.Tests.test_02_installed_v6_rejects_original_alias_then_accepts_canonical_pin) ... ok
+test_03_real_plan_assembles_without_rehash_or_prefill (__main__.Tests.test_03_real_plan_assembles_without_rehash_or_prefill) ... ok
+test_04_file_backed_assemble_run_real_payload_eight_fake_stages (__main__.Tests.test_04_file_backed_assemble_run_real_payload_eight_fake_stages) ... ERROR
+test_05_missing_publication_fails_before_materialization (__main__.Tests.test_05_missing_publication_fails_before_materialization) ... ok
+test_06_real_plan_all_materialization_parents_and_full_binding (__main__.Tests.test_06_real_plan_all_materialization_parents_and_full_binding) ... ok
+test_07_readonly_shared_lock_conflicts_and_then_releases (__main__.Tests.test_07_readonly_shared_lock_conflicts_and_then_releases) ... ok
+test_08_alias_digest_conflict_rejected (__main__.Tests.test_08_alias_digest_conflict_rejected) ... ok
+test_09_missing_nominal_dependency_rejected (__main__.Tests.test_09_missing_nominal_dependency_rejected) ... ok
+
+======================================================================
+ERROR: test_04_file_backed_assemble_run_real_payload_eight_fake_stages (__main__.Tests.test_04_file_backed_assemble_run_real_payload_eight_fake_stages)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-adapter-review-10/test_integration.py", line 182, in test_04_file_backed_assemble_run_real_payload_eight_fake_stages
+    def test_04_file_backed_assemble_run_real_payload_eight_fake_stages(self): self.runtime()
+                                                                               ~~~~~~~~~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-adapter-review-10/test_integration.py", line 175, in runtime
+    a.run(str(out/'contract.json'),a.pin(out/'contract.json')['sha256'],r['grant_path'],r['manifest_path'])
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-adapter-review-10/adapter.py", line 378, in run
+    payload.execute(plan,binding)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-adapter-review-10/test_integration.py", line 172, in execute
+    real_execute(plan,binding,run_override=fake)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-build-preparation-03/payload.py", line 93, in execute
+    env=environment(out,plan)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-build-preparation-03/payload.py", line 66, in environment
+    require(len(runtimes)==1,'runtime binding ambiguous');env['LD_LIBRARY_PATH']=str(Path(runtimes[0]['path']).parent)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-build-preparation-03/prepare.py", line 13, in require
+    if not ok:raise ValueError(reason)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: runtime binding ambiguous
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.376s
+
+FAILED (errors=1)

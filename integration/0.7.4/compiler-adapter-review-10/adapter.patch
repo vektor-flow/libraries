@@ -1,0 +1,49 @@
+--- a/integration/0.7.4/compiler-controller-preparation-09/adapter.py
++++ b/integration/0.7.4/compiler-controller-preparation-09/adapter.py
+@@ -110,6 +110,18 @@
+         require(q['path'] not in result or result[q['path']] == q, 'conflicting input pin')
+         result[q['path']] = q
+     return [result[k] for k in sorted(result)]
++
++
++def controller_inputs(pins):
++    """Keep nominal compiler paths in the sealed plan; v6 pins canonical files.
++
++    v6 opens all pin parents/files with O_NOFOLLOW and rejects '..'. Resolve each
++    nominal input without changing its authorized digest. The immutable plan
++    retains the aliases, roles, order and full original compiler argv/MD contract.
++    """
++    require(all(Path(p['path']).is_absolute() for p in pins), 'absolute compiler input')
++    return unique([dict(path=str(Path(p['path']).resolve(strict=True)),
++                        sha256=p['sha256']) for p in pins])
+ 
+ 
+ def check_plan(plan, head, review):
+@@ -226,6 +238,8 @@
+                        config['owner_state'], s['state_path'], s['lock_path'], str(plan_path), str(request_path)]
+     for path in authority_paths: canonical(path)
+     protected(authority_paths+[p['path'] for p in s['pins']+ep], roots)
++    # Nominal aliases must also stay outside every job-writable root.
++    protected([os.path.abspath(p['path']) for p in plan['inputs']], roots)
+     result, assets = relocate(plan, target)
+     check_plan(result, r['source_commit'], review)
+     out.mkdir()
+@@ -243,7 +257,7 @@
+     argv = [s['python']['path'], '-I', '-B', str(HERE/'adapter.py'), 'run',
+             '--contract', cp['path'], '--contract-sha256', cp['sha256'],
+             '--grant', r['grant_path'], '--manifest', r['manifest_path']]
+-    inputs = unique(s['pins']+ep+plan['inputs']+[pin(HERE/'source-contract.json'), cp, c['plan']]
++    inputs = unique(s['pins']+ep+controller_inputs(plan['inputs'])+[pin(HERE/'source-contract.json'), cp, c['plan']]
+                     +[x['source'] for x in sources])
+     protected([p['path'] for p in inputs], roots)
+     g = dict(storage_admission_version='direct-directory-v2', coordinator=COORDINATOR,
+@@ -327,7 +341,8 @@
+         require(p in g['inputs'], 'binding/materialization input omitted'); verify(p)
+     plan = load_pin(c['plan'])
+     check_plan(plan, r['source_commit'], load_pin(c['candidate_review']))
+-    require(all({k:p[k] for k in ('path','sha256')} in g['inputs'] for p in plan['inputs']), 'plan inputs omitted')
++    protected([os.path.abspath(p['path']) for p in plan['inputs']], c['roots'])
++    require(all(p in g['inputs'] for p in controller_inputs(plan['inputs'])), 'plan inputs omitted')
+     # Use pinned package, isolated Python invocation and no editable cwd imports.
+     sys.path.insert(0, str(PACKAGE))
+     payload = importlib.import_module('payload')

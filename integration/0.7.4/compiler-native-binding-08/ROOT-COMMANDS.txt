@@ -1,0 +1,99 @@
+READY-FOR-ROOT COMMANDS — PREPARATION ONLY UNTIL SEPARATE NATIVE ADMISSION
+
+1. Adopt the corrected review binding at its exact current pin (binding-pins.json).
+   The optional baseline-oracle.patch changes only the old review marker. Root
+   owns application; this worker has edited no peer file. Preserve every byte of
+   regression_layouts.cpp and the exact candidate53 pin.
+
+export PATH=/home/viktor/.local/bin:$PATH
+REPO='/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries'
+P="$REPO/integration/0.7.4/compiler-build-preparation-03"
+R="$REPO/integration/0.7.4/compiler-native-binding-08/corrected-review.json"
+
+2. Source-only reproduction, writes ONLY a fresh directory in binding08 output:
+
+/usr/bin/timeout --signal=TERM --kill-after=2s 60s /usr/bin/python3 -B \
+  "$REPO/integration/0.7.4/compiler-native-binding-08/check_binding.py" \
+  --out "$REPO/integration/0.7.4/compiler-native-binding-08/root-check01"
+
+This pins current HEAD d8373abc... and refuses drift. If root integrates further
+changes, review that source transition and explicitly update EXPECTED_HEAD in a
+reviewed copy before rerunning; don't pretend the old closure is current. Do not
+reuse an existing output directory. Copies of four patched files are checked
+against review06 and root-integration.json, while copied authenticate.py receives
+the real repository/repair location constants in memory. Copies remain identical.
+Only Git HEAD subprocesses are launched, timeout5s, synchronous and joined.
+The 512MiB address-space/30CPU-second/60wall-second bounds are for this HOST check.
+
+3. Future actual compiler materialization: ROOT selects NEW absolute B under a
+   properly accounted/admitted attempt. This command itself only prepares sources,
+   VFS, exact compile/link/run argv and plan. Do not execute this preview's plan.
+
+: "${B:?ROOT must supply a fresh charged absolute compiler attempt directory}"
+/usr/bin/python3 -B "$P/prepare.py" compiler --candidate-review "$R" --out "$B"
+
+Review B/plan.json against corrected review and current package pins, exact eight
+stages and240providers. The internal executable:true flag means accepted source
+candidate; it is NOT native permission or environment qualification. Every new
+attempt's generated files must remain charged, including failed/partial outputs.
+
+4. STOP at the execution boundary unless root supplies actual qualification and
+   admission. No such artifacts or positive permission fields are supplied here.
+   ROOT must bind its real grant, controller receipt, environment qualification
+   and the exact R pin, plus exact plan, payload/package pins, attempt path,
+   coordinator, phase=compiler, positive admitted RAM/disk/time and native permission.
+   SPEC.txt describes that payload binding. Root owns all service/cgroup/namespace
+   operations and terminal joins. Estimates below are not those decisions.
+
+Only the separately admitted qualified controller may invoke this future payload:
+: "${BINDING:?ROOT actual admission binding required}"
+: "${BINDING_SHA256:?ROOT exact admission binding hash required}"
+/usr/bin/python3 -B "$P/payload.py" --plan "$B/plan.json" \
+  --binding "$BINDING" --binding-sha256 "$BINDING_SHA256"
+
+5. Only after genuine native_build_passed AND core_regression_passed, exact full
+   candidate_review, new ELF identity/pins and clean external terminal joins are
+   verified, separately materialize/admit controls in fresh charged directories.
+   Recommended order: d288, metadata, a345, f364, a347, full-app; stop on failure.
+
+: "${T:?ROOT fresh absolute control attempt required}"
+: "${SELECTION:?ROOT chooses d288 metadata a345 f364 a347 or full-app}"
+/usr/bin/python3 -B "$P/prepare.py" vkf --candidate-review "$R" \
+  --compiler-receipt "$B/compiler-receipt.json" --selection "$SELECTION" --out "$T"
+
+Use a new phase-specific actual root binding for each payload. Current HEAD/import
+closure is regenerated in this command; no reuse of check01/current-closures.json.
+Never create a successful-looking receipt to bypass tests_plan gating. Old receipts
+without full reviewed fields are not upgraded by boolean edits. Keep all10D288,
+metadata assertions, A345 assertions, F36410+unknown selector, A347both modes and
+font/language/role/report checks, full-app compile, and remaining application/
+original419/PDF acceptance obligations. Full-app here is compile-only.
+
+EXACT INHERITED FORECASTS — NATIVE PEAKS UNKNOWN, NOT ADMISSION
+Name      RAM bytes    Inclusive new disk bytes    Time seconds
+compiler  4294967296    1073741824                  1200
+d288      4294967296    2147483648                  2400
+metadata  4294967296    1073741824                   300
+a345      4294967296    2147483648                   300
+f364      8589934592    4294967296                  2700
+a347      8589934592    4294967296                  2100
+full-app  8589934592    6442450944                  2100
+Sum retained disk if one attempt each:21474836480bytes (20GiB), without refunds.
+Parallel jobs1. Existing read-only ordered provider bytes67103824, not copied.
+Copied estimates.json retains exact original detailed inclusions and subphases.
+Compiler subphase forecasts:53 RAM2147483648/disk134217728/180s;
+90 RAM536870912/disk33554432/180s; link RAM3221225472/disk268435456/180s;
+regression compile+2links+2runs RAM3221225472/disk402653184/600s.
+Compiler stage timeout sum1140s leaves60s within the1200s forecast for other work;
+actual hashing/join/other overhead and actual native memory/disk/time are unknown.
+These estimates are inherited planning allowances, NOT demonstrated upper bounds.
+Every failed retry adds separately charged retained residue. Root must reconcile
+actual current cumulative disk/RAM capacity and concurrency before any admission.
+
+UNRESOLVED
+Actual compiler/link MD contents and ELF/ABI behavior; real negative/success output;
+native peak RAM, scratch/disk and elapsed time; observed-only provenance acceptance;
+real environment/namespace qualification; genuine grant/controller/terminal joins;
+future shared-source drift; renderer correctness/PDF behavior/performance and all
+remaining acceptance gates. No current operational state is certified here.
+D267/D289 stay excluded, old dispatcher held, no services/namespaces changed.

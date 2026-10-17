@@ -1,0 +1,109 @@
+COMPILER NATIVE BINDING08 — DONE, READY FOR ROOT, SOURCE-ONLY — 2026-10-17
+Owner01a14968-7498-7d73-a430-62c8f9d81131
+Sole coordinator01a14893-cb1e-7203-97dd-de3da44dcf31
+Assigned source8ad413e2; checked current HEADd8373abc43c3c64147cd99f58c84669056c3ccb7
+
+REQUIRED FIX
+Use corrected-review.json, SHA256
+da676f71539820a80471a4f5929d005aa7899694271589591285a0a8a02e4130.
+Exactly one field differs from committed repair05 root-candidate-review.json:
+baseline_failure_marker must be "cross-ABI child was preserved".
+Optional baseline-oracle.patch is ready for ROOT to apply to the original review;
+git apply --check passed. Worker did NOT apply it or edit any peer output.
+Root may instead bind this corrected-review.json directly.
+
+WHY
+repair05_record_controls executes first. Earlier exact-substitution controls agree
+with baseline fallback. At regression line242, baseline replaces the entire cross
+record, losing the independent counted texts child: supplied width5, expected4.
+The require throws "cross-ABI child was preserved" before the inherited leaf test.
+ORACLE.txt explains the actual source order and this misleading diagnostic label.
+Nonzero exit AND exact stderr substring remain required; no exit/signal wrapper
+is fabricated. Candidate exit0/exact success stdout are unchanged. This conclusion
+is SOURCE-INFERRED: the baseline and corrected regression have NOT been executed.
+
+EXACT BINDING / PRESERVATION
+Accepted candidate53:
+226bb513fec0c2e1d9443fd9ac61d6ab863e9a3a136ab2238cf7d9346130307f
+Baseline53:
+6c9f9cf5d2b60c426f88402c0ae32c294191c26880614e71907354613e27c5bd
+Unchanged full regression:
+688a991c0821951d86c1b87330d2def7af6cd0423488c5350eb2005e48a81c86
+Fresh inherited-recipe identity:
+340d32d743bfcd6da076840963974462ed590852314ae483bbde5b4cc20c2e74
+Fresh identity90 header SHA256:
+75e382c979c915cf4e2eefa925090b5990d06de6242de0adace3b8e12748f494
+All82 identity-header aliases point to the fresh header.302/70 unit dependencies,
+303 regression allowlist entries,240 ordered providers verified. Production link
+replaces only zero-based54/91; baseline test only0; candidate test0/54/91.
+No assertion/source/field/library omitted, no regression reordered or stubbed.
+No new include allowance needed from static real-header inspection; actual MD
+may still expose drift and must stop. No preprocessor/compiler ran.
+
+BOUNDED CHECK RESULT
+check_binding.py --out <own-output>/check01 passed in0.678005179s internally;
+outer synchronous tool process0.766792121s, exit0. Own VmHWM37280KiB,
+VmPeak50352KiB; separate getrusage maxrss36844KiB retained without conflation.
+512MiB address-space,30CPU-second,60wall-second bounds,32MiB per-file bound;
+post-materialization output check below128MiB. Preview before results6380556bytes.
+942 input pins rechecked unchanged, including727 authenticated package inputs.
+Three5s-bounded Git HEAD children joined; outer Python/timeout joined. Native
+children0, agents0. Synthetic string-only oracle comparisons reject old/unrelated
+marker and success exit; no fake compiler receipt or operational qualification.
+Actual patch/root package matches independently reviewed candidate copies exactly.
+Historical prepatch pins belong to6e54f429; their expected divergence is not a bug.
+The24 root host tests already passed per root integration; they were not repeated.
+
+CURRENT CLOSURES
+Source preview regenerated from current shared HEAD, not old application snapshots:
+metadata2input paths/10assertions; A3455/15; F36429/177; A347127/244;
+full-app178/349; D288all10cases. F364all10current wrappers preserve assertion counts.
+No genuine compiler receipt exists, so full tests_plan VKF materialization remains
+gated. Pure copied closure/entry functions generated this preview without bypassing
+receipt gates. Future root prepare.py vkf must regenerate then-current closure and
+retain D28810, F36410+unknown selector, A347both modes and all other acceptance work.
+
+DELIVERABLES
+corrected-review.json / baseline-oracle.patch: exact review correction for root.
+binding-pins.json: corrected review/current package/source pins; no native grant.
+ORACLE.txt: first-failure trace, identity, dependency and closure conclusions.
+ROOT-COMMANDS.txt: concrete reproduction/preparation/future guarded payload argv,
+actual-evidence requirements, exact forecasts and unresolved native measurements.
+estimates.json: byte-identical inherited forecast, explicitly NOT admission.
+check_binding.py / check01/checks.json: reproducible bounded materialization check.
+check01/package-copy/: exact corrected package copies, unchanged on disk.
+check01/compiler-preview/: real candidate/regression sources, VFS and8-stage plan,
+  no objects/binaries/native results. executable:true only means accepted source.
+check01/dependency-check.json / current-closures.json / input-pins.json: evidence.
+resource-observations.json: RAM/process snapshot and limits, not environment proof.
+artifact-pins.json: output seal excluding itself and mutable notification receipt.
+notify_done.py / notification-receipt.json: single authorized completion notice.
+
+FORECAST / UNKNOWNS
+Compiler forecast RAM4294967296bytes, inclusive disk1073741824bytes,1200seconds;
+six180s compile/link stages +two30s runs total1140s. Overhead/native peaks unknown.
+All seven sequential phase forecasts retain21474836480bytes if one attempt each;
+every failed retry adds permanent charge. Detailed exact per-phase/subphase figures
+and inclusions in ROOT-COMMANDS.txt/estimates.json. They are not measured upper
+bounds, actual resource admission, proof of current budget, or permission.
+Still needed: authentic native MD/link/results, observed-only provenance decision,
+real environment qualification, root grants/controller receipts, external clean
+joins, renderer/PDF correctness and performance. No acceptance/gate counts advance.
+
+MEMORY / OVERLAP / BOUNDARIES
+Memory/overlap reported immediately in chat. Initial RAM available19365634048bytes,
+final19421224960bytes; swap free18886656bytes of8589930496bytes. Low host-check
+memory, no encountered blocker. Process-name snapshot found no matching active
+build tools; it is not service/cgroup qualification. No excluded-scope overlap.
+Grant, dated repository status/handoffs read; no local AGENTS.md found. Newer
+coordinator scope and explicit user grant govern over historical A333 hold.
+Existing independent source review07 was not redone. No peers changed; writes
+only own output. No compiler/link/native/VKF/service/namespace execution, operational
+mutation, agents, commits, grant or fabricated qualification. D267/D289 excluded;
+old dispatcher held and untouched. All children synchronous/joined, no pending work.
+
+NOTIFICATION / STOP
+One DONE ID/result/path sent after sealing this file via existing app-server client
+to sole coordinator. Consult notification-receipt.json for actual acknowledgement
+or delivery uncertainty. No retry. Stop after that notification; root owns adoption
+and any later native admission. This handoff does not itself grant execution.

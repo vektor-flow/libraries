@@ -1,0 +1,67 @@
+{
+  "actual_md_observed": false,
+  "headers": [
+    {
+      "canonical": "/usr/include/c++/15/algorithm",
+      "in_original53": true,
+      "path": "/usr/include/c++/15/algorithm",
+      "sha256": "19ac04637f60d60191d5e6d9972341ae3db83c0973cce66b2d44f90cfe487674"
+    },
+    {
+      "canonical": "/usr/include/c++/15/stdexcept",
+      "in_original53": true,
+      "path": "/usr/include/c++/15/stdexcept",
+      "sha256": "d8e116c58c0151dfd98a450100891aadb27fe09a1be108fdff4c381925915155"
+    },
+    {
+      "canonical": "/usr/include/c++/15/iostream",
+      "in_original53": false,
+      "path": "/usr/include/c++/15/iostream",
+      "sha256": "41935238f58e4e8b85a32b23c60deda473f05d4d37fd5984281a333f9e74d6c0"
+    },
+    {
+      "canonical": "/usr/include/c++/15/bits/requires_hosted.h",
+      "in_original53": true,
+      "path": "/usr/include/c++/15/bits/requires_hosted.h",
+      "sha256": "e3a41079a079eb22fe7e9b45271ab5e8e2a051b3fff4cd4e971ecdc2ab874fe2"
+    },
+    {
+      "canonical": "/usr/include/c++/15/ostream",
+      "in_original53": true,
+      "path": "/usr/include/c++/15/ostream",
+      "sha256": "80c29f8fbace184dc56ed889130f6823c8d9fec57e34f8687da67c2578317b1d"
+    },
+    {
+      "canonical": "/usr/include/c++/15/istream",
+      "in_original53": true,
+      "path": "/usr/include/c++/15/istream",
+      "sha256": "0579f692f69b9fafa4361c8dbd4db46358a7091fc6e7195ac8cb7fa8254ec8b4"
+    },
+    {
+      "canonical": "/usr/include/c++/15/bits/istream.tcc",
+      "in_original53": true,
+      "path": "/usr/include/c++/15/bits/istream.tcc",
+      "sha256": "a45bbc349691e8e352f218516584b0fa8926fe0034867d971a649591b5cbe083"
+    },
+    {
+      "canonical": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration52-common-build01/private/compiler/native/vkf_value_layout.hpp",
+      "in_original53": true,
+      "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration52-common-build01/private/compiler/native/vkf_value_layout.hpp",
+      "sha256": "4d9d6028df80ba74ed58ff5ca1a617c0c6cdbc8d4dc553729bd9c884aad91413"
+    },
+    {
+      "canonical": "/usr/include/x86_64-linux-gnu/c++/15/bits/c++config.h",
+      "in_original53": true,
+      "path": "/usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/x86_64-linux-gnu/c++/15/bits/c++config.h",
+      "sha256": "2bb380bf9cd3f24109331230e8d94daad63fb39fa6b6969c4a06b066d469177f"
+    }
+  ],
+  "includes": [
+    "\"compiler/native/vkf_value_layout.hpp\"",
+    "<algorithm>",
+    "<iostream>",
+    "<stdexcept>"
+  ],
+  "note": "Direct headers and iostream direct include paths are authenticated. Existing unit53 supplies stream transitive paths. Actual conditional/preprocessor MD still required; no expanded allowlist.",
+  "regression_allowlist": 303
+}

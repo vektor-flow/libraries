@@ -1,0 +1,142 @@
+COMPILER ADAPTER REVIEW10 — EXACT FIX REQUIRED; PATCH PROPOSED FOR ROOT
+2026-10-17. Worker 01a1497a-31ce-7323-a400-6239bd0f08cd
+Coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31
+Repository HEAD b1aaaecb3702d86341c4366c91e09de2d8dd8e19 unchanged.
+
+RECOMMENDATION
+Do NOT accept preparation09 adapter.py as-is for execution. Accept the attached
+small adapter.patch for root source review/adoption, then reseal source-contract
+and regenerate candidates with genuine final evidence. No operational admission,
+qualification, native success or final publication is established by this review.
+Current operational worker is storage-live14, NOT historical live13. No live14
+state/grants/outcomes were read or changed. Preparation09's live13 prose is stale;
+root must update that historical checklist reference when adopting this patch.
+
+CONCRETE BLOCKER AND REPRODUCTION
+Original adapter assemble inserts plan['inputs'] directly in controller inputs
+(original adapter line246), then protected rejects '..' (line92). The actual
+binding08/root-check01/compiler-preview/plan.json has727 input rows,170 paths
+containing '..',202 resolved-path changes,686 distinct canonical paths.
+Example: /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/array.
+The real complete plan in TEST_ONLY assembly fails with 'absolute protected path',
+after local assets/contract exist but before grant/manifest candidates. No attempt
+is created or charged. This is a real pre-admission integration failure, not a
+missing qualification claim or speculative native compiler failure.
+
+Merely removing that protection is wrong: installed v6 storage_paths.pinned opens
+all parents/files with O_NOFOLLOW and rejects noncanonical parent paths. Direct
+read-only calls on actual nominal samples reject '..' and a historical combined229
+symlink parent before hashing. A TEST_ONLY symlink pin also reproduces OSError;
+the exact same digest at its canonical path passes the actual installed reader.
+Original runtime also rejects a corrected canonical grant with 'plan inputs
+omitted' (original line330). Assembly and runtime must change together.
+
+MINIMAL PROPOSED CHANGE
+adapter.py/adapter.patch are proposal copies ONLY in this output. Existing
+preparation09 adapter and buildprep03/v6 sources remain untouched.
+- controller_inputs resolves each absolute input strictly and retains the exact
+  approved SHA256. Existing unique() rejects conflicting alias digests.
+- Assembly uses canonical input pins for grant/manifest. Runtime recomputes the
+  same mapping from the sealed plan and requires every mapped pin in the grant.
+- Nominal alias paths (lexically normalized) AND resolved paths remain excluded
+  from every enrolled writable root, before assembly and at runtime.
+- Plan inputs/roles/order, compiler argv, VFS mappings, expected MD dependencies,
+  full candidate review, provider order, identity recipe, all8stage timeouts and
+  both exact regression oracles remain unchanged except permitted relocation.
+- Missing inputs and relative input pins fail closed. No accepted digest is
+  recomputed to authorize changed bytes. No controller check is relaxed.
+Patch check: git apply --check integration/0.7.4/compiler-adapter-review-10/adapter.patch
+passed. Root must reseal after adoption; this output has NO operational source
+contract, root authorization, real grant or qualification receipt.
+
+HOST EVIDENCE / LIMITS
+15/15 host tests PASS,0.660856s,peak56692KiB (~55.36MiB).
+512MiB address-space,30CPU-second,60wall-second bounds; core dumps disabled.
+One Python import child PID4137556 exited0 and communicate() joined it,5s bound.
+Zero native/compiler/link/service/namespace invocations. No agents; all children
+joined. No pending work or background processes. Shell/Python/Git tools completed.
+Tests and stdout/stderr retained; temporary TEST_ONLY fixtures removed.
+
+Tests include original full-real-plan assemble failure; patched full-real-plan
+assemble success; direct installed-v6 no-follow refusals; canonical pin success;
+original runtime's canonical-grant rejection; patched file-backed assemble/run
+through real payload.validate_admission and execute with8TEST_ONLY run_override
+stages; and isolated fresh -I/-B payload/prepare/authenticate imports.
+The real-plan tests preserve all727 inputs without rerunning their byte hashes;
+this is NOT another942-pin binding audit or broad source/compiler re-review.
+Real generated source/JSON relocation is written into test-owned output, hashes
+checked, every actual stage output/MD parent confirmed present, and complete plan
+reversal compared equal. No missing-directory or relocated-hash defect was found
+for the current five-asset/eight-stage compiler plan.
+
+Runtime fixtures use the real installed Ledger.attach_service method to produce
+its running-record shape, but TEST_ONLY transaction/check/save/current callbacks;
+no operational Ledger is constructed. Real payload tests use TEST_ONLY source,
+review, authority, boot and state with injected static contract/current HEAD;
+they never establish actual admission. All fake files live under conspicuous
+TEST_ONLY directories in this review output, outside enrolled roots, and are
+removed even on test failure. Fake executable bytes are text and never executed.
+Payload's native_build_passed/native_execution remain false with run_override.
+An initial test-only failure (duplicate runtime fixture input) was corrected;
+initial logs retained. It was not an actual-plan defect.
+
+OTHER PRIORITY BOUNDARIES REVIEWED
+Empty-before-charge: assemble creates no attempt. v6 reserve requires a preexisting
+EMPTY attempt; root's genuine admitted setup must create only that empty directory.
+v6 outer creates cwd/tmp/cache/ccache/receipts AFTER reserve. Runtime creates
+compiler and sources/objects/logs/tmp/cache/home only after running-row validation.
+Current generated asset and stage directory parents all exist; C++ bytes unchanged.
+
+Running custody: actual reserve/attach schema agrees with adapter ram_bytes,
+phase_bytes, worker/owner, grant/manifest, custody.config/controller/cgroup and
+service.identity.cgroup/invocation. private_workload does not unshare cgroup
+namespace and explicitly requires origin/pre/post cgroup equality. No installed
+service was launched or intermediate outcome queried to test this.
+
+Shared lock: actual Ledger uses exclusive capacity.lock; adapter uses existing
+read-only descriptor and nonblocking shared flock, then releases before payload.
+Host test proves mutual exclusion/read-only flock and release before execution.
+Contention remains fail-closed (a charged attempt can fail); no retry added.
+Actual readonly namespace/policy accessibility is still live14/root qualification,
+not proved by host tests. No namespace fallback or mutation introduced.
+
+Temporal ledger pin: live state is read/hash-verified and payload admission checked
+under shared lock, never emitted as immutable operational receipt. Test proves a
+later atomic replacement invalidates that hash. It must never enter immutable
+grant inputs or be advertised as final service-join evidence. Controller guards
+remain authoritative after release; no long-lived global lock is proposed.
+
+Hash cycles/publication: contract precedes grant; manifest pins grant; future
+paths alone are in argv. Grant inputs exclude itself, manifest, live ledger and
+post-publication receipt. Genuine owner rotation does not publish owners-v4.
+Separate root-authorized compare-and-atomic owner-file publication under the
+capacity lock and its genuine receipt remain mandatory. Missing publication
+fails before materialization. TEST_ONLY booleans never substitute for real root
+receipts; final qualification receipts remain unavailable to this worker.
+
+PRESERVATION / MEMORY / OVERLAP
+Initial host MemAvailable18467MiB; later18502MiB. Swap8173/8191MiB used. Reported
+immediately; bounded Python checks encountered no memory blocker. Assigned output
+was precreated empty; no conflicting files observed. All writes restricted to it.
+Read repository STATUS, HANDOVER and newer COORDINATOR-STATUS plus scoped09/03
+handoffs; no repository-local AGENTS.md found, parent/user instructions apply.
+No HEAD change, commits, operational reads of mutable state, grants publication,
+owner transitions, service/namespace/controller mutations, cap/charge reset or
+old worker changes. All A8GiB/GiB1200s admission gates, historical charges,
+full acceptance gates and D267/D289 exclusions remain. No native47/original419,
+compiler release, renderer, PDF or performance credit.
+
+FILES
+adapter.patch / adapter.py — minimal proposed implementation, not installed.
+test_integration.py / host-tests.stdout / host-tests.stderr — final15tests.
+initial-host-tests.* — initial test-only fixture failure, superseded.
+review-results.json / reviewed-source-pins.json — compact findings and narrow pins.
+artifact-pins.json — this output's immutable artifacts except itself/notification.
+notify_done.py / notification-receipt.json — one authorized completion notification.
+
+NEXT ROOT ACTION
+Review/apply the proposal, fix stale live13 checklist references to live14, reseal
+actual source contract and reassemble from a fresh real plan only after genuine
+final qualification/rotation/publication inputs exist. Preserve cumulative gates;
+do not convert this host test success into native admission. This review ends with
+one DONE ID/result/HANDOFF path via existing app-server client, then stops.

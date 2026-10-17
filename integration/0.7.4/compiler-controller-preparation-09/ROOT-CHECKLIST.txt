@@ -1,0 +1,158 @@
+FIRST COMPILER PHASE — SOURCE-ONLY PROPOSAL, ROOT REVIEW REQUIRED
+2026-10-17; b1aaaecb3702d86341c4366c91e09de2d8dd8e19
+
+UNAVOIDABLE INTEGRATION GAP
+No actual qualification/rotation/publication/admission receipt is supplied here.
+Root must review/adopt this adapter and export REAL final evidence to the explicit
+input schema below. Source/schema validation cannot authenticate a claim merely
+because a JSON boolean is true. The root exports are trusted root decisions,
+anchored to genuine pinned evidence; this packet never produces them. No native
+execution is admitted by source-contract.json or the forecast.
+Live12 stopped before mutation. Live13 (01a14972-499b-7330-bb24-ce7985131252)
+owns qualification and operational rotations. Root separately authorized owner-file
+compare-and-atomic-publication after genuine API rotations, under capacity.lock.
+Ledger.rotate_owner only changes the ledger. THERE IS NO owners-v4 publication API
+in that method. Do not assume rotation publishes the owner file; do not invent one.
+
+HASH ORDER / EMPTY ATTEMPT SOLUTION
+1 Root final qualification + actual A owner transition/receipt + separate publication
+  authorization + regenerated compiler source plan, all outside enrolled RW roots.
+2 source-contract pins installed source/config/helpers/binaries/policy and package.
+3 Relocated plan/assets -> contract (no grant/manifest/admission hashes).
+4 Grant pins contract/plan/assets/adapter/package and exact argv, using only future
+  grant/manifest PATHS in argv. Grant never pins itself, manifest or admission.
+5 Manifest pins exact final grant bytes. Root installs both unchanged outside RW roots.
+6 Root separately publishes owner entry and genuine publication receipt; neither is
+  recursively pinned into the grant. Controller re-reads configured mutable owner
+  state on each gate. Adapter matches publication receipt to both grant/manifest,
+  transition and fresh owner state, under existing capacity.lock.
+7 Only after v6 reserves EMPTY attempt, charges it and attaches the service, adapter
+  reads protected live state under a nonblocking shared lock. Genuine running row,
+  owner/transition, grant, manifest and service cgroup must match. It creates the
+  payload binding IN MEMORY, validates it while holding lock, releases lock, then
+  copies sealed sources into fresh attempt/compiler and calls unchanged payload.
+8 The payload's controller_receipt pin refers to the genuine protected live ledger
+  bytes validated under that lock. It is not a fabricated standalone receipt and is
+  not a long-term immutable evidence pin: record the authentic final service join
+  separately. The binding is not emitted as authority. Writable admission.json is
+  never trusted. Controller guards/terminal joins remain authoritative throughout.
+
+ROOT PRECONDITIONS (AFTER LIVE13 FINAL HANDOFF, NOT INTERMEDIATE OUTCOMES)
+- Accept actual A-lane success/nonzero/timeout namespace/policy/storage checks and
+  independently authenticated service/cgroup/descendant joins with exact v6 bundle,
+  same boot, actual loaded-policy equivalence. Installed source is not qualification.
+- Resolve every failed/unfinished live phase before owner transition. Keep original
+  recovery/history/charges and existing v4 state/capacity.lock; no resets/refunds.
+- Obtain real new A owner transition and root review receipt. Verify entire chain,
+  barrier, quiescence, genuine joins or authorized unused-owner chain as applicable.
+  Do not reuse the preparation worker owner as presumed execution owner.
+- Review/adopt adapter.py including interpretation of protected live-state evidence
+  for payload.validate_admission. No controller/ledger source change is proposed.
+- Verify current HEAD b1aaaec... and 44 static source pins; any HEAD/source/policy
+  drift requires explicit root review and new packet seal. Never edit a hash to
+  bypass a mismatch. Existing binding08 root acceptance supplies corrected review;
+  no need to redo its 942-pin binding or compiler source review.
+- Root explicitly accepts observed-only toolchain provenance or supplies a separately
+  reviewed packet. Historical provenance is not inferred from stable hashes.
+- Forecast is RAM4GiB, inclusive new disk1GiB,1200s, NOT admission. v6 only allows
+  F3GiB or A8GiB profiles: F insufficient; request actual A8GiB admission. Preserve
+  A high restoration after verified join, swap0, host admission/emergency floors,
+  all cumulative disk/accounting/old backing guards and held dispatcher. Include
+  failed outputs, logs, source staging, copies and join overhead in root's estimate.
+  Original compiler stage budgets180s x6 +30s x2 =1140s are unchanged. Real overhead
+  remains unknown; this adapter does not extend time or silently lower any guard.
+
+EXACT FUTURE SOURCE PREPARATION (ROOT ONLY; NOT RUN BY THIS WORKER)
+export PATH=/home/viktor/.local/bin:$PATH
+REPO='/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries'
+P="$REPO/integration/0.7.4/compiler-build-preparation-03"
+C="$REPO/integration/0.7.4/compiler-controller-preparation-09"
+R="$REPO/integration/0.7.4/compiler-native-binding-08/corrected-review.json"
+
+First review/update source seal if root committed adoption. Regenerate source staging
+under this packet's OWN fresh output; never prefill the operational attempt:
+/usr/bin/timeout --signal=TERM --kill-after=2s 60s /usr/bin/python3 -B \
+  "$P/prepare.py" compiler --candidate-review "$R" --out "$C/root-staging01"
+
+Root creates $C/root-inputs01.json from root-inputs.REQUIRED.json using ACTUAL inputs.
+The shipped template is deliberately unusable and fails before creating output.
+All {path,sha256} references must point to actual final immutable root evidence.
+Fields ram_bytes=8589934592,disk_bytes=1073741824,timeout_seconds=1200 must be root's
+explicit reviewed decision, not copied as approval from this checklist. Owner and
+iteration must match the genuine fresh transition. attempt is a NEW component.
+Grant, manifest and publication_receipt_path designate new protected files outside
+ALL enrolled writable roots, on canonical nonsymlink paths. The owner/config/state/
+lock paths are fixed by installed v6/source seal; no user-supplied ledger location.
+
+/usr/bin/timeout --signal=TERM --kill-after=2s 60s /usr/bin/python3 -B \
+  "$C/adapter.py" assemble --plan "$C/root-staging01/plan.json" \
+  --root-inputs "$C/root-inputs01.json" --out "$C/root-packet01"
+
+Review root-packet01/plan.json and assets against staging. Only output-root paths
+and generated JSON hashes change. Regression source/header bytes, every field,
+240 ordered providers, compile flags, full review and all eight stages remain.
+Review grant.candidate.json/manifest.candidate.json and PREPARATION-ONLY.json.
+Source helper writes no operational authority and makes no admission. Root must
+copy candidate grant and manifest BYTES unchanged to their final protected paths.
+Manifest grant hash refers to those exact bytes; reserialization invalidates it.
+
+EXACT REQUIRED ROOT REVIEW EXPORTS (SPECIFICATIONS, NO SUPPLIED SUCCESS RECEIPTS)
+qualification_review:{path,sha256} contains:
+  coordinator, worker="A", qualified=true, boot=current boot UUID,
+  v6_bundle=source-contract.json.v6_bundle,
+  cases=["success","nonzero","timeout"],
+  evidence=[actual {path,sha256} final checks, loaded policy evidence and joins...].
+Root must judge underlying raw evidence; schema membership is not that judgment.
+owner_receipt:{path,sha256} contains:
+  coordinator,worker="A",owner,iteration,transition={path,sha256},rotation_completed=true.
+owner_transition:{path,sha256} is the REAL ledger transition, not a review substitute;
+  its worker/to_owner/coordinator must match. Full history remains controller-enforced.
+publication_authorization:{path,sha256} contains the explicit root decision:
+  coordinator,owner_file_publication_authorized=true, and root's real authorization
+  reference/context (live13 permission). It is separate from rotation, no new API.
+The future publication_receipt_path must contain ROOT's actual post-publication
+record with coordinator,published=true,under_capacity_lock=true,grant={path,sha256},
+manifest={path,sha256},owner_transition={path,sha256},owner_entry={grant,thread,iteration}.
+Include real before/after/compare/publish evidence in that root record. This receipt
+is only a required cross-check; the fresh actual configured owners-v4 entry and
+latest ledger transition are independently mandatory. Never fabricate a positive
+receipt to unblock assemble/run. There are no completed examples in this packet.
+
+ROOT PUBLICATION / ADMISSION BOUNDARY
+After real Ledger.rotate_owner success, finalize grant/manifest, then use only the
+separately root-authorized capacity.lock/transaction-protected compare-and-atomic-
+publish procedure for owners-v4. Compare expected old owner entry, complete current
+ledger/transition/quiescence; atomically publish only intended owner/grant/iteration
+without losing other entries; retain genuine receipt. No code in this packet writes
+owners-v4 or performs the rotation. A lock/publication failure stops before launch.
+Establish an empty attempt at approved A-policy.root/attempt with the existing
+accounted setup procedure; never materialize compiler sources before reservation.
+Root confirms current owner, cumulative capacity, old dispatcher hold and all guards.
+
+Only root's separately issued actual execution permission may invoke installed v6:
+V6='/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v6'
+: "${CONFIG_SHA256:?Exact installed config pin from source-contract required}"
+: "${GRANT:?Actual protected grant path required}"
+: "${GRANT_SHA256:?Exact actual grant pin required}"
+: "${MANIFEST:?Actual protected manifest path required}"
+: "${MANIFEST_SHA256:?Exact actual manifest pin required}"
+/usr/bin/python3 -B "$V6/storage_controller.py" --config-sha256 "$CONFIG_SHA256" \
+  --grant "$GRANT" --grant-sha256 "$GRANT_SHA256" \
+  --manifest "$MANIFEST" --manifest-sha256 "$MANIFEST_SHA256"
+
+Never run adapter.py run directly from the host. Its exact argv is in the grant;
+v6 alone must enter qualified namespace/service/cgroup. Missing protected receipt,
+lock contention, stale HEAD/owner/boot, pin mismatch or policy drift stops. No retry
+in an existing charged attempt. No helper here invokes namespace or service itself.
+
+ACTUAL ACCEPTANCE, AFTER JOIN (NOT SUPPLIED)
+Retain real8stage results/output/depfile pins, baseline nonzero with exact stderr
+"cross-ABI child was preserved", candidate exit0/exact success stdout, real fresh
+ELF identity and actual MD/link checks. Root independently authenticates v6 service
+join/custody/cgroup/descendants; worker receipt alone is insufficient. Verify all
+input posthashes, source HEAD, budgets and no unqualified claim after timeout/guard.
+Record compiler-only success only with both genuine native_build_passed and
+core_regression_passed plus all external joins. This packet authorizes no d288,
+metadata,A345,F364,A347,full-app/native47/original419/PDF phase. Preserve all later
+assertions: D288all10,F36410+unknown,A347both modes, full-app and remaining original
+acceptance obligations. D267/D289 remain excluded; no release/PDF/performance credit.

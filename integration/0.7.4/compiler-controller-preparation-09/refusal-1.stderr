@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controller-preparation-09/adapter.py", line 371, in <module>
+    main()
+    ~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controller-preparation-09/adapter.py", line 368, in main
+    else: run(args.contract,args.contract_sha256,args.grant,args.manifest)
+          ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controller-preparation-09/adapter.py", line 299, in run
+    c = load_pin(cp)
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controller-preparation-09/adapter.py", line 79, in load_pin
+    b = raw(p['path'])
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controller-preparation-09/adapter.py", line 36, in raw
+    require(p.is_file() and p.stat().st_size <= limit, 'missing/oversized file: '+str(p))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controller-preparation-09/adapter.py", line 31, in require
+    raise ValueError(message)
+ValueError: missing/oversized file: /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controller-preparation-09/MISSING-ACTUAL-CONTRACT

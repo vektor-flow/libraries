@@ -1,0 +1,104 @@
+CORRECTED BASELINE NEGATIVE ORACLE — SOURCE INFERENCE, NOT EXECUTION
+2026-10-17 | Worker 01a14968-7498-7d73-a430-62c8f9d81131
+
+Use baseline_failure_marker = "cross-ABI child was preserved".
+Do not use inherited "ordinary call narrowed a counted metadata field".
+corrected-review.json changes exactly this one field from repair05's committed
+root-candidate-review.json. baseline-oracle.patch is an optional root-only
+one-line correction to that original file; it has NOT been applied by this worker.
+Root can use corrected-review.json directly without applying that patch.
+
+Pinned regression 688a991c0821951d86c1b87330d2def7af6cd0423488c5350eb2005e48a81c86
+is copied byte-for-byte. No call is reordered and no assertion removed. Existing
+require() throws std::runtime_error, so -DNDEBUG does not remove these checks.
+Independent source acceptance in review07 is retained, not repeated here.
+
+ACTUAL ORDER
+regression_layouts.cpp main lines349 onward calls repair05_record_controls(),
+repair05_canonical_and_alias_controls(), review04_negative_controls(), then
+original ordinary leaf/result tests. review04_record_projection_cases() follows
+those tests; exact success stdout is printed only after every group returns.
+
+FIRST EXPECTED BASELINE FAILURE
+repair05_record_controls lines185-234 precede the cross-ABI comparison. Sixteen
+malformed-boundary cases, two field-set mismatches, two record-element-vector
+cases, and one late malformed nested case all demand exact supplied replacement.
+Original baseline core53 refine_full_projection_path lines707-748 takes the
+terminal branch for empty path. Numeric compatibility rejects these counted/fixed
+child kind or structure mismatches, and its fallback is current = candidate.
+Thus those preceding exact-substitution checks agree with baseline behavior.
+
+At regression lines238-242:
+  declared = metadata(counted Numeric, counted String)
+  cross    = metadata(fixed singleton String, fixed singleton String)
+  expected = metadata(fixed singleton String, counted String)
+The baseline numeric-shape predicate recursively meets counted Numeric versus
+fixed String storage, fails compatibility, and substitutes the entire supplied
+record (baseline line748). The result contains fixed String storage for texts,
+where expected retains its independent counted String storage. The layouts
+differ (supplied total width5 versus expected4), so require at line242 throws
+"cross-ABI child was preserved" before any original leaf test is reached.
+This diagnostic labels the whole-layout equality check. It does NOT mean that
+the baseline actually preserved the cross-ABI numbers child; the differing
+independent texts child is why this particular equality fails.
+
+Keep the original negative contract: nonzero exit AND stderr contains the exact
+marker. An uncaught runtime_error is expected to terminate; its runtime wrapper,
+signal/exit representation and actual emitted stderr have NOT been observed.
+Do not invent an exact exit number or libstdc++ diagnostic prefix. The review06
+join checks independently reject timeout, guard error, orphan cleanup and live
+descendants; those failures cannot qualify this baseline negative.
+Candidate success remains exit0 and exact stdout:
+  ordinary counted metadata layout regressions passed\n
+The inherited candidate stderr policy is unchanged. Native pass requires the
+real complete regression and externally qualified joins, not these string checks.
+
+FRESH IDENTITY / REAL DEPENDENCIES
+Accepted candidate53:
+226bb513fec0c2e1d9443fd9ac61d6ab863e9a3a136ab2238cf7d9346130307f
+Original baseline53:
+6c9f9cf5d2b60c426f88402c0ae32c294191c26880614e71907354613e27c5bd
+D288 parent identity:
+6350842e10d23f4fccc9bc94da661d8c6a6f9c1c00f7c35a3f4be65289889010
+Exact inherited SHA256(parent + candidate53hash + compiler-build-preparation-03):
+340d32d743bfcd6da076840963974462ed590852314ae483bbde5b4cc20c2e74
+Fresh generated identity90 header SHA256:
+75e382c979c915cf4e2eefa925090b5990d06de6242de0adace3b8e12748f494
+This is a source-derived identity; no newly built ELF exists. The 302/70 original
+unit53/90 dependency sets and all identity-header VFS aliases were materialized.
+Original semantic flags, includes and VFS composition are preserved by unchanged
+patched prepare.py. Production ordered240 providers replace only zero-based
+positions54/91; baseline regression changes only driver0, candidate changes
+0/54/91. Both links use the same untouched real regression object, no stubs.
+
+Regression includes the real compiler/native/vkf_value_layout.hpp, algorithm,
+iostream and stdexcept. check01/dependency-check.json resolves canonical paths
+against the actual 303-entry regression dependency allowlist. algorithm/stdexcept
+and stream support are already in original53; iostream is the authenticated
+test-only header. Its includes bits/requires_hosted.h, bits/c++config.h, ostream,
+istream are all covered. Absolute aliases through GCC15 resolve to the same
+authenticated files; literal spelling differences are not missing dependencies.
+No new include allowance is needed from this source inspection. This is not a
+preprocessor result: actual MD may still expose a missing/unexpected dependency,
+and must fail closed for review before any later stage. No compiler was invoked
+to discover implicit include paths, evaluate macros, compile or link anything.
+
+CURRENT CLOSURES / PROVENANCE
+Current shared HEAD d8373abc43c3c64147cd99f58c84669056c3ccb7 includes root-applied
+review06. Exact four patched files match root-integration.json and independent
+review06 candidate copies. Prepatch input/artifact pins belong to6e54f429 and
+are intentionally historical; no expected historical mismatch is reported.
+727 authenticated package inputs rehashed unchanged. Remaining observed-only
+authority limitations are inherited:36 literal rows,35 without selected path
+or alias corroboration. No missing historical provenance was fabricated.
+
+Current closures regenerated using copied patched prepare.closure/entry and the
+pinned established F364 relocation helper: d28810cases; metadata2 input paths/
+10 assertions; A3455/15; F36429/177 and ten wrappers; A347127/244; full-app178/349.
+The counts include root pins where applicable, and preserve assertions. All ten
+D288 sources, F364 dispatcher/ten current wrappers, both A347 run requirements,
+and full current app compile gate remain in scope. No old production snapshot
+is substituted. No fake compiler receipt or environment qualification was
+created. Full VKF tests_plan materialization awaits a genuine compiler receipt;
+check01/current-closures.json is only a freshly regenerated source preview.
+Every later actual attempt must regenerate from then-current HEAD and inputs.
