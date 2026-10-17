@@ -1,0 +1,364 @@
+{
+  "elf": [
+    {
+      "executable": "/usr/bin/bwrap",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/bin/bwrap"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x000077337fdd9000)\n\tlibselinux.so.1 => /usr/lib/x86_64-linux-gnu/libselinux.so.1 (0x000077337fd74000)\n\tlibcap.so.2 => /usr/lib/x86_64-linux-gnu/libcap.so.2 (0x000077337fd67000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x000077337fa00000)\n\tlibpcre2-8.so.0 => /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 (0x000077337fcbb000)\n\t/lib64/ld-linux-x86-64.so.2 (0x000077337fddb000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libselinux.so.1",
+        "/usr/lib/x86_64-linux-gnu/libcap.so.2.75",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/libpcre2-8.so.0.14.0",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/bin/python3.14",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/bin/python3.14"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x0000771c7b2f6000)\n\tlibm.so.6 => /usr/lib/x86_64-linux-gnu/libm.so.6 (0x0000771c7b1b2000)\n\tlibz.so.1 => /usr/lib/x86_64-linux-gnu/libz.so.1 (0x0000771c7b194000)\n\tlibexpat.so.1 => /usr/lib/x86_64-linux-gnu/libexpat.so.1 (0x0000771c7b166000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x0000771c7ae00000)\n\t/lib64/ld-linux-x86-64.so.2 (0x0000771c7b2f8000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libm.so.6",
+        "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1",
+        "/usr/lib/x86_64-linux-gnu/libexpat.so.1.11.2",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/python3.14/lib-dynload/_bz2.cpython-314-x86_64-linux-gnu.so",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/python3.14/lib-dynload/_bz2.cpython-314-x86_64-linux-gnu.so"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x000070c19b241000)\n\tlibbz2.so.1.0 => /usr/lib/x86_64-linux-gnu/libbz2.so.1.0 (0x000070c19b205000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x000070c19ae00000)\n\t/lib64/ld-linux-x86-64.so.2 (0x000070c19b243000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libbz2.so.1.0.4",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/python3.14/lib-dynload/_ctypes.cpython-314-x86_64-linux-gnu.so",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/python3.14/lib-dynload/_ctypes.cpython-314-x86_64-linux-gnu.so"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x00007b4023cf3000)\n\tlibffi.so.8 => /usr/lib/x86_64-linux-gnu/libffi.so.8 (0x00007b4023c9d000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x00007b4023a00000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007b4023cf5000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libffi.so.8.2.0",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/python3.14/lib-dynload/_hashlib.cpython-314-x86_64-linux-gnu.so",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/python3.14/lib-dynload/_hashlib.cpython-314-x86_64-linux-gnu.so"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x0000736c86d49000)\n\tlibcrypto.so.3 => /usr/lib/x86_64-linux-gnu/libcrypto.so.3 (0x0000736c86600000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x0000736c86200000)\n\tlibz.so.1 => /usr/lib/x86_64-linux-gnu/libz.so.1 (0x0000736c86cfc000)\n\tlibzstd.so.1 => /usr/lib/x86_64-linux-gnu/libzstd.so.1 (0x0000736c86c39000)\n\t/lib64/ld-linux-x86-64.so.2 (0x0000736c86d4b000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libcrypto.so.3",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1",
+        "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.7",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/python3.14/lib-dynload/_lzma.cpython-314-x86_64-linux-gnu.so",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/python3.14/lib-dynload/_lzma.cpython-314-x86_64-linux-gnu.so"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x00007b32b3a90000)\n\tliblzma.so.5 => /usr/lib/x86_64-linux-gnu/liblzma.so.5 (0x00007b32b3a31000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x00007b32b3800000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007b32b3a92000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/liblzma.so.5.8.3",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/python3.14/lib-dynload/_uuid.cpython-314-x86_64-linux-gnu.so",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/python3.14/lib-dynload/_uuid.cpython-314-x86_64-linux-gnu.so"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x00007983ecdad000)\n\tlibuuid.so.1 => /usr/lib/x86_64-linux-gnu/libuuid.so.1 (0x00007983ecd80000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x00007983eca00000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007983ecdaf000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libuuid.so.1.3.0",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/python3.14/lib-dynload/_zstd.cpython-314-x86_64-linux-gnu.so",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/python3.14/lib-dynload/_zstd.cpython-314-x86_64-linux-gnu.so"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x00007702349ea000)\n\tlibzstd.so.1 => /usr/lib/x86_64-linux-gnu/libzstd.so.1 (0x00007702348fa000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x0000770234600000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007702349ec000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.7",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+        ],
+        "exit": 0,
+        "stdout": "\tstatically linked\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": []
+    },
+    {
+      "executable": "/usr/lib/x86_64-linux-gnu/libbz2.so.1.0.4",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/x86_64-linux-gnu/libbz2.so.1.0.4"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x00007cfb379df000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x00007cfb37600000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007cfb379e1000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/x86_64-linux-gnu/libc.so.6"
+        ],
+        "exit": 0,
+        "stdout": "\t/lib64/ld-linux-x86-64.so.2 (0x000074554ea98000)\n\tlinux-vdso.so.1 (0x000074554ea96000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/x86_64-linux-gnu/libcrypto.so.3",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/x86_64-linux-gnu/libcrypto.so.3"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x0000724ebf85f000)\n\tlibz.so.1 => /usr/lib/x86_64-linux-gnu/libz.so.1 (0x0000724ebf823000)\n\tlibzstd.so.1 => /usr/lib/x86_64-linux-gnu/libzstd.so.1 (0x0000724ebf13d000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x0000724ebee00000)\n\t/lib64/ld-linux-x86-64.so.2 (0x0000724ebf861000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1",
+        "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.7",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/x86_64-linux-gnu/libexpat.so.1.11.2",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/x86_64-linux-gnu/libexpat.so.1.11.2"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x000070ba28452000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x000070ba28000000)\n\t/lib64/ld-linux-x86-64.so.2 (0x000070ba28454000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/x86_64-linux-gnu/libffi.so.8.2.0",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/x86_64-linux-gnu/libffi.so.8.2.0"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x00007119656e4000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x0000711965400000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007119656e6000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/x86_64-linux-gnu/liblzma.so.5.8.3",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/x86_64-linux-gnu/liblzma.so.5.8.3"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x00007efaf7c1e000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x00007efaf7800000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007efaf7c20000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/x86_64-linux-gnu/libm.so.6"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x000077a8fc1bb000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x000077a8fbe00000)\n\t/lib64/ld-linux-x86-64.so.2 (0x000077a8fc1bd000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/x86_64-linux-gnu/libuuid.so.1.3.0",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/x86_64-linux-gnu/libuuid.so.1.3.0"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x000079bef8b6c000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x000079bef8800000)\n\t/lib64/ld-linux-x86-64.so.2 (0x000079bef8b6e000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x000074953198b000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x0000749531600000)\n\t/lib64/ld-linux-x86-64.so.2 (0x000074953198d000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.7",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.7"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x0000701939db9000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x0000701939a00000)\n\t/lib64/ld-linux-x86-64.so.2 (0x0000701939dbb000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "executable": "/usr/local/libexec/vkf-storage-private-v2/unshare",
+      "observation": {
+        "argv": [
+          "/usr/bin/ldd",
+          "/usr/local/libexec/vkf-storage-private-v2/unshare"
+        ],
+        "exit": 0,
+        "stdout": "\tlinux-vdso.so.1 (0x00007060e057f000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x00007060e0200000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007060e0581000)\n",
+        "stderr": ""
+      },
+      "resolved_dependencies": [
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+      ]
+    }
+  ],
+  "mapped": [
+    "/usr/bin/python3.14",
+    "/usr/lib/locale/C.utf8/LC_CTYPE",
+    "/usr/lib/locale/locale-archive",
+    "/usr/lib/python3.14/lib-dynload/_bz2.cpython-314-x86_64-linux-gnu.so",
+    "/usr/lib/python3.14/lib-dynload/_ctypes.cpython-314-x86_64-linux-gnu.so",
+    "/usr/lib/python3.14/lib-dynload/_hashlib.cpython-314-x86_64-linux-gnu.so",
+    "/usr/lib/python3.14/lib-dynload/_lzma.cpython-314-x86_64-linux-gnu.so",
+    "/usr/lib/python3.14/lib-dynload/_uuid.cpython-314-x86_64-linux-gnu.so",
+    "/usr/lib/python3.14/lib-dynload/_zstd.cpython-314-x86_64-linux-gnu.so",
+    "/usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache",
+    "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+    "/usr/lib/x86_64-linux-gnu/libbz2.so.1.0.4",
+    "/usr/lib/x86_64-linux-gnu/libc.so.6",
+    "/usr/lib/x86_64-linux-gnu/libcrypto.so.3",
+    "/usr/lib/x86_64-linux-gnu/libexpat.so.1.11.2",
+    "/usr/lib/x86_64-linux-gnu/libffi.so.8.2.0",
+    "/usr/lib/x86_64-linux-gnu/liblzma.so.5.8.3",
+    "/usr/lib/x86_64-linux-gnu/libm.so.6",
+    "/usr/lib/x86_64-linux-gnu/libuuid.so.1.3.0",
+    "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1",
+    "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.7"
+  ],
+  "ctypes": [
+    "/usr/lib/python3.14/ctypes/__init__.py",
+    "/usr/lib/python3.14/lib-dynload/_ctypes.cpython-314-x86_64-linux-gnu.so",
+    "/usr/lib/python3.14/ctypes/_endian.py"
+  ]
+}

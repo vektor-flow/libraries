@@ -1,0 +1,70 @@
+{
+  "passed": true,
+  "result": "QUALIFIED tiny six-case storage",
+  "owner": "01a149d1-1ba6-77f0-904a-23fc7490075b",
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "source_commit": "585704c4f2e61b73e23b0cca11a39dc38a451598",
+  "installed_v9_unchanged": true,
+  "old_rows_policies_recovery_events_unchanged": true,
+  "owners_rotated": true,
+  "owner_publications": [
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-24/publication-00-initial-receipt.json",
+      "sha256": "dd70e075f6cccce4fd953127aa8b27a8f2ebb3caac015fc35a632cea2ba866d6"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-24/publication-01-live24-f-success-01-receipt.json",
+      "sha256": "c045edc501fa885d478afda61a3f78f6cf6e2de7d6e84693ca01cff8b7b6155d"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-24/publication-02-live24-f-nonzero-01-receipt.json",
+      "sha256": "5776be082652a725f0079a8e7561c2793ee7c2554d31b69bfb190a8ca21735cd"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-24/publication-03-live24-f-timeout-01-receipt.json",
+      "sha256": "b6999970108de04ce85ec661e36865cc9939b27bdafe606dbb61aab5f8e43b99"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-24/publication-04-live24-a-success-01-receipt.json",
+      "sha256": "4401e842d7e804263e97ed80cb88297dbdd3d09388a22e644754be7b33690fed"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-24/publication-05-live24-a-nonzero-01-receipt.json",
+      "sha256": "ff22a68a5fec9b78963cf1ff2f67d2bb65ba3d58f7825895aaef9308e263065a"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-24/publication-06-live24-a-timeout-01-receipt.json",
+      "sha256": "cc938835687749d1221def33ad38a72a7ce719e00387b9f56b626441bf08c938"
+    }
+  ],
+  "attempts": 12,
+  "consumed_bytes": 50331648,
+  "max_attempts": 16,
+  "total_bytes": 67108864,
+  "remaining_attempts": 4,
+  "remaining_bytes": 16777216,
+  "active_ram_intent": 0,
+  "qualified_phases": 6,
+  "executed_cases": [
+    "A:live24-a-nonzero-01",
+    "A:live24-a-success-01",
+    "A:live24-a-timeout-01",
+    "F:live24-f-nonzero-01",
+    "F:live24-f-success-01",
+    "F:live24-f-timeout-01"
+  ],
+  "unrun_cases": [],
+  "normal_joins_verified": true,
+  "native_execution": false,
+  "retry": false,
+  "MemAvailable": 19467472896,
+  "overlap": {
+    "worker": [],
+    "legacy": [],
+    "lanes_empty": {
+      "F": true,
+      "A": true
+    }
+  },
+  "finalization_seconds": 3.720367510919459
+}

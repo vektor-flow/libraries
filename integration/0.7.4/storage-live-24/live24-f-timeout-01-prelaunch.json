@@ -1,0 +1,56 @@
+{
+  "host": [
+    19488829440,
+    0
+  ],
+  "holds": {
+    "vkf-s0-synchronized-contexts.service": {
+      "argv": [
+        "systemctl",
+        "--user",
+        "show",
+        "vkf-s0-synchronized-contexts.service",
+        "-p",
+        "ActiveState",
+        "-p",
+        "MainPID"
+      ],
+      "exit": 0,
+      "stdout": "ActiveState=inactive\nMainPID=0\n",
+      "stderr": ""
+    },
+    "vkf-s0-synchronized-contexts.timer": {
+      "argv": [
+        "systemctl",
+        "--user",
+        "show",
+        "vkf-s0-synchronized-contexts.timer",
+        "-p",
+        "ActiveState",
+        "-p",
+        "MainPID"
+      ],
+      "exit": 0,
+      "stdout": "ActiveState=inactive\n",
+      "stderr": ""
+    },
+    "vkf-s0-worker-done.path": {
+      "argv": [
+        "systemctl",
+        "--user",
+        "show",
+        "vkf-s0-worker-done.path",
+        "-p",
+        "ActiveState",
+        "-p",
+        "MainPID"
+      ],
+      "exit": 0,
+      "stdout": "ActiveState=inactive\n",
+      "stderr": ""
+    }
+  },
+  "granted_bytes": 4194304,
+  "consumed_attempts": 8,
+  "consumed_bytes": 33554432
+}

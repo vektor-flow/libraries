@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-24/test_trust.py"
+  ],
+  "identity": {
+    "pid": 61439,
+    "starttime": 75259523,
+    "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+    "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/codex-phone-host.service",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-24/test_trust.py"
+    ]
+  },
+  "exit": 1,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-24/test_trust.py\", line 49, in <module>\n    case('host unknown errors',lambda b:b['service'][1]['observation']['errors'].append(dict(path='/',reason='EPERM')))\n    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-24/test_trust.py\", line 39, in case\n    try:check(b)\n        ~~~~~^^^\n  File \"/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-24/test_trust.py\", line 34, in check\n    def check(f):return validate_trust('\\n'.join(json.dumps(x) for x in f['service']),f['records'],f['row'],f['g'],f['m'])\n                        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-24/validate_trust.py\", line 58, in validate_trust\n    pw.compare_host(base,obs,scaffold);pw.compare_namespace(obs,local['observation'],selfctx,origin)\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^\n  File \"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/private_workload.py\", line 210, in compare_host\n    validate_observation(after, host=True, scaffold_origin=scaffold_origin)\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/private_workload.py\", line 164, in validate_observation\n    require(not observation['errors'], 'system observation errors')\n    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/storage_paths.py\", line 17, in require\n    raise Rejected(message)\nstorage_paths.Rejected: system observation errors\n",
+  "seconds": 0.1387930540367961,
+  "joined": true,
+  "observed": null
+}

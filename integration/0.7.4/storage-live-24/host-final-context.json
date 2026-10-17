@@ -1,0 +1,536 @@
+{
+  "context": {
+    "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/codex-phone-host.service",
+    "uid": 1000,
+    "gid": 1000,
+    "namespaces": {
+      "mnt": "mnt:[4026531832]",
+      "user": "user:[4026531837]",
+      "pid": "pid:[4026531836]",
+      "net": "net:[4026531833]",
+      "cgroup": "cgroup:[4026531835]"
+    },
+    "maps": {
+      "uid": "         0          0 4294967295\n",
+      "gid": "         0          0 4294967295\n"
+    },
+    "overflow": {
+      "uid": 65534,
+      "gid": 65534
+    },
+    "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628"
+  },
+  "observation": {
+    "paths": {
+      "/": {
+        "st_dev": 64513,
+        "st_ino": 2,
+        "st_mode": 16877,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 20,
+        "st_size": 4096,
+        "st_mtime_ns": 1792137354266399104,
+        "st_ctime_ns": 1792137354266399104
+      },
+      "/usr": {
+        "st_dev": 64513,
+        "st_ino": 25165825,
+        "st_mode": 16877,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 14,
+        "st_size": 4096,
+        "st_mtime_ns": 1791241606975963055,
+        "st_ctime_ns": 1791241606975963055
+      },
+      "/usr/local": {
+        "st_dev": 64513,
+        "st_ino": 25165832,
+        "st_mode": 16877,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 11,
+        "st_size": 4096,
+        "st_mtime_ns": 1787722039000000000,
+        "st_ctime_ns": 1790855767128745920
+      },
+      "/usr/local/libexec": {
+        "st_dev": 64513,
+        "st_ino": 25298605,
+        "st_mode": 16877,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 4,
+        "st_size": 4096,
+        "st_mtime_ns": 1792236830559714328,
+        "st_ctime_ns": 1792236830559714328
+      },
+      "/usr/local/libexec/vkf-storage-private-v2": {
+        "st_dev": 64513,
+        "st_ino": 25337277,
+        "st_mode": 16877,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 2,
+        "st_size": 4096,
+        "st_mtime_ns": 1792236830559714328,
+        "st_ctime_ns": 1792236830559714328
+      },
+      "/usr/local/libexec/vkf-storage-private-v2/unshare": {
+        "st_dev": 64513,
+        "st_ino": 25337278,
+        "st_mode": 33261,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 47800,
+        "st_mtime_ns": 1792236830561403181,
+        "st_ctime_ns": 1792236830588714730
+      },
+      "/usr/bin": {
+        "st_dev": 64513,
+        "st_ino": 25165826,
+        "st_mode": 16877,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 2,
+        "st_size": 69632,
+        "st_mtime_ns": 1792176185412863657,
+        "st_ctime_ns": 1792176185412863657
+      },
+      "/usr/bin/python3.14": {
+        "st_dev": 64513,
+        "st_ino": 25186150,
+        "st_mode": 33261,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 7477160,
+        "st_mtime_ns": 1787222518000000000,
+        "st_ctime_ns": 1790856144913879094
+      },
+      "/usr/bin/bwrap": {
+        "st_dev": 64513,
+        "st_ino": 25167087,
+        "st_mode": 33261,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 80424,
+        "st_mtime_ns": 1789675933000000000,
+        "st_ctime_ns": 1790856148848923515
+      },
+      "/etc": {
+        "st_dev": 64513,
+        "st_ino": 6815745,
+        "st_mode": 16877,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 164,
+        "st_size": 12288,
+        "st_mtime_ns": 1792178778284989394,
+        "st_ctime_ns": 1792178778284989394
+      },
+      "/etc/apparmor.d": {
+        "st_dev": 64513,
+        "st_ino": 6815761,
+        "st_mode": 16877,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 9,
+        "st_size": 4096,
+        "st_mtime_ns": 1792236830570714480,
+        "st_ctime_ns": 1792236830570714480
+      },
+      "/etc/apparmor.d/vkf-storage-private-v2": {
+        "st_dev": 64513,
+        "st_ino": 6817946,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 1844,
+        "st_mtime_ns": 1792236830572342738,
+        "st_ctime_ns": 1792236830572342738
+      },
+      "/etc/apparmor.d/abi": {
+        "st_dev": 64513,
+        "st_ino": 6816053,
+        "st_mode": 16877,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 2,
+        "st_size": 4096,
+        "st_mtime_ns": 1787722139000000000,
+        "st_ctime_ns": 1790855727463943202
+      },
+      "/etc/apparmor.d/abi/5.0": {
+        "st_dev": 64513,
+        "st_ino": 6816507,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 2955,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727462796276
+      },
+      "/etc/apparmor.d/bwrap-userns-restrict": {
+        "st_dev": 64513,
+        "st_ino": 6816263,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 3028,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727445213193
+      },
+      "/etc/apparmor.d/tunables": {
+        "st_dev": 64513,
+        "st_ino": 6816059,
+        "st_mode": 16877,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 5,
+        "st_size": 4096,
+        "st_mtime_ns": 1787722140000000000,
+        "st_ctime_ns": 1790855727481479344
+      },
+      "/etc/apparmor.d/tunables/alias": {
+        "st_dev": 64513,
+        "st_ino": 6816702,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 734,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727478689956
+      },
+      "/etc/apparmor.d/tunables/coreutils": {
+        "st_dev": 64513,
+        "st_ino": 6816704,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 245,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727478827148
+      },
+      "/etc/apparmor.d/tunables/etc": {
+        "st_dev": 64513,
+        "st_ino": 6816706,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 1256,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727478961620
+      },
+      "/etc/apparmor.d/tunables/global": {
+        "st_dev": 64513,
+        "st_ino": 6816707,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 926,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727479031771
+      },
+      "/etc/apparmor.d/tunables/home": {
+        "st_dev": 64513,
+        "st_ino": 6816709,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 974,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727479162343
+      },
+      "/etc/apparmor.d/tunables/home.d": {
+        "st_dev": 64513,
+        "st_ino": 6816063,
+        "st_mode": 16877,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 2,
+        "st_size": 4096,
+        "st_mtime_ns": 1787722140000000000,
+        "st_ctime_ns": 1790855727481479344
+      },
+      "/etc/apparmor.d/tunables/home.d/site.local": {
+        "st_dev": 64513,
+        "st_ino": 6816721,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 634,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727480015704
+      },
+      "/etc/apparmor.d/tunables/home.d/ubuntu": {
+        "st_dev": 64513,
+        "st_ino": 6816722,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 337,
+        "st_mtime_ns": 1787722140000000000,
+        "st_ctime_ns": 1790855727480091355
+      },
+      "/etc/apparmor.d/tunables/kernelvars": {
+        "st_dev": 64513,
+        "st_ino": 6816710,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 1511,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727479228693
+      },
+      "/etc/apparmor.d/tunables/multiarch": {
+        "st_dev": 64513,
+        "st_ino": 6816711,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 607,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727479294024
+      },
+      "/etc/apparmor.d/tunables/multiarch.d": {
+        "st_dev": 64513,
+        "st_ino": 6816064,
+        "st_mode": 16877,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 2,
+        "st_size": 4096,
+        "st_mtime_ns": 1787722140000000000,
+        "st_ctime_ns": 1790855727481479344
+      },
+      "/etc/apparmor.d/tunables/multiarch.d/site.local": {
+        "st_dev": 64513,
+        "st_ino": 6816723,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 645,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727480163096
+      },
+      "/etc/apparmor.d/tunables/proc": {
+        "st_dev": 64513,
+        "st_ino": 6816713,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 548,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727479424306
+      },
+      "/etc/apparmor.d/tunables/run": {
+        "st_dev": 64513,
+        "st_ino": 6816714,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 129,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727479490617
+      },
+      "/etc/apparmor.d/tunables/share": {
+        "st_dev": 64513,
+        "st_ino": 6816717,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 929,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727479691700
+      },
+      "/etc/apparmor.d/tunables/system": {
+        "st_dev": 64513,
+        "st_ino": 6816719,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 5055,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727479847112
+      },
+      "/etc/apparmor.d/tunables/xdg-user-dirs": {
+        "st_dev": 64513,
+        "st_ino": 6816720,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 844,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727479927243
+      },
+      "/etc/apparmor.d/tunables/xdg-user-dirs.d": {
+        "st_dev": 64513,
+        "st_ino": 6816065,
+        "st_mode": 16877,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 2,
+        "st_size": 4096,
+        "st_mtime_ns": 1787722140000000000,
+        "st_ctime_ns": 1790855727481479344
+      },
+      "/etc/apparmor.d/tunables/xdg-user-dirs.d/site.local": {
+        "st_dev": 64513,
+        "st_ino": 6816724,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 730,
+        "st_mtime_ns": 1787722140000000000,
+        "st_ctime_ns": 1790855727480250168
+      },
+      "/etc/apparmor.d/unprivileged_userns": {
+        "st_dev": 64513,
+        "st_ino": 6816478,
+        "st_mode": 33188,
+        "st_uid": 0,
+        "st_gid": 0,
+        "st_nlink": 1,
+        "st_size": 702,
+        "st_mtime_ns": 1783964626000000000,
+        "st_ctime_ns": 1790855727458955853
+      }
+    },
+    "files": {
+      "/usr/local/libexec/vkf-storage-private-v2/unshare": {
+        "sha256": "41c65e55107cbbb1a1f6994784a938dd7dbbe255d1fea6b7a58ec96eabe382ef",
+        "filecaps": false
+      },
+      "/usr/bin/python3.14": {
+        "sha256": "52e0a13e60a981d8c4b6478be2ba5176f69da07948a056bf49cf6f077e30cb41",
+        "filecaps": false
+      },
+      "/usr/bin/bwrap": {
+        "sha256": "523da3e7399044be5163aee6f57a77a6bef7454376e28f0a0627920bae1b76b6",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/vkf-storage-private-v2": {
+        "sha256": "8bd0a67dd92c2b7504d6c5c62ace5a450afc439f8ff3ae73f9c0bceb722b4029",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/abi/5.0": {
+        "sha256": "6939ba05dd5b8e4934fc8d912d22ad13f4f77710b097287a2d2d37be6cabe775",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/bwrap-userns-restrict": {
+        "sha256": "d61facde27707b9c47ffe47921b7273e788784484cb5530eb819e6daac1f1990",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/alias": {
+        "sha256": "e7b8b278db3f7aca74e0176f22cbd3adc3c89212cc9e66a90a2787b3ceee8030",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/coreutils": {
+        "sha256": "7160a15b9dbac8280584dc122a0b5a56f6fa4e5ed50c11f165ba0b09d8c305e6",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/etc": {
+        "sha256": "4211a2db7a81c3edea6a657f8eacdae4322235c1d766ac95a592cb6f1b43f7ee",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/global": {
+        "sha256": "cb2a6a5aabaeefe52053fb6517202349efc80cf8ee2059fbcd319a4f3e1eb0a0",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/home": {
+        "sha256": "806a4e80696e3870d46d1ae99ac7fe7099680b39040c2183094a44671d83218e",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/home.d/site.local": {
+        "sha256": "f6f9d209f8015196f2e391ea02debcebecbf8022ececfee3a08e3973c3bb06d4",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/home.d/ubuntu": {
+        "sha256": "e1b3a24d2ffdcf2b02f8726941f3c6c32dee3c9222553959a335147494d74a2d",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/kernelvars": {
+        "sha256": "a2fa754e93a435722ea4b8b03e2bdf52bf4c029c66397b773f5e4321d6f66ea5",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/multiarch": {
+        "sha256": "0d35e0680f4dd9085a1c64911be21e95a65d12db045bde4b4ecae22915ce53ff",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/multiarch.d/site.local": {
+        "sha256": "731ad52936633b9a0c738605a2a08aad2357df91ca8fbe3bd2c3427d7aac240b",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/proc": {
+        "sha256": "d6a8ac6910ecdde3930916dcb44d7b3d3bf1cfe5a8f54728f1f599e32a26ece7",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/run": {
+        "sha256": "cbe2d9c99a82124d6206bfdd377895fa3dec48ee255923d2c31b71be53ab9bdd",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/share": {
+        "sha256": "5389ddceeb78d2012f528037e5c8205535f145c906cf6266ba400d9bafea26b7",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/system": {
+        "sha256": "84dfeb5a2239e9cb7626b8008275c5aa0602d671303f4b43b7db0eff4688b828",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/xdg-user-dirs": {
+        "sha256": "1d92b108e04a4067333224c4dbfd19df8ca0f0deef7a28b153995e22fe8cedb7",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/tunables/xdg-user-dirs.d/site.local": {
+        "sha256": "d9705b1ab368e32f4cce94f2242c6947b8624985b9c6de2ab4ee01b398dc4703",
+        "filecaps": false
+      },
+      "/etc/apparmor.d/unprivileged_userns": {
+        "sha256": "3263abe3b090d761a525a5e8c2d62ef89a39b41ab87ba25cecc5a6d686f73e65",
+        "filecaps": false
+      }
+    },
+    "errors": [],
+    "root_mount": {
+      "id": 48,
+      "path": "/",
+      "root": "/",
+      "dev": [
+        252,
+        1
+      ],
+      "fstype": "ext4",
+      "options": [
+        "rw",
+        "relatime"
+      ],
+      "optional": [
+        "shared:1"
+      ],
+      "readonly": false
+    }
+  }
+}

@@ -1,0 +1,12 @@
+--- original/qualify.py
++++ corrected/qualify.py
+@@ -201,7 +201,8 @@
+         report=reports[0]
+         assert report['mode']==mode and report['outside_readonly'] is True
+         assert pathlib.Path(m['output_paths'][0]).read_bytes()==b'fresh storage qualification\n'*128
+-        assert len(records)==(11 if mode=='timeout' else 10), 'unexpected fixture/helper record count'
++        from validate_fixture import validate_fixture
++        checks['strict_fixture_validated']=validate_fixture(records,mode,m,pathlib.Path(m['output_paths'][0]).read_bytes())
+         import hashlib
+         proof=report['effective_storage']
+         assert proof['mountinfo_sha256']==hashlib.sha256(snapshots[0]['mountinfo'].encode('utf-8','surrogateescape')).hexdigest()

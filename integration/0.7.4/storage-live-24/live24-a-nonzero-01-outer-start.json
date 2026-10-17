@@ -1,0 +1,60 @@
+{
+  "identity": {
+    "pid": 75472,
+    "starttime": 75322918,
+    "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+    "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/codex-phone-host.service",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/storage_controller.py",
+      "--config-sha256",
+      "06af8e27a534b912ff9b0a61107e1a640ab6408af2bd667b6a065a0dbf6965c0",
+      "--grant",
+      "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/storage-live-24/live24-a-nonzero-01-grant.json",
+      "--grant-sha256",
+      "c002ad45a58be5648b22035d941a33fdaea06f8d42ff1584496047f134c395dd",
+      "--manifest",
+      "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/storage-live-24/live24-a-nonzero-01-manifest.json",
+      "--manifest-sha256",
+      "f6a38bee8e1eff54ce3fad3279af6c698d83838bc669f3930564baeff1a6aa34"
+    ]
+  },
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/storage_controller.py",
+    "--config-sha256",
+    "06af8e27a534b912ff9b0a61107e1a640ab6408af2bd667b6a065a0dbf6965c0",
+    "--grant",
+    "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/storage-live-24/live24-a-nonzero-01-grant.json",
+    "--grant-sha256",
+    "c002ad45a58be5648b22035d941a33fdaea06f8d42ff1584496047f134c395dd",
+    "--manifest",
+    "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/storage-live-24/live24-a-nonzero-01-manifest.json",
+    "--manifest-sha256",
+    "f6a38bee8e1eff54ce3fad3279af6c698d83838bc669f3930564baeff1a6aa34"
+  ],
+  "grant": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/storage-live-24/live24-a-nonzero-01-grant.json",
+    "sha256": "c002ad45a58be5648b22035d941a33fdaea06f8d42ff1584496047f134c395dd"
+  },
+  "manifest": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/storage-live-24/live24-a-nonzero-01-manifest.json",
+    "sha256": "f6a38bee8e1eff54ce3fad3279af6c698d83838bc669f3930564baeff1a6aa34"
+  },
+  "high_activation": {
+    "argv": [
+      "systemctl",
+      "--user",
+      "set-property",
+      "--runtime",
+      "vkfworkers-a.slice",
+      "MemoryHigh=7G"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "utc": "2026-10-17T12:38:29.122751+00:00"
+}
