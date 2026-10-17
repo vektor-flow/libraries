@@ -37,18 +37,18 @@ renderer_tests()->bit:
     origin.a270_mapping_valid(packet.scenes,state,linked.a268_scope_owners,parsed.stream,source)?! "actual generated link mapping"
     missing:packet.scenes
     missing.firsts:[]
-    ~origin.a270_mapping_valid(missing,state,linked.a268_scope_owners,parsed.stream,source)?! "missing scene range rejects before indexing"
+    (~origin.a270_mapping_valid(missing,state,linked.a268_scope_owners,parsed.stream,source))?! "missing scene range rejects before indexing"
     short:packet.scenes
     short.arena.a260_stops:[]
-    ~origin.a270_mapping_valid(short,state,linked.a268_scope_owners,parsed.stream,source)?! "truncated output provenance rejects"
+    (~origin.a270_mapping_valid(short,state,linked.a268_scope_owners,parsed.stream,source))?! "truncated output provenance rejects"
     broken:parsed.stream
     broken.starts:[]
-    ~origin.a270_mapping_valid(packet.scenes,state,linked.a268_scope_owners,broken,source)?! "missing parser page rejects"
+    (~origin.a270_mapping_valid(packet.scenes,state,linked.a268_scope_owners,broken,source))?! "missing parser page rejects"
     bad:packet.scenes
     bad.counts.(bad.count-1): -1
-    ~origin.a270_mapping_valid(bad,state,linked.a268_scope_owners,parsed.stream,source)?! "negative scene size rejects"
-    ~origin.a270_mapping_valid(packet.scenes,state,[parsed.stream.count],parsed.stream,source)?! "ordering sentinel is not a source owner"
-    ~origin.a270_mapping_valid(packet.scenes,state,linked.a268_scope_owners,parsed.stream,"")?! "foreign source extent rejects"
+    (~origin.a270_mapping_valid(bad,state,linked.a268_scope_owners,parsed.stream,source))?! "negative scene size rejects"
+    (~origin.a270_mapping_valid(packet.scenes,state,[parsed.stream.count],parsed.stream,source))?! "ordering sentinel is not a source owner"
+    (~origin.a270_mapping_valid(packet.scenes,state,linked.a268_scope_owners,parsed.stream,""))?! "foreign source extent rejects"
     origin.a270_mapping_valid(packet.scenes,state,linked.a268_scope_owners,parsed.stream,source)?! "earlier packet value preserved"
     @:true
 (renderer_tests())?! "Native gate entry returned false"

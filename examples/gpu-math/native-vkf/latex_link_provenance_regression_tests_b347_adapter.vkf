@@ -41,7 +41,7 @@ one(source:str,width:num)->bit:
             owner>=0?! "generated link rectangle has actual parser command owner"
             ops.value(parsed.stream,owner,"value")="hyperlink"?! "origin is command, not target or ordinal"
             (emitted.arena.a260_starts.(i)=pages.integer(parsed.stream.starts,owner) /\ emitted.arena.a260_stops.(i)=pages.integer(parsed.stream.stops,owner))?! "exact command span"
-            emitted.arena.a260_parts.(i)=parts.(owner)?! "multi-line link emissions have distinct local parts"
+            (emitted.arena.a260_parts.(i)=parts.(owner))?! "multi-line link emissions have distinct local parts"
             parts.(owner):parts.(owner)+1
             .count:count+1
         .i:i+1

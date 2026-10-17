@@ -9,7 +9,7 @@ main():
     selected:store.get(retained,1)
     selected.anchor_metadata.count=second.anchor_metadata.count?! "Unrelated scene metadata retained"
     selected.anchor_roots.(0)=0?! "Selected root not rebased"
-    metadata.encode(selected.anchor_metadata,selected.anchor_roots.(1))=metadata.encode(second.anchor_metadata,second.anchor_roots.(1))?! "Nested destination values/order"
+    (metadata.encode(selected.anchor_metadata,selected.anchor_roots.(1))=metadata.encode(second.anchor_metadata,second.anchor_roots.(1)))?! "Nested destination values/order"
     before:metadata.encode(first.anchor_metadata,first.anchor_roots.(0))
     roundtrip:store.get(store.append(store.empty(),store.get(retained,0)),0)
     metadata.encode(roundtrip.anchor_metadata,roundtrip.anchor_roots.(0))=before?! "Nested first scene metadata"
