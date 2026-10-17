@@ -71,7 +71,10 @@
   "unchanged_limits": true,
   "release_qualified": false,
   "remaining": [
-    "Native full caller shape failure",
+    "Native full caller compose fixed-shape failure; current permitted application investigation at impasse",
+    "Native scene-gate from_leaves fixed-shape compiler failure",
+    "Stale packet reference test ABI and nonindependent before/after oracle",
+    "29 native application cases still unqualified; no all-tests-pass claim",
     "40-page native PDF correctness and timings",
     "Full WASM bad_alloc",
     "Direct named dest/selectable/editable native facade",
@@ -85,7 +88,7 @@
     "command": "node --max-old-space-size=512 --test examples/gpu-math/native-vkf/verify_document_host.mjs",
     "raw_log": "/tmp/vkf074-host-registry-20261017.log"
   },
-  "updated_utc": "2026-10-17T07:12:37.338143+00:00",
+  "updated_utc": "2026-10-17T07:43:29.962178+00:00",
   "ui": {
     "passed": 88,
     "files": 9,
@@ -171,6 +174,39 @@
       "diagnostic": "scene_anchor_selection_regression_tests:12 assertion condition must be scalar, got str",
       "fixture_changes": "Two metadata equality assertions parenthesized; sixstaticchecks pass",
       "next": "Fresh static assertion grouping review; no buildadmission"
+    },
+    "F363": {
+      "compile_exit": 1,
+      "runtime_executed": false,
+      "diagnostic": "automatic function broadcasting only descends through vectors",
+      "cause": "Stale test adapter packet shape; before/after paths also forward to same implementation",
+      "case": "typed_packet_reference_harness_tests",
+      "status": "unqualified; no fake defaults or independent-oracle claim"
+    },
+    "F364": {
+      "compile_exit": 1,
+      "runtime_executed": false,
+      "compile_seconds": 7.458,
+      "diagnostic": "document_scene.from_leaves numeric return paths require compatible fixed shapes",
+      "positive_cases_blocked": 10,
+      "remaining_F_cap_bytes": 2118167296
     }
+  },
+  "python_native_adapter": {
+    "source_commit": "0841d66",
+    "static_original_methods_collected": 4,
+    "negative_receipt_checks": 7,
+    "native_executed": true,
+    "next": null,
+    "passed": 4,
+    "skipped": 0,
+    "failed": 0,
+    "errors": 0,
+    "native_calls": 9,
+    "compile_seconds": 0.525,
+    "adapter_seconds": 0.174,
+    "root_verified_outer_unique_pins": 61,
+    "root_verified_all_call_snapshots_binary_logs_and_joins": true,
+    "evidence": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iteration365-python-tokens01/reviewed-results.json"
   }
 }
