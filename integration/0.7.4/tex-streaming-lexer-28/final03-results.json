@@ -1,0 +1,68 @@
+{
+  "stages": [
+    {
+      "name": "model",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/test_reference.py"
+      ],
+      "pid": 229946,
+      "exit": 0,
+      "seconds": 0.06548933510202914,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "source",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/verify_source.py"
+      ],
+      "pid": 229962,
+      "exit": 0,
+      "seconds": 0.06576330005191267,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "origin-bridge",
+      "argv": [
+        "node",
+        "--jitless",
+        "--max-old-space-size=160",
+        "--max-semi-space-size=4",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/test_origin_bridge.mjs"
+      ],
+      "pid": 230010,
+      "exit": 0,
+      "seconds": 0.1661807979689911,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "patch",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "--whitespace=error-all",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/streaming-mouth.patch"
+      ],
+      "pid": 230021,
+      "exit": 0,
+      "seconds": 0.006136176991276443,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    }
+  ],
+  "passed": true,
+  "all_children_joined": true,
+  "native_executed": false,
+  "child_maxrss_kib": 70040
+}

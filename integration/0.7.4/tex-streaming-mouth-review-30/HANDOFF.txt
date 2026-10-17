@@ -1,0 +1,79 @@
+TMR30 — DONE: SOURCE REVIEW; CONTRACT CORRECTED; NATIVE UNQUALIFIED
+2026-10-17. Worker 01a14a3f-46f5-7872-9bef-28a513d6ad93.
+Root 01a14893-cb1e-7203-97dd-de3da44dcf31.
+Grant tex-streaming-mouth-review-30-visible-chat-grant.json.
+Reviewed exact TSL28 patch2e88f0f67b562060a91e545533276139cb34eaf76bc0d43007dbb5df99321ce6.
+
+RESULT
+Accept only as the bounded ASCII source milestone with the corrected contract.
+No supported-profile tokenization defect established by source inspection.
+Not native-qualified, TeX-equivalent, a package interpreter, or a performance result.
+Read REVIEW.txt and MOUTH-CONTRACT-reviewed.txt before adoption.
+
+CONCRETE FINDINGS
+F1: Original unconditional virtual-EOF/no-origin wording is wrong. Raw "a "
+produces engine-derived space with span[1,2), origin1. Raw " " produces generated
+par with span[0,1), origin0. Raw "a" produces zero-width endline with origin=-1.
+An escaped EOF CR unit has zero width but the composite control token covers the
+escape, e.g. raw backslash => span[0,1), origin0. All remain provenance=1.
+Source anchors do not assert authored token spelling. No runtime behavior changed.
+F2: acceptMouthOrigin returns an issued origin or null, not a context. The corrected
+contract says to reuse the supplied context, retaining token/provenance plus origin.
+Actual adapter return API is covered by existing and added JS tests; JS unchanged.
+Also made explicit that default categories are not a full plain/LaTeX snapshot
+(e.g. form-feed), and retained all ASCII/^^/endlinechar/bootstrap limitations.
+
+CANDIDATES — OWN OUTPUT ONLY, UNAPPLIED
+review30-after-tsl28.patch: two-file delta AFTER exact original TSL28 adoption;
+unit() comment clarification plus29 native positive regressions.
+review30-combined-threefile.patch: alternative complete three-file candidate for
+unchanged production base. Do not apply both alternatives.
+candidate/: exact combined files. Host adapter byte-identical to original;
+all executable mouth logic unchanged. Native tests retain every original fixture.
+MOUTH-CONTRACT-reviewed.txt replaces the interpretation of the original contract.
+prepare_review.py deterministically builds source/test candidates from handwritten
+expectations; test_review.py does not generate expected results from the model.
+
+VALIDATION
+checks01-results.json:7sequential stages PASS, all7children joined. MaxRSS69968KiB.
+Each child AS<=512MiB, CPU55s, wall60s. Stage walls approximately:
+review0.066s;transport0.166s;originalmodel0.067s;originalsource0.066s;
+originalhost0.166s;combinedpatch0.006s;deltapatch0.005s.
+7review methods cover24 independently handwritten boundary rows plus category
+feedback, nonzero-cursor transactional rollback, retry, checkpoint and source pins.
+24actual JS adapter assertions use manually constructed ABI tokens, not native
+output. Original10model/6source tests and51host/preparation assertions also pass.
+Both patch checks use git apply --check only. No native parser/compiler/TeX invoked.
+No test failures occurred. Exploratory model traces and read-only primary source
+inspection are supporting reasoning, not native or independent engine evidence.
+References include local plain.tex and unchanged fetched TeX Live tex.web and
+texmfmp.c, pinned in primary-references.json. Review checks actual VKF branches,
+UTF-8 source/origin paths, category feedback and every checkpoint comparison.
+
+UNQUALIFIED / NEXT
+Original32positive/fournegative/threeinstalled-source future native calls remain
+unqualified;29additional positives likewise uncompiled/unexecuted. Future admission
+must invoke review30_tests as well as original renderer_tests. Exact stdout/error
+oracles and actual terminal joins required; exit0 alone does not prove assertions.
+Concrete risks: inferred singleton/empty arrays, growing origin columns, retained
+category array ownership, nested Result/record shapes and repeated step assignment.
+No core53 change, compiler experiment, fallback execution or performance claim.
+Unicode lexical input, ^^ translation and endline assignments remain unsupported;
+no macro expansion, namespace/group/register/conditional/package execution added.
+Origins/strict_token are preparation interfaces, not authenticated native producer
+proof or wired strict PDF export gates. Provenance must survive downstream usage.
+
+BASE / ROOT UPDATE / CUSTODY
+Started at9dbabcaea9fce28129469e31a139a8548a14ab22. Root subsequently committed
+metadata failure evidence at58b9edb2ea430610397fc606a5f496a9a5f75007; parent and
+metadata-only paths verified. Production source unchanged. Root explicitly
+reports independent metadata29 terminal join, no active native job and no HEAD
+hold. This review did not independently execute operational join machinery.
+No competing native job; host checks sequential and joined. Source-only scope
+unchanged. Latest Oct17 coordinator/package25/TSL28/root steering supersede older
+handovers. No repository AGENTS.md found; project instructions and exact grant read.
+Only this output directory written. No subagents, shared/peer writes, commits,
+compiler/native/TeX, services/namespaces/live locks or operational mutations.
+D267/D289, dispatcher hold, resource guards and cumulative charges preserved.
+Memory and finding notices acknowledged using existing native17 app-server pattern.
+One current DONE carries worker ID, result and this HANDOFF; then stop.

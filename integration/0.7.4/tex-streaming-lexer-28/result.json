@@ -1,0 +1,105 @@
+{
+  "id": "TSL28",
+  "status": "DONE_SOURCE_MILESTONE_NATIVE_UNQUALIFIED",
+  "worker": "01a14a33-06c7-7972-a195-6d77e38b4b4b",
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "base_commit": "9dbabcaea9fce28129469e31a139a8548a14ab22",
+  "patch": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/streaming-mouth.patch",
+  "patch_sha256": "2e88f0f67b562060a91e545533276139cb34eaf76bc0d43007dbb5df99321ce6",
+  "handoff": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/HANDOFF.txt",
+  "contract": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/MOUTH-CONTRACT.txt",
+  "source_files": 3,
+  "applied": false,
+  "committed": false,
+  "shared_writes": false,
+  "agents_spawned": 0,
+  "native_executed": false,
+  "tex_executed": false,
+  "operational_mutations": false,
+  "package_execution": false,
+  "qualification_credit": false,
+  "validation": {
+    "stages": [
+      {
+        "name": "model",
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/test_reference.py"
+        ],
+        "pid": 229946,
+        "exit": 0,
+        "seconds": 0.06548933510202914,
+        "joined": true,
+        "timeout": false,
+        "as_limit_bytes": 536870912
+      },
+      {
+        "name": "source",
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/verify_source.py"
+        ],
+        "pid": 229962,
+        "exit": 0,
+        "seconds": 0.06576330005191267,
+        "joined": true,
+        "timeout": false,
+        "as_limit_bytes": 536870912
+      },
+      {
+        "name": "origin-bridge",
+        "argv": [
+          "node",
+          "--jitless",
+          "--max-old-space-size=160",
+          "--max-semi-space-size=4",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/test_origin_bridge.mjs"
+        ],
+        "pid": 230010,
+        "exit": 0,
+        "seconds": 0.1661807979689911,
+        "joined": true,
+        "timeout": false,
+        "as_limit_bytes": 536870912
+      },
+      {
+        "name": "patch",
+        "argv": [
+          "git",
+          "apply",
+          "--check",
+          "--whitespace=error-all",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/streaming-mouth.patch"
+        ],
+        "pid": 230021,
+        "exit": 0,
+        "seconds": 0.006136176991276443,
+        "joined": true,
+        "timeout": false,
+        "as_limit_bytes": 536870912
+      }
+    ],
+    "passed": true,
+    "all_children_joined": true,
+    "native_executed": false,
+    "child_maxrss_kib": 70040
+  },
+  "model_test_methods": 10,
+  "handwritten_cases": 31,
+  "source_test_methods": 6,
+  "host_assertions": 51,
+  "future_native_positive_functions": 32,
+  "future_native_negative_entries": 4,
+  "future_actual_source_calls": 3,
+  "next_milestone": "Root source review/application followed by separately admitted native fixture execution; kernel/package interpreter remains unimplemented",
+  "notification_result": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/done-notification-result.json",
+  "notes": [
+    "Bounded ASCII profile; explicit unsupported Unicode/^^/broader endline assignments",
+    "No native syntax, ownership or runtime proof",
+    "Source revision changes conservatively invalidate all checkpoints",
+    "Zero-width logical endlines are non-authored; preview provenance rejected",
+    "All test children joined; final child max RSS 70040 KiB"
+  ]
+}

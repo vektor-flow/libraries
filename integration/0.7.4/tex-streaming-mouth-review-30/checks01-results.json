@@ -1,0 +1,117 @@
+{
+  "passed": true,
+  "stages": [
+    {
+      "name": "review",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-mouth-review-30/test_review.py"
+      ],
+      "pid": 241345,
+      "exit": 0,
+      "seconds": 0.06565192493144423,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "transport",
+      "argv": [
+        "node",
+        "--jitless",
+        "--max-old-space-size=160",
+        "--max-semi-space-size=4",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-mouth-review-30/test_transport.mjs"
+      ],
+      "pid": 241346,
+      "exit": 0,
+      "seconds": 0.1663035519886762,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "original-model",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/test_reference.py"
+      ],
+      "pid": 241353,
+      "exit": 0,
+      "seconds": 0.06657642894424498,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "original-source",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/verify_source.py"
+      ],
+      "pid": 241354,
+      "exit": 0,
+      "seconds": 0.06588672799989581,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "original-host",
+      "argv": [
+        "node",
+        "--jitless",
+        "--max-old-space-size=160",
+        "--max-semi-space-size=4",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/test_origin_bridge.mjs"
+      ],
+      "pid": 241355,
+      "exit": 0,
+      "seconds": 0.16629522200673819,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "combined-patch",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "--whitespace=error-all",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-mouth-review-30/review30-combined-threefile.patch"
+      ],
+      "pid": 241362,
+      "exit": 0,
+      "seconds": 0.006432772031985223,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "delta-patch",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "--unsafe-paths",
+        "--whitespace=error-all",
+        "--directory=/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/candidate",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-mouth-review-30/review30-after-tsl28.patch"
+      ],
+      "pid": 241363,
+      "exit": 0,
+      "seconds": 0.005287806037813425,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    }
+  ],
+  "child_maxrss_kib": 69968,
+  "all_children_joined": true,
+  "native_executed": false,
+  "tex_executed": false
+}

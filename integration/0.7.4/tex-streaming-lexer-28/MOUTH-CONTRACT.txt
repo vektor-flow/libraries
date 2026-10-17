@@ -1,0 +1,145 @@
+TSL28 — vkf.tex.mouth/ascii-1 — SOURCE CANDIDATE, NATIVE UNQUALIFIED
+Base 9dbabcaea9fce28129469e31a139a8548a14ab22, 2026-10-17.
+
+IMPLEMENTATION AND TRUST BOUNDARY
+tex_streaming_mouth.vkf is the proposed lexical implementation. next(table,
+origins,state,categories) returns ONE token plus successor state/origin registry
+or a transactional diagnostic. It never pretokenizes a package. A consumer can
+call assign after processing a token and before the next read. Lookahead does
+not retain a category for the next token. Already returned tokens keep category,
+value and origin. No executor for \catcode is implemented: assignment calls in
+tests stand in for a future executor. Category generation advances even if a
+byte is assigned its previous category.
+
+Sources matches package25 exactly: schema, revision, ids, versions, texts, hashes.
+Pass the actual immutable host-created sourceTable. Hashes/UTF-8 are verified by
+package25 host preparation; VKF shape guards do not perform SHA256 or establish
+native custody. State comes only from open()/successful next(), not user-created
+records. open uses a package25 issued occurrence index and a <=1,000,000-byte
+per-source ceiling, within the existing source limit. Source bytes are not edited.
+The caller serializes reads and registry issuance; includes need separately saved
+mouth states and separately issued occurrences. No include stack is executed.
+
+INITIAL PROFILE AND EXPLICIT LIMITS
+The fixed profile accepts UTF-8 transport, with ASCII lexical scalars only.
+Non-ASCII scalars (including BOM) at a lexical read/lookahead return diagnostic1.
+Unicode inside discarded comments remains preserved in raw source and is skipped.
+This is neither Unicode TeX nor an INITEX bootstrap. Default categories:
+  A-Z/a-z 11; backslash 0; { 1; } 2; $ 3; & 4; CR 5; # 6; ^ 7;
+  _ 8; NUL 9; space/tab 10; ~ 13; % 14; DEL 15; all others 12.
+Thus @ defaults to 12, unlike legacy tex_text.letter's unconditional @ letter.
+Mutable assignments cover ASCII except physical CR/LF, categories0..15 except5.
+Non-ASCII assignment, CR/LF reassignment and additional endline characters reject
+with explicit TEX_MOUTH_UNSUPPORTED_CATEGORY_TARGET/VALUE. Catcodes for the same
+character can otherwise change between reads. Direct malformed tables reject.
+Consecutive identical category7 characters diagnose2 before translation would
+be needed, including control-name lookahead. This deliberately rejects some
+otherwise harmless doubled superscripts too. No ^^ translation is claimed.
+Category15 at ordinary-token dispatch diagnoses3; an escaped ASCII category15
+character is a control symbol, as are escaped braces/comments/active characters.
+No case folding, escapechar rendering, Unicode categorization or implicit engine
+fallback occurs. Extending this profile requires a distinct engine ABI/cache ID.
+
+LEXICAL RULES
+One physical line at a time: LF/CRLF/bare CR, strip raw trailing ASCII spaces,
+append logical CR (endlinechar13). Empty file has no implicit line; a final
+nonempty unterminated physical line still receives CR. Only line boundaries
+are buffered, never categories. Control words consume maximal category11 runs;
+control symbols consume one scalar. Their names omit the escape byte. Letter
+and space controls enter skip_blanks; other controls enter mid_line. Control-tab
+retains tab as its name. Ordinary spaces/tabs canonicalize to a space token.
+New-line CR emits control sequence par, mid-line CR emits space, skip-blanks CR
+emits nothing. Comments discard the remaining physical line. New physical lines
+reset mouth to new_line. Ignored characters leave state unchanged. Active tokens
+have distinct kind3; grouping/math/parameter/alignment characters retain categories.
+No group balancing, meaning lookup, brace execution or macro expansion occurs.
+
+Reference cross-check: current TeX Live tex.web, get_next/control scanning and
+line input sections (read-only; no reference engine was executed):
+https://raw.githubusercontent.com/TeX-Live/texlive-source/trunk/texk/web2c/tex.web
+The earlier Stanford historical tex.web search result was not used for modern
+control-symbol state behavior. The profile/unsupported limits above are explicit
+local engine choices, not a claim of complete TeX conformance.
+
+TOKEN, ORIGIN AND DIAGNOSTIC ABI
+Token = kind, category, value, source, occurrence, start, stop, origin, provenance.
+kind0 EOF/diagnostic carrier;1 character;2 control sequence;3 active character.
+category is original category for character/active tokens, -1 for controls/EOF.
+Control token identity is kind+name; character identity includes category+scalar.
+There is no namespace meaning yet. Never retokenize retained replacement tokens.
+Offsets are half-open ORIGINAL UTF-8 byte spans. Escaped controls include escape
+bytes; names do not. Ignored spaces/comments have no token records; raw source
+retains them. Occurrence IDs are NOT file IDs. origin is package25's origin-array
+index, NOT a per-file or per-token ordinal. Existing graph links remain intact.
+
+Origins is a lossless column transpose of exportOrigins(): revision;
+occurrence_sources/occurrence_via; source/occurrence/start/stop/role/definition/
+invocation. next appends one literal origin for each emitted nonempty lexical
+span, leaving all existing definition/invocation/include/argument records intact.
+No semantic definition/call roles are invented. Macro execution must later link
+separate execution origins while retaining lexical origins.
+
+host/latex_mouth_origins.mjs provides mouthOriginTable(context) and
+acceptMouthOrigin(context,actualOccurrenceObjects,sourceTable,before,result).
+The latter verifies exact unchanged prefix, source/occurrence, revision, span,
+UTF-8 boundaries, sole suffix, index and provenance before issuing that span
+through the existing context.origin. It rejects cloned occurrence objects,
+stale prefixes and preview provenance. Use the returned context for subsequent
+reads, and preserve each token alongside its origin. This is transport checking,
+NOT authentication that native code executed or that lexical results are correct.
+No package25 or API21/selection22 implementation is modified.
+
+Result.diagnostic must be inspected BEFORE token.kind. Nonzero1/2/3 returns the
+original state and original origin table; token.source/occurrence/span identify
+the offending scalar. It is NOT successful EOF, nor an unsupported primitive
+execution finding. Structural/stale-state/profile errors assert explicit codes.
+A failure cannot be published as a successfully initialized package state.
+
+ENGINE INPUT VS PREVIEW
+provenance0 lexical;1 engine-derived line input;2 RESERVED preview recovery.
+Normalized endline tokens use1. Physical terminator/trailing-space source spans
+remain origins, but are NOT exact authored token spellings. A virtual EOF
+endline has an empty anchor and origin=-1. Do not map its generated space/par as
+if the user authored it. The separate flag is mandatory through downstream maps.
+No preview closer is generated by this lexer. A future recovery layer must use
+provenance2, origin=-1, source/occurrence=-1, and a separate diagnostic anchor;
+synthetic tokens cannot be registered as package25 literal origins. strict_token
+and the host origin adapter reject provenance2. They are local guard interfaces,
+not an already-wired PDF export gate. Future strict compilation must retokenize
+actual authored bytes, reject unresolved syntax/semantics, and never reuse a
+preview token stream. Rendering, source-map export and guessing arbitrary macro
+argument closers are outside this patch. Existing PDF/API failure boundaries stay.
+
+CHECKPOINT / INVALIDATION
+A checkpoint is the exact returned State, category values/generation and Origins
+prefix, under engine ABI ascii-1 and the actual immutable source table. reusable
+compares revision, source, occurrence, byte cursor, physical-line boundaries,
+ready flag, mouth state, category generation/all128 values, and the complete
+occurrence/origin arrays including roles and definition/invocation links.
+Inputs are valid opaque returned records; this helper is not a hostile-wire decoder.
+Only checkpoints of the same immutable snapshot are reusable. Any source edit
+changes package25 revision and invalidates ALL lexical checkpoints, initialized
+state and downstream artifacts; restart from open for this milestone. Even an
+edit beyond the cursor is not exempt, because physical-line trimming/lookahead
+can depend on suffix bytes. Category, occurrence, include ancestry, mouth or
+origin-prefix changes invalidate reuse. Identical generation numbers alone are
+insufficient. Replaying a checkpoint requires its exact registry prefix in an
+isolated successor context; never truncate or rewind a shared live registry.
+Later partial cross-revision reuse needs a dependency/read-range proof and an
+executor state key (namespace/groups/registers/options/conditionals/expansion).
+Those are not implemented. No incremental GPU renderer or 10 ms claim.
+This first implementation includes copying origin arrays/prefix validation and
+linear cursor boundary checks; whole-source work can be quadratic. Performance
+optimization and an initialized-format cache require separate qualification.
+
+NEXT MILESTONE
+Root reviews/applies this three-file patch; separate admission compiles/executes
+32 native positive functions, four negative entries, and the three real-source
+first-boundary calls prepared by prepare_installed_native.mjs (in-memory only).
+Source checks and the Python reference model do NOT prove VKF parser acceptance,
+array ownership, native return shapes or execution. No native gate gets credit.
+Then extend ^^/Unicode/endline/bootstrap semantics as required, implement scoped
+namespace meanings, local/global assignment, conditional/integer scanning and
+stable token-list expansion. Kernel first \ifnum\catcode, amsmath NeedsTeXFormat
+and xcolor ProvidesPackage remain execution blockers, not successes. There is no
+newcommand/renewcommand facade, string stripping, passthrough or package guarantee.

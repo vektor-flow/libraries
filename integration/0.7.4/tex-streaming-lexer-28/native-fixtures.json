@@ -1,0 +1,59 @@
+{
+  "executed": false,
+  "compiled": false,
+  "entry": "tex_streaming_mouth_tests.renderer_tests",
+  "positive": [
+    "case_empty",
+    "case_letter_eof",
+    "case_control_word",
+    "case_control_symbol",
+    "case_control_space",
+    "case_control_tab_name_retained",
+    "case_default_at_other",
+    "case_assigned_at_letter",
+    "case_blank_line",
+    "case_paragraph",
+    "case_collapse_spaces_tabs",
+    "case_comment_line",
+    "case_comment_unicode_and_caret",
+    "case_only_comment_eof",
+    "case_crlf",
+    "case_bare_cr",
+    "case_escaped_endline",
+    "case_escape_eof",
+    "case_word_newline",
+    "case_all_character_categories",
+    "case_ignore_nul",
+    "case_custom_escape",
+    "case_comment_other",
+    "case_trailing_raw_space_even_if_letter",
+    "case_superscript_other",
+    "case_unsupported_translation",
+    "case_unsupported_translation_in_name",
+    "case_unsupported_unicode",
+    "case_unsupported_bom",
+    "case_unsupported_unicode_name",
+    "case_invalid_char",
+    "mutation_between_reads"
+  ],
+  "negative": [
+    {
+      "function": "reject_endline_assignment",
+      "diagnostic": "TEX_MOUTH_UNSUPPORTED_CATEGORY_TARGET"
+    },
+    {
+      "function": "reject_category5_assignment",
+      "diagnostic": "TEX_MOUTH_UNSUPPORTED_CATEGORY_VALUE"
+    },
+    {
+      "function": "reject_preview",
+      "diagnostic": "TEX_PREVIEW_TOKEN_FORBIDDEN"
+    },
+    {
+      "function": "reject_stale_source",
+      "diagnostic": "TEX_MOUTH_STALE_SOURCE"
+    }
+  ],
+  "installed_sources": "prepare_installed_native.mjs returns exact package25 table/origins plus three calls to installed_first_boundary; fresh admission required",
+  "source_only": true
+}

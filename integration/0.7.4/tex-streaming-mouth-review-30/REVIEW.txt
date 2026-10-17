@@ -1,0 +1,146 @@
+TMR30 — independent source/semantics review, 2026-10-17
+Owner 01a14a3f-46f5-7872-9bef-28a513d6ad93.
+Target: TSL28 patch 2e88f0f67b562060a91e545533276139cb34eaf76bc0d43007dbb5df99321ce6.
+
+Verdict: suitable for the explicitly limited, native-unqualified source milestone
+AFTER consuming MOUTH-CONTRACT-reviewed.txt and the comment/test supplement.
+No tokenization defect was established within the declared ASCII profile by
+this source review. This is not a conformance proof or native acceptance.
+Two concrete contract errors are corrected. No runtime implementation changes.
+
+F1 — P2: virtual-EOF origin statement is false for nonempty source anchors.
+Original VKF lines 89-112 trim trailing ASCII spaces into the logical CR unit's
+source span. emit(), lines123-129, appends an origin whenever stop>start.
+Thus raw "a " (two bytes, no newline) emits a with origin0, then a generated
+space with [1,2), provenance1, origin1. Raw " " emits generated par [0,1),
+provenance1, origin0. Raw "a" instead emits generated space [1,1), origin=-1.
+For raw backslash at EOF, the CR unit itself has width zero but the composite
+control token covers the escape [0,1), provenance1, origin0. With a trailing
+space its span is [0,2). Original contract and unit() comment incorrectly make
+zero-width/no-origin unconditional for virtual EOF. The correction preserves
+all existing spans, origin issuance and provenance=1. These origins anchor
+original bytes; they do not assert the user authored a CR/par/control spelling.
+24 host adapter assertions include these nonempty and empty derived spans and
+preview rejection before registry issuance. Five direct native boundary cases
+cover the distinction; all native cases remain unexecuted.
+
+F2 — P2 documentation/API: adapter does not return a context.
+Original contract says to use the returned context for subsequent reads.
+acceptMouthOrigin() actually returns the issued origin object, or null; it
+mutates the supplied context registry only after successful checks. Corrected
+contract says to reuse that same context and retain token plus issued origin.
+Existing host tests and this review's actual JS checks exercise that return API.
+No JS change is needed. A source consumer following the old text would try to
+use an origin/null as a context, so this correction is material to integration.
+
+Primary sources and scope of comparison
+Local plain.tex lines11-36 show bootstrap versus format category assignments;
+notably FF is active in plain, while this profile deliberately leaves it other.
+No local tex.web was found in the checked TeX/share/cache locations. Read-only
+upstream TeX Live snapshots are preserved unchanged under references/; hashes,
+URLs and the local plain.tex pin are in primary-references.json.
+https://raw.githubusercontent.com/TeX-Live/texlive-source/trunk/texk/web2c/tex.web
+get_next/control scanning (approximately lines6670-6868) supports letter runs,
+single-character controls, letter/spacer control skip state, other-control mid
+state, canonical ordinary spaces, ignored characters, comments and paragraph
+creation. Its expanded-character scan explains why unsupported translation in
+control lookahead must reject before returning a word. Token-list processing
+retains the previously assigned character category.
+https://raw.githubusercontent.com/TeX-Live/texlive-source/trunk/texk/web2c/lib/texmfmp.c
+input_line (approximately lines2436-2544) strips trailing ASCII spaces, retains
+tabs, recognizes CR/LF and consumes CRLF as one boundary. No engine was invoked.
+
+Actual VKF review, not merely the Python model
+- categories/assign/validate_categories (lines18-69): 128 entries; physical
+  LF/CR fixed; no alternate category5 targets; generation advances for even a
+  same-value assignment. No category/code is cached in State. next receives a
+  fresh table each call. Control-word lookahead reads the terminator but leaves
+  its position unconsumed; next call reclassifies it. Retained Token contains
+  category/value scalars. Native array-copy ownership of assign remains unproven.
+- line/unit/advance/finish (89-121): raw byte offsets are advanced through the
+  UTF-8 cursor, line ends stop at CR/LF, trimming precedes category lookup.
+  Fresh physical line resets mouth0. A comment bypasses remaining lexical
+  contents, including Unicode/^^. Empty input is immediate EOF, a spaces-only
+  physical line is a paragraph, and trailing tab differs from trimmed space.
+- next (145-205): category9 leaves mouth unchanged; category14 discards rest of
+  line; category5 produces par/space/nothing for states0/1/2; ordinary category10
+  emits one canonical space only from state1. Active and other category tokens
+  retain category identity. Escape scans one symbol or maximal letters; names
+  retain the actual symbol, including tab, invalid/ignored/active characters.
+  An escaped CR enters mid state, then the next physical line resets to new_line.
+  A custom cat10 control named ! skips subsequent spaces; an ordinary cat10 !
+  emits value space. These are distinct paths, both represented in the new cases.
+- diagnostics (131-143,161,164,183,194): Unicode/translation failures and ordinary
+  invalid-character dispatch return the ORIGINAL input State and Origins, even
+  after scanning comments/lines or a partial control word. The carrier token
+  points at the offending scalar; its span need not equal the saved cursor.
+  A word before unescaped DEL can return successfully, then DEL fails next read;
+  escaped DEL is a control symbol. Native fixtures add nonzero-cursor rollback,
+  full reusable() equality, byte-accurate Unicode lookahead, and retry following
+  a category change. diagnostic must be checked before treating kind0 as EOF.
+- origin transport: emit appends only a literal lexical source anchor, preserving
+  all earlier occurrence/definition/invocation columns. EOF has no origin.
+  The actual JS adapter checks exact prefix, object occurrence identity, sole
+  suffix and UTF-8 bounds before context.origin. It is NOT a lexical/state oracle:
+  it cannot prove a supplied cursor rolled back, authenticate native execution,
+  or establish source-table custody. Same immutable package25 table and serial
+  caller are mandatory. Native opaque-state assumptions remain part of the API.
+- strict_token rejects provenance2. The actual JS adapter rejects it before an
+  origin is issued. Neither function is wired as a complete PDF export gate.
+  Provenance1 plus an origin remains generated spelling; provenance0 also allows
+  ordinary lexical normalization (e.g. a tab maps to canonical space). Consumers
+  need raw span AND token/provenance, not an inferred spelling from origin alone.
+- reusable (215 onward): all State fields, category generation and all128 values,
+  occurrence source/via and every origin column are compared. Same generation
+  alone is insufficient. Any source revision change invalidates the snapshot,
+  including suffix edits beyond the cursor because line trimming/lookahead can
+  read there. Valid opaque states/tables only: this is not a malformed-wire
+  decoder. Replay needs an isolated registry prefix; no shared registry rewind.
+
+Profile limits are explicit, not TeX equivalence claims
+Own formatted-like ASCII categories are neither INITEX nor a complete plain or
+LaTeX format. Non-ASCII lexemes/BOM and Unicode control names reject; Unicode
+inside comments is transport-only. ^^ is not translated: identical category7
+pairs reject conservatively, including custom superscript characters. Even
+pairs for which full TeX might not translate are outside this accepted profile.
+CR/LF reassignment, alternate endlinechar and ordinary category5 assignment are
+unsupported. No expansion, grouping executor, conditionals, namespace meanings,
+registers, include execution or initialized package state exists. Handwritten
+assign calls simulate future lexical feedback, not execution of \catcode.
+The actual installed first controls ifnum, NeedsTeXFormat and ProvidesPackage
+remain execution blockers. Lexing their names gives no package compatibility.
+
+Native syntax/testability and fixed-shape risk
+The scalar map/int($) idiom matches resource_json.vkf:14; str(chr(...)) fixtures
+match project_tests.vkf:13 and resource_json escape handling. Counted [int]
+locals occur throughout existing code. Assertions are parenthesized where they
+contain equality/negation; no prior bare-assertion bug was reintroduced. State,
+Token and Result use stable named record fields; nonempty/empty origin branches
+retain the same column names. This improves reviewability, not parser evidence.
+Native tests still pass inferred singleton/empty arrays from table()/origins()
+into nested records, grow Origins arrays in emit and repeatedly rebind step.
+These are concrete fixed/count-vector and returned-record boundary risks.
+Explicit record declarations do not establish inference, ownership or native
+ABI correctness. No speculative core53 repair is proposed or authorized here.
+New fixtures assert retained category/prefix ownership but were NOT compiled.
+Metadata29's root-verified terminal join and empty stdout failure are evidence,
+not permission to infer assertion success from process exit0. A future admission
+must bind each entry and exact stdout/error oracle, including the new review30
+entry; calling only original renderer_tests would omit the 29 new functions.
+
+Evidence and adoption
+checks01-results.json: seven sequential stages passed, every child joined;
+max child RSS69968KiB, address-space ceiling512MiB, each wall limit60s.
+7 independent review test methods include24 handwritten rows plus feedback,
+rollback, checkpoint and source checks. They exercise the TSL28 Python model
+and exact source text, not a VKF interpreter. The 24 actual JS adapter assertions
+use handcrafted ABI tokens. Original10model/6source checks and51host assertions
+also passed read-only. No independent TeX differential oracle was run.
+
+review30-after-tsl28.patch changes two files only: unit() comment and additional
+native fixtures. Apply after the exact TSL28 patch, OR use the mutually exclusive
+review30-combined-threefile.patch on the unchanged production base. Both patch
+checks passed; no patch was applied. Host adapter and all executable mouth code
+are byte-identical to TSL28. Original32 positive/four negative/three installed
+calls plus29 new positive fixtures remain native-unqualified. Review the corrected
+contract before adoption. No performance, renderer, export or release credit.

@@ -1,0 +1,174 @@
+{
+  "id": "TMR30",
+  "status": "DONE_SOURCE_REVIEW_CONTRACT_CORRECTED_NATIVE_UNQUALIFIED",
+  "worker": "01a14a3f-46f5-7872-9bef-28a513d6ad93",
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "base_commit": "9dbabcaea9fce28129469e31a139a8548a14ab22",
+  "current_head": "58b9edb2ea430610397fc606a5f496a9a5f75007",
+  "production_source_changed": false,
+  "reviewed_patch_sha256": "2e88f0f67b562060a91e545533276139cb34eaf76bc0d43007dbb5df99321ce6",
+  "verdict": "Source milestone acceptable with corrected contract; no in-profile tokenization defect established; no native acceptance",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "P2",
+      "kind": "provenance contract",
+      "resolution": "Clarify nonempty derived EOF source anchors and composite escape spans; retain provenance=1"
+    },
+    {
+      "id": "F2",
+      "severity": "P2",
+      "kind": "adapter return contract",
+      "resolution": "Reuse supplied context; adapter returns issued origin or null"
+    }
+  ],
+  "patches": [
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-mouth-review-30/review30-after-tsl28.patch",
+      "sha256": "bb49c3f41f4294a7532434b38d28c2e6371ab5f23ba33cba6b645a365ec97a71"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-mouth-review-30/review30-combined-threefile.patch",
+      "sha256": "56a347e2577cb8282a5f42e9778b36038d3c408a5b9c27808c09528ec2502d83"
+    }
+  ],
+  "patch_alternatives_mutually_exclusive": true,
+  "contract": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-mouth-review-30/MOUTH-CONTRACT-reviewed.txt",
+  "review": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-mouth-review-30/REVIEW.txt",
+  "handoff": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-mouth-review-30/HANDOFF.txt",
+  "validation": {
+    "passed": true,
+    "stages": [
+      {
+        "name": "review",
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-mouth-review-30/test_review.py"
+        ],
+        "pid": 241345,
+        "exit": 0,
+        "seconds": 0.06565192493144423,
+        "joined": true,
+        "timeout": false,
+        "as_limit_bytes": 536870912
+      },
+      {
+        "name": "transport",
+        "argv": [
+          "node",
+          "--jitless",
+          "--max-old-space-size=160",
+          "--max-semi-space-size=4",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-mouth-review-30/test_transport.mjs"
+        ],
+        "pid": 241346,
+        "exit": 0,
+        "seconds": 0.1663035519886762,
+        "joined": true,
+        "timeout": false,
+        "as_limit_bytes": 536870912
+      },
+      {
+        "name": "original-model",
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/test_reference.py"
+        ],
+        "pid": 241353,
+        "exit": 0,
+        "seconds": 0.06657642894424498,
+        "joined": true,
+        "timeout": false,
+        "as_limit_bytes": 536870912
+      },
+      {
+        "name": "original-source",
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/verify_source.py"
+        ],
+        "pid": 241354,
+        "exit": 0,
+        "seconds": 0.06588672799989581,
+        "joined": true,
+        "timeout": false,
+        "as_limit_bytes": 536870912
+      },
+      {
+        "name": "original-host",
+        "argv": [
+          "node",
+          "--jitless",
+          "--max-old-space-size=160",
+          "--max-semi-space-size=4",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/test_origin_bridge.mjs"
+        ],
+        "pid": 241355,
+        "exit": 0,
+        "seconds": 0.16629522200673819,
+        "joined": true,
+        "timeout": false,
+        "as_limit_bytes": 536870912
+      },
+      {
+        "name": "combined-patch",
+        "argv": [
+          "git",
+          "apply",
+          "--check",
+          "--whitespace=error-all",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-mouth-review-30/review30-combined-threefile.patch"
+        ],
+        "pid": 241362,
+        "exit": 0,
+        "seconds": 0.006432772031985223,
+        "joined": true,
+        "timeout": false,
+        "as_limit_bytes": 536870912
+      },
+      {
+        "name": "delta-patch",
+        "argv": [
+          "git",
+          "apply",
+          "--check",
+          "--unsafe-paths",
+          "--whitespace=error-all",
+          "--directory=/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-lexer-28/candidate",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-mouth-review-30/review30-after-tsl28.patch"
+        ],
+        "pid": 241363,
+        "exit": 0,
+        "seconds": 0.005287806037813425,
+        "joined": true,
+        "timeout": false,
+        "as_limit_bytes": 536870912
+      }
+    ],
+    "child_maxrss_kib": 69968,
+    "all_children_joined": true,
+    "native_executed": false,
+    "tex_executed": false
+  },
+  "new_handwritten_boundary_cases": 24,
+  "new_native_positive_functions": 29,
+  "original_native_positive_unqualified": 32,
+  "original_native_negative_unqualified": 4,
+  "installed_source_calls_unqualified": 3,
+  "actual_host_adapter_assertions": 24,
+  "original_host_assertions": 51,
+  "native_executed": false,
+  "tex_executed": false,
+  "agents_spawned": 0,
+  "commits_created": 0,
+  "operational_mutations": false,
+  "shared_or_peer_writes": false,
+  "applied": false,
+  "qualification_credit": false,
+  "root_reports_independent_metadata29_join": true,
+  "root_reports_no_active_native_job": true,
+  "notification_result": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/tex-streaming-mouth-review-30/done-notification-result.json"
+}

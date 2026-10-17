@@ -1,0 +1,853 @@
+diff --git a/examples/gpu-math/native-vkf/host/latex_mouth_origins.mjs b/examples/gpu-math/native-vkf/host/latex_mouth_origins.mjs
+new file mode 100644
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/host/latex_mouth_origins.mjs
+@@ -0,0 +1,63 @@
++// Transport adapter only: does not tokenize, execute TeX, or authenticate native
++// custody. Source/occurrence/origin IDs remain package25 IDs, never token ordinals.
++import {isDeepStrictEqual} from 'node:util';
++const check = (ok, text) => { if (!ok) throw Error(text); };
++const fields = ['source', 'occurrence', 'start', 'stop', 'role', 'definition', 'invocation'];
++const frozen = value => Object.freeze(value);
++export function mouthOriginTable(context) {
++  const data = context.exportOrigins();
++  check(data.schema === 1, 'Mouth origin schema');
++  return frozen({revision: data.revision,
++    occurrence_sources: frozen(data.occurrences.map(o => o.source)),
++    occurrence_via: frozen(data.occurrences.map(o => o.via)),
++    ...Object.fromEntries(fields.map(key => [key, frozen(data.origins.map(o => o[key]))]))});
++}
++
++/** Reissue exactly one native lexical origin through the existing context.
++ * occurrences MUST be the actual objects returned by context.enter(), in issued
++ * order. Caller serializes next()/accept() with all other origin issuers. This
++ * function checks transport structure, not a proof of VKF/native execution.
++ * Token IDs and origin IDs are distinct; EOF/input-derived zero-width tokens
++ * have origin=-1. Preview recovery records are rejected before any issuance.
++ */
++export function acceptMouthOrigin(context, occurrences, sourceTable, before, result) {
++  const current = mouthOriginTable(context);
++  check(isDeepStrictEqual(current, before), 'Stale mouth origin prefix');
++  const exported = context.exportOrigins();
++  check(Array.isArray(occurrences) && occurrences.length === exported.occurrences.length &&
++    occurrences.every((o, i) => o === exported.occurrences[i]), 'Foreign mouth occurrences');
++  const {state, token, diagnostic, origins: after} = result;
++  check(state && token && after && state.revision === before.revision, 'Mouth result revision');
++  check([0, 1, 2, 3].includes(diagnostic), 'Mouth diagnostic');
++  check(Number.isSafeInteger(token.source) && Number.isSafeInteger(token.occurrence) &&
++    token.occurrence >= 0 && token.occurrence < occurrences.length &&
++    occurrences[token.occurrence].source === token.source && state.source === token.source &&
++    state.occurrence === token.occurrence, 'Mouth source occurrence');
++  check([0, 1].includes(token.provenance), 'TEX_PREVIEW_TOKEN_FORBIDDEN');
++  check(Number.isSafeInteger(token.start) && Number.isSafeInteger(token.stop) &&
++    token.start >= 0 && token.stop >= token.start, 'Mouth span');
++  check([0, 1, 2, 3].includes(token.kind), 'Mouth token kind');
++  check(sourceTable.schema === 1 && sourceTable.revision === before.revision &&
++    typeof sourceTable.texts[token.source] === 'string', 'Mouth source table');
++  const raw = Buffer.from(sourceTable.texts[token.source], 'utf8');
++  const boundary = n => n === raw.length || (raw[n] & 0xc0) !== 0x80;
++  check(token.stop <= raw.length && boundary(token.start) && boundary(token.stop), 'Mouth source span or split UTF-8 scalar');
++  check(diagnostic === 0 || token.kind === 0, 'Mouth diagnostic token');
++  check(token.kind !== 0 || token.origin === -1, 'Mouth EOF/diagnostic origin');
++  if (diagnostic === 0 && token.kind === 0) check(token.start === token.stop && token.stop === raw.length, 'Mouth EOF span');
++  const appended = diagnostic === 0 && token.kind !== 0 && token.stop > token.start;
++  const index = before.source.length;
++  const row = {source: token.source, occurrence: token.occurrence, start: token.start,
++    stop: token.stop, role: 'literal', definition: -1, invocation: -1};
++  const expected = {...before};
++  if (appended) for (const field of fields) expected[field] = [...before[field], row[field]];
++  check(isDeepStrictEqual(after, expected), 'Mouth origin suffix differs');
++  check(token.origin === (appended ? index : -1), 'Mouth origin ID differs');
++  if (!appended) {
++    check(token.kind === 0 || token.provenance === 1, 'Zero-width authored token');
++    return null;
++  }
++  // All transport checks precede this sole registry mutation; context enforces
++  // exact source bounds and UTF-8 scalar boundaries before issuing the origin.
++  return context.origin(occurrences[token.occurrence], token.start, token.stop, 'literal');
++}
+diff --git a/examples/gpu-math/native-vkf/tex_streaming_mouth.vkf b/examples/gpu-math/native-vkf/tex_streaming_mouth.vkf
+new file mode 100644
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/tex_streaming_mouth.vkf
+@@ -0,0 +1,231 @@
++# vkf.tex.mouth/ascii-1; SOURCE CANDIDATE, not native qualified.
++# Immutable raw source table; categories are supplied anew for EACH token read.
++# No expansion, execution, legacy scanner, renderer or preview recovery here.
++text:.tex_text
++sources:.tex_package_sources
++Sources:(schema:int,revision:str,ids:[str],versions:[int],texts:[str],hashes:[str])
++Categories:(values:[int],generation:int)
++# Registry columns are a lossless transpose of package25 exportOrigins().
++Origins:(revision:str,occurrence_sources:[int],occurrence_via:[int],source:[int],occurrence:[int],start:[int],stop:[int],role:[str],definition:[int],invocation:[int])
++State:(revision:str,source:int,occurrence:int,position:int,line_end:int,line_next:int,ready:bit,mouth:int)
++# kind:0 EOF,1 character,2 control sequence,3 active character.
++# category=-1 for controls/EOF; provenance:0 lexical,1 engine line input,2 preview.
++# Diagnostic codes:0 OK,1 Unicode,2 ^^ translation,3 invalid category15.
++Token:(kind:int,category:int,value:str,source:int,occurrence:int,start:int,stop:int,origin:int,provenance:int)
++Result:(state:State,origins:Origins,token:Token,diagnostic:int)
++
++categories()->Categories:
++    [int] values:[12:128]
++    index:65
++    index<=90?>
++        values.(index):11
++        .index:index+1
++    .index:97
++    index<=122?>
++        values.(index):11
++        .index:index+1
++    values.(0):9
++    values.(9):10
++    values.(13):5
++    values.(32):10
++    values.(92):0
++    values.(123):1
++    values.(125):2
++    values.(36):3
++    values.(38):4
++    values.(35):6
++    values.(94):7
++    values.(95):8
++    values.(126):13
++    values.(37):14
++    values.(127):15
++    @:(values:values,generation:0)
++
++# Physical LF/CR and virtual endlinechar=13 are fixed in this bounded profile.
++# No category5 assignment to an ordinary byte; broader endline ABI is future work.
++assign(table:Categories,code:int,category:int)->Categories:
++    (code>=0 /\ code<128 /\ code~=10 /\ code~=13)?! "TEX_MOUTH_UNSUPPORTED_CATEGORY_TARGET"
++    (category>=0 /\ category<16 /\ category~=5)?! "TEX_MOUTH_UNSUPPORTED_CATEGORY_VALUE"
++    values:table.values
++    values.(code):category
++    @:(values:values,generation:table.generation+1)
++
++scalar(value:str)->int:
++    result:0
++    value >>
++        .result:int($)
++        $
++    @:result
++
++validate_categories(table:Categories)->bit:
++    (table.values.length()=128 /\ table.generation>=0)?! "TEX_MOUTH_CATEGORY_TABLE"
++    index:0
++    index<128?>
++        value:table.values.(index)
++        (value>=0 /\ value<16)?! "TEX_MOUTH_CATEGORY_VALUE"
++        (index=13 \/ value~=5)?! "TEX_MOUTH_UNSUPPORTED_CATEGORY_VALUE"
++        .index:index+1
++    (table.values.(10)=12 /\ table.values.(13)=5)?! "TEX_MOUTH_FIXED_ENDLINE_PROFILE"
++    @:true
++
++validate_origins(table:Sources,origins:Origins,occurrence:int)->bit:
++    (origins.revision=table.revision)?! "TEX_MOUTH_ORIGIN_REVISION"
++    n:origins.source.length()
++    (origins.occurrence.length()=n /\ origins.start.length()=n /\ origins.stop.length()=n /\ origins.role.length()=n /\ origins.definition.length()=n /\ origins.invocation.length()=n)?! "TEX_MOUTH_ORIGIN_COLUMNS"
++    (origins.occurrence_sources.length()=origins.occurrence_via.length())?! "TEX_MOUTH_OCCURRENCE_COLUMNS"
++    (occurrence>=0 /\ occurrence<origins.occurrence_sources.length())?! "TEX_MOUTH_OCCURRENCE"
++    source:origins.occurrence_sources.(occurrence)
++    (source>=0 /\ source<table.ids.length())?! "TEX_MOUTH_SOURCE"
++    @:true
++
++open(table:Sources,origins:Origins,occurrence:int)->State:
++    sources.validate(table)?! "TEX_MOUTH_SOURCES"
++    validate_origins(table,origins,occurrence)?! "TEX_MOUTH_ORIGINS"
++    (text.byte_length(table.texts.(origins.occurrence_sources.(occurrence)))<=1000000)?! "TEX_MOUTH_SOURCE_LIMIT"
++    @:(revision:table.revision,source:origins.occurrence_sources.(occurrence),occurrence:occurrence,position:0,line_end:0,line_next:0,ready:false,mouth:0)
++
++# 0 new_line, 1 mid_line, 2 skip_blanks. Fill only physical line boundaries,
++# never cache categories/tokens. Trim raw ASCII trailing spaces before categories.
++line(raw:str,state:State)->State:
++    state.ready? @:state
++    vkf_string_eof(raw,state.position)? @:state
++    finish:state.position
++    trimmed:state.position
++    true?>
++        vkf_string_eof(raw,finish)? @|
++        c:text.at(raw,finish)
++        (c="\r" \/ c="\n")? @|
++        .finish:text.next(raw,finish)
++        c~=" "? .trimmed:finish
++    following:finish
++    ~vkf_string_eof(raw,following)?
++        c:text.at(raw,following)
++        .following:text.next(raw,following)
++        c="\r" /\ ~vkf_string_eof(raw,following)?
++            text.at(raw,following)="\n"? .following:text.next(raw,following)
++    @:(revision:state.revision,source:state.source,occurrence:state.occurrence,position:state.position,line_end:trimmed,line_next:following,ready:true,mouth:0)
++
++# Unit spans retain physical terminator/trailing bytes. At unterminated EOF
++# virtual CR has a zero-width anchor and can NEVER acquire an authored origin.
++unit(raw:str,state:State):
++    state.position>=state.line_end? @:(value:"\r",stop:state.line_next,line:true)
++    @:(value:text.at(raw,state.position),stop:text.next(raw,state.position),line:false)
++
++advance(state:State,stop:int,endline:bit)->State:
++    @:(revision:state.revision,source:state.source,occurrence:state.occurrence,position:stop,line_end:state.line_end,line_next:state.line_next,ready:~endline,mouth:state.mouth)
++
++mouth(state:State,value:int)->State:
++    @:(revision:state.revision,source:state.source,occurrence:state.occurrence,position:state.position,line_end:state.line_end,line_next:state.line_next,ready:state.ready,mouth:value)
++
++finish(state:State)->State:
++    @:(revision:state.revision,source:state.source,occurrence:state.occurrence,position:state.line_next,line_end:state.line_end,line_next:state.line_next,ready:false,mouth:0)
++
++emit(state:State,origins:Origins,kind:int,category:int,value:str,start:int,stop:int,provenance:int)->Result:
++    index: -1
++    result:origins
++    stop>start?
++        .index:origins.source.length()
++        .result:(revision:origins.revision,occurrence_sources:origins.occurrence_sources,occurrence_via:origins.occurrence_via,source:origins.source&[state.source],occurrence:origins.occurrence&[state.occurrence],start:origins.start&[start],stop:origins.stop&[stop],role:origins.role&["literal"],definition:origins.definition&[-1],invocation:origins.invocation&[-1])
++    @:(state:state,origins:result,token:(kind:kind,category:category,value:value,source:state.source,occurrence:state.occurrence,start:start,stop:stop,origin:index,provenance:provenance),diagnostic:0)
++
++problem(raw:str,state:State,categories:Categories)->int:
++    u:unit(raw,state)
++    code:scalar(u.value)
++    code>=128? @:1
++    cat:categories.values.(code)
++    # ^^ replacement can change the escape/name boundary itself: reject before
++    # delivering a potentially wrong control word, including during lookahead.
++    cat=7 /\ ~u.line /\ u.stop<state.line_end?
++        text.at(raw,u.stop)=u.value? @:2
++    @:0
++
++failure(state:State,origins:Origins,start:int,stop:int,code:int)->Result:
++    @:(state:state,origins:origins,token:(kind:0,category: -1,value:"",source:state.source,occurrence:state.occurrence,start:start,stop:stop,origin: -1,provenance:0),diagnostic:code)
++
++next(table:Sources,origins:Origins,input:State,categories:Categories)->Result:
++    validate_categories(categories)?! "TEX_MOUTH_CATEGORIES"
++    validate_origins(table,origins,input.occurrence)?! "TEX_MOUTH_ORIGINS"
++    (input.revision=table.revision /\ input.source=origins.occurrence_sources.(input.occurrence))?! "TEX_MOUTH_STALE_SOURCE"
++    (input.mouth>=0 /\ input.mouth<=2)?! "TEX_MOUTH_STATE"
++    raw:table.texts.(input.source)
++    (input.position>=0 /\ input.position<=text.byte_length(raw) /\ sources.boundary(raw,input.position))?! "TEX_MOUTH_CURSOR"
++    input.ready?
++        (input.position<=input.line_end /\ input.line_end<=input.line_next /\ input.line_next<=text.byte_length(raw))?! "TEX_MOUTH_LINE_STATE"
++    state:input
++    true?>
++        .state:line(raw,state)
++        ~state.ready? @:failure(state,origins,state.position,state.position,0)
++        start:state.position
++        u:unit(raw,state)
++        diagnostic:problem(raw,state,categories)
++        diagnostic>0? @:failure(input,origins,start,u.stop,diagnostic)
++        cat:categories.values.(scalar(u.value))
++        .state:advance(state,u.stop,u.line)
++        cat=15? @:failure(input,origins,start,u.stop,3)
++        cat=9? @>
++        cat=14?
++            .state:finish(state)
++            @>
++        cat=5?
++            old:state.mouth
++            .state:mouth(state,0)
++            old=0? @:emit(state,origins,2,-1,"par",start,u.stop,1)
++            old=1? @:emit(state,origins,1,10," ",start,u.stop,1)
++            @>
++        cat=10?
++            state.mouth~=1? @>
++            .state:mouth(state,2)
++            @:emit(state,origins,1,10," ",start,u.stop,0)
++        cat=0?
++            # Escape consumes one symbol or the maximal current-category letter run.
++            v:unit(raw,state)
++            .diagnostic:problem(raw,state,categories)
++            diagnostic>0? @:failure(input,origins,state.position,v.stop,diagnostic)
++            name:v.value
++            following:categories.values.(scalar(v.value))
++            .state:advance(state,v.stop,v.line)
++            .state:mouth(state,1)
++            following=10 \/ following=11? .state:mouth(state,2)
++            following=11?
++                true?>
++                    ~state.ready? @|
++                    w:unit(raw,state)
++                    .diagnostic:problem(raw,state,categories)
++                    diagnostic>0? @:failure(input,origins,state.position,w.stop,diagnostic)
++                    categories.values.(scalar(w.value))~=11? @|
++                    .name:name&w.value
++                    .state:advance(state,w.stop,w.line)
++            provenance:0
++            v.line? .provenance:1
++            @:emit(state,origins,2,-1,name,start,state.position,provenance)
++        .state:mouth(state,1)
++        kind:1
++        cat=13? .kind:3
++        @:emit(state,origins,kind,cat,u.value,start,u.stop,0)
++    @:failure(input,origins,input.position,input.position,0)
++
++# Reserved preview provenance cannot cross strict processing. This guard does
++# not authenticate native layout or implement PDF export/complete TeX semantics.
++strict_token(token:Token)->bit:
++    (token.provenance>=0 /\ token.provenance<2)?! "TEX_PREVIEW_TOKEN_FORBIDDEN"
++    @:true
++
++# Exact unchanged-snapshot checkpoint comparison. Cross-revision reuse is refused.
++# Caller also retains the exact Origins prefix; this is not a hash-based cache.
++reusable(a:State,b:State,ac:Categories,bc:Categories,ao:Origins,bo:Origins)->bit:
++    (a.revision~=b.revision \/ a.source~=b.source \/ a.occurrence~=b.occurrence \/ a.position~=b.position \/ a.line_end~=b.line_end \/ a.line_next~=b.line_next \/ a.ready~=b.ready \/ a.mouth~=b.mouth \/ ac.generation~=bc.generation)? @:false
++    (ac.values.length()~=128 \/ bc.values.length()~=128)? @:false
++    index:0
++    index<128?>
++        ac.values.(index)~=bc.values.(index)? @:false
++        .index:index+1
++    (ao.revision~=bo.revision \/ ao.source.length()~=bo.source.length() \/ ao.occurrence_sources.length()~=bo.occurrence_sources.length())? @:false
++    .index:0
++    index<ao.occurrence_sources.length()?>
++        (ao.occurrence_sources.(index)~=bo.occurrence_sources.(index) \/ ao.occurrence_via.(index)~=bo.occurrence_via.(index))? @:false
++        .index:index+1
++    .index:0
++    index<ao.source.length()?>
++        (ao.source.(index)~=bo.source.(index) \/ ao.occurrence.(index)~=bo.occurrence.(index) \/ ao.start.(index)~=bo.start.(index) \/ ao.stop.(index)~=bo.stop.(index) \/ ao.role.(index)~=bo.role.(index) \/ ao.definition.(index)~=bo.definition.(index) \/ ao.invocation.(index)~=bo.invocation.(index))? @:false
++        .index:index+1
++    @:true
+diff --git a/examples/gpu-math/native-vkf/tex_streaming_mouth_tests.vkf b/examples/gpu-math/native-vkf/tex_streaming_mouth_tests.vkf
+new file mode 100644
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/tex_streaming_mouth_tests.vkf
+@@ -0,0 +1,544 @@
++# Future real native fixtures. UNCOMPILED/UNEXECUTED; handwritten oracle.
++m:.tex_streaming_mouth
++
++table(raw:str,revision:str="sha256:fixture"):
++    @:(schema:1,revision:revision,ids:["fixture"],versions:[0],texts:[raw],hashes:["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"])
++
++origins(revision:str="sha256:fixture"):
++    @:(revision:revision,occurrence_sources:[0],occurrence_via:[-1],source:[0:0],occurrence:[0:0],start:[0:0],stop:[0:0],role:["":0],definition:[0:0],invocation:[0:0])
++
++case_empty()->bit:
++    source:table("")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_letter_eof()->bit:
++    source:table("a")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="a")?! "letter-eof token 0"
++    (step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0)?! "exact byte span/provenance"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "letter-eof token 1"
++    (step.token.start=1 /\ step.token.stop=1 /\ step.token.provenance=1)?! "exact byte span/provenance"
++    (step.token.origin= -1)?! "virtual EOF has no authored origin"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_control_word()->bit:
++    source:table("\\foo   x")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category=-1 /\ step.token.value="foo")?! "control-word token 0"
++    (step.token.start=0 /\ step.token.stop=4 /\ step.token.provenance=0)?! "exact byte span/provenance"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="x")?! "control-word token 1"
++    (step.token.start=7 /\ step.token.stop=8 /\ step.token.provenance=0)?! "exact byte span/provenance"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "control-word token 2"
++    (step.token.start=8 /\ step.token.stop=8 /\ step.token.provenance=1)?! "exact byte span/provenance"
++    (step.token.origin= -1)?! "virtual EOF has no authored origin"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_control_symbol()->bit:
++    source:table("\\% x")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category=-1 /\ step.token.value="%")?! "control-symbol token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "control-symbol token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="x")?! "control-symbol token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "control-symbol token 3"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_control_space()->bit:
++    source:table("\\  x")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category=-1 /\ step.token.value=" ")?! "control-space token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="x")?! "control-space token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "control-space token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_control_tab_name_retained()->bit:
++    source:table("\\\t x")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category=-1 /\ step.token.value="\t")?! "control-tab-name-retained token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="x")?! "control-tab-name-retained token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "control-tab-name-retained token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_default_at_other()->bit:
++    source:table("\\a@b")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category=-1 /\ step.token.value="a")?! "default-at-other token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=12 /\ step.token.value="@")?! "default-at-other token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="b")?! "default-at-other token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "default-at-other token 3"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_assigned_at_letter()->bit:
++    source:table("\\a@b")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    .cats:m.assign(cats,64,11)
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category=-1 /\ step.token.value="a@b")?! "assigned-at-letter token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_blank_line()->bit:
++    source:table("\n")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category=-1 /\ step.token.value="par")?! "blank-line token 0"
++    (step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=1)?! "exact byte span/provenance"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_paragraph()->bit:
++    source:table("a\n\nb")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="a")?! "paragraph token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "paragraph token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category=-1 /\ step.token.value="par")?! "paragraph token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="b")?! "paragraph token 3"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "paragraph token 4"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_collapse_spaces_tabs()->bit:
++    source:table(" \ta\t  b  \n")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="a")?! "collapse-spaces-tabs token 0"
++    (step.token.start=2 /\ step.token.stop=3 /\ step.token.provenance=0)?! "exact byte span/provenance"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "collapse-spaces-tabs token 1"
++    (step.token.start=3 /\ step.token.stop=4 /\ step.token.provenance=0)?! "exact byte span/provenance"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="b")?! "collapse-spaces-tabs token 2"
++    (step.token.start=6 /\ step.token.stop=7 /\ step.token.provenance=0)?! "exact byte span/provenance"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "collapse-spaces-tabs token 3"
++    (step.token.start=7 /\ step.token.stop=10 /\ step.token.provenance=1)?! "exact byte span/provenance"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_comment_line()->bit:
++    source:table("a%discard\nb")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="a")?! "comment-line token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="b")?! "comment-line token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "comment-line token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_comment_unicode_and_caret()->bit:
++    source:table("%α^^A\nx")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="x")?! "comment-unicode-and-caret token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "comment-unicode-and-caret token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_only_comment_eof()->bit:
++    source:table("%discard")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_crlf()->bit:
++    source:table("a\r\nb")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="a")?! "crlf token 0"
++    (step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0)?! "exact byte span/provenance"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "crlf token 1"
++    (step.token.start=1 /\ step.token.stop=3 /\ step.token.provenance=1)?! "exact byte span/provenance"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="b")?! "crlf token 2"
++    (step.token.start=3 /\ step.token.stop=4 /\ step.token.provenance=0)?! "exact byte span/provenance"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "crlf token 3"
++    (step.token.start=4 /\ step.token.stop=4 /\ step.token.provenance=1)?! "exact byte span/provenance"
++    (step.token.origin= -1)?! "virtual EOF has no authored origin"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_bare_cr()->bit:
++    source:table("a\rb")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="a")?! "bare-cr token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "bare-cr token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="b")?! "bare-cr token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "bare-cr token 3"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_escaped_endline()->bit:
++    source:table("\\\nb")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category=-1 /\ step.token.value="\r")?! "escaped-endline token 0"
++    (step.token.start=0 /\ step.token.stop=2 /\ step.token.provenance=1)?! "exact byte span/provenance"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="b")?! "escaped-endline token 1"
++    (step.token.start=2 /\ step.token.stop=3 /\ step.token.provenance=0)?! "exact byte span/provenance"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "escaped-endline token 2"
++    (step.token.start=3 /\ step.token.stop=3 /\ step.token.provenance=1)?! "exact byte span/provenance"
++    (step.token.origin= -1)?! "virtual EOF has no authored origin"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_escape_eof()->bit:
++    source:table("\\")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category=-1 /\ step.token.value="\r")?! "escape-eof token 0"
++    (step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=1)?! "exact byte span/provenance"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_word_newline()->bit:
++    source:table("\\foo\n x")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category=-1 /\ step.token.value="foo")?! "word-newline token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="x")?! "word-newline token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "word-newline token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_all_character_categories()->bit:
++    source:table("{}\$&#^_~")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=1 /\ step.token.value="{")?! "all-character-categories token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=2 /\ step.token.value="}")?! "all-character-categories token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=3 /\ step.token.value="\$")?! "all-character-categories token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=4 /\ step.token.value="&")?! "all-character-categories token 3"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=6 /\ step.token.value="#")?! "all-character-categories token 4"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=7 /\ step.token.value="^")?! "all-character-categories token 5"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=8 /\ step.token.value="_")?! "all-character-categories token 6"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=3 /\ step.token.category=13 /\ step.token.value="~")?! "all-character-categories token 7"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "all-character-categories token 8"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_ignore_nul()->bit:
++    source:table("a"&str(chr(0))&"b")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="a")?! "ignore-nul token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="b")?! "ignore-nul token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "ignore-nul token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_custom_escape()->bit:
++    source:table("!foo")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    .cats:m.assign(cats,33,0)
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category=-1 /\ step.token.value="foo")?! "custom-escape token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_comment_other()->bit:
++    source:table("%x")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    .cats:m.assign(cats,37,12)
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=12 /\ step.token.value="%")?! "comment-other token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="x")?! "comment-other token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "comment-other token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_trailing_raw_space_even_if_letter()->bit:
++    source:table("a  \n")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    .cats:m.assign(cats,32,11)
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="a")?! "trailing-raw-space-even-if-letter token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "trailing-raw-space-even-if-letter token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_superscript_other()->bit:
++    source:table("^^A")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    .cats:m.assign(cats,94,12)
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=12 /\ step.token.value="^")?! "superscript-other token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=12 /\ step.token.value="^")?! "superscript-other token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=11 /\ step.token.value="A")?! "superscript-other token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category=10 /\ step.token.value=" ")?! "superscript-other token 3"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "true EOF"
++    @:true
++
++case_unsupported_translation()->bit:
++    source:table("^^A")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=2)?! "explicit unsupported diagnostic"
++    (step.origins.source.length()=0 /\ step.state.position=0)?! "diagnostic is transactional"
++    @:true
++
++case_unsupported_translation_in_name()->bit:
++    source:table("\\ab^^63")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=2)?! "explicit unsupported diagnostic"
++    (step.origins.source.length()=0 /\ step.state.position=0)?! "diagnostic is transactional"
++    @:true
++
++case_unsupported_unicode()->bit:
++    source:table("α")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=1)?! "explicit unsupported diagnostic"
++    (step.origins.source.length()=0 /\ step.state.position=0)?! "diagnostic is transactional"
++    @:true
++
++case_unsupported_bom()->bit:
++    source:table("﻿x")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=1)?! "explicit unsupported diagnostic"
++    (step.origins.source.length()=0 /\ step.state.position=0)?! "diagnostic is transactional"
++    @:true
++
++case_unsupported_unicode_name()->bit:
++    source:table("\\aα")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=1)?! "explicit unsupported diagnostic"
++    (step.origins.source.length()=0 /\ step.state.position=0)?! "diagnostic is transactional"
++    @:true
++
++case_invalid_char()->bit:
++    source:table("")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=3)?! "explicit unsupported diagnostic"
++    (step.origins.source.length()=0 /\ step.state.position=0)?! "diagnostic is transactional"
++    @:true
++
++mutation_between_reads()->bit:
++    source:table("@\\a@b %x")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    first:m.next(source,trace,state,cats)
++    (first.token.category=12)?! "default @ other"
++    .cats:m.assign(cats,64,11)
++    word:m.next(source,first.origins,first.state,cats)
++    (word.token.value="a@b" /\ first.token.category=12)?! "new scan and old token identity"
++    .cats:m.assign(cats,37,12)
++    percent:m.next(source,word.origins,word.state,cats)
++    (percent.token.value="%" /\ percent.token.category=12)?! "comment category changed between reads"
++    (percent.token.origin=2 /\ percent.origins.start.(0)=0 /\ percent.origins.start.(1)=1)?! "stable origin IDs"
++    (~m.reusable(state,state,m.categories(),cats,trace,trace))?! "category invalidates checkpoint"
++    m.reusable(state,state,cats,cats,trace,trace)?! "exact unchanged checkpoint"
++    @:true
++
++reject_endline_assignment():m.assign(m.categories(),13,12)
++reject_category5_assignment():m.assign(m.categories(),64,5)
++reject_preview()->bit:m.strict_token((kind:1,category:2,value:"}",source: -1,occurrence: -1,start:0,stop:0,origin: -1,provenance:2))
++
++renderer_tests()->bit:
++    case_empty()?! "case_empty"
++    case_letter_eof()?! "case_letter_eof"
++    case_control_word()?! "case_control_word"
++    case_control_symbol()?! "case_control_symbol"
++    case_control_space()?! "case_control_space"
++    case_control_tab_name_retained()?! "case_control_tab_name_retained"
++    case_default_at_other()?! "case_default_at_other"
++    case_assigned_at_letter()?! "case_assigned_at_letter"
++    case_blank_line()?! "case_blank_line"
++    case_paragraph()?! "case_paragraph"
++    case_collapse_spaces_tabs()?! "case_collapse_spaces_tabs"
++    case_comment_line()?! "case_comment_line"
++    case_comment_unicode_and_caret()?! "case_comment_unicode_and_caret"
++    case_only_comment_eof()?! "case_only_comment_eof"
++    case_crlf()?! "case_crlf"
++    case_bare_cr()?! "case_bare_cr"
++    case_escaped_endline()?! "case_escaped_endline"
++    case_escape_eof()?! "case_escape_eof"
++    case_word_newline()?! "case_word_newline"
++    case_all_character_categories()?! "case_all_character_categories"
++    case_ignore_nul()?! "case_ignore_nul"
++    case_custom_escape()?! "case_custom_escape"
++    case_comment_other()?! "case_comment_other"
++    case_trailing_raw_space_even_if_letter()?! "case_trailing_raw_space_even_if_letter"
++    case_superscript_other()?! "case_superscript_other"
++    case_unsupported_translation()?! "case_unsupported_translation"
++    case_unsupported_translation_in_name()?! "case_unsupported_translation_in_name"
++    case_unsupported_unicode()?! "case_unsupported_unicode"
++    case_unsupported_bom()?! "case_unsupported_bom"
++    case_unsupported_unicode_name()?! "case_unsupported_unicode_name"
++    case_invalid_char()?! "case_invalid_char"
++    mutation_between_reads()?! "mutation_between_reads"
++    @:true
++
++Sources:(schema:int,revision:str,ids:[str],versions:[int],texts:[str],hashes:[str])
++Origins:(revision:str,occurrence_sources:[int],occurrence_via:[int],source:[int],occurrence:[int],start:[int],stop:[int],role:[str],definition:[int],invocation:[int])
++installed_first_boundary(table:Sources,trace:Origins,occurrence:int,expected:str,start:int,stop:int)->bit:
++    state:m.open(table,trace,occurrence)
++    cats:m.categories()
++    step:m.next(table,trace,state,cats)
++    true?>
++        (step.diagnostic=0 /\ step.token.kind~=0)?! "installed lexical boundary unavailable"
++        (step.token.kind=2 /\ step.token.value~= "par")? @|
++        .step:m.next(table,step.origins,step.state,cats)
++    (step.token.value=expected /\ step.token.start=start /\ step.token.stop=stop)?! "installed exact first control"
++    @:true
++
++reject_stale_source():
++    a:table("x")
++    before:origins()
++    state:m.open(a,before,0)
++    b:table("x","sha256:changed")
++    after:origins("sha256:changed")
++    @:m.next(b,after,state,m.categories())
++
++renderer_tests()

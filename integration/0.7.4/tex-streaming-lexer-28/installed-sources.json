@@ -1,0 +1,85 @@
+{
+  "files": [
+    {
+      "path": "/usr/share/texlive/texmf-dist/tex/latex/base/latex.ltx",
+      "bytes": 765547,
+      "sha256": "95c2ef02c2d92aa29e4a77a5e5a7d9f25b5589143d1e879fb80ffa0b20be1e6d",
+      "id": "base/latex.ltx",
+      "version": "2025-11-01 patch 0",
+      "license_notice": "LPPL-1.3c-or-later in file",
+      "first_boundary": {
+        "startByte": 4024,
+        "stopByte": 4043,
+        "line": 98,
+        "text": "\\ifnum\\catcode`\\{=1",
+        "reason": "First executable statement requires integer scanning, conditionals and category-code lookup under initex state; kernel is not a document preamble."
+      },
+      "state_boundary": {
+        "startByte": 4030,
+        "stopByte": 4041,
+        "line": 98,
+        "text": "\\catcode`\\{"
+      }
+    },
+    {
+      "path": "/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty",
+      "bytes": 88471,
+      "sha256": "4c0bfd7d67ea18214810a21244f8426da40d04af5bb90ed201b85cc5e211d321",
+      "id": "amsmath/amsmath.sty",
+      "version": "2025/07/09 v2.17z",
+      "license_notice": "LPPL-1.3c-or-later in file",
+      "first_boundary": {
+        "startByte": 793,
+        "stopByte": 817,
+        "line": 24,
+        "text": "\\NeedsTeXFormat{LaTeX2e}",
+        "reason": "First executed control requires initialized kernel format/version semantics. Even with kernel services, line 30 edef/catcode state is unsupported."
+      },
+      "state_boundary": {
+        "startByte": 1124,
+        "stopByte": 1144,
+        "line": 30,
+        "text": "\\edef\\@temp{\\catcode"
+      }
+    },
+    {
+      "path": "/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty",
+      "bytes": 55384,
+      "sha256": "478888f8e8f00345fd645b6cdd6fa7db1e9efdd6f585b25c89bb3665d9029295",
+      "id": "xcolor/xcolor.sty",
+      "version": "2024/09/29 v3.02",
+      "license_notice": "Generated header delegates license to xcolor.dtx; original dtx not found in installed tree. Distribution copyright pins retained; redistribution clearance not asserted.",
+      "first_boundary": {
+        "startByte": 669,
+        "stopByte": 693,
+        "line": 24,
+        "text": "\\ProvidesPackage{xcolor}",
+        "reason": "First executed control requires initialized kernel package state. Later expandafter/edef/csname plus catcode restoration require token identities and state."
+      },
+      "state_boundary": {
+        "startByte": 1738,
+        "stopByte": 1784,
+        "line": 52,
+        "text": "\\expandafter\\edef\\csname XC@catcodes\\endcsname"
+      }
+    }
+  ],
+  "license_evidence": [
+    {
+      "path": "/usr/share/doc/texlive-latex-base/copyright",
+      "bytes": 33443,
+      "sha256": "d7f9a14c6f223e71df0329ad164351d2188291cc20a385a30c83f21eaa42de61"
+    },
+    {
+      "path": "/usr/share/doc/texlive-latex-recommended/copyright",
+      "bytes": 33443,
+      "sha256": "d7f9a14c6f223e71df0329ad164351d2188291cc20a385a30c83f21eaa42de61"
+    },
+    {
+      "path": "/usr/share/texlive/texmf-dist/tex/latex/base/lppl.tex",
+      "bytes": 23386,
+      "sha256": "c3c7c49085d4c8d722ca98937b2378619b45dd0b5bd1456bcd61be95d8b954f1"
+    }
+  ],
+  "redistributed_package_bytes": false
+}

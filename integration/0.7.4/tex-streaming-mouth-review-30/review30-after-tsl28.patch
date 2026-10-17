@@ -1,0 +1,481 @@
+diff --git a/examples/gpu-math/native-vkf/tex_streaming_mouth.vkf b/examples/gpu-math/native-vkf/tex_streaming_mouth.vkf
+--- a/examples/gpu-math/native-vkf/tex_streaming_mouth.vkf
++++ b/examples/gpu-math/native-vkf/tex_streaming_mouth.vkf
+@@ -105,8 +105,10 @@
+             text.at(raw,following)="\n"? .following:text.next(raw,following)
+     @:(revision:state.revision,source:state.source,occurrence:state.occurrence,position:state.position,line_end:trimmed,line_next:following,ready:true,mouth:0)
+ 
+-# Unit spans retain physical terminator/trailing bytes. At unterminated EOF
+-# virtual CR has a zero-width anchor and can NEVER acquire an authored origin.
++# Unit spans retain physical terminator/trailing bytes, even at unterminated EOF.
++# A virtual CR unit is zero-width ONLY when no trailing bytes remain. Escaping
++# it still produces a nonempty composite token span. All these tokens retain
++# provenance=1: an origin anchor is never proof of authored token spelling.
+ unit(raw:str,state:State):
+     state.position>=state.line_end? @:(value:"\r",stop:state.line_next,line:true)
+     @:(value:text.at(raw,state.position),stop:text.next(raw,state.position),line:false)
+diff --git a/examples/gpu-math/native-vkf/tex_streaming_mouth_tests.vkf b/examples/gpu-math/native-vkf/tex_streaming_mouth_tests.vkf
+--- a/examples/gpu-math/native-vkf/tex_streaming_mouth_tests.vkf
++++ b/examples/gpu-math/native-vkf/tex_streaming_mouth_tests.vkf
+@@ -541,4 +541,461 @@
+     after:origins("sha256:changed")
+     @:m.next(b,after,state,m.categories())
+ 
++# TMR30 independently specified boundary regressions; NATIVE UNEXECUTED.
++review30_trimmed_eof()->bit:
++    source:table("a ")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="a" /\ step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0 /\ step.token.origin= 0)?! "review30_trimmed_eof token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=1 /\ step.token.stop=2 /\ step.token.provenance=1 /\ step.token.origin= 1)?! "review30_trimmed_eof token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_spaces_only_eof()->bit:
++    source:table("  ")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category= -1 /\ step.token.value="par" /\ step.token.start=0 /\ step.token.stop=2 /\ step.token.provenance=1 /\ step.token.origin= 0)?! "review30_spaces_only_eof token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_escape_trimmed_eof()->bit:
++    source:table("\\ ")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category= -1 /\ step.token.value="\r" /\ step.token.start=0 /\ step.token.stop=2 /\ step.token.provenance=1 /\ step.token.origin= 0)?! "review30_escape_trimmed_eof token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_escape_zero_unit()->bit:
++    source:table("\\")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category= -1 /\ step.token.value="\r" /\ step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=1 /\ step.token.origin= 0)?! "review30_escape_zero_unit token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_zero_unit_eof()->bit:
++    source:table("a")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="a" /\ step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0 /\ step.token.origin= 0)?! "review30_zero_unit_eof token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=1 /\ step.token.stop=1 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_zero_unit_eof token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_tab_not_trimmed()->bit:
++    source:table("a\t")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="a" /\ step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0)?! "review30_tab_not_trimmed token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=1 /\ step.token.stop=2 /\ step.token.provenance=0)?! "review30_tab_not_trimmed token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_trailing_tab_other()->bit:
++    source:table("a\t")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    .cats:m.assign(cats,9,12)
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="a" /\ step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0)?! "review30_trailing_tab_other token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 12 /\ step.token.value="\t" /\ step.token.start=1 /\ step.token.stop=2 /\ step.token.provenance=0)?! "review30_trailing_tab_other token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=2 /\ step.token.stop=2 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_trailing_tab_other token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_trim_before_custom_active()->bit:
++    source:table("a  ")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    .cats:m.assign(cats,32,13)
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="a" /\ step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0)?! "review30_trim_before_custom_active token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=1 /\ step.token.stop=3 /\ step.token.provenance=1)?! "review30_trim_before_custom_active token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_space_after_comment()->bit:
++    source:table("a%α^^A\n b")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="a" /\ step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0)?! "review30_space_after_comment token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="b" /\ step.token.start=9 /\ step.token.stop=10 /\ step.token.provenance=0)?! "review30_space_after_comment token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=10 /\ step.token.stop=10 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_space_after_comment token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_comment_then_blank()->bit:
++    source:table("a%z\n\nb")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="a" /\ step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0)?! "review30_comment_then_blank token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category= -1 /\ step.token.value="par" /\ step.token.start=4 /\ step.token.stop=5 /\ step.token.provenance=1)?! "review30_comment_then_blank token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="b" /\ step.token.start=5 /\ step.token.stop=6 /\ step.token.provenance=0)?! "review30_comment_then_blank token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=6 /\ step.token.stop=6 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_comment_then_blank token 3"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_comment_crlf()->bit:
++    source:table("a%z\r\n b")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="a" /\ step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0)?! "review30_comment_crlf token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="b" /\ step.token.start=6 /\ step.token.stop=7 /\ step.token.provenance=0)?! "review30_comment_crlf token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=7 /\ step.token.stop=7 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_comment_crlf token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_bare_cr_then_lf()->bit:
++    source:table("a\r\r\nb")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="a" /\ step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0)?! "review30_bare_cr_then_lf token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=1 /\ step.token.stop=2 /\ step.token.provenance=1)?! "review30_bare_cr_then_lf token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category= -1 /\ step.token.value="par" /\ step.token.start=2 /\ step.token.stop=4 /\ step.token.provenance=1)?! "review30_bare_cr_then_lf token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="b" /\ step.token.start=4 /\ step.token.stop=5 /\ step.token.provenance=0)?! "review30_bare_cr_then_lf token 3"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=5 /\ step.token.stop=5 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_bare_cr_then_lf token 4"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_escaped_ignored()->bit:
++    source:table("\\"&str(chr(0))&" "&"x")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category= -1 /\ step.token.value=str(chr(0)) /\ step.token.start=0 /\ step.token.stop=2 /\ step.token.provenance=0)?! "review30_escaped_ignored token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=2 /\ step.token.stop=3 /\ step.token.provenance=0)?! "review30_escaped_ignored token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="x" /\ step.token.start=3 /\ step.token.stop=4 /\ step.token.provenance=0)?! "review30_escaped_ignored token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=4 /\ step.token.stop=4 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_escaped_ignored token 3"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_escaped_invalid()->bit:
++    source:table("\\ x")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category= -1 /\ step.token.value="" /\ step.token.start=0 /\ step.token.stop=2 /\ step.token.provenance=0)?! "review30_escaped_invalid token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=2 /\ step.token.stop=3 /\ step.token.provenance=0)?! "review30_escaped_invalid token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="x" /\ step.token.start=3 /\ step.token.stop=4 /\ step.token.provenance=0)?! "review30_escaped_invalid token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=4 /\ step.token.stop=4 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_escaped_invalid token 3"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_escaped_active()->bit:
++    source:table("\\~ x")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category= -1 /\ step.token.value="~" /\ step.token.start=0 /\ step.token.stop=2 /\ step.token.provenance=0)?! "review30_escaped_active token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=2 /\ step.token.stop=3 /\ step.token.provenance=0)?! "review30_escaped_active token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="x" /\ step.token.start=3 /\ step.token.stop=4 /\ step.token.provenance=0)?! "review30_escaped_active token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=4 /\ step.token.stop=4 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_escaped_active token 3"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_custom_space_control()->bit:
++    source:table("\\! x")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    .cats:m.assign(cats,33,10)
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category= -1 /\ step.token.value="!" /\ step.token.start=0 /\ step.token.stop=2 /\ step.token.provenance=0)?! "review30_custom_space_control token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="x" /\ step.token.start=3 /\ step.token.stop=4 /\ step.token.provenance=0)?! "review30_custom_space_control token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=4 /\ step.token.stop=4 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_custom_space_control token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_custom_space_canonical()->bit:
++    source:table("a!b")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    .cats:m.assign(cats,33,10)
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="a" /\ step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0)?! "review30_custom_space_canonical token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=1 /\ step.token.stop=2 /\ step.token.provenance=0)?! "review30_custom_space_canonical token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="b" /\ step.token.start=2 /\ step.token.stop=3 /\ step.token.provenance=0)?! "review30_custom_space_canonical token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=3 /\ step.token.stop=3 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_custom_space_canonical token 3"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_custom_comment()->bit:
++    source:table("a!α\n b")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    .cats:m.assign(cats,33,14)
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="a" /\ step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0)?! "review30_custom_comment token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="b" /\ step.token.start=6 /\ step.token.stop=7 /\ step.token.provenance=0)?! "review30_custom_comment token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=7 /\ step.token.stop=7 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_custom_comment token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_custom_ignore_state()->bit:
++    source:table("a! b")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    .cats:m.assign(cats,33,9)
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="a" /\ step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0)?! "review30_custom_ignore_state token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=2 /\ step.token.stop=3 /\ step.token.provenance=0)?! "review30_custom_ignore_state token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="b" /\ step.token.start=3 /\ step.token.stop=4 /\ step.token.provenance=0)?! "review30_custom_ignore_state token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=4 /\ step.token.stop=4 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_custom_ignore_state token 3"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_control_word_ignore_boundary()->bit:
++    source:table("\\"&"a"&str(chr(0))&"b")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category= -1 /\ step.token.value="a" /\ step.token.start=0 /\ step.token.stop=2 /\ step.token.provenance=0)?! "review30_control_word_ignore_boundary token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="b" /\ step.token.start=3 /\ step.token.stop=4 /\ step.token.provenance=0)?! "review30_control_word_ignore_boundary token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=4 /\ step.token.stop=4 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_control_word_ignore_boundary token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_control_word_comment()->bit:
++    source:table("\\a%α\n x")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category= -1 /\ step.token.value="a" /\ step.token.start=0 /\ step.token.stop=2 /\ step.token.provenance=0)?! "review30_control_word_comment token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="x" /\ step.token.start=7 /\ step.token.stop=8 /\ step.token.provenance=0)?! "review30_control_word_comment token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=8 /\ step.token.stop=8 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_control_word_comment token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_escape_newline_leading_space()->bit:
++    source:table("\\\n x")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category= -1 /\ step.token.value="\r" /\ step.token.start=0 /\ step.token.stop=2 /\ step.token.provenance=1)?! "review30_escape_newline_leading_space token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="x" /\ step.token.start=3 /\ step.token.stop=4 /\ step.token.provenance=0)?! "review30_escape_newline_leading_space token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=4 /\ step.token.stop=4 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_escape_newline_leading_space token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_control_symbol_newline()->bit:
++    source:table("\\%\nx")
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=2 /\ step.token.category= -1 /\ step.token.value="%" /\ step.token.start=0 /\ step.token.stop=2 /\ step.token.provenance=0)?! "review30_control_symbol_newline token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=2 /\ step.token.stop=3 /\ step.token.provenance=1)?! "review30_control_symbol_newline token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 11 /\ step.token.value="x" /\ step.token.start=3 /\ step.token.stop=4 /\ step.token.provenance=0)?! "review30_control_symbol_newline token 2"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=4 /\ step.token.stop=4 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_control_symbol_newline token 3"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_profile_formfeed_other()->bit:
++    source:table(str(chr(12)))
++    trace:origins()
++    state:m.open(source,trace,0)
++    cats:m.categories()
++    step:m.next(source,trace,state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 12 /\ step.token.value=str(chr(12)) /\ step.token.start=0 /\ step.token.stop=1 /\ step.token.provenance=0)?! "review30_profile_formfeed_other token 0"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=1 /\ step.token.category= 10 /\ step.token.value=" " /\ step.token.start=1 /\ step.token.stop=1 /\ step.token.provenance=1 /\ step.token.origin= -1)?! "review30_profile_formfeed_other token 1"
++    .step:m.next(source,step.origins,step.state,cats)
++    (step.diagnostic=0 /\ step.token.kind=0)?! "review30 EOF"
++    @:true
++
++review30_rollback_after_comment()->bit:
++    source:table("a%α\n "+str(chr(127)))
++    trace:origins()
++    cats:m.categories()
++    first:m.next(source,trace,m.open(source,trace,0),cats)
++    failed:m.next(source,first.origins,first.state,cats)
++    (failed.diagnostic=3 /\ failed.token.start=6 /\ failed.token.stop=7)?! "offending scalar, not saved cursor"
++    m.reusable(first.state,failed.state,cats,cats,first.origins,failed.origins)?! "all cursor/prefix columns rollback"
++    changed:m.assign(cats,127,12)
++    retried:m.next(source,failed.origins,failed.state,changed)
++    (retried.diagnostic=0 /\ retried.token.start=6 /\ retried.token.category=12 /\ retried.token.origin=1)?! "retry replays skipped comment without duplicate origins"
++    (first.origins.source.length()=1 /\ first.token.category=11)?! "retained value ownership"
++    @:true
++
++review30_unicode_lookahead_rollback()->bit:
++    source:table("x\\aα")
++    trace:origins()
++    cats:m.categories()
++    first:m.next(source,trace,m.open(source,trace,0),cats)
++    failed:m.next(source,first.origins,first.state,cats)
++    (failed.diagnostic=1 /\ failed.token.start=3 /\ failed.token.stop=5)?! "UTF8 lookahead exact bytes"
++    m.reusable(first.state,failed.state,cats,cats,first.origins,failed.origins)?! "partial control word not committed"
++    @:true
++
++review30_translation_retry()->bit:
++    source:table("x\\ab^^63")
++    trace:origins()
++    cats:m.categories()
++    first:m.next(source,trace,m.open(source,trace,0),cats)
++    failed:m.next(source,first.origins,first.state,cats)
++    (failed.diagnostic=2 /\ failed.token.start=4 /\ failed.token.stop=5)?! "translation lookahead"
++    m.reusable(first.state,failed.state,cats,cats,first.origins,failed.origins)?! "translation rollback"
++    changed:m.assign(cats,94,12)
++    retried:m.next(source,failed.origins,failed.state,changed)
++    (retried.diagnostic=0 /\ retried.token.value="ab" /\ retried.token.start=1 /\ retried.token.stop=4)?! "assignment before retry"
++    @:true
++
++review30_lookahead_category_feedback()->bit:
++    source:table("\\a@ b")
++    trace:origins()
++    cats:m.categories()
++    word:m.next(source,trace,m.open(source,trace,0),cats)
++    changed:m.assign(cats,64,13)
++    next:m.next(source,word.origins,word.state,changed)
++    (word.token.value="a" /\ next.token.kind=3 /\ next.token.category=13)?! "lookahead category not retained"
++    (cats.values.(64)=12 /\ changed.values.(64)=13)?! "old category checkpoint remains immutable"
++    (~m.reusable(word.state,word.state,cats,changed,word.origins,word.origins))?! "category invalidation"
++    same:m.assign(cats,64,12)
++    (~m.reusable(word.state,word.state,cats,same,word.origins,word.origins))?! "same value assignment invalidates generation"
++    @:true
++
++review30_comment_feedback()->bit:
++    source:table("\\a%z\n x")
++    trace:origins()
++    cats:m.categories()
++    word:m.next(source,trace,m.open(source,trace,0),cats)
++    changed:m.assign(cats,37,12)
++    percent:m.next(source,word.origins,word.state,changed)
++    (percent.token.value="%" /\ percent.token.category=12 /\ percent.token.start=2)?! "comment dispatch after assignment"
++    @:true
++
++review30_tests()->bit:
++    review30_trimmed_eof()?! "review30_trimmed_eof"
++    review30_spaces_only_eof()?! "review30_spaces_only_eof"
++    review30_escape_trimmed_eof()?! "review30_escape_trimmed_eof"
++    review30_escape_zero_unit()?! "review30_escape_zero_unit"
++    review30_zero_unit_eof()?! "review30_zero_unit_eof"
++    review30_tab_not_trimmed()?! "review30_tab_not_trimmed"
++    review30_trailing_tab_other()?! "review30_trailing_tab_other"
++    review30_trim_before_custom_active()?! "review30_trim_before_custom_active"
++    review30_space_after_comment()?! "review30_space_after_comment"
++    review30_comment_then_blank()?! "review30_comment_then_blank"
++    review30_comment_crlf()?! "review30_comment_crlf"
++    review30_bare_cr_then_lf()?! "review30_bare_cr_then_lf"
++    review30_escaped_ignored()?! "review30_escaped_ignored"
++    review30_escaped_invalid()?! "review30_escaped_invalid"
++    review30_escaped_active()?! "review30_escaped_active"
++    review30_custom_space_control()?! "review30_custom_space_control"
++    review30_custom_space_canonical()?! "review30_custom_space_canonical"
++    review30_custom_comment()?! "review30_custom_comment"
++    review30_custom_ignore_state()?! "review30_custom_ignore_state"
++    review30_control_word_ignore_boundary()?! "review30_control_word_ignore_boundary"
++    review30_control_word_comment()?! "review30_control_word_comment"
++    review30_escape_newline_leading_space()?! "review30_escape_newline_leading_space"
++    review30_control_symbol_newline()?! "review30_control_symbol_newline"
++    review30_profile_formfeed_other()?! "review30_profile_formfeed_other"
++    review30_rollback_after_comment()?! "review30_rollback_after_comment"
++    review30_unicode_lookahead_rollback()?! "review30_unicode_lookahead_rollback"
++    review30_translation_retry()?! "review30_translation_retry"
++    review30_lookahead_category_feedback()?! "review30_lookahead_category_feedback"
++    review30_comment_feedback()?! "review30_comment_feedback"
++    @:true
++
+ renderer_tests()
++review30_tests()

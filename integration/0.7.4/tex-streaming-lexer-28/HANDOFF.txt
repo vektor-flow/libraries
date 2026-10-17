@@ -1,0 +1,66 @@
+TSL28 — STREAMING MOUTH SOURCE MILESTONE COMPLETE; NATIVE UNQUALIFIED
+Worker 01a14a33-06c7-7972-a195-6d77e38b4b4b, 2026-10-17.
+Root 01a14893-cb1e-7203-97dd-de3da44dcf31.
+Grant tex-streaming-lexer-28-visible-chat-grant.json.
+Base/current HEAD 9dbabcaea9fce28129469e31a139a8548a14ab22.
+
+DELIVERY
+streaming-mouth.patch adds exactly three files, unapplied/uncommitted:
+1. tex_streaming_mouth.vkf: one-token mutable-category mouth, explicit ASCII
+   profile, control words/symbols, whitespace/endlines/comments, source/occurrence/
+   origin IDs, transactional diagnostics, strict preview guard and checkpoint
+   comparison. Tokens retain categories; categories change BETWEEN next() calls.
+2. tex_streaming_mouth_tests.vkf: 31 handwritten lexical cases plus mutation test,
+   four negative entries and an actual-source first-boundary entry. UNEXECUTED.
+3. host/latex_mouth_origins.mjs: package25 registry transpose and checked reissue
+   of exactly one lexical origin. It does not parse TeX or authenticate a producer.
+Candidate files live under candidate/. MOUTH-CONTRACT.txt defines exact semantics,
+ABI, unsupported cases, origin trust boundary and conservative invalidation.
+
+VALIDATION
+final03-results.json: 10 model tests covering 31 table rows plus dynamic assignment,
+all supported category classes, checkpoint/replay, provenance and installed inputs;
+6 source checks; 51 host adapter/preparation assertions; git apply --check with
+whitespace errors rejected. All PASS, four final test children joined. Final
+stage walls 0.065s/0.066s/0.166s/0.006s. Max child RSS 70040 KiB; each test child
+AS <=512 MiB, CPU55s, wall60s. Earlier runs retained; no failures hidden.
+No VKF parse, compile, native, TeX engine or package execution occurred. These
+checks are not differential native evidence. All native eligibility counts remain.
+Reproduce after review: python3 -B run_checks.py final-root01 from this directory.
+prepare_patch.py deterministically generates fixtures from handwritten cases.json
+and assembles the three-file patch; it never uses model outputs as expectations.
+
+ACTUAL SOURCES AND LIMITS
+Pinned latex.ltx/amsmath.sty/xcolor.sty bytes were read only. First lexical
+controls and exact source spans verified: ifnum, NeedsTeXFormat, ProvidesPackage.
+State-boundary checks include catcode/edef/csname; actual xcolor ^^A returns an
+explicit unsupported diagnostic. prepare_installed_native.mjs creates three
+future native calls from full exact package25 tables in memory; no package bytes
+are copied/vendored. License/input pins retained in installed-sources.json.
+This is a formatted ASCII lexical profile, NOT INITEX. @ defaults to category12.
+Unicode lexical scalars, ^^ translation and broader endline assignment explicitly
+reject. Unicode comments retain raw bytes. Physical CR/LF/CRLF and logical
+endlinechar13 are fixed. No namespace, expansion, conditional execution, grouping
+semantics or package initialization. Existing legacy scanner/API/selection untouched.
+Engine-derived line tokens and zero-width EOF origins are distinct from authored
+spelling. Preview provenance2 is rejected by strict_token and the origin adapter;
+no preview renderer/recovery or PDF pipeline wiring is claimed. Synthetic closers
+must never be authenticated as authored origins. No 10 ms or PDF performance claim.
+
+NEXT
+Root reviews/applies after its control run; only a separate native admission can
+qualify the 32 positive functions, four negatives and three real-source calls.
+Native syntax, array ownership and return-shape behavior remain unverified.
+Then extend input translation/bootstrap categories and implement scoped primitive
+execution. Actual kernel/packages still cannot execute. Cursor/prefix checking
+and registry copying are correctness preparation, potentially quadratic; no
+incremental-performance target has been measured. Any source revision change
+invalidates all checkpoints in this milestone; finer reuse requires proof.
+
+CUSTODY
+Only this output directory written. No agents, commits, sharedsource changes,
+compiler/linker/native/TeX jobs, services/namespaces/locks/system/hostmount changes.
+Latest coordinator/package25 handoffs supersede older Oct16 rendering status;
+no repository-specific AGENTS.md exists. Project instructions honored. Historical
+charges/policies/dispatcher hold unchanged. Memory/progress root notices were
+acknowledged via native17 protocol. One current DONE follows sealing, then stop.
