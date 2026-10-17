@@ -7,7 +7,27 @@ test('escaped symbols reset sentence spacing and native optical fonts remain dis
 test('valid empty nuclei and primes differ from unfinished script operands',()=>{const b=typeset(String.raw`{}^{\mathrm{1}}+x''+\mathinner{[x]}+\substack{i=1\\j=2}+\mathop{X}\limits_0^n`,data.maps);assert.equal(b.complete,true,JSON.stringify(b.diagnostics));assert.ok(!b.items.some(i=>i.kind==='placeholder'));assert.equal(b.items.filter(i=>i.key==='script/\\prime').length,2);assert.ok(b.items.some(i=>i.key==='script/n'));assert.ok(b.items.some(i=>i.key==='script/0'));assert.ok(typeset(String.raw`x^`,data.maps).items.some(i=>i.kind==='placeholder'));});
 test('theorem/proof nesting and footnotes retain independent visible primitives',async()=>{const{typesetDocument}=await import('../document-layout.mjs');const source=String.raw`\documentclass{article}\usepackage{amsthm}\newtheorem{thm}{Theorem}[section]\begin{document}\section{Test}\begin{thm}\label{t}Claim $x'=1$.\end{thm}\begin{proof}Proof text.\end{proof}A note\footnote{A native footnote.} and Theorem \ref{t}.\end{document}`;const r=await typesetDocument(source,data);assert.equal(r.complete,true,JSON.stringify(r.diagnostics));assert.equal(r.pages[0].footnoteNumbers.length,1);assert.ok(r.pages[0].items.some(i=>i.key?.startsWith('text/@document:footnote:')));assert.ok(r.pages[0].items.some(i=>i.key?.startsWith('text/@document:footnotemark:')));assert.ok(r.pages[0].items.filter(i=>i.kind==='rule').length>=5);assert.ok(r.pages[0].items.every(i=>Number.isFinite(i.x+i.y)));});
 
-test('math environments preserve surrounding paragraph geometry like dollar math',async()=>{const{typesetDocument}=await import('../document-layout.mjs');const wrap=body=>String.raw`\documentclass{article}\begin{document}`+body+String.raw`\end{document}`;const a=await typesetDocument(wrap(String.raw`Before $x^2+\alpha$ after.`),data),b=await typesetDocument(wrap(String.raw`Before \begin{math}x^2+\alpha\end{math} after.`),data);assert.equal(b.complete,true,JSON.stringify(b.diagnostics));assert.deepEqual(b.pages,a.pages);});
+// Exclude only producer provenance; every other layout property stays exact.
+const withoutProvenance=value=>Array.isArray(value)?value.map(withoutProvenance):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).filter(([key])=>!['sourceOrigin','sourceRange','sourceScopes','shapeRange'].includes(key)).map(([key,v])=>[key,withoutProvenance(v)])):value;
+
+test('math environments preserve surrounding paragraph geometry like dollar math',async()=>{
+ const {typesetDocument}=await import('../document-layout.mjs');
+ const wrap=body=>String.raw`\documentclass{article}\begin{document}`+body+String.raw`\end{document}`;
+ const sources=[wrap(String.raw`Before $x^2+\alpha$ after.`),wrap(String.raw`Before \begin{math}x^2+\alpha\end{math} after.`)];
+ const results=await Promise.all(sources.map(source=>typesetDocument(source,data)));
+ for(const result of results)assert.equal(result.complete,true,JSON.stringify(result.diagnostics));
+ assert.deepEqual(withoutProvenance(results[1].pages),withoutProvenance(results[0].pages));
+ // Exact authored offsets, including unchanged prefix and shifted suffix.
+ const localRanges=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[8,9],[10,11],[11,12],[12,18],[20,21],[21,22],[22,23],[23,24],[24,25],[25,26]];
+ for(const [variant,result]of results.entries()){
+  const origins=result.pages[0].items.slice(0,16).map(item=>item.sourceOrigin);
+  assert.deepEqual(origins,localRanges.map(([a,b],index)=>{
+   const shift=variant?(index<6?0:index<10?11:20):0,start=39+a+shift,end=39+b+shift;
+   return {fileId:'document.tex',occurrenceId:1,start,end,byteStart:start,byteEnd:end,expansionOrder:start,clusterId:`block:0:${a}:${b}`,kind:index>=6&&index<10?'math':'literal'};
+  }));
+  assert.deepEqual(origins.map(o=>sources[variant].slice(o.start,o.end)),['B','e','f','o','r','e','x','2','+',String.raw`\alpha`,'a','f','t','e','r','.']);
+ }
+});
 
 test('literal URLs preserve percent/hash/math markers through macros and document flow',async()=>{
  const {typesetDocument}=await import('../document-layout.mjs');
@@ -109,7 +129,24 @@ test('existing dash breaks are available before automatic hyphenation',()=>{
  const options={width:345*72/72.27};
  const automatic=typesetDocumentText(source,data,options),explicit=typesetDocumentText(source,data,{...options,hyphens:false});
  assert.deepEqual(automatic.items,explicit.items);
- assert.deepEqual(typesetDocumentText(source.replace('---','—'),data,options).items,automatic.items);
+ const unicodeSource=source.replace('---','—'),unicode=typesetDocumentText(unicodeSource,data,options);
+ assert.deepEqual(withoutProvenance(unicode.items),withoutProvenance(automatic.items));
+ const dashStart=source.indexOf('---');
+ for(const [box,text,dashLength]of [[automatic,source,3],[unicode,unicodeSource,1]]){
+  const dash=box.items.find(item=>item.key==='text/@document:roman:124');
+  assert.deepEqual(dash.sourceRange,{start:dashStart,end:dashStart+dashLength,kind:'literal'});
+  assert.deepEqual(dash.shapeRange,[6,6+dashLength]);
+  assert.equal(text.slice(dash.sourceRange.start,dash.sourceRange.end),dashLength===3?'---':'—');
+ }
+ // Every mapped glyph and scope after the dash shifts by exactly two code units.
+ const shift=n=>n>dashStart?n-2:n;
+ for(const [index,item]of automatic.items.entries()){
+  const other=unicode.items[index];
+  for(const field of ['sourceRange','sourceScopes']){
+   const expected=field==='sourceScopes'?item[field]?.map(r=>({...r,start:shift(r.start),end:shift(r.end)})):item[field]?{...item[field],start:shift(item[field].start),end:shift(item[field].end)}:undefined;
+   assert.deepEqual(other[field],expected);
+  }
+ }
  assert.equal(automatic.lines.length,6);
  assert.ok(!automatic.items.some(i=>i.key==='text/@document:roman:45'));
  assert.equal(automatic.items.filter(i=>i.flowLine===1).at(-1).key,'text/@document:roman:124');

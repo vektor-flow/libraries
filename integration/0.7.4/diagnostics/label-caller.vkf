@@ -1,0 +1,45 @@
+# Diagnostic only, not yet compiled. Materialize beside normalized shared modules.
+# Stdin: font catalog path, language path, ordered roles JSON, owner scope, report path.
+# Empty/nonempty owner scope exercises the same conditional scene producer.
+io:.io
+font_catalog:.font_catalog
+hyphenation:.hyphenation
+text_parser_kernel:.text_parser_kernel
+math_profiles:.math_profiles
+config:.document_materialize_config
+label_measure:.document_materialize_label_measure
+labels:.document_materialize_labels
+scene_json:.document_scene_json
+scene_paragraph:.document_scene_paragraph_linear
+tex_text:.tex_text
+
+run()->int:
+    catalog_path:io.read_line()
+    language_path:io.read_line()
+    roles_json:io.read_line()
+    scope:io.read_line()
+    report_path:io.read_line()
+    fonts:font_catalog.load(io.read_text(catalog_path))
+    language:hyphenation.load(io.read_text(language_path))
+    roles:text_parser_kernel.roles(roles_json)
+    c:config.configure("article","[]","[]",fonts)
+    tables:math_profiles.load(fonts)
+    primary:scene_json.empty()
+    q:label_measure.measure("1.","roman",fonts,roles,language,c,tables,true,"{}")
+    scope=""? .primary:scene_paragraph.from_paragraph(q)
+    scope~=""? .primary:scene_paragraph.from_paragraph_owned(q,scope&":primary")
+    [int] blocks:[]
+    [str] scopes:[]
+    [str] texts:[]
+    [str] kinds:[]
+    scope~=""?
+        .blocks:[0]
+        .scopes:[scope&":outer"]
+        .texts:["a."]
+        .kinds:["outer:0"]
+    combined:labels.compose(primary,"[{\"source\":\"a.\",\"font\":\"roman\",\"left\":0}]",0,5,fonts,roles,language,c,"{}",0,blocks,scopes,texts,kinds)
+    .primary:combined.scene
+    diagnostics:config.merge(q.diagnostics,combined.diagnostics)
+    io.write_text(report_path,tex_text.integer(primary.arena.count)&"\n"&diagnostics)
+    @:0
+run()

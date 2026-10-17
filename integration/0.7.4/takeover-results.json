@@ -1,0 +1,37 @@
+{
+  "owner": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "base_commit": "18e539c6f5096a12dcf61462fe30040229967ab3",
+  "utc": "2026-10-17T06:41:23.660643+00:00",
+  "node": {
+    "passed": 213,
+    "failed": 0,
+    "seconds": 12.148249026970007,
+    "runner": "node --test --test-concurrency=1; all *.test.mjs under tests and examples/gpu-math/tests"
+  },
+  "fix": "Preserve paragraph source spans around inline math environment conversion; strict layout comparison excludes explicit provenance fields and asserts exact origins separately. Dash-equivalence checks preserve authored ranges and scope shifts.",
+  "pins": {
+    "examples/gpu-math/document-layout.mjs": "43e844720795ecec533c4f9c3ea1f953b119240f0b7fb0f1b36978117b827001",
+    "examples/gpu-math/tests/document-text.test.mjs": "7cf5f84c304d00476bc156d5ec3f0967f63e7d32d8c99fcf25171335584e543a",
+    "integration/0.7.4/diagnostics/label-caller.vkf": "0338df4cfdda8e3c751094da688d11c17f829526155e2f4b1684793ddfbb40e9"
+  },
+  "native": {
+    "status": "not launched: resource admission rejected",
+    "used_bytes": 21838598144,
+    "retained_charge_bytes": 60000000,
+    "budget_bytes": 21900000000,
+    "remaining_bytes": 1401856,
+    "requested_diagnostic_peak_bytes": 20000000,
+    "diagnostic": "integration/0.7.4/diagnostics/label-caller.vkf",
+    "diagnostic_status": "prepared, not compiled or established as failing reproducer",
+    "full_save_timing": null
+  },
+  "unchanged_limits": true,
+  "release_qualified": false,
+  "remaining": [
+    "Native full caller shape failure",
+    "40-page native PDF correctness and timings",
+    "Full WASM bad_alloc",
+    "Direct named dest/selectable/editable native facade",
+    "Remaining source mappings, embedded PDF sources, reader selection and transactional edits"
+  ]
+}
