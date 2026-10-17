@@ -1,0 +1,45 @@
+# Dedicated storage setup only. Review candidate: never loaded by this task.
+# No tunables/local include: no site rule can silently broaden this new profile.
+abi <abi/5.0>,
+
+profile vkf-storage-private-v2 /usr/local/libexec/vkf-storage-private-v2/unshare flags=(attach_disconnected,mediate_deleted) {
+  allow userns,
+  allow capability sys_admin,
+  # util-linux calls mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL).
+  # rw is the AppArmor rendering of absent MS_RDONLY, not a writable bind.
+  allow mount options=(rw,rprivate) -> /,
+  allow file r /{**,},
+  allow /usr/lib/** mr,
+  allow /lib/** mr,
+  allow /lib64/** mr,
+  owner /proc/{self,[0-9]*}/{uid_map,gid_map,setgroups} w,
+  /dev/null w,
+  /mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/{A,F}/direct-v2-20261017/*/receipts/{stdout,stderr} w,
+  allow signal (receive) peer=unconfined,
+  allow ptrace (readby) peer=unconfined,
+  # No ix/ux/fallback; the only executable loses setup capability permission.
+  /usr/bin/python3.14 m,
+  /usr/bin/python3.14 Px -> vkf-storage-pre-v2,
+}
+
+profile vkf-storage-pre-v2 flags=(attach_disconnected,mediate_deleted) {
+  audit deny capability,
+  audit deny userns,
+  audit deny mount,
+  audit deny umount,
+  audit deny pivot_root,
+  audit deny change_profile,
+  allow file r /{**,},
+  allow /usr/lib/** mr,
+  allow /lib/** mr,
+  allow /lib64/** mr,
+  /dev/null w,
+  /mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/{A,F}/direct-v2-20261017/*/receipts/{stdout,stderr} w,
+  allow signal (receive) peer=unconfined,
+  allow ptrace (readby) peer=unconfined,
+  # Replacement, not stacking: only at exec with NoNewPrivs still zero.
+  # bwrap then sets NNP itself, and its existing child stack denies capabilities.
+  /usr/bin/python3.14 m,
+  /usr/bin/bwrap m,
+  /usr/bin/bwrap Px -> bwrap,
+}

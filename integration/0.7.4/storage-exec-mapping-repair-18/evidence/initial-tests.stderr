@@ -1,0 +1,45 @@
+test_drop_error_is_fatal_and_after_is_observed (__main__.CapabilityInitialization.test_drop_error_is_fatal_and_after_is_observed) ... ok
+test_each_active_set_rejected_before_syscall (__main__.CapabilityInitialization.test_each_active_set_rejected_before_syscall) ... ok
+test_each_identity_slot_is_preserved (__main__.CapabilityInitialization.test_each_identity_slot_is_preserved) ... ok
+test_missing_malformed_caps_or_groups_reject (__main__.CapabilityInitialization.test_missing_malformed_caps_or_groups_reject) ... ok
+test_nnp_and_label_fail_before_syscall (__main__.CapabilityInitialization.test_nnp_and_label_fail_before_syscall) ... ok
+test_noop_or_partial_capset_cannot_pass (__main__.CapabilityInitialization.test_noop_or_partial_capset_cannot_pass) ... ok
+test_only_inheritable_drift_can_be_dropped (__main__.CapabilityInitialization.test_only_inheritable_drift_can_be_dropped) ... ok
+test_preserved_fields_cannot_change (__main__.CapabilityInitialization.test_preserved_fields_cannot_change) ... ok
+test_read_errors_before_and_after_are_fatal (__main__.CapabilityInitialization.test_read_errors_before_and_after_are_fatal) ... ok
+test_thread_restriction (__main__.CapabilityInitialization.test_thread_restriction) ... ok
+test_each_capability_set_rejects_nonzero (__main__.PolicyGate.test_each_capability_set_rejects_nonzero) ... ok
+test_each_credential_slot_rejects_root_or_other_user (__main__.PolicyGate.test_each_credential_slot_rejects_root_or_other_user) ... ok
+test_missing_and_malformed_status_fail (__main__.PolicyGate.test_missing_and_malformed_status_fail) ... ok
+test_nnp_is_never_cleared_or_accepted_at_wrong_stage (__main__.PolicyGate.test_nnp_is_never_cleared_or_accepted_at_wrong_stage) ... ok
+test_old_unconfined_denial_complain_extra_and_missing_stack_rejected (__main__.PolicyGate.test_old_unconfined_denial_complain_extra_and_missing_stack_rejected) ... ok
+test_policy_failure_prevents_mount_read_and_exec (__main__.PolicyGate.test_policy_failure_prevents_mount_read_and_exec) ... ok
+test_pre_bounding_set_may_remain_but_post_must_be_empty (__main__.PolicyGate.test_pre_bounding_set_may_remain_but_post_must_be_empty) ... ok
+test_source_checks_both_gates_before_exec (__main__.PolicyGate.test_source_checks_both_gates_before_exec) ... ok
+test_three_exact_labels_nnp_and_identity (__main__.PolicyGate.test_three_exact_labels_nnp_and_identity) ... ok
+test_entire_command_shape_preserved (__main__.Preservation.test_entire_command_shape_preserved) ... ok
+test_exact_policy_delta (__main__.Preservation.test_exact_policy_delta) ... ok
+test_existing_post_mapping_and_denial (__main__.Preservation.test_existing_post_mapping_and_denial) ... ok
+test_inputs_immutable (__main__.Preservation.test_inputs_immutable) ... ok
+test_missing_dependency_stops_gate (__main__.Preservation.test_missing_dependency_stops_gate) ... ok
+test_old_pre_label_rejected (__main__.Preservation.test_old_pre_label_rejected) ... ok
+test_only_exact_private_constants_changed (__main__.Preservation.test_only_exact_private_constants_changed) ... ok
+test_original_v7_bundle_exact_order (__main__.Preservation.test_original_v7_bundle_exact_order) ... ok
+test_compilation_always_no_load_no_cache (__main__.SetupFailClosed.test_compilation_always_no_load_no_cache) ... ok
+test_each_destination_collision_stops_before_parser_and_write (__main__.SetupFailClosed.test_each_destination_collision_stops_before_parser_and_write) ... ok
+test_hash_mismatch_fatal (__main__.SetupFailClosed.test_hash_mismatch_fatal) ... ok
+test_missing_each_tool_never_reaches_action (__main__.SetupFailClosed.test_missing_each_tool_never_reaches_action) ... ok
+test_no_rg_dependency_and_shell_checks_unconditional (__main__.SetupFailClosed.test_no_rg_dependency_and_shell_checks_unconditional) ... ok
+test_no_setup_execution_from_import (__main__.SetupFailClosed.test_no_setup_execution_from_import) ... ok
+test_parser_nonzero_propagates_no_fallback (__main__.SetupFailClosed.test_parser_nonzero_propagates_no_fallback) ... ok
+test_profile_and_stack_collisions (__main__.SetupFailClosed.test_profile_and_stack_collisions) ... ok
+test_raw_contract_splits_exact_compiled_bytes (__main__.SetupFailClosed.test_raw_contract_splits_exact_compiled_bytes) ... ok
+test_unreadable_loaded_names_never_installs (__main__.SetupFailClosed.test_unreadable_loaded_names_never_installs) ... ok
+test_errno_and_missing_symbol_fail_closed (__main__.SyscallBinding.test_errno_and_missing_symbol_fail_closed) ... ok
+test_unsupported_machine_os_endian_pointer_long_or_int_rejected (__main__.SyscallBinding.test_unsupported_machine_os_endian_pointer_long_or_int_rejected) ... ok
+test_v3_self_two_zero_words_exact_types (__main__.SyscallBinding.test_v3_self_two_zero_words_exact_types) ... ok
+
+----------------------------------------------------------------------
+Ran 40 tests in 0.056s
+
+OK

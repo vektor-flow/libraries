@@ -1,0 +1,119 @@
+REPAIR18: EXECUTION AND EXECUTABLE MAPPING ARE DISTINCT
+
+Observed, not inferred:
+Live17 tracked child4165055 returned-11 before any pre/post observation. Kernel
+file_mmap denied requested m for /usr/bin/python3.14 under
+vkf-storage-private-v1. Origin drop and strict origin gate succeeded. No new
+attempt is warranted by parser success alone. No runtime repair proof is claimed.
+
+Installed AppArmor5.0.2 apparmor.d(5), Access Modes/Details:
+Px requires the selected discrete profile and enables secure execution. Missing
+target fails; there is no inherit/unconfined fallback. Lowercase m separately
+controls executable mappings (PROT_EXEC). The manpage explicitly singles out ix
+as implying m; it does not promise that Px supplies general m in both domains.
+Adding m neither changes the selected Px target nor allows an additional exec.
+It does allow executable mapping of that exact file, an intentional increase.
+Existing broad read rules already cover r, so only m is added.
+
+Source mechanism and evidence limits:
+Installed kernel7.0.0-38.38 reports domain/fix_binfmt_elf_mmap=yes. The exact
+Ubuntu source URL returned403; full kernel implementation is not installed with
+headers. sources/ retains retrieval failures, installed manual text and pinned
+upstream Linux v7.0 sources as explanatory corroboration, NOT an exact Ubuntu
+kernel source identity. Do not confuse upstream tag with the installed build.
+Primary source references:
+https://raw.githubusercontent.com/torvalds/linux/v7.0/security/apparmor/lsm.c
+https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux/+/refs/tags/v7.0/security/apparmor/file.c
+https://raw.githubusercontent.com/torvalds/linux/v7.0/security/apparmor/domain.c
+https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux/+/refs/tags/v7.0/fs/binfmt_elf.c
+https://raw.githubusercontent.com/torvalds/linux/v7.0/fs/exec.c
+
+Upstream lsm.c:460-511 seeds a file-context label at allocation; __FMODE_EXEC
+opens cache MAY_EXEC|MAY_READ|AA_EXEC_MMAP. This is a cache on the file, not a
+source-policy m rule. common_mmap:555-587 separately requests AA_EXEC_MMAP for
+PROT_EXEC and passes current credentials into aa_file_perm. It also mediates
+file-backed mprotect. file.c:483-541 and619-670 distinguish current task label,
+file cached label and cached allowed mask. Revalidation can examine profiles in
+the current label and in the file label, depending on cache state; a denial's
+profile name alone does not prove the final userspace task label or that Px
+failed to select its target. Unconfined-opened file delegation is a special
+short circuit in this reference implementation. bprm credentials and ELF file
+mappings are different checks; begin_new_exec and ELF mapping failures beyond
+the point of no return can terminate execution. This corroborates why a granted
+exec does not establish successful userspace entry. We do NOT assert the exact
+unobserved cached-label history or crash internals of live17 from upstream code.
+
+Minimal policy delta:
+1. vkf-storage-private-v2 adds /usr/bin/python3.14 m,
+   and retains /usr/bin/python3.14 Px -> vkf-storage-pre-v2,
+2. vkf-storage-pre-v2 adds /usr/bin/python3.14 m,
+   and /usr/bin/bwrap m,
+   and retains /usr/bin/bwrap Px -> bwrap,
+Everything else is identical to v1, except new profile/attachment names.
+No /usr/bin/** mapping rule, new ix/ux, fallback, deny relaxation or library
+pattern expansion. Existing bwrap pix rules are retained, not introduced here.
+New destination path: /usr/local/libexec/vkf-storage-private-v2/unshare;
+byte-identical installed util-linux copy, no wrapper or native helper.
+
+Complete mapping/transition matrix:
+
+Boundary                         Source check             Destination check
+unconfined -> dedicated unshare   unconfined exec/open      private-v2 attachment
+unshare -> Python pre            private-v2: Python m/Px   pre-v2: Python m/r
+Python pre -> bwrap               pre-v2: bwrap m/Px        bwrap: existing all-file m
+bwrap -> Python post             bwrap: existing m/pix     bwrap AND unpriv_bwrap: m
+Python post -> Python payload     both existing m/pix       same recursive denial stack
+payload -> compiler/linker/tool   both existing m/pix       same stack, plus any
+                                                          implicit target attachment
+
+First boundary: live17 got through unshare namespace/setup and reached Python
+ELF mapping. No dedicated-unshare mapping denial occurred. Initial origin is
+strictly unconfined/NNP0; reference code delegates its opened exec files. Adding
+m for self-unshare is therefore unnecessary for this exact admitted chain and
+is omitted. No confined caller or different origin is supported by this patch.
+Second boundary: source m repairs the actual reported denial. Destination m
+also covers the Python image during/after replacement; addressing only source
+would leave the other constrained profile without explicit image m permission.
+Third boundary: add bwrap m in its confined pre source now, rather than waiting
+for a foreseeable second executable-mapping denial. Existing destination bwrap
+already covers the image and libraries.
+Remaining boundaries: BOTH existing bwrap and unpriv_bwrap grant file rwlkm
+/{**,}, including /usr/bin/python3.14, libraries, compiler inputs/images and
+charged generated executable paths. Every profile in a stack must allow access;
+unpriv_bwrap's audit deny capability continues to apply recursively. Replacing
+these system profiles, or adding broader m to the new narrow profiles, is not
+needed for those existing components.
+
+Static readelf inspection (no ldd or execution) authenticates existing unshare,
+Python3.14, bwrap and their PT_INTERP /lib64/ld-linux-x86-64.so.2. Unshare needs
+libc; Python libm/libz/libexpat/libc; bwrap libselinux/libcap/libc. Existing
+/usr/lib/**, /lib/**, /lib64/** mr covers these paths and Python shared modules
+in both narrow profiles. Their breadth is unchanged. Shebang/script contents
+need read; the actual interpreter/ELF/DSO mapping requires m. A future executable
+elsewhere in either narrow stage is not supported or silently granted.
+
+Compiler path review is source-only: compiler-build-preparation-03/payload.py
+runs the approved stage argv using Popen after post. Its materializer preview
+uses /usr/bin/clang++-19 (resolves /usr/lib/llvm-19/bin/clang), linker tools
+/usr/bin/ld -> /usr/bin/x86_64-linux-gnu-ld.bfd and /usr/bin/as ->
+/usr/bin/x86_64-linux-gnu-as; later pinned compiler/regression images are in the
+charged output, Python normalizers resolve to Python3.14. Valgrind paths and its
+libexec images are also covered by both pre-existing all-file m rules. No compiler
+or generated file was executed. Preview is held/stale, not admission authority.
+232 loaded profile attachment records were inspected. 166 render <unknown>,
+including known bwrap/custom attachments, so absence of a displayed compiler
+name is NOT proof that no implicit target profile can apply. Available system
+source declaration search found no matching compiler/Python/valgrind attachment;
+future concrete argv/extra implicit profile attachments and actual stacked labels
+remain runtime/deployment checks. We do not claim all possible compiler variants
+or later libraries are qualified by this source inspection.
+
+Preserved gates:
+Origin/pre ordinary real/effective/saved/fs IDs, zero I/P/E/A, NNP0; pre exact
+vkf-storage-pre-v2 (enforce). Post zero I/P/E/A/B, NNP1, exactly two bwrap and
+unpriv_bwrap components, no extra/unconfined/complain label. Capset initialization
+from accepted repair15 remains byte-identical. All namespace/cgroup/UID-map,
+private-tree, effective storage, readonly root/dev/proc/shm/pts, one charged RW
+bind, timeout/child/custody/join/accounting checks are unchanged. Px pre->bwrap
+continues before bwrap itself sets NNP. No clearing NNP or explicit change_profile
+API; the pre deny change_profile stays unchanged.

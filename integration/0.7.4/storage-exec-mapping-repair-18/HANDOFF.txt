@@ -1,0 +1,121 @@
+STORAGE EXEC MAPPING REPAIR18 — READY ROOT PATCH; NOT INSTALLED OR RUNTIME-PROVEN
+2026-10-17. Worker01a14996-21e5-7d01-8d80-eced8f40d032.
+Sole coordinator01a14893-cb1e-7203-97dd-de3da44dcf31.
+
+RESULT
+Minimal new v2 system profile and one-file v7->v8 helper patch prepared in OWN
+output only. Three exact-path m permissions: private-v2 Python3.14;
+pre-v2 Python3.14 and bwrap. Existing Python Px->pre and bwrap Px->bwrap retained
+with only the custom pre target renamed v2. All capability/userns/mount/umount/
+pivot_root/change_profile denials, strict labels/IDs/caps/NNP and storage gates
+unchanged. No broad /usr/bin/** m, new ix/ux fallback or deny relaxation.
+New byte-identical unshare path isolates v2; v1 and original v7 remain frozen.
+Existing bwrap/unpriv_bwrap mapping coverage and later compiler stage argv were
+reviewed. No operational setup, policy load, namespace, native/compiler workload,
+service change, recovery, owner publication, commit or agent was performed.
+
+EXACT DELIVERABLES / HASH GATES
+private-workload-v7-to-v8.patch
+  2c2fd6273766281e9fdb01a2c6cea4ea682787a3416df108b0075a5afa41573e
+proposed/private_workload.py
+  old d9c460205d3512f0ec17c08c4150ed539648753a3c942306987c5cd00958ccc0
+  new 0a9d6b0c79689c9fce488188b26392fc7cf07aae393848a9cd35c4315f252301
+system-setup/vkf-storage-private-v2
+  8bd0a67dd92c2b7504d6c5c62ace5a450afc439f8ff3ae73f9c0bceb722b4029
+policy-v1-to-v2.diff
+  145259a5738e2aafe9f9a24e102760da791db63377a9b04b12af8eaf18796b79
+Destination /etc/apparmor.d/vkf-storage-private-v2.
+New /usr/local/libexec/vkf-storage-private-v2/unshare copies /usr/bin/unshare
+  41c65e55107cbbb1a1f6994784a938dd7dbbe255d1fea6b7a58ec96eabe382ef
+Old v1 policy source remains
+  a6a82dd0c9f50c296e88933645e8a8487b947dd4de6ff6e66acee2541e1a17a4
+Full v2 no-load compiled stream19465bytes
+  8ee5871c01d522c165cf31dc504e02a3a997465cabab2af34ea9cbb15e2d2397
+pre-v2 stream9274bytes
+  f37275a125fb28ef09822bf730a2208f8364aa7fd86b12b7c4be79a66e3f2c95
+private-v2 stream10191bytes
+  7c8190cec6f88e47c77c7faeb4024be24f114451e4262505ad670bd6f137c329
+compiled-profile-contract.json records offsets and sizes. These are candidate
+bytes, not a report of loaded v2. Current five original raw loaded profiles were
+read independently and equal live17; evidence/loaded-readonly.json.
+
+SUCCESSOR ADOPTION
+SUCCESSOR.txt and successor-contract.json give the exact five helper value edits,
+unchanged controller/helpers/recovery authority, and ordered original v7 bundle.
+preserved-v7-bundle.json must be appended to v8 config preserved_record_authorities
+with existing entries retained. ORIGINAL v7 controller/helpers/config paths and
+hashes must stay frozen, including original v7 private_workload.py. Do not apply
+the patch to installed v7 or rewrite historical grants/receipts/authorities.
+Root composes v8 config and later binds new grants; none were created here.
+Same storage-direct-v4 state, capacity.lock, owners and charges. No recovery needed.
+
+INSTALL / ROLLBACK PROPOSALS
+system-setup/install-reviewed.sh, rollback-reviewed.sh and pinned system_setup.py
+are concrete, syntax-checked, UNEXECUTED. SYSTEM-SETUP.txt supplies exact commands,
+preconditions, order and limits. Positive checks use EXISTING /usr/bin/python3.14,
+/usr/sbin/apparmor_parser, /usr/bin/bash. No rg dependency; original /usr/bin/rg
+assumption removed. Missing/unreadable tools, policy files/listing, hash mismatch,
+destination/broken-symlink/profile collision are fatal, never false absence.
+Existing capacity.lock held nonblocking; immutable/live17 baseline and cgroup
+quiescence gates precede writes. Install stages0600 binary, --add only, exact
+raw loaded equality before0755. Rollback hides binary, removes v2 only, preserves
+v1/v7. Full pre-use rollback only: partial installs or changed/admitted history
+stop for root review; never remove a new historical dependency automatically.
+
+SEMANTICS / LIMITS
+SEMANTICS.txt traces unconfined->unshare->Python pre->bwrap->Python post->compiler
+and each source/destination executable, library and later payload mapping.
+Px selects exec target/secure execution; m is independent executable mapping.
+File cached labels/current labels can both matter; the audited profile does not
+prove the final userspace label. We avoid inventing live17's internal cache or
+crash sequence. Installed manuals, exact installed policy sources, feature ABI,
+ELF metadata and existing util-linux/bwrap source were inspected. Upstream v7.0
+kernel references are pinned explanatory sources; exact Ubuntu source URL403
+and absent local kernel implementation are explicitly documented. No false
+claim that upstream equals installed Ubuntu7.0.0-38.38.
+Both existing bwrap/unpriv_bwrap policies grant all-file m, preserving the
+recursive capability deny. Existing compiler/clang/linker/normalizer/Valgrind/
+charged-image paths are covered by those two components. 232 loaded attachments
+were captured;166 display <unknown>. Extra implicit attachments, actual dynamic
+library/label transitions, namespace/mount/security gates and all qualification
+cases remain runtime limits, not proven by name/source inspection.
+
+VALIDATION
+Final43 source/mock tests PASS; unittest0.058s, parent0.157644s,
+peak40564KiB, child4181597 joined/absent. Tests include accepted
+repair15 capset negatives with syscall MOCKED, nine strict policy gate tests,
+exact source/AST/command preservation, old-v1-label rejection, missing dependency,
+missing tools, path/profile/stack collision, failed load equality prevents0755,
+install/rollback ordering with ALL mutations mocked, pinned historical bundle
+and current source identities. No actual capability drop was run by repair18.
+Initial40 and expanded43 passes retained; final rerun followed proposed lock
+addition. Total3 test children+4 parser children independently absent.
+Parser v1/v2/bwrap/userns: all exit0, --stdout --skip-kernel-load --skip-cache,
+--config-file=/dev/null, --jobs=1 --max-jobs=1 --zstd-compress-level=0.
+No cache writes or kernel load. compile-results.json preserves argv/time/hashes.
+Patch dry-run and apply --fuzz=0 only to OWN copied v7 preimage: exact proposed
+bytes. Both bash -n checks pass. Test AS512MiB, CPU20s/wall35s/core0; parser
+AS512MiB/CPU30s/wall25s per child, ordinary-user files. Preparation read-only
+corrections are recorded in preparation-notes.txt; no operational retry occurred.
+
+FINAL PRESERVATION / ACCOUNTING
+53 original input pins unchanged. Current state exactly live17 final-state;
+owners match live17 state AND exact pin. Both owners live17, repair18 owns no
+operational lane. Actual5/16attempts20/64MiB retained, activeRAM0; no new attempt,
+refund, cap reset or accounting edit. F19,804,495,872/A18,778,218,496 cumulative
+bytes unchanged. Both A/F cgroups empty, A high3GiB/hard8GiB, F high/hard3GiB,
+swap0, pids160 preserved. Dispatcher service/timer/path inactive, runtime mask
+/dev/null retained. Final MemAvailable19504857088bytes, overlap0.
+Initial MEMORY/OVERLAP notification was acknowledged by existing app-server.
+Granted HEADec72b6b; current edf9e9688e2605a57a3943655ac39b6438e5016b is root's
+live17 evidence commit only. No local source edit outside this output, no commits,
+no agents. D267/D289 excluded; compiler/native/release qualification unchanged.
+
+DELIVERY
+input-pins.json, additional-input-pins.json, compiler-chain-input-pins.json,
+output-pins.json, patch-verification.json, test-results.json, compile-results.json,
+all-owned-test-parser-joins.json and final-readonly-seal.json retain exact evidence.
+One DONE repair18-01a14996-ready ID/result/path is sent through existing app-server
+notification client. notification-result.json records acknowledgement/ambiguity
+without retry. Notification intent/result are appended after output-pins sealing.
+Stop after delivery; no installation or successor work in this chat.

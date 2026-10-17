@@ -1,0 +1,63 @@
+EXACT ROOT V8 CONTRACT; V7 ORIGINAL REMAINS FROZEN
+
+Root owns config composition, deployment, loaded-policy adoption and fresh grants.
+This worker supplies one-file private-workload-v7-to-v8.patch, proposed helper,
+new standalone system policy, exact policy diff, scripts and machine-readable
+successor-contract.json / preserved-v7-bundle.json. Nothing is installed here.
+
+1. New immutable storage-direct-v8 sibling under the existing storage20gb parent.
+Copy v7 storage_controller.py, storage_admission.py, storage_paths.py,
+terminal_recovery.py and effective_storage.py unchanged. Apply the one-file patch
+ONLY to a v8 copy of v7/private_workload.py. recover_live14.py may be copied
+unchanged for completeness; no new recovery is needed or authorized. The
+controller's STATE_HOME remains sibling storage-direct-v4 and the same capacity.lock.
+
+2. Exactly five helper values change: BINARIES[0].path, UNSHARE,
+POLICY_INPUTS[0].path, POLICY_INPUTS[0].sha256, exact pre label v1->v2.
+All helper function ASTs are identical after replacing only the pre-label literal.
+Controller/HELPERS order and all other source logic remain byte-identical.
+Old private_workload SHA d9c460205d3512f0ec17c08c4150ed539648753a3c942306987c5cd00958ccc0
+New private_workload SHA 0a9d6b0c79689c9fce488188b26392fc7cf07aae393848a9cd35c4315f252301
+
+3. Derive v8 runtime-config.json from exact v7 config
+7faf96d5856e29124ce1cb116c9583013ba7d9829098c0f33ec868dd32dacb56.
+Retain existing preserved_record_authorities in their exact order and append
+EXACT preserved-v7-bundle.json. It binds ORIGINAL v7 paths and bytes, not copies
+at v8 paths, and ordered five helpers including ORIGINAL v7 private_workload.
+Controller.authenticate_record_sources compares whole dict/ordered helpers;
+a hash-only substitute or relabeling v7 as v8 is not accepted.
+Retain recovery_authority (original v7 authority path/hash), owner_state,
+coordinator, approved policies, volume/ledger/hold/source paths and all other
+config fields unchanged unless separately reviewed. Do not regenerate an old
+config or its authority to incorporate v2. Root should test v8 with preserved
+v7 history; do not run the old observe/recover CLI, which expects prerecovery.
+
+4. Never overwrite/remove v1 policy or its dedicated binary; never modify v7
+source/config or live17 grants/receipts. Existing v7 records must remain readable
+and their original pinned inputs available. Exact state/owners remain live17:
+5 attempts,20MiB charged, activeRAM0, two historical recovery events; live17 F
+is normally joined. Both owners are live17, not repair18. No recovery required.
+
+5. After separate root setup/adoption, new grants must bind v8 controller,
+ordered helpers/config and new v2 binary/policy, while all remaining dependency
+pins and absent includes stay exact. Preserve actual Python/ctypes/DSO closure
+from live17; reauthenticate its bytes. Materialize no grants from this task.
+A fresh live qualifier must update its expected pre-label to v2 without accepting
+v1/extra labels, and independently authenticate raw loaded v2 policy equality.
+No claim of environment qualification, F/A successes, native timing or compiler
+permission follows from the 43 mock/source tests or no-load policy compile.
+
+New policy source SHA
+8bd0a67dd92c2b7504d6c5c62ace5a450afc439f8ff3ae73f9c0bceb722b4029
+New binary at /usr/local/libexec/vkf-storage-private-v2/unshare is identical to
+/usr/bin/unshare SHA
+41c65e55107cbbb1a1f6994784a938dd7dbbe255d1fea6b7a58ec96eabe382ef
+No original v1 binary pin changes. New source at /etc/apparmor.d/vkf-storage-private-v2.
+Parser5.0.2 uncompressed full stream19465bytes SHA
+8ee5871c01d522c165cf31dc504e02a3a997465cabab2af34ea9cbb15e2d2397
+pre-v2 stream offset0,9274bytes SHA
+f37275a125fb28ef09822bf730a2208f8364aa7fd86b12b7c4be79a66e3f2c95
+private-v2 stream offset9274,10191bytes SHA
+7c8190cec6f88e47c77c7faeb4024be24f114451e4262505ad670bd6f137c329
+The streams are exact pieces of compiled output, not observations of loaded v2.
+Fresh installed/loaded comparison is a separate root requirement.

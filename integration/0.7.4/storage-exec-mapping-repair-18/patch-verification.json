@@ -1,0 +1,32 @@
+{
+  "records": [
+    {
+      "argv": [
+        "/usr/bin/patch",
+        "--batch",
+        "--fuzz=0",
+        "--dry-run",
+        "-p1",
+        "-i",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-exec-mapping-repair-18/private-workload-v7-to-v8.patch"
+      ],
+      "exit": 0,
+      "stdout": "checking file private_workload.py\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/patch",
+        "--batch",
+        "--fuzz=0",
+        "-p1",
+        "-i",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-exec-mapping-repair-18/private-workload-v7-to-v8.patch"
+      ],
+      "exit": 0,
+      "stdout": "patching file private_workload.py\n",
+      "stderr": ""
+    }
+  ],
+  "exact_bytes": true
+}

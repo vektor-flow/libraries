@@ -1,0 +1,58 @@
+{
+  "utc": "2026-10-17T11:30:59.102971+00:00",
+  "source_inputs_unchanged": 53,
+  "state_equal_live17": true,
+  "owners_equal_live17": true,
+  "retained_attempts": 5,
+  "retained_charged_bytes": 20971520,
+  "active_ram_intent": 0,
+  "accounting_basis": "byte-equivalent live17 final state and normal-join evidence; no operational mutation",
+  "new_attempts": 0,
+  "worker": "01a14996-21e5-7d01-8d80-eced8f40d032",
+  "MemAvailable": 19504857088,
+  "active_worker_legacy_services": "",
+  "lanes": {
+    "a": {
+      "cgroup.events": "populated 0\nfrozen 0",
+      "cgroup.procs": "",
+      "memory.max": "8589934592",
+      "memory.high": "3221225472",
+      "memory.swap.max": "0",
+      "pids.max": "160"
+    },
+    "f": {
+      "cgroup.events": "populated 0\nfrozen 0",
+      "cgroup.procs": "",
+      "memory.max": "3221225472",
+      "memory.high": "3221225472",
+      "memory.swap.max": "0",
+      "pids.max": "160"
+    }
+  },
+  "dispatcher": "Id=vkf-s0-synchronized-contexts.service\nActiveState=inactive\n\nId=vkf-s0-synchronized-contexts.timer\nActiveState=inactive\n\nId=vkf-s0-worker-done.path\nActiveState=inactive\n",
+  "dispatcher_mask": "/dev/null",
+  "syntax_checks": [
+    {
+      "argv": [
+        "/usr/bin/bash",
+        "-n",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-exec-mapping-repair-18/system-setup/install-reviewed.sh"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/bash",
+        "-n",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-exec-mapping-repair-18/system-setup/rollback-reviewed.sh"
+      ],
+      "exit": 0,
+      "stderr": ""
+    }
+  ],
+  "HEAD": "edf9e9688e2605a57a3943655ac39b6438e5016b",
+  "test_parser_children_joined": 7,
+  "owned_output_bytes": 913521,
+  "all_output_ordinary_owned": true
+}

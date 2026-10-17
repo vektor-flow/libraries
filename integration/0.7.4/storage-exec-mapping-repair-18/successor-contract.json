@@ -1,0 +1,93 @@
+{
+  "old_private_workload": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/private_workload.py",
+    "sha256": "d9c460205d3512f0ec17c08c4150ed539648753a3c942306987c5cd00958ccc0"
+  },
+  "new_private_workload": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-exec-mapping-repair-18/proposed/private_workload.py",
+    "sha256": "0a9d6b0c79689c9fce488188b26392fc7cf07aae393848a9cd35c4315f252301"
+  },
+  "new_policy_source": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-exec-mapping-repair-18/system-setup/vkf-storage-private-v2",
+    "sha256": "8bd0a67dd92c2b7504d6c5c62ace5a450afc439f8ff3ae73f9c0bceb722b4029"
+  },
+  "new_policy_destination": "/etc/apparmor.d/vkf-storage-private-v2",
+  "new_binary_destination": "/usr/local/libexec/vkf-storage-private-v2/unshare",
+  "binary_source": {
+    "path": "/usr/bin/unshare",
+    "sha256": "41c65e55107cbbb1a1f6994784a938dd7dbbe255d1fea6b7a58ec96eabe382ef"
+  },
+  "old_policy": {
+    "path": "/etc/apparmor.d/vkf-storage-private-v1",
+    "sha256": "a6a82dd0c9f50c296e88933645e8a8487b947dd4de6ff6e66acee2541e1a17a4"
+  },
+  "minimum_changes": [
+    "BINARIES[0].path",
+    "UNSHARE",
+    "POLICY_INPUTS[0].path",
+    "POLICY_INPUTS[0].sha256",
+    "policy_gate pre exact label"
+  ],
+  "preserved_v7_bundle": {
+    "controller": {
+      "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/storage_controller.py",
+      "sha256": "520b46cae1e9def10320eed9d435df64299f8f5cca1188e02e3887ca698e699c"
+    },
+    "helpers": [
+      {
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/storage_admission.py",
+        "sha256": "3f81d95ab8efcaa469b7f5c7b7c9e401bebe1acabd2a1cf643ce9eb73394ed61"
+      },
+      {
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/storage_paths.py",
+        "sha256": "5d8e720b1c15ae97dc06e4bb05fe1da6287739f37d525f13d93d38e922760b7d"
+      },
+      {
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/terminal_recovery.py",
+        "sha256": "5d8bef94d375df2145d4345dcae271382e3cdb408a118f768ab3bb6a43dc489c"
+      },
+      {
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/private_workload.py",
+        "sha256": "d9c460205d3512f0ec17c08c4150ed539648753a3c942306987c5cd00958ccc0"
+      },
+      {
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/effective_storage.py",
+        "sha256": "fa1ed6580ba3a68334c20962e0c0e5bda6119008ba354a7cd7a401bb3f4952e0"
+      }
+    ],
+    "config": {
+      "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/runtime-config.json",
+      "sha256": "7faf96d5856e29124ce1cb116c9583013ba7d9829098c0f33ec868dd32dacb56"
+    }
+  },
+  "unchanged_helpers": [
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/storage_admission.py",
+      "sha256": "3f81d95ab8efcaa469b7f5c7b7c9e401bebe1acabd2a1cf643ce9eb73394ed61"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/storage_paths.py",
+      "sha256": "5d8e720b1c15ae97dc06e4bb05fe1da6287739f37d525f13d93d38e922760b7d"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/terminal_recovery.py",
+      "sha256": "5d8bef94d375df2145d4345dcae271382e3cdb408a118f768ab3bb6a43dc489c"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/effective_storage.py",
+      "sha256": "fa1ed6580ba3a68334c20962e0c0e5bda6119008ba354a7cd7a401bb3f4952e0"
+    }
+  ],
+  "unchanged_controller": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/storage_controller.py",
+    "sha256": "520b46cae1e9def10320eed9d435df64299f8f5cca1188e02e3887ca698e699c"
+  },
+  "unchanged_recovery": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/recover_live14.py",
+    "sha256": "d3448cb3a96c609ca7f900d7fbdd2a326baed5f805838ea2eab72ed89a282dd1"
+  },
+  "unchanged_authority": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v7/recovery-authority-live14.json",
+    "sha256": "838718dc30d4c4f749cd8dd189200b8d26e46662ae0e9f3a960bfdd3edb1c575"
+  }
+}

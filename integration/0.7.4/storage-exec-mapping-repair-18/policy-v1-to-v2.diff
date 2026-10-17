@@ -1,0 +1,33 @@
+--- installed-readonly/vkf-storage-private-v1
++++ proposed-only/vkf-storage-private-v2
+@@ -2,7 +2,7 @@
+ # No tunables/local include: no site rule can silently broaden this new profile.
+ abi <abi/5.0>,
+ 
+-profile vkf-storage-private-v1 /usr/local/libexec/vkf-storage-private-v1/unshare flags=(attach_disconnected,mediate_deleted) {
++profile vkf-storage-private-v2 /usr/local/libexec/vkf-storage-private-v2/unshare flags=(attach_disconnected,mediate_deleted) {
+   allow userns,
+   allow capability sys_admin,
+   # util-linux calls mount("none", "/", NULL, MS_REC|MS_PRIVATE, NULL).
+@@ -18,10 +18,11 @@
+   allow signal (receive) peer=unconfined,
+   allow ptrace (readby) peer=unconfined,
+   # No ix/ux/fallback; the only executable loses setup capability permission.
+-  /usr/bin/python3.14 Px -> vkf-storage-pre-v1,
++  /usr/bin/python3.14 m,
++  /usr/bin/python3.14 Px -> vkf-storage-pre-v2,
+ }
+ 
+-profile vkf-storage-pre-v1 flags=(attach_disconnected,mediate_deleted) {
++profile vkf-storage-pre-v2 flags=(attach_disconnected,mediate_deleted) {
+   audit deny capability,
+   audit deny userns,
+   audit deny mount,
+@@ -38,5 +39,7 @@
+   allow ptrace (readby) peer=unconfined,
+   # Replacement, not stacking: only at exec with NoNewPrivs still zero.
+   # bwrap then sets NNP itself, and its existing child stack denies capabilities.
++  /usr/bin/python3.14 m,
++  /usr/bin/bwrap m,
+   /usr/bin/bwrap Px -> bwrap,
+ }

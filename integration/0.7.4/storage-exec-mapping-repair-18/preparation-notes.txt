@@ -1,0 +1,7 @@
+Read-only/preparation corrections, no operational retries:
+1. Initial repository-local AGENTS.md lookup found none; parent instructions and handovers read. Shared HEAD moved from granted ec72b6b to coordinator edf9e96 recording live17; exact installed inputs remained unchanged.
+2. Initial system profile lookup used absent /etc/apparmor.d/bwrap; corrected to pinned bwrap-userns-restrict. No policy was changed.
+3. Upstream two HTTP429 results were recorded; alternate primary kernel.googlesource copies obtained. Exact Ubuntu source endpoint returned403; no exact Ubuntu implementation claim.
+4. Before script testing, raw-policy review corrected combined-vs-individual loaded hash assumptions. Current v1 raw streams differ by profile; existing bwrap shares combined stream.
+5. Final seal initially compared owners JSON to the enclosing live17 {pin,state} record; hash checks already passed. Corrected comparison to state AND exact pin. No owner drift or mutation occurred.
+All source/mock suites passed. Initial40 then expanded43 tests; a final43 rerun followed adding nonblocking existing capacity.lock scope to proposed scripts. All own test/parser children joined/absent.

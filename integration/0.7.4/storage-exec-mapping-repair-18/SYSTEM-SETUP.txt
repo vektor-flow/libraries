@@ -1,0 +1,54 @@
+CONCRETE INSTALL / ROLLBACK PROPOSALS — NEVER EXECUTED BY REPAIR18
+
+Review exact output-pins/source gates first. Keep all admissions and owner
+publication held for the operation. Scripts take the existing capacity.lock
+nonblocking, check unchanged live17 state/owners, empty A/F cgroups, no task with
+a v2 label, dispatcher runtime mask, input hashes, absent includes, restriction1
+and old five loaded enforce policy hashes. They invoke no service/workload.
+Root must separately hold other launchers; cgroup observations cannot prove a
+future launch race impossible by themselves. No global unmask or scheduler work.
+
+From the owned output directory, the future root operator may run:
+  sudo -n /usr/bin/bash system-setup/install-reviewed.sh
+or, for a fully installed, UNUSED v2 under the SAME live17 baseline:
+  sudo -n /usr/bin/bash system-setup/rollback-reviewed.sh
+These are proposals for root adoption; this task never ran either command.
+
+Tools actually present: /usr/bin/bash, /usr/bin/python3.14,
+/usr/sbin/apparmor_parser. Bootstrap checks Python/parser are executable before
+any script logic; helper verifies positive root-owned nonsymlink/no-filecap tool
+metadata and exact input hashes. There is no rg/grep/hash/cut/install/rm/chmod
+subprocess dependency. Python performs those operations. In particular, no
+missing search executable inside `if` can be misread as absence of a collision.
+Missing/unreadable loaded profiles, tools, source/parents/locks or mismatched
+hashes fail before the first write. Existing destination, broken symlink,
+profile/stack collision fail; --replace is never used.
+
+Install rechecks hashes, compiles with --stdout --skip-kernel-load --skip-cache,
+--config-file=/dev/null, one parser job, uncompressed output; compares exact
+reviewed compiled hash. It exclusively creates only the new v2 directory,
+binary(mode0600) and policy(mode0644), fsyncs, then --add loads only v2. Both raw
+loaded profile hashes/modes must match the exact reviewed compiled pieces before
+chmod0755 exposes the byte-identical unshare. No v1/v7/config/ledger/owner edit.
+Main parser calls timeout30s, kill/wait on timeout and fail; no retries/fallback.
+
+Rollback requires a complete exact install, empty dedicated directory except
+unshare, both exact loaded raw hashes and no active users. It makes unshare0600,
+then removes v2 policy via --remove --skip-cache, verifies both names absent,
+unlinks only new policy/binary and removes only the new dedicated directory.
+No v1 or old bundle deletion. A failed/partial load, changed state/owners, an
+already admitted v8 phase, or changed input pin requires new root review; these
+scripts deliberately refuse to guess partial cleanup or remove historical
+pinned dependencies. Once a v8 record exists, retain its policy/binary and
+immutable sources even if no task runs. Full rollback here is pre-use only.
+
+Parser source processing differs from raw kernel streams: current v1 profiles
+are individually exposed (9010/10191 bytes), while existing bwrap and unpriv_bwrap
+both expose their combined18188-byte stream. This was checked with fresh
+read-only raw kernel evidence. v2 expects its two individual pieces at the
+reviewed sizes/hashes. A different loader representation causes a safe stop
+before the executable is exposed; do not replace equality by a names-only check.
+
+Tests mock every install/remove parser and filesystem mutation. Only bash -n,
+AST checks, patch application to owned copies and no-load/no-cache compiles
+were real. Current five loaded policies were read via sudo -n, not reloaded.
