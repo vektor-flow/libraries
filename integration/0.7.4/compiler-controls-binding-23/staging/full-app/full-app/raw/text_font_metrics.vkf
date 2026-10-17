@@ -1,0 +1,306 @@
+# Typed font columns, decoded lazily within one layout request only.
+# Sequential state (ligature consumption and preceding glyph) remains scalar;
+# independent metric columns use indexed access and never require JSON in shaping.
+json:.resource_json
+math_glyphs:.math_glyphs
+tex_text:.tex_text
+font_catalog:.font_catalog
+text_chunks:.text_chunks
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+State:(slots:[int],keys:[str],raws:[str],names:[str],advances:[num],heights:[num],depths:[num],italics:[num],kern_starts:[int],kern_stops:[int],kern_codes:[str],kern_values:[num],kern_count:int,count:int,role_names:[str],role_ready:[int],role_sizes:[num],role_quads:[num],role_sources:[str],role_spaces:[num],role_stretches:[num],role_shrinks:[num],role_extras:[num],role_slants:[num],role_starts:[int],role_stops:[int],role_count:int,lig_first:[int],lig_second:[int],lig_result:[int],lig_count:int)
+nums(n:int)->[num]:[0.0:n]
+ints(n:int)->[int]:[0:n]
+empty()->State:
+    @:(slots:ints(64),keys:text_chunks.empty(32),raws:text_chunks.empty(32),names:text_chunks.empty(32),advances:nums(32),heights:nums(32),depths:nums(32),italics:nums(32),kern_starts:ints(32),kern_stops:ints(32),kern_codes:text_chunks.empty(32),kern_values:nums(32),kern_count:0,count:0,role_names:text_chunks.empty(32),role_ready:ints(32),role_sizes:nums(32),role_quads:nums(32),role_sources:text_chunks.empty(32),role_spaces:nums(32),role_stretches:nums(32),role_shrinks:nums(32),role_extras:nums(32),role_slants:nums(32),role_starts:ints(32),role_stops:ints(32),role_count:0,lig_first:ints(32),lig_second:ints(32),lig_result:ints(32),lig_count:0)
+kern(state:State,index:int,code:int)->num:
+    index<0? @:0
+    key:tex_text.integer(code)
+    at:state.kern_starts.(index)
+    stop:state.kern_stops.(index)
+    at<stop?>
+        state.kern_codes.(at)=key? @:state.kern_values.(at)
+        .at:at+1
+    @:0
+lookup(state:State,fonts:Catalog,key:str):
+    position:font_catalog.hash(key)%state.slots.length()
+    state.slots.(position)>0?>
+        index:state.slots.(position)-1
+        state.keys.(index)=key? @:(state:state,index:index,found:true)
+        .position:(position+1)%state.slots.length()
+    source:font_catalog.raw(fonts,key)
+    source=""? @:(state:state,index: -1,found:false)
+    tape:json.parse(source)
+    (tape.valid)?! "Invalid text font glyph"
+    keys:state.keys
+    raws:state.raws
+    names:state.names
+    advances:state.advances
+    heights:state.heights
+    depths:state.depths
+    italics:state.italics
+    kern_starts:state.kern_starts
+    kern_stops:state.kern_stops
+    kern_codes:state.kern_codes
+    kern_values:state.kern_values
+    state.count>=keys.length()?
+        .keys:keys&text_chunks.empty(keys.length())
+        .raws:raws&text_chunks.empty(raws.length())
+        .names:names&text_chunks.empty(names.length())
+        .advances:advances&nums(advances.length())
+        .heights:heights&nums(heights.length())
+        .depths:depths&nums(depths.length())
+        .italics:italics&nums(italics.length())
+        .kern_starts:kern_starts&ints(kern_starts.length())
+        .kern_stops:kern_stops&ints(kern_stops.length())
+    kern_count:state.kern_count
+    kern_starts.(state.count):kern_count
+    kerns:json.member(tape,0,"kerns")
+    kerns>=0?
+        node:kerns+1
+        node<tape.ends.(kerns)?>
+            kern_count>=kern_codes.length()?
+                .kern_codes:kern_codes&text_chunks.empty(kern_codes.length())
+                .kern_values:kern_values&nums(kern_values.length())
+            kern_codes.(kern_count):json.string(tape,node)
+            kern_values.(kern_count):math_glyphs.numeric(tape,kerns,kern_codes.(kern_count))
+            .kern_count:kern_count+1
+            .node:tape.ends.(node+1)
+    kern_stops.(state.count):kern_count
+    keys.(state.count):key
+    raws.(state.count):source
+    names.(state.count):math_glyphs.string(tape,"key")
+    width:math_glyphs.numeric(tape,0,"width")
+    advances.(state.count):math_glyphs.numeric(tape,0,"advance",width)
+    heights.(state.count):math_glyphs.numeric(tape,0,"height")
+    depths.(state.count):math_glyphs.numeric(tape,0,"depth")
+    italics.(state.count):math_glyphs.numeric(tape,0,"italic")
+    slots:state.slots
+    2*(state.count+1)>=slots.length()?
+        .slots:ints(2*slots.length())
+        id:0
+        id<=state.count?>
+            bucket:font_catalog.hash(keys.(id))%slots.length()
+            slots.(bucket)>0?>
+                .bucket:(bucket+1)%slots.length()
+            slots.(bucket):id+1
+            .id:id+1
+    2*(state.count+1)<state.slots.length()? slots.(position):state.count+1
+    updated:(slots:slots,keys:keys,raws:raws,names:names,advances:advances,heights:heights,depths:depths,italics:italics,kern_starts:kern_starts,kern_stops:kern_stops,kern_codes:kern_codes,kern_values:kern_values,kern_count:kern_count,count:state.count+1,role_names:state.role_names,role_ready:state.role_ready,role_sizes:state.role_sizes,role_quads:state.role_quads,role_sources:state.role_sources,role_spaces:state.role_spaces,role_stretches:state.role_stretches,role_shrinks:state.role_shrinks,role_extras:state.role_extras,role_slants:state.role_slants,role_starts:state.role_starts,role_stops:state.role_stops,role_count:state.role_count,lig_first:state.lig_first,lig_second:state.lig_second,lig_result:state.lig_result,lig_count:state.lig_count)
+    @:(state:updated,index:state.count,found:true)
+role(state:State,name:str,source:str):
+    at:0
+    at<state.role_count?>
+        state.role_names.(at)=name? @:(state:state,index:at)
+        .at:at+1
+    tape:json.parse(source)
+    (tape.valid)?! "Invalid text font ligatures"
+    role_names:state.role_names
+    role_ready:state.role_ready
+    role_sizes:state.role_sizes
+    role_quads:state.role_quads
+    role_sources:state.role_sources
+    role_spaces:state.role_spaces
+    role_stretches:state.role_stretches
+    role_shrinks:state.role_shrinks
+    role_extras:state.role_extras
+    role_slants:state.role_slants
+    role_starts:state.role_starts
+    role_stops:state.role_stops
+    lig_first:state.lig_first
+    lig_second:state.lig_second
+    lig_result:state.lig_result
+    state.role_count>=role_names.length()?
+        .role_names:role_names&text_chunks.empty(role_names.length())
+        .role_ready:role_ready&ints(role_ready.length())
+        .role_sizes:role_sizes&nums(role_sizes.length())
+        .role_quads:role_quads&nums(role_quads.length())
+        .role_sources:role_sources&text_chunks.empty(role_sources.length())
+        .role_spaces:role_spaces&nums(role_spaces.length())
+        .role_stretches:role_stretches&nums(role_stretches.length())
+        .role_shrinks:role_shrinks&nums(role_shrinks.length())
+        .role_extras:role_extras&nums(role_extras.length())
+        .role_slants:role_slants&nums(role_slants.length())
+        .role_starts:role_starts&ints(role_starts.length())
+        .role_stops:role_stops&ints(role_stops.length())
+    lig_count:state.lig_count
+    role_names.(state.role_count):name
+    role_sources.(state.role_count):source
+    role_starts.(state.role_count):lig_count
+    row:1
+    row<tape.ends.(0)?>
+        code:int(vkf_decimal_parse(json.string(tape,row)))
+        object:row+1
+        pair:object+1
+        pair<tape.ends.(object)?>
+            entry:pair+1
+            operator:json.element(tape,entry,0)
+            operator>=0 /\ json.string(tape,operator)="LIG"?
+                lig_count>=lig_first.length()?
+                    .lig_first:lig_first&ints(lig_first.length())
+                    .lig_second:lig_second&ints(lig_second.length())
+                    .lig_result:lig_result&ints(lig_result.length())
+                lig_first.(lig_count):code
+                lig_second.(lig_count):int(vkf_decimal_parse(json.string(tape,pair)))
+                lig_result.(lig_count):int(json.number(tape,json.element(tape,entry,1)))
+                .lig_count:lig_count+1
+            .pair:tape.ends.(entry)
+        .row:tape.ends.(object)
+    role_stops.(state.role_count):lig_count
+    updated:(slots:state.slots,keys:state.keys,raws:state.raws,names:state.names,advances:state.advances,heights:state.heights,depths:state.depths,italics:state.italics,kern_starts:state.kern_starts,kern_stops:state.kern_stops,kern_codes:state.kern_codes,kern_values:state.kern_values,kern_count:state.kern_count,count:state.count,role_names:role_names,role_ready:role_ready,role_sizes:role_sizes,role_quads:role_quads,role_sources:role_sources,role_spaces:role_spaces,role_stretches:role_stretches,role_shrinks:role_shrinks,role_extras:role_extras,role_slants:role_slants,role_starts:role_starts,role_stops:role_stops,role_count:state.role_count+1,lig_first:lig_first,lig_second:lig_second,lig_result:lig_result,lig_count:lig_count)
+    @:(state:updated,index:state.role_count)
+ligature(state:State,role:int,first:int,second:int)->int:
+    at:state.role_starts.(role)
+    stop:state.role_stops.(role)
+    at<stop?>
+        state.lig_first.(at)=first /\ state.lig_second.(at)=second? @:state.lig_result.(at)
+        .at:at+1
+    @: -1
+
+# Resolve a role once for the current request, then read typed spacing columns.
+context(state:State,fonts:Catalog,requested:str):
+    index:0
+    index<state.role_count?>
+        state.role_ready.(index)=1 /\ state.role_names.(index)=requested? @:context_at(state,index)
+        .index:index+1
+    chosen:requested
+    source:font_catalog.raw(fonts,"font/"&chosen)
+    source=""?
+        .chosen:"roman"
+        .source:font_catalog.raw(fonts,"font/roman")
+        .index:0
+        index<state.role_count?>
+            state.role_ready.(index)=1 /\ state.role_names.(index)=chosen? @:context_at(state,index)
+            .index:index+1
+    record:json.parse(source)
+    (record.valid)?! "Missing or invalid text font role"
+    spaces:json.member(record,0,"spaces")
+    ligatures:"{}"
+    node:json.member(record,0,"ligatures")
+    node>=0? .ligatures:tex_text.span(record.source,record.starts.(node),record.stops.(node))
+    decoded:role(state,chosen,ligatures)
+    updated:decoded.state
+    role_ready:updated.role_ready
+    role_sizes:updated.role_sizes
+    role_quads:updated.role_quads
+    role_spaces:updated.role_spaces
+    role_stretches:updated.role_stretches
+    role_shrinks:updated.role_shrinks
+    role_extras:updated.role_extras
+    role_slants:updated.role_slants
+    role_ready.(decoded.index):1
+    role_sizes.(decoded.index):math_glyphs.numeric(record,0,"size")
+    role_quads.(decoded.index):math_glyphs.numeric(record,spaces,"quad")
+    role_spaces.(decoded.index):math_glyphs.numeric(record,spaces,"space")
+    role_stretches.(decoded.index):math_glyphs.numeric(record,spaces,"stretch")
+    role_shrinks.(decoded.index):math_glyphs.numeric(record,spaces,"shrink")
+    role_extras.(decoded.index):math_glyphs.numeric(record,spaces,"extraspace")
+    role_slants.(decoded.index):math_glyphs.numeric(record,spaces,"slant")
+    completed:(slots:updated.slots,keys:updated.keys,raws:updated.raws,names:updated.names,advances:updated.advances,heights:updated.heights,depths:updated.depths,italics:updated.italics,kern_starts:updated.kern_starts,kern_stops:updated.kern_stops,kern_codes:updated.kern_codes,kern_values:updated.kern_values,kern_count:updated.kern_count,count:updated.count,role_names:updated.role_names,role_ready:role_ready,role_sizes:role_sizes,role_quads:role_quads,role_sources:updated.role_sources,role_spaces:role_spaces,role_stretches:role_stretches,role_shrinks:role_shrinks,role_extras:role_extras,role_slants:role_slants,role_starts:updated.role_starts,role_stops:updated.role_stops,role_count:updated.role_count,lig_first:updated.lig_first,lig_second:updated.lig_second,lig_result:updated.lig_result,lig_count:updated.lig_count)
+    @:context_at(completed,decoded.index)
+context_at(state:State,index:int):
+    @:(state:state,context:(role:state.role_names.(index),space:state.role_spaces.(index),ligatures:state.role_sources.(index)),stretch:state.role_stretches.(index),shrink:state.role_shrinks.(index),extra:state.role_extras.(index),slant:state.role_slants.(index),size:state.role_sizes.(index),quad:state.role_quads.(index))
+
+# Scalar lookup leaves all typed columns borrowed by the caller.
+find(state:State,key:str)->int:
+    position:font_catalog.hash(key)%state.slots.length()
+    state.slots.(position)>0?>
+        index:state.slots.(position)-1
+        state.keys.(index)=key? @:index
+        .position:(position+1)%state.slots.length()
+    @: -1
+role_index(state:State,role:str)->int:
+    at:0
+    at<state.role_count?>
+        state.role_names.(at)=role? @:at
+        .at:at+1
+    @: -1
+context_index(state:State,role:str)->int:
+    index:role_index(state,role)
+    index<0? @: -1
+    state.role_ready.(index)=0? @: -1
+    @:index
+context_value(state:State,index:int)->(role:str,space:num,ligatures:str):
+    (index>=0 /\ index<state.role_count)?! "Missing decoded text role"
+    @:(role:state.role_names.(index),space:state.role_spaces.(index),ligatures:state.role_sources.(index))
+
+# Decode selected role tables once into columns. Preparation owns the resulting
+# state; frozen shaping below only borrows it. Asset JSON stays at this boundary.
+prepare_selected(fonts:Catalog,requested:[str])->State:
+    state:empty()
+    r:0
+    r<requested.length()?>
+        context_index(state,requested.(r))<0?
+            resolved:context(state,fonts,requested.(r))
+            .state:resolved.state
+        .r:r+1
+    keys:state.keys
+    raws:state.raws
+    names:state.names
+    advances:state.advances
+    heights:state.heights
+    depths:state.depths
+    italics:state.italics
+    kern_starts:state.kern_starts
+    kern_stops:state.kern_stops
+    kern_codes:state.kern_codes
+    kern_values:state.kern_values
+    count:0
+    kern_count:0
+    directory:0
+    directory<fonts.capacity?>
+        entry:font_catalog.slot(fonts,directory)
+        .directory:directory+1
+        ~entry.found? @>
+        key_size:font_catalog.fixed(fonts.source,font_catalog.header_size()+(directory-1)*font_catalog.slot_size()+12)
+        key:tex_text.span(fonts.source,entry.start,entry.start+key_size)
+        selected:tex_text.matches(key,0,"math/text/@text:")
+        role:0
+        role<state.role_count?>
+            tex_text.matches(key,0,"text/"&state.role_names.(role)&"/")? .selected:true
+            .role:role+1
+        ~selected? @>
+        source:tex_text.span(fonts.source,entry.start+key_size,entry.stop)
+        tape:json.parse(source)
+        (tape.valid)?! "Invalid text font glyph"
+        count>=keys.length()?
+            .keys:keys&text_chunks.empty(keys.length())
+            .raws:raws&text_chunks.empty(raws.length())
+            .names:names&text_chunks.empty(names.length())
+            .advances:advances&nums(advances.length())
+            .heights:heights&nums(heights.length())
+            .depths:depths&nums(depths.length())
+            .italics:italics&nums(italics.length())
+            .kern_starts:kern_starts&ints(kern_starts.length())
+            .kern_stops:kern_stops&ints(kern_stops.length())
+        kern_starts.(count):kern_count
+        kerns:json.member(tape,0,"kerns")
+        kerns>=0?
+            node:kerns+1
+            node<tape.ends.(kerns)?>
+                kern_count>=kern_codes.length()?
+                    .kern_codes:kern_codes&text_chunks.empty(kern_codes.length())
+                    .kern_values:kern_values&nums(kern_values.length())
+                kern_codes.(kern_count):json.string(tape,node)
+                kern_values.(kern_count):math_glyphs.numeric(tape,kerns,kern_codes.(kern_count))
+                .kern_count:kern_count+1
+                .node:tape.ends.(node+1)
+        kern_stops.(count):kern_count
+        keys.(count):key
+        raws.(count):source
+        names.(count):math_glyphs.string(tape,"key")
+        width:math_glyphs.numeric(tape,0,"width")
+        advances.(count):math_glyphs.numeric(tape,0,"advance",width)
+        heights.(count):math_glyphs.numeric(tape,0,"height")
+        depths.(count):math_glyphs.numeric(tape,0,"depth")
+        italics.(count):math_glyphs.numeric(tape,0,"italic")
+        .count:count+1
+    slots:ints(2*count+64)
+    id:0
+    id<count?>
+        bucket:font_catalog.hash(keys.(id))%slots.length()
+        slots.(bucket)>0?>
+            .bucket:(bucket+1)%slots.length()
+        slots.(bucket):id+1
+        .id:id+1
+    @:(slots:slots,keys:keys,raws:raws,names:names,advances:advances,heights:heights,depths:depths,italics:italics,kern_starts:kern_starts,kern_stops:kern_stops,kern_codes:kern_codes,kern_values:kern_values,kern_count:kern_count,count:count,role_names:state.role_names,role_ready:state.role_ready,role_sizes:state.role_sizes,role_quads:state.role_quads,role_sources:state.role_sources,role_spaces:state.role_spaces,role_stretches:state.role_stretches,role_shrinks:state.role_shrinks,role_extras:state.role_extras,role_slants:state.role_slants,role_starts:state.role_starts,role_stops:state.role_stops,role_count:state.role_count,lig_first:state.lig_first,lig_second:state.lig_second,lig_result:state.lig_result,lig_count:state.lig_count)

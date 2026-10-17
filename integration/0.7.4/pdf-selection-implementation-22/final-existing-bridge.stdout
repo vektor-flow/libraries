@@ -1,0 +1,112 @@
+TAP version 13
+# Subtest: direct authored source uses real owner/routes/binder and exact PDF argument order
+ok 1 - direct authored source uses real owner/routes/binder and exact PDF argument order
+  ---
+  duration_ms: 9.507258
+  type: 'test'
+  ...
+# Subtest: nonzero source base uses byte offsets without newline or Unicode normalization
+ok 2 - nonzero source base uses byte offsets without newline or Unicode normalization
+  ---
+  duration_ms: 0.802691
+  type: 'test'
+  ...
+# Subtest: explicit macro origins preserve separate authored files and repeated origins
+ok 3 - explicit macro origins preserve separate authored files and repeated origins
+  ---
+  duration_ms: 1.914468
+  type: 'test'
+  ...
+# Subtest: body, outer, label and synthetic note routes occupy their real independent namespaces
+ok 4 - body, outer, label and synthetic note routes occupy their real independent namespaces
+  ---
+  duration_ms: 1.758046
+  type: 'test'
+  ...
+# Subtest: owner version, text, source set, scope and scalar errors fail before transport
+ok 5 - owner version, text, source set, scope and scalar errors fail before transport
+  ---
+  duration_ms: 7.610681
+  type: 'test'
+  ...
+# Subtest: synthetic text never acquires authored ownership without explicit valid origins
+ok 6 - synthetic text never acquires authored ownership without explicit valid origins
+  ---
+  duration_ms: 1.478211
+  type: 'test'
+  ...
+# Subtest: duplicate, conflicting, aliased, missing and unknown routes fail
+ok 7 - duplicate, conflicting, aliased, missing and unknown routes fail
+  ---
+  duration_ms: 3.113945
+  type: 'test'
+  ...
+# Subtest: explicit file bindings reject omitted, conflicting and unknown sources
+ok 8 - explicit file bindings reject omitted, conflicting and unknown sources
+  ---
+  duration_ms: 1.854207
+  type: 'test'
+  ...
+# Subtest: caller mappings and source arrays are detached; exotic/accessor inputs fail without invocation
+ok 9 - caller mappings and source arrays are detached; exotic/accessor inputs fail without invocation
+  ---
+  duration_ms: 1.695485
+  type: 'test'
+  ...
+# Subtest: preparations and snapshot tokens cannot cross sessions or be cloned/reconstructed
+ok 10 - preparations and snapshot tokens cannot cross sessions or be cloned/reconstructed
+  ---
+  duration_ms: 1.101806
+  type: 'test'
+  ...
+# Subtest: binding unknown/generated output, wrong parser spans, missing and duplicate emissions fails
+ok 11 - binding unknown/generated output, wrong parser spans, missing and duplicate emissions fails
+  ---
+  duration_ms: 4.386773
+  type: 'test'
+  ...
+# Subtest: actual native signatures and render return shape delimit the preparation interface
+ok 12 - actual native signatures and render return shape delimit the preparation interface
+  ---
+  duration_ms: 0.904043
+  type: 'test'
+  ...
+# Subtest: apply composes real revision staging with explicit mappings and existing document binder
+ok 13 - apply composes real revision staging with explicit mappings and existing document binder
+  ---
+  duration_ms: 1.593373
+  type: 'test'
+  ...
+# Subtest: subsequent commits retain binder document/version/dependency checks
+ok 14 - subsequent commits retain binder document/version/dependency checks
+  ---
+  duration_ms: 2.7597
+  type: 'test'
+  ...
+# Subtest: async competing edits reject stale results before binding and retain the winner
+ok 15 - async competing edits reject stale results before binding and retain the winner
+  ---
+  duration_ms: 1.32281
+  type: 'test'
+  ...
+# Subtest: no-op hashes stay equal but snapshot identity and preparation generation still advance
+ok 16 - no-op hashes stay equal but snapshot identity and preparation generation still advance
+  ---
+  duration_ms: 1.758076
+  type: 'test'
+  ...
+# Subtest: failed or incomplete preparation never commits and does not revoke a pending valid result
+ok 17 - failed or incomplete preparation never commits and does not revoke a pending valid result
+  ---
+  duration_ms: 3.083565
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 64.097261

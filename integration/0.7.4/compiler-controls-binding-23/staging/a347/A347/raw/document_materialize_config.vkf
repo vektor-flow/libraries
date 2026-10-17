@@ -1,0 +1,290 @@
+# Source class and package configuration for document assembly.
+document_class:.document_class
+document_module_data:.document_module_data
+document_materialize_modules:.document_materialize_modules
+document_pages:.document_pages
+math_packages:.math_packages
+font_catalog:.font_catalog
+resource_json:.resource_json
+resource_numbers:.resource_numbers
+binary_decimal:.binary_decimal
+json_numbers:.json_numbers
+tex_text:.tex_text
+tex_numeric:.tex_numeric
+text_chunks:.text_chunks
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+PageConfig:(values:[num],flags:[bit],penalties:[int])
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Result:(config:str,pages:PageConfig,packages:[str],math:MathContext,overrides:[str],class_name:str,optical:bit,hyperref:bit,diagnostics:str)
+raw(tape:Tape,node:int)->str:
+    @:tex_text.span(tape.source,tape.starts.(node),tape.stops.(node))
+number(tape:Tape,node:int,key:str,fallback:num=0)->num:
+    (~tape.valid \/ node<0 \/ node>=tape.count)? @:fallback
+    at:resource_json.member(tape,node,key)
+    at<0? @:fallback
+    @:resource_json.number(tape,at)
+string(tape:Tape,node:int,key:str)->str:
+    (~tape.valid \/ node<0 \/ node>=tape.count)? @:""
+    at:resource_json.member(tape,node,key)
+    at<0? @:""
+    @:resource_json.string(tape,at)
+raw_member(tape:Tape,node:int,key:str,fallback:str="null")->str:
+    at:resource_json.member(tape,node,key)
+    at<0? @:fallback
+    @:raw(tape,at)
+strings(source:str)->[str]:
+    values:text_chunks.empty(tex_text.byte_length(source)+1)
+    count:0
+    start:0
+    at:0
+    depth:0
+    size:tex_text.byte_length(source)
+    at<=size?>
+        separator:at=size
+        at<size?
+            c:tex_text.at(source,at)
+            c="{"? .depth:depth+1
+            c="}"? .depth:depth-1
+            c=","? .separator:true
+        separator?
+            value:tex_text.trim(tex_text.span(source,start,at))
+            value~=""?
+                values.(count):value
+                .count:count+1
+            .start:at+1
+        .at:at+1
+    out:text_chunks.empty(count)
+    .at:0
+    at<count?>
+        out.(at):values.(at)
+        .at:at+1
+    @:out
+has(values:[str],wanted:str)->bit:
+    at:0
+    at<values.length()?>
+        values.(at)=wanted? @:true
+        .at:at+1
+    @:false
+merge(current:str,extra:str)->str:
+    extra=""? @:current
+    tape:resource_json.parse("["&extra&"]")
+    ends:tape.ends
+    out:current
+    at:1
+    at<tape.count?>
+        value:raw(tape,at)
+        tex_text.find(","&out&",",","&value&",")<0?
+            out~=""? .out:out&","
+            .out:out&value
+        .at:ends.(at)
+    @:out
+replace(config:str,key:str,value:num)->str:
+    @:replace_raw(config,key,json_numbers.roundtrip(value))
+replace_raw(config:str,key:str,value:str)->str:
+    tape:resource_json.parse(config)
+    ends:tape.ends
+    parts:text_chunks.empty(tape.count+1)
+    count:0
+    at:1
+    found:false
+    at<tape.count?>
+        prefix:""
+        count>0? .prefix:","
+        name:resource_json.string(tape,at)
+        value_text:raw(tape,at+1)
+        name=key?
+            .found:true
+            .value_text:value
+        parts.(count):prefix&raw(tape,at)&":"&value_text
+        .count:count+1
+        .at:ends.(at+1)
+    ~found?
+        prefix:""
+        count>0? .prefix:","
+        parts.(count):prefix&resource_json.quote(key)&":"&value
+        .count:count+1
+    @:"{"&text_chunks.join(parts,0,count)&"}"
+decimal(source:str):
+    size:tex_text.byte_length(source)
+    at:0
+    (tex_text.at(source,0)="+" \/ tex_text.at(source,0)="-")? .at:1
+    digits:0
+    point:false
+    at<size?>
+        c:tex_text.at(source,at)
+        c="."?
+            point? @:(value:0.0,valid:false)
+            .point:true
+        c~="."?
+            (c<"0" \/ c>"9")? @:(value:0.0,valid:false)
+            .digits:digits+1
+        .at:at+1
+    digits=0? @:(value:0.0,valid:false)
+    begin:0
+    tex_text.at(source,0)="+"? .begin:1
+    @:binary_decimal.decode(source,begin,size)
+
+length(source:str,config:str,fallback:num)->num:
+    value:tex_text.trim(source)
+    value=""? @:fallback
+    tape:resource_json.parse(config)
+    relative:["\\textwidth","\\linewidth","\\textheight"]
+    i:0
+    i<relative.length()?>
+        target:relative.(i)
+        found:tex_text.find(value,target)
+        found>=0 /\ found+tex_text.byte_length(target)=tex_text.byte_length(value)?
+            prefix:tex_text.trim(tex_text.span(value,0,found))
+            factor:1.0
+            prefix~=""?
+                parsed:decimal(prefix)
+                ~parsed.valid? @:fallback
+                .factor:parsed.value
+            dimension:"textWidth"
+            i=2? .dimension:"textHeight"
+            @:factor*number(tape,0,dimension)
+        .i:i+1
+    stop:0
+    size:tex_text.byte_length(value)
+    (tex_text.at(value,0)="+" \/ tex_text.at(value,0)="-")? .stop:1
+    stop<size?>
+        c:tex_text.at(value,stop)
+        ~((c>="0" /\ c<="9") \/ c=".")? @|
+        .stop:stop+1
+    prefix:tex_text.span(value,0,stop)
+    parsed:decimal(prefix)
+    ~parsed.valid? @:fallback
+    unit:tex_text.trim(tex_text.span(value,stop,size))
+    factor:0.0
+    unit="pt"? .factor:tex_numeric.pt()
+    unit="bp"? .factor:1
+    unit="cm"? .factor:72/2.54
+    unit="mm"? .factor:72/25.4
+    unit="in"? .factor:72
+    unit="em"? .factor:number(tape,0,"fontSize")
+    unit="ex"? .factor:0.43*number(tape,0,"fontSize")
+    factor=0? @:fallback
+    @:parsed.value*factor
+
+geometry(config:str,options:str)->str:
+    out:config
+    values:strings(options)
+    i:0
+    i<values.length()?>
+        option:values.(i)
+        equals:tex_text.find(option,"=")
+        key:option
+        value:""
+        equals>=0?
+            .key:tex_text.span(option,0,equals)
+            .value:tex_text.span(option,equals+1,tex_text.byte_length(option))
+        key="a4paper"?
+            .out:replace(out,"paperWidth",210*72/25.4)
+            .out:replace(out,"paperHeight",297*72/25.4)
+        key="letterpaper"?
+            .out:replace(out,"paperWidth",612)
+            .out:replace(out,"paperHeight",792)
+        key="margin"?
+            margin:length(value,out,72)
+            .out:replace(out,"left",margin)
+            .out:replace(out,"top",margin)
+            current:resource_json.parse(out)
+            .out:replace(out,"textWidth",number(current,0,"paperWidth")-2*margin)
+            .out:replace(out,"textHeight",number(current,0,"paperHeight")-2*margin)
+        key="textwidth" \/ key="textheight"?
+            field:"textWidth"
+            key="textheight"? .field:"textHeight"
+            current:resource_json.parse(out)
+            .out:replace(out,field,length(value,out,number(current,0,field)))
+        key="left" \/ key="right" \/ key="top" \/ key="bottom"? .out:replace(out,key,length(value,out,72))
+        .i:i+1
+    @:out
+
+registry(class_name:str,imports:str):
+    imports_tape:resource_json.parse(imports)
+    imports_tape.valid?! "Invalid source package declarations"
+    loaded:document_materialize_modules.empty()
+    definitions:resource_json.parse(document_module_data.source())
+    ends:imports_tape.ends
+    class_dependencies:resource_json.parse(document_module_data.classes())
+    dependency_array:resource_json.member(class_dependencies,0,class_name)
+    dependency_array>=0?
+        dependency_ends:class_dependencies.ends
+        dependency:dependency_array+1
+        dependency<dependency_ends.(dependency_array)?>
+            .loaded:document_materialize_modules.load(loaded,definitions,resource_json.string(class_dependencies,dependency),text_chunks.empty(0))
+            .dependency:dependency_ends.(dependency)
+    at:1
+    at<imports_tape.count?>
+        names:strings(string(imports_tape,at,"names"))
+        options:strings(string(imports_tape,at,"options"))
+        i:0
+        i<names.length()?>
+            .loaded:document_materialize_modules.load(loaded,definitions,names.(i),options)
+            .i:i+1
+        .at:ends.(at)
+    @:loaded
+
+requested_options(class_name:str,imports:str,wanted:str)->[str]:
+    loaded:registry(class_name,imports)
+    names:loaded.names
+    options:loaded.options
+    at:0
+    at<loaded.count?>
+        names.(at)=wanted? @:strings(options.(at))
+        .at:at+1
+    @:text_chunks.empty(0)
+
+configure(class_name:str,class_options:str,imports:str,fonts:Catalog)->Result:
+    class:document_class.configure(class_name,strings(class_options))
+    config:class.config
+    diagnostics:class.diagnostics
+    loaded:registry(class_name,imports)
+    .diagnostics:merge(diagnostics,loaded.diagnostics)
+    packages:text_chunks.empty(loaded.count)
+    package_names:loaded.names
+    package_options:loaded.options
+    at:0
+    at<loaded.count?>
+        packages.(at):package_names.(at)
+        .at:at+1
+    base:resource_json.parse(config)
+    has(packages,"geometry") \/ has(packages,"graphicx")?
+        .config:replace(config,"paperWidth",number(base,0,"logicalPaperWidth"))
+        .config:replace(config,"paperHeight",number(base,0,"logicalPaperHeight"))
+    has(packages,"biblatex")? .config:replace(config,"bibLabelSep",10*tex_numeric.pt())
+    .at:0
+    at<loaded.count?>
+        package_names.(at)="geometry"? .config:geometry(config,package_options.(at))
+        .at:at+1
+    normalized:resource_json.parse(config)
+    resource_json.member(normalized,0,"right")>=0? .config:replace(config,"textWidth",number(normalized,0,"paperWidth")-number(normalized,0,"left")-number(normalized,0,"right"))
+    resource_json.member(normalized,0,"bottom")>=0? .config:replace(config,"textHeight",number(normalized,0,"paperHeight")-number(normalized,0,"top")-number(normalized,0,"bottom"))
+    settings:resource_json.parse(config)
+    pages:document_pages.settings(number(settings,0,"paperWidth"),number(settings,0,"paperHeight"),number(settings,0,"left"),number(settings,0,"top"),number(settings,0,"textWidth"),number(settings,0,"textHeight"),number(settings,0,"lineHeight"),number(settings,0,"fontSize"),class_name="amsart")
+    keys:["maxDepth","lineSkipLimit","displaySkip","shortDisplaySkip","footnoteSkip","footnoteLeading"]
+    targets:["max_depth","line_skip_limit","display_skip","short_display_skip","footnote_skip","footnote_leading"]
+    .at:0
+    at<keys.length()?>
+        resource_json.member(settings,0,keys.(at))>=0? .pages:document_pages.with_number(pages,targets.(at),number(settings,0,keys.(at)))
+        .at:at+1
+    penalties:resource_json.member(settings,0,"penalties")
+    penalties>=0?
+        penalty_keys:["interline","club","widow","broken"]
+        i:0
+        i<penalty_keys.length()?>
+            key:penalty_keys.(i)
+            resource_json.member(settings,penalties,key)>=0? .pages:document_pages.with_penalty(pages,key,int(number(settings,penalties,key)))
+            .i:i+1
+    footnote:font_catalog.raw(fonts,"font/footnote")
+    footnote~=""?
+        font:resource_json.parse(footnote)
+        resource_json.member(font,0,"nativeFootnoteSep")>=0? .pages:document_pages.with_number(pages,"footnote_native_sep",number(font,0,"nativeFootnoteSep"))
+    profile:string(settings,0,"fontProfile")
+    metrics:resource_json.parse(font_catalog.raw(fonts,"metrics"))
+    prepared:string(metrics,0,"fontProfile")
+    profile~="" /\ profile~=prepared? .diagnostics:merge(diagnostics,resource_json.quote("Missing native font profile: "&profile))
+    text_metrics:font_catalog.style(fonts,"text")
+    |number(settings,0,"fontSize")-number(text_metrics,0,"em")|>0.01? .diagnostics:merge(diagnostics,resource_json.quote("Requested point size currently scales another optical font profile"))
+    @:(config:config,pages:pages,packages:packages,math:math_packages.from_names(packages,class_name),overrides:class.overrides,class_name:class_name,optical:prepared~="",hyperref:has(packages,"hyperref"),diagnostics:diagnostics)

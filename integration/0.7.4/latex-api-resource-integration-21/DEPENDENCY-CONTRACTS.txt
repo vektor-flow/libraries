@@ -1,0 +1,107 @@
+latex-api-resource-integration-21 — boundary proposal, 2026-10-17
+Base 4302f7a03a5d812bf1eaf35848557d157d2e5aae. Not implemented API acceptance.
+
+SELECTION22 BOUNDARY (no conflict with Root's current message)
+Peer-owned proposed signature, NOT an existing callable:
+ document_pdf_bulk.encode_selected(doc:PageDocument, fonts:Catalog,
+   operators:str, plan:SelectionPlan, default_color:[num:4])->str
+Legacy encode/encode_detail remain byte-identical. Selection22 owns this hook,
+SelectionPlan record/schema, its validator, and selection host adapter. This packet
+will neither define an incompatible plan record nor import a placeholder encoder.
+Root must pin the final SelectionPlan schema and peer implementation together.
+The flags are policy, not plan evidence: effective_selectable = selectable OR
+editable; false/false uses legacy encode, true requires a validated real plan.
+Editable additionally needs exact source/map embedding and revision transactions;
+a selectable encoder by itself does not justify accepting editable=true.
+
+Same-layout contract for composition:
+  layout_result = document_materialize.layout(exact prepared inputs)
+  pdf = encode_selected(layout_result.document, same fonts/operators,
+                        validated plan for THIS layout_result, default_color)
+  internal result = (pdf:pdf, layout:layout_result)
+There is exactly one layout invocation and no independently rerendered document.
+The proposed legacy internal route has this same return shape but calls existing
+encode. Its type is TypedRenderResult:(pdf:str,layout:Result), with Result's exact
+current seven fields, including document:PageDocument. No source strings or
+revision echoes inserted into this value count as authentication.
+Do not use a complete-shaped render-only object or reconstruct the typed document
+from layout_json. a260_texts are exact parser invocation inputs, NOT per-glyph
+ActualText. They cannot establish authored source or expanded macro ownership.
+
+Required SelectionPlan producer evidence (fields belong to Selection22):
+- exact source snapshot revision + source files (IDs, versions, CRLF/Unicode bytes);
+- authenticated expansion/include origins and actual prepared parser inputs;
+- real six-column leaf provenance from this typed document; explicit unknown
+  generated/decorative emission policy that preserves existing bridge rejection;
+- authored-order clusters/copy spans, glyph parts, scalar-safe offsets, ligature
+  and repeated macro deduplication, and partitioned ownership across page splits;
+- immutable real font/operator/role/language identities used by this invocation;
+- immutable binding to this document and plan schema version, not matching counts.
+The existing createSourceBindingBridge.prepare capability/current snapshot and
+bindDocument(preparation, typed_result.layout) checks remain mandatory. They
+validate supplied mappings; neither they nor these proposals implement the real
+expansion-origin producer. Do not weaken their unbound/generated rejection.
+
+TRUSTED HOST/NATIVE TRANSPORT (missing implementation, precise wire contract)
+Trusted adapter entry to implement:
+ renderPrepared(preparationCapability, resourceBundleHandle, mode) -> completion
+ mode = {selectable:boolean, editable:boolean}; NO destination argument.
+The adapter owns and validates these opaque handles, marshals exact prepared
+source/files/job/entry/eight route columns and accepted resource bytes, invokes the
+selected internal route ONCE, and copies its complete typed value and PDF bytes.
+The bytes must be the native string byte buffer/length, not Latin1/UTF8 guessing.
+Retain vkf.latex.render-completion/1:
+ {schema, requestId, sourceRevision, resourceRevision,
+  sourceBuildSha256, rendererSha256, runtimeClosureSha256,
+  preparationSha256, typedResultSha256, pdfSha256, pdfByteLength,
+  selectionPlanSchemaSha256, selectionPlanSha256, mode, result}
+ result = {layout:<exact Result>, pdfBytes:<transported byte buffer>}
+selectionPlan* are null only for false/false. Hash byte buffers as exact bytes.
+For preparation/typed data use exact retained UTF-8 JSON transport bytes per
+TRANSPORT-CONTRACT.json; hash those bytes, never a parse/reserialization. Reject
+duplicate keys, nonfinite numbers, nonplain data, accessors, cycles and sparse arrays.
+This is integrity metadata, NOT a self-authenticating public receipt. A trusted
+adapter's private request/completion registry must bind the exact preparation
+object, native invocation evidence and same returned buffers. Caller JSON and
+caller-supplied hashes cannot enter that registry. Before and after native work,
+and before binding, verify the issued preparation is still current. Before
+publication, verify snapshot identity AND revision (no-op races included).
+No callable adapter is invented in this patch. Fixture/model hashes are not
+native provenance. A future root-authenticated receipt must bind build/runtime,
+input/preparation/resource pins, actual output hashes, exit/completeness and join.
+
+PUBLICATION OWNER BOUNDARY (proposal only; no io.rename/fsync added)
+ publishPreparedPdf(destination:str, preparedCompletion:OpaqueCompletion,
+   expectedSnapshot:OpaqueSnapshot, expectedRevision:str) -> CommitReceipt
+Only the trusted adapter can issue OpaqueCompletion, after source/map/PDF are
+coherent. The PDF itself must carry the reviewed source/map/revision attachment
+when selected/editable, so the standalone dest has one atomic publication unit.
+CommitReceipt = {committed:boolean, sourceRevision:str, pdfSha256:str,
+                 pdfByteLength:integer, durability:'confirmed'|'unconfirmed',
+                 warnings:[string]}. Return committed=true after rename even if
+later directory fsync/cleanup fails. Before rename errors preserve old bytes.
+Atomic commit must compare current snapshot identity/revision under the same
+serialization guard as replacement. Concurrent/no-op stale completion must fail.
+No destination: return bytes only, no filesystem side effect. Never publish in
+a precommit render callback. Existing host JSON-bundle publication is a separate
+format and cannot stand in for standalone dest. Implementation is OUTSIDE scope.
+
+RESOURCE FAILURE / PORTABILITY
+Current environment binding uses D301's already accepted content-addressed files;
+no new installer, environment lookup, implicit CWD search, download or test font.
+Native load uses existing io.read_text, font_catalog.load, hyphenation.load and
+text_parser_kernel.roles. Missing/unreadable/corrupt assets fail the call; no
+fallback to empty/test resources or partial quartet. Current loaders validate
+format; Root's authenticated admission must verify every content hash before and
+after execution. A path's embedded hash alone is not a runtime integrity check.
+The resource descriptor pins exact 24-role JSON order as well as three assets.
+Build/package owner must relocate the generated installation module and descriptor
+together, preserving bytes/hashes and requalifying actual native access. Absolute
+D301 paths are deliberately installation-specific, not a portable distribution.
+Original40 source/includes are separate per-document inputs, NEVER defaults.
+
+STATUS
+Public overload proposal explicitly rejects dest and effective selection while
+these dependencies are absent. Default selectable=true therefore fails explicitly.
+False/false without dest is a source-only legacy rendering candidate, not yet
+native-qualified. No public default/selection/edit/save success claim is permitted.

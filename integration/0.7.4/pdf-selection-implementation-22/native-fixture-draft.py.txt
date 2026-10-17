@@ -1,0 +1,134 @@
+from pathlib import Path
+h=Path(__file__).resolve().parent;d=h/'candidate/examples/gpu-math/native-vkf'
+(d/'pdf_selection_encoder_tests.vkf').write_text(r'''# Future ACTUAL native fixtures. Source-only delivery: none executed here.
+# fixture() creates explicit owned leaves; it does not prove parser provenance.
+# Root must additionally run the real producer -> layout -> selected encoder.
+bulk:.document_pdf_bulk
+plan_check:.pdf_selection_plan
+selected:.pdf_selection
+scene:.document_scene
+fonts_fixture:.document_pdf_tests
+text:.tex_text
+chunks:.text_chunks
+
+fixture_leaf(index:int):
+    leaf:scene.leaf("glyph/a",10+12*index,30)
+    leaf.a260_scope:"parse"
+    leaf.a260_text:"😀fiéxx"
+    [int] operations:[0,3,6,6,9,12]
+    [int] starts:[0,4,6,6,9,10]
+    [int] stops:[4,6,9,9,10,11]
+    [int] parts:[0,0,0,7,0,0]
+    leaf.a260_operation:operations.(index)
+    leaf.a260_start:starts.(index)
+    leaf.a260_stop:stops.(index)
+    leaf.a260_part:parts.(index)
+    @:leaf
+fixture():
+    [int] ids:[0,1,2,3,4,5]
+    leaves:ids >> fixture_leaf($)
+    arena:scene.from_leaves(leaves,6)
+    [num] widths:[100.0,100]
+    [num] heights:[100.0,100]
+    [int] firsts:[0,4]
+    [int] counts:[4,2]
+    [str] names:[]
+    [int] pages:[]
+    [num] coordinates:[]
+    @:(widths:widths,heights:heights,firsts:firsts,counts:counts,arena:arena,destination_names:names,destination_pages:pages,destination_xs:coordinates,destination_ys:coordinates,page_count:2,destination_count:0)
+fixture_plan():
+    [str] source_ids:["main"]
+    [int] source_versions:[0]
+    [str] source_texts:["😀fiéxx"]
+    [str] scope_ids:["parse"]
+    [int] scope_sources:[0]
+    [int] scope_bases:[0]
+    [str] scope_texts:["😀fiéxx"]
+    [str] group_ids:["g"]
+    [int] group_sources:[0]
+    [int] group_starts:[0]
+    [int] group_stops:[11]
+    [int] cluster_groups:[0,0,0,0,0]
+    [int] cluster_scopes:[0,0,0,0,0]
+    [int] cluster_operations:[0,3,6,9,12]
+    [int] cluster_starts:[0,4,6,9,10]
+    [int] cluster_stops:[4,6,9,10,11]
+    [int] cluster_firsts:[0,1,2,4,5]
+    [int] cluster_counts:[1,1,2,1,1]
+    [str] leaf_ids:["leaf-0","leaf-1","leaf-2","leaf-3","leaf-4","leaf-5"]
+    [int] leaf_parts:[0,0,0,7,0,0]
+    @:(schema:1,document_id:"native-fixture",revision:0,source_revision:"FIXTURE-not-an-authenticated-revision",source_ids:source_ids,source_versions:source_versions,source_texts:source_texts,scope_ids:scope_ids,scope_sources:scope_sources,scope_bases:scope_bases,scope_texts:scope_texts,group_ids:group_ids,group_sources:group_sources,group_starts:group_starts,group_stops:group_stops,cluster_groups:cluster_groups,cluster_scopes:cluster_scopes,cluster_operations:cluster_operations,cluster_starts:cluster_starts,cluster_stops:cluster_stops,cluster_firsts:cluster_firsts,cluster_counts:cluster_counts,leaf_ids:leaf_ids,leaf_parts:leaf_parts)
+occurrences(value:str,needle:str)->int:
+    count:0
+    cursor:0
+    true?>
+        found:text.find(value,needle,cursor)
+        found<0? @:count
+        .count:count+1
+        .cursor:found+text.byte_length(needle)
+    @:count
+
+renderer_tests()->bit:
+    doc:fixture()
+    p:fixture_plan()
+    logical:plan_check.validate(doc,p)
+    (logical.length()=5 /\ logical.(0)="😀" /\ logical.(1)="fi" /\ logical.(2)="é" /\ logical.(3)="x" /\ logical.(4)="x")?! "Authored cluster text once; repeated glyphs retained"
+    fonts:fonts_fixture.fixture_fonts()
+    legacy:bulk.encode(doc,fonts.fonts,fonts.operators)
+    pdf:bulk.encode_selected(doc,fonts.fonts,fonts.operators,p)
+    (occurrences(legacy,"/ActualText")=0)?! "Legacy route stays unselectable"
+    (occurrences(pdf,"/ActualText")=5 /\ occurrences(pdf," >> BDC\n")=5 /\ occurrences(pdf,"\nEMC\n")=5)?! "Balanced complete cluster wrappers"
+    (occurrences(pdf,"/ActualText <FEFFD83DDE00>")=1)?! "Supplementary Unicode BOM UTF16BE"
+    (occurrences(pdf,"/ActualText <FEFF00660069>")=1)?! "Ligature uses authored fi"
+    (occurrences(pdf,"/ActualText <FEFF00650301>")=1)?! "Combining cluster two leaves emits once"
+    (occurrences(pdf,"/ActualText <FEFF0078>")=2)?! "Repeated glyphs from distinct origins remain distinct"
+    (occurrences(pdf,"/Type /Page ")=2)?! "Logical group spans two pages"
+    (bulk.encode(doc,fonts.fonts,fonts.operators)=legacy)?! "Selected encode does not mutate document or legacy state"
+    @:true
+
+# Each negative entry needs a SEPARATE native process; require nonzero plus exact
+# assertion text in stderr, never accept an arbitrary compile error as refusal.
+reject_missing():
+    doc:fixture()
+    p:fixture_plan()
+    [str] missing:[]
+    p.leaf_ids:missing
+    plan_check.validate(doc,p)
+reject_mismatch():
+    doc:fixture()
+    a:doc.arena
+    a.a260_texts.(0):"wrong"
+    doc.arena:a
+    plan_check.validate(doc,fixture_plan())
+reject_duplicate():
+    p:fixture_plan()
+    p.leaf_ids.(1):p.leaf_ids.(0)
+    plan_check.validate(fixture(),p)
+reject_duplicate_part():
+    doc:fixture()
+    a:doc.arena
+    a.a260_parts.(3):0
+    doc.arena:a
+    p:fixture_plan()
+    p.leaf_parts.(3):0
+    plan_check.validate(doc,p)
+reject_cross_page_cluster():
+    doc:fixture()
+    doc.firsts.(1):3
+    doc.counts.(0):3
+    doc.counts.(1):3
+    plan_check.validate(doc,fixture_plan())
+reject_scalar_split():
+    p:fixture_plan()
+    p.cluster_starts.(0):1
+    plan_check.validate(fixture(),p)
+reject_overlap():
+    p:fixture_plan()
+    p.cluster_starts.(4):9
+    plan_check.validate(fixture(),p)
+reject_source_mismatch():
+    p:fixture_plan()
+    p.source_texts.(0):"😀fiéxy"
+    plan_check.validate(fixture(),p)
+renderer_tests()
+''')

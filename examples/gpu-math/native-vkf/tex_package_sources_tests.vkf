@@ -1,0 +1,20 @@
+p:.tex_package_sources
+
+sources():
+    @:(schema:1,revision:"sha256:fixture",ids:["main","defs"],versions:[1,2],texts:["α😀\r\n\\foo","\\newcommand{\\foo}{x}"],hashes:["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"])
+
+renderer_tests()->bit:
+    table:sources()
+    p.validate(table)?! "aligned source table"
+    (p.read(table,(source:0,start:2,stop:6))="😀")?! "original UTF-8 scalar"
+    (p.read(table,(source:0,start:6,stop:8))="\r\n")?! "CRLF unchanged"
+    (p.read(table,(source:0,start:8,stop:12))="\\foo")?! "invocation source retained"
+    (p.read(table,(source:1,start:0,stop:11))="\\newcommand")?! "definition source separate"
+    (~p.boundary("α😀",3))?! "split scalar rejected"
+    (~p.boundary("α😀",7))?! "past EOF rejected"
+    @:true
+
+reject_split()->str:p.read(sources(),(source:0,start:2,stop:3))
+reject_index()->str:p.read(sources(),(source:2,start:0,stop:1))
+reject_interpret()->str:p.interpret(sources())
+renderer_tests()

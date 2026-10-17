@@ -1,0 +1,75 @@
+# Late source references use runtime source counters, never prepared page text.
+document_present_maps:.document_present_maps
+document_uri:.document_uri
+document_citations:.document_citations
+tex_groups:.tex_groups
+tex_text:.tex_text
+text_chunks:.text_chunks
+resource_json:.resource_json
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Map:(keys:Pool,values:[str])
+Result:(source:str,diagnostics:str,pending_pages:bit)
+resolve(source:str,values:Map,page_values:Map,citation_labels_json:str="{}",citation_separator:str=",~",biblatex:bit=false,links:bit=false,legacy:bit=false,literal:bit=false)->Result:
+    literal? @:(source:source,diagnostics:"",pending_pages:false)
+    citations:document_citations.resolve(source,citation_labels_json,citation_separator,biblatex,links,legacy)
+    resolved:references(citations.source,values,page_values,links,legacy)
+    diagnostics:citations.diagnostics
+    resolved.diagnostics~=""?
+        diagnostics~=""? .diagnostics:diagnostics&","
+        .diagnostics:diagnostics&resolved.diagnostics
+    @:(source:resolved.source,diagnostics:diagnostics,pending_pages:resolved.pending_pages)
+references(source:str,values:Map,page_values:Map,links:bit=false,legacy:bit=false)->Result:
+    parts:text_chunks.empty(tex_text.byte_length(source)+1)
+    count:0
+    at:0
+    diagnostics:""
+    pending_pages:false
+    ~vkf_string_eof(source,at)?>
+        c:tex_text.at(source,at)
+        c~="\\"?
+            parts.(count):c
+            .count:count+1
+            .at:tex_text.next(source,at)
+            @>
+        command:tex_groups.control(source,at)
+        name:command.name
+        stop:command.stop
+        # Literal verb payloads are opaque to the document reference pass.
+        name="verb"?
+            tex_text.at(source,stop)="*"? .stop:stop+1
+            delimiter:tex_text.at(source,stop)
+            close:tex_text.find(source,delimiter,tex_text.next(source,stop))
+            close>=0?
+                .stop:tex_text.next(source,close)
+                parts.(count):tex_text.span(source,at,stop)
+                .count:count+1
+                .at:stop
+                @>
+        name="ref" \/ name="eqref" \/ name="pageref"?
+            star:tex_text.at(source,stop)="*"
+            star? .stop:stop+1
+            argument:tex_groups.read(source,stop)
+            argument.present /\ argument.closed?
+                found:document_present_maps.get(values,argument.value)
+                name="pageref"?
+                    .found:document_present_maps.get(page_values,argument.value)
+                    ~found.found? .pending_pages:true
+                label:found.value
+                ~found.found?
+                    .label:"??"
+                    name~="pageref"?
+                        diagnostics~=""? .diagnostics:diagnostics&","
+                        .diagnostics:diagnostics&resource_json.quote("Undefined reference: "&argument.value)
+                ~star /\ (links \/ legacy)?
+                    target:document_uri.encode_destination("label:"&argument.value)
+                    legacy? .label:"\\documentlink{ref}{"&label&"}{"&target&"}"
+                    ~legacy? .label:"\\documentlinkspan{ref}{"&target&"}{"&label&"}"
+                name="eqref"? .label:"("&label&")"
+                parts.(count):label
+                .count:count+1
+                .at:argument.stop
+                @>
+        parts.(count):tex_text.span(source,at,command.stop)
+        .count:count+1
+        .at:command.stop
+    @:(source:text_chunks.join(parts,0,count),diagnostics:diagnostics,pending_pages:pending_pages)

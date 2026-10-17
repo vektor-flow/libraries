@@ -1,0 +1,69 @@
+{
+  "status": "UNEXECUTED",
+  "fixture_module": "candidate/examples/gpu-math/native-vkf/pdf_selection_encoder_tests.vkf",
+  "harnesses": [
+    {
+      "path": "future-native/renderer_tests.vkf",
+      "entry": "renderer_tests",
+      "expected_runtime_exit": "zero",
+      "required_assertion": null
+    },
+    {
+      "path": "future-native/reject_missing.vkf",
+      "entry": "reject_missing",
+      "expected_runtime_exit": "nonzero",
+      "required_assertion": "Missing selection ownership columns"
+    },
+    {
+      "path": "future-native/reject_mismatch.vkf",
+      "entry": "reject_mismatch",
+      "expected_runtime_exit": "nonzero",
+      "required_assertion": "Typed document/selection ownership mismatch"
+    },
+    {
+      "path": "future-native/reject_duplicate.vkf",
+      "entry": "reject_duplicate",
+      "expected_runtime_exit": "nonzero",
+      "required_assertion": "Duplicate selection ownership"
+    },
+    {
+      "path": "future-native/reject_duplicate_part.vkf",
+      "entry": "reject_duplicate_part",
+      "expected_runtime_exit": "nonzero",
+      "required_assertion": "Duplicate cluster emission part"
+    },
+    {
+      "path": "future-native/reject_cross_page_cluster.vkf",
+      "entry": "reject_cross_page_cluster",
+      "expected_runtime_exit": "nonzero",
+      "required_assertion": "Cross-page cluster needs producer split map"
+    },
+    {
+      "path": "future-native/reject_scalar_split.vkf",
+      "entry": "reject_scalar_split",
+      "expected_runtime_exit": "nonzero",
+      "required_assertion": "Invalid cluster scalar bounds"
+    },
+    {
+      "path": "future-native/reject_overlap.vkf",
+      "entry": "reject_overlap",
+      "expected_runtime_exit": "nonzero",
+      "required_assertion": "Overlapping/missing authored cluster text"
+    },
+    {
+      "path": "future-native/reject_source_mismatch.vkf",
+      "entry": "reject_source_mismatch",
+      "expected_runtime_exit": "nonzero",
+      "required_assertion": "Expanded selection needs authenticated logical producer"
+    }
+  ],
+  "required_checks": [
+    "actual native fixture compile succeeds first; compiler failure is not runtime refusal",
+    "separate joined process per negative; exact assertion match",
+    "real producer -> typed layout -> validated plan -> same document encode beyond hand-authored fixture",
+    "legacy original40 exact byte hash from renderer19",
+    "selected geometry/raster equality with legacy fixture",
+    "reader extraction/interaction checks with native-produced PDF; never host synthetic PDF substituted"
+  ],
+  "reader_qualification": "PENDING"
+}

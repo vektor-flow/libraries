@@ -1,0 +1,12 @@
+io:.io
+Demand:(sources:[str],count:int)
+change(d:Demand)->[str]:
+    values:d.sources
+    values.(0):"new"
+    @:values
+run()->bit:
+    s:io.read_line()
+    d:(sources:[s,s],count:2)
+    result:change(d)
+    @:result.(0)="new" /\ result.(1)="0" /\ d.sources.(0)="0" /\ s="0"
+::run()

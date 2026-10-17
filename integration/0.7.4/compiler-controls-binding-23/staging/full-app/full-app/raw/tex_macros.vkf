@@ -1,0 +1,273 @@
+text:.tex_text
+groups:.tex_groups
+source:.tex_source
+defs:.tex_definitions
+names:.tex_names
+chunks:.text_chunks
+Expanded:(source:str,expansions:int,definition_count:int)
+
+macro_name(raw:str)->str:
+    value:text.trim(raw)
+    command:groups.control(value,0)
+    (command.stop=text.byte_length(value) /\ command.name~="")?! "Invalid macro name"
+    @:command.name
+
+parameter_count(raw:str)->int:
+    index:0
+    count:0
+    size:text.byte_length(raw)
+    index<size?>
+        found:text.find(raw,"#",index)
+        found<0? @:count
+        .index:found+1
+        index<size?
+            digit:text.at(raw,index)
+            digit>="1" /\ digit<="9"?
+                number:int(vkf_decimal_parse(digit))
+                number>count? .count:number
+        .index:index+1
+    @:count
+
+scalar_code(value:str)->int:
+    result:0
+    value >>
+        .result:int($)
+        $
+    @:result
+
+conditional(source:str,begin:int,keep:bit):
+    position:begin
+    split: -1
+    depth:1
+    size:text.byte_length(source)
+    position<size?>
+        found:text.find(source,"\\",position)
+        found<0? @|
+        command:groups.control(source,found)
+        name:command.name
+        .position:command.stop
+        text.byte_length(name)>=2?
+            text.span(name,0,2)="if"? .depth:depth+1
+        name="fi"? .depth:depth-1
+        name="else" /\ depth=1? .split:found
+        depth=0?
+            keep?
+                stop:found
+                split>=0? .stop:split
+                @:(selected:text.span(source,begin,stop),stop:position)
+            split<0? @:(selected:"",stop:position)
+            @:(selected:text.span(source,split+5,found),stop:position)
+    false?! "Unfinished TeX conditional"
+    @:(selected:"",stop:size)
+
+zeros(capacity:int)->[int]:[0:capacity]
+
+complete_tail(name:str)->bit:
+    @:name="newcommand" \/ name="renewcommand" \/ name="providecommand" \/ name="DeclareRobustCommand" \/ name="DeclareMathOperator" \/ name="let" \/ name="def" \/ name="gdef" \/ name="xdef" \/ name="chardef" \/ name="iftrue" \/ name="iffalse" \/ name="ifx" \/ name="url" \/ name="nolinkurl" \/ name="href" \/ name="verb" \/ name="begin"
+
+arguments_available(work:str,begin:int,count:int,optional:bit)->bit:
+    position:groups.skip_space(work,begin)
+    index:0
+    optional?
+        vkf_string_eof(work,position)? @:false
+        supplied:groups.read(work,position,"[","]")
+        supplied.present /\ ~supplied.closed? @:false
+        supplied.present? .position:supplied.stop
+        .index:1
+    index<count?>
+        argument:groups.argument(work,position)
+        (~argument.present \/ ~argument.closed)? @:false
+        .position:argument.stop
+        .index:index+1
+    @:true
+
+following(frames:[str],resumes:[int],depth:int,position:int)->str:
+    frame:depth
+    at:position
+    frame>=0?>
+        ~vkf_string_eof(frames.(frame),at)? @:text.at(frames.(frame),at)
+        .frame:frame-1
+        frame>=0? .at:resumes.(frame)
+    @:""
+
+pending_bytes(frames:[str],resumes:[int],depth:int,position:int)->int:
+    amount:text.byte_length(frames.(depth))-position
+    index:0
+    index<depth?>
+        .amount:amount+text.byte_length(frames.(index))-resumes.(index)
+        .index:index+1
+    @:amount
+
+expand(input:str)->Expanded:
+    (text.byte_length(input)<=1000000)?! "Document limit: 1000000 UTF-8 bytes"
+    capacity:32
+    [str] frames:chunks.empty(capacity)
+    [int] resumes:[0:capacity]
+    frames.(0):source.strip_comments(input)
+    depth:0
+    table:defs.create()
+    position:0
+    output_capacity:128
+    [str] output_chunks:chunks.empty(output_capacity)
+    output_count:0
+    output_bytes:0
+    expansions:0
+    true?>
+        size:text.byte_length(frames.(depth))
+        position>=size?
+            depth=0? @:(source:chunks.join(output_chunks,0,output_count),expansions:expansions,definition_count:table.count)
+            .depth:depth-1
+            .position:resumes.(depth)
+            @>
+        depth+1>=capacity?
+            .frames:frames&chunks.empty(capacity)
+            .resumes:resumes&zeros(capacity)
+            .capacity:capacity*2
+        output_count>=output_capacity?
+            .output_chunks:output_chunks&chunks.empty(output_capacity)
+            .output_capacity:output_capacity*2
+        (output_bytes<=1000000)?! "Expanded document limit"
+        text.at(frames.(depth),position)~="\\"?
+            found:text.find(frames.(depth),"\\",position)
+            found<0? .found:size
+            part:text.span(frames.(depth),position,found)
+            output_chunks.(output_count):part
+            .output_count:output_count+1
+            .output_bytes:output_bytes+text.byte_length(part)
+            .position:found
+            @>
+        command:groups.control(frames.(depth),position)
+        begin:position
+        .position:command.stop
+        name:command.name
+        identifier:names.get(table.names,name)
+        coalesce:depth>0 /\ complete_tail(name)
+        depth>0 /\ identifier>=0?
+            ~arguments_available(frames.(depth),position,table.counts.(identifier),table.optional.(identifier)>0)? .coalesce:true
+        coalesce?
+            frames.(depth-1):frames.(depth)&text.span(frames.(depth-1),resumes.(depth-1),text.byte_length(frames.(depth-1)))
+            .depth:depth-1
+            .position:begin
+            @>
+        literal:source.literal_stop(frames.(depth),command.name,position)
+        literal>position?
+            part:text.span(frames.(depth),begin,literal)
+            output_chunks.(output_count):part
+            .output_count:output_count+1
+            .output_bytes:output_bytes+text.byte_length(part)
+            .position:literal
+            @>
+        (name="newcommand" \/ name="renewcommand" \/ name="providecommand" \/ name="DeclareRobustCommand")?
+            position<size /\ text.at(frames.(depth),position)="*"? .position:position+1
+            target:groups.argument(frames.(depth),position)
+            .position:target.stop
+            count_group:groups.read(frames.(depth),position,"[","]")
+            count:0
+            count_group.present?
+                count_group.closed?! "Unfinished macro argument count"
+                .count:int(vkf_decimal_parse(count_group.value))
+                .position:count_group.stop
+            default:groups.read(frames.(depth),position,"[","]")
+            default.present?
+                default.closed?! "Unfinished macro optional default"
+                .position:default.stop
+            body:groups.read(frames.(depth),position)
+            (target.present /\ body.present /\ body.closed)?! "Unfinished macro definition"
+            .table:defs.define(table,macro_name(target.value),count,body.value,default.present,default.value,name="providecommand")
+            .position:body.stop
+            @>
+        name="DeclareMathOperator"?
+            star:""
+            position<size /\ text.at(frames.(depth),position)="*"?
+                .star:"*"
+                .position:position+1
+            target:groups.argument(frames.(depth),position)
+            body:groups.read(frames.(depth),target.stop)
+            (target.present /\ body.present /\ body.closed)?! "Unfinished operator definition"
+            .table:defs.define(table,macro_name(target.value),0,"\\operatorname"&star&"{"&body.value&"}")
+            .position:body.stop
+            @>
+        name="let"?
+            target:groups.argument(frames.(depth),position)
+            .position:groups.skip_space(frames.(depth),target.stop)
+            position<size /\ text.at(frames.(depth),position)="="? .position:position+1
+            alias_value:groups.argument(frames.(depth),position)
+            (target.present /\ alias_value.present)?! "Unfinished macro alias"
+            .table:defs.define(table,macro_name(target.value),0,alias_value.value)
+            .position:alias_value.stop
+            @>
+        name="def" \/ name="gdef" \/ name="xdef"?
+            target:groups.argument(frames.(depth),position)
+            start:text.find(frames.(depth),"{",target.stop)
+            (target.present /\ start>=0)?! "Unfinished def macro"
+            parameters:text.span(frames.(depth),target.stop,start)
+            body:groups.read(frames.(depth),start)
+            (body.present /\ body.closed)?! "Unfinished def macro body"
+            .table:defs.define(table,macro_name(target.value),parameter_count(parameters),body.value)
+            .position:body.stop
+            @>
+        name="chardef"?
+            target:groups.argument(frames.(depth),position)
+            .position:groups.skip_space(frames.(depth),target.stop)
+            position<size /\ text.at(frames.(depth),position)="="? .position:position+1
+            .position:groups.skip_space(frames.(depth),position)
+            (position<size /\ text.at(frames.(depth),position)="`")?! "Unsupported chardef value"
+            .position:position+1
+            position<size /\ text.at(frames.(depth),position)="\\"? .position:position+1
+            (position<size)?! "Missing chardef character"
+            character:text.at(frames.(depth),position)
+            .table:defs.define(table,macro_name(target.value),0,"\\char"&text.integer(scalar_code(character))&" ")
+            .position:text.next(frames.(depth),position)
+            @>
+        name="iffalse" \/ name="iftrue" \/ name="ifx"?
+            keep:name="iftrue"
+            name="ifx"?
+                left:groups.argument(frames.(depth),position)
+                right:groups.argument(frames.(depth),left.stop)
+                .position:right.stop
+                .keep:left.value=right.value
+            branch:conditional(frames.(depth),position,keep)
+            resumes.(depth):branch.stop
+            .depth:depth+1
+            frames.(depth):branch.selected
+            .position:0
+            @>
+        identifier>=0?
+            .position:groups.skip_space(frames.(depth),position)
+            .expansions:expansions+1
+            (expansions<=50000)?! "Macro expansion count limit"
+            [int] starts:[0:10]
+            [int] stops:[0:10]
+            arguments:""
+            argument:0
+            table.optional.(identifier)>0?
+                provided:groups.read(frames.(depth),position,"[","]")
+                argument_value:defs.default(table,identifier)
+                provided.present?
+                    provided.closed?! "Unfinished optional macro argument"
+                    .position:provided.stop
+                    .argument_value:provided.value
+                starts.(0):0
+                .arguments:arguments&argument_value
+                stops.(0):text.byte_length(arguments)
+                .argument:1
+            argument<table.counts.(identifier)?>
+                provided_arg:groups.argument(frames.(depth),position)
+                (provided_arg.present /\ provided_arg.closed)?! "Missing macro argument"
+                .position:provided_arg.stop
+                starts.(argument):text.byte_length(arguments)
+                .arguments:arguments&provided_arg.value
+                stops.(argument):text.byte_length(arguments)
+                .argument:argument+1
+            expanded_body:defs.substitute(defs.body(table,identifier),arguments,starts,stops)
+            defs.ends_control_word(expanded_body) /\ text.letter(following(frames,resumes,depth,position))? .expanded_body:expanded_body&" "
+            resumes.(depth):position
+            .depth:depth+1
+            frames.(depth):expanded_body
+            (output_bytes+pending_bytes(frames,resumes,depth,0)<=1000000)?! "Expanded document limit"
+            .position:0
+            @>
+        output_chunks.(output_count):command.spelling
+        .output_count:output_count+1
+        .output_bytes:output_bytes+text.byte_length(command.spelling)
+    @:(source:chunks.join(output_chunks,0,output_count),expansions:expansions,definition_count:table.count)

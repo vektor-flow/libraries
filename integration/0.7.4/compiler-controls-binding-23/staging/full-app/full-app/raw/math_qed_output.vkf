@@ -1,0 +1,20 @@
+# Independent reference adapter; production consumes retained QED commands.
+q:.math_qed
+c:.math_commands
+p:.math_command_pages
+n:.json_numbers
+chunks:.text_chunks
+
+box_json(quad:num)->str:
+    box:q.box(c.empty(1),0,quad)
+    buffer:box.buffer
+    pool:buffer.pool
+    values:pool.values
+    items:chunks.empty(4)
+    i:0
+    i<4?>
+        prefix:""
+        i>0? .prefix:","
+        items.(i):prefix&"{"&values.(p.integer(buffer.payload_ids,i))&",\"x\":"&n.roundtrip(p.number(buffer.xs,i))&",\"y\":"&n.roundtrip(p.number(buffer.ys,i))&"}"
+        .i:i+1
+    @:"{\"width\":"&n.roundtrip(box.width)&",\"height\":"&n.roundtrip(box.height)&",\"depth\":0,\"class\":\"ord\",\"italic\":0,\"items\":["&chunks.join(items,0,4)&"]}"

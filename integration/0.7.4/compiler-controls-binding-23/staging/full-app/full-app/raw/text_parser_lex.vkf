@@ -1,0 +1,178 @@
+# Cursor contracts for the exact document-text/literals inline grammar.
+text:.tex_text
+j:.resource_json
+spaces:.paragraph_nodes
+Span:(start:int,stop:int,end:int,found:bit,closed:bit)
+Command:(name:str,end:int,found:bit)
+
+letter(c:str)->bit:(c>="a" /\ c<="z") \/ (c>="A" /\ c<="Z")
+word(c:str)->bit:letter(c) \/ (c>="0" /\ c<="9") \/ c="_"
+space(c:str)->bit:spaces.whitespace(c)
+next(source:str,at:int)->int:
+    vkf_string_eof(source,at)? @:at+1
+    @:text.next(source,at)
+skip_space(source:str,at:int)->int:
+    cursor:at
+    ~vkf_string_eof(source,cursor)?>
+        ~space(text.at(source,cursor))? @|
+        .cursor:text.next(source,cursor)
+    @:cursor
+command(source:str,at:int)->Command:
+    vkf_string_eof(source,at)? @:(name:"",end:at,found:false)
+    text.at(source,at)~="\\"? @:(name:"",end:at,found:false)
+    begin:at+1
+    vkf_string_eof(source,begin)? @:(name:"",end:begin,found:false)
+    c:text.at(source,begin)
+    c="\n" \/ c="\r" \/ c=" " \/ c=" "? @:(name:"",end:begin,found:false)
+    end:text.next(source,begin)
+    letter(c)?
+        ~vkf_string_eof(source,end)?>
+            ~letter(text.at(source,end))? @|
+            .end:text.next(source,end)
+    @:(name:text.span(source,begin,end),end:end,found:true)
+group(source:str,at:int)->Span:
+    cursor:skip_space(source,at)
+    vkf_string_eof(source,cursor)? @:(start:cursor,stop:cursor,end:cursor,found:false,closed:false)
+    text.at(source,cursor)~="{"? @:(start:cursor,stop:cursor,end:cursor,found:false,closed:false)
+    begin:cursor+1
+    .cursor:begin
+    depth:1
+    ~vkf_string_eof(source,cursor)?>
+        c:text.at(source,cursor)
+        c="\\"?
+            .cursor:next(source,next(source,cursor))
+            @>
+        .cursor:text.next(source,cursor)
+        c="{"? .depth:depth+1
+        c="}"? .depth:depth-1
+        depth=0? @:(start:begin,stop:cursor-1,end:cursor,found:true,closed:true)
+    size:text.byte_length(source)
+    @:(start:begin,stop:size,end:cursor,found:true,closed:false)
+
+# readHrefTarget accepts escaped braces; readUrl counts every brace literally.
+target(source:str,at:int,href:bit)->Span:
+    opening:"\\url"
+    href? .opening:"\\href"
+    ~href /\ text.matches(source,at,"\\nolinkurl")? .opening:"\\nolinkurl"
+    ~text.matches(source,at,opening)? @:(start:at,stop:at,end:at,found:false,closed:false)
+    after:at+text.byte_length(opening)
+    ~href /\ ~vkf_string_eof(source,after)?
+        word(text.at(source,after))? @:(start:at,stop:at,end:at,found:false,closed:false)
+    cursor:skip_space(source,after)
+    vkf_string_eof(source,cursor)?
+        href? @:(start:cursor,stop:cursor,end:cursor,found:false,closed:false)
+        @:(start:cursor,stop:cursor,end:cursor,found:true,closed:false)
+    open:text.at(source,cursor)
+    href /\ open~="{"? @:(start:at,stop:at,end:at,found:false,closed:false)
+    begin:text.next(source,cursor)
+    .cursor:begin
+    depth:1
+    ~vkf_string_eof(source,cursor)?>
+        c:text.at(source,cursor)
+        href /\ c="\\"?
+            following:next(source,cursor)
+            ~vkf_string_eof(source,following)?
+                escaped:text.at(source,following)
+                escaped="{" \/ escaped="}"?
+                    .cursor:text.next(source,following)
+                    @>
+        open="{"?
+            c="{"? .depth:depth+1
+            c="}"? .depth:depth-1
+            depth=0? @:(start:begin,stop:cursor,end:text.next(source,cursor),found:true,closed:true)
+        open~="{" /\ c=open? @:(start:begin,stop:cursor,end:text.next(source,cursor),found:true,closed:true)
+        .cursor:text.next(source,cursor)
+    size:text.byte_length(source)
+    @:(start:begin,stop:size,end:size,found:true,closed:false)
+
+uri_value(value:str)->str:
+    out:""
+    at:0
+    ~vkf_string_eof(value,at)?>
+        c:text.at(value,at)
+        c="\\" /\ ~vkf_string_eof(value,at+1)?
+            escaped:text.at(value,at+1)
+            escaped="%" \/ escaped="#" \/ escaped="&" \/ escaped="_" \/ escaped="{" \/ escaped="}" \/ escaped="\$"?
+                .out:out&escaped
+                .at:text.next(value,at+1)
+                @>
+        .out:out&c
+        .at:text.next(value,at)
+    @:out
+byte(value:str,at:int)->int:
+    (~vkf_string_eof(value,at+2))?! "URI malformed"
+    (text.at(value,at)="%")?! "URI malformed"
+    high:j.hex(text.at(value,at+1))
+    low:j.hex(text.at(value,at+2))
+    (high>=0 /\ low>=0)?! "URI malformed"
+    @:high*16+low
+uri_decode(value:str)->str:
+    out:""
+    at:0
+    ~vkf_string_eof(value,at)?>
+        c:text.at(value,at)
+        c~="%"?
+            .out:out&c
+            .at:text.next(value,at)
+            @>
+        first:byte(value,at)
+        .at:at+3
+        code:first
+        count:0
+        minimum:0
+        first>=128?
+            (first>=194 /\ first<=244)?! "URI malformed"
+            .count:1
+            .code:first-192
+            .minimum:128
+            first>=224?
+                .count:2
+                .code:first-224
+                .minimum:2048
+            first>=240?
+                .count:3
+                .code:first-240
+                .minimum:65536
+        k:0
+        k<count?>
+            extra:byte(value,at)
+            (extra>=128 /\ extra<=191)?! "URI malformed"
+            .code:code*64+extra-128
+            .at:at+3
+            .k:k+1
+        (code>=minimum /\ code<=1114111 /\ (code<55296 \/ code>57343))?! "URI malformed"
+        .out:out&str(chr(code))
+    @:out
+
+formatting(name:str)->str:
+    name="textrm" \/ name="textnormal"? @:"roman"
+    name="textbf"? @:"bold"
+    name="textit"? @:"italic"
+    name="texttt"? @:"mono"
+    name="textsf"? @:"sans"
+    name="textsc"? @:"smallcaps"
+    name="textsl"? @:"slanted"
+    name="textup"? @:"roman"
+    @:""
+declaration(name:str)->str:
+    name="rmfamily" \/ name="normalfont" \/ name="rm"? @:"roman"
+    name="bfseries" \/ name="bf"? @:"bold"
+    name="itshape" \/ name="em" \/ name="it"? @:"italic"
+    name="ttfamily" \/ name="tt"? @:"mono"
+    name="sffamily"? @:"sans"
+    name="slshape"? @:"slanted"
+    name="sc" \/ name="scshape"? @:"smallcaps"
+    @:""
+accent(name:str)->int:
+    name="`"? @:18
+    name="'"? @:19
+    name="v"? @:20
+    name="u"? @:21
+    name="="? @:22
+    name="r"? @:23
+    name="c"? @:24
+    name="^"? @:94
+    name="."? @:95
+    name="~"? @:126
+    name="\""? @:127
+    @: -1

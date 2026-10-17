@@ -1,0 +1,238 @@
+a261_routes:.latex_document_routes
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+document_shaping_request:.document_shaping_request
+text_prepared_runs:.text_prepared_runs
+text_inline_boxes:.text_inline_boxes
+Prepared:(font_slots:[int],font_keys:[str],font_raws:[str],font_names:[str],font_advances:[num],font_heights:[num],font_depths:[num],font_italics:[num],font_kern_starts:[int],font_kern_stops:[int],font_kern_codes:[str],font_kern_values:[num],font_kern_count:int,font_count:int,font_role_names:[str],font_role_ready:[int],font_role_sizes:[num],font_role_quads:[num],font_role_sources:[str],font_role_spaces:[num],font_role_stretches:[num],font_role_shrinks:[num],font_role_extras:[num],font_role_slants:[num],font_role_starts:[int],font_role_stops:[int],font_role_count:int,font_lig_first:[int],font_lig_second:[int],font_lig_result:[int],font_lig_count:int,run_keys:[str],run_xs:[num],run_metrics:[str],run_codes:[int],run_starts:[int],run_stops:[int],run_offsets:[int],run_counts:[int],run_widths:[num],run_heights:[num],run_depths:[num],run_italics:[num],run_atoms:[int],run_diagnostics:[str],run_count:int,run_glyph_count:int,texts:[str],roles:[str],slots:[int],ids:[int],bases:[int],count:int,misses:int,hits:int)
+Collection:(sources:[str],roles:[str],starts:[int],stops:[int],count:int,context_roles:[str])
+math_retained_directory:.math_retained_directory
+Directory:(source:str,boxes:[str],count:int,prepared:bit)
+document_materialize_label_measure:.document_materialize_label_measure
+# Independent per-block shaping. Paragraph glyphs and line metrics stay typed.
+document_present:.document_present
+document_materialize_labels:.document_materialize_labels
+document_present_context:.document_present_context
+document_materialize_config:.document_materialize_config
+document_resolve:.document_resolve
+document_present_maps:.document_present_maps
+document_pages:.document_pages
+document_paragraph_metrics:.document_paragraph_metrics
+text_source_paragraph:.text_source_paragraph
+text_source_paragraph_output:.text_source_paragraph_output
+text_parser:.text_parser
+paragraph_breaking:.paragraph_breaking
+paragraph_nodes:.paragraph_nodes
+font_catalog:.font_catalog
+resource_json:.resource_json
+json_numbers:.json_numbers
+tex_numeric:.tex_numeric
+tex_text:.tex_text
+text_chunks:.text_chunks
+math_qed_output:.math_qed_output
+document_scene_json:.document_scene_json
+document_scene_paragraph_linear:.document_scene_paragraph_linear
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+PageConfig:(values:[num],flags:[bit],penalties:[int])
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Configuration:(config:str,pages:PageConfig,packages:[str],math:MathContext,overrides:[str],class_name:str,optical:bit,hyperref:bit,diagnostics:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Map:(keys:Pool,values:[str])
+Plan:(kinds:[str],sources:[str],contexts:[str],attrs:[str],origins:[int],scenes:[str],count:int,references:Map,reference_destinations:Map,footnotes:str,diagnostics:str,unresolved:str)
+Blocks:(texts:[str],indices:[int],numbers:[num],booleans:[bit],count:int)
+Lines:(scenes:[int],source_lines:[int],heights:[num],depths:[num],natural_depths:[num],widths:[num],indents:[num],baselines:[num],flagged:[bit],marker_firsts:[int],marker_counts:[int],count:int)
+Columns:(heights:[num],depths:[num],natural_depths:[num],widths:[num],baselines:[num],indents:[num],flagged:[bit],count:int,width:num,height:num,depth:num,has_last_row:bit,last_row_baseline:num,last_row_depth:num,tag_width:num)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Measured:(scene:Scene,columns:Columns,label:Scene,legacy_scene:str,legacy_label:str,diagnostics:str,unresolved:str,pending_pages:bit)
+number(tape:Tape,node:int,key:str,fallback:num=0)->num:document_materialize_config.number(tape,node,key,fallback)
+flag(tape:Tape,node:int,key:str)->bit:document_present.flag(tape,node,key)
+raw(tape:Tape,node:int)->str:document_materialize_config.raw(tape,node)
+string(tape:Tape,node:int,key:str)->str:document_present.string(tape,node,key)
+array_count(tape:Tape,node:int)->int:
+    node<0? @:0
+    ends:tape.ends
+    count:0
+    at:node+1
+    at<ends.(node)?>
+        .count:count+1
+        .at:ends.(at)
+    @:count
+measure_block_core(plan:Plan,index:int,fonts:Catalog,roles:[str],language:Language,c:Configuration,page_values:Map,document_boxes_json:str,citation_labels_json:str,citation_separator:str,config:Tape,unit:num,global_links_json:str,tables:Tables,prepared:bit,legacy_output:bit=false):
+    @:measure_block_retained_core(plan,index,fonts,roles,language,c,page_values,math_retained_directory.unprepared(document_boxes_json),citation_labels_json,citation_separator,config,unit,global_links_json,tables,prepared,legacy_output)
+measure_block_retained_core(plan:Plan,index:int,fonts:Catalog,roles:[str],language:Language,c:Configuration,page_values:Map,retained:Directory,citation_labels_json:str,citation_separator:str,config:Tape,unit:num,global_links_json:str,tables:Tables,prepared:bit,legacy_output:bit=false,a261_blocks:[int]=[],a261_scopes:[str]=[],a261_texts:[str]=[],a263_kinds:[str]=[]):
+    collected:collect_block_request(text_prepared_runs.empty_collection(),"",false,plan,index,fonts,roles,language,c,page_values,citation_labels_json,citation_separator,config,unit,global_links_json)
+    request:text_prepared_runs.seal(fonts,collected.collection)
+    @:measure_block_request_core(request,plan,index,fonts,roles,language,c,page_values,retained,citation_labels_json,citation_separator,config,unit,global_links_json,tables,prepared,legacy_output,a261_blocks,a261_scopes,a261_texts,a263_kinds)
+
+measure_block_request_core(request:Prepared,plan:Plan,index:int,fonts:Catalog,roles:[str],language:Language,c:Configuration,page_values:Map,retained:Directory,citation_labels_json:str,citation_separator:str,config:Tape,unit:num,global_links_json:str,tables:Tables,prepared:bit,legacy_output:bit=false,a261_blocks:[int]=[],a261_scopes:[str]=[],a261_texts:[str]=[],a263_kinds:[str]=[]):
+    kinds:plan.kinds
+    sources:plan.sources
+    contexts:plan.contexts
+    attrs:plan.attrs
+    ams:c.class_name="amsart"
+    pt:tex_numeric.pt()
+    first_paragraph:false
+    index>0?
+        previous:kinds.(index-1)
+        .first_paragraph:previous="math" \/ (~ams /\ (previous="section" \/ previous="subsection"))
+    diagnostics:""
+    unresolved:""
+    pending_pages:false
+    kind:kinds.(index)
+    context:document_present_context.parse(contexts.(index))
+    document_links_json:global_links_json
+    context.link_appearance~=""? .document_links_json:context.link_appearance
+    properties:resource_json.parse("{"&attrs.(index)&"}")
+    heading_config:resource_json.member(config,0,kind)
+    titlepart:string(properties,0,"titlePart")
+    heading:kind="section" \/ kind="subsection" \/ kind="title" \/ kind="author"
+    paragraph:kind="paragraph"
+    caption:kind="caption"
+    verbatim:kind="verbatim"
+    width:number(config,0,"textWidth")-context.left-context.right
+    resolved:document_resolve.resolve(sources.(index),plan.references,page_values,citation_labels_json,citation_separator,document_materialize_config.has(c.packages,"biblatex"),c.hyperref,flag(config,0,"legacyEquationAnchor"),verbatim)
+    .diagnostics:document_materialize_config.merge(diagnostics,resolved.diagnostics)
+    resolved.pending_pages? .pending_pages:true
+    role:context.font
+    heading? .role:kind
+    kind="abstractHeading"? .role:"smallbold"
+    verbatim?
+        .role:"mono"
+        context.font="footnote"? .role:"footnotemono"
+    legacy_scene:"{\"items\":[],\"lines\":[],\"width\":0,\"height\":0,\"depth\":0}"
+    typed_scene:document_scene_json.empty()
+    typed_label:document_scene_json.empty()
+    legacy_label:""
+    legacy_output? .legacy_label:"{}"
+    columns:document_paragraph_metrics.empty()
+    typed_paragraph:false
+    kind="math"?
+        measured:document_present.display_retained_core(resolved.source,fonts,c,context.font,width/unit,int(number(properties,0,"equationStart",1)),retained,tables,prepared)
+        .legacy_scene:measured.json
+        .diagnostics:document_materialize_config.merge(diagnostics,measured.diagnostics)
+    kind="proofend"?
+        .legacy_scene:math_qed_output.box_json(document_present.quad(fonts,"roman"))
+        ams?
+            glyph:font_catalog.math_symbol(fonts,"text","\\square")
+            .legacy_scene:"{\"width\":"&json_numbers.roundtrip(number(glyph,0,"width"))&",\"height\":"&json_numbers.roundtrip(number(glyph,0,"height"))&",\"depth\":"&json_numbers.roundtrip(number(glyph,0,"depth"))&",\"items\":[{\"kind\":\"glyph\",\"key\":\"text/\\\\square\",\"x\":0,\"y\":0}]}"
+    (paragraph \/ heading \/ verbatim \/ caption \/ kind="abstractHeading" \/ kind="subsubsection")?
+        text_context:text_parser.context(role,roles,c.optical,c.hyperref)
+        text_context.legacy_symbols:flag(config,0,"legacyTextSymbols")
+        text_context.literal:verbatim
+        text_context.literal_input:flag(properties,0,"fileInput")
+        bibliography_text:string(config,0,"bibliographyStyle")~="" /\ context.kind="bibliography"
+        text_context.bib_url:bibliography_text
+        options:paragraph_breaking.options(width/unit)
+        options.justify:paragraph
+        options.tolerance:context.tolerance
+        options.emergency:context.emergency
+        paragraph?
+            first_indent:0.0
+            ((~first_paragraph \/ context.paragraph_after_display) /\ ~context.no_indent_after_list) \/ context.kind="description"? .first_indent:context.indent
+            options.first_indent:first_indent/unit
+            context.kind="verse"? options.forced_indent: -15*pt/unit
+        text_options:paragraph_nodes.text_options()
+        text_options.sentence_spacing:context.sentence
+        text_options.french_spacing:bibliography_text
+        text_options.space_scale:number(config,heading_config,"spaceScale",1)
+        a261_scope:a261_routes.select(index,resolved.source,a261_blocks,a261_scopes,a261_texts,a263_kinds)
+        q:text_source_paragraph.with_providers_request_core(request,resolved.source,fonts,text_context,c.math,language,c.overrides,options,text_options,text_inline_boxes.empty(),tables,prepared,retained.source,document_links_json)
+        a261_scope=""? .typed_scene:document_scene_paragraph_linear.from_paragraph(q)
+        a261_scope~=""? .typed_scene:document_scene_paragraph_linear.from_paragraph_owned(q,a261_scope)
+        .columns:document_paragraph_metrics.paragraph(q.line_heights,q.line_depths,q.line_widths,q.line_baselines,q.line_indents,q.line_flagged,q.line_count,q.width,q.height,q.depth,typed_scene.tag_width)
+        .typed_paragraph:true
+        legacy_output? .legacy_scene:text_source_paragraph_output.scene(q)
+        .diagnostics:document_materialize_config.merge(diagnostics,q.diagnostics)
+        ~q.lowering_complete?
+            unresolved~=""? .unresolved:unresolved&","
+            .unresolved:unresolved&"{\"block\":"&tex_text.integer(index)&",\"reason\":\"Unresolved source paragraph operations\",\"source\":"&resource_json.quote(resolved.source)&"}"
+    context.label~=""?
+        label_role:"roman"
+        ams /\ document_materialize_config.has(c.packages,"enumitem")? .label_role:context.font
+        label_metrics:document_materialize_label_measure.measure(context.label,label_role,fonts,roles,language,c,tables,prepared,retained.source)
+        a263_label_scope:a261_routes.select(index,context.label,a261_blocks,a261_scopes,a261_texts,a263_kinds,"label")
+        a263_label_scope=""? .typed_label:document_scene_paragraph_linear.from_paragraph(label_metrics)
+        a263_label_scope~=""? .typed_label:document_scene_paragraph_linear.from_paragraph_owned(label_metrics,a263_label_scope)
+        legacy_output? .legacy_label:text_source_paragraph_output.scene(label_metrics)
+        .diagnostics:document_materialize_config.merge(diagnostics,label_metrics.diagnostics)
+    context.pending_outer_labels~="" /\ context.pending_outer_labels~="[]"?
+        combined_labels:document_materialize_labels.compose(typed_label,context.pending_outer_labels,context.left,context.label_sep,fonts,roles,language,c,retained.source,index,a261_blocks,a261_scopes,a261_texts,a263_kinds)
+        .typed_label:combined_labels.scene
+        .diagnostics:document_materialize_config.merge(diagnostics,combined_labels.diagnostics)
+    ~typed_paragraph /\ (kind="math" \/ kind="proofend")?
+        .typed_scene:document_scene_json.decode(legacy_scene)
+        .columns:document_paragraph_metrics.legacy(legacy_scene)
+    ~legacy_output? .legacy_scene:""
+    @:(scene:typed_scene,columns:columns,label:typed_label,legacy_scene:legacy_scene,legacy_label:legacy_label,diagnostics:diagnostics,unresolved:unresolved,pending_pages:pending_pages)
+
+scene_at(values:[Measured],index:int):@:values.(index).scene
+label_at(values:[Measured],index:int):@:values.(index).label
+
+measure_block(plan:Plan,index:int,fonts:Catalog,roles:[str],language:Language,c:Configuration,page_values:Map,document_boxes_json:str,citation_labels_json:str,citation_separator:str,config:Tape,unit:num,global_links_json:str,legacy_output:bit=false):
+    tables:text_source_paragraph.empty_tables()
+    @:measure_block_core(plan,index,fonts,roles,language,c,page_values,document_boxes_json,citation_labels_json,citation_separator,config,unit,global_links_json,tables,false,legacy_output)
+measure_block_prepared(plan:Plan,index:int,fonts:Catalog,roles:[str],language:Language,c:Configuration,page_values:Map,document_boxes_json:str,citation_labels_json:str,citation_separator:str,config:Tape,unit:num,global_links_json:str,tables:Tables,legacy_output:bit=false):
+    @:measure_block_core(plan,index,fonts,roles,language,c,page_values,document_boxes_json,citation_labels_json,citation_separator,config,unit,global_links_json,tables,true,legacy_output)
+
+collect_block_request(collection:Collection,previous_source:str,known:bit,plan:Plan,index:int,fonts:Catalog,roles:[str],language:Language,c:Configuration,page_values:Map,citation_labels_json:str,citation_separator:str,config:Tape,unit:num,global_links_json:str):
+    kinds:plan.kinds
+    sources:plan.sources
+    contexts:plan.contexts
+    attrs:plan.attrs
+    ams:c.class_name="amsart"
+    pt:tex_numeric.pt()
+    first_paragraph:false
+    index>0?
+        previous:kinds.(index-1)
+        .first_paragraph:previous="math" \/ (~ams /\ (previous="section" \/ previous="subsection"))
+    diagnostics:""
+    unresolved:""
+    pending_pages:false
+    kind:kinds.(index)
+    context:document_present_context.parse(contexts.(index))
+    document_links_json:global_links_json
+    context.link_appearance~=""? .document_links_json:context.link_appearance
+    properties:resource_json.parse("{"&attrs.(index)&"}")
+    heading_config:resource_json.member(config,0,kind)
+    titlepart:string(properties,0,"titlePart")
+    heading:kind="section" \/ kind="subsection" \/ kind="title" \/ kind="author"
+    paragraph:kind="paragraph"
+    caption:kind="caption"
+    verbatim:kind="verbatim"
+    width:number(config,0,"textWidth")-context.left-context.right
+    resolved:document_resolve.resolve(sources.(index),plan.references,page_values,citation_labels_json,citation_separator,document_materialize_config.has(c.packages,"biblatex"),c.hyperref,flag(config,0,"legacyEquationAnchor"),verbatim)
+    known /\ previous_source=resolved.source? @:(collection:collection,source:resolved.source,changed:false)
+    role:context.font
+    heading? .role:kind
+    kind="abstractHeading"? .role:"smallbold"
+    verbatim?
+        .role:"mono"
+        context.font="footnote"? .role:"footnotemono"
+    (paragraph \/ heading \/ verbatim \/ caption \/ kind="abstractHeading" \/ kind="subsubsection")?
+        text_context:text_parser.context(role,roles,c.optical,c.hyperref)
+        text_context.legacy_symbols:flag(config,0,"legacyTextSymbols")
+        text_context.literal:verbatim
+        text_context.literal_input:flag(properties,0,"fileInput")
+        bibliography_text:string(config,0,"bibliographyStyle")~="" /\ context.kind="bibliography"
+        text_context.bib_url:bibliography_text
+        options:paragraph_breaking.options(width/unit)
+        options.justify:paragraph
+        options.tolerance:context.tolerance
+        options.emergency:context.emergency
+        paragraph?
+            first_indent:0.0
+            ((~first_paragraph \/ context.paragraph_after_display) /\ ~context.no_indent_after_list) \/ context.kind="description"? .first_indent:context.indent
+            options.first_indent:first_indent/unit
+            context.kind="verse"? options.forced_indent: -15*pt/unit
+        text_options:paragraph_nodes.text_options()
+        text_options.sentence_spacing:context.sentence
+        text_options.french_spacing:bibliography_text
+        text_options.space_scale:number(config,heading_config,"spaceScale",1)
+        collected:text_source_paragraph.collect_source_request(collection,resolved.source,fonts,text_context,language,c.overrides,options.hyphens,text_inline_boxes.empty())
+        @:(collection:collected,source:resolved.source,changed:true)
+    @:(collection:collection,source:resolved.source,changed:true)

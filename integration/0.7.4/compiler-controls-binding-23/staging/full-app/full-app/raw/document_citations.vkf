@@ -1,0 +1,118 @@
+# Late source citations are resolved from the current request's bibliography.
+citation_data:.bibtex_data
+citation_bibliography:.bibliography
+citation_text:.tex_text
+citation_groups:.tex_groups
+citation_uri:.document_uri
+citation_json:.resource_json
+citation_chunks:.text_chunks
+Result:(source:str,diagnostics:str)
+read_any(source:str,at:int):
+    begin:citation_groups.skip_space(source,at)
+    citation_text.at(source,begin)="["? @:citation_groups.read(source,begin,"[","]")
+    @:citation_groups.read(source,begin)
+kind(source:str,at:int)->str:
+    candidates:["parencite","autocite","textcite","cite"]
+    i:0
+    i<4?>
+        name:candidates.(i)
+        end:at+1+citation_text.byte_length(name)
+        citation_text.matches(source,at+1,name)?
+            ~vkf_string_eof(source,end)?
+                citation_data.alpha(citation_text.at(source,end))?
+                    .i:i+1
+                    @>
+            @:name
+        .i:i+1
+    @:""
+resolve(source:str,labels_json:str="{}",separator:str=",~",biblatex:bit=false,links:bit=false,legacy:bit=false)->Result:
+    labels:citation_data.from_json(labels_json)
+    at:0
+    copied:0
+    out:""
+    diagnostics:""
+    size:citation_text.byte_length(source)
+    at<size?>
+        literal:citation_bibliography.literal_end(source,at)
+        literal>at?
+            .at:literal
+            @>
+        citation_text.at(source,at)~="\\"?
+            .at:citation_text.next(source,at)
+            @>
+        name:kind(source,at)
+        name=""?
+            .at:citation_groups.control(source,at).stop
+            @>
+        begin:at
+        .at:at+1+citation_text.byte_length(name)
+        ~vkf_string_eof(source,at) /\ citation_text.at(source,at)="*"? .at:at+1
+        match_stop:at
+        notes:citation_chunks.empty(0)
+        n:0
+        reading:true
+        n<2 /\ reading?>
+            .at:citation_groups.skip_space(source,at)
+            citation_text.at(source,at)~="["?
+                .reading:false
+                @>
+            note:citation_groups.read(source,at,"[","]")
+            .notes:citation_data.append(notes,note.value)
+            .at:note.stop
+            .n:n+1
+        argument:read_any(source,at)
+        ~argument.closed?
+            .diagnostics:citation_bibliography.diagnostic(diagnostics,"Missing citation key argument")
+            .at:match_stop
+            @>
+        name~="cite" /\ ~biblatex? .diagnostics:citation_bibliography.diagnostic(diagnostics,"Command requires biblatex: "&name)
+        name="textcite"? .diagnostics:citation_bibliography.diagnostic(diagnostics,"Textual author citation formatting is not implemented")
+        keys:citation_bibliography.csv(argument.value)
+        replacement:"["
+        notes.length()=2? .replacement:replacement&notes.(0)&" "
+        k:0
+        k<keys.length()?>
+            key:keys.(k)
+            index:citation_data.index(labels,key)
+            value:"?"
+            index<0? .diagnostics:citation_bibliography.diagnostic(diagnostics,"Undefined citation: "&key)
+            index>=0? .value:labels.values.(index)
+            (links \/ legacy)?
+                target:citation_uri.encode_destination("cite:"&key)
+                legacy? .value:"\\documentlink{cite}{"&value&"}{"&target&"}"
+                ~legacy? .value:"\\documentlinkspan{cite}{"&target&"}{"&value&"}"
+            k>0? .replacement:replacement&separator
+            .replacement:replacement&value
+            .k:k+1
+        notes.length()>0?
+            last:notes.(notes.length()-1)
+            last~=""? .replacement:replacement&", "&last
+        .replacement:replacement&"]"
+        .out:out&citation_text.span(source,copied,begin)&replacement
+        .at:argument.stop
+        .copied:at
+    @:(source:out&citation_text.span(source,copied,size),diagnostics:diagnostics)
+flat_group(source:str,at:int,open:str,close:str):
+    begin:citation_groups.skip_space(source,at)
+    (vkf_string_eof(source,begin) \/ citation_text.at(source,begin)~=open)? @:(value:"",stop:begin,present:false,closed:false)
+    end:citation_text.find(source,close,begin+1)
+    end<0? @:(value:"",stop:begin,present:true,closed:false)
+    @:(value:citation_text.span(source,begin+1,end),stop:end+1,present:true,closed:true)
+collect(source:str,initial_labels_json:str="{}")->str:
+    # Mirrors the document's manual bibitem-label map, after source expansion.
+    labels:citation_data.from_json(initial_labels_json)
+    at:0
+    size:citation_text.byte_length(source)
+    at<size?>
+        found:citation_text.find(source,"\\bibitem",at)
+        found<0? @:citation_data.map_json(labels)
+        .at:found+8
+        option:flat_group(source,at,"[","]")
+        option.present /\ option.closed? .at:option.stop
+        key:flat_group(source,at,"{","}")
+        (~key.present \/ ~key.closed \/ key.value="" \/ citation_text.find(key.value,"}")>=0)? @>
+        label:citation_text.integer(labels.count+1)
+        option.present /\ option.closed? .label:option.value
+        .labels:citation_data.put(labels,key.value,label)
+        .at:key.stop
+    @:citation_data.map_json(labels)

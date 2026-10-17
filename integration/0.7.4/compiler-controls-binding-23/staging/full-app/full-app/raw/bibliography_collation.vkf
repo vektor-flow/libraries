@@ -1,0 +1,54 @@
+bib_collation_data:.bibliography_collation_data
+bib_collation_text:.tex_text
+bib_collation_json:.resource_json
+bib_collation_catalog:.font_catalog
+Result:(key:str,unsupported:str)
+ignorable(code:int)->bit:
+    ranges:bib_collation_data.ignorable()
+    lo:0
+    hi:bib_collation_text.byte_length(ranges)//24
+    lo<hi?>
+        mid:(lo+hi)//2
+        start:bib_collation_catalog.fixed(ranges,mid*24)
+        stop:bib_collation_catalog.fixed(ranges,mid*24+12)
+        code<start?
+            .hi:mid
+            @>
+        code>stop?
+            .lo:mid+1
+            @>
+        @:true
+    @:false
+ascii_key(source:str)->str:
+    # ICU en primary order for the ASCII symbols which survive ignored punctuation.
+    alphabet:"`^+<=>|~\$0123456789abcdefghijklmnopqrstuvwxyz"
+    result:""
+    at:0
+    ~vkf_string_eof(source,at)?>
+        c:bib_collation_text.at(source,at)
+        .at:bib_collation_text.next(source,at)
+        c>="A" /\ c<="Z"? .c:str(chr(bib_collation_json.scalar(c)+32))
+        index:bib_collation_text.find(alphabet,c)
+        index>=0? .result:result&str(chr(65+index))
+    @:result
+key(source:str)->Result:
+    result:""
+    unsupported:""
+    at:0
+    catalog:bib_collation_catalog.load(bib_collation_data.directory())
+    ~vkf_string_eof(source,at)?>
+        c:bib_collation_text.at(source,at)
+        .at:bib_collation_text.next(source,at)
+        code:bib_collation_json.scalar(c)
+        code<128?
+            .result:result&ascii_key(c)
+            @>
+        ignorable(code)? @>
+        raw:bib_collation_catalog.raw(catalog,c)
+        raw~=""?
+            folded:bib_collation_json.string(bib_collation_json.parse(raw),0)
+            .result:result&ascii_key(folded)
+            @>
+        unsupported=""? .unsupported:c
+        .result:result&c
+    @:(key:result,unsupported:unsupported)

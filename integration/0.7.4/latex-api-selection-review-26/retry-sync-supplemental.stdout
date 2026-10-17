@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: overlapping no-op completions cannot reuse the same state
+ok 1 - overlapping no-op completions cannot reuse the same state
+  ---
+  duration_ms: 11.188772
+  type: 'test'
+  ...
+# Subtest: resources accessors and sparse arrays fail before encoder argument return
+ok 2 - resources accessors and sparse arrays fail before encoder argument return
+  ---
+  duration_ms: 1.283529
+  type: 'test'
+  ...
+# Subtest: returned resource records are detached and immutable
+ok 3 - returned resource records are detached and immutable
+  ---
+  duration_ms: 1.211308
+  type: 'test'
+  ...
+# Subtest: schema pin hashes the actual exact schema file
+ok 4 - schema pin hashes the actual exact schema file
+  ---
+  duration_ms: 1.787636
+  type: 'test'
+  ...
+# Subtest: empty pages at cluster boundaries do not duplicate or consume clusters
+ok 5 - empty pages at cluster boundaries do not duplicate or consume clusters
+  ---
+  duration_ms: 2.867762
+  type: 'test'
+  ...
+# Subtest: unpaired surrogate and scalar-split origin cannot be blessed by caller flags
+ok 6 - unpaired surrogate and scalar-split origin cannot be blessed by caller flags
+  ---
+  duration_ms: 0.808672
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 31.673001

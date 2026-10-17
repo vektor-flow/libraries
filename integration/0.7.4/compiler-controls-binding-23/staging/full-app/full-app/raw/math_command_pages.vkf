@@ -1,0 +1,50 @@
+# Persistent indexed updates copy the selected pointer table. Bound that table
+# by paging retained commands, instead of copying every command for each write.
+width()->int:128
+zeros(size:int)->[num]:[0.0:size]
+nil(size:int)->[int]:[-1:size]
+bits(size:int)->[bit]:[false:size]
+numbers(rows:int)->[[num]]:[zeros(width()):rows]
+integers(rows:int)->[[int]]:[nil(width()):rows]
+booleans(rows:int)->[[bit]]:[bits(width()):rows]
+number(pages:[[num]],index:int)->num:
+    stride:width()
+    row:index//stride
+    column:index%stride
+    @:pages.(row,column)
+integer(pages:[[int]],index:int)->int:
+    stride:width()
+    row:index//stride
+    column:index%stride
+    @:pages.(row,column)
+boolean(pages:[[bit]],index:int)->bit:
+    stride:width()
+    row:index//stride
+    column:index%stride
+    @:pages.(row,column)
+
+collect_numbers(pages:[[num]],count:int)->[num]:
+    count=0? @:zeros(0)
+    @:[..count-1 >> number(pages,int($))]
+collect_booleans(pages:[[bit]],count:int)->[bit]:
+    count=0? @:bits(0)
+    @:[..count-1 >> boolean(pages,int($))]
+
+number_row(values:[[num]],index:int)->[num]:
+    index<values.length()? @:values.(index)
+    @:zeros(width())
+integer_row(values:[[int]],index:int)->[int]:
+    index<values.length()? @:values.(index)
+    @:nil(width())
+boolean_row(values:[[bit]],index:int)->[bit]:
+    index<values.length()? @:values.(index)
+    @:bits(width())
+
+# Build the outer table explicitly: an unlabelled matrix concatenation can
+# select an inner axis, whereas command capacity always grows by whole rows.
+grow_numbers(values:[[num]])->[[num]]:
+    @:[..values.length()*2-1 >> number_row(values,int($))]
+grow_integers(values:[[int]])->[[int]]:
+    @:[..values.length()*2-1 >> integer_row(values,int($))]
+grow_booleans(values:[[bit]])->[[bit]]:
+    @:[..values.length()*2-1 >> boolean_row(values,int($))]

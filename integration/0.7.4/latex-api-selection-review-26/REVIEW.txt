@@ -1,0 +1,191 @@
+JOINT SOURCE REVIEW26 — ACCEPT FOR NATIVE REVIEW ONLY
+2026-10-17; owner01a14a2a-383c-7342-8f05-0d282194c3c1.
+Root01a14893-cb1e-7203-97dd-de3da44dcf31; grant HEAD
+124ded9a103af1df108ba5b3334021d78b811c65, unchanged at final readback.
+
+DECISION AND EXACT SUBJECT
+No blocking concrete source defect found in API21's two patches plus Selection22's
+five-file patch at the inspected pins. Accept this exact combination for a future
+separately admitted native review. This is not integration, native qualification,
+API completion, PDF selection acceptance, or publication permission. No repair
+patch proposed because the review did not establish a concrete defect to repair.
+The combined patch SHA256 is
+f58ec97933c6b14cca50826f0e6093a664bcccf09f41289a22260cc63bb0c26f.
+combined/ contains nine exact peer payloads, checked byte-for-byte after applying
+the concatenated patches solely in this owned directory. combined-pins.json pins
+each payload; inspected-pins.json pins141 unique reviewed/evidence inputs.
+API21 output37 and Selection22 artifact61 pins verified, plus their24/11 input
+records. Additional shared dependencies were matched to the granted Git commit.
+Peer patches and production files were not edited. package-loader25 remains the
+separate actual-package foundation owner; D288native24 was not invoked or altered.
+
+PUBLIC API / SAME-LAYOUT RESULT
+The append-only latex/latex_library changes retain legacy17-position signatures,
+forwarding and return behavior. The new public source/dest/flags overload delegates
+to tex2pdf_named. It rejects nonempty dest first, then selectable OR editable,
+before loading resources or laying out. Thus the default selectable=true refuses;
+false/false with no dest is the only proposed successful new call. This remains
+intentional incomplete behavior; combining the patches does not enable flags.
+Legacy record/resource/serializer paths remain source-identical after removing
+selection hooks. Compiler overload/default/named dispatch can still change runtime
+behavior and has not been tested here; source-prefix identity is not native parity.
+
+latex_render_result.render calls document_materialize.layout exactly once and
+encodes result.document only when complete, returning the entire same Result as
+layout with pdf. All eight owner columns, six arena provenance columns and exact
+record schemas are preserved. It is an independent LEGACY encoder wrapper. It
+does not invoke encode_selected or issue an authenticated completion. The host
+selection session must receive result.layout, not the enclosing {pdf,layout}.
+The combined proposal still lacks a selected same-invocation native route and
+record/string marshaller. Re-layout to manufacture a matching document is invalid.
+
+DEFAULT RESOURCES AND NAMED SYNTAX
+The generated default loader calls real existing io/font_catalog/hyphenation/roles
+functions with the three accepted D301 files and exact24-role order. Resource
+bytes and catalog/path/language extents were independently rechecked by API tests.
+The loaders validate headers/counts/extents; explicit lengths are11866638,
+9197368 and228922. These checks do not authenticate same-length substitutions.
+resource_revision is a constant descriptor identity, not a runtime computed hash.
+Accepted content hashes must be enforced by the trusted invocation admission and
+resource custody; mutable paths with only before/after observations do not by
+themselves prove which bytes an intervening read consumed. Absolute installation
+paths are not portable package resolution. Relocate loader+descriptor together,
+preserve actual bytes, establish namespace access, and requalify under package25.
+No font fallback, guessed role order, implicit source files or download was added.
+No runtime success for unreadable/corrupt resources was demonstrated here.
+
+Inspected retained expression_call.cpp recognizes named_call_arg; the retained
+function-definition/lowering evidence supports overload/default intent. This is
+neither parser proof nor proof against the current compiled compiler identity.
+Require API21 named-overload.vkf and existing named-syntax.vkf first; then direct
+named/legacy/typed comparison with real resources and original40. An arbitrary
+compiler failure is not successful unsupported-mode refusal.
+
+PLAN, CAPABILITIES AND SOURCE IDENTITY
+Native validator and host plan agree on dense aligned arrays, exact direct scope
+text/source byte ranges, scalar boundaries, unique ownership IDs, operation/part
+identity, complete arena/page coverage, contiguous cluster leaves and authored
+group coverage. Each cluster is indivisible across pages; groups can span pages
+between clusters. Multi-emission combining clusters emit replacement once, while
+distinct repeated glyph origins remain distinct. Empty pages consume no cluster.
+The source record preserves CRLF/non-ASCII; selected logical spans are byte-sliced
+from the validated source, not supplied replacement strings or repeated parser
+inputs. Actual materialized arena leaf columns are allocated at active count;
+destination and other capacity-bearing arrays still require correct marshalling.
+
+Literal-only refusal is deliberate: whitespace/control, TeX syntax, transformed
+punctuation, expanded origins, disjoint/multisource groups and crossing clusters
+need a producer policy. The validator is structural, not an authenticator. A
+forged native record with self-consistent columns cannot establish source truth.
+
+createPdfSelectionSession instantiates the real existing bridge internally. Its
+WeakMap ticket registry binds preparation/current state; no injected validator or
+caller authenticated/selectable boolean bypass exists. bindDocument copies plain
+data, checks current issued preparation and exact parser/provenance ownership,
+rejects generated/unconsumed emissions, and detaches the document from callers.
+The native encoder argument document is the exact bound document in the ticket;
+resources are detached copies with shape guards, not authenticated native handles.
+Retained exact UTF-8 JSON plan bytes and schema bytes are SHA256 hashed; returning
+a copy preserves the sealed bytes. Hash equality is not completion custody.
+New live-host supplemental tests verify overlapping no-op apply races, stale
+serialization/encoding, accessor/sparse resource refusal, resource detachment,
+actual schema digest, empty-page boundaries and Unicode scalar refusal. The
+overlapping no-op race keeps sourceRevision unchanged but rejects the slower
+completion and the old ticket by state identity. All use the real bridge.
+
+RAW ENCODER / PDF OBJECT REVIEW
+Read actual proposed encode_core, validate, actual_text, glyph/clipped_glyph,
+form/path provider, stream/object/xref serializers and text_chunks.join. This
+conclusion is not inferred solely from the independent stream model.
+
+selection_begin is captured BEFORE that cluster's optional paint command; the
+wrapper is installed AFTER the final complete glyph command. Glyph helpers
+produce complete q/cm/Do/Q objects; clipped glyphs complete re/W/n before Do/Q.
+Only drawn kind0 leaves enter this mode. BDC/EMC therefore does not cut a glyph
+command, path construction, text object, or Form object. The page q/cm and final
+Q stay outside. The selected layer adds no BT/ET or font/text-showing operators.
+Paint state intentionally persists across clusters; marked content does not add
+graphics-state save/restore and cannot desynchronize current_paint caching.
+The first wrapper may immediately follow the page's cm as cm/Span: slash is a
+PDF name delimiter, so this is not a fused operator. actual_text terminates its
+body with LF before EMC, which also terminates a possible trailing comment.
+Reference for complete-object boundary rule: Adobe pdfmark reference,
+https://opensource.adobe.com/dc-acrobat-sdk-docs/library/pdfmark/pdfmark_Basic.html
+(Marked content). The large ISO PDF fetch failed; no claim to have fetched it.
+
+text_chunks.join uses an exclusive stop, so join(commands,selection_begin,
+command_count) consumes exactly the current cluster. Resetting command_count to
+selection_begin+1 discards stale tail slots. Later writes overwrite those slots;
+final join never consumes them. Cluster compression cannot exceed the original
+2*page_leaf_count+2 allocation: each leaf produces at most paint+draw; a cluster
+with no draw command contributes at most one wrapper. For a validated nonempty
+leaf iteration selected_cluster is in range; after the last cluster no later leaf
+reads it, including trailing empty pages. Cross-page clusters already refuse.
+
+Form/alpha/page object allocation, one-based references, resource ordering and
+bulk serializer are unchanged. Content stream Length is recomputed from actual
+UTF-8 byte length. pack retains byte starts/stops; serialize sums body bytes plus
+decimal ID width and15 fixed object framing bytes, matching syntax.object. Thus
+ActualText size changes propagate through xref/startxref instead of reusing stale
+offsets. The BOM hex helper handles supplementary pairs and does not embed raw
+UTF-16 bytes into the UTF-8 PDF stream. No newly introduced malformed-object or
+marked-boundary defect was found by this source inspection. This is not native
+PDF parser/raster evidence or a proof for arbitrary malformed input. The inherited
+font path validator restricts tokens but does not fully validate operator arity;
+the reviewed path relies on accepted pinned font/operator assets, not arbitrary
+caller-supplied fonts being semantically valid.
+
+Outline ActualText alone is NOT ordinary-reader selection. Missing positioned
+standard text/ToUnicode fallback, authored source/map/revision attachments and
+actual Adobe/Edge interaction remain requirements, not source bugs purportedly
+fixed by this patch. The current future native fixture checks string occurrences;
+it does not by itself validate PDF objects, raster equality or reader interaction.
+
+TEST EVIDENCE / RESOURCE FAILURE
+Bounded host execution only: AS512MiB, CPU55s, wall60s per sequential child,
+Node synchronous registerHooks, no limit increases. Combined applycheck/apply0;
+API21 13/13; Selection22 source7/7; exact combined host selection13/13;
+supplemental6/6; existing bridge17/17; provenance5checks/1711comparisons.
+Successful counted suites total56tests plus the provenance checks.
+See host-results.json and retry-sync-results.json for exact argv/PIDs/times.
+Initial supplemental child201793 aborted(-6) after1.276s with only the Node jitless
+warning, before TAP output. It was joined; root notified immediately. Retained
+original test and stderr. The changed supplemental harness uses static synchronous
+fs reading instead of dynamic import/fs.promises; same-cap retry passed0.166s.
+This local change removes asynchronous loader/file-work pressure but does not
+independently prove the abort's cause. No product failure or pass was inferred
+from it. Followup child maxRSS68520KiB; all owned children joined. Failed first
+host-results.json stays failed rather than being overwritten with a pass.
+
+REMAINING DEPENDENCIES / NEXT NATIVE REVIEW
+1. Root/package25: actual package loader/source foundation, installed resources
+   with immutable byte custody, compiler/runtime/source identity and namespace
+   access; no relabeling the retained compiler as a completed renderer.
+2. Producer: actual expansion/include/parser ownership, normalized logical text,
+   nonliteral/macro/generated policy, source order and cluster/page splits.
+3. Same-one-layout selected route and marshaller: preserve all typed columns,
+   binary64 values and exact native PDF buffer/length; retain/hash strict typed
+   JSON bytes before parsing (or canonical padded base64 on JSON-only transport).
+   Never reconstruct the document from layout_json or rerender it independently.
+4. Trusted private preparation/request/completion registry: bind actual invocation,
+   accepted resources/build/runtime, exact document and PDF output bytes, plan and
+   schema hashes, terminal exit/completeness/joins. Recheck state before/after
+   asynchronous work and publication; caller receipts/hashes cannot register.
+5. Reader layer + authenticated source/map/revision embedding; qualify native
+   geometry/raster and PDF object integrity, Poppler/PDF.js extraction AND actual
+   Adobe/Edge interactions. Preserve explicit bitmap-provider refusal.
+6. Separate standalone PDF publication: one coherent embedded PDF, same-directory
+   temp/fsync/rename with snapshot identity+revision under the commit guard;
+   pre-rename failure preserves old bytes, post-rename durability warnings report
+   committed truth. Existing JSON bundle publication is not standalone dest.
+
+First future native gates: named syntax/dispatch; all default/dest/selected refusal
+cases with exact diagnostic and unchanged destination sentinel; legacy/typed
+same-layout/schema checks; selected structural positives and exact assertion
+negatives; real producer path; exact original40 legacy SHA256
+b07821c28efadcd51fccc3ba6c75dd957ab6f95bde323f3c519d48edb41d1eb2
+(5752962bytes,40pages,430blocks,complete,empty errors); separately selected
+geometry/object/reader checks. Each needs a fresh root admission, not this grant.
+API/native/reader/performance/publication and original419/native47 credits remain
+unchanged. No compiler, TeX, native, services, namespace, ledger, commit or agents
+were started. Stop after one current DONE delivery.

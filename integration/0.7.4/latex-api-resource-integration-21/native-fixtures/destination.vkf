@@ -1,0 +1,6 @@
+# FUTURE native fixture; no launch authorized by this proposal.
+io:.io
+latex:.latex
+source:io.read_text(io.read_line())
+result:latex.tex2pdf(source,dest:"must-remain-sentinel.pdf",selectable:false,editable:false)
+(false)?! "UNEXPECTED unsupported API succeeded"

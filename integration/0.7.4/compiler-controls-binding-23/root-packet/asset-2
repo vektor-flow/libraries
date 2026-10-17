@@ -1,0 +1,5 @@
+io:.io
+Demand:(sources:[str],count:int)
+: .errors
+fail(d:Demand):ValueError(d.sources.(0))!
+fail((sources:[io.read_line()],count:1))!? Error=>::($.message="0")

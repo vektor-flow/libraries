@@ -1,0 +1,54 @@
+# The math layout dimension grammar, including its recovery and 10000bp bound.
+# Parsing is performed at runtime from the current source, never prepared per
+# document. Font-relative em/ex/mu units use the current scoped math profile.
+text:.tex_text
+tokens:.math_tokens
+tex:.tex_numeric
+Result:(value:num,valid:bit)
+
+character(source:str,position:int)->str:
+    vkf_string_eof(source,position)? @:""
+    @:text.at(source,position)
+
+digit(c:str)->bit:c>="0" /\ c<="9"
+
+parse(source:str,em:num,xheight:num,quad:num)->Result:
+    position:tokens.skip_space(source,0)
+    c:character(source,position)
+    sign:1.0
+    c="-"? .sign: -1
+    (c="+" \/ c="-")? .position:position+1
+    digits:0
+    unsigned:0.0
+    digit(character(source,position))?>
+        .unsigned:unsigned*10+vkf_decimal_parse(character(source,position))
+        .digits:digits+1
+        .position:position+1
+    character(source,position)="."?
+        .position:position+1
+        divisor:10.0
+        digit(character(source,position))?>
+            .unsigned:unsigned+vkf_decimal_parse(character(source,position))/divisor
+            .divisor:divisor*10
+            .digits:digits+1
+            .position:position+1
+    digits=0? @:(value:0,valid:false)
+    .position:tokens.skip_space(source,position)
+    unit_begin:position
+    tokens.letter(character(source,position))?> .position:position+1
+    unit:text.span(source,unit_begin,position)
+    .position:tokens.skip_space(source,position)
+    ~vkf_string_eof(source,position)? @:(value:0,valid:false)
+    factor:0.0
+    unit="pt"? .factor:tex.pt()
+    unit="bp"? .factor:1
+    unit="em"? .factor:em
+    unit="ex"? .factor:xheight
+    unit="mu"? .factor:tex.mu_unit(quad)
+    unit="mm"? .factor:72/25.4
+    unit="cm"? .factor:72/2.54
+    unit="in"? .factor:72
+    unit="pc"? .factor:12*tex.pt()
+    ~tokens.one_of(unit,["pt","bp","em","ex","mu","mm","cm","in","pc"])? @:(value:0,valid:false)
+    value:sign*unsigned*factor
+    @:(value:tex.maximum(-10000,tex.minimum(10000,value)),valid:true)

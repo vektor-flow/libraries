@@ -76,3 +76,11 @@ tex2pdf(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Lang
 # for the synthetic delimiters (host mathEntry validates this before invocation).
 math_owned(source:str,resources:Resources,options:FragmentOptions,scope:str)->Fragment:
     @:text_owned("\$"&source&"\$",resources,options,scope)
+
+# Installation-bound default resources; no caller resource quartet is required.
+latex_default_resources:.latex_default_resources
+tex2pdf_named(source:str,dest:str="",selectable:bit=true,editable:bit=false,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true):
+    (dest="")?! "latex.tex2pdf: atomic destination publication is not implemented"
+    (~(selectable \/ editable))?! "latex.tex2pdf: authenticated selectable/editable output is not implemented"
+    resources:latex_default_resources.load()
+    @:tex2pdf(source,resources.fonts,resources.operators,resources.ordered_roles,resources.language,files_json,job,entry,include_layout)

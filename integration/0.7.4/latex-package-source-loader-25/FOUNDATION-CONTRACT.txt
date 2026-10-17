@@ -1,0 +1,109 @@
+PACKAGE SOURCE FOUNDATION25 — source proposal, ABI vkf.tex.package-sources/1
+Base 124ded9a103af1df108ba5b3334021d78b811c65, 2026-10-17.
+
+This first step loads exact externally supplied package/kernel/document bytes
+into an immutable source universe and preserves separate provenance references.
+It does NOT tokenize, expand, interpret, initialize a LaTeX format, invoke TeX,
+resolve filesystem packages, load packages into the legacy document frontend,
+or authenticate a native producer. The default 0.7.4 acceptance closure is intact.
+
+CONCRETE HOST / VKF INTERFACE
+host/latex_package_sources.mjs uses the existing createSourceSnapshot implementation.
+createPackageSourceBundle({files,engineIdentity,initialStateIdentity,requests})
+files: [{id,version,kind,bytes:Uint8Array,sha256:<64 lowercase hex>}]
+kind is document/kernel/package/include. version is a nonnegative safe integer.
+IDs are exact resolver identities, not path basenames or implicit search paths.
+The caller reads files and supplies trusted pins. No file I/O or package search
+occurs in the module. Hash equality is integrity against that pin, not authority.
+Strict UTF-8 preserves BOM/CRLF/comments and full bytes, rejects malformed UTF-8.
+4096 files/16 MiB is a preparation ceiling, NOT an increase to current frontend's
+1,000,000-byte limit or any operational resource grant. No package bytes vendored.
+
+sourceTable maps directly to new tex_package_sources.Sources:
+(schema:int,revision:str,ids:[str],versions:[int],texts:[str],hashes:[str]).
+Rows sorted by ID; column indices match exactly. revision is the existing
+createSourceSnapshot sha256: digest, NOT cacheKey or a numeric renderer revision.
+read(table,(source:int,start:int,stop:int))->str uses ORIGINAL UTF-8 byte offsets,
+checks source-table structure, bounds and scalar boundaries, retains exact bytes.
+Hashes are host-verified; VKF validates shape, not SHA-256 or native custody.
+Native functions/fixtures are UNCOMPILED/UNEXECUTED; parser acceptance unproved.
+The source table is transport data, not a callable native marshaller or lexer.
+
+ORIGIN RECORDS AND FILE ENTRY
+bundle.context() returns a fresh preparation-only provenance registry.
+enter(sourceId, includeOrigin=null) issues a distinct occurrence each time.
+includeOrigin is an issued 'include' span covering the caller's input/package
+request. Missing explicit IDs and ancestor include cycles reject; repeated
+independent includes retain different occurrence IDs. Nesting capped at 32.
+No include directive is actually executed or concatenated with another file.
+origin(occurrence,start,stop,role,links) issues a pinned, nonempty source span.
+Roles: literal/include/definition/invocation/argument. An invocation MUST link
+an issued definition; an argument MUST link an issued invocation in the same
+occurrence. Nested invocations may link their parent invocation. All references
+point to earlier issued records, so the declared origin graph is acyclic.
+Source and occurrence remain explicit even if definition and call text coincide.
+Cross-context records, clones, wrong roles and split scalars reject.
+exportOrigins() returns immutable arrays of occurrences and origins with source
+revision. occurrence: {source,via}; via is caller include-origin index or -1.
+origin: {source,occurrence,start,stop,role,definition,invocation}; absent refs -1.
+This describes declared input relationships, not proof they were executed.
+No token-output span is inferred; no package definition is mistaken for the
+user's invocation or argument. Future real producer must retain these links.
+
+CACHE / INVALIDATION
+cacheKey = SHA256 of versioned JSON tuple [ABI,engineIdentity,initialStateIdentity,
+ sorted [id,version,kind,contentSHA256] rows, ordered [sourceId,orderedOptions] requests].
+Source row order irrelevant; package order, repeated options and option order matter.
+Complete resolver universe is included: any candidate source/version change,
+addition/removal, options, request order, engine or initial-state change yields a
+new key. This conservatively invalidates all dependent preparation, including
+previously absent/unused candidates; no unsound transitive-subset reuse.
+Engine identity must eventually bind compiler/runtime plus primitive semantics;
+initial-state identity must bind catcode/endline/escape/namespace/bootstrap state.
+Strings are required inputs, not self-authenticating certificates.
+There is NO initialized-TeX-state cache yet. If added later, store only a completed,
+verified frozen state under this key; each document needs a private state copy,
+new group stack and fresh context. A shared content key never authorizes live
+context reuse. Failed/unsupported loads must not publish a usable state.
+
+EXPLICIT UNSUPPORTED BOUNDARY
+context.interpret() always throws TEX_PACKAGE_INTERPRETER_UNAVAILABLE, even for
+empty sources. Native interpret(table) explicitly asserts the same boundary.
+No fallback to tex_macros.expand, package stripping, passthrough, or PDF success.
+context.unsupported(origin,primitive,requirement) builds an immutable diagnostic
+only when source span equals backslash+primitive. It includes exact source ID,
+content hash, UTF-8 span, occurrence, snapshot revision and requirement. This is
+a diagnostic builder for a future interpreter, NOT a whole-program scanner.
+A text occurrence inside an unexecuted branch is not an execution error merely
+because it names an unsupported primitive. Runtime dispatch must issue diagnostics
+only at the actual attempted execution point and mark the load failed atomically.
+Installed-source tests locate manually reviewed boundary spans and validate pins;
+they do not count control sequences or infer TeX execution from regex matches.
+
+API21 / SELECTION22
+Both contracts were read and pinned read-only. Preserve separate source revision,
+cache key, source byte offsets and include/definition/invocation identities.
+Current selection22 accepts direct authored literals only, explicitly rejects
+macro origins. These records must NOT be fed through a guessed literal mapping,
+used as binding proof, or cause selectable/editable flags to succeed. Future native
+producer must issue actual expansion token origins and transport them through
+same-layout typed result, trusted request/completion registry and existing binder.
+An authored invocation selected as TeX differs from visible expanded logical text;
+that mapping/cluster policy remains a distinct implementation requirement.
+
+NECESSARY NEXT IMPLEMENTATION BOUNDARY
+Define a streaming mouth/token-state ABI in VKF before wiring package execution:
+next(source occurrence,byte cursor,mouth state,catcodes,endline state) returns one
+stable token with command/character category identity and exact lexical origin.
+Do not pretokenize a whole file before catcode assignments. Comment removal,
+endlines/blank-line par, control-word spaces, active characters, ^^ translation
+and UTF-8 byte/scalar mapping must obey that state. Definition replacement and
+argument token lists retain their original catcodes and origins after assignment.
+Then implement scoped namespace meanings/undefined/let snapshots, global/local
+assignment and expansion primitives, with call/definition/argument/include traces.
+Initialize the kernel under an explicitly defined initex-compatible state, execute
+package option/version/dependency hooks, and reject unsupported primitives exactly.
+Do not treat current newcommand/renewcommand/def branches as a compatible kernel.
+Before native integration, qualify source table positive/negative fixtures under
+fresh admission; then add token-state tests against actual installed small source
+slices and a separately admitted TeX oracle if authorized. No such runs here.

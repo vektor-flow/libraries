@@ -1,0 +1,680 @@
+meta:.scene_metadata
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+# Typed page assembly. Leaves remain records/columns through placement and PDF.
+# Integer references preserve source order without per-leaf arena/state returns.
+document_scene:.document_scene
+document_scene_pages:.document_scene_pages
+document_scene_flat:.document_scene_flat
+document_materialize_config:.document_materialize_config
+font_catalog:.font_catalog
+resource_json:.resource_json
+math_metadata:.math_metadata
+document_present_maps:.document_present_maps
+tex_text:.tex_text
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+PageConfig:(values:[num],flags:[bit],penalties:[int])
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Configuration:(config:str,pages:PageConfig,packages:[str],math:MathContext,overrides:[str],class_name:str,optical:bit,hyperref:bit,diagnostics:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Map:(keys:Pool,values:[str])
+Plan:(kinds:[str],sources:[str],contexts:[str],attrs:[str],origins:[int],scenes:[str],count:int,references:Map,reference_destinations:Map,footnotes:str,diagnostics:str,unresolved:str)
+Blocks:(texts:[str],indices:[int],numbers:[num],booleans:[bit],count:int)
+Lines:(scenes:[int],source_lines:[int],heights:[num],depths:[num],natural_depths:[num],widths:[num],indents:[num],baselines:[num],flagged:[bit],marker_firsts:[int],marker_counts:[int],count:int)
+Placements:(scenes:[int],source_lines:[int],pages:[int],blocks:[int],lines:[int],kinds:[int],xs:[num],ys:[num],units:[num],tag_bases:[num],line_heights:[num],line_depths:[num],shrink:[num],stretch:[num],count:int)
+Pages:(last_baselines:[num],last_depths:[num],limits:[num],shrink_ratios:[num],stretch_ratios:[num],note_stretch:[num],note_flex:[bit],forced:[bit],count:int)
+Rules:(pages:[int],xs:[num],ys:[num],widths:[num],heights:[num],count:int)
+Index:(scene_ids:[int],leaf_ids:[int],placement_ids:[int],global_lines:[int],firsts:[int],counts:[int],count:int)
+Refs:(kinds:[int],source_ids:[int],leaf_ids:[int],placement_ids:[int],context_ids:[str],label_ys:[num],ordered:[int],firsts:[int],counts:[int],modes:[int],has_lines:[bit],count:int)
+number(tape:Tape,node:int,key:str,fallback:num=0)->num:document_materialize_config.number(tape,node,key,fallback)
+string(tape:Tape,node:int,key:str)->str:document_materialize_config.string(tape,node,key)
+mode(placement:int)->int:
+    placement=1? @:3
+    placement=4? @:5
+    placement=5? @:6
+    placement>=3? @:4
+    @:1
+q_line(kind:str)->bit:
+    @:kind~="math" /\ kind~="proofend" /\ kind~="pagebreak" /\ kind~="vspace" /\ kind~="bibsetup"
+find_name(names:[str],slots:[int],key:str)->int:
+    at:math_metadata.hash(key)%slots.length()
+    slots.(at)>=0?>
+        id:slots.(at)
+        names.(id)=key? @:id
+        .at:(at+1)%slots.length()
+    @: -1
+find_slot(names:[str],slots:[int],key:str)->int:
+    at:math_metadata.hash(key)%slots.length()
+    slots.(at)>=0?>
+        names.(slots.(at))=key? @:at
+        .at:(at+1)%slots.length()
+    @:at
+# Called only for actual destination-bearing glyphs.
+destination_y(fonts:Catalog,key:str,y:num,sy:num)->num:
+    key=""? @:y
+    tile_key:"tile/"&key
+    source:font_catalog.raw(fonts,tile_key)
+    source=""? @:y
+    tile:resource_json.parse(source)
+    plane:resource_json.member(tile,0,"plane")
+    plane<0? @:y
+    top:resource_json.element(tile,plane,1)
+    top<0? @:y
+    @:y+resource_json.number(tile,top)*sy
+output_leaf(source_arena:Arena,label_arena:Arena,decoration_arena:Arena,label_widths:[num],placements:Placements,rules:Rules,body:Index,baselines:[num],refs:Refs,left:num,label_lefts:[num],label_seps:[num],index:int)->Leaf:
+    id:refs.ordered.(index)
+    kind:refs.kinds.(id)
+    source_id:refs.source_ids.(id)
+    leaf_id:refs.leaf_ids.(id)
+    item:document_scene.leaf()
+    kind=0?
+        refs.modes.(id)~=9? .item:document_scene_pages.placed_leaf_flat(source_arena,placements,body,baselines,source_id)
+        refs.modes.(id)=9?
+            native_id:body.leaf_ids.(source_id)
+            native_placement:body.placement_ids.(source_id)
+            .item:document_scene.leaf_at(source_arena,native_id)
+            item.x:item.x+placements.xs.(native_placement)
+            item.y:item.y+placements.ys.(native_placement)
+            item.vertical_shrink:placements.shrink.(native_placement)
+            item.vertical_stretch:placements.stretch.(native_placement)
+        destination:refs.context_ids.(id)
+        destination~=""?
+            found:false
+            at:0
+            at<item.destination_ids.length()?>
+                item.destination_ids.(at)=destination? .found:true
+                .at:at+1
+            ~found?
+                [str] extra:[destination]
+                item.destination_ids:item.destination_ids&extra
+    kind=1?
+        sid:refs.source_ids.(id)
+        pi:refs.placement_ids.(id)
+        .item:document_scene.leaf_at(label_arena,leaf_id)
+        item.x:item.x+left+label_lefts.(sid)-label_seps.(sid)-label_widths.(sid)
+        item.y:item.y+refs.label_ys.(id)
+        item.vertical_shrink:placements.shrink.(pi)
+        item.vertical_stretch:placements.stretch.(pi)
+    kind=2?
+        ri:refs.source_ids.(id)
+        .item:document_scene.leaf("",rules.xs.(ri),rules.ys.(ri))
+        item.kind:2
+        item.width:rules.widths.(ri)
+        item.height:rules.heights.(ri)
+    kind=3? .item:document_scene.leaf_at(decoration_arena,leaf_id)
+    @:item
+# Materialize directly into owned columns, never an accumulated [Leaf] vector.
+# Two deterministic scalar passes size destinations/paint/payload storage exactly.
+output_arena(source_arena:Arena,label_arena:Arena,decoration_arena:Arena,label_widths:[num],placements:Placements,rules:Rules,body:Index,baselines:[num],refs:Refs,left:num,label_lefts:[num],label_seps:[num],count:int)->Arena:
+    destination_size:0
+    paint_count:0
+    payload_count:0
+    i:0
+    i<count?>
+        item:output_leaf(source_arena,label_arena,decoration_arena,label_widths,placements,rules,body,baselines,refs,left,label_lefts,label_seps,i)
+        .destination_size:destination_size+item.destination_ids.length()
+        item.has_paint? .paint_count:paint_count+1
+        item.has_payload?
+            .payload_count:payload_count+1
+            item.has_fill_paint? .paint_count:paint_count+1
+            item.has_stroke_paint? .paint_count:paint_count+1
+        .i:i+1
+    [int] kinds:[0:count]
+    keys:document_scene.strings(count)
+    [num] xs:[0.0:count]
+    [num] ys:[0.0:count]
+    [num] sxs:[1.0:count]
+    [num] sys:[1.0:count]
+    [num] widths:[0.0:count]
+    [num] heights:[0.0:count]
+    [int] lines:[0:count]
+    [bit] equation_tags:[false:count]
+    [num] tag_widths:[0.0:count]
+    [bit] draws:[true:count]
+    metadata:meta.empty()
+    [int] metadata_roots:[-1:count]
+    [int] glyph_parts:[-1:count]
+    [num] flow_xs:[0.0:count]
+    [num] flow_widths:[0.0:count]
+    [bit] has_flows:[false:count]
+    [num] vertical_shrinks:[0.0:count]
+    [num] vertical_stretches:[0.0:count]
+    [int] footnote_numbers:[0:count]
+    a260_scopes:document_scene.strings(count)
+    a260_texts:document_scene.strings(count)
+    [int] a260_operations:[-1:count]
+    [int] a260_starts:[-1:count]
+    [int] a260_stops:[-1:count]
+    [int] a260_parts:[-1:count]
+    [int] paints:[-1:count]
+    [int] payloads:[-1:count]
+    [int] destination_firsts:[0:count]
+    [int] destination_counts:[0:count]
+    destination_ids:document_scene.strings(destination_size)
+    [num] p_red:[0.0:paint_count]
+    [num] p_green:[0.0:paint_count]
+    [num] p_blue:[0.0:paint_count]
+    [num] p_alpha:[0.0:paint_count]
+    [bit] v_crop_xs:[false:payload_count]
+    [bit] v_crop_ys:[false:payload_count]
+    [bit] v_crop_lefts:[false:payload_count]
+    [bit] v_crop_rights:[false:payload_count]
+    [bit] v_crop_tops:[false:payload_count]
+    [bit] v_crop_bottoms:[false:payload_count]
+    [num] v_lefts:[0.0:payload_count]
+    [num] v_rights:[0.0:payload_count]
+    [num] v_tops:[0.0:payload_count]
+    [num] v_bottoms:[0.0:payload_count]
+    [num] v_dxs:[0.0:payload_count]
+    [num] v_dys:[0.0:payload_count]
+    [num] v_c1xs:[0.0:payload_count]
+    [num] v_c1ys:[0.0:payload_count]
+    [num] v_c2xs:[0.0:payload_count]
+    [num] v_c2ys:[0.0:payload_count]
+    [num] v_line_widths:[0.0:payload_count]
+    [bit] v_fills:[false:payload_count]
+    [int] v_fill_paints:[-1:payload_count]
+    [int] v_stroke_paints:[-1:payload_count]
+    [int] v_dashs:[0:payload_count]
+    [int] v_target_types:[0:payload_count]
+    v_targets:document_scene.strings(payload_count)
+    [num] v_border_widths:[0.0:payload_count]
+    v_assets:document_scene.strings(payload_count)
+    paint_at:0
+    payload_at:0
+    destination_at:0
+    .i:0
+    i<count?>
+        item:output_leaf(source_arena,label_arena,decoration_arena,label_widths,placements,rules,body,baselines,refs,left,label_lefts,label_seps,i)
+        kinds.(i):item.kind
+        keys.(i):item.key
+        xs.(i):item.x
+        ys.(i):item.y
+        sxs.(i):item.sx
+        sys.(i):item.sy
+        widths.(i):item.width
+        heights.(i):item.height
+        lines.(i):item.line
+        equation_tags.(i):item.equation_tag
+        tag_widths.(i):item.tag_width
+        draws.(i):item.draw
+        item.metadata.count>0?
+            metadata_roots.(i):metadata.count
+            glyph_parts.(i):meta.shift(item.glyph_parts,metadata.count)
+            .metadata:meta.append(metadata,item.metadata)
+        flow_xs.(i):item.flow_x
+        flow_widths.(i):item.flow_width
+        has_flows.(i):item.has_flow
+        vertical_shrinks.(i):item.vertical_shrink
+        vertical_stretches.(i):item.vertical_stretch
+        footnote_numbers.(i):item.footnote_number
+        a260_scopes.(i):item.a260_scope
+        a260_texts.(i):item.a260_text
+        a260_operations.(i):item.a260_operation
+        a260_starts.(i):item.a260_start
+        a260_stops.(i):item.a260_stop
+        a260_parts.(i):item.a260_part
+        item.has_paint?
+            paints.(i):paint_at
+            p_red.(paint_at):item.paint.red
+            p_green.(paint_at):item.paint.green
+            p_blue.(paint_at):item.paint.blue
+            p_alpha.(paint_at):item.paint.alpha
+            .paint_at:paint_at+1
+        item.has_payload?
+            payloads.(i):payload_at
+            v_crop_xs.(payload_at):item.payload.crop_x
+            v_crop_ys.(payload_at):item.payload.crop_y
+            v_crop_lefts.(payload_at):item.payload.crop_left
+            v_crop_rights.(payload_at):item.payload.crop_right
+            v_crop_tops.(payload_at):item.payload.crop_top
+            v_crop_bottoms.(payload_at):item.payload.crop_bottom
+            v_lefts.(payload_at):item.payload.left
+            v_rights.(payload_at):item.payload.right
+            v_tops.(payload_at):item.payload.top
+            v_bottoms.(payload_at):item.payload.bottom
+            v_dxs.(payload_at):item.payload.dx
+            v_dys.(payload_at):item.payload.dy
+            v_c1xs.(payload_at):item.payload.c1x
+            v_c1ys.(payload_at):item.payload.c1y
+            v_c2xs.(payload_at):item.payload.c2x
+            v_c2ys.(payload_at):item.payload.c2y
+            v_line_widths.(payload_at):item.payload.line_width
+            v_fills.(payload_at):item.payload.fill
+            v_dashs.(payload_at):item.payload.dash
+            v_target_types.(payload_at):item.payload.target_type
+            v_targets.(payload_at):item.payload.target
+            v_border_widths.(payload_at):item.payload.border_width
+            v_assets.(payload_at):item.payload.asset
+            item.has_fill_paint?
+                v_fill_paints.(payload_at):paint_at
+                p_red.(paint_at):item.fill_paint.red
+                p_green.(paint_at):item.fill_paint.green
+                p_blue.(paint_at):item.fill_paint.blue
+                p_alpha.(paint_at):item.fill_paint.alpha
+                .paint_at:paint_at+1
+            item.has_stroke_paint?
+                v_stroke_paints.(payload_at):paint_at
+                p_red.(paint_at):item.stroke_paint.red
+                p_green.(paint_at):item.stroke_paint.green
+                p_blue.(paint_at):item.stroke_paint.blue
+                p_alpha.(paint_at):item.stroke_paint.alpha
+                .paint_at:paint_at+1
+            .payload_at:payload_at+1
+        destination_firsts.(i):destination_at
+        destination_counts.(i):item.destination_ids.length()
+        j:0
+        j<item.destination_ids.length()?>
+            destination_ids.(destination_at):item.destination_ids.(j)
+            .destination_at:destination_at+1
+            .j:j+1
+        .i:i+1
+    paint_table:document_scene_flat.paints_range(p_red,p_green,p_blue,p_alpha,0,paint_count)
+    payload_columns:(crop_xs:v_crop_xs,crop_ys:v_crop_ys,crop_lefts:v_crop_lefts,crop_rights:v_crop_rights,crop_tops:v_crop_tops,crop_bottoms:v_crop_bottoms,lefts:v_lefts,rights:v_rights,tops:v_tops,bottoms:v_bottoms,dxs:v_dxs,dys:v_dys,c1xs:v_c1xs,c1ys:v_c1ys,c2xs:v_c2xs,c2ys:v_c2ys,line_widths:v_line_widths,fills:v_fills,fill_paints:v_fill_paints,stroke_paints:v_stroke_paints,dashs:v_dashs,target_types:v_target_types,targets:v_targets,border_widths:v_border_widths,assets:v_assets)
+    payload_table:document_scene_flat.payloads_range(payload_columns,0,payload_count)
+    @:(kinds:kinds,keys:keys,xs:xs,ys:ys,sxs:sxs,sys:sys,widths:widths,heights:heights,lines:lines,equation_tags:equation_tags,tag_widths:tag_widths,draws:draws,metadata:metadata,metadata_roots:metadata_roots,glyph_parts:glyph_parts,flow_xs:flow_xs,flow_widths:flow_widths,has_flows:has_flows,vertical_shrinks:vertical_shrinks,vertical_stretches:vertical_stretches,footnote_numbers:footnote_numbers,paints:paints,payloads:payloads,destination_firsts:destination_firsts,destination_counts:destination_counts,destination_ids:destination_ids,count:count,paint_table:paint_table,paint_count:paint_count,payload_table:payload_table,payload_count:payload_count,a260_scopes:a260_scopes,a260_texts:a260_texts,a260_operations:a260_operations,a260_starts:a260_starts,a260_stops:a260_stops,a260_parts:a260_parts)
+anchor_index(anchor_scenes:[int],anchor_lines:[int],source_count:int,scene_count:int,placements:Placements,line_scenes:[int],source_lines:[int],line_count:int,page_count:int)->Index:
+    [int] scene_firsts:[-1:scene_count]
+    [int] scene_counts:[0:scene_count]
+    [bit] full_scenes:[false:scene_count]
+    i:0
+    i<line_count?>
+        sid:line_scenes.(i)
+        sid>=0 /\ sid<scene_count?
+            scene_firsts.(sid):i-source_lines.(i)
+            source_lines.(i)+1>scene_counts.(sid)? scene_counts.(sid):source_lines.(i)+1
+        .i:i+1
+    .i:0
+    i<placements.count?>
+        sid:placements.scenes.(i)
+        placements.kinds.(i)>=3 /\ sid>=0 /\ sid<scene_count? full_scenes.(sid):true
+        .i:i+1
+    [int] heads:[-1:line_count]
+    [int] tails:[-1:line_count]
+    [int] nexts:[-1:source_count]
+    [int] source_scenes:[0:source_count]
+    [int] source_leaves:[0:source_count]
+    [int] source_counts:[0:line_count]
+    at:0
+    sid:0
+    leaf:0
+    leaf<source_count?>
+        .sid:anchor_scenes.(leaf)
+        line:anchor_lines.(leaf)
+        full_scenes.(sid)? .line:0
+        global:scene_firsts.(sid)+line
+        line>=0 /\ line<scene_counts.(sid) /\ global>=0 /\ global<line_count?
+            source_scenes.(at):sid
+            source_leaves.(at):leaf
+            prior:tails.(global)
+            prior<0? heads.(global):at
+            prior>=0? nexts.(prior):at
+            tails.(global):at
+            source_counts.(global):source_counts.(global)+1
+            .at:at+1
+        .leaf:leaf+1
+    [int] counts:[0:page_count]
+    output_count:0
+    .i:0
+    i<placements.count?>
+        .sid:placements.scenes.(i)
+        sid>=0 /\ sid<scene_count?
+            global:scene_firsts.(sid)+placements.source_lines.(i)
+            global>=0 /\ global<line_count?
+                page:placements.pages.(i)
+                counts.(page):counts.(page)+source_counts.(global)
+                .output_count:output_count+source_counts.(global)
+        .i:i+1
+    [int] firsts:[0:page_count]
+    [int] stops:[0:page_count]
+    .at:0
+    .i:0
+    i<page_count?>
+        firsts.(i):at
+        stops.(i):at
+        .at:at+counts.(i)
+        .i:i+1
+    [int] scene_ids:[0:output_count]
+    [int] leaf_ids:[0:output_count]
+    [int] placement_ids:[0:output_count]
+    [int] global_lines:[0:output_count]
+    .i:0
+    i<placements.count?>
+        .sid:placements.scenes.(i)
+        sid>=0 /\ sid<scene_count?
+            global:scene_firsts.(sid)+placements.source_lines.(i)
+            global>=0 /\ global<line_count?
+                page:placements.pages.(i)
+                node:heads.(global)
+                node>=0?>
+                    .at:stops.(page)
+                    scene_ids.(at):source_scenes.(node)
+                    leaf_ids.(at):source_leaves.(node)
+                    placement_ids.(at):i
+                    global_lines.(at):global
+                    stops.(page):at+1
+                    .node:nexts.(node)
+        .i:i+1
+    @:(scene_ids:scene_ids,leaf_ids:leaf_ids,placement_ids:placement_ids,global_lines:global_lines,firsts:firsts,counts:counts,count:output_count)
+build(plan:Plan,blocks:Blocks,lines:Lines,scenes:[Scene],labels:[Scene],placements:Placements,pages:Pages,config:Configuration,fonts:Catalog,decorations:[Scene],rules:Rules)->(document:PageDocument,page_values:Map,debug_modes:[int],debug_has_lines:[bit]):
+    settings:resource_json.parse(config.config)
+    left:number(settings,0,"left")
+    width:number(settings,0,"paperWidth")
+    height:number(settings,0,"paperHeight")
+    flat_source:document_scene_flat.flatten(scenes)
+    source_arena:flat_source.arena
+    source_firsts:flat_source.firsts
+    source_counts:flat_source.counts
+    anchor_scenes:flat_source.anchor_scenes
+    anchor_lines:flat_source.anchor_lines
+    anchor_xs:flat_source.anchor_xs
+    anchor_ys:flat_source.anchor_ys
+    anchor_ids:flat_source.anchor_ids
+    flat_labels:document_scene_flat.flatten(labels)
+    label_arena:flat_labels.arena
+    label_firsts:flat_labels.firsts
+    label_counts:flat_labels.counts
+    label_widths:flat_labels.scene_widths
+    flat_decorations:document_scene_flat.flatten(decorations)
+    decoration_arena:flat_decorations.arena
+    decoration_firsts:flat_decorations.firsts
+    decoration_counts:flat_decorations.counts
+    line_scenes:lines.scenes
+    line_sources:lines.source_lines
+    line_count:lines.count
+    page_count:pages.count
+    source_scene_count:scenes.length()
+    anchor_count:flat_source.anchor_count
+    body:document_scene_pages.index_flat(source_arena,source_firsts,source_counts,placements,line_scenes,line_sources,line_count,page_count)
+    anchors:anchor_index(anchor_scenes,anchor_lines,anchor_count,source_scene_count,placements,line_scenes,line_sources,line_count,page_count)
+    [int] body_firsts:[-1:placements.count]
+    [int] body_counts:[0:placements.count]
+    at:0
+    at<body.count?>
+        pi:body.placement_ids.(at)
+        body_firsts.(pi)<0? body_firsts.(pi):at
+        body_counts.(pi):body_counts.(pi)+1
+        .at:at+1
+    [int] scene_firsts:[-1:scenes.length()]
+    .at:0
+    at<lines.count?>
+        sid:lines.scenes.(at)
+        sid>=0 /\ sid<scenes.length()? scene_firsts.(sid):at-lines.source_lines.(at)
+        .at:at+1
+    capacity:body.count+rules.count
+    .at:0
+    at<placements.count?>
+        sid:placements.scenes.(at)
+        sid>=0 /\ sid<plan.count /\ sid<labels.length() /\ placements.source_lines.(at)=0? .capacity:capacity+label_counts.(sid)
+        .at:at+1
+    .at:0
+    at<decorations.length()?>
+        .capacity:capacity+decoration_counts.(at)
+        .at:at+1
+    [int] kinds:[0:capacity]
+    [int] source_ids:[0:capacity]
+    [int] leaf_ids:[0:capacity]
+    [int] placement_ids:[0:capacity]
+    context_ids:document_scene.strings(capacity)
+    [num] label_ys:[0.0:capacity]
+    [int] modes:[0:capacity]
+    [bit] has_lines:[false:capacity]
+    [int] nexts:[-1:capacity]
+    [int] heads:[-1:pages.count]
+    [int] tails:[-1:pages.count]
+    [int] counts:[0:pages.count]
+    [int] rule_ids:[-1:pages.count]
+    [bit] emitted_rules:[false:pages.count]
+    [bit] marked:[false:plan.count]
+    [bit] context_ready:[false:plan.count]
+    context_destinations:document_scene.strings(plan.count)
+    [num] label_lefts:[0.0:plan.count]
+    [num] label_seps:[0.0:plan.count]
+    ri:0
+    ri<rules.count?>
+        rule_ids.(rules.pages.(ri)):ri
+        .ri:ri+1
+    count:0
+    pi:0
+    pi<placements.count?>
+        sid:placements.scenes.(pi)
+        line:placements.source_lines.(pi)
+        page:placements.pages.(pi)
+        placements.kinds.(pi)=1 /\ ~emitted_rules.(page) /\ rule_ids.(page)>=0?
+            kinds.(count):2
+            source_ids.(count):rule_ids.(page)
+            leaf_ids.(count):0
+            placement_ids.(count):0
+            modes.(count):7
+            has_lines.(count):false
+            context_ids.(count):""
+            label_ys.(count):0
+            prior:tails.(page)
+            prior<0? heads.(page):count
+            prior>=0? nexts.(prior):count
+            tails.(page):count
+            counts.(page):counts.(page)+1
+            .count:count+1
+            emitted_rules.(page):true
+        sid>=0 /\ sid<scenes.length()?
+            sid<plan.count /\ ~context_ready.(sid)?
+                context:resource_json.parse(plan.contexts.(sid))
+                context_destinations.(sid):string(context,0,"destination")
+                label_lefts.(sid):number(context,0,"left")
+                label_seps.(sid):number(context,0,"labelSep")
+                config.class_name="amsart" /\ string(settings,0,"bibliographyStyle")~="" /\ string(context,0,"kind")="bibliography"?
+                    label_lefts.(sid):label_widths.(sid)
+                    label_seps.(sid):0
+                context_ready.(sid):true
+            sid<plan.count /\ sid<labels.length() /\ line=0?
+                global:scene_firsts.(sid)+line
+                li:0
+                li<label_counts.(sid)?>
+                    kinds.(count):1
+                    source_ids.(count):sid
+                    leaf_ids.(count):label_firsts.(sid)+li
+                    placement_ids.(count):pi
+                    modes.(count):2
+                    has_lines.(count):true
+                    context_ids.(count):""
+                    label_ys.(count):placements.ys.(pi)+lines.baselines.(global)*placements.units.(pi)
+                    prior:tails.(page)
+                    prior<0? heads.(page):count
+                    prior>=0? nexts.(prior):count
+                    tails.(page):count
+                    counts.(page):counts.(page)+1
+                    .count:count+1
+                    .li:li+1
+            .at:body_firsts.(pi)
+            stop:at+body_counts.(pi)
+            body_mode:mode(placements.kinds.(pi))
+            ensure_line:false
+            body_mode=1 /\ sid<plan.count?
+                source_kind:plan.kinds.(sid)
+                .ensure_line:q_line(source_kind)
+                # Proof endings are translated from their native box without
+                # adding the paragraph scale metadata (JS proofend branch).
+                source_kind="proofend"? .body_mode:9
+            at>=0 /\ at<stop?>
+                destination:""
+                sid<plan.count /\ ~marked.(sid) /\ source_arena.kinds.(body.leaf_ids.(at))~=3?
+                    .destination:context_destinations.(sid)
+                    marked.(sid):true
+                kinds.(count):0
+                source_ids.(count):at
+                leaf_ids.(count):0
+                placement_ids.(count):pi
+                modes.(count):body_mode
+                has_lines.(count):ensure_line
+                context_ids.(count):destination
+                label_ys.(count):0
+                prior:tails.(page)
+                prior<0? heads.(page):count
+                prior>=0? nexts.(prior):count
+                tails.(page):count
+                counts.(page):counts.(page)+1
+                .count:count+1
+                .at:at+1
+        .pi:pi+1
+    .ri:0
+    ri<rules.count?>
+        page:rules.pages.(ri)
+        ~emitted_rules.(page)?
+            kinds.(count):2
+            source_ids.(count):ri
+            leaf_ids.(count):0
+            placement_ids.(count):0
+            modes.(count):7
+            has_lines.(count):false
+            context_ids.(count):""
+            label_ys.(count):0
+            prior:tails.(page)
+            prior<0? heads.(page):count
+            prior>=0? nexts.(prior):count
+            tails.(page):count
+            counts.(page):counts.(page)+1
+            .count:count+1
+        .ri:ri+1
+    page:0
+    page<decorations.length()?>
+        leaf:0
+        leaf<decoration_counts.(page)?>
+            kinds.(count):3
+            source_ids.(count):page
+            leaf_ids.(count):decoration_firsts.(page)+leaf
+            placement_ids.(count):0
+            modes.(count):8
+            has_lines.(count):false
+            context_ids.(count):""
+            label_ys.(count):0
+            prior:tails.(page)
+            prior<0? heads.(page):count
+            prior>=0? nexts.(prior):count
+            tails.(page):count
+            counts.(page):counts.(page)+1
+            .count:count+1
+            .leaf:leaf+1
+        .page:page+1
+    [int] firsts:[0:pages.count]
+    [int] ordered:[0:count]
+    [int] ordered_modes:[0:count]
+    [bit] ordered_lines:[false:count]
+    .at:0
+    .page:0
+    page<pages.count?>
+        firsts.(page):at
+        node:heads.(page)
+        node>=0?>
+            ordered.(at):node
+            ordered_modes.(at):modes.(node)
+            ordered_lines.(at):has_lines.(node)
+            .at:at+1
+            .node:nexts.(node)
+        .page:page+1
+    Refs refs:(kinds:kinds,source_ids:source_ids,leaf_ids:leaf_ids,placement_ids:placement_ids,context_ids:context_ids,label_ys:label_ys,ordered:ordered,firsts:firsts,counts:counts,modes:modes,has_lines:has_lines,count:count)
+    baselines:lines.baselines
+    arena:output_arena(source_arena,label_arena,decoration_arena,label_widths,placements,rules,body,baselines,refs,left,label_lefts,label_seps,count)
+    aliases:plan.reference_destinations
+    alias_keys:aliases.keys
+    destination_capacity:pages.count+1+arena.destination_ids.length()+anchors.count+alias_keys.count
+    names:document_scene.strings(destination_capacity)
+    [int] destination_pages:[0:destination_capacity]
+    [num] destination_xs:[0.0:destination_capacity]
+    [num] destination_ys:[0.0:destination_capacity]
+    [int] slots:[-1:2*destination_capacity+1]
+    names.(0):"document"
+    slots.(math_metadata.hash("document")%slots.length()):0
+    destination_count:1
+    .page:0
+    page<pages.count?>
+        name:"page:"&tex_text.integer(page+1)
+        bucket:find_slot(names,slots,name)
+        id:slots.(bucket)
+        id<0?
+            .id:destination_count
+            names.(id):name
+            slots.(bucket):id
+            .destination_count:destination_count+1
+        destination_pages.(id):page
+        destination_xs.(id):0
+        destination_ys.(id):0
+        anchor:anchors.firsts.(page)
+        anchor_stop:anchor+anchors.counts.(page)
+        anchor<anchor_stop?>
+            leaf:anchors.leaf_ids.(anchor)
+            .pi:anchors.placement_ids.(anchor)
+            anchor_x:anchor_xs.(leaf)
+            anchor_y:anchor_ys.(leaf)
+            position:document_scene_pages.apply_point(anchor_x,anchor_y,placements,pi)
+            .name:anchor_ids.(leaf)
+            .bucket:find_slot(names,slots,name)
+            .id:slots.(bucket)
+            id<0?
+                .id:destination_count
+                names.(id):name
+                slots.(bucket):id
+                .destination_count:destination_count+1
+            destination_pages.(id):page
+            destination_xs.(id):position.x
+            destination_ys.(id):position.y
+            .anchor:anchor+1
+        leaf:firsts.(page)
+        leaf_stop:leaf+counts.(page)
+        leaf<leaf_stop?>
+            ids:arena.destination_firsts.(leaf)
+            ids_stop:ids+arena.destination_counts.(leaf)
+            ids<ids_stop?
+                y_ready:false
+                y:0.0
+                ids<ids_stop?>
+                    .name:arena.destination_ids.(ids)
+                    .bucket:find_slot(names,slots,name)
+                    .id:slots.(bucket)
+                    id<0?
+                        ~y_ready?
+                            tile_key:arena.keys.(leaf)
+                            tile_y:arena.ys.(leaf)
+                            tile_sy:arena.sys.(leaf)
+                            .y:destination_y(fonts,tile_key,tile_y,tile_sy)
+                            .y_ready:true
+                        .id:destination_count
+                        names.(id):name
+                        slots.(bucket):id
+                        .destination_count:destination_count+1
+                        destination_pages.(id):page
+                        destination_xs.(id):arena.xs.(leaf)
+                        destination_ys.(id):y
+                    .ids:ids+1
+            .leaf:leaf+1
+        .page:page+1
+    page_values:document_present_maps.empty()
+    alias:0
+    alias<alias_keys.count?>
+        alias_destination:aliases.values.(alias)
+        source:find_name(names,slots,alias_destination)
+        source>=0?
+            name:"label:"&alias_keys.values.(alias)
+            bucket:find_slot(names,slots,name)
+            id:slots.(bucket)
+            id<0?
+                .id:destination_count
+                names.(id):name
+                slots.(bucket):id
+                .destination_count:destination_count+1
+            destination_pages.(id):destination_pages.(source)
+            destination_xs.(id):destination_xs.(source)
+            destination_ys.(id):destination_ys.(source)
+            alias_name:alias_keys.values.(alias)
+            page_number:tex_text.integer(destination_pages.(source)+1)
+            .page_values:document_present_maps.put(page_values,alias_name,page_number)
+        .alias:alias+1
+    [num] page_widths:[width:pages.count]
+    [num] page_heights:[height:pages.count]
+    PageDocument document:(widths:page_widths,heights:page_heights,firsts:firsts,counts:counts,arena:arena,destination_names:names,destination_pages:destination_pages,destination_xs:destination_xs,destination_ys:destination_ys,page_count:pages.count,destination_count:destination_count)
+    @:(document:document,page_values:page_values,debug_modes:ordered_modes,debug_has_lines:ordered_lines)

@@ -1,0 +1,6 @@
+Demand:(count:int,misses:int)
+prepare(d:Demand)->bit:d.count=2 /\ d.misses=1
+check()->bit:
+    demand:(count:2,misses:1)
+    @:prepare(demand)
+::check()

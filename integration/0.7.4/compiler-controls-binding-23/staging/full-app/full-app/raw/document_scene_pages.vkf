@@ -1,0 +1,226 @@
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+# Indexed typed placement. Build each source-line list once; no scene rescans.
+document_scene:.document_scene
+document_pages:.document_pages
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
+Placements:(scenes:[int],source_lines:[int],pages:[int],blocks:[int],lines:[int],kinds:[int],xs:[num],ys:[num],units:[num],tag_bases:[num],line_heights:[num],line_depths:[num],shrink:[num],stretch:[num],count:int)
+Index:(scene_ids:[int],leaf_ids:[int],placement_ids:[int],global_lines:[int],firsts:[int],counts:[int],count:int)
+index(scenes:[Scene],placements:Placements,line_scenes:[int],source_lines:[int],line_count:int,page_count:int)->Index:
+    [int] scene_firsts:[-1:scenes.length()]
+    [int] scene_counts:[0:scenes.length()]
+    [bit] full_scenes:[false:scenes.length()]
+    i:0
+    i<line_count?>
+        sid:line_scenes.(i)
+        sid>=0 /\ sid<scenes.length()?
+            scene_firsts.(sid):i-source_lines.(i)
+            source_lines.(i)+1>scene_counts.(sid)? scene_counts.(sid):source_lines.(i)+1
+        .i:i+1
+    .i:0
+    i<placements.count?>
+        sid:placements.scenes.(i)
+        placements.kinds.(i)>=3 /\ sid>=0 /\ sid<scenes.length()? full_scenes.(sid):true
+        .i:i+1
+    source_count:0
+    .i:0
+    i<scenes.length()?>
+        .source_count:source_count+scenes.(i).arena.count
+        .i:i+1
+    [int] heads:[-1:line_count]
+    [int] tails:[-1:line_count]
+    [int] nexts:[-1:source_count]
+    [int] source_scenes:[0:source_count]
+    [int] source_leaves:[0:source_count]
+    [int] source_counts:[0:line_count]
+    at:0
+    sid:0
+    sid<scenes.length()?>
+        leaf:0
+        leaf<scenes.(sid).arena.count?>
+            line:scenes.(sid).arena.lines.(leaf)
+            full_scenes.(sid)? .line:0
+            global:scene_firsts.(sid)+line
+            line>=0 /\ line<scene_counts.(sid) /\ global>=0 /\ global<line_count?
+                source_scenes.(at):sid
+                source_leaves.(at):leaf
+                prior:tails.(global)
+                prior<0? heads.(global):at
+                prior>=0? nexts.(prior):at
+                tails.(global):at
+                source_counts.(global):source_counts.(global)+1
+                .at:at+1
+            .leaf:leaf+1
+        .sid:sid+1
+    [int] counts:[0:page_count]
+    output_count:0
+    .i:0
+    i<placements.count?>
+        .sid:placements.scenes.(i)
+        sid>=0 /\ sid<scenes.length()?
+            global:scene_firsts.(sid)+placements.source_lines.(i)
+            global>=0 /\ global<line_count?
+                page:placements.pages.(i)
+                counts.(page):counts.(page)+source_counts.(global)
+                .output_count:output_count+source_counts.(global)
+        .i:i+1
+    [int] firsts:[0:page_count]
+    [int] stops:[0:page_count]
+    .at:0
+    .i:0
+    i<page_count?>
+        firsts.(i):at
+        stops.(i):at
+        .at:at+counts.(i)
+        .i:i+1
+    [int] scene_ids:[0:output_count]
+    [int] leaf_ids:[0:output_count]
+    [int] placement_ids:[0:output_count]
+    [int] global_lines:[0:output_count]
+    .i:0
+    i<placements.count?>
+        .sid:placements.scenes.(i)
+        sid>=0 /\ sid<scenes.length()?
+            global:scene_firsts.(sid)+placements.source_lines.(i)
+            global>=0 /\ global<line_count?
+                page:placements.pages.(i)
+                node:heads.(global)
+                node>=0?>
+                    .at:stops.(page)
+                    scene_ids.(at):source_scenes.(node)
+                    leaf_ids.(at):source_leaves.(node)
+                    placement_ids.(at):i
+                    global_lines.(at):global
+                    stops.(page):at+1
+                    .node:nexts.(node)
+        .i:i+1
+    @:(scene_ids:scene_ids,leaf_ids:leaf_ids,placement_ids:placement_ids,global_lines:global_lines,firsts:firsts,counts:counts,count:output_count)
+apply_leaf(source:Leaf,placements:Placements,index:int,source_baseline:num=0)->Leaf:
+    item:source
+    kind:placements.kinds.(index)
+    kind=1 \/ kind>=3?
+        item.x:placements.xs.(index)+source.x
+        item.y:placements.ys.(index)+source.y
+    kind~=1 /\ kind<3?
+        placed:document_pages.position(placements,index,source.x,source.y,source.width,source.height,document_scene.kind_name(source.kind),source.equation_tag,source.tag_width,source_baseline)
+        item.x:placed.x
+        item.y:placed.y
+        item.vertical_shrink:placements.shrink.(index)
+        item.vertical_stretch:placements.stretch.(index)
+        source.kind~=3?
+            item.sx:source.sx*placed.unit
+            item.sy:source.sy*placed.unit
+        source.kind=2 \/ source.kind=3 \/ source.kind=9?
+            item.width:placed.width
+            item.height:placed.height
+    @:item
+placed_leaf(scenes:[Scene],placements:Placements,refs:Index,line_baselines:[num],index:int)->Leaf:
+    sid:refs.scene_ids.(index)
+    lid:refs.leaf_ids.(index)
+    pi:refs.placement_ids.(index)
+    global:refs.global_lines.(index)
+    baseline:line_baselines.(global)
+    source:document_scene.leaf_at(scenes.(sid).arena,lid)
+    @:apply_leaf(source,placements,pi,baseline)
+apply_point(x:num,y:num,placements:Placements,index:int):
+    unit:placements.units.(index)
+    placements.kinds.(index)=1 \/ placements.kinds.(index)>=3? .unit:1
+    @:(x:placements.xs.(index)+x*unit,y:placements.ys.(index)+y*unit)
+
+# Global leaf IDs into a single preflattened Arena.
+index_flat(arena:Arena,scene_offsets:[int],scene_counts_input:[int],placements:Placements,line_scenes:[int],source_lines:[int],line_count:int,page_count:int)->Index:
+    [int] scene_firsts:[-1:scene_offsets.length()]
+    [int] scene_counts:[0:scene_offsets.length()]
+    [bit] full_scenes:[false:scene_offsets.length()]
+    i:0
+    i<line_count?>
+        sid:line_scenes.(i)
+        sid>=0 /\ sid<scene_offsets.length()?
+            scene_firsts.(sid):i-source_lines.(i)
+            source_lines.(i)+1>scene_counts.(sid)? scene_counts.(sid):source_lines.(i)+1
+        .i:i+1
+    .i:0
+    i<placements.count?>
+        sid:placements.scenes.(i)
+        placements.kinds.(i)>=3 /\ sid>=0 /\ sid<scene_offsets.length()? full_scenes.(sid):true
+        .i:i+1
+    source_count:arena.count
+    [int] heads:[-1:line_count]
+    [int] tails:[-1:line_count]
+    [int] nexts:[-1:source_count]
+    [int] source_scenes:[0:source_count]
+    [int] source_leaves:[0:source_count]
+    [int] source_counts:[0:line_count]
+    at:0
+    sid:0
+    sid<scene_offsets.length()?>
+        leaf:0
+        leaf<scene_counts_input.(sid)?>
+            line:arena.lines.(scene_offsets.(sid)+leaf)
+            full_scenes.(sid)? .line:0
+            global:scene_firsts.(sid)+line
+            line>=0 /\ line<scene_counts.(sid) /\ global>=0 /\ global<line_count?
+                source_scenes.(at):sid
+                source_leaves.(at):scene_offsets.(sid)+leaf
+                prior:tails.(global)
+                prior<0? heads.(global):at
+                prior>=0? nexts.(prior):at
+                tails.(global):at
+                source_counts.(global):source_counts.(global)+1
+                .at:at+1
+            .leaf:leaf+1
+        .sid:sid+1
+    [int] counts:[0:page_count]
+    output_count:0
+    .i:0
+    i<placements.count?>
+        .sid:placements.scenes.(i)
+        sid>=0 /\ sid<scene_offsets.length()?
+            global:scene_firsts.(sid)+placements.source_lines.(i)
+            global>=0 /\ global<line_count?
+                page:placements.pages.(i)
+                counts.(page):counts.(page)+source_counts.(global)
+                .output_count:output_count+source_counts.(global)
+        .i:i+1
+    [int] firsts:[0:page_count]
+    [int] stops:[0:page_count]
+    .at:0
+    .i:0
+    i<page_count?>
+        firsts.(i):at
+        stops.(i):at
+        .at:at+counts.(i)
+        .i:i+1
+    [int] scene_ids:[0:output_count]
+    [int] leaf_ids:[0:output_count]
+    [int] placement_ids:[0:output_count]
+    [int] global_lines:[0:output_count]
+    .i:0
+    i<placements.count?>
+        .sid:placements.scenes.(i)
+        sid>=0 /\ sid<scene_offsets.length()?
+            global:scene_firsts.(sid)+placements.source_lines.(i)
+            global>=0 /\ global<line_count?
+                page:placements.pages.(i)
+                node:heads.(global)
+                node>=0?>
+                    .at:stops.(page)
+                    scene_ids.(at):source_scenes.(node)
+                    leaf_ids.(at):source_leaves.(node)
+                    placement_ids.(at):i
+                    global_lines.(at):global
+                    stops.(page):at+1
+                    .node:nexts.(node)
+        .i:i+1
+    @:(scene_ids:scene_ids,leaf_ids:leaf_ids,placement_ids:placement_ids,global_lines:global_lines,firsts:firsts,counts:counts,count:output_count)
+placed_leaf_flat(arena:Arena,placements:Placements,refs:Index,line_baselines:[num],index:int)->Leaf:
+    lid:refs.leaf_ids.(index)
+    pi:refs.placement_ids.(index)
+    global:refs.global_lines.(index)
+    baseline:line_baselines.(global)
+    source:document_scene.leaf_at(arena,lid)
+    @:apply_leaf(source,placements,pi,baseline)

@@ -1,0 +1,36 @@
+tikz_syntax_text:.tex_text
+tikz_syntax_chunks:.text_chunks
+Parts:(values:[str],count:int,diagnostic:str)
+
+split(source:str,delimiter:str=",")->Parts:
+    size:tikz_syntax_text.byte_length(source)
+    values:tikz_syntax_chunks.empty(16)
+    count:0
+    start:0
+    at:0
+    depth:0
+    at<size?>
+        c:tikz_syntax_text.at(source,at)
+        next:tikz_syntax_text.next(source,at)
+        c="\\"?
+            next<size? .next:tikz_syntax_text.next(source,next)
+            .at:next
+            @>
+        (c="{" \/ c="[" \/ c="(")? .depth:depth+1
+        (c="}" \/ c="]" \/ c=")")? .depth:depth-1
+        depth<0? @:(values:values,count:count,diagnostic:"Unbalanced TikZ argument")
+        c=delimiter /\ depth=0?
+            value:tikz_syntax_text.trim(tikz_syntax_text.span(source,start,at))
+            value~=""?
+                count>=values.length()? .values:values&tikz_syntax_chunks.empty(values.length())
+                values.(count):value
+                .count:count+1
+            .start:next
+        .at:next
+    depth~=0? @:(values:values,count:count,diagnostic:"Unbalanced TikZ argument")
+    value:tikz_syntax_text.trim(tikz_syntax_text.span(source,start,size))
+    value~=""?
+        count>=values.length()? .values:values&tikz_syntax_chunks.empty(values.length())
+        values.(count):value
+        .count:count+1
+    @:(values:values,count:count,diagnostic:"")

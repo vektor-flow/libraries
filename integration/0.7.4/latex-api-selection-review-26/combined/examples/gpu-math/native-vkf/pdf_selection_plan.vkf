@@ -1,0 +1,147 @@
+# Internal direct-literal plan integrity validator. Host-issued capability and
+# trusted native invocation custody are mandatory OUTSIDE this structural type.
+# This record cannot authenticate itself; do not expose it as a public flag bypass.
+text:.tex_text
+chunks:.text_chunks
+indexing:.math_metadata
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
+SelectionPlan:(schema:int,document_id:str,revision:int,source_revision:str,source_ids:[str],source_versions:[int],source_texts:[str],scope_ids:[str],scope_sources:[int],scope_bases:[int],scope_texts:[str],group_ids:[str],group_sources:[int],group_starts:[int],group_stops:[int],cluster_groups:[int],cluster_scopes:[int],cluster_operations:[int],cluster_starts:[int],cluster_stops:[int],cluster_firsts:[int],cluster_counts:[int],leaf_ids:[str],leaf_parts:[int])
+
+# Check both boundaries before any UTF-8 slicing, including nonzero starts.
+scalar_span(source:str,start:int,stop:int)->bit:
+    size:text.byte_length(source)
+    (start<0 \/ stop<start \/ stop>size)? @:false
+    cursor:0
+    found:start=0
+    cursor<stop?>
+        .cursor:text.next(source,cursor)
+        cursor=start? .found:true
+    @:found /\ cursor=stop
+
+# Restricted literal text only: no TeX semantics, whitespace collapse, active
+# characters, dash/quote substitutions or Unicode normalization is inferred.
+literal(source:str)->bit:
+    source=""? @:false
+    cursor:0
+    size:text.byte_length(source)
+    cursor<size?>
+        c:text.at(source,cursor)
+        (text.special(c) \/ c="~" \/ c="-" \/ c="`" \/ c="'" \/ c<"!")? @:false
+        .cursor:text.next(source,cursor)
+    @:true
+
+unique(values:[str])->bit:
+    [int] slots:[-1:2*values.length()+16]
+    i:0
+    i<values.length()?>
+        key:values.(i)
+        key=""? @:false
+        at:indexing.hash(key)%slots.length()
+        slots.(at)>=0?>
+            values.(slots.(at))=key? @:false
+            .at:(at+1)%slots.length()
+        slots.(at):i
+        .i:i+1
+    @:true
+
+validate(doc:PageDocument,p:SelectionPlan)->[str]:
+    (p.schema=1 /\ p.document_id~="" /\ p.revision>=0 /\ p.source_revision~="")?! "Invalid selection plan identity"
+    a:doc.arena
+    n:a.count
+    (n>0 /\ doc.page_count>0 /\ doc.page_count<=100 /\ doc.firsts.length()=doc.page_count /\ doc.counts.length()=doc.page_count)?! "Missing typed selection document"
+    (a.kinds.length()=n /\ a.draws.length()=n /\ a.a260_scopes.length()=n /\ a.a260_texts.length()=n /\ a.a260_operations.length()=n /\ a.a260_starts.length()=n /\ a.a260_stops.length()=n /\ a.a260_parts.length()=n /\ p.leaf_ids.length()=n /\ p.leaf_parts.length()=n)?! "Missing selection ownership columns"
+    (unique(p.leaf_ids) /\ unique(p.source_ids) /\ unique(p.scope_ids) /\ unique(p.group_ids))?! "Duplicate selection ownership"
+    sources:p.source_ids.length()
+    scopes:p.scope_ids.length()
+    groups:p.group_ids.length()
+    clusters:p.cluster_firsts.length()
+    (sources>0 /\ p.source_versions.length()=sources /\ p.source_texts.length()=sources)?! "Missing selection sources"
+    (scopes>0 /\ p.scope_sources.length()=scopes /\ p.scope_bases.length()=scopes /\ p.scope_texts.length()=scopes)?! "Missing selection scopes"
+    (groups>0 /\ p.group_sources.length()=groups /\ p.group_starts.length()=groups /\ p.group_stops.length()=groups)?! "Missing selection groups"
+    (clusters>0 /\ p.cluster_counts.length()=clusters /\ p.cluster_groups.length()=clusters /\ p.cluster_scopes.length()=clusters /\ p.cluster_operations.length()=clusters /\ p.cluster_starts.length()=clusters /\ p.cluster_stops.length()=clusters)?! "Missing selection clusters"
+    i:0
+    i<sources?>
+        (p.source_versions.(i)>=0)?! "Invalid source version"
+        .i:i+1
+    .i:0
+    i<scopes?>
+        source:p.scope_sources.(i)
+        (source>=0 /\ source<sources)?! "Unknown scope source"
+        base:p.scope_bases.(i)
+        stop:base+text.byte_length(p.scope_texts.(i))
+        (scalar_span(p.source_texts.(source),base,stop))?! "Invalid direct scope bounds"
+        (text.span(p.source_texts.(source),base,stop)=p.scope_texts.(i))?! "Expanded selection needs authenticated logical producer"
+        .i:i+1
+    .i:0
+    i<groups?>
+        source:p.group_sources.(i)
+        (source>=0 /\ source<sources)?! "Unknown group source"
+        (p.group_starts.(i)<p.group_stops.(i) /\ scalar_span(p.source_texts.(source),p.group_starts.(i),p.group_stops.(i)))?! "Invalid authored group bounds"
+        .i:i+1
+    page:0
+    end:0
+    page<doc.page_count?>
+        (doc.firsts.(page)=end /\ doc.counts.(page)>=0)?! "Invalid selection page coverage"
+        .end:end+doc.counts.(page)
+        .page:page+1
+    (end=n)?! "Missing selection page coverage"
+    logical:chunks.empty(clusters)
+    operation_keys:chunks.empty(clusters)
+    [int] operation_slots:[-1:2*clusters+16]
+    first:0
+    group: -1
+    cursor:0
+    .page:0
+    .i:0
+    i<clusters?>
+        g:p.cluster_groups.(i)
+        (g>=0 /\ g<groups)?! "Unknown cluster group"
+        g~=group?
+            group>=0? (cursor=p.group_stops.(group))?! "Missing authored group text"
+            (g=group+1)?! "Nonlogical selection group order"
+            .group:g
+            .cursor:p.group_starts.(g)
+        scope:p.cluster_scopes.(i)
+        (scope>=0 /\ scope<scopes /\ p.cluster_operations.(i)>=0)?! "Unknown cluster scope/operation"
+        source:p.scope_sources.(scope)
+        start:p.cluster_starts.(i)
+        stop:p.cluster_stops.(i)
+        (start<stop /\ scalar_span(p.scope_texts.(scope),start,stop))?! "Invalid cluster scalar bounds"
+        (source=p.group_sources.(g) /\ p.scope_bases.(scope)+start=cursor /\ p.scope_bases.(scope)+stop<=p.group_stops.(g))?! "Overlapping/missing authored cluster text"
+        .cursor:p.scope_bases.(scope)+stop
+        operation_key:text.integer(scope)&":"&text.integer(p.cluster_operations.(i))
+        operation_slot:indexing.hash(operation_key)%operation_slots.length()
+        operation_slots.(operation_slot)>=0?>
+            (operation_keys.(operation_slots.(operation_slot))~=operation_key)?! "Repeated/noncontiguous cluster ownership"
+            .operation_slot:(operation_slot+1)%operation_slots.length()
+        operation_keys.(i):operation_key
+        operation_slots.(operation_slot):i
+        count:p.cluster_counts.(i)
+        (p.cluster_firsts.(i)=first /\ count>0 /\ first+count<=n)?! "Missing/duplicate cluster leaf coverage"
+        page<doc.page_count?>
+            first<doc.firsts.(page)+doc.counts.(page)? @|
+            .page:page+1
+        (page<doc.page_count)?! "Cluster outside document pages"
+        (first+count<=doc.firsts.(page)+doc.counts.(page))?! "Cross-page cluster needs producer split map"
+        [int] part_slots:[-1:2*count+16]
+        leaf:first
+        leaf<first+count?>
+            (a.kinds.(leaf)=0 /\ a.draws.(leaf))?! "Nonliteral/generated selection leaf"
+            (a.a260_scopes.(leaf)=p.scope_ids.(scope) /\ a.a260_texts.(leaf)=p.scope_texts.(scope) /\ a.a260_operations.(leaf)=p.cluster_operations.(i) /\ a.a260_starts.(leaf)=start /\ a.a260_stops.(leaf)=stop /\ a.a260_parts.(leaf)=p.leaf_parts.(leaf) /\ p.leaf_parts.(leaf)>=0)?! "Typed document/selection ownership mismatch"
+            part:p.leaf_parts.(leaf)
+            part_slot:part%part_slots.length()
+            part_slots.(part_slot)>=0?>
+                (part_slots.(part_slot)~=part)?! "Duplicate cluster emission part"
+                .part_slot:(part_slot+1)%part_slots.length()
+            part_slots.(part_slot):part
+            .leaf:leaf+1
+        logical.(i):text.span(p.source_texts.(source),p.scope_bases.(scope)+start,p.scope_bases.(scope)+stop)
+        (literal(logical.(i)))?! "Nonliteral text needs exact logical producer"
+        .first:first+count
+        .i:i+1
+    (first=n /\ group=groups-1 /\ cursor=p.group_stops.(group))?! "Incomplete selection plan"
+    @:logical

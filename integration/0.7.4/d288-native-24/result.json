@@ -1,0 +1,223 @@
+{
+  "result": "D288_TEN_ORIGINAL_CONTROLS_PASSED",
+  "attempt": "A:d288-native24-01",
+  "controller_exit": 0,
+  "controller_seconds": 48.34234417998232,
+  "d288_passed": true,
+  "stages_executed": 20,
+  "original_controls_passed": 10,
+  "stages": [
+    {
+      "name": "numeric_only-compile",
+      "exit": 0,
+      "seconds": 0.21667482797056437,
+      "oracle_passed": true
+    },
+    {
+      "name": "numeric_only-run-0",
+      "exit": 0,
+      "seconds": 0.42062066099606454,
+      "oracle_passed": true
+    },
+    {
+      "name": "string_only-compile",
+      "exit": 0,
+      "seconds": 0.2190266220131889,
+      "oracle_passed": true
+    },
+    {
+      "name": "string_only-run-0",
+      "exit": 0,
+      "seconds": 0.4245566080790013,
+      "oracle_passed": true
+    },
+    {
+      "name": "individual_control-compile",
+      "exit": 0,
+      "seconds": 0.21912855305708945,
+      "oracle_passed": true
+    },
+    {
+      "name": "individual_control-run-0",
+      "exit": 0,
+      "seconds": 0.42309398704674095,
+      "oracle_passed": true
+    },
+    {
+      "name": "scalar_control-compile",
+      "exit": 0,
+      "seconds": 0.2190798530355096,
+      "oracle_passed": true
+    },
+    {
+      "name": "scalar_control-run-0",
+      "exit": 0,
+      "seconds": 0.4233431010507047,
+      "oracle_passed": true
+    },
+    {
+      "name": "borrowed_alias-compile",
+      "exit": 0,
+      "seconds": 0.2193192970007658,
+      "oracle_passed": true
+    },
+    {
+      "name": "borrowed_alias-run-0",
+      "exit": 0,
+      "seconds": 0.42368839494884014,
+      "oracle_passed": true
+    },
+    {
+      "name": "owned-compile",
+      "exit": 0,
+      "seconds": 0.21965617104433477,
+      "oracle_passed": true
+    },
+    {
+      "name": "owned-run-0",
+      "exit": 0,
+      "seconds": 0.42374045692849904,
+      "oracle_passed": true
+    },
+    {
+      "name": "returned-compile",
+      "exit": 0,
+      "seconds": 0.21951986895874143,
+      "oracle_passed": true
+    },
+    {
+      "name": "returned-run-0",
+      "exit": 0,
+      "seconds": 0.42434193496592343,
+      "oracle_passed": true
+    },
+    {
+      "name": "independence-compile",
+      "exit": 0,
+      "seconds": 0.21966386097483337,
+      "oracle_passed": true
+    },
+    {
+      "name": "independence-run-0",
+      "exit": 0,
+      "seconds": 0.424340394907631,
+      "oracle_passed": true
+    },
+    {
+      "name": "nested-compile",
+      "exit": 0,
+      "seconds": 0.21966093103401363,
+      "oracle_passed": true
+    },
+    {
+      "name": "nested-run-0",
+      "exit": 0,
+      "seconds": 0.4243629249976948,
+      "oracle_passed": true
+    },
+    {
+      "name": "error_cleanup-compile",
+      "exit": 0,
+      "seconds": 0.21985487407073379,
+      "oracle_passed": true
+    },
+    {
+      "name": "error_cleanup-run-0",
+      "exit": 0,
+      "seconds": 0.4247870519757271,
+      "oracle_passed": true
+    }
+  ],
+  "execution_summary": {
+    "all_recorded_children_joined": true,
+    "completed": 20,
+    "error": null,
+    "native_execution": true,
+    "planned": 20,
+    "release_qualified": false,
+    "seconds": 7.105536281946115
+  },
+  "compiler": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+    "sha256": "52116e581d041836505756fcde17d504422429e410f0c84cb353409e121948d9"
+  },
+  "compiler_identity": "340d32d743bfcd6da076840963974462ed590852314ae483bbde5b4cc20c2e74",
+  "error": null,
+  "terminal_join_verified": true,
+  "join": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/receipts/service-join.json",
+    "sha256": "1b0f6b8b7dd6e8f7b655da068158c57091aec1899617e5770e34c673e38e7118"
+  },
+  "A_high_restored_bytes": 3221225472,
+  "permanent_charge_retained_bytes": 2147483648,
+  "attempt_allocated_bytes": 2314240,
+  "lanes": {
+    "A": {
+      "properties": {
+        "memory.max": "8589934592",
+        "memory.high": "3221225472",
+        "memory.swap.max": "0",
+        "pids.max": "160",
+        "cgroup.events": "populated 0\nfrozen 0",
+        "cgroup.procs": ""
+      },
+      "charge": 23085768704,
+      "remaining": 67533708032,
+      "old_volume": {
+        "free": 4276248576,
+        "used": 18778218496
+      },
+      "root_allocated": 83763200
+    },
+    "F": {
+      "properties": {
+        "memory.max": "3221225472",
+        "memory.high": "3221225472",
+        "memory.swap.max": "0",
+        "pids.max": "160",
+        "cgroup.events": "populated 0\nfrozen 0",
+        "cgroup.procs": ""
+      },
+      "charge": 19821273088,
+      "remaining": 70798203648,
+      "old_volume": {
+        "free": 3270942720,
+        "used": 19783524352
+      },
+      "root_allocated": 2088960
+    }
+  },
+  "tiny_attempts_unchanged": 12,
+  "tiny_bytes_unchanged": 50331648,
+  "active_ram": 0,
+  "overlap": 0,
+  "MemAvailable": 19308281856,
+  "offload": 0,
+  "holds": {
+    "vkf-s0-synchronized-contexts.service": "ActiveState=inactive\nMainPID=0\n",
+    "vkf-s0-synchronized-contexts.timer": "ActiveState=inactive\n",
+    "vkf-s0-worker-done.path": "ActiveState=inactive\n"
+  },
+  "physical": {
+    "/": {
+      "free": 54786883584,
+      "used": 431681609728
+    },
+    "/mnt/development": {
+      "free": 1562224803840,
+      "used": 385600512000
+    },
+    "/mnt/vkf-storage-2tb": {
+      "free": 1562224803840,
+      "used": 385600512000
+    }
+  },
+  "posthash": {
+    "plan_inputs": 730,
+    "static_pins": 255,
+    "grant_inputs": 941,
+    "passed": true
+  },
+  "head": "124ded9a103af1df108ba5b3334021d78b811c65",
+  "seconds": 4.0820353359449655
+}

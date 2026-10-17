@@ -1,0 +1,47 @@
+a264_text:.tex_text
+# Explicit local block selectors supplied by the edit owner at entry.
+# Selectors are not semantic IDs; exact resolved parser input must match.
+validate(count:int,blocks:[int],scopes:[str],texts:[str],a263_kinds:[str]=[])->bit:
+    (blocks.length()=scopes.length() /\ blocks.length()=texts.length())?! "Provenance route column mismatch"
+    (a263_kinds.length()=0 \/ a263_kinds.length()=blocks.length())?! "Provenance kind column mismatch"
+    at:0
+    at<blocks.length()?>
+        (blocks.(at)>=0 /\ blocks.(at)<count /\ scopes.(at)~="")?! "Invalid provenance route"
+        current_kind:a263_route_kind(a263_kinds,at)
+        before:0
+        before<at?>
+            ((blocks.(before)~=blocks.(at) \/ a263_route_kind(a263_kinds,before)~=current_kind) /\ scopes.(before)~=scopes.(at))?! "Duplicate provenance route"
+            .before:before+1
+        .at:at+1
+    @:true
+select(block:int,source:str,blocks:[int],scopes:[str],texts:[str],a263_kinds:[str]=[],a263_kind:str="body")->str:
+    (blocks.length()=scopes.length() /\ blocks.length()=texts.length())?! "Provenance route column mismatch"
+    result:""
+    (a263_kinds.length()=0 \/ a263_kinds.length()=blocks.length())?! "Provenance kind column mismatch"
+    at:0
+    at<blocks.length()?>
+        (blocks.(at)=block /\ a263_route_kind(a263_kinds,at)=a263_kind)?
+            (result="" /\ scopes.(at)~="" /\ texts.(at)=source)?! "Unbound resolved parser source"
+            .result:scopes.(at)
+        .at:at+1
+    @:result
+
+# A route kind identifies a producer, never a stable semantic owner ID.
+a263_route_kind(kinds:[str],at:int)->str:
+    kinds.length()=0? @:"body"
+    kind:kinds.(at)
+    (kind="body" \/ kind="label" \/ a264_outer_kind(kind))?! "Unknown provenance producer kind"
+    @:kind
+
+# Local outer-label ordinal selects a parser invocation, never semantic identity.
+a264_outer_kind(kind:str)->bit:
+    size:a264_text.byte_length(kind)
+    size<7? @:false
+    a264_text.span(kind,0,6)~="outer:"? @:false
+    size>7 /\ a264_text.at(kind,6)="0"? @:false
+    at:6
+    at<size?>
+        digit:a264_text.at(kind,at)
+        ~(digit="0" \/ digit="1" \/ digit="2" \/ digit="3" \/ digit="4" \/ digit="5" \/ digit="6" \/ digit="7" \/ digit="8" \/ digit="9")? @:false
+        .at:at+1
+    @:true

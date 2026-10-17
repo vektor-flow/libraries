@@ -1,0 +1,9 @@
+io:.io
+Demand:(sources:[str],count:int)
+check(d:Demand)->bit:@:d.sources.(0)="0" /\ d.sources.(1)="0" /\ d.count=2
+run()->bit:
+    s:io.read_line()
+    d:(sources:[s,s],count:2)
+    first:check(d)
+    @:first /\ check(d) /\ s="0" /\ d.sources.(0)="0"
+::run()

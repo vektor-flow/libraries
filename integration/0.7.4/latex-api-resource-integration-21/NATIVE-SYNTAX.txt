@@ -1,0 +1,39 @@
+The proposal uses the existing fixture's colon-call spelling:
+  latex.tex2pdf(source, dest:path, selectable:false, editable:false)
+Definitions use name:type=default as in all current source modules. A separate
+same-name overload keeps source:str + Catalog distinct from source:str + dest:str.
+It does not make legacy resources optional, change parameter ordering, substitute
+an options record, or infer mode from an invalid Catalog sentinel.
+
+Current retained compiler lowering source (paths/hashes in input-pins.json):
+expression_call.cpp:624-634 recognizes named_call_arg and preserves name/value;
+statement_function_definition.cpp:151-158 handles callable overload alternatives;
+function_lowering.cpp preserves default metadata and overload families.
+These are source-level consistency evidence, NOT proof of parser/overload success.
+The exact retained frontend parser source was not established in this review;
+no compiler invocation or new named-call execution was authorized.
+
+Root must first run native-fixtures/named-overload.vkf and the existing dedicated
+pdf-api-acceptance/named-syntax.vkf using the retained qualified compiler under a
+fresh grant. If named/default/overload dispatch fails, do not merge or advertise
+this overload. No compiler repair or silent legacy signature rewrite is proposed.
+Then stage the actual four proposal modules with current dependencies, normalize
+aliases using the existing reviewed normalizer, inspect every ambiguity, hash
+actual normalized source closure, and compile the direct API fixture. Source
+checks and exact patch application cannot replace these execution gates.
+
+native-fixtures/direct-legacy-parity.vkf reads real source path then files JSON
+path from stdin. Use retained original40 and exact D301 files.json; public named
+call supplies source/files only, resources remain internal. The fixture deliberately
+includes three real layouts for correctness comparison, not a timing benchmark.
+Exact legacy PDF hash remains b07821c28efadcd51fccc3ba6c75dd957ab6f95bde323f3c519d48edb41d1eb2.
+Require complete/empty diagnostics/unresolved,40pages/430blocks and full typed
+transport inspection independently; a test process exit or equal empty PDF fails.
+These checks require Root's admission for real workload resources, not host512MiB.
+
+Reject fixtures are separate processes. Require the specific unsupported error,
+not arbitrary nonzero exit. Seed must-remain-sentinel.pdf before destination
+cases and verify unchanged after; default selectable=true must explicitly fail.
+Once Selection22/producer/transport/publication are integrated, these expected
+rejections must be replaced by the original six API acceptance cases plus real
+source/map/reader/atomic-edit checks. No production acceptance count is advanced.

@@ -1,0 +1,101 @@
+{
+  "stages": [
+    {
+      "stage": "combined-check",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "--whitespace=error-all",
+        "--directory=integration/0.7.4/latex-api-selection-review-26/combined",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-api-selection-review-26/combined.patch"
+      ],
+      "pid": 201780,
+      "exit": 0,
+      "seconds": 0.005561881000176072,
+      "joined": true,
+      "timeout": false
+    },
+    {
+      "stage": "combined-apply",
+      "argv": [
+        "git",
+        "apply",
+        "--whitespace=error-all",
+        "--directory=integration/0.7.4/latex-api-selection-review-26/combined",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-api-selection-review-26/combined.patch"
+      ],
+      "pid": 201781,
+      "exit": 0,
+      "seconds": 0.004839400062337518,
+      "joined": true,
+      "timeout": false
+    },
+    {
+      "stage": "api21",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-api-resource-integration-21/test_proposal.py"
+      ],
+      "pid": 201782,
+      "exit": 0,
+      "seconds": 0.26541494601406157,
+      "joined": true,
+      "timeout": false
+    },
+    {
+      "stage": "selection-source",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/pdf-selection-implementation-22/verify_source.py"
+      ],
+      "pid": 201785,
+      "exit": 0,
+      "seconds": 0.06626240198966116,
+      "joined": true,
+      "timeout": false
+    },
+    {
+      "stage": "combined-selection",
+      "argv": [
+        "/usr/bin/node",
+        "--jitless",
+        "--max-old-space-size=160",
+        "--max-semi-space-size=4",
+        "--import",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-api-selection-review-26/current-source-hooks.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-api-selection-review-26/combined/examples/gpu-math/native-vkf/host/tests/pdf-selection-plan.mjs"
+      ],
+      "pid": 201786,
+      "exit": 0,
+      "seconds": 0.21657131798565388,
+      "joined": true,
+      "timeout": false
+    },
+    {
+      "stage": "supplemental",
+      "argv": [
+        "/usr/bin/node",
+        "--jitless",
+        "--max-old-space-size=160",
+        "--max-semi-space-size=4",
+        "--import",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-api-selection-review-26/current-source-hooks.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-api-selection-review-26/review-tests.mjs"
+      ],
+      "pid": 201793,
+      "exit": -6,
+      "seconds": 1.2758842259645462,
+      "joined": true,
+      "timeout": false
+    }
+  ],
+  "passed": false,
+  "all_children_joined": true,
+  "maxrss_kib": 68080,
+  "as_limit_bytes": 536870912,
+  "wall_limit_seconds": 60,
+  "native_execution": false
+}

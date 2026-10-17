@@ -2,6 +2,8 @@ Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
 # Isolated bulk PDF builder. Resource and object columns have one local owner.
 # Scalar probes never return a Pool/State; demand and byte order match typed PDF.
 document_pdf:.document_pdf
+selection:.pdf_selection
+selection_plan:.pdf_selection_plan
 font_catalog:.font_catalog
 resource_json:.resource_json
 math_metadata:.math_metadata
@@ -19,6 +21,7 @@ Paint:(red:num,green:num,blue:num,alpha:num)
 Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
 Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
 PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
+SelectionPlan:(schema:int,document_id:str,revision:int,source_revision:str,source_ids:[str],source_versions:[int],source_texts:[str],scope_ids:[str],scope_sources:[int],scope_bases:[int],scope_texts:[str],group_ids:[str],group_sources:[int],group_starts:[int],group_stops:[int],cluster_groups:[int],cluster_scopes:[int],cluster_operations:[int],cluster_starts:[int],cluster_stops:[int],cluster_firsts:[int],cluster_counts:[int],leaf_ids:[str],leaf_parts:[int])
 paint_key(red:num,green:num,blue:num,alpha:num)->str:
     @:json_numbers.roundtrip(red)&","&json_numbers.roundtrip(green)&","&json_numbers.roundtrip(blue)&","&json_numbers.roundtrip(alpha)
 
@@ -86,6 +89,18 @@ primitive(payload:Payload,kind:int,width:num,height:num)->str:
 
 Result:(pdf:str,page_count:int,form_count:int,alpha_count:int,object_count:int)
 encode_detail(doc:PageDocument,fonts:Catalog,operators:str,default_color:[num:4]=[0,0,0,1])->Result:
+    [int] no_firsts:[]
+    [int] no_counts:[]
+    [str] no_texts:[]
+    @:encode_core(doc,fonts,operators,default_color,false,no_firsts,no_counts,no_texts)
+
+# Internal only. Use the authenticated host/native boundary described in the
+# selection22 contract; the structural plan alone is NOT a capability.
+encode_selected(doc:PageDocument,fonts:Catalog,operators:str,plan:SelectionPlan,default_color:[num:4]=[0,0,0,1])->str:
+    logical:selection_plan.validate(doc,plan)
+    @:encode_core(doc,fonts,operators,default_color,true,plan.cluster_firsts,plan.cluster_counts,logical).pdf
+
+encode_core(doc:PageDocument,fonts:Catalog,operators:str,default_color:[num:4],selected:bit,selection_firsts:[int],selection_counts:[int],selection_texts:[str])->Result:
     arena:doc.arena
     page_count:doc.page_count
     (page_count>0 /\ page_count<=100)?! "PDF requires 1-100 layout pages"
@@ -123,6 +138,7 @@ encode_detail(doc:PageDocument,fonts:Catalog,operators:str,default_color:[num:4]
     index<page_count?>
         page_ids.(index):4+index
         .index:index+1
+    selected_cluster:0
     .index:0
     index<page_count?>
         page_width:doc.widths.(index)
@@ -137,8 +153,11 @@ encode_detail(doc:PageDocument,fonts:Catalog,operators:str,default_color:[num:4]
         commands.(0):"q 1 0 0 -1 0 "&pdf_syntax.number(page_height)&" cm"
         command_count:1
         current_paint:""
+        selection_begin:1
         item:first
         item<first+count?>
+            selected?
+                item=selection_firsts.(selected_cluster)? .selection_begin:command_count
             kind:arena.kinds.(item)
             x:arena.xs.(item)
             y:arena.ys.(item)
@@ -386,6 +405,12 @@ encode_detail(doc:PageDocument,fonts:Catalog,operators:str,default_color:[num:4]
             command~=""?
                 commands.(command_count):"\n"&command
                 .command_count:command_count+1
+            selected?
+                item+1=selection_firsts.(selected_cluster)+selection_counts.(selected_cluster)?
+                    drawing:text_chunks.join(commands,selection_begin,command_count)
+                    commands.(selection_begin):selection.actual_text(selection_texts.(selected_cluster),drawing)
+                    .command_count:selection_begin+1
+                    .selected_cluster:selected_cluster+1
             .item:item+1
         commands.(command_count):"\nQ"
         .command_count:command_count+1

@@ -1,0 +1,88 @@
+TAP version 13
+# Subtest: supplementary, ligature, combining cluster and repeated glyph retain exact logical spans
+ok 1 - supplementary, ligature, combining cluster and repeated glyph retain exact logical spans
+  ---
+  duration_ms: 9.393606
+  type: 'test'
+  ...
+# Subtest: one logical group spans pages only at complete cluster boundaries
+ok 2 - one logical group spans pages only at complete cluster boundaries
+  ---
+  duration_ms: 3.43886
+  type: 'test'
+  ...
+# Subtest: actual owned sources preserve CRLF and nonzero byte base without inserting them into glyph text
+ok 3 - actual owned sources preserve CRLF and nonzero byte base without inserting them into glyph text
+  ---
+  duration_ms: 1.142847
+  type: 'test'
+  ...
+# Subtest: typed result and parser ownership required; render-only and caller flags cannot bypass
+ok 4 - typed result and parser ownership required; render-only and caller flags cannot bypass
+  ---
+  duration_ms: 11.01843
+  type: 'test'
+  ...
+# Subtest: missing, duplicate, mismatched or unconsumed owner emissions refuse
+ok 5 - missing, duplicate, mismatched or unconsumed owner emissions refuse
+  ---
+  duration_ms: 2.609678
+  type: 'test'
+  ...
+# Subtest: overlapping and omitted authored spans do not repeat/drop parser source
+ok 6 - overlapping and omitted authored spans do not repeat/drop parser source
+  ---
+  duration_ms: 1.227468
+  type: 'test'
+  ...
+# Subtest: noncontiguous cluster emissions fail even when the same group is contiguous
+ok 7 - noncontiguous cluster emissions fail even when the same group is contiguous
+  ---
+  duration_ms: 0.728401
+  type: 'test'
+  ...
+# Subtest: expanded origins, TeX syntax, whitespace and transformed punctuation remain explicit dependencies
+ok 8 - expanded origins, TeX syntax, whitespace and transformed punctuation remain explicit dependencies
+  ---
+  duration_ms: 4.476576
+  type: 'test'
+  ...
+# Subtest: preparations and tickets cannot be cloned, crossed, or forged
+ok 9 - preparations and tickets cannot be cloned, crossed, or forged
+  ---
+  duration_ms: 1.689665
+  type: 'test'
+  ...
+# Subtest: plan and document snapshot detached from caller mutations
+ok 10 - plan and document snapshot detached from caller mutations
+  ---
+  duration_ms: 1.097386
+  type: 'test'
+  ...
+# Subtest: no-op revision commits invalidate old ticket and preparation by current state identity
+ok 11 - no-op revision commits invalidate old ticket and preparation by current state identity
+  ---
+  duration_ms: 2.169932
+  type: 'test'
+  ...
+# Subtest: multiple authored groups are consumed in explicit logical order
+ok 12 - multiple authored groups are consumed in explicit logical order
+  ---
+  duration_ms: 1.285599
+  type: 'test'
+  ...
+# Subtest: exact retained plan bytes and schema digest are integrity metadata, not completion proof
+ok 13 - exact retained plan bytes and schema digest are integrity metadata, not completion proof
+  ---
+  duration_ms: 1.249738
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 57.191711

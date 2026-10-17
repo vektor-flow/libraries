@@ -1,0 +1,32 @@
+# Discover text requests without inventing label geometry. The supported TikZ
+# grammar puts node text in top-level braces; option/arithmetic groups are
+# inside bracket or coordinate spans and are skipped as complete units.
+tikz_label_text:.tex_text
+tikz_label_groups:.tex_groups
+tikz_label_chunks:.text_chunks
+Labels:(sources:[str],count:int,diagnostic:str)
+collect(content:str)->Labels:
+    sources:tikz_label_chunks.empty(16)
+    count:0
+    at:0
+    size:tikz_label_text.byte_length(content)
+    at<size?>
+        c:tikz_label_text.at(content,at)
+        (c="[" \/ c="(" \/ c="{")?
+            close:"]"
+            c="("? .close:")"
+            c="{"? .close:"}"
+            group:tikz_label_groups.read(content,at,c,close)
+            ~group.closed? @:(sources:sources,count:count,diagnostic:"Unbalanced TikZ argument")
+            c="{" /\ group.value~=""?
+                count>=sources.length()? .sources:sources&tikz_label_chunks.empty(sources.length())
+                sources.(count):group.value
+                .count:count+1
+            .at:group.stop
+            @>
+        c="\\"?
+            command:tikz_label_groups.control(content,at)
+            .at:command.stop
+            @>
+        .at:tikz_label_text.next(content,at)
+    @:(sources:sources,count:count,diagnostic:"")

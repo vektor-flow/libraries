@@ -1,0 +1,115 @@
+# Typed inline operations. Numeric and string columns are paged; JSON exists
+# only in the explicit diagnostic export module, never as retained operations.
+pages:.math_command_pages
+chunks:.text_chunks
+text:.tex_text
+stream_encoding:.text_stream_diagnostics
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Attributes:(action:str,new_role:str,base:str,code:str,target:str,raw_target:str,found:bit,closed:bit,explicit:bit,nonbreak:bit,conditional:bit,isolated:bit,present:int,code_number:int)
+attributes(action:str="",new_role:str="",base:str="",code:str="",target:str="",raw_target:str="",found:bit=false,closed:bit=false,explicit:bit=false,nonbreak:bit=false,conditional:bit=false,isolated:bit=false,present:int=0,code_number:int=0)->Attributes:
+    @:(action:action,new_role:new_role,base:base,code:code,target:target,raw_target:raw_target,found:found,closed:closed,explicit:explicit,nonbreak:nonbreak,conditional:conditional,isolated:isolated,present:present,code_number:code_number)
+empty()->Stream:
+    @:(texts:chunks.empty(pages.width()),numbers:pages.integers(1),starts:pages.integers(1),stops:pages.integers(1),parents:pages.integers(1),count:0,diagnostics:"")
+write(s:Stream,index:int,kind:str,role:str,value:str,a:Attributes)->Stream:
+    texts:s.texts
+    numbers:s.numbers
+    index*16+8>=texts.length()?> .texts:texts&chunks.empty(texts.length())
+    index*4+2>=numbers.length()*pages.width()?> .numbers:pages.grow_integers(numbers)
+    column:index*16
+    texts.(column):kind
+    texts.(column+1):role
+    texts.(column+2):value
+    texts.(column+3):a.action
+    texts.(column+4):a.new_role
+    texts.(column+5):a.base
+    texts.(column+6):a.code
+    texts.(column+7):a.target
+    texts.(column+8):a.raw_target
+    flags:0
+    a.found? .flags:flags+1
+    a.closed? .flags:flags+2
+    a.explicit? .flags:flags+4
+    a.nonbreak? .flags:flags+8
+    a.conditional? .flags:flags+16
+    a.isolated? .flags:flags+32
+    nr:index*4//pages.width()
+    nc:index*4%pages.width()
+    numbers.(nr,nc):flags
+    numbers.(nr,nc+1):a.present
+    numbers.(nr,nc+2):a.code_number
+    @:(texts:texts,numbers:numbers,starts:s.starts,stops:s.stops,parents:s.parents,count:s.count,diagnostics:s.diagnostics)
+append(s:Stream,kind:str,role:str,value:str,a:Attributes,start:int,stop:int,parent:int):
+    index:s.count
+    updated:write(s,index,kind,role,value,a)
+    starts:s.starts
+    stops:s.stops
+    parents:s.parents
+    index>=starts.length()*pages.width()?
+        .starts:pages.grow_integers(starts)
+        .stops:pages.grow_integers(stops)
+        .parents:pages.grow_integers(parents)
+    row:index//pages.width()
+    column:index%pages.width()
+    starts.(row,column):start
+    stops.(row,column):stop
+    parents.(row,column):parent
+    @:(stream:(texts:updated.texts,numbers:updated.numbers,starts:starts,stops:stops,parents:parents,count:index+1,diagnostics:s.diagnostics),id:index)
+replace(s:Stream,index:int,kind:str,role:str,value:str,a:Attributes)->Stream:
+    (index>=0 /\ index<s.count)?! "Invalid inline parser operation"
+    @:write(s,index,kind,role,value,a)
+field(s:Stream,index:int,column:int)->str:
+    (index>=0 /\ index<s.count)?! "Invalid inline parser operation"
+    @:s.texts.(index*16+column)
+value(s:Stream,index:int,key:str)->str:
+    key="kind"? @:field(s,index,0)
+    key="role"? @:field(s,index,1)
+    key="value"? @:field(s,index,2)
+    @:""
+attribute(s:Stream,index:int,key:str)->str:
+    key="action"? @:field(s,index,3)
+    key="newRole"? @:field(s,index,4)
+    key="base"? @:field(s,index,5)
+    key="code"? @:field(s,index,6)
+    key="target"? @:field(s,index,7)
+    key="rawTarget"? @:field(s,index,8)
+    @:""
+number(s:Stream,index:int,column:int)->int:
+    (index>=0 /\ index<s.count)?! "Invalid inline parser operation"
+    @:s.numbers.(index*4//pages.width(),index*4%pages.width()+column)
+flag(s:Stream,index:int,key:str)->bit:
+    flags:number(s,index,0)
+    key="found"? @:flags%2=1
+    key="closed"? @:(flags//2)%2=1
+    key="explicit"? @:(flags//4)%2=1
+    key="nonbreak"? @:(flags//8)%2=1
+    key="conditional"? @:(flags//16)%2=1
+    key="isolated"? @:(flags//32)%2=1
+    @:false
+
+message(s:Stream,value:str,start:int= -1,stop:int= -1,parent:int= -1,role:str="")->Stream:
+    quoted:stream_encoding.quote(value)
+    diagnostics:s.diagnostics
+    text.find(","&diagnostics&",",","&quoted&",")>=0? @:s
+    diagnostics~=""? .diagnostics:diagnostics&","&quoted
+    diagnostics=""? .diagnostics:quoted
+    updated:append(s,"diagnostic",role,value,attributes(),start,stop,parent).stream
+    @:(texts:updated.texts,numbers:updated.numbers,starts:updated.starts,stops:updated.stops,parents:updated.parents,count:updated.count,diagnostics:diagnostics)
+
+# Explicit diagnostic/reference export. Production layout reads the typed
+# columns above and never round-trips this representation through a reader.
+raw(s:Stream,index:int)->str:
+    action:attribute(s,index,"action")
+    aux:""
+    action~=""? .aux:"\"action\":"&stream_encoding.quote(action)
+    role:attribute(s,index,"newRole")
+    role~=""? .aux:aux&",\"newRole\":"&stream_encoding.quote(role)
+    action="accent"? .aux:aux&",\"base\":"&stream_encoding.quote(attribute(s,index,"base"))&",\"code\":"&text.integer(number(s,index,2))
+    action="char"? .aux:aux&",\"code\":"&stream_encoding.quote(attribute(s,index,"code"))
+    action="link"? .aux:aux&",\"target\":"&stream_encoding.quote(attribute(s,index,"target"))&",\"rawTarget\":"&stream_encoding.quote(attribute(s,index,"rawTarget"))
+    present:number(s,index,1)
+    present%2=1? .aux:"\"found\":"&stream_encoding.boolean(flag(s,index,"found"))&",\"closed\":"&stream_encoding.boolean(flag(s,index,"closed"))
+    (present//2)%2=1? .aux:"\"nonbreak\":"&stream_encoding.boolean(flag(s,index,"nonbreak"))&",\"explicit\":"&stream_encoding.boolean(flag(s,index,"explicit"))
+    (present//4)%2=1? .aux:aux&",\"conditional\":"&stream_encoding.boolean(flag(s,index,"conditional"))
+    (present//8)%2=1? .aux:"\"isolated\":"&stream_encoding.boolean(flag(s,index,"isolated"))
+    (present//16)%2=1? .aux:aux&",\"closed\":"&stream_encoding.boolean(flag(s,index,"closed"))
+    @:"{\"kind\":"&stream_encoding.quote(value(s,index,"kind"))&",\"role\":"&stream_encoding.quote(value(s,index,"role"))&",\"value\":"&stream_encoding.quote(value(s,index,"value"))&",\"aux\":{"&aux&"}}"

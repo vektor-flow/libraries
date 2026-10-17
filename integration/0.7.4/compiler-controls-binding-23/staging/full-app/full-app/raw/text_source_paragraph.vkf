@@ -1,0 +1,170 @@
+
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Store:(arena:Arena,firsts:[int],counts:[int],anchor_firsts:[int],anchor_counts:[int],anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int,widths:[num],heights:[num],depths:[num],tag_widths:[num],inline_destinations:[bit],count:int)
+prepared_runs:.text_prepared_runs
+request_indices:.paragraph_breaking
+# Connected TeX source -> inline operations -> native math -> optimal paragraph.
+# Other native providers can be supplied explicitly; unresolved actions remain
+# visible in the returned pending list and never disappear from completeness.
+inline_parser:.text_parser
+math_boxes:.text_math_boxes
+paragraph:.text_paragraph
+boxes:.text_inline_boxes
+source_output:.text_source_paragraph_output
+inline_index:.text_inline_arguments
+inline_ops:.text_parser_stream
+resource_json:.resource_json
+text_native_primitives:.text_native_primitives
+text_retained_boxes:.text_retained_boxes
+text_link_context:.text_link_context
+text_link_render:.text_link_render
+document_uri:.document_uri
+text_source_rewrites:.text_source_rewrites
+text_url_boxes:.text_url_boxes
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+TextContext:(font:str,roles:[str],optical:bit,hyperref:bit,literal:bit,literal_input:bit,legacy_symbols:bit,bib_url:bit)
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+Options:(width:num,first_indent:num,forced_indent:num,justify:bit,hyphens:bit,tolerance:int,emergency:num,preserve_trailing:bit)
+TextOptions:(sentence_spacing:bit,french_spacing:bit,space_scale:num)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:Store,scene_ids:[int],scene_metadata:Metadata,scene_roots:[int],diagnostics:[str],count:int)
+
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:Store,scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int,a260_text:str,a260_starts:[int],a260_stops:[int],a272_anchor_operations:[int],a272_anchor_ids:[str],a277_anchor_scenes:[int],a280_anchor_leaves:[int],a280_anchor_slots:[int],a282_anchor_points:[int])
+
+with_providers_request_core(request:Prepared,source:str,fonts:Catalog,text_context:TextContext,math_context:MathContext,language:Language,overrides:[str],options:Options,text_options:TextOptions,provided:Provider,tables:Tables,prepared:bit,document_boxes_json:str="{}",document_links_json:str="{}")->Packet:
+    parsed:inline_parser.parse(source,fonts,text_context)
+    stream:text_source_rewrites.lowercase(parsed.stream)
+    links:text_link_context.build(stream,document_links_json,text_context.hyperref)
+    combined_provided:math_boxes.append_provider(provided,links.provider)
+    math_provided:math_provider(stream,fonts,math_context,tables,prepared,document_boxes_json)
+    complete_boxes:math_boxes.append_provider(combined_provided,math_provided)
+    legacy_symbols:text_context.legacy_symbols
+    native_provided:text_native_primitives.provide_core(stream,fonts,math_context,tables,prepared,legacy_symbols)
+    .complete_boxes:math_boxes.append_provider(complete_boxes,native_provided)
+    url_provided:text_url_boxes.provide(stream,fonts,options.width,text_context.bib_url)
+    .complete_boxes:math_boxes.append_provider(complete_boxes,url_provided)
+    retained_provided:text_retained_boxes.provide(stream,document_boxes_json)
+    .complete_boxes:math_boxes.append_provider(complete_boxes,retained_provided)
+    directory:inline_index.build(stream)
+    first:directory.first
+    second:directory.second
+    third:directory.third
+    link_styles:links.styles
+    hidden:directory.hidden
+    operation:0
+    operation<stream.count?>
+        current:operation
+        .operation:operation+1
+        hidden.(current)? @>
+        inline_ops.value(stream,current,"kind")~="command"? @>
+        command:inline_ops.value(stream,current,"value")
+        command~="mbox" /\ command~="documentlink"? @>
+        argument:first.(current)
+        command="documentlink"? .argument:second.(current)
+        argument<0?
+            .complete_boxes:boxes.append(complete_boxes,current,5)
+            @>
+        command="mbox" /\ ~inline_ops.flag(stream,argument,"found")?
+            .complete_boxes:boxes.append(complete_boxes,current,5)
+            @>
+        child_source:inline_ops.value(stream,argument,"value")
+        child_context:(font:inline_ops.value(stream,current,"role"),roles:text_context.roles,optical:text_context.optical,hyperref:text_context.hyperref,literal:false,literal_input:false,legacy_symbols:text_context.legacy_symbols,bib_url:false)
+        child_options:(width:1000000.0,first_indent:0.0,forced_indent:0.0,justify:false,hyphens:false,tolerance:200,emergency:0.0,preserve_trailing:false)
+        child_text_options:(sentence_spacing:true,french_spacing:false,space_scale:1.0)
+        child_provided:boxes.empty()
+        child:with_providers_request_core(request,child_source,fonts,child_context,math_context,language,overrides,child_options,child_text_options,child_provided,tables,prepared,document_boxes_json,document_links_json)
+        child.pending_count>0? @>
+        retained:source_output.scene(child)
+        command="documentlink"?
+            kind:text_link_context.argument(stream,first.(current))
+            destination:text_link_context.argument(stream,third.(current))
+            target:"null"
+            destination~=""?
+                decoded:document_uri.decode_destination(destination)
+                ~decoded.valid?
+                    .complete_boxes:boxes.append(complete_boxes,current,5,diagnostics:resource_json.quote(decoded.diagnostic))
+                    @>
+                .target:"{\"type\":\"destination\",\"value\":"&resource_json.quote(decoded.value)&"}"
+            appearance:text_link_context.appearance(link_styles.(current),kind,target)
+            .retained:text_link_render.inline_box(retained,child.width,appearance)
+        .complete_boxes:boxes.append(complete_boxes,current,0,child.width,child.height,child.depth,scene:retained,diagnostics:child.diagnostics)
+    @:paragraph.position_request_with_link_events(request,parsed.source,stream,fonts,language,overrides,options,text_options,complete_boxes,links.operation_scopes,links.scopes_json,links.anchor_operations,links.anchor_ids,links.close_operations,links.close_scope_first,links.close_scope_last,links.a268_scope_owners)
+
+math_provider(stream:Stream,fonts:Catalog,math_context:MathContext,tables:Tables,prepared:bit,directory:str)->Provider:
+    prepared? @:math_boxes.provide_prepared(stream,fonts,math_context,tables,document_boxes_json:directory)
+    @:math_boxes.provide(stream,fonts,math_context,document_boxes_json:directory)
+with_providers(source:str,fonts:Catalog,text_context:TextContext,math_context:MathContext,language:Language,overrides:[str],options:Options,text_options:TextOptions,provided:Provider,document_boxes_json:str="{}",document_links_json:str="{}")->Packet:
+    tables:text_native_primitives.empty_tables()
+    @:with_providers_core(source,fonts,text_context,math_context,language,overrides,options,text_options,provided,tables,false,document_boxes_json,document_links_json)
+with_providers_prepared(source:str,fonts:Catalog,text_context:TextContext,math_context:MathContext,language:Language,overrides:[str],options:Options,text_options:TextOptions,provided:Provider,tables:Tables,document_boxes_json:str="{}",document_links_json:str="{}")->Packet:
+    @:with_providers_core(source,fonts,text_context,math_context,language,overrides,options,text_options,provided,tables,true,document_boxes_json,document_links_json)
+typeset(source:str,fonts:Catalog,text_context:TextContext,math_context:MathContext,language:Language,overrides:[str],options:Options,text_options:TextOptions,document_boxes_json:str="{}",document_links_json:str="{}"):
+    @:with_providers(source,fonts,text_context,math_context,language,overrides,options,text_options,boxes.empty(),document_boxes_json,document_links_json)
+typeset_prepared(source:str,fonts:Catalog,text_context:TextContext,math_context:MathContext,language:Language,overrides:[str],options:Options,text_options:TextOptions,tables:Tables,document_boxes_json:str="{}",document_links_json:str="{}"):
+    @:with_providers_prepared(source,fonts,text_context,math_context,language,overrides,options,text_options,boxes.empty(),tables,document_boxes_json,document_links_json)
+
+empty_tables()->Tables:@:text_native_primitives.empty_tables()
+typeset_core(source:str,fonts:Catalog,text_context:TextContext,math_context:MathContext,language:Language,overrides:[str],options:Options,text_options:TextOptions,tables:Tables,prepared:bit,document_boxes_json:str="{}",document_links_json:str="{}"):
+    provided:boxes.empty()
+    @:with_providers_core(source,fonts,text_context,math_context,language,overrides,options,text_options,provided,tables,prepared,document_boxes_json,document_links_json)
+
+Prepared:(font_slots:[int],font_keys:[str],font_raws:[str],font_names:[str],font_advances:[num],font_heights:[num],font_depths:[num],font_italics:[num],font_kern_starts:[int],font_kern_stops:[int],font_kern_codes:[str],font_kern_values:[num],font_kern_count:int,font_count:int,font_role_names:[str],font_role_ready:[int],font_role_sizes:[num],font_role_quads:[num],font_role_sources:[str],font_role_spaces:[num],font_role_stretches:[num],font_role_shrinks:[num],font_role_extras:[num],font_role_slants:[num],font_role_starts:[int],font_role_stops:[int],font_role_count:int,font_lig_first:[int],font_lig_second:[int],font_lig_result:[int],font_lig_count:int,run_keys:[str],run_xs:[num],run_metrics:[str],run_codes:[int],run_starts:[int],run_stops:[int],run_offsets:[int],run_counts:[int],run_widths:[num],run_heights:[num],run_depths:[num],run_italics:[num],run_atoms:[int],run_diagnostics:[str],run_count:int,run_glyph_count:int,texts:[str],roles:[str],slots:[int],ids:[int],bases:[int],count:int,misses:int,hits:int)
+Collection:(sources:[str],roles:[str],starts:[int],stops:[int],count:int,context_roles:[str])
+
+# Collect the same lowercase streams and recursive source children consumed below.
+# Child boxes use their own nonhyphenating options, but share the sealed request.
+# Provider IDs exclude caller-supplied overrides. Generated provider/scene schemas
+# are unchanged; their independently shaped math/URL primitives remain external.
+collect_source_request(collection:Collection,source:str,fonts:Catalog,text_context:TextContext,language:Language,overrides:[str],automatic:bit,provided:Provider)->Collection:
+    parsed:inline_parser.parse(source,fonts,text_context)
+    stream:text_source_rewrites.lowercase(parsed.stream)
+    result:paragraph.collect_request(collection,stream,language,overrides,automatic,provided)
+    directory:inline_index.build(stream)
+    operation:0
+    operation<stream.count?>
+        current:operation
+        .operation:operation+1
+        directory.hidden.(current)? @>
+        inline_ops.value(stream,current,"kind")~="command"? @>
+        command:inline_ops.value(stream,current,"value")
+        command~="mbox" /\ command~="documentlink"? @>
+        argument:directory.first.(current)
+        command="documentlink"? .argument:directory.second.(current)
+        argument<0? @>
+        command="mbox" /\ ~inline_ops.flag(stream,argument,"found")? @>
+        child_source:inline_ops.value(stream,argument,"value")
+        child_context:(font:inline_ops.value(stream,current,"role"),roles:text_context.roles,optical:text_context.optical,hyperref:text_context.hyperref,literal:false,literal_input:false,legacy_symbols:text_context.legacy_symbols,bib_url:false)
+        .result:collect_source_request(result,child_source,fonts,child_context,language,overrides,false,boxes.empty())
+    @:result
+
+with_providers_core(source:str,fonts:Catalog,text_context:TextContext,math_context:MathContext,language:Language,overrides:[str],options:Options,text_options:TextOptions,provided:Provider,tables:Tables,prepared:bit,document_boxes_json:str="{}",document_links_json:str="{}")->Packet:
+    collection:collect_source_request(prepared_runs.empty_collection(),source,fonts,text_context,language,overrides,options.hyphens,provided)
+    request:prepared_runs.seal(fonts,collection)
+    @:with_providers_request_core(request,source,fonts,text_context,math_context,language,overrides,options,text_options,provided,tables,prepared,document_boxes_json,document_links_json)
+
+# A request caller gathers all paragraphs before shaping; recursive text children
+# use the same immutable value. All compatibility entry points use the same core.
+prepare_source_request(sources:[str],fonts:Catalog,text_context:TextContext,language:Language,overrides:[str],automatic:bit)->Prepared:
+    collection:prepared_runs.empty_collection()
+    i:0
+    i<sources.length()?>
+        .collection:collect_source_request(collection,sources.(i),fonts,text_context,language,overrides,automatic,boxes.empty())
+        .i:i+1
+    @:prepared_runs.seal(fonts,collection)
+
+typeset_many_core(sources:[str],fonts:Catalog,text_context:TextContext,math_context:MathContext,language:Language,overrides:[str],options:Options,text_options:TextOptions,tables:Tables,prepared:bit,document_boxes_json:str="{}",document_links_json:str="{}"):
+    request:prepare_source_request(sources,fonts,text_context,language,overrides,options.hyphens)
+    indices:request_indices.ints(sources.length())
+    i:0
+    i<sources.length()?>
+        indices.(i):i
+        .i:i+1
+    @:indices >> with_providers_request_core(request,sources.($),fonts,text_context,math_context,language,overrides,options,text_options,boxes.empty(),tables,prepared,document_boxes_json,document_links_json)

@@ -1,0 +1,347 @@
+a267_provenance:.latex_note_provenance
+a267_routes:.latex_document_routes
+A267Origins:(scopes:[str],texts:[str],operations:[int],starts:[int],stops:[int],parts:[int],count:int)
+# Source note shaping and page-provider columns. Every call shapes the original
+# note source with the same native paragraph core as body text; no result cache.
+notes_config:.document_materialize_config
+notes_pages:.document_pages
+notes_parser:.text_parser
+notes_paragraph:.text_source_paragraph
+notes_output:.text_source_paragraph_output
+notes_breaking:.paragraph_breaking
+notes_nodes:.paragraph_nodes
+notes_fonts:.font_catalog
+notes_json:.resource_json
+notes_numbers:.json_numbers
+notes_text:.tex_text
+notes_chunks:.text_chunks
+notes_numeric:.tex_numeric
+notes_links_policy:.document_link_policy
+notes_tex_decimal:.tex_decimal
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+PageConfig:(values:[num],flags:[bit],penalties:[int])
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Configuration:(config:str,pages:PageConfig,packages:[str],math:MathContext,overrides:[str],class_name:str,optical:bit,hyperref:bit,diagnostics:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Lines:(scenes:[int],source_lines:[int],heights:[num],depths:[num],natural_depths:[num],widths:[num],indents:[num],baselines:[num],flagged:[bit],marker_firsts:[int],marker_counts:[int],count:int)
+Notes:(firsts:[int],counts:[int],first_heights:[num],depths:[num],reserves:[num],indents:[num],admin:[bit],count:int)
+Markers:(ids:[int],count:int)
+Result:(notes:Notes,lines:Lines,scenes:[str],markers:Markers,diagnostics:str,unresolved:str,a267_provenance:[A267Origins])
+number(tape:Tape,node:int,key:str,fallback:num=0)->num:notes_config.number(tape,node,key,fallback)
+string(tape:Tape,node:int,key:str)->str:notes_config.string(tape,node,key)
+raw(tape:Tape,node:int)->str:notes_config.raw(tape,node)
+flag(tape:Tape,node:int,key:str)->bit:
+    node<0? @:false
+    member:notes_json.member(tape,node,key)
+    member<0? @:false
+    kinds:tape.kinds
+    @:kinds.(member)=5
+count(tape:Tape,node:int)->int:
+    node<0? @:0
+    ends:tape.ends
+    cursor:node+1
+    size:0
+    cursor<ends.(node)?>
+        .size:size+1
+        .cursor:ends.(cursor)
+    @:size
+spaces(font:Tape,key:str)->num:number(font,notes_json.member(font,0,"spaces"),key)
+maximum(a:num,b:num)->num:
+    a>b? @:a
+    @:b
+symbol_code(symbol:int)->int:
+    codes:[3,121,122,120,123,107]
+    symbol>0 /\ symbol<=codes.length()? @:codes.(symbol-1)
+    @: -1
+marker_source(note:Tape,node:int)->str:
+    symbol:int(number(note,node,"symbol"))
+    symbol>0? @:"\\char"&notes_text.integer(symbol_code(symbol))&" "
+    @:notes_text.integer(int(number(note,node,"marker",number(note,node,"number"))))
+marker_role(note:Tape,node:int)->str:
+    number(note,node,"symbol")>0? @:"notemark"
+    @:"footnotemark"
+first_scalar(source:str)->int:
+    result:0
+    notes_text.at(source,0) >>
+        .result:int($)
+        $
+    @:result
+trim_start(source:str)->str:
+    at:0
+    ~vkf_string_eof(source,at)?>
+        c:notes_text.at(source,at)
+        ~(c=" " \/ c="\t" \/ c="\r" \/ c="\n")? @|
+        .at:notes_text.next(source,at)
+    @:notes_text.span(source,at,notes_text.byte_length(source))
+append_items(scene:str,extra:str)->str:
+    tape:notes_json.parse(scene)
+    items:notes_json.member(tape,0,"items")
+    starts:tape.starts
+    stops:tape.stops
+    items<0? @:scene
+    prior:notes_text.span(scene,starts.(items)+1,stops.(items)-1)
+    prefix:""
+    prior~="" /\ extra~=""? .prefix:","
+    @:notes_text.span(scene,0,starts.(items)+1)&prior&prefix&extra&notes_text.span(scene,stops.(items)-1,notes_text.byte_length(scene))
+translated_marker(scene:str,width:num,raise:num)->str:
+    tape:notes_json.parse(scene)
+    items:notes_json.member(tape,0,"items")
+    items<0? @:""
+    ends:tape.ends
+    at:items+1
+    output:""
+    at<ends.(items)?>
+        # Marker shapes retain original glyph/provider metadata. Numeric x/y
+        # members are replaced by exact shared serialization.
+        object:raw(tape,at)
+        fields:notes_json.parse(object)
+        field_ends:fields.ends
+        cursor:1
+        output~=""? .output:output&","
+        .output:output&"{"
+        comma:""
+        cursor<fields.count?>
+            key:notes_json.string(fields,cursor)
+            value:cursor+1
+            key~="x" /\ key~="y" /\ key~="flowLine"?
+                .output:output&comma&notes_json.quote(key)&":"&raw(fields,value)
+                .comma:","
+            .cursor:field_ends.(value)
+        .output:output&comma&"\"x\":"&notes_numbers.roundtrip(number(tape,at,"x")-width-0.5*notes_numeric.pt())&",\"y\":"&notes_numbers.roundtrip(number(tape,at,"y")-raise)&",\"flowLine\":0}"
+        .at:ends.(at)
+    @:output
+destination(scene:str,id:str)->str:
+    tape:notes_json.parse(scene)
+    items:notes_json.member(tape,0,"items")
+    items<0? @:scene
+    ends:tape.ends
+    starts:tape.starts
+    stops:tape.stops
+    at:items+1
+    at<ends.(items)?>
+        string(tape,at,"kind")~="link"?
+            prior:notes_json.member(tape,at,"destinationIds")
+            prior<0?
+                stop:stops.(at)-1
+                @:notes_text.span(scene,0,stop)&",\"destinationIds\":["&notes_json.quote(id)&"]"&notes_text.span(scene,stop,notes_text.byte_length(scene))
+            stop:stops.(prior)-1
+            prefix:""
+            count(tape,prior)>0? .prefix:","
+            @:notes_text.span(scene,0,stop)&prefix&notes_json.quote(id)&notes_text.span(scene,stop,notes_text.byte_length(scene))
+        .at:ends.(at)
+    @:scene
+extend_lines(body:Lines,extra:int)->Lines:
+    @:(scenes:body.scenes&notes_pages.nil(extra),source_lines:body.source_lines&notes_pages.ints(extra),heights:body.heights&notes_pages.zeros(extra),depths:body.depths&notes_pages.zeros(extra),natural_depths:body.natural_depths&notes_pages.zeros(extra),widths:body.widths&notes_pages.zeros(extra),indents:body.indents&notes_pages.zeros(extra),baselines:body.baselines&notes_pages.zeros(extra),flagged:body.flagged&notes_pages.bits(extra),marker_firsts:body.marker_firsts&notes_pages.ints(extra),marker_counts:body.marker_counts&notes_pages.ints(extra),count:body.count+extra)
+index_markers(input:Lines,body_count:int,body_scenes:[str],note_count:int):
+    lines:input
+    # Body markers use the note's unique global number, not its visible counter.
+    # Collect once per line in encounter order, matching the reference Set.
+    marker_ids:notes_pages.nil(32)
+    marker_nexts:notes_pages.nil(32)
+    marker_count:0
+    heads:notes_pages.nil(body_count)
+    tails:notes_pages.nil(body_count)
+    scene_firsts:notes_pages.nil(body_scenes.length())
+    body_scene_ids:lines.scenes
+    body_source_lines:lines.source_lines
+    line_index:0
+    line_index<body_count?>
+        scene_id:body_scene_ids.(line_index)
+        scene_id>=0 /\ scene_id<body_scenes.length() /\ body_source_lines.(line_index)=0? scene_firsts.(scene_id):line_index
+        .line_index:line_index+1
+    scene_index:0
+    scene_index<body_scenes.length()?>
+        packet:notes_json.parse(body_scenes.(scene_index))
+        packet_ends:packet.ends
+        items:notes_json.member(packet,0,"items")
+        item:items+1
+        items>=0 /\ scene_firsts.(scene_index)>=0?
+            item<packet_ends.(items)?>
+                id:int(number(packet,item,"footnoteNumber"))-1
+                id>=0 /\ id<note_count?
+                    global:scene_firsts.(scene_index)+int(number(packet,item,"flowLine"))
+                    global>=0 /\ global<body_count?
+                        duplicate:false
+                        prior:heads.(global)
+                        prior>=0?>
+                            marker_ids.(prior)=id? .duplicate:true
+                            .prior:marker_nexts.(prior)
+                        ~duplicate?
+                            marker_count>=marker_ids.length()?
+                                .marker_ids:marker_ids&notes_pages.nil(marker_ids.length())
+                                .marker_nexts:marker_nexts&notes_pages.nil(marker_nexts.length())
+                            marker_ids.(marker_count):id
+                            tail:tails.(global)
+                            tail<0? heads.(global):marker_count
+                            tail>=0? marker_nexts.(tail):marker_count
+                            tails.(global):marker_count
+                            .marker_count:marker_count+1
+                .item:packet_ends.(item)
+        .scene_index:scene_index+1
+    ordered:notes_pages.nil(marker_count)
+    ordered_count:0
+    line_firsts:lines.marker_firsts
+    line_counts:lines.marker_counts
+    .line_index:0
+    line_index<body_count?>
+        line_firsts.(line_index):ordered_count
+        prior:heads.(line_index)
+        prior>=0?>
+            ordered.(ordered_count):marker_ids.(prior)
+            .ordered_count:ordered_count+1
+            .prior:marker_nexts.(prior)
+        line_counts.(line_index):ordered_count-line_firsts.(line_index)
+        .line_index:line_index+1
+    lines.marker_firsts:line_firsts
+    lines.marker_counts:line_counts
+    @:(lines:lines,markers:(ids:ordered,count:ordered_count))
+prepare_core(definitions:str,fonts:Catalog,roles:[str],language:Language,c:Configuration,body:Lines,body_scene_count:int,directory:str="{}",document_links_json:str="{}",a267_notes:[int]=[],a267_scopes:[str]=[],a267_texts:[str]=[],a267_kinds:[str]=[])->Result:
+    config:notes_json.parse(c.config)
+    source_notes:notes_json.parse(definitions)
+    note_count:count(source_notes,0)
+    a267_routes.validate(note_count,a267_notes,a267_scopes,a267_texts,a267_kinds)
+    a267_route:0
+    a267_route<a267_kinds.length()?>
+        (a267_kinds.(a267_route)="body" \/ a267_kinds.(a267_route)="label")?! "Invalid note provenance producer"
+        .a267_route:a267_route+1
+    [A267Origins] a267_rows:[]
+    note_count=0? @:(notes:notes_pages.empty_notes(0),lines:body,scenes:notes_chunks.empty(0),markers:notes_pages.empty_markers(0),diagnostics:"",unresolved:"",a267_provenance:a267_rows)
+    notes:notes_pages.empty_notes(note_count)
+    scenes:notes_chunks.empty(note_count)
+    lines:body
+    markers:notes_pages.empty_markers(0)
+    ams:c.class_name="amsart"
+    # The document layer always supplies the complete link policy. Normalize
+    # omitted global fields here too, so a default URL remains cyan rather
+    # than inheriting the inline parser's generic red fallback.
+    normalized_links:notes_links_policy.configure(notes_chunks.empty(0),document_links_json)
+    links_enabled:c.hyperref \/ flag(config,0,"legacyEquationAnchor")
+    global_links:notes_json.parse(document_links_json)
+    notes_json.member(global_links,0,"enabled")>=0? .links_enabled:flag(global_links,0,"enabled")
+    footfont:notes_fonts.text_font(fonts,"footnote")
+    quad:spaces(footfont,"quad")
+    pt:notes_numeric.pt()
+    leading:number(config,0,"footnoteLeading",9.5*pt)
+    width:number(config,0,"textWidth")
+    diagnostic:""
+    unresolved:""
+    ends:source_notes.ends
+    note_node:1
+    index:0
+    index<note_count?>
+        source:string(source_notes,note_node,"source")
+        admin:flag(source_notes,note_node,"admin")
+        indent:1.8*quad
+        admin? .indent:number(config,0,"paragraphIndent")
+        flag(config,0,"legacyEquationAnchor") /\ trim_start(source)~=source?
+            .source:"\\mbox{}\\hspace{"&notes_tex_decimal.plain(spaces(footfont,"space"))&"bp}"&trim_start(source)
+        context:notes_parser.context("footnote",roles,c.optical,c.hyperref)
+        context.legacy_symbols:flag(config,0,"legacyTextSymbols")
+        note_links:normalized_links.appearance
+        note_appearance:notes_json.member(source_notes,note_node,"linkAppearance")
+        note_appearance>=0? .note_links:raw(source_notes,note_appearance)
+        options:notes_breaking.options(width)
+        options.first_indent:indent
+        options.tolerance:9999
+        options.emergency:3*quad
+        paragraph:notes_paragraph.typeset(source,fonts,context,c.math,language,c.overrides,options,notes_nodes.text_options(),directory,note_links)
+        a267_scope:a267_routes.select(index,source,a267_notes,a267_scopes,a267_texts,a267_kinds,"body")
+        a267_row:a267_provenance.capture(paragraph,a267_scope)
+        scene:notes_output.scene(paragraph)
+        .diagnostic:notes_config.merge(diagnostic,paragraph.diagnostics)
+        ~paragraph.lowering_complete?
+            unresolved~=""? .unresolved:unresolved&","
+            .unresolved:unresolved&"{\"note\":"&notes_text.integer(index+1)&",\"reason\":\"Unresolved source footnote operations\",\"source\":"&notes_json.quote(source)&"}"
+        markrole:marker_role(source_notes,note_node)
+        markfont:notes_fonts.text_font(fonts,markrole)
+        code:first_scalar(marker_source(source_notes,note_node))
+        symbol:int(number(source_notes,note_node,"symbol"))
+        symbol>0? .code:symbol_code(symbol)
+        glyph_source:notes_fonts.raw(fonts,"text/"&markrole&"/"&notes_text.integer(code))
+        glyph:notes_json.parse("{}")
+        glyph_source~=""? .glyph:notes_json.parse(glyph_source)
+        first_height:maximum(6.65*pt,number(glyph,0,"height")+number(footfont,0,"markRaise"))
+        ams? .first_height:maximum(number(footfont,0,"nativeFootnoteSep"),number(glyph,0,"height")+number(footfont,0,"markRaise"))
+        last_depth:0.0
+        paragraph_depths:paragraph.line_depths
+        paragraph.line_count>0? .last_depth:paragraph_depths.(paragraph.line_count-1)
+        depth:maximum(2.85*pt,last_depth)
+        ams? .depth:maximum(0.3*leading,last_depth)
+        # Reference destinations belong to the note's text, before its marker
+        # is appended. An empty note does not create a marker-only destination.
+        links_enabled? .scene:destination(scene,"footnote:"&notes_text.integer(int(number(source_notes,note_node,"number"))))
+        ~admin?
+            marker_context:notes_parser.context(markrole,roles,c.optical,c.hyperref)
+            marker_context.legacy_symbols:context.legacy_symbols
+            marker_options:notes_breaking.options(100)
+            marker_options.justify:false
+            marker:notes_paragraph.typeset(marker_source(source_notes,note_node),fonts,marker_context,c.math,language,c.overrides,marker_options,notes_nodes.text_options(),directory)
+            a267_marker_scope:a267_routes.select(index,marker_source(source_notes,note_node),a267_notes,a267_scopes,a267_texts,a267_kinds,"label")
+            .a267_row:a267_provenance.append(a267_row,a267_provenance.capture(marker,a267_marker_scope))
+            .diagnostic:notes_config.merge(diagnostic,marker.diagnostics)
+            raise:number(footfont,0,"markRaise")
+            ams? .raise:0.9*spaces(footfont,"xheight")
+            .scene:append_items(scene,translated_marker(notes_output.scene(marker),marker.width,raise))
+        .a267_rows:a267_rows&[a267_row]
+        scenes.(index):scene
+        firsts:notes.firsts
+        counts:notes.counts
+        first_heights:notes.first_heights
+        depths:notes.depths
+        reserves:notes.reserves
+        indents:notes.indents
+        admins:notes.admin
+        firsts.(index):lines.count
+        counts.(index):paragraph.line_count
+        first_heights.(index):first_height
+        depths.(index):depth
+        reserves.(index):first_height+leading*(paragraph.line_count-1)+depth
+        indents.(index):indent
+        admins.(index):admin
+        .notes:(firsts:firsts,counts:counts,first_heights:first_heights,depths:depths,reserves:reserves,indents:indents,admin:admins,count:note_count)
+        first:lines.count
+        .lines:extend_lines(lines,paragraph.line_count)
+        line_scenes:lines.scenes
+        source_lines:lines.source_lines
+        heights:lines.heights
+        line_depths:lines.depths
+        natural_depths:lines.natural_depths
+        widths:lines.widths
+        line_indents:lines.indents
+        baselines:lines.baselines
+        line:0
+        qheights:paragraph.line_heights
+        qdepths:paragraph.line_depths
+        qwidths:paragraph.line_widths
+        qindents:paragraph.line_indents
+        qbaselines:paragraph.line_baselines
+        line<paragraph.line_count?>
+            at:first+line
+            line_scenes.(at):body_scene_count+index
+            source_lines.(at):line
+            heights.(at):qheights.(line)
+            line_depths.(at):qdepths.(line)
+            natural_depths.(at):qdepths.(line)
+            widths.(at):qwidths.(line)
+            line_indents.(at):qindents.(line)
+            baselines.(at):qbaselines.(line)
+            .line:line+1
+        lines.scenes:line_scenes
+        lines.source_lines:source_lines
+        lines.heights:heights
+        lines.depths:line_depths
+        lines.natural_depths:natural_depths
+        lines.widths:widths
+        lines.indents:line_indents
+        lines.baselines:baselines
+        .note_node:ends.(note_node)
+        .index:index+1
+    @:(notes:notes,lines:lines,scenes:scenes,markers:markers,diagnostics:diagnostic,unresolved:unresolved,a267_provenance:a267_rows)
+
+# Compatibility transport; typed document assembly calls prepare_core instead.
+prepare(definitions:str,fonts:Catalog,roles:[str],language:Language,c:Configuration,body:Lines,body_scenes:[str],directory:str="{}",document_links_json:str="{}")->Result:
+    prepared:prepare_core(definitions,fonts,roles,language,c,body,body_scenes.length(),directory,document_links_json)
+    prepared.notes.count=0? @:(notes:prepared.notes,lines:body,scenes:body_scenes,markers:prepared.markers,diagnostics:prepared.diagnostics,unresolved:prepared.unresolved,a267_provenance:prepared.a267_provenance)
+    indexed:index_markers(prepared.lines,body.count,body_scenes,prepared.notes.count)
+    @:(notes:prepared.notes,lines:indexed.lines,scenes:body_scenes&prepared.scenes,markers:indexed.markers,diagnostics:prepared.diagnostics,unresolved:prepared.unresolved,a267_provenance:prepared.a267_provenance)

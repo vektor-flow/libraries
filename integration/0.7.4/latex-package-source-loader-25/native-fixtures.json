@@ -1,0 +1,19 @@
+{
+  "executed": false,
+  "positive": "tex_package_sources_tests.renderer_tests",
+  "negative": [
+    {
+      "function": "reject_split",
+      "expected": "Package source split UTF-8 scalar"
+    },
+    {
+      "function": "reject_index",
+      "expected": "Package source index"
+    },
+    {
+      "function": "reject_interpret",
+      "expected": "TEX_PACKAGE_INTERPRETER_UNAVAILABLE"
+    }
+  ],
+  "instructions": "Under a fresh native grant, first compile and run positive fixture. Then separate entries invoke each negative function; a compile error is not a passing refusal. No execution in iteration25."
+}

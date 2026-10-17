@@ -1,0 +1,66 @@
+latex-api-resource-integration-21 — SOURCE PROPOSAL READY, API INCOMPLETE
+Worker 01a14a19-1aad-7161-9109-13ac44eaba9e; Root 01a14893-cb1e-7203-97dd-de3da44dcf31.
+Base 4302f7a03a5d812bf1eaf35848557d157d2e5aae; own output only, 2026-10-17.
+
+DELIVERY
+source-api.patch adds a separate latex.tex2pdf(source,dest:"",selectable:true,
+editable:false,...) overload and a library delegate; all legacy source and
+17-position forwarding remain byte-identical prefixes. Real defaults load via
+existing io.read_text/font_catalog.load/hyphenation.load/text_parser_kernel.roles.
+No caller resource quartet. resource-binding.json pins accepted D301 assets:
+21,292,928 bytes,24 ordered roles,34731 catalog entries,6069 vector path ranges.
+Native guards check three exact asset lengths; existing font/language loaders
+check format. Root pre/post content hashes remain mandatory: lengths and path
+names cannot authenticate resource contents. No resource copies/default project
+inputs/test fonts/fallback/download. Absolute paths bind this environment only;
+packaging must relocate the generated module + descriptor together and verify
+same bytes under fresh native admission. Resources reload on each call; no cache
+or performance claim.
+
+Unsupported destination and effective selection fail explicitly before resource
+loads/layout. editable implies selectable. Default selectable=true consequently
+FAILS, as required until real producer/encoder/transport/publication exist. This
+is a concrete source-only false/false legacy rendering candidate, NOT a completed
+public API. Legacy calls retain prior behavior regardless of public defaults.
+
+Independent typed-result.patch adds latex_render_result.vkf only. It calls
+layout once, encodes THAT result.document once if complete, and returns
+TypedRenderResult:(pdf:str,layout:Result). Result/arena/PageDocument schemas match
+current source exactly, including all six provenance columns. Existing render
+shape and caller closure stay untouched in shared source. Root alone integrates
+these proposals after current D288/full-app controls; nothing is applied here.
+
+DEPENDENCIES / OWNERSHIP
+DEPENDENCY-CONTRACTS.txt and TRANSPORT-CONTRACT.json define precise selected
+encoder, trusted completion, and atomic publication boundaries. Selection22 owns
+encode_selected(doc,fonts,operators,plan,default_color)->str, SelectionPlan schema,
+validator and selection host adapter. No encoder/plan/peer files changed. Use
+current default color[0,0,0,1] and preserve legacy encoder bytes. Returned same-call
+typed data is not authentication: require issued bridge preparation/current
+snapshot, authentic expansion origins, private trusted invocation registry, exact
+native PDF bytes and typed transport hashes/build/runtime/input evidence.
+Existing unbound/generated/unused owner rejection remains. No a260_texts-per-glyph
+ActualText, inferred origins, or receipt JSON accepted as authentic provenance.
+Standalone atomic publication stays separate; no invented io.rename/fsync and no
+save in precommit render callback. Missing marshaller/producer/selected encoding/
+revision-guarded publication are explicit blockers, not successful options.
+
+VERIFICATION
+13 host/source tests pass in0.179s test/0.266s outer; child maxRSS43348KiB,
+512MiB address-space/55sCPU/60s wall limits. Two git apply --check subprocesses
+returned0 and joined; test child joined. All input pins unchanged. Checks cover
+real resources/roles/operator ranges/language extents, both read-only patch
+applications, legacy/schema invariants, rejected resource/transport mutations,
+existing bridge guards and future fixture state. checks01 preserves prior pass;
+final rerun followed adding explicit native resource-length failure guards.
+Source checks are NOT native parser/overload/render/PDF/API acceptance.
+
+NATIVE FOLLOW-UP (unexecuted, fresh Root grant required)
+NATIVE-SYNTAX.txt identifies current lowering evidence and parser proof limitation.
+First named-overload.vkf + existing syntax control, then actual direct named/
+legacy/typed comparison with real original40/files and resources. Original40 PDF
+hash b07821c28efadcd51fccc3ba6c75dd957ab6f95bde323f3c519d48edb41d1eb2 remains strict.
+Seven API fixtures include explicit failure controls; no completed-default claim.
+No native/compiler/link/namespace/service/policy/ledger/mount mutation, shared
+source edit, commit, subagent, new owner, or production qualification. All owned
+children joined; worker stops after one current DONE notification.

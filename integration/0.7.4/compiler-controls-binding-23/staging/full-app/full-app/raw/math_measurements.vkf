@@ -1,0 +1,46 @@
+# Wide-accent family selection measures the same source at text style. Create
+# isolated metrics/command owners once per ORIGINAL wide accent, then let all
+# nested occurrences refer to that accent's canonical measurement root.
+subtrees:.math_subtrees
+parser:.math_parser
+glyphs:.math_glyphs
+j:.resource_json
+Arena:(kinds:[str],attrs:[str],first:[int],last:[int],nexts:[int],a:[int],b:[int],sup:[int],sub:[int],limits:[int],count:int,diagnostics:str,atoms:int)
+
+prepare(arena:Arena):
+    original_count:arena.count
+    canonical:parser.nil(original_count)
+    origins:parser.nil(original_count)
+    i:0
+    i<original_count?>
+        origins.(i):i
+        .i:i+1
+    expanded:arena
+    kinds:arena.kinds
+    attrs:arena.attrs
+    arguments:arena.a
+    .i:0
+    i<original_count?>
+        kinds.(i)="decoration"?
+            data:j.parse("{"&attrs.(i)&"}")
+            name:glyphs.string(data,"name")
+            (name="widehat" \/ name="widetilde") /\ arguments.(i)>=0?
+                copied:subtrees.append(expanded,arguments.(i))
+                canonical.(i):copied.root
+                previous_count:expanded.count
+                .expanded:copied.arena
+                new_origins:copied.origins
+                index:0
+                index<previous_count?>
+                    new_origins.(index):origins.(index)
+                    .index:index+1
+                .origins:new_origins
+        .i:i+1
+    roots:parser.nil(expanded.count)
+    .i:0
+    i<expanded.count?>
+        origin:origins.(i)
+        (origin>=0 /\ origin<original_count)?! "Invalid measurement source origin"
+        roots.(i):canonical.(origin)
+        .i:i+1
+    @:(arena:expanded,measurement_roots:roots,original_count:original_count)

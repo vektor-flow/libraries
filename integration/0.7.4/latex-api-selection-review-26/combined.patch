@@ -1,0 +1,708 @@
+--- a/examples/gpu-math/native-vkf/latex.vkf
++++ b/examples/gpu-math/native-vkf/latex.vkf
+@@ -39,3 +39,8 @@
+ 
+ math_owned(source:str,resources:Resources,options:FragmentOptions,scope:str)->Fragment:
+     @:library.math_owned(source,resources,options,scope)
++
++# Source-only overload; legacy positional resource overload above is unchanged.
++# Selected/editable output and destination publication remain explicit errors.
++tex2pdf(source:str,dest:str="",selectable:bit=true,editable:bit=false,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true):
++    @:library.tex2pdf_named(source,dest,selectable,editable,files_json,job,entry,include_layout)
+--- a/examples/gpu-math/native-vkf/latex_library.vkf
++++ b/examples/gpu-math/native-vkf/latex_library.vkf
+@@ -76,3 +76,11 @@
+ # for the synthetic delimiters (host mathEntry validates this before invocation).
+ math_owned(source:str,resources:Resources,options:FragmentOptions,scope:str)->Fragment:
+     @:text_owned("\$"&source&"\$",resources,options,scope)
++
++# Installation-bound default resources; no caller resource quartet is required.
++latex_default_resources:.latex_default_resources
++tex2pdf_named(source:str,dest:str="",selectable:bit=true,editable:bit=false,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true):
++    (dest="")?! "latex.tex2pdf: atomic destination publication is not implemented"
++    (~(selectable \/ editable))?! "latex.tex2pdf: authenticated selectable/editable output is not implemented"
++    resources:latex_default_resources.load()
++    @:tex2pdf(source,resources.fonts,resources.operators,resources.ordered_roles,resources.language,files_json,job,entry,include_layout)
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/latex_default_resources.vkf
+@@ -0,0 +1,20 @@
++# Generated installation binding from resource-binding.json; NOT portable.
++# Root must verify pinned resource bytes before/after native execution.
++# No missing/corrupt resource fallback and no project/source defaults.
++io:.io
++font_catalog:.font_catalog
++hyphenation:.hyphenation
++text_parser_kernel:.text_parser_kernel
++tex_text:.tex_text
++Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
++Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
++DocumentResources:(fonts:Catalog,operators:str,ordered_roles:[str],language:Language,resource_revision:str)
++load()->DocumentResources:
++    fonts:font_catalog.load(io.read_text("/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/b95d5f5e476473ec7571004dfb68a49e9173c28429c1d6564223691a08dc3236-catalog.vkfont"))
++    operators:io.read_text("/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/9813ddbf0d907eedcf7a6aa8d486228e3580f31f7c7f4eea1748b2d37ba21b55-operators.txt")
++    language:hyphenation.load(io.read_text("/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen"))
++    (fonts.size=11866638)?! "latex.tex2pdf: default font resource length mismatch"
++    (tex_text.byte_length(operators)=9197368)?! "latex.tex2pdf: default operator resource length mismatch"
++    (language.size=228922)?! "latex.tex2pdf: default language resource length mismatch"
++    ordered_roles:text_parser_kernel.roles("[\"roman\", \"bold\", \"italic\", \"mono\", \"sans\", \"slanted\", \"smallcaps\", \"section\", \"subsection\", \"subsubsection\", \"title\", \"author\", \"small\", \"smallbold\", \"footnote\", \"footnotemono\", \"footnotemark\", \"titlemark\", \"notemark\", \"header\", \"abstract\", \"abstractHeading\", \"footnoteitalic\", \"footnotebold\"]")
++    @:(fonts:fonts,operators:operators,ordered_roles:ordered_roles,language:language,resource_revision:"sha256:1c3a7cd46514d05206aa0e5492ba46fb008976d588feb8dcc01b6f3d7c7b8aca")
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/latex_render_result.vkf
+@@ -0,0 +1,19 @@
++# Internal legacy typed transport. Independent module; old render is unchanged.
++# Encode the exact document produced by this single layout invocation.
++# No provenance authentication, selection encoder, destination or publication.
++document_materialize:.document_materialize
++document_pdf_bulk:.document_pdf_bulk
++Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
++Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
++Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
++Paint:(red:num,green:num,blue:num,alpha:num)
++Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
++Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
++PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
++Result:(layout_json:str,diagnostics:str,unresolved_json:str,complete:bit,block_count:int,page_count:int,document:PageDocument)
++TypedRenderResult:(pdf:str,layout:Result)
++render(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true,a261_blocks:[int]=[],a261_scopes:[str]=[],a261_texts:[str]=[],a263_kinds:[str]=[],a267_notes:[int]=[],a267_scopes:[str]=[],a267_texts:[str]=[],a267_kinds:[str]=[])->TypedRenderResult:
++    result:document_materialize.layout(source,fonts,ordered_roles,language,files_json,job,entry,include_layout,a261_blocks,a261_scopes,a261_texts,a263_kinds,a267_notes,a267_scopes,a267_texts,a267_kinds)
++    pdf:""
++    result.complete? .pdf:document_pdf_bulk.encode(result.document,fonts,operators)
++    @:(pdf:pdf,layout:result)
+diff --git a/examples/gpu-math/native-vkf/document_pdf_bulk.vkf b/examples/gpu-math/native-vkf/document_pdf_bulk.vkf
+--- a/examples/gpu-math/native-vkf/document_pdf_bulk.vkf
++++ b/examples/gpu-math/native-vkf/document_pdf_bulk.vkf
+@@ -2,6 +2,8 @@
+ # Isolated bulk PDF builder. Resource and object columns have one local owner.
+ # Scalar probes never return a Pool/State; demand and byte order match typed PDF.
+ document_pdf:.document_pdf
++selection:.pdf_selection
++selection_plan:.pdf_selection_plan
+ font_catalog:.font_catalog
+ resource_json:.resource_json
+ math_metadata:.math_metadata
+@@ -19,6 +21,7 @@
+ Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+ Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+ PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
++SelectionPlan:(schema:int,document_id:str,revision:int,source_revision:str,source_ids:[str],source_versions:[int],source_texts:[str],scope_ids:[str],scope_sources:[int],scope_bases:[int],scope_texts:[str],group_ids:[str],group_sources:[int],group_starts:[int],group_stops:[int],cluster_groups:[int],cluster_scopes:[int],cluster_operations:[int],cluster_starts:[int],cluster_stops:[int],cluster_firsts:[int],cluster_counts:[int],leaf_ids:[str],leaf_parts:[int])
+ paint_key(red:num,green:num,blue:num,alpha:num)->str:
+     @:json_numbers.roundtrip(red)&","&json_numbers.roundtrip(green)&","&json_numbers.roundtrip(blue)&","&json_numbers.roundtrip(alpha)
+ 
+@@ -86,6 +89,18 @@
+ 
+ Result:(pdf:str,page_count:int,form_count:int,alpha_count:int,object_count:int)
+ encode_detail(doc:PageDocument,fonts:Catalog,operators:str,default_color:[num:4]=[0,0,0,1])->Result:
++    [int] no_firsts:[]
++    [int] no_counts:[]
++    [str] no_texts:[]
++    @:encode_core(doc,fonts,operators,default_color,false,no_firsts,no_counts,no_texts)
++
++# Internal only. Use the authenticated host/native boundary described in the
++# selection22 contract; the structural plan alone is NOT a capability.
++encode_selected(doc:PageDocument,fonts:Catalog,operators:str,plan:SelectionPlan,default_color:[num:4]=[0,0,0,1])->str:
++    logical:selection_plan.validate(doc,plan)
++    @:encode_core(doc,fonts,operators,default_color,true,plan.cluster_firsts,plan.cluster_counts,logical).pdf
++
++encode_core(doc:PageDocument,fonts:Catalog,operators:str,default_color:[num:4],selected:bit,selection_firsts:[int],selection_counts:[int],selection_texts:[str])->Result:
+     arena:doc.arena
+     page_count:doc.page_count
+     (page_count>0 /\ page_count<=100)?! "PDF requires 1-100 layout pages"
+@@ -123,6 +138,7 @@
+     index<page_count?>
+         page_ids.(index):4+index
+         .index:index+1
++    selected_cluster:0
+     .index:0
+     index<page_count?>
+         page_width:doc.widths.(index)
+@@ -137,8 +153,11 @@
+         commands.(0):"q 1 0 0 -1 0 "&pdf_syntax.number(page_height)&" cm"
+         command_count:1
+         current_paint:""
++        selection_begin:1
+         item:first
+         item<first+count?>
++            selected?
++                item=selection_firsts.(selected_cluster)? .selection_begin:command_count
+             kind:arena.kinds.(item)
+             x:arena.xs.(item)
+             y:arena.ys.(item)
+@@ -386,6 +405,12 @@
+             command~=""?
+                 commands.(command_count):"\n"&command
+                 .command_count:command_count+1
++            selected?
++                item+1=selection_firsts.(selected_cluster)+selection_counts.(selected_cluster)?
++                    drawing:text_chunks.join(commands,selection_begin,command_count)
++                    commands.(selection_begin):selection.actual_text(selection_texts.(selected_cluster),drawing)
++                    .command_count:selection_begin+1
++                    .selected_cluster:selected_cluster+1
+             .item:item+1
+         commands.(command_count):"\nQ"
+         .command_count:command_count+1
+diff --git a/examples/gpu-math/native-vkf/host/latex_pdf_selection.mjs b/examples/gpu-math/native-vkf/host/latex_pdf_selection.mjs
+new file mode 100644
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/host/latex_pdf_selection.mjs
+@@ -0,0 +1,109 @@
++import {createHash} from 'node:crypto';
++import {createSourceBindingBridge} from './latex_source_binding_bridge.mjs';
++
++const check = (ok, message) => { if (!ok) throw Error(message); };
++export const selectionPlanSchemaSha256 = '87743151910c573b7f03d622c02fcee922b89fa2dc9ece644af8ddace112827b';
++const digest = value => createHash('sha256').update(value).digest('hex');
++const bytes = s => new TextEncoder().encode(s).length;
++const freeze = x => { if (x && typeof x === 'object') { Object.values(x).forEach(freeze); Object.freeze(x); } return x; };
++const literal = s => s.length > 0 && !/[\x00-\x20\\%{}$^_&#~\-`']/u.test(s);
++// Deliberately no caller-supplied replacement text. Only direct, exact, literal
++// authored spans are currently supported. Expanded TeX needs a real producer.
++function makePlan(preparation, bound) {
++  const owner = preparation.owner, document = bound.document, a = document.arena;
++  check(a.count > 0, 'Empty selection has no authored plan');
++  check(a.kinds?.length === a.count && a.draws?.length === a.count &&
++    a.kinds.every(k => k === 0) && a.draws.every(x => x === true), 'Nonliteral/generated selection leaf');
++  check(owner.groups.length === bound.metadata.groups.length &&
++    owner.groups.every((g, i) => g.id === bound.metadata.groups[i].id), 'Nonlogical selection group order');
++  const sources = new Map(owner.sources.map((s, i) => [s.id, i]));
++  const scopes = new Map(owner.scopes.map((s, i) => [s.id, i]));
++  const groups = new Map(owner.groups.map((g, i) => [g.id, i]));
++  const operationMaps = owner.scopes.map(s => new Map(s.operations.map(o => [o.operation, o])));
++  const p = {schema: 1, document_id: owner.documentId, revision: owner.revision, source_revision: preparation.sourceRevision,
++    source_ids: owner.sources.map(s => s.id), source_versions: owner.sources.map(s => s.version), source_texts: owner.sources.map(s => s.text),
++    scope_ids: owner.scopes.map(s => s.id), scope_sources: owner.scopes.map(s => sources.get(s.sourceId)),
++    scope_bases: owner.scopes.map(s => s.baseByte), scope_texts: owner.scopes.map(s => s.text),
++    group_ids: owner.groups.map(g => g.id), group_sources: [], group_starts: [], group_stops: [],
++    cluster_groups: [], cluster_scopes: [], cluster_operations: [], cluster_starts: [], cluster_stops: [], cluster_firsts: [], cluster_counts: [],
++    leaf_ids: [...bound.metadata.leafIds], leaf_parts: [...a.a260_parts]};
++  for (const s of owner.scopes) check(s.a262_originMode === undefined, 'Expanded selection needs authenticated logical producer');
++  for (const g of owner.groups) {
++    check(g.spans.length === 1, 'Multisource/disjoint group needs logical producer');
++    const span = g.spans[0], source = owner.sources[sources.get(span.sourceId)];
++    p.group_sources.push(sources.get(span.sourceId));
++    p.group_starts.push(bytes(source.text.slice(0, span.start))); p.group_stops.push(bytes(source.text.slice(0, span.end)));
++  }
++  const seen = new Set(); let page = 0, group = -1, cursor = 0;
++  for (let first = 0; first < a.count;) {
++    while (page < document.page_count && first >= document.firsts[page] + document.counts[page]) page++;
++    check(page < document.page_count, 'Cluster outside document pages');
++    const si = scopes.get(a.a260_scopes[first]), scope = owner.scopes[si];
++    const op = operationMaps[si].get(a.a260_operations[first]), gi = groups.get(op.groupId);
++    const key = JSON.stringify([si, op.operation]); check(!seen.has(key), 'Repeated/noncontiguous cluster ownership'); seen.add(key);
++    let stop = first + 1;
++    while (stop < a.count && a.a260_scopes[stop] === scope.id && a.a260_operations[stop] === op.operation) stop++;
++    check(stop <= document.firsts[page] + document.counts[page], 'Cross-page cluster needs producer split map');
++    if (gi !== group) {
++      if (group >= 0) check(cursor === p.group_stops[group], 'Missing authored group text');
++      check(gi === group + 1, 'Nonlogical selection group order'); group = gi; cursor = p.group_starts[gi];
++    }
++    check(p.scope_sources[si] === p.group_sources[gi] && scope.baseByte + op.start === cursor &&
++      scope.baseByte + op.stop <= p.group_stops[gi], 'Overlapping/missing authored cluster text');
++    cursor = scope.baseByte + op.stop;
++    // Existing binding already validated UTF-8 -> UTF-16 conversion and origins.
++    const span = bound.sourceBinding.leaves[first].spans[0];
++    const text = owner.sources[sources.get(span.sourceId)].text.slice(span.start, span.end);
++    check(literal(text), 'Nonliteral text needs exact logical producer');
++    p.cluster_groups.push(gi); p.cluster_scopes.push(si); p.cluster_operations.push(op.operation);
++    p.cluster_starts.push(op.start); p.cluster_stops.push(op.stop); p.cluster_firsts.push(first); p.cluster_counts.push(stop - first);
++    first = stop;
++  }
++  check(group === owner.groups.length - 1 && cursor === p.group_stops[group], 'Incomplete selection plan');
++  return freeze(p);
++}
++
++/** Preparation only, not a native-completion registry or selectable PDF API.
++ * Uses the actual bridge internally: no supplied authenticator or boolean bypass.
++ * plan() accepts an exact typed layout Result, not API21's enclosing typed render.
++ * A trusted adapter must supply result.layout from the SAME invocation and later
++ * bind native PDF bytes and all hashes in its private completion registry.
++ */
++export function createPdfSelectionSession(sources) {
++  const bridge = createSourceBindingBridge(sources), tickets = new WeakMap();
++  function guard(ticket) {
++    const state = tickets.get(ticket); check(state, 'Foreign selection ticket');
++    check(bridge.current === state.base && bridge.current.snapshot === state.preparation.snapshot &&
++      bridge.current.snapshot.revision === ticket.plan.source_revision, 'Stale selection ticket');
++    return state;
++  }
++  return Object.freeze({
++    get current() { return bridge.current; },
++    prepare: (request, mapping) => bridge.prepare(request, mapping),
++    documentArguments: (preparation, resources) => bridge.documentArguments(preparation, resources),
++    apply: (request, mapping, prepareDocument) => bridge.apply(request, mapping, prepareDocument),
++    plan(preparation, result) {
++      // bindDocument rejects stale/foreign preparations, incomplete/render-shaped
++      // values, unknown generated leaves, parser mismatches and missing emissions.
++      const base = bridge.current, boundDocument = bridge.bindDocument(preparation, result);
++      const ticket = Object.freeze({boundDocument, plan: makePlan(preparation, boundDocument)});
++      const planBytes = new TextEncoder().encode(JSON.stringify(ticket.plan));
++      tickets.set(ticket, {base, preparation, planBytes, planSha256: digest(planBytes)}); guard(ticket); return ticket;
++    },
++    // Retained exact UTF-8 JSON bytes, NOT canonicalized/reencoded on read.
++    // Copies may be transported; registry must still authenticate native custody.
++    serializePlan(ticket) {
++      const state = guard(ticket);
++      return Object.freeze({schemaSha256: selectionPlanSchemaSha256, planSha256: state.planSha256,
++        byteLength: state.planBytes.length, bytes: state.planBytes.slice()});
++    },
++    encoderArguments(ticket, resources) {
++      const state = guard(ticket);
++      // Reuse existing plain-data copy/guard for the actual resource pair.
++      // This validates data shape, NOT immutable native resource identity.
++      const args = bridge.pdfArguments(state.preparation, resources);
++      guard(ticket);
++      return Object.freeze([ticket.boundDocument.document, args[1], args[2], ticket.plan]);
++    }
++  });
++}
+diff --git a/examples/gpu-math/native-vkf/host/tests/pdf-selection-plan.mjs b/examples/gpu-math/native-vkf/host/tests/pdf-selection-plan.mjs
+new file mode 100644
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/host/tests/pdf-selection-plan.mjs
+@@ -0,0 +1,159 @@
++import test from 'node:test';
++import {createHash} from 'node:crypto';
++import assert from 'node:assert/strict';
++import {createPdfSelectionSession} from '../latex_pdf_selection.mjs';
++
++const bytes = s => new TextEncoder().encode(s).length;
++const request = session => ({expectedSnapshot: session.current.snapshot, expectedRevision: session.current.snapshot.revision});
++const resources = {fonts: {source: 'HOST fixture only', valid: false}, operators: 'HOST fixture only', ordered_roles: ['roman'], language: {source: 'HOST fixture only'}};
++// Explicit typed HOST fixtures; none are represented as actual native output.
++function fixture(texts = ['😀', 'fi', 'e\u0301', 'x', 'x'], parts = [1, 1, 2, 1, 1], pages = [4, 2]) {
++  const text = texts.join(''), leaves = [], operations = []; let byte = 0;
++  texts.forEach((value, i) => {
++    const op = {operation: i * 3, start: byte, stop: byte + bytes(value), groupId: 'g', leaves: []};
++    for (let j = 0; j < parts[i]; j++) { op.leaves.push({part: j * 7, id: `leaf-${i}-${j}`, resources: []}); leaves.push({op, part: j * 7}); }
++    byte = op.stop; operations.push(op);
++  });
++  const owner = {documentId: 'doc', revision: 0, resources: [], sources: [{id: 'main', version: 0, text}],
++    groups: [{id: 'g', contentVersion: 0, layoutVersion: 0, contentKey: text, layoutKey: text, edges: [], spans: [{sourceId: 'main', start: 0, end: text.length}]}],
++    scopes: [{id: 'parse', sourceId: 'main', text, baseByte: 0, operations}]};
++  const arena = {count: leaves.length, kinds: leaves.map(() => 0), draws: leaves.map(() => true),
++    a260_scopes: leaves.map(() => 'parse'), a260_texts: leaves.map(() => text), a260_operations: leaves.map(x => x.op.operation),
++    a260_starts: leaves.map(x => x.op.start), a260_stops: leaves.map(x => x.op.stop), a260_parts: leaves.map(x => x.part)};
++  let first = 0; const firsts = pages.map(n => { const v = first; first += n; return v; });
++  return {mapping: {owner, sourceId: 'main', bodyRoutes: [{block: 0, scope: 'parse'}], noteRoutes: []},
++    result: {complete: true, diagnostics: '', unresolved_json: '[]', block_count: 1, page_count: pages.length, layout_json: '',
++      document: {arena, firsts, counts: pages, widths: pages.map(() => 100), heights: pages.map(() => 100), page_count: pages.length}}};
++}
++function start(f = fixture()) {
++  const session = createPdfSelectionSession(f.mapping.owner.sources), preparation = session.prepare(request(session), f.mapping);
++  return {...f, session, preparation};
++}
++function logical(p) { return p.cluster_firsts.map((_, i) => {
++  const scope = p.cluster_scopes[i], source = p.source_texts[p.scope_sources[scope]];
++  return Buffer.from(source).subarray(p.scope_bases[scope] + p.cluster_starts[i], p.scope_bases[scope] + p.cluster_stops[i]).toString();
++}); }
++
++test('supplementary, ligature, combining cluster and repeated glyph retain exact logical spans', () => {
++  const {session, preparation, result} = start(), t = session.plan(preparation, result);
++  assert.deepEqual(logical(t.plan), ['😀', 'fi', 'e\u0301', 'x', 'x']);
++  assert.deepEqual(t.plan.cluster_firsts, [0, 1, 2, 4, 5]); assert.deepEqual(t.plan.cluster_counts, [1, 1, 2, 1, 1]);
++  assert.deepEqual(t.plan.cluster_starts, [0, 4, 6, 9, 10]); assert.deepEqual(t.plan.cluster_stops, [4, 6, 9, 10, 11]);
++  assert.equal(t.plan.source_revision, preparation.sourceRevision);
++  const args = session.encoderArguments(t, resources);
++  assert.strictEqual(args[0], t.boundDocument.document); assert.strictEqual(args[3], t.plan);
++  assert.deepEqual(args.slice(1, 3), [resources.fonts, resources.operators]);
++  // No invented native result/byte receipt or selectable success field.
++  assert.deepEqual(Object.keys(t), ['boundDocument', 'plan']);
++});
++
++test('one logical group spans pages only at complete cluster boundaries', () => {
++  const {session, preparation, result} = start(), t = session.plan(preparation, result);
++  assert.deepEqual(t.plan.cluster_groups, [0, 0, 0, 0, 0]);
++  assert.deepEqual(t.boundDocument.document.firsts, [0, 4]);
++  assert.equal(logical(t.plan).join(''), t.plan.source_texts[0]);
++  const f = fixture(); f.result.document.firsts = [0, 3]; f.result.document.counts = [3, 3];
++  const s = start(f); assert.throws(() => s.session.plan(s.preparation, s.result), /Cross-page cluster/);
++});
++
++test('actual owned sources preserve CRLF and nonzero byte base without inserting them into glyph text', () => {
++  const f = fixture(), prefix = '前\r\n', o = f.mapping.owner;
++  o.sources[0].text = prefix + o.sources[0].text; o.scopes[0].baseByte = bytes(prefix);
++  o.groups[0].spans[0].start = prefix.length; o.groups[0].spans[0].end = o.sources[0].text.length;
++  const s = start(f), t = s.session.plan(s.preparation, s.result);
++  assert.equal(t.plan.source_texts[0], '前\r\n😀fie\u0301xx'); assert.equal(t.plan.scope_bases[0], 5);
++  assert.equal(logical(t.plan).join(''), '😀fie\u0301xx');
++});
++
++test('typed result and parser ownership required; render-only and caller flags cannot bypass', () => {
++  const mutations = [r => delete r.document, r => r.complete = false, r => r.diagnostics = 'bad', r => r.unresolved_json = '[1]',
++    r => delete r.document.arena.a260_parts, r => r.document.arena.a260_scopes[0] = '',
++    r => r.document.arena.a260_texts[0] = 'wrong', r => r.document.arena.a260_operations[0] = 123,
++    r => r.document.arena.a260_starts[0] = 1, r => r.document.arena.a260_stops[0] = 5,
++    r => r.document.arena.a260_parts[0] = 12, r => r.document.arena.a260_parts[3] = 0,
++    r => r.document.arena.draws[0] = false, r => r.document.arena.kinds[0] = 2,
++    r => r.document.firsts[1] = 3];
++  for (const mutate of mutations) { const s = start(); mutate(s.result); s.result.authenticated = true; s.result.selectable = true;
++    assert.throws(() => s.session.plan(s.preparation, s.result)); }
++  const s = start(); assert.throws(() => s.session.plan(s.preparation, {pdf: 'fake', layout: s.result}), /Typed DocumentResult/);
++});
++
++test('missing, duplicate, mismatched or unconsumed owner emissions refuse', () => {
++  for (const mutate of [o => o.scopes[0].operations[0].leaves = [],
++    o => o.scopes[0].operations[0].leaves.push({...o.scopes[0].operations[0].leaves[0]}),
++    o => o.scopes[0].operations[1].leaves[0].id = o.scopes[0].operations[0].leaves[0].id,
++    o => o.scopes[0].operations[0].leaves.push({id: 'extra', part: 99, resources: []}),
++    o => o.scopes[0].operations[0].stop = 3]) {
++    const f = fixture(); mutate(f.mapping.owner);
++    assert.throws(() => {const s = start(f); s.session.plan(s.preparation, s.result);});
++  }
++});
++
++test('overlapping and omitted authored spans do not repeat/drop parser source', () => {
++  const f = fixture(['x', 'x'], [1, 1], [2]);
++  f.mapping.owner.scopes[0].operations[1].start = 0; f.mapping.owner.scopes[0].operations[1].stop = 1;
++  f.result.document.arena.a260_starts[1] = 0; f.result.document.arena.a260_stops[1] = 1;
++  const s = start(f); assert.throws(() => s.session.plan(s.preparation, s.result), /Overlapping/);
++  const g = fixture(['x', 'y'], [1, 1], [2]);
++  g.mapping.owner.sources[0].text += 'z'; g.mapping.owner.groups[0].spans[0].end++;
++  const t = start(g); assert.throws(() => t.session.plan(t.preparation, t.result), /Incomplete selection plan/);
++});
++
++test('noncontiguous cluster emissions fail even when the same group is contiguous', () => {
++  const f = fixture(['x', 'y'], [2, 1], [3]);
++  for (const key of Object.keys(f.result.document.arena)) if (Array.isArray(f.result.document.arena[key])) {
++    const a = f.result.document.arena[key]; [a[1], a[2]] = [a[2], a[1]];
++  }
++  const s = start(f); assert.throws(() => s.session.plan(s.preparation, s.result), /Repeated\/noncontiguous/);
++});
++
++test('expanded origins, TeX syntax, whitespace and transformed punctuation remain explicit dependencies', () => {
++  for (const text of ['\\alpha', '{x}', '$x$', 'a b', 'a\r\nb', 'a-b', "a'b", 'a~b', 'a`b', 'a\0b']) {
++    const s = start(fixture([text], [1], [1])); assert.throws(() => s.session.plan(s.preparation, s.result), /Nonliteral/);
++  }
++  const f = fixture(['x'], [1], [1]); f.mapping.owner.scopes[0].a262_originMode = 'explicit';
++  f.mapping.owner.scopes[0].operations[0].a262_origins = [{sourceId: 'main', startByte: 0, stopByte: 1}];
++  const s = start(f); assert.throws(() => s.session.plan(s.preparation, s.result), /Expanded/);
++});
++
++test('preparations and tickets cannot be cloned, crossed, or forged', () => {
++  const s = start(), t = s.session.plan(s.preparation, s.result), other = start();
++  for (const bad of [{...s.preparation}, structuredClone(s.preparation), other.preparation]) assert.throws(() => s.session.plan(bad, s.result), /Foreign/);
++  for (const bad of [{...t}, structuredClone(t), {plan: t.plan, boundDocument: t.boundDocument}]) assert.throws(() => s.session.encoderArguments(bad, resources), /Foreign/);
++  assert.throws(() => other.session.encoderArguments(t, resources), /Foreign/);
++});
++
++test('plan and document snapshot detached from caller mutations', () => {
++  const s = start(), t = s.session.plan(s.preparation, s.result);
++  s.result.document.arena.a260_texts[0] = 'mutated'; s.mapping.owner.sources[0].text = 'mutated';
++  assert.equal(t.boundDocument.document.arena.a260_texts[0], '😀fie\u0301xx'); assert.equal(t.plan.source_texts[0], '😀fie\u0301xx');
++  assert.ok(Object.isFrozen(t.plan.cluster_starts)); assert.throws(() => t.plan.cluster_starts[0] = 99);
++});
++
++test('no-op revision commits invalidate old ticket and preparation by current state identity', async () => {
++  const s = start(), t = s.session.plan(s.preparation, s.result), mapping = structuredClone(s.mapping);
++  mapping.owner.revision = 1;
++  await s.session.apply({...request(s.session), edits: []}, mapping, async () => s.result);
++  assert.throws(() => s.session.encoderArguments(t, resources), /Stale/);
++  assert.throws(() => s.session.plan(s.preparation, s.result), /Stale/);
++});
++
++test('multiple authored groups are consumed in explicit logical order', () => {
++  const f = fixture(['x', 'y'], [1, 1], [1, 1]), o = f.mapping.owner;
++  o.groups[0].spans[0].end = 1;
++  o.groups.push({...structuredClone(o.groups[0]), id: 'g2', spans: [{sourceId: 'main', start: 1, end: 2}]});
++  o.scopes[0].operations[1].groupId = 'g2';
++  const s = start(f); assert.deepEqual(s.session.plan(s.preparation, s.result).plan.cluster_groups, [0, 1]);
++  o.groups.reverse(); const reversed = start(f); assert.throws(() => reversed.session.plan(reversed.preparation, reversed.result), /Nonlogical/);
++});
++
++ test('exact retained plan bytes and schema digest are integrity metadata, not completion proof', () => {
++  const s = start(), t = s.session.plan(s.preparation, s.result), a = s.session.serializePlan(t);
++  assert.equal(a.byteLength, a.bytes.length);
++  assert.equal(a.planSha256, createHash('sha256').update(a.bytes).digest('hex'));
++  assert.match(a.schemaSha256, /^[a-f0-9]{64}$/);
++  assert.deepEqual(JSON.parse(new TextDecoder().decode(a.bytes)), t.plan);
++  const original = a.bytes.slice(); a.bytes.fill(0);
++  assert.deepEqual(s.session.serializePlan(t).bytes, original);
++  assert.throws(() => s.session.serializePlan({...t}), /Foreign/);
++ });
+diff --git a/examples/gpu-math/native-vkf/pdf_selection_encoder_tests.vkf b/examples/gpu-math/native-vkf/pdf_selection_encoder_tests.vkf
+new file mode 100644
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/pdf_selection_encoder_tests.vkf
+@@ -0,0 +1,131 @@
++# Future ACTUAL native fixtures. Source-only delivery: none executed here.
++# fixture() creates explicit owned leaves; it does not prove parser provenance.
++# Root must additionally run the real producer -> layout -> selected encoder.
++bulk:.document_pdf_bulk
++plan_check:.pdf_selection_plan
++selected:.pdf_selection
++scene:.document_scene
++fonts_fixture:.document_pdf_tests
++text:.tex_text
++chunks:.text_chunks
++
++fixture_leaf(index:int):
++    leaf:scene.leaf("glyph/a",10+12*index,30)
++    leaf.a260_scope:"parse"
++    leaf.a260_text:"😀fiéxx"
++    [int] operations:[0,3,6,6,9,12]
++    [int] starts:[0,4,6,6,9,10]
++    [int] stops:[4,6,9,9,10,11]
++    [int] parts:[0,0,0,7,0,0]
++    leaf.a260_operation:operations.(index)
++    leaf.a260_start:starts.(index)
++    leaf.a260_stop:stops.(index)
++    leaf.a260_part:parts.(index)
++    @:leaf
++fixture():
++    [int] ids:[0,1,2,3,4,5]
++    leaves:ids >> fixture_leaf($)
++    arena:scene.from_leaves(leaves,6)
++    [num] widths:[100.0,100]
++    [num] heights:[100.0,100]
++    [int] firsts:[0,4]
++    [int] counts:[4,2]
++    [str] names:[]
++    [int] pages:[]
++    [num] coordinates:[]
++    @:(widths:widths,heights:heights,firsts:firsts,counts:counts,arena:arena,destination_names:names,destination_pages:pages,destination_xs:coordinates,destination_ys:coordinates,page_count:2,destination_count:0)
++fixture_plan():
++    [str] source_ids:["main"]
++    [int] source_versions:[0]
++    [str] source_texts:["😀fiéxx"]
++    [str] scope_ids:["parse"]
++    [int] scope_sources:[0]
++    [int] scope_bases:[0]
++    [str] scope_texts:["😀fiéxx"]
++    [str] group_ids:["g"]
++    [int] group_sources:[0]
++    [int] group_starts:[0]
++    [int] group_stops:[11]
++    [int] cluster_groups:[0,0,0,0,0]
++    [int] cluster_scopes:[0,0,0,0,0]
++    [int] cluster_operations:[0,3,6,9,12]
++    [int] cluster_starts:[0,4,6,9,10]
++    [int] cluster_stops:[4,6,9,10,11]
++    [int] cluster_firsts:[0,1,2,4,5]
++    [int] cluster_counts:[1,1,2,1,1]
++    [str] leaf_ids:["leaf-0","leaf-1","leaf-2","leaf-3","leaf-4","leaf-5"]
++    [int] leaf_parts:[0,0,0,7,0,0]
++    @:(schema:1,document_id:"native-fixture",revision:0,source_revision:"FIXTURE-not-an-authenticated-revision",source_ids:source_ids,source_versions:source_versions,source_texts:source_texts,scope_ids:scope_ids,scope_sources:scope_sources,scope_bases:scope_bases,scope_texts:scope_texts,group_ids:group_ids,group_sources:group_sources,group_starts:group_starts,group_stops:group_stops,cluster_groups:cluster_groups,cluster_scopes:cluster_scopes,cluster_operations:cluster_operations,cluster_starts:cluster_starts,cluster_stops:cluster_stops,cluster_firsts:cluster_firsts,cluster_counts:cluster_counts,leaf_ids:leaf_ids,leaf_parts:leaf_parts)
++occurrences(value:str,needle:str)->int:
++    count:0
++    cursor:0
++    true?>
++        found:text.find(value,needle,cursor)
++        found<0? @:count
++        .count:count+1
++        .cursor:found+text.byte_length(needle)
++    @:count
++
++renderer_tests()->bit:
++    doc:fixture()
++    p:fixture_plan()
++    logical:plan_check.validate(doc,p)
++    (logical.length()=5 /\ logical.(0)="😀" /\ logical.(1)="fi" /\ logical.(2)="é" /\ logical.(3)="x" /\ logical.(4)="x")?! "Authored cluster text once; repeated glyphs retained"
++    fonts:fonts_fixture.fixture_fonts()
++    legacy:bulk.encode(doc,fonts.fonts,fonts.operators)
++    pdf:bulk.encode_selected(doc,fonts.fonts,fonts.operators,p)
++    (occurrences(legacy,"/ActualText")=0)?! "Legacy route stays unselectable"
++    (occurrences(pdf,"/ActualText")=5 /\ occurrences(pdf," >> BDC\n")=5 /\ occurrences(pdf,"\nEMC\n")=5)?! "Balanced complete cluster wrappers"
++    (occurrences(pdf,"/ActualText <FEFFD83DDE00>")=1)?! "Supplementary Unicode BOM UTF16BE"
++    (occurrences(pdf,"/ActualText <FEFF00660069>")=1)?! "Ligature uses authored fi"
++    (occurrences(pdf,"/ActualText <FEFF00650301>")=1)?! "Combining cluster two leaves emits once"
++    (occurrences(pdf,"/ActualText <FEFF0078>")=2)?! "Repeated glyphs from distinct origins remain distinct"
++    (occurrences(pdf,"/Type /Page ")=2)?! "Logical group spans two pages"
++    (bulk.encode(doc,fonts.fonts,fonts.operators)=legacy)?! "Selected encode does not mutate document or legacy state"
++    @:true
++
++# Each negative entry needs a SEPARATE native process; require nonzero plus exact
++# assertion text in stderr, never accept an arbitrary compile error as refusal.
++reject_missing():
++    doc:fixture()
++    p:fixture_plan()
++    [str] missing:[]
++    p.leaf_ids:missing
++    plan_check.validate(doc,p)
++reject_mismatch():
++    doc:fixture()
++    a:doc.arena
++    a.a260_texts.(0):"wrong"
++    doc.arena:a
++    plan_check.validate(doc,fixture_plan())
++reject_duplicate():
++    p:fixture_plan()
++    p.leaf_ids.(1):p.leaf_ids.(0)
++    plan_check.validate(fixture(),p)
++reject_duplicate_part():
++    doc:fixture()
++    a:doc.arena
++    a.a260_parts.(3):0
++    doc.arena:a
++    p:fixture_plan()
++    p.leaf_parts.(3):0
++    plan_check.validate(doc,p)
++reject_cross_page_cluster():
++    doc:fixture()
++    doc.firsts.(1):3
++    doc.counts.(0):3
++    doc.counts.(1):3
++    plan_check.validate(doc,fixture_plan())
++reject_scalar_split():
++    p:fixture_plan()
++    p.cluster_starts.(0):1
++    plan_check.validate(fixture(),p)
++reject_overlap():
++    p:fixture_plan()
++    p.cluster_starts.(4):9
++    plan_check.validate(fixture(),p)
++reject_source_mismatch():
++    p:fixture_plan()
++    p.source_texts.(0):"😀fiéxy"
++    plan_check.validate(fixture(),p)
++renderer_tests()
+diff --git a/examples/gpu-math/native-vkf/pdf_selection_plan.vkf b/examples/gpu-math/native-vkf/pdf_selection_plan.vkf
+new file mode 100644
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/pdf_selection_plan.vkf
+@@ -0,0 +1,147 @@
++# Internal direct-literal plan integrity validator. Host-issued capability and
++# trusted native invocation custody are mandatory OUTSIDE this structural type.
++# This record cannot authenticate itself; do not expose it as a public flag bypass.
++text:.tex_text
++chunks:.text_chunks
++indexing:.math_metadata
++Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
++Paint:(red:num,green:num,blue:num,alpha:num)
++Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
++Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
++PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
++SelectionPlan:(schema:int,document_id:str,revision:int,source_revision:str,source_ids:[str],source_versions:[int],source_texts:[str],scope_ids:[str],scope_sources:[int],scope_bases:[int],scope_texts:[str],group_ids:[str],group_sources:[int],group_starts:[int],group_stops:[int],cluster_groups:[int],cluster_scopes:[int],cluster_operations:[int],cluster_starts:[int],cluster_stops:[int],cluster_firsts:[int],cluster_counts:[int],leaf_ids:[str],leaf_parts:[int])
++
++# Check both boundaries before any UTF-8 slicing, including nonzero starts.
++scalar_span(source:str,start:int,stop:int)->bit:
++    size:text.byte_length(source)
++    (start<0 \/ stop<start \/ stop>size)? @:false
++    cursor:0
++    found:start=0
++    cursor<stop?>
++        .cursor:text.next(source,cursor)
++        cursor=start? .found:true
++    @:found /\ cursor=stop
++
++# Restricted literal text only: no TeX semantics, whitespace collapse, active
++# characters, dash/quote substitutions or Unicode normalization is inferred.
++literal(source:str)->bit:
++    source=""? @:false
++    cursor:0
++    size:text.byte_length(source)
++    cursor<size?>
++        c:text.at(source,cursor)
++        (text.special(c) \/ c="~" \/ c="-" \/ c="`" \/ c="'" \/ c<"!")? @:false
++        .cursor:text.next(source,cursor)
++    @:true
++
++unique(values:[str])->bit:
++    [int] slots:[-1:2*values.length()+16]
++    i:0
++    i<values.length()?>
++        key:values.(i)
++        key=""? @:false
++        at:indexing.hash(key)%slots.length()
++        slots.(at)>=0?>
++            values.(slots.(at))=key? @:false
++            .at:(at+1)%slots.length()
++        slots.(at):i
++        .i:i+1
++    @:true
++
++validate(doc:PageDocument,p:SelectionPlan)->[str]:
++    (p.schema=1 /\ p.document_id~="" /\ p.revision>=0 /\ p.source_revision~="")?! "Invalid selection plan identity"
++    a:doc.arena
++    n:a.count
++    (n>0 /\ doc.page_count>0 /\ doc.page_count<=100 /\ doc.firsts.length()=doc.page_count /\ doc.counts.length()=doc.page_count)?! "Missing typed selection document"
++    (a.kinds.length()=n /\ a.draws.length()=n /\ a.a260_scopes.length()=n /\ a.a260_texts.length()=n /\ a.a260_operations.length()=n /\ a.a260_starts.length()=n /\ a.a260_stops.length()=n /\ a.a260_parts.length()=n /\ p.leaf_ids.length()=n /\ p.leaf_parts.length()=n)?! "Missing selection ownership columns"
++    (unique(p.leaf_ids) /\ unique(p.source_ids) /\ unique(p.scope_ids) /\ unique(p.group_ids))?! "Duplicate selection ownership"
++    sources:p.source_ids.length()
++    scopes:p.scope_ids.length()
++    groups:p.group_ids.length()
++    clusters:p.cluster_firsts.length()
++    (sources>0 /\ p.source_versions.length()=sources /\ p.source_texts.length()=sources)?! "Missing selection sources"
++    (scopes>0 /\ p.scope_sources.length()=scopes /\ p.scope_bases.length()=scopes /\ p.scope_texts.length()=scopes)?! "Missing selection scopes"
++    (groups>0 /\ p.group_sources.length()=groups /\ p.group_starts.length()=groups /\ p.group_stops.length()=groups)?! "Missing selection groups"
++    (clusters>0 /\ p.cluster_counts.length()=clusters /\ p.cluster_groups.length()=clusters /\ p.cluster_scopes.length()=clusters /\ p.cluster_operations.length()=clusters /\ p.cluster_starts.length()=clusters /\ p.cluster_stops.length()=clusters)?! "Missing selection clusters"
++    i:0
++    i<sources?>
++        (p.source_versions.(i)>=0)?! "Invalid source version"
++        .i:i+1
++    .i:0
++    i<scopes?>
++        source:p.scope_sources.(i)
++        (source>=0 /\ source<sources)?! "Unknown scope source"
++        base:p.scope_bases.(i)
++        stop:base+text.byte_length(p.scope_texts.(i))
++        (scalar_span(p.source_texts.(source),base,stop))?! "Invalid direct scope bounds"
++        (text.span(p.source_texts.(source),base,stop)=p.scope_texts.(i))?! "Expanded selection needs authenticated logical producer"
++        .i:i+1
++    .i:0
++    i<groups?>
++        source:p.group_sources.(i)
++        (source>=0 /\ source<sources)?! "Unknown group source"
++        (p.group_starts.(i)<p.group_stops.(i) /\ scalar_span(p.source_texts.(source),p.group_starts.(i),p.group_stops.(i)))?! "Invalid authored group bounds"
++        .i:i+1
++    page:0
++    end:0
++    page<doc.page_count?>
++        (doc.firsts.(page)=end /\ doc.counts.(page)>=0)?! "Invalid selection page coverage"
++        .end:end+doc.counts.(page)
++        .page:page+1
++    (end=n)?! "Missing selection page coverage"
++    logical:chunks.empty(clusters)
++    operation_keys:chunks.empty(clusters)
++    [int] operation_slots:[-1:2*clusters+16]
++    first:0
++    group: -1
++    cursor:0
++    .page:0
++    .i:0
++    i<clusters?>
++        g:p.cluster_groups.(i)
++        (g>=0 /\ g<groups)?! "Unknown cluster group"
++        g~=group?
++            group>=0? (cursor=p.group_stops.(group))?! "Missing authored group text"
++            (g=group+1)?! "Nonlogical selection group order"
++            .group:g
++            .cursor:p.group_starts.(g)
++        scope:p.cluster_scopes.(i)
++        (scope>=0 /\ scope<scopes /\ p.cluster_operations.(i)>=0)?! "Unknown cluster scope/operation"
++        source:p.scope_sources.(scope)
++        start:p.cluster_starts.(i)
++        stop:p.cluster_stops.(i)
++        (start<stop /\ scalar_span(p.scope_texts.(scope),start,stop))?! "Invalid cluster scalar bounds"
++        (source=p.group_sources.(g) /\ p.scope_bases.(scope)+start=cursor /\ p.scope_bases.(scope)+stop<=p.group_stops.(g))?! "Overlapping/missing authored cluster text"
++        .cursor:p.scope_bases.(scope)+stop
++        operation_key:text.integer(scope)&":"&text.integer(p.cluster_operations.(i))
++        operation_slot:indexing.hash(operation_key)%operation_slots.length()
++        operation_slots.(operation_slot)>=0?>
++            (operation_keys.(operation_slots.(operation_slot))~=operation_key)?! "Repeated/noncontiguous cluster ownership"
++            .operation_slot:(operation_slot+1)%operation_slots.length()
++        operation_keys.(i):operation_key
++        operation_slots.(operation_slot):i
++        count:p.cluster_counts.(i)
++        (p.cluster_firsts.(i)=first /\ count>0 /\ first+count<=n)?! "Missing/duplicate cluster leaf coverage"
++        page<doc.page_count?>
++            first<doc.firsts.(page)+doc.counts.(page)? @|
++            .page:page+1
++        (page<doc.page_count)?! "Cluster outside document pages"
++        (first+count<=doc.firsts.(page)+doc.counts.(page))?! "Cross-page cluster needs producer split map"
++        [int] part_slots:[-1:2*count+16]
++        leaf:first
++        leaf<first+count?>
++            (a.kinds.(leaf)=0 /\ a.draws.(leaf))?! "Nonliteral/generated selection leaf"
++            (a.a260_scopes.(leaf)=p.scope_ids.(scope) /\ a.a260_texts.(leaf)=p.scope_texts.(scope) /\ a.a260_operations.(leaf)=p.cluster_operations.(i) /\ a.a260_starts.(leaf)=start /\ a.a260_stops.(leaf)=stop /\ a.a260_parts.(leaf)=p.leaf_parts.(leaf) /\ p.leaf_parts.(leaf)>=0)?! "Typed document/selection ownership mismatch"
++            part:p.leaf_parts.(leaf)
++            part_slot:part%part_slots.length()
++            part_slots.(part_slot)>=0?>
++                (part_slots.(part_slot)~=part)?! "Duplicate cluster emission part"
++                .part_slot:(part_slot+1)%part_slots.length()
++            part_slots.(part_slot):part
++            .leaf:leaf+1
++        logical.(i):text.span(p.source_texts.(source),p.scope_bases.(scope)+start,p.scope_bases.(scope)+stop)
++        (literal(logical.(i)))?! "Nonliteral text needs exact logical producer"
++        .first:first+count
++        .i:i+1
++    (first=n /\ group=groups-1 /\ cursor=p.group_stops.(group))?! "Incomplete selection plan"
++    @:logical

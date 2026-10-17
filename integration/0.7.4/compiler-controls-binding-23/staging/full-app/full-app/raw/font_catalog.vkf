@@ -1,0 +1,119 @@
+# Generic installed-font directory. Fixed-width ASCII offsets permit lookup
+# without parsing unrelated glyph JSON. Preparation takes font assets only.
+# Values are complete JSON records; a requested record uses the shared parser.
+text:.tex_text
+j:.resource_json
+pdf:.pdf_resources
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Span:(start:int,stop:int,found:bit)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+
+magic()->str:"VKF-FONT-CATALOG/1              "
+header_size()->int:68
+slot_size()->int:36
+
+# Hash Unicode scalars identically on native, WASM and the offline packer.
+# The prime keeps multiplication within signed 64-bit integer arithmetic.
+hash(key:str)->int:
+    result:0
+    position:0
+    ~vkf_string_eof(key,position)?>
+        scalar:0
+        c:text.at(key,position)
+        c >>
+            .scalar:int($)
+            $
+        .result:(result*131+scalar)%2147483647
+        .position:text.next(key,position)
+    @:result
+
+fixed(source:str,position:int)->int:
+    value:0
+    index:0
+    index<12?>
+        c:text.at(source,position+index)
+        (c>="0" /\ c<="9")?! "Invalid font directory integer"
+        c >>
+            .value:value*10+int($)-48
+            $
+        .index:index+1
+    @:value
+
+load(source:str)->Catalog:
+    size:text.byte_length(source)
+    (size>=header_size() /\ text.matches(source,0,magic()))?! "Invalid font directory header"
+    capacity:fixed(source,32)
+    count:fixed(source,44)
+    payload_size:fixed(source,56)
+    (capacity>0 /\ capacity<=2097152 /\ count>=0 /\ count<capacity)?! "Invalid font directory capacity"
+    payload:header_size()+capacity*slot_size()
+    (payload<=size /\ payload_size=size-payload)?! "Invalid font directory size"
+    @:(source:source,capacity:capacity,count:count,payload:payload,size:size,valid:true)
+
+slot(catalog:Catalog,index:int)->Span:
+    (catalog.valid /\ index>=0 /\ index<catalog.capacity)?! "Invalid font directory slot"
+    base:header_size()+index*slot_size()
+    start:fixed(catalog.source,base)
+    start=0? @:(start:0,stop:0,found:false)
+    key_size:fixed(catalog.source,base+12)
+    value_size:fixed(catalog.source,base+24)
+    (start>=catalog.payload /\ key_size>0 /\ start<=catalog.size /\ key_size<=catalog.size-start)?! "Invalid font directory key range"
+    value_start:start+key_size
+    (value_size>0 /\ value_size<=catalog.size-value_start)?! "Invalid font directory value range"
+    @:(start:start,stop:value_start+value_size,found:true)
+
+find(catalog:Catalog,key:str)->Span:
+    (catalog.valid)?! "Invalid font directory"
+    index:hash(key)%catalog.capacity
+    probes:0
+    key_size:text.byte_length(key)
+    probes<catalog.capacity?>
+        entry:slot(catalog,index)
+        ~entry.found? @:entry
+        stored_size:fixed(catalog.source,header_size()+index*slot_size()+12)
+        stored_size=key_size /\ text.matches(catalog.source,entry.start,key)?
+            @:(start:entry.start+stored_size,stop:entry.stop,found:true)
+        .index:(index+1)%catalog.capacity
+        .probes:probes+1
+    (false)?! "Font directory has no empty slot"
+    @:(start:0,stop:0,found:false)
+
+raw(catalog:Catalog,key:str)->str:
+    entry:find(catalog,key)
+    ~entry.found? @:""
+    @:text.span(catalog.source,entry.start,entry.stop)
+
+record(catalog:Catalog,key:str)->Tape:
+    source:raw(catalog,key)
+    result:j.parse(source)
+    (result.valid)?! "Missing or invalid font directory record"
+    @:result
+
+math_symbol(catalog:Catalog,style:str,token:str)->Tape:record(catalog,"math/"&style&"/"&token)
+style(catalog:Catalog,name:str)->Tape:record(catalog,"style/"&name)
+text_font(catalog:Catalog,name:str)->Tape:record(catalog,"font/"&name)
+text_symbol(catalog:Catalog,name:str,code:int)->Tape:record(catalog,"text/"&name&"/"&text.integer(code))
+tile(catalog:Catalog,key:str)->Tape:record(catalog,"tile/"&key)
+
+vector_path(catalog:Catalog,key:str)->Tape:
+    alias:record(catalog,"vector/"&key)
+    @:record(catalog,"path/"&j.string(alias,0))
+
+required(tape:Tape,key:str)->int:
+    node:j.member(tape,0,key)
+    (node>=0)?! "Missing font record field"
+    @:node
+
+vector_form(catalog:Catalog,operators:str,key:str)->str:
+    path:vector_path(catalog,key)
+    offset:j.number(path,required(path,"offset"))
+    length:j.number(path,required(path,"length"))
+    size:text.byte_length(operators)
+    (offset>=0 /\ length>0 /\ offset=offset//1 /\ length=length//1 /\ offset<=size /\ length<=size-offset)?! "Invalid indexed font path range"
+    bounds:required(path,"bounds")
+    (j.element(path,bounds,4)= -1)?! "Font path requires four bounds"
+    left:j.number(path,j.element(path,bounds,0))
+    top:j.number(path,j.element(path,bounds,1))
+    right:j.number(path,j.element(path,bounds,2))
+    bottom:j.number(path,j.element(path,bounds,3))
+    @:pdf.form(left,top,right,bottom,text.span(operators,int(offset),int(offset+length)))

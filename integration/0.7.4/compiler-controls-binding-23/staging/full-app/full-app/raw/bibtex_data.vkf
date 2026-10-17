@@ -1,0 +1,340 @@
+# Generic independent BibTeX database input. No .bbl or external process.
+bib_text:.tex_text
+bib_groups:.tex_groups
+bib_json:.resource_json
+bib_chunks:.text_chunks
+Map:(keys:[str],values:[str],count:int)
+Database:(keys:[str],types:[str],fields:[str],count:int,strings:Map,diagnostics:str,error:str,valid:bit)
+Cursor:(source:str,at:int,strings:Map,diagnostics:str,error:str)
+Atom:(cursor:Cursor,value:str)
+append(values:[str],value:str)->[str]:
+    result:bib_chunks.empty(values.length()+1)
+    i:0
+    i<values.length()?>
+        result.(i):values.(i)
+        .i:i+1
+    result.(i):value
+    @:result
+empty_map()->Map:(keys:bib_chunks.empty(0),values:bib_chunks.empty(0),count:0)
+index(map:Map,key:str)->int:
+    i:0
+    i<map.count?>
+        map.keys.(i)=key? @:i
+        .i:i+1
+    @: -1
+get(map:Map,key:str,fallback:str="")->str:
+    i:index(map,key)
+    i<0? @:fallback
+    @:map.values.(i)
+put(map:Map,key:str,value:str)->Map:
+    out:map
+    i:index(map,key)
+    i<0?
+        .i:map.count
+        out.keys:append(map.keys,key)
+        out.values:append(map.values,value)
+        out.count:map.count+1
+    values:out.values
+    values.(i):value
+    out.values:values
+    @:out
+map_json(map:Map)->str:
+    chunks:bib_chunks.empty(map.count)
+    i:0
+    i<map.count?>
+        prefix:""
+        i>0? .prefix:","
+        chunks.(i):prefix&bib_json.quote(map.keys.(i))&":"&bib_json.quote(map.values.(i))
+        .i:i+1
+    @:"{"&bib_chunks.join(chunks,0,i)&"}"
+from_json(raw:str)->Map:
+    tape:bib_json.parse(raw)
+    out:empty_map()
+    (~tape.valid \/ tape.kinds.(0)~=1)? @:out
+    i:1
+    i<tape.ends.(0)?>
+        tape.kinds.(i+1)=3? .out:put(out,bib_json.string(tape,i),bib_json.string(tape,i+1))
+        .i:tape.ends.(i+1)
+    @:out
+lower(source:str)->str:
+    result:""
+    at:0
+    ~vkf_string_eof(source,at)?>
+        c:bib_text.at(source,at)
+        c>="A" /\ c<="Z"? .c:str(chr(bib_json.scalar(c)+32))
+        .result:result&c
+        .at:bib_text.next(source,at)
+    @:result
+utf16_length(source:str)->int:
+    at:0
+    count:0
+    ~vkf_string_eof(source,at)?>
+        code:bib_json.scalar(bib_text.at(source,at))
+        .count:count+1
+        code>65535? .count:count+1
+        .at:bib_text.next(source,at)
+    @:count
+collapse(source:str)->str:
+    result:""
+    gap:false
+    at:0
+    ~vkf_string_eof(source,at)?>
+        c:bib_text.at(source,at)
+        .at:bib_text.next(source,at)
+        bib_text.space(c)?
+            .gap:result~=""
+            @>
+        gap? .result:result&" "
+        .gap:false
+        .result:result&c
+    @:result
+skip(cursor:Cursor)->Cursor:
+    out:cursor
+    true?>
+        vkf_string_eof(out.source,out.at)? @:out
+        c:bib_text.at(out.source,out.at)
+        (bib_text.space(c) \/ c=",")?
+            out.at:bib_text.next(out.source,out.at)
+            @>
+        c="%"?
+            end:bib_text.find(out.source,"\n",out.at)
+            out.at:bib_text.byte_length(out.source)
+            end>=0? out.at:end+1
+            @>
+        @:out
+    @:out
+fail(cursor:Cursor,error:str)->Cursor:
+    out:cursor
+    out.error:error
+    @:out
+message(cursor:Cursor,message:str)->Cursor:
+    out:cursor
+    prefix:""
+    cursor.diagnostics~=""? .prefix:","
+    out.diagnostics:cursor.diagnostics&prefix&bib_json.quote(message)
+    @:out
+alpha(c:str)->bit:(c>="a" /\ c<="z") \/ (c>="A" /\ c<="Z")
+digit(c:str)->bit:c>="0" /\ c<="9"
+name_char(c:str,mode:int)->bit:
+    alpha(c) \/ digit(c) \/ c="_" \/ c=":"? @:true
+    c="-"? @:true
+    mode~=2 /\ c="."? @:true
+    mode=0 /\ (c="+" \/ c="/")? @:true
+    @:false
+atom(cursor:Cursor)->Atom:
+    out:skip(cursor)
+    vkf_string_eof(out.source,out.at)? @:(cursor:fail(out,"Invalid bibliography field"),value:"")
+    c:bib_text.at(out.source,out.at)
+    c="{"?
+        group:bib_groups.read(out.source,out.at)
+        ~group.closed? @:(cursor:fail(out,"Unclosed bibliography field"),value:"")
+        out.at:group.stop
+        @:(cursor:out,value:group.value)
+    c="\""?
+        out.at:out.at+1
+        start:out.at
+        depth:0
+        ~vkf_string_eof(out.source,out.at)?>
+            next:bib_text.at(out.source,out.at)
+            next="\\"?
+                out.at:bib_text.next(out.source,out.at)
+                ~vkf_string_eof(out.source,out.at)? out.at:bib_text.next(out.source,out.at)
+                @>
+            next="{"? .depth:depth+1
+            next="}"? .depth:depth-1
+            next="\"" /\ depth=0?
+                value:bib_text.span(out.source,start,out.at)
+                out.at:out.at+1
+                @:(cursor:out,value:value)
+            out.at:bib_text.next(out.source,out.at)
+        @:(cursor:fail(out,"Unclosed quoted bibliography field"),value:"")
+    start:out.at
+    numeric:true
+    ~vkf_string_eof(out.source,out.at) /\ name_char(bib_text.at(out.source,out.at),0)?>
+        part:bib_text.at(out.source,out.at)
+        ~digit(part)? .numeric:false
+        out.at:bib_text.next(out.source,out.at)
+    start=out.at? @:(cursor:fail(out,"Invalid bibliography field"),value:"")
+    spelling:bib_text.span(out.source,start,out.at)
+    numeric? @:(cursor:out,value:spelling)
+    found:index(out.strings,lower(spelling))
+    found<0? @:(cursor:message(out,"Undefined bibliography string: "&spelling),value:spelling)
+    @:(cursor:out,value:out.strings.values.(found))
+value(cursor:Cursor)->Atom:
+    first:atom(cursor)
+    out:first.cursor
+    result:first.value
+    .out:skip(out)
+    out.error="" /\ ~vkf_string_eof(out.source,out.at) /\ bib_text.at(out.source,out.at)="#"?>
+        out.at:out.at+1
+        following:atom(out)
+        .out:following.cursor
+        .result:result&following.value
+        .out:skip(out)
+    @:(cursor:out,value:collapse(result))
+database_index(database:Database,key:str)->int:
+    i:0
+    i<database.count?>
+        database.keys.(i)=key? @:i
+        .i:i+1
+    @: -1
+inherit(database:Database,i:int,chain:[int])->Database:
+    out:database
+    chain.(i)>0?
+        out.valid:false
+        out.error:"Cyclic bibliography cross-reference"
+        @:out
+    fields:from_json(database.fields.(i))
+    parent:get(fields,"crossref")
+    parent=""? @:out
+    parent_index:database_index(database,parent)
+    parent_index<0?
+        prefix:""
+        out.diagnostics~=""? .prefix:","
+        out.diagnostics:out.diagnostics&prefix&bib_json.quote("Missing bibliography cross-reference: "&parent)
+        @:out
+    active:chain
+    active.(i):1
+    .out:inherit(out,parent_index,active)
+    ~out.valid? @:out
+    merged:from_json(out.fields.(parent_index))
+    f:0
+    f<fields.count?>
+        .merged:put(merged,fields.keys.(f),fields.values.(f))
+        .f:f+1
+    payloads:out.fields
+    payloads.(i):map_json(merged)
+    out.fields:payloads
+    @:out
+comment_stop(source:str,begin:int,open:str,close:str)->int:
+    at:begin
+    depth:1
+    ~vkf_string_eof(source,at) /\ depth>0?>
+        c:bib_text.at(source,at)
+        .at:bib_text.next(source,at)
+        c="\\"?
+            ~vkf_string_eof(source,at)? .at:bib_text.next(source,at)
+            @>
+        c=open? .depth:depth+1
+        c=close? .depth:depth-1
+    @:at
+key_char(c:str)->bit:~(bib_text.space(c) \/ c="," \/ c="{" \/ c="}" \/ c="(" \/ c=")")
+parse(source:str,strings:Map)->Database:
+    months:["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]
+    macros:empty_map()
+    i:0
+    i<12?>
+        .macros:put(macros,months.(i),bib_text.integer(i+1))
+        .i:i+1
+    .i:0
+    i<strings.count?>
+        .macros:put(macros,strings.keys.(i),strings.values.(i))
+        .i:i+1
+    cursor:(source:source,at:0,strings:macros,diagnostics:"",error:"")
+    keys:bib_chunks.empty(0)
+    types:bib_chunks.empty(0)
+    entries:bib_chunks.empty(0)
+    size:bib_text.byte_length(source)
+    size>1000000?
+        utf16_length(source)>1000000? cursor.error:"Bibliography input limit: 1000000 characters"
+    cursor.at<size /\ cursor.error=""?>
+        .cursor:skip(cursor)
+        cursor.at>=size? @>
+        bib_text.at(source,cursor.at)~="@"?
+            next:bib_text.find(source,"@",cursor.at)
+            cursor.at:size
+            next>=0? cursor.at:next
+            @>
+        cursor.at:cursor.at+1
+        start:cursor.at
+        cursor.at<size /\ alpha(bib_text.at(source,cursor.at))?> cursor.at:cursor.at+1
+        start=cursor.at?
+            cursor.error:"Invalid bibliography entry type"
+            @>
+        kind:lower(bib_text.span(source,start,cursor.at))
+        .cursor:skip(cursor)
+        open:bib_text.at(source,cursor.at)
+        close:"}"
+        open="("? .close:")"
+        (open~="{" /\ open~="(")?
+            cursor.error:"Invalid bibliography entry delimiter"
+            @>
+        cursor.at:cursor.at+1
+        kind="comment"?
+            cursor.at:comment_stop(source,cursor.at,open,close)
+            @>
+        kind="preamble"?
+            preamble:value(cursor)
+            .cursor:skip(preamble.cursor)
+            bib_text.at(source,cursor.at)~=close? cursor.error:"Invalid bibliography preamble"
+            cursor.at:cursor.at+1
+            @>
+        .cursor:skip(cursor)
+        .start:cursor.at
+        kind="string"?
+            (~alpha(bib_text.at(source,cursor.at)))?
+                cursor.error:"Invalid bibliography string name"
+                @>
+            cursor.at:cursor.at+1
+            cursor.at<size /\ name_char(bib_text.at(source,cursor.at),1)?> cursor.at:cursor.at+1
+            name:lower(bib_text.span(source,start,cursor.at))
+            .cursor:skip(cursor)
+            bib_text.at(source,cursor.at)~="="?
+                cursor.error:"Invalid bibliography string definition"
+                @>
+            cursor.at:cursor.at+1
+            defined:value(cursor)
+            .cursor:skip(defined.cursor)
+            cursor.strings:put(cursor.strings,name,defined.value)
+            bib_text.at(source,cursor.at)~=close? cursor.error:"Invalid bibliography string ending"
+            cursor.at:cursor.at+1
+            @>
+        cursor.at<size /\ key_char(bib_text.at(source,cursor.at))?> cursor.at:bib_text.next(source,cursor.at)
+        start=cursor.at?
+            cursor.error:"Missing bibliography key"
+            @>
+        key:bib_text.span(source,start,cursor.at)
+        fields:empty_map()
+        .cursor:skip(cursor)
+        cursor.at<size /\ bib_text.at(source,cursor.at)~=close /\ cursor.error=""?>
+            field_start:cursor.at
+            ~alpha(bib_text.at(source,cursor.at))?
+                cursor.error:"Invalid bibliography field name"
+                @>
+            cursor.at:cursor.at+1
+            cursor.at<size /\ name_char(bib_text.at(source,cursor.at),2)?> cursor.at:cursor.at+1
+            field:lower(bib_text.span(source,field_start,cursor.at))
+            .cursor:skip(cursor)
+            bib_text.at(source,cursor.at)~="="?
+                cursor.error:"Missing bibliography field equals"
+                @>
+            cursor.at:cursor.at+1
+            field_value:value(cursor)
+            .cursor:skip(field_value.cursor)
+            .fields:put(fields,field,field_value.value)
+        cursor.error~=""? @>
+        (cursor.at>=size \/ bib_text.at(source,cursor.at)~=close)?
+            cursor.error:"Unclosed bibliography entry"
+            @>
+        cursor.at:cursor.at+1
+        duplicate:false
+        k:0
+        k<keys.length()?>
+            keys.(k)=key? .duplicate:true
+            .k:k+1
+        duplicate?
+            cursor.error:"Duplicate bibliography key: "&key
+            @>
+        keys.length()>=10000?
+            cursor.error:"Bibliography entry limit"
+            @>
+        .keys:append(keys,key)
+        .types:append(types,kind)
+        .entries:append(entries,map_json(fields))
+    database:(keys:keys,types:types,fields:entries,count:keys.length(),strings:cursor.strings,diagnostics:cursor.diagnostics,error:cursor.error,valid:cursor.error="")
+    .i:0
+    i<database.count /\ database.valid?>
+        active:[0:database.count]
+        .database:inherit(database,i,active)
+        .i:i+1
+    @:database

@@ -1,0 +1,57 @@
+{
+  "stages": [
+    {
+      "stage": "supplemental",
+      "argv": [
+        "/usr/bin/node",
+        "--jitless",
+        "--max-old-space-size=160",
+        "--max-semi-space-size=4",
+        "--import",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-api-selection-review-26/current-source-hooks.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-api-selection-review-26/review-tests.mjs"
+      ],
+      "pid": 203010,
+      "exit": 0,
+      "seconds": 0.16553177498281002,
+      "joined": true,
+      "timeout": false
+    },
+    {
+      "stage": "bridge",
+      "argv": [
+        "/usr/bin/node",
+        "--jitless",
+        "--max-old-space-size=160",
+        "--max-semi-space-size=4",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/host/tests/source-binding-bridge.mjs"
+      ],
+      "pid": 203017,
+      "exit": 0,
+      "seconds": 0.2163361629936844,
+      "joined": true,
+      "timeout": false
+    },
+    {
+      "stage": "provenance",
+      "argv": [
+        "/usr/bin/node",
+        "--jitless",
+        "--max-old-space-size=160",
+        "--max-semi-space-size=4",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/host/tests/provenance-entry.mjs"
+      ],
+      "pid": 203024,
+      "exit": 0,
+      "seconds": 0.5668699159286916,
+      "joined": true,
+      "timeout": false
+    }
+  ],
+  "passed": true,
+  "all_children_joined": true,
+  "maxrss_kib": 68520,
+  "as_limit_bytes": 536870912,
+  "wall_limit_seconds": 60,
+  "native_execution": false
+}

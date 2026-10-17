@@ -1,0 +1,98 @@
+bib_format_data:.bibtex_data
+bib_format_names:.bibtex_names
+bib_format_text:.tex_text
+Map:(keys:[str],values:[str],count:int)
+Result:(text:str,error:str)
+period(text:str)->str:
+    size:bib_format_text.byte_length(text)
+    size>0?
+        last:bib_format_text.at(text,size-1)
+        (last="." \/ last="!" \/ last="?")? @:text
+    @:text&"."
+sentence(text:str,part:str)->str:
+    part=""? @:text
+    text=""? @:part
+    @:text&" "&part
+pages(source:str)->str:
+    result:""
+    at:0
+    size:bib_format_text.byte_length(source)
+    at<size?>
+        c:bib_format_text.at(source,at)
+        .result:result&c
+        .at:bib_format_text.next(source,at)
+        bib_format_data.digit(c)?
+            dash:bib_format_text.scan_run(source,at,2)
+            dash<size /\ bib_format_text.at(source,dash)="-"?
+                end:bib_format_text.scan_run(source,dash+1,2)
+                end<size /\ bib_format_data.digit(bib_format_text.at(source,end))?
+                    .result:result&"--"&bib_format_text.at(source,end)
+                    .at:end+1
+    @:result
+format(kind:str,fields:Map)->Result:
+    names:bib_format_names.parse(bib_format_data.get(fields,"author",bib_format_data.get(fields,"editor")))
+    names.error~=""? @:(text:"",error:names.error)
+    text:""
+    names.count>0? .text:period(bib_format_names.author_text(names))
+    title:bib_format_data.get(fields,"title")
+    year:bib_format_data.get(fields,"year")
+    bib_format_data.index(fields,"year")<0?
+        date:bib_format_data.get(fields,"date")
+        stop:bib_format_text.byte_length(date)
+        stop>4? .stop:4
+        .year:bib_format_text.span(date,0,stop)
+    page:pages(bib_format_data.get(fields,"pages"))
+    volume:bib_format_data.get(fields,"volume")
+    number:bib_format_data.get(fields,"number")
+    publisher:bib_format_data.get(fields,"publisher")
+    series:bib_format_data.get(fields,"series")
+    (kind="article" \/ kind="incollection" \/ kind="inproceedings")?
+        title~=""? .text:sentence(text,"``"&title&"''.")
+        venue:bib_format_data.get(fields,"journaltitle",bib_format_data.get(fields,"journal",bib_format_data.get(fields,"booktitle")))
+        venue~=""?
+            details:"In: \\emph{"&venue&"}"
+            kind="article"?
+                volume~=""? .details:details&" "&volume
+                number~=""? .details:details&"."&number
+                year~=""? .details:details&" ("&year&")"
+                page~=""?
+                    .details:details&", "
+                    bib_format_data.digit(bib_format_text.at(page,0))? .details:details&"pp.~"
+                    .details:details&page
+                .text:sentence(text,period(details))
+            kind~="article"?
+                .text:sentence(text,period(details))
+                volume~=""? .text:sentence(text,"Vol.~"&volume&".")
+                series~=""? .text:sentence(text,period(series))
+                publication:publisher
+                year~=""?
+                    publication~=""? .publication:publication&", "
+                    .publication:publication&year
+                publication~=""?
+                    page~=""? .publication:publication&", pp.~"&page
+                    .text:sentence(text,publication&".")
+    (kind="book" \/ kind="misc" \/ kind="unpublished" \/ kind="online")?
+        title~=""? .text:sentence(text,"\\emph{"&title&"}.")
+        edition:bib_format_data.get(fields,"edition")
+        edition~=""? .text:sentence(text,period(edition))
+        volume~=""? .text:sentence(text,"Vol.~"&volume&".")
+        series~=""? .text:sentence(text,period(series))
+        note:bib_format_data.get(fields,"note")
+        note~=""? .text:sentence(text,period(note))
+        kind="book"?
+            location:bib_format_data.get(fields,"location",bib_format_data.get(fields,"address"))
+            publication:location
+            publisher~=""?
+                publication~=""? .publication:publication&", "
+                .publication:publication&publisher
+            year~=""?
+                publication~=""? .publication:publication&", "
+                .publication:publication&year
+            publication~=""? .text:sentence(text,period(publication))
+        kind~="book" /\ year~=""? .text:sentence(text,period(year))
+    ~(kind="article" \/ kind="incollection" \/ kind="inproceedings" \/ kind="book" \/ kind="misc" \/ kind="unpublished" \/ kind="online")? @:(text:"",error:"Unsupported bibliography entry type: "&kind)
+    doi:bib_format_data.get(fields,"doi")
+    url:bib_format_data.get(fields,"url")
+    doi~=""? .text:sentence(text,"\\textsc{doi}: \\url{https://doi.org/"&doi&"}.")
+    doi="" /\ url~=""? .text:sentence(text,"\\textsc{url}: \\url{"&url&"}.")
+    @:(text:text,error:"")

@@ -1,0 +1,76 @@
+TAP version 13
+# Subtest: exact bytes and existing source revision, including BOM/CRLF/comments
+ok 1 - exact bytes and existing source revision, including BOM/CRLF/comments
+  ---
+  duration_ms: 4.603727
+  type: 'test'
+  ...
+# Subtest: reject changed pins, malformed UTF-8, duplicate IDs, missing identities
+ok 2 - reject changed pins, malformed UTF-8, duplicate IDs, missing identities
+  ---
+  duration_ms: 0.790652
+  type: 'test'
+  ...
+# Subtest: strict original UTF-8 offsets, never UTF-16 or flattened-source positions
+ok 3 - strict original UTF-8 offsets, never UTF-16 or flattened-source positions
+  ---
+  duration_ms: 0.887303
+  type: 'test'
+  ...
+# Subtest: include occurrences retain caller directive; repeated includes stay distinct
+ok 4 - include occurrences retain caller directive; repeated includes stay distinct
+  ---
+  duration_ms: 0.421546
+  type: 'test'
+  ...
+# Subtest: definition, invocation and argument origins remain distinct with nested calls
+ok 5 - definition, invocation and argument origins remain distinct with nested calls
+  ---
+  duration_ms: 0.500967
+  type: 'test'
+  ...
+# Subtest: cross-context and cloned provenance cannot be reused; missing sources never fall back
+ok 6 - cross-context and cloned provenance cannot be reused; missing sources never fall back
+  ---
+  duration_ms: 0.461997
+  type: 'test'
+  ...
+# Subtest: cycle rejection follows include ancestry, not global already-seen file names
+ok 7 - cycle rejection follows include ancestry, not global already-seen file names
+  ---
+  duration_ms: 0.415686
+  type: 'test'
+  ...
+# Subtest: cache preparation key covers exact source universe and versions, engine/state, ordered requests/options
+ok 8 - cache preparation key covers exact source universe and versions, engine/state, ordered requests/options
+  ---
+  duration_ms: 1.085466
+  type: 'test'
+  ...
+# Subtest: diagnostics name exact primitive at exact pinned byte span; interpretation always refuses
+ok 9 - diagnostics name exact primitive at exact pinned byte span; interpretation always refuses
+  ---
+  duration_ms: 0.564208
+  type: 'test'
+  ...
+# Subtest: native transport is aligned, detached immutable original source data
+ok 10 - native transport is aligned, detached immutable original source data
+  ---
+  duration_ms: 0.415326
+  type: 'test'
+  ...
+# Subtest: load actual installed kernel/amsmath/xcolor bytes, retain headers and exact first boundary
+ok 11 - load actual installed kernel/amsmath/xcolor bytes, retain headers and exact first boundary
+  ---
+  duration_ms: 9.960995
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 34.045654

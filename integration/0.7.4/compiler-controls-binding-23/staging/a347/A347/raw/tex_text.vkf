@@ -1,0 +1,145 @@
+# UTF-8 byte offsets match the compiler's native/WASM cursor contract.
+length_bound(source:str)->int:
+    high:1
+    true?>
+        vkf_string_eof(source,high)? @:high
+        .high:high*2
+    @:high
+
+byte_length(source:str)->int:
+    vkf_string_eof(source,0)? @:0
+    low:0
+    high:length_bound(source)
+    true?>
+        high-low<=1? @:high
+        middle:(low+high)//2
+        vkf_string_eof(source,middle)? .high:middle
+        ~vkf_string_eof(source,middle)? .low:middle
+    @:high
+
+at(source:str,position:int)->str:vkf_string_peek_scalar(source,position)
+next(source:str,position:int)->int:int(vkf_utf8_advance(source,position))
+slice(source:str,start:int,stop:int)->str:vkf_utf8_slice(source,start,stop)
+
+# Parser-internal spans already have UTF-8 boundaries established by the cursor.
+# The pinned native slice intrinsic validates prefixes and builds its result one
+# scalar at a time. Balanced copying avoids quadratic copying of long tails.
+span(source:str,start:int,stop:int)->str:
+    (start>=0 /\ stop>=start)?! "Invalid parser span"
+    # Cursor positions are already byte offsets. Check the last byte directly
+    # instead of rediscovering the entire source length at every short span.
+    stop>0?
+        (~vkf_string_eof(source,stop-1))?! "Invalid parser span"
+    start=stop? @:""
+    start=0 /\ vkf_string_eof(source,stop)? @:source
+    @:copy_span(source,start,stop)
+
+copy_span(source:str,start:int,stop:int)->str:
+    stop-start>64?
+        middle:(start+stop)//2
+        boundary:start
+        boundary<middle?> .boundary:int(vkf_utf8_advance(source,boundary))
+        @:copy_span(source,start,boundary)&copy_span(source,boundary,stop)
+    result:""
+    position:start
+    position<stop?>
+        str scalar:at(source,position)
+        .result:result&scalar
+        .position:int(vkf_utf8_advance(source,position))
+    (position=stop)?! "Parser span splits a Unicode scalar"
+    @:result
+letter(c:str)->bit:(c>="a" /\ c<="z") \/ (c>="A" /\ c<="Z") \/ c="@"
+space(c:str)->bit:c=" " \/ c="\t" \/ c="\r" \/ c="\n"
+special(c:str)->bit:c="\\" \/ c="%" \/ c="{" \/ c="}" \/ c="\$" \/ c="^" \/ c="_" \/ c="&" \/ c="#" \/ space(c)
+
+scan_run(source:str,begin:int,mode:int)->int:
+    position:begin
+    true?>
+        vkf_string_eof(source,position)? @:position
+        c:at(source,position)
+        mode=1 /\ ~letter(c)? @:position
+        mode=2 /\ ~space(c)? @:position
+        mode=3 /\ special(c)? @:position
+        .position:next(source,position)
+        mode=4 /\ c="\n"? @:position
+    @:position
+
+group_stop(source:str,begin:int,escaped:bit=false)->int:
+    position:begin
+    vkf_string_eof(source,position)? @:position
+    at(source,position)~="{"? @:position
+    .position:next(source,position)
+    depth:1
+    true?>
+        vkf_string_eof(source,position)? @:position
+        c:at(source,position)
+        .position:next(source,position)
+        escaped /\ c="\\" /\ ~vkf_string_eof(source,position)?
+            following:at(source,position)
+            (following="{" \/ following="}")?
+                .position:next(source,position)
+                @>
+        c="{"? .depth:depth+1
+        c="}"? .depth:depth-1
+        depth=0? @:position
+    @:position
+
+literal_stop(source:str,begin:int,escaped:bit=false)->int:
+    vkf_string_eof(source,begin)? @:begin
+    delimiter:at(source,begin)
+    delimiter="{"? @:group_stop(source,begin,escaped)
+    position:next(source,begin)
+    true?>
+        vkf_string_eof(source,position)? @:position
+        c:at(source,position)
+        .position:next(source,position)
+        c=delimiter? @:position
+    @:position
+
+matches(source:str,begin:int,pattern:str)->bit:
+    position:begin
+    part:0
+    true?>
+        vkf_string_eof(pattern,part)? @:true
+        vkf_string_eof(source,position)? @:false
+        at(source,position)~=at(pattern,part)? @:false
+        .position:next(source,position)
+        .part:next(pattern,part)
+    @:false
+
+find(source:str,pattern:str,begin:int=0)->int:
+    vkf_string_eof(pattern,0)? @:begin
+    first:at(pattern,0)
+    position:begin
+    true?>
+        vkf_string_eof(source,position)? @: -1
+        at(source,position)=first?
+            matches(source,position,pattern)? @:position
+        .position:next(source,position)
+    @: -1
+
+integer(value:int)->str:
+    remaining:value
+    sign:""
+    remaining<0?
+        .sign:"-"
+        .remaining: -remaining
+    result:""
+    true?>
+        digit:remaining%10
+        .result:slice("0123456789",digit,digit+1)&result
+        .remaining:remaining//10
+        remaining=0? @:sign&result
+    @:sign&result
+
+
+trim(value:str)->str:
+    size:byte_length(value)
+    start:scan_run(value,0,2)
+    stop:start
+    position:start
+    position<size?>
+        c:at(value,position)
+        .position:next(value,position)
+        ~space(c)? .stop:position
+    @:span(value,start,stop)

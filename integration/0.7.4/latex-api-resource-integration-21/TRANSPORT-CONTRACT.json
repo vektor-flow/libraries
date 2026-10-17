@@ -1,0 +1,26 @@
+{
+  "schema": "vkf.latex.render-completion/1",
+  "status": "proposed boundary; no native adapter implemented or qualified",
+  "native_entry": "latex_render_result.render",
+  "native_argument_order": ["source", "fonts", "operators", "ordered_roles", "language", "files_json", "job", "entry", "include_layout", "a261_blocks", "a261_scopes", "a261_texts", "a263_kinds", "a267_notes", "a267_scopes", "a267_texts", "a267_kinds"],
+  "native_result": {"pdf": "native str byte buffer and explicit byte length", "layout": "exact document_materialize.Result; includes PageDocument"},
+  "wire": {
+    "envelope": ["schema", "requestId", "sourceRevision", "resourceRevision", "sourceBuildSha256", "rendererSha256", "runtimeClosureSha256", "preparationSha256", "typedResultSha256", "pdfSha256", "pdfByteLength", "selectionPlanSchemaSha256", "selectionPlanSha256", "mode", "result"],
+    "result": {"typedResultUtf8": "exact UTF-8 JSON bytes for layout Result; retain and hash bytes before parsing", "pdfBytes": "exact bytes; no Unicode decode/re-encode"},
+    "json_container": "If binary buffers cross a JSON-only channel, use canonical padded RFC4648 base64 strings; decode with strict validation before hashing.",
+    "typed_json": "JSON object with no duplicate keys or nonfinite numbers; records match VKF field names, arrays preserve order/active bounds, ints fit safe host integers; native num values retain binary64 roundtrip precision. No dropped provenance or geometry fields.",
+    "digest": "SHA-256 lowercase hex of exact retained bytes, not reserialized parsed objects; sourceRevision uses existing createSourceSnapshot contract and its sha256: prefix.",
+    "preparation": "Exact retained UTF-8 JSON request bytes for source/files_json/job/entry/include_layout/eight columns and immutable resource revision. Also bind issued preparation object identity privately; equal hashes do not make cross-session requests interchangeable."
+  },
+  "trust": {
+    "issuer": "Root-authenticated native adapter with private request/completion registry; not caller JSON or echoed request fields",
+    "evidence": ["actual source/compiler/renderer/runtime closure pins", "exact prepared native inputs", "pre/post accepted resource pins", "single layout invocation and exact document consumed by encode", "actual native output buffers", "terminal exit and owned-process joins"],
+    "host_consumer": "Check registry membership and current issued preparation before and after async work; verify bytes/hashes; parse layout; call existing bridge.bindDocument(preparation, layout). Keep existing rejection of unbound/generated/parser-mismatched emissions. Guard again before publication.",
+    "missing": ["authentic expansion/include origin producer", "trusted native record/string marshaller", "authenticated selected encoder/plan schema", "revision-guarded standalone PDF publication"]
+  },
+  "selection_interface": "document_pdf_bulk.encode_selected(doc:PageDocument,fonts:Catalog,operators:str,plan:SelectionPlan,default_color:[num:4])->str",
+  "selection_plan_owner": "pdf-selection-implementation-22; schema intentionally not duplicated here",
+  "legacy_default_color": [0, 0, 0, 1],
+  "native_acceptance": false,
+  "public_api_complete": false
+}

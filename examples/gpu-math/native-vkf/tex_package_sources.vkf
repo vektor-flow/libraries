@@ -1,0 +1,43 @@
+# Exact host-supplied source universe. This does not execute or flatten packages.
+# Host verifies SHA-256/UTF-8 before transport; native guards are structural only.
+# Existing tex_frontend.prepare is deliberately unchanged until token-state ABI.
+text:.tex_text
+Sources:(schema:int,revision:str,ids:[str],versions:[int],texts:[str],hashes:[str])
+Span:(source:int,start:int,stop:int)
+
+validate(sources:Sources)->bit:
+    (sources.schema=1 /\ sources.revision~="")?! "Package source schema/revision"
+    count:sources.ids.length()
+    (count>0 /\ sources.versions.length()=count /\ sources.texts.length()=count /\ sources.hashes.length()=count)?! "Package source column lengths"
+    index:0
+    index<count?>
+        (sources.ids.(index)~="" /\ sources.versions.(index)>=0 /\ text.byte_length(sources.hashes.(index))=64)?! "Package source identity"
+        previous:0
+        previous<index?>
+            (sources.ids.(previous)~=sources.ids.(index))?! "Duplicate package source identity"
+            .previous:previous+1
+        .index:index+1
+    @:true
+
+boundary(source:str,offset:int)->bit:
+    offset<0? @:false
+    position:0
+    position<offset?>
+        vkf_string_eof(source,position)? @:false
+        .position:text.next(source,position)
+    @:position=offset
+
+read(sources:Sources,span:Span)->str:
+    validate(sources)?! "Invalid package sources"
+    (span.source>=0 /\ span.source<sources.ids.length())?! "Package source index"
+    value:sources.texts.(span.source)
+    (span.start>=0 /\ span.stop>span.start /\ span.stop<=text.byte_length(value))?! "Package source span"
+    (boundary(value,span.start) /\ boundary(value,span.stop))?! "Package source split UTF-8 scalar"
+    @:text.span(value,span.start,span.stop)
+
+# Explicit boundary for any attempted execution, including an empty package.
+# No route to legacy string macro expansion, unknown-command passthrough or PDF.
+interpret(sources:Sources)->str:
+    validate(sources)?! "Invalid package sources"
+    false?! "TEX_PACKAGE_INTERPRETER_UNAVAILABLE: stateful token/namespace/scoping ABI required"
+    @:""

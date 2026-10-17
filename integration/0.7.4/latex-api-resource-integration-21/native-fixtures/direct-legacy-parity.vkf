@@ -1,0 +1,16 @@
+# FUTURE native fixture; no launch authorized by this proposal.
+io:.io
+latex:.latex
+source:io.read_text(io.read_line())
+latex_default_resources:.latex_default_resources
+latex_render_result:.latex_render_result
+files:io.read_text(io.read_line())
+resources:latex_default_resources.load()
+named:latex.tex2pdf(source,editable:false,files_json:files,selectable:false)
+legacy:latex.tex2pdf(source,resources.fonts,resources.operators,resources.ordered_roles,resources.language,files)
+typed:latex_render_result.render(source,resources.fonts,resources.operators,resources.ordered_roles,resources.language,files)
+(named.complete /\ legacy.complete /\ typed.layout.complete)?! "render incomplete"
+(named.pdf=legacy.pdf /\ typed.pdf=legacy.pdf)?! "legacy PDF bytes changed"
+(named.layout_json=legacy.layout_json /\ typed.layout.layout_json=legacy.layout_json)?! "legacy layout changed"
+(typed.layout.document.page_count=typed.layout.page_count)?! "typed page count changed"
+io.print("direct named/legacy/typed parity passed")

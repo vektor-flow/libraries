@@ -1,0 +1,15 @@
+# FUTURE syntax-only control. Scalar types are overload probes, not font mocks.
+# Execute under a fresh native grant before the actual API fixtures.
+choose(source:str,token:int,extra:int=5)->int:
+    @:token+extra
+choose(source:str,dest:str="",selectable:bit=true,editable:bit=false)->int:
+    value:0
+    selectable? .value:value+1
+    editable? .value:value+2
+    dest~=""? .value:value+4
+    @:value
+(choose("x",7)=12)?! "legacy default dispatch"
+(choose("x",7,9)=16)?! "legacy positional dispatch"
+(choose("x")=1)?! "source-only defaults"
+(choose("x",editable:true,selectable:false)=2)?! "named reordering"
+(choose("x",dest:"output.pdf",selectable:false,editable:false)=4)?! "named destination"

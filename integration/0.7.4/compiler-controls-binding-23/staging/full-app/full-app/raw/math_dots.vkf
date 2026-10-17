@@ -1,0 +1,40 @@
+text:.tex_text
+tokens:.math_tokens
+catalog:.font_catalog
+j:.resource_json
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+
+kind(command:str,next_raw:str,fonts:Catalog)->str:
+    command="\\dotsc"? @:"baseline"
+    command="\\dotsi"? @:"integral"
+    command~="\\dots"? @:"centered"
+    next:next_raw
+    # The existing grammar applies command aliases here, not Unicode aliases.
+    next_raw<="~"? .next:tokens.normalize(next_raw)
+    next="\\not"? @:"centered"
+    source:catalog.raw(fonts,"math/display/"&next)
+    source=""? @:"baseline"
+    metric:j.parse(source)
+    follow:j.member(metric,0,"dotsFollow")
+    follow>=0? @:j.string(metric,follow)
+    class_node:j.member(metric,0,"class")
+    class_node<0? @:"baseline"
+    noad_class:j.string(metric,class_node)
+    (noad_class="bin" \/ noad_class="rel")? @:"centered"
+    @:"baseline"
+
+extra(next_raw:str)->str:
+    (next_raw="" \/ tokens.one_of(next_raw,[",",";",".",")","]","\\rbrace","\\right","\\bigr","\\biggr","\\Bigr","\\Biggr"]))? @:"true"
+    @:"false"
+
+capital_accent(raw:str)->bit:
+    @:tokens.one_of(raw,["\\Hat","\\Check","\\Tilde","\\Acute","\\Grave","\\Dot","\\Ddot","\\Breve","\\Bar","\\Vec"])
+
+accent_name(raw:str)->str:
+    upper:["\\Hat","\\Check","\\Tilde","\\Acute","\\Grave","\\Dot","\\Ddot","\\Breve","\\Bar","\\Vec"]
+    lower:["hat","check","tilde","acute","grave","dot","ddot","breve","bar","vec"]
+    index:0
+    index<upper.length()?>
+        raw=upper.(index)? @:lower.(index)
+        .index:index+1
+    @:text.span(raw,1,text.byte_length(raw))

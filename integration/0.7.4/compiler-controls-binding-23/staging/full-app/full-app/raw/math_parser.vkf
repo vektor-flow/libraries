@@ -1,0 +1,1354 @@
+math_retained_directory:.math_retained_directory
+Directory:(source:str,boxes:[str],count:int,prepared:bit)
+# Current-source math AST arena. One parser loop owns its arrays; explicit tasks
+# handle nesting without returning or copying a growing AST at each operand.
+# Unsupported commands produce holes/diagnostics, never old or invented operands.
+text:.tex_text
+issues:.latex_diagnostics
+tokens:.math_tokens
+groups:.tex_groups
+catalog:.font_catalog
+j:.resource_json
+chunks:.text_chunks
+text_parser:.math_text
+environments:.math_environments
+dots:.math_dots
+colors:.math_colors
+unit_syntax:.unit_syntax
+unit_numbers:.unit_numbers
+unit_factors:.unit_factors
+unit_symbols:.unit_symbols
+unit_stream:.unit_stream
+packages:.math_packages
+fragments:.math_package_fragments
+arena_import:.math_arena_import
+Context:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Arena:(kinds:[str],attrs:[str],first:[int],last:[int],nexts:[int],a:[int],b:[int],sup:[int],sub:[int],limits:[int],count:int,diagnostics:str,atoms:int)
+
+nil(size:int)->[int]:[-1:size]
+
+attributes(kind:str)->str:"\"type\":"&j.quote(kind)
+named(kind:str,name:str)->str:attributes(kind)&",\"name\":"&j.quote(name)
+glyph(token:str)->str:attributes("glyph")&",\"token\":"&j.quote(token)
+
+repair(messages:str,message:str)->str:
+    # JSON string spelling makes exact-message membership unambiguous.
+    quoted:j.quote(message)
+    text.find(","&messages&",",","&quoted&",")>=0? @:messages
+    messages=""? @:quoted
+    prior:j.parse("["&messages&"]")
+    prior.count>=25? @:messages
+    @:messages&","&quoted
+
+merge_diagnostics(messages:str,additional:str)->str:
+    additional=""? @:messages
+    tape:j.parse("["&additional&"]")
+    result:messages
+    index:1
+    index<tape.count?>
+        .result:repair(result,j.string(tape,index))
+        .index:index+1
+    @:result
+
+unary_kind(raw:str)->str:
+    ~text.matches(raw,0,"\\")? @:""
+    dots.capital_accent(raw)? @:"decoration"
+    tokens.one_of(raw,["\\mathrm","\\mathbf","\\mathit","\\mathsf","\\mathtt","\\mathfrak","\\mathcal","\\mathscr","\\mathbb","\\mathbbold","\\mathnormal","\\boldsymbol","\\bm"])? @:"font"
+    tokens.one_of(raw,["\\mathinner","\\mathord","\\mathbin","\\mathrel","\\mathop","\\mathopen","\\mathclose","\\mathpunct"])? @:"class"
+    tokens.one_of(raw,["\\hat","\\widehat","\\tilde","\\widetilde","\\bar","\\vec","\\dot","\\ddot","\\dddot","\\ddddot","\\acute","\\grave","\\breve","\\check","\\mathring","\\overline","\\underline","\\overbrace","\\underbrace","\\overrightarrow","\\overleftarrow","\\overleftrightarrow","\\underrightarrow","\\underleftarrow","\\underleftrightarrow"])? @:"decoration"
+    tokens.one_of(raw,["\\boxed","\\fbox","\\phantom","\\hphantom","\\vphantom","\\smash","\\mathstrut"])? @:"box"
+    @:""
+
+style(raw:str)->int:
+    raw="\\displaystyle"? @:0
+    raw="\\textstyle"? @:1
+    raw="\\scriptstyle"? @:2
+    raw="\\scriptscriptstyle"? @:3
+    @: -1
+
+spacing(raw:str)->int:
+    raw="\\,"? @:3
+    raw="\\:"? @:4
+    raw="\\;"? @:5
+    raw="\\!"? @: -3
+    raw="\\quad"? @:18
+    raw="\\qquad"? @:36
+    (raw="\\ " \/ raw="~")? @:6
+    @: -999
+
+raw_diagnostics(messages:str,present:bit,closed:bit)->str:
+    ~present? @:repair(messages,"Finish the braced argument")
+    ~closed? @:repair(messages,"Inferred a closing brace")
+    @:messages
+
+read(source:str,begin:int,open:str="{",close:str="}")->(value:str,stop:int,present:bit,closed:bit,start:int):
+    start:tokens.skip_space(source,begin)
+    group:groups.read(source,start,open,close)
+    @:(value:group.value,stop:group.stop,present:group.present,closed:group.closed,start:start)
+
+# Raw bracket options stop at the first ] outside braces, as in the existing
+# grammar; nested [ does not itself introduce another level.
+raw_option(source:str,begin:int)->(value:str,stop:int,present:bit,closed:bit,start:int):
+    position:tokens.skip_space(source,begin)
+    vkf_string_eof(source,position)? @:(value:"",stop:position,present:false,closed:false,start:position)
+    text.at(source,position)~="["? @:(value:"",stop:position,present:false,closed:false,start:position)
+    .position:position+1
+    start:position
+    braces:0
+    ~vkf_string_eof(source,position)?>
+        c:text.at(source,position)
+        .position:text.next(source,position)
+        c="{"? .braces:braces+1
+        c="}"? .braces:braces-1
+        c="]" /\ braces=0? @:(value:text.span(source,start,position-1),stop:position,present:true,closed:true,start:start-1)
+    @:(value:text.span(source,start,position),stop:position,present:true,closed:false,start:start-1)
+
+matrix_boundary(raw:str,stop:str)->bit:
+    (stop~="matrix" /\ stop~="matrixBrace")? @:false
+    tokens.one_of(raw,["&","\\\\","\\end","\\right","\\hline","\\cline"])? @:true
+    @:stop="matrixBrace" /\ raw="}"
+
+dimension(source:str,begin:int)->(value:str,stop:int):
+    position:tokens.skip_space(source,begin)
+    start:position
+    token:tokens.peek(source,position)
+    (token.raw="+" \/ token.raw="-")? .position:token.stop
+    digits:0
+    point:false
+    ~vkf_string_eof(source,position)?>
+        c:text.at(source,position)
+        ((c<"0" \/ c>"9") /\ (c~="." \/ point))? @|
+        c="."? .point:true
+        c~="."? .digits:digits+1
+        .position:position+1
+    digits=0? @:(value:"",stop:begin)
+    .position:tokens.skip_space(source,position)
+    unit:""
+    ~vkf_string_eof(source,position+1)?
+        initial:text.at(source,position)
+        initial>="a" /\ initial<="z"?
+            following:text.at(source,position+1)
+            following>="a" /\ following<="z"? .unit:initial&following
+    ~tokens.one_of(unit,["pt","bp","em","ex","mu","mm","cm","in","pc"])? @:(value:"",stop:begin)
+    @:(value:text.span(source,start,position+2),stop:position+2)
+
+# Tasks: 0=list, 1=base, 2=argument, 3=scripts, 4=delimiter, 6=matrix,
+# 7=unit-produced node, 8=unit-produced list. Imported nodes do not count atoms.
+# Only list tasks count atoms, matching the existing draft grammar.
+Analysis:(arena:Arena,issues:str)
+
+# Legacy AST/layout consumers keep their existing packet. Detailed validation is
+# opt-in and uses the SAME parser decisions, not a second LaTeX grammar.
+parse(source:str,fonts:Catalog,native:bit=true)->Arena:
+    @:analyze(source,fonts,native,false).arena
+
+parse_with_context(source:str,fonts:Catalog,context:Context,native:bit=true,document_boxes_json:str="{}")->Arena:
+    @:analyze_with_context(source,fonts,context,native,false,document_boxes_json).arena
+
+analyze(source:str,fonts:Catalog,native:bit=true,detailed:bit=true)->Analysis:
+    @:analyze_with_context(source,fonts,packages.defaults(),native,detailed)
+
+analyze_with_context(source:str,fonts:Catalog,context:Context,native:bit=true,detailed:bit=true,document_boxes_json:str="{}")->Analysis:
+    @:analyze_context_depth(source,fonts,context,native,detailed,0,document_boxes_json)
+
+parse_with_retained_context(source:str,fonts:Catalog,context:Context,native:bit,retained:Directory)->Arena:
+    @:analyze_retained_depth(source,fonts,context,native,false,0,retained.source,retained).arena
+analyze_with_retained_context(source:str,fonts:Catalog,context:Context,native:bit,detailed:bit,retained:Directory)->Analysis:
+    @:analyze_retained_depth(source,fonts,context,native,detailed,0,retained.source,retained)
+analyze_context_depth(source:str,fonts:Catalog,context:Context,native:bit,detailed:bit,extension_depth:int,document_boxes_json:str="{}")->Analysis:
+    @:analyze_retained_depth(source,fonts,context,native,detailed,extension_depth,document_boxes_json,math_retained_directory.unprepared())
+
+analyze_retained_depth(source:str,fonts:Catalog,context:Context,native:bit,detailed:bit,extension_depth:int,document_boxes_json:str,retained:Directory)->Analysis:
+    (~packages.extension_limit(extension_depth))?! "Math extension nesting limit: 32"
+    size:text.byte_length(source)
+    # UTF-8 permits up to four bytes per source scalar. The stricter UTF-16
+    # expression limit is checked before allocating the arena.
+    scalars:0
+    cursor:0
+    cursor<size?>
+        step:text.next(source,cursor)-cursor
+        .scalars:scalars+1
+        step=4? .scalars:scalars+1
+        .cursor:cursor+step
+    (scalars<=12000)?! "Expression limit: 12,000 characters"
+    capacity:64
+    kinds:chunks.empty(capacity)
+    attrs:chunks.empty(capacity)
+    first:nil(capacity)
+    last:nil(capacity)
+    nexts:nil(capacity)
+    a:nil(capacity)
+    b:nil(capacity)
+    sup:nil(capacity)
+    sub:nil(capacity)
+    limits:nil(capacity)
+    kinds.(0):"list"
+    count:1
+    atoms:0
+    diagnostics:""
+    details:""
+    token_begin:0
+    task_mode:[0:512]
+    task_node:[0:512]
+    task_depth:[0:512]
+    task_origin:[0:512]
+    task_index:[0:512]
+    task_limit:[0:512]
+    task_stop:chunks.empty(512)
+    import_source:"[]"
+    # One call owns a lazily loaded directory; ordinary math never parses it.
+    directory:(source:"{}",kinds:nil(0),starts:nil(0),stops:nil(0),ends:nil(0),count:0,valid:false)
+    directory_loaded:false
+    top:1
+    position:0
+    top>0?>
+        .top:top-1
+        mode:task_mode.(top)
+        target:task_node.(top)
+        depth:task_depth.(top)
+        origin:task_origin.(top)
+        stop:task_stop.(top)
+        detailed /\ (depth>32 \/ top>=500)?
+            .diagnostics:repair(diagnostics,"Math parser limit exceeded")
+            .details:issues.record(details,source,position,position,"LIMIT",false,"The expression exceeds the engine's nesting or task limit.","Reduce nesting or split the expression.",origin)
+            @|
+        (depth<=32)?! "Nesting limit: 32"
+        (top<500)?! "Math parser task limit"
+        # Every step can allocate at most eight nodes, including argument lists.
+        count+8>=capacity?
+            .kinds:kinds&chunks.empty(capacity)
+            .attrs:attrs&chunks.empty(capacity)
+            .first:first&nil(capacity)
+            .last:last&nil(capacity)
+            .nexts:nexts&nil(capacity)
+            .a:a&nil(capacity)
+            .b:b&nil(capacity)
+            .sup:sup&nil(capacity)
+            .sub:sub&nil(capacity)
+            .limits:limits&nil(capacity)
+            .capacity:capacity*2
+        mode=8?
+            imported_index:task_index.(top)
+            imported_limit:task_limit.(top)
+            imported_index>=imported_limit? @>
+            imported_node:count
+            .count:count+1
+            first.(target)<0? first.(target):imported_node
+            last.(target)>=0? nexts.(last.(target)):imported_node
+            last.(target):imported_node
+            imported_end:unit_stream.value_stop(import_source,imported_index)
+            imported_next:tokens.skip_space(import_source,imported_end)
+            imported_next<imported_limit?
+                (text.at(import_source,imported_next)=",")?! "Unit AST list comma required"
+                .imported_next:tokens.skip_space(import_source,imported_next+1)
+            task_mode.(top):8
+            task_node.(top):target
+            task_depth.(top):0
+            task_origin.(top):origin
+            task_index.(top):imported_next
+            task_limit.(top):imported_limit
+            task_mode.(top+1):7
+            task_node.(top+1):imported_node
+            task_depth.(top+1):0
+            task_origin.(top+1):origin
+            task_index.(top+1):imported_index
+            .top:top+2
+            @>
+        mode=7?
+            object_index:task_index.(top)
+            imported_meta:unit_stream.metadata(import_source,object_index)
+            kinds.(target):imported_meta.kind
+            attrs.(target):imported_meta.attrs
+            limits.(target):imported_meta.limits
+            role_starts:imported_meta.starts
+            role_stops:imported_meta.stops
+            role_index:0
+            role_index<4?>
+                role:role_index
+                child_start:role_starts.(role_index)
+                child_stop:role_stops.(role_index)
+                .role_index:role_index+1
+                child_start<0? @>
+                child_list:count
+                .count:count+1
+                kinds.(child_list):"list"
+                role=0? a.(target):child_list
+                role=1? b.(target):child_list
+                role=2? sup.(target):child_list
+                role=3? sub.(target):child_list
+                task_mode.(top):8
+                task_node.(top):child_list
+                task_depth.(top):0
+                task_origin.(top):origin
+                task_index.(top):child_start
+                task_limit.(top):child_stop
+                .top:top+1
+            .position:position
+            @>
+        before_space:position
+        .position:tokens.skip_space(source,position)
+        .token_begin:position
+        token:tokens.peek(source,position)
+        raw:token.raw
+        finishing:mode=0 /\ (raw="" \/ (stop~="" /\ raw=stop) \/ (stop="}" /\ tokens.boundary(raw)) \/ matrix_boundary(raw,stop))
+        ~native /\ finishing /\ last.(target)>=0 /\ (first.(target)~=last.(target) \/ stop="")?
+            final_node:last.(target)
+            kinds.(final_node)="glyph"?
+                metadata:j.parse("{"&attrs.(final_node)&"}")
+                glyph_token:j.string(metadata,j.member(metadata,0,"token"))
+                metric_source:catalog.raw(fonts,"math/display/"&glyph_token)
+                metric_source~=""?
+                    metric:j.parse(metric_source)
+                    class_node:j.member(metric,0,"class")
+                    class_node>=0?
+                        noad_class:j.string(metric,class_node)
+                        (noad_class="bin" \/ noad_class="rel")?
+                            kinds.(count):"hole"
+                            attrs.(count):attributes("hole")
+                            nexts.(final_node):count
+                            last.(target):count
+                            .count:count+1
+                            .diagnostics:repair(diagnostics,"Empty operand placeholder")
+                            detailed? .details:issues.add(details,source,token_begin,position,"Empty operand placeholder",fonts)
+        mode=0 /\ raw="" /\ stop="}"?
+            .diagnostics:repair(diagnostics,"Inferred a closing brace")
+            detailed? .details:issues.add(details,source,token_begin,position,"Inferred a closing brace",fonts,origin)
+            first.(target)<0?
+                kinds.(count):"hole"
+                attrs.(count):attributes("hole")
+                first.(target):count
+                last.(target):count
+                .count:count+1
+        mode=0 /\ raw=""? @>
+        mode=0?
+            matrix_boundary(raw,stop)? @>
+            stop="}" /\ raw="}"?
+                .position:token.stop
+                @>
+            (stop~="" /\ raw=stop)? @>
+            stop="}" /\ tokens.boundary(raw)?
+                .diagnostics:repair(diagnostics,"Inferred a closing brace")
+                detailed? .details:issues.add(details,source,token_begin,position,"Inferred a closing brace",fonts,origin)
+                @>
+            raw="}"?
+                .position:token.stop
+                .diagnostics:repair(diagnostics,"Ignored an unmatched closing brace")
+                detailed? .details:issues.add(details,source,token_begin,position,"Ignored an unmatched closing brace",fonts)
+                # Continue the current list: one stray brace must not discard
+                # the rest of the source or hide later diagnostics.
+                task_mode.(top):0
+                task_node.(top):target
+                task_depth.(top):depth
+                task_origin.(top):origin
+                task_stop.(top):stop
+                .top:top+1
+                @>
+            detailed /\ atoms>=3000?
+                .diagnostics:repair(diagnostics,"Atom limit: 3,000")
+                .details:issues.record(details,source,token_begin,token.stop,"LIMIT",false,"The expression exceeds the engine's 3,000-atom limit.","Split this expression into smaller expressions.")
+                @|
+            node:count
+            .count:count+1
+            first.(target)<0? first.(target):node
+            last.(target)>=0? nexts.(last.(target)):node
+            last.(target):node
+            .atoms:atoms+1
+            (atoms<=3000)?! "Atom limit: 3,000"
+            task_mode.(top):0
+            task_node.(top):target
+            task_depth.(top):depth
+            task_origin.(top):origin
+            task_stop.(top):stop
+            task_mode.(top+1):3
+            task_node.(top+1):node
+            task_depth.(top+1):depth
+            task_origin.(top+1):origin
+            task_mode.(top+2):1
+            task_node.(top+2):node
+            task_depth.(top+2):depth
+            task_origin.(top+2):token_begin
+            .top:top+3
+            @>
+        mode=2?
+            tokens.boundary(raw)?
+                kinds.(count):"hole"
+                attrs.(count):attributes("hole")
+                first.(target):count
+                last.(target):count
+                .count:count+1
+                .diagnostics:repair(diagnostics,"Empty operand placeholder")
+                detailed? .details:issues.add(details,source,token_begin,position,"Empty operand placeholder",fonts)
+                @>
+            raw="{"?
+                .position:token.stop
+                task_mode.(top):0
+                task_node.(top):target
+                task_depth.(top):depth+1
+                task_origin.(top):token_begin
+                task_stop.(top):"}"
+                .top:top+1
+                @>
+            argument_node:count
+            .count:count+1
+            first.(target):argument_node
+            last.(target):argument_node
+            .target:argument_node
+            .depth:depth+1
+            .mode:1
+        mode=3?
+            ~tokens.script(raw)? @>
+            .position:token.stop
+            (raw="\\limits" \/ raw="\\nolimits")?
+                limits.(target):0
+                raw="\\limits"? limits.(target):1
+                task_mode.(top):3
+                task_node.(top):target
+                task_depth.(top):depth
+                task_origin.(top):origin
+                .top:top+1
+                @>
+            superscript:raw~="_"
+            attachment:target
+            existing:sup.(attachment)
+            ~superscript? .existing:sub.(attachment)
+            raw~="'" /\ existing>=0?
+                .diagnostics:repair(diagnostics,"Grouped repeated scripts for preview")
+                detailed? .details:issues.add(details,source,token_begin,position,"Grouped repeated scripts for preview",fonts)
+                true?>
+                    first.(existing)<0? @|
+                    .attachment:first.(existing)
+                    .existing:sup.(attachment)
+                    ~superscript? .existing:sub.(attachment)
+                    existing<0? @|
+            script_list:count
+            .count:count+1
+            kinds.(script_list):"list"
+            raw="'" /\ sup.(target)>=0?
+                .script_list:sup.(target)
+                .count:count-1
+            superscript? sup.(attachment):script_list
+            ~superscript? sub.(attachment):script_list
+            task_mode.(top):3
+            task_node.(top):target
+            task_depth.(top):depth
+            task_origin.(top):origin
+            .top:top+1
+            raw="'"?
+                prime:count
+                .count:count+1
+                kinds.(prime):"glyph"
+                attrs.(prime):glyph("\\prime")
+                first.(script_list)<0? first.(script_list):prime
+                last.(script_list)>=0? nexts.(last.(script_list)):prime
+                last.(script_list):prime
+                @>
+            task_mode.(top):2
+            task_node.(top):script_list
+            task_depth.(top):depth
+            task_origin.(top):origin
+            .top:top+1
+            @>
+        mode=4?
+            # The list stops before its right delimiter; ordinary scope closers
+            # and \right take their delimiter only after the body is complete.
+            right:"."
+            raw=stop?
+                .position:token.stop
+                stop="\\right"?
+                    .position:tokens.skip_space(source,position)
+                    closing:tokens.peek(source,position)
+                    .right:closing.value
+                    .position:closing.stop
+                    right=""?
+                        .right:"."
+                        .diagnostics:repair(diagnostics,"Inferred an invisible delimiter")
+                        detailed? .details:issues.add(details,source,token_begin,position,"Inferred an invisible delimiter",fonts)
+                stop~="\\right"? .right:stop
+            raw~=stop /\ kinds.(target)="list"?
+                .diagnostics:repair(diagnostics,"Inferred a closing label bracket")
+                detailed? .details:issues.add(details,source,token_begin,position,"Inferred a closing label bracket",fonts)
+            raw~=stop /\ kinds.(target)~="list"?
+                stop="\\right"? .diagnostics:repair(diagnostics,"Inferred \\right.")
+                stop="\\right"? detailed? .details:issues.add(details,source,token_begin,position,"Inferred \\right.",fonts,origin)
+                stop~="\\right"? .diagnostics:repair(diagnostics,"Inferred an invisible closing scope")
+                stop~="\\right"? detailed? .details:issues.add(details,source,token_begin,position,"Inferred an invisible closing scope",fonts)
+            kinds.(target)~="list"? attrs.(target):attrs.(target)&",\"right\":"&j.quote(right)
+            @>
+        mode=6?
+            rows:a.(target)
+            row:last.(rows)
+            matrix_name:attrs.(rows)
+            shorthand:kinds.(rows)="matrixBrace"
+            raw="\\end"?
+                end_group:read(source,token.stop)
+                .diagnostics:raw_diagnostics(diagnostics,end_group.present,end_group.closed)
+                detailed? .details:issues.raw(details,source,end_group.start,end_group.stop,end_group.present,end_group.closed)
+                end_group.value~=matrix_name? .diagnostics:repair(diagnostics,"Matched the unfinished environment")
+                end_group.value~=matrix_name? detailed? .details:issues.add(details,source,token_begin,end_group.stop,"Matched the unfinished environment",fonts)
+                stop="start" /\ b.(target)>0 /\ first.(row)<0?
+                    previous_row:first.(rows)
+                    nexts.(previous_row)~=row?> .previous_row:nexts.(previous_row)
+                    nexts.(previous_row): -1
+                    last.(rows):previous_row
+                .position:end_group.stop
+                @>
+            stop="after"?
+                raw="&"?
+                    .position:token.stop
+                    task_mode.(top):6
+                    task_node.(top):target
+                    task_depth.(top):depth
+                    task_origin.(top):origin
+                    task_stop.(top):"start"
+                    .top:top+1
+                    @>
+                raw="\\\\"?
+                    row_gap:raw_option(source,token.stop)
+                    row_gap.present /\ ~row_gap.closed? .diagnostics:repair(diagnostics,"Inferred a closing option bracket")
+                    row_gap.present /\ ~row_gap.closed? detailed? .details:issues.add(details,source,row_gap.start,row_gap.stop,"Inferred a closing option bracket",fonts)
+                    attrs.(row):j.quote(row_gap.value)
+                    limits.(row):1
+                    new_row:count
+                    .count:count+1
+                    kinds.(new_row):"row"
+                    nexts.(row):new_row
+                    last.(rows):new_row
+                    b.(target):b.(target)+1
+                    .position:row_gap.stop
+                    task_mode.(top):6
+                    task_node.(top):target
+                    task_depth.(top):depth
+                    task_origin.(top):origin
+                    task_stop.(top):"start"
+                    .top:top+1
+                    @>
+                shorthand /\ raw="}"?
+                    .position:token.stop
+                    @>
+                attrs.(target):attrs.(target)&",\"incomplete\":true"
+                .diagnostics:repair(diagnostics,"Inferred \\end{"&matrix_name&"}")
+                detailed? .details:issues.add(details,source,token_begin,position,"Inferred \\end{"&matrix_name&"}",fonts,origin)
+                @>
+            # The JavaScript loop checks end-of-source before skipping space.
+            # Retain that distinction for a trailing empty row/cell in preview.
+            before_space>=size?
+                attrs.(target):attrs.(target)&",\"incomplete\":true"
+                .diagnostics:repair(diagnostics,"Inferred \\end{"&matrix_name&"}")
+                detailed? .details:issues.add(details,source,token_begin,position,"Inferred \\end{"&matrix_name&"}",fonts,origin)
+                @>
+            (raw="\\hline" \/ raw="\\cline")?
+                .position:token.stop
+                columns:"null"
+                raw="\\cline"?
+                    column_group:read(source,position)
+                    .diagnostics:raw_diagnostics(diagnostics,column_group.present,column_group.closed)
+                    detailed? .details:issues.raw(details,source,column_group.start,column_group.stop,column_group.present,column_group.closed)
+                    .columns:j.quote(column_group.value)
+                    .position:column_group.stop
+                rule:count
+                .count:count+1
+                kinds.(rule):"row-rule"
+                attrs.(rule):"{\"row\":"&text.integer(b.(target))&",\"columns\":"&columns&"}"
+                a.(rows)<0? a.(rows):rule
+                b.(rows)>=0? nexts.(b.(rows)):rule
+                b.(rows):rule
+                task_mode.(top):6
+                task_node.(top):target
+                task_depth.(top):depth
+                task_origin.(top):origin
+                task_stop.(top):"start"
+                .top:top+1
+                @>
+            cell:count
+            .count:count+1
+            kinds.(cell):"list"
+            first.(row)<0? first.(row):cell
+            last.(row)>=0? nexts.(last.(row)):cell
+            last.(row):cell
+            task_mode.(top):6
+            task_node.(top):target
+            task_depth.(top):depth
+            task_origin.(top):origin
+            task_stop.(top):"after"
+            task_mode.(top+1):0
+            task_node.(top+1):cell
+            task_depth.(top+1):depth+1
+            task_origin.(top+1):token_begin
+            task_stop.(top+1):kinds.(rows)
+            .top:top+2
+            @>
+        # Base parser. Allocate argument lists here, then push their tasks in
+        # reverse order. The owner retains all nodes throughout nested parsing.
+        (depth<=32)?! "Nesting limit: 32"
+        .position:token.stop
+        kind:"glyph"
+        properties:glyph(token.value)
+        glyph_token:token.value
+        arity:0
+        body_stop:""
+        close_stop:""
+        optional_index:false
+        empty_body:false
+        strut:false
+        stacked:false
+        matrix_start:false
+        matrix_shorthand:false
+        environment_name:""
+        integral_dots:false
+        hook:packages.dispatch(context,raw)
+        packages.requires_amsmath(context,raw)?
+            kinds.(target):"hole"
+            attrs.(target):attributes("hole")
+            message:"Command requires amsmath: "&raw
+            .diagnostics:repair(diagnostics,message)
+            detailed? .details:issues.add(details,source,token_begin,position,message,fonts)
+            @>
+        hook.reparse?
+            # A captured fragment is parsed fresh and imported into this owner.
+            # Original IDs and all pending outer tasks remain stable.
+            modifier:packages.option("",0)
+            hook.kind="quotient"?
+                .modifier:packages.option(source,position)
+                .position:modifier.stop
+                modifier.present /\ ~modifier.closed?
+                    .diagnostics:repair(diagnostics,"Inferred a closing option bracket")
+                    detailed? .details:issues.add(details,source,modifier.start,modifier.stop,"Inferred a closing option bracket",fonts)
+            first_fragment:fragments.capture(source,position,hook.kind="quotient",modifier.value,modifier.start+1)
+            .position:first_fragment.stop
+            second_fragment:fragments.capture("",0)
+            hook.kind="quotient"?
+                .second_fragment:fragments.capture(source,position,true,modifier.value,modifier.start+1)
+                .position:second_fragment.stop
+            .diagnostics:packages.add(diagnostics,first_fragment.diagnostic)
+            .diagnostics:packages.add(diagnostics,second_fragment.diagnostic)
+            detailed /\ first_fragment.diagnostic~=""? .details:issues.raw(details,source,first_fragment.start,first_fragment.stop,first_fragment.present,first_fragment.closed)
+            detailed /\ second_fragment.diagnostic~=""? .details:issues.raw(details,source,second_fragment.start,second_fragment.stop,second_fragment.present,second_fragment.closed)
+            kinds.(target):hook.kind
+            attrs.(target):attributes(hook.kind)
+            role:0
+            role<hook.arity?>
+                fragment:first_fragment
+                role=1? .fragment:second_fragment
+                parsed_fragment:analyze_retained_depth(fragment.source,fonts,context,native,detailed,extension_depth+1,document_boxes_json,retained)
+                child_arena:parsed_fragment.arena
+                .atoms:atoms+child_arena.atoms
+                (atoms<=3000)?! "Atom limit: 3,000"
+                child_arena.diagnostics~=""?
+                    diagnostics~=""? .diagnostics:diagnostics&"," 
+                    .diagnostics:diagnostics&child_arena.diagnostics
+                detailed? .details:fragments.remap(details,parsed_fragment.issues,source,fragment.positions,fragment.appendable)
+                destination:(kinds:kinds,attrs:attrs,first:first,last:last,nexts:nexts,a:a,b:b,sup:sup,sub:sub,limits:limits,count:count,diagnostics:diagnostics,atoms:atoms)
+                imported:arena_import.import_into(destination,child_arena,0)
+                expanded:imported.arena
+                .kinds:expanded.kinds
+                .attrs:expanded.attrs
+                .first:expanded.first
+                .last:expanded.last
+                .nexts:expanded.nexts
+                .a:expanded.a
+                .b:expanded.b
+                .sup:expanded.sup
+                .sub:expanded.sub
+                .limits:expanded.limits
+                .count:expanded.count
+                .capacity:kinds.length()
+                role=0? a.(target):imported.root
+                role=1? b.(target):imported.root
+                .role:role+1
+            .position:position
+            @>
+        hook.kind~=""?
+            .kind:hook.kind
+            .properties:attributes(kind)
+            .arity:hook.arity
+            hook.kind="font"? .properties:named(kind,hook.name)
+            hook.kind="glyph"?
+                .glyph_token:hook.token
+                .properties:glyph(hook.token)
+        raw="\\vkftikzbox" /\ document_boxes_json~="{}"?
+            native_group:read(source,position)
+            native_key:native_group.value
+            native_valid:native_group.present /\ native_group.closed /\ native_key~=""
+            native_at:0
+            native_at<text.byte_length(native_key)?>
+                native_digit:text.at(native_key,native_at)
+                (native_digit<"0" \/ native_digit>"9")? .native_valid:false
+                .native_at:native_at+1
+            native_valid?! "Invalid TikZ picture reference"
+            native_box:""
+            retained.prepared?
+                native_id:int(vkf_decimal_parse(native_key))
+                retained_native_box:math_retained_directory.lookup(retained,native_id)
+                retained_native_box.found?! "Invalid TikZ picture reference"
+                .native_box:retained_native_box.scene
+            ~retained.prepared?
+                ~directory_loaded?
+                    .directory:j.parse(document_boxes_json)
+                    .directory_loaded:true
+                native_id:int(vkf_decimal_parse(native_key))
+                native_node:j.member(directory,0,text.integer(native_id))
+                native_node>=0?! "Invalid TikZ picture reference"
+                .native_box:text.span(directory.source,directory.starts.(native_node),directory.stops.(native_node))
+            .kind:"nativebox"
+            .properties:attributes(kind)&",\"box\":"&native_box
+            .position:native_group.stop
+        unit_command:tokens.one_of(raw,["\\qty","\\SI","\\unit","\\si","\\num","\\ang"])
+        raw="{"?
+            .kind:"group"
+            .properties:attributes(kind)
+            .arity:1
+            .body_stop:"}"
+        raw="\\begin"?
+            environment_group:read(source,position)
+            .diagnostics:raw_diagnostics(diagnostics,environment_group.present,environment_group.closed)
+            detailed? .details:issues.raw(details,source,environment_group.start,environment_group.stop,environment_group.present,environment_group.closed)
+            .position:environment_group.stop
+            .environment_name:environment_group.value
+            .matrix_start:true
+        raw~="\\begin" /\ text.matches(raw,0,"\\") /\ text.byte_length(raw)>1?
+            candidate_name:text.span(raw,1,text.byte_length(raw))
+            environments.known(candidate_name)?
+                .matrix_start:true
+                .matrix_shorthand:true
+                .environment_name:candidate_name
+        matrix_start?
+            selected_environment:environments.resolve(environment_name)
+            selected_environment.recovery=1? .diagnostics:repair(diagnostics,"Completed a matrix environment for preview")
+            selected_environment.recovery=1? detailed? .details:issues.add(details,source,token_begin,position,"Completed a matrix environment for preview",fonts)
+            selected_environment.recovery=2? .diagnostics:repair(diagnostics,"Unknown environment "&environment_name)
+            selected_environment.recovery=2? detailed? .details:issues.add(details,source,token_begin,position,"Unknown environment "&environment_name,fonts)
+            .environment_name:selected_environment.name
+            align:""
+            (environment_name="alignat" \/ environment_name="alignat*")?
+                .position:tokens.skip_space(source,position)
+                count_token:tokens.peek(source,position)
+                count_token.raw="{"?
+                    alignment_count:read(source,position)
+                    .diagnostics:raw_diagnostics(diagnostics,alignment_count.present,alignment_count.closed)
+                    detailed? .details:issues.raw(details,source,alignment_count.start,alignment_count.stop,alignment_count.present,alignment_count.closed)
+                    .position:alignment_count.stop
+                count_token.raw>="0" /\ count_token.raw<="9"? .position:count_token.stop
+            (environment_name="array" \/ environment_name="subarray")?
+                alignment_group:read(source,position)
+                .position:alignment_group.stop
+                .align:alignment_group.value
+                .diagnostics:raw_diagnostics(diagnostics,alignment_group.present,alignment_group.closed)
+                detailed? .details:issues.raw(details,source,alignment_group.start,alignment_group.stop,alignment_group.present,alignment_group.closed)
+                environment_name="array" /\ ~environments.valid_columns(align)? .diagnostics:repair(diagnostics,"Unsupported array column specification")
+                environment_name="array" /\ ~environments.valid_columns(align)? detailed? .details:issues.add(details,source,alignment_group.start,alignment_group.stop,"Unsupported array column specification",fonts)
+            matrix_shorthand?
+                .position:tokens.skip_space(source,position)
+                body_token:tokens.peek(source,position)
+                body_token.raw~="{"? .diagnostics:repair(diagnostics,"Inferred the matrix body")
+                body_token.raw~="{"? detailed? .details:issues.add(details,source,token_begin,position,"Inferred the matrix body",fonts)
+                body_token.raw="{"? .position:body_token.stop
+            .kind:"matrix"
+            .properties:named(kind,environment_name)&",\"align\":"&j.quote(align)
+        fraction:tokens.one_of(raw,["\\frac","\\dfrac","\\tfrac","\\cfrac","\\binom","\\dbinom","\\tbinom","\\genfrac"])
+        fraction?
+            .kind:"frac"
+            .properties:attributes(kind)
+            .arity:2
+            fraction_style:"null"
+            tokens.one_of(raw,["\\dfrac","\\cfrac","\\dbinom"])? .fraction_style:"0"
+            tokens.one_of(raw,["\\tfrac","\\tbinom"])? .fraction_style:"1"
+            tokens.one_of(raw,["\\binom","\\dbinom","\\tbinom"])? .properties:properties&",\"thickness\":\"0pt\",\"left\":\"(\",\"right\":\")\""
+            raw="\\genfrac"?
+                left:read(source,position)
+                right_group:read(source,left.stop)
+                thickness:read(source,right_group.stop)
+                selected:read(source,thickness.stop)
+                .diagnostics:raw_diagnostics(diagnostics,left.present,left.closed)
+                detailed? .details:issues.raw(details,source,left.start,left.stop,left.present,left.closed)
+                .diagnostics:raw_diagnostics(diagnostics,right_group.present,right_group.closed)
+                detailed? .details:issues.raw(details,source,right_group.start,right_group.stop,right_group.present,right_group.closed)
+                .diagnostics:raw_diagnostics(diagnostics,thickness.present,thickness.closed)
+                detailed? .details:issues.raw(details,source,thickness.start,thickness.stop,thickness.present,thickness.closed)
+                .diagnostics:raw_diagnostics(diagnostics,selected.present,selected.closed)
+                detailed? .details:issues.raw(details,source,selected.start,selected.stop,selected.present,selected.closed)
+                .position:selected.stop
+                left_value:left.value
+                right_value:right_group.value
+                left_value=""? .left_value:"."
+                right_value=""? .right_value:"."
+                .properties:properties&",\"left\":"&j.quote(left_value)&",\"right\":"&j.quote(right_value)&",\"thickness\":"&j.quote(thickness.value)
+                tokens.one_of(selected.value,["0","1","2","3"])? .fraction_style:selected.value
+                selected.value~="" /\ fraction_style="null"? .diagnostics:repair(diagnostics,"Unsupported fraction style")
+                selected.value~="" /\ fraction_style="null"? detailed? .details:issues.add(details,source,selected.start,selected.stop,"Unsupported fraction style",fonts)
+            .properties:properties&",\"style\":"&fraction_style
+        unary:unary_kind(raw)
+        unary~=""?
+            .kind:unary
+            name:text.span(raw,1,text.byte_length(raw))
+            unary="decoration"? .name:dots.accent_name(raw)
+            raw="\\bm"? .name:"boldsymbol"
+            .properties:named(kind,name)
+            .arity:1
+            unary="class"?
+                .properties:attributes(kind)&",\"class\":"&j.quote(text.span(raw,5,text.byte_length(raw)))&",\"operatorLimits\":false"
+                raw="\\mathop"? .properties:attributes(kind)&",\"class\":\"op\",\"operatorLimits\":true"
+            unary="box"?
+                option:""
+                raw="\\smash"?
+                    selected_box:raw_option(source,position)
+                    selected_box.present /\ ~selected_box.closed? .diagnostics:repair(diagnostics,"Inferred a closing option bracket")
+                    selected_box.present /\ ~selected_box.closed? detailed? .details:issues.add(details,source,selected_box.start,selected_box.stop,"Inferred a closing option bracket",fonts)
+                    selected_box.present?
+                        .option:selected_box.value
+                        .position:selected_box.stop
+                    option~="" /\ ~tokens.one_of(option,["t","b"])? .diagnostics:repair(diagnostics,"Unsupported smash option")
+                    option~="" /\ ~tokens.one_of(option,["t","b"])? detailed? .details:issues.add(details,source,selected_box.start,selected_box.stop,"Unsupported smash option",fonts)
+                .properties:properties&",\"option\":"&j.quote(option)
+            (raw="\\overbrace" \/ raw="\\underbrace")? limits.(target):1
+            raw="\\mathstrut"? .strut:true
+        raw="\\sqrt"?
+            .kind:"radical"
+            .properties:attributes(kind)
+            .arity:1
+            .position:tokens.skip_space(source,position)
+            ~vkf_string_eof(source,position)?
+                text.at(source,position)="["?
+                    .position:position+1
+                    .optional_index:true
+        tokens.one_of(raw,["\\overset","\\underset","\\stackrel"])?
+            .kind:"stack"
+            .properties:attributes(kind)
+            .arity:2
+            .stacked:true
+            limits.(target):1
+        (raw="\\xrightarrow" \/ raw="\\xleftarrow")?
+            .kind:"arrow"
+            .properties:named(kind,text.span(raw,1,text.byte_length(raw)))
+            .arity:1
+            limits.(target):1
+            .position:tokens.skip_space(source,position)
+            ~vkf_string_eof(source,position)?
+                text.at(source,position)="["?
+                    .position:position+1
+                    .optional_index:true
+        tokens.one_of(raw,["\\pmod","\\pod","\\mod","\\bmod"])?
+            .kind:"mod"
+            .properties:named(kind,text.span(raw,1,text.byte_length(raw)))
+            .arity:1
+            raw="\\bmod"? .empty_body:true
+        (raw="\\left" \/ (~native /\ (raw="(" \/ raw="[")))?
+            .kind:"delimited"
+            .arity:1
+            left_delimiter:token.value
+            scalable:"false"
+            .body_stop:")"
+            raw="["? .body_stop:"]"
+            raw="\\left"?
+                .position:tokens.skip_space(source,position)
+                opening:tokens.peek(source,position)
+                .left_delimiter:opening.value
+                .position:opening.stop
+                .scalable:"true"
+                .body_stop:"\\right"
+                left_delimiter=""?
+                    .left_delimiter:"."
+                    .diagnostics:repair(diagnostics,"Inferred an invisible delimiter")
+                    detailed? .details:issues.add(details,source,token_begin,position,"Inferred an invisible delimiter",fonts)
+            .close_stop:body_stop
+            .properties:attributes(kind)&",\"left\":"&j.quote(left_delimiter)&",\"scalable\":"&scalable
+        (raw="^" \/ raw="_")?
+            .kind:"hole"
+            .properties:attributes(kind)
+            .diagnostics:repair(diagnostics,"Empty base placeholder")
+            detailed? .details:issues.add(details,source,token_begin,position,"Empty base placeholder",fonts)
+            # Let the normal script task consume this marker and attach its arg.
+            .position:token.stop-1
+            task_mode.(top):3
+            task_node.(top):target
+            task_depth.(top):depth
+            task_origin.(top):token_begin
+            .top:top+1
+        mu:spacing(token.value)
+        mu~= -999?
+            .kind:"space"
+            .properties:attributes(kind)&",\"mu\":"&text.integer(mu)
+            (raw="\\quad" \/ raw="\\qquad")?
+                factor:"1"
+                raw="\\qquad"? .factor:"2"
+                .properties:properties&",\"textUnit\":\"quad\",\"factor\":"&factor
+            (raw="\\ " \/ raw="~")? .properties:properties&",\"textUnit\":\"space\",\"factor\":1"
+        tokens.one_of(raw,["\\relax","\\protect","\\allowbreak","\\displaybreak","\\notag","\\nonumber"])?
+            .kind:"space"
+            .properties:attributes(kind)&",\"mu\":0"
+            (raw="\\notag" \/ raw="\\nonumber")? .properties:properties&",\"noNumber\":true"
+        selected_style:style(raw)
+        selected_style>=0?
+            .kind:"style"
+            .properties:attributes(kind)&",\"style\":"&text.integer(selected_style)
+        raw="\\not"? .properties:glyph("@not")&",\"class\":\"rel\""
+        (raw="\\color" \/ raw="\\textcolor")?
+            color_model:raw_option(source,position)
+            .position:color_model.stop
+            color_model.present /\ ~color_model.closed? .diagnostics:repair(diagnostics,"Inferred a closing option bracket")
+            color_model.present /\ ~color_model.closed? detailed? .details:issues.add(details,source,color_model.start,color_model.stop,"Inferred a closing option bracket",fonts)
+            color_value:read(source,position)
+            .position:color_value.stop
+            .diagnostics:raw_diagnostics(diagnostics,color_value.present,color_value.closed)
+            detailed? .details:issues.raw(details,source,color_value.start,color_value.stop,color_value.present,color_value.closed)
+            color_json:colors.parse(color_value.value,color_model.value)
+            color_json="null"? .diagnostics:repair(diagnostics,"Unfinished or unsupported color: "&color_value.value)
+            color_json="null"? detailed? .details:issues.add(details,source,token_begin,position,"Unfinished or unsupported color: "&color_value.value,fonts)
+            .kind:"color"
+            raw="\\textcolor"?
+                .kind:"paint"
+                .arity:1
+            .properties:attributes(kind)&",\"color\":"&color_json
+        unit_command?
+            unit_option:raw_option(source,position)
+            .position:unit_option.stop
+            unit_option.present /\ ~unit_option.closed? .diagnostics:repair(diagnostics,"Inferred a closing option bracket")
+            unit_option.present /\ ~unit_option.closed? detailed? .details:issues.add(details,source,unit_option.start,unit_option.stop,"Inferred a closing option bracket",fonts)
+            unit_options:unit_syntax.options(unit_option.value)
+            .diagnostics:merge_diagnostics(diagnostics,unit_options.diagnostics)
+            detailed? .details:issues.merge(details,source,token_begin,position,unit_options.diagnostics,fonts)
+            unit_parts:chunks.empty(16)
+            unit_part_count:0
+            unit_part_capacity:16
+            tokens.one_of(raw,["\\num","\\qty","\\SI"])?
+                number_group:read(source,position)
+                .position:number_group.stop
+                .diagnostics:raw_diagnostics(diagnostics,number_group.present,number_group.closed)
+                detailed? .details:issues.raw(details,source,number_group.start,number_group.stop,number_group.present,number_group.closed)
+                numbered:unit_numbers.parse(number_group.value,unit_options)
+                .diagnostics:merge_diagnostics(diagnostics,numbered.diagnostics)
+                detailed? .details:issues.merge(details,source,token_begin,position,numbered.diagnostics,fonts)
+                unit_parts.(unit_part_count):numbered.nodes
+                .unit_part_count:unit_part_count+1
+            (raw="\\qty" \/ raw="\\SI")?
+                unit_parts.(unit_part_count):unit_symbols.space()
+                .unit_part_count:unit_part_count+1
+            tokens.one_of(raw,["\\qty","\\SI","\\unit","\\si"])?
+                unit_group:read(source,position)
+                .position:unit_group.stop
+                .diagnostics:raw_diagnostics(diagnostics,unit_group.present,unit_group.closed)
+                detailed? .details:issues.raw(details,source,unit_group.start,unit_group.stop,unit_group.present,unit_group.closed)
+                factored:unit_factors.parse(unit_group.value,unit_options)
+                .diagnostics:merge_diagnostics(diagnostics,factored.diagnostics)
+                detailed? .details:issues.merge(details,source,token_begin,position,factored.diagnostics,fonts)
+                unit_parts.(unit_part_count):factored.nodes
+                .unit_part_count:unit_part_count+1
+            raw="\\ang"?
+                angle_group:read(source,position)
+                .position:angle_group.stop
+                .diagnostics:raw_diagnostics(diagnostics,angle_group.present,angle_group.closed)
+                detailed? .details:issues.raw(details,source,angle_group.start,angle_group.stop,angle_group.present,angle_group.closed)
+                angle_start:0
+                angle_index:0
+                angle_size:text.byte_length(angle_group.value)
+                angle_start<=angle_size?>
+                    separator:text.find(angle_group.value,";",angle_start)
+                    separator<0? .separator:angle_size
+                    angle_value:text.span(angle_group.value,angle_start,separator)
+                    .angle_start:separator+1
+                    part_index:angle_index
+                    .angle_index:angle_index+1
+                    angle_value=""? @>
+                    unit_part_count=unit_part_capacity?
+                        .unit_parts:unit_parts&chunks.empty(unit_part_capacity)
+                        .unit_part_capacity:unit_part_capacity*2
+                    angle_number:unit_numbers.parse(angle_value,unit_options)
+                    .diagnostics:merge_diagnostics(diagnostics,angle_number.diagnostics)
+                    detailed? .details:issues.merge(details,source,token_begin,position,angle_number.diagnostics,fonts)
+                    angle_symbol:"@unit:arcsecond"
+                    part_index=0? .angle_symbol:"@unit:degree"
+                    part_index=1? .angle_symbol:"@unit:arcminute"
+                    unit_parts.(unit_part_count):angle_number.nodes&","&unit_symbols.glyph(angle_symbol)
+                    .unit_part_count:unit_part_count+1
+            part_index:1
+            part_index<unit_part_count?>
+                unit_parts.(part_index):","&unit_parts.(part_index)
+                .part_index:part_index+1
+            .import_source:"["&chunks.join(unit_parts,0,unit_part_count)&"]"
+            .kind:"group"
+            .properties:attributes(kind)
+            .arity:1
+            .empty_body:true
+        tokens.one_of(raw,["\\dots","\\dotsb","\\dotsc","\\dotsm","\\dotsi"])?
+            .position:tokens.skip_space(source,position)
+            following_dot:tokens.peek(source,position)
+            dot_kind:dots.kind(raw,following_dot.raw,fonts)
+            .glyph_token:"\\cdots"
+            dot_kind="baseline"? .glyph_token:"\\ldots"
+            .properties:glyph(glyph_token)
+            dot_kind="integral"?
+                .kind:"group"
+                .properties:attributes(kind)
+                .arity:1
+                .empty_body:true
+                .integral_dots:true
+        raw="\\label"?
+            label:read(source,position)
+            .diagnostics:raw_diagnostics(diagnostics,label.present,label.closed)
+            detailed? .details:issues.raw(details,source,label.start,label.stop,label.present,label.closed)
+            .position:label.stop
+            .kind:"label"
+            .properties:attributes(kind)&",\"key\":"&j.quote(label.value)
+        tokens.one_of(raw,["\\hspace","\\kern","\\mkern","\\mskip"])?
+            ~vkf_string_eof(source,position)?
+                text.at(source,position)="*"? .position:position+1
+            .kind:"dimension"
+            dimension_value:""
+            bracketed_dimension:false
+            ~vkf_string_eof(source,position)? .bracketed_dimension:text.at(source,position)="{"
+            bracketed_dimension?
+                dimension_group:read(source,position)
+                .position:dimension_group.stop
+                .dimension_value:dimension_group.value
+                .diagnostics:raw_diagnostics(diagnostics,dimension_group.present,dimension_group.closed)
+                detailed? .details:issues.raw(details,source,dimension_group.start,dimension_group.stop,dimension_group.present,dimension_group.closed)
+            ~bracketed_dimension?
+                dimension_span:dimension(source,position)
+                .position:dimension_span.stop
+                .dimension_value:dimension_span.value
+            dimension_value=""? .diagnostics:repair(diagnostics,"Empty spacing dimension")
+            dimension_value=""? detailed? .details:issues.add(details,source,token_begin,position,"Empty spacing dimension",fonts)
+            .properties:attributes(kind)&",\"dimension\":"&j.quote(dimension_value)
+        tokens.one_of(raw,["\\big","\\Big","\\bigg","\\Bigg","\\bigl","\\bigr","\\Bigl","\\Bigr","\\biggl","\\biggr","\\Biggl","\\Biggr"])?
+            size_name:text.span(raw,1,text.byte_length(raw))
+            final:text.at(size_name,text.byte_length(size_name)-1)
+            (final="l" \/ final="r")? .size_name:text.span(size_name,0,text.byte_length(size_name)-1)
+            .position:tokens.skip_space(source,position)
+            big_delimiter:tokens.peek(source,position)
+            .position:big_delimiter.stop
+            delimiter_value:big_delimiter.value
+            delimiter_value=""?
+                .delimiter_value:"."
+                .diagnostics:repair(diagnostics,"Inferred an invisible delimiter")
+                detailed? .details:issues.add(details,source,token_begin,position,"Inferred an invisible delimiter",fonts)
+            .properties:glyph("@"&size_name&":"&delimiter_value)
+            # These composite keys are resolved by the layout engine.
+            .kind:"sizedglyph"
+        raw="\\middle"?
+            .position:tokens.skip_space(source,position)
+            middle:tokens.peek(source,position)
+            .position:middle.stop
+            middle_value:middle.value
+            middle_value=""?
+                .middle_value:"."
+                .diagnostics:repair(diagnostics,"Inferred an invisible delimiter")
+                detailed? .details:issues.add(details,source,token_begin,position,"Inferred an invisible delimiter",fonts)
+            .kind:"middle"
+            .properties:attributes(kind)&",\"token\":"&j.quote(middle_value)
+        raw="\\right"?
+            .position:tokens.skip_space(source,position)
+            unmatched_right:tokens.peek(source,position)
+            .position:unmatched_right.stop
+            unmatched_value:unmatched_right.value
+            unmatched_value=""? .unmatched_value:"."
+            .properties:glyph(unmatched_value)
+            .kind:"sizedglyph"
+            .diagnostics:repair(diagnostics,"Unmatched right delimiter")
+            detailed? .details:issues.add(details,source,token_begin,position,"Unmatched right delimiter",fonts)
+        raw="\\end"?
+            unmatched_environment:read(source,position)
+            .position:unmatched_environment.stop
+            .kind:"hole"
+            .properties:attributes(kind)
+            .diagnostics:raw_diagnostics(diagnostics,unmatched_environment.present,unmatched_environment.closed)
+            detailed? .details:issues.raw(details,source,unmatched_environment.start,unmatched_environment.stop,unmatched_environment.present,unmatched_environment.closed)
+            .diagnostics:repair(diagnostics,"Unmatched environment end")
+            detailed? .details:issues.add(details,source,token_begin,position,"Unmatched environment end",fonts)
+        text_family:text_parser.family(raw,"mathrm")
+        text_command:text_family~="" \/ raw="\\tag" \/ raw="\\operatorname"
+        text_command?
+            .kind:"textflow"
+            .properties:attributes(kind)
+            star:false
+            (raw="\\tag" \/ raw="\\operatorname") /\ ~vkf_string_eof(source,position)?
+                text.at(source,position)="*"?
+                    .star:true
+                    .position:position+1
+            flag:"false"
+            star? .flag:"true"
+            raw="\\tag"?
+                .kind:"tag"
+                .properties:attributes(kind)&",\"star\":"&flag
+            raw="\\operatorname"? .properties:properties&",\"class\":\"op\",\"operatorLimits\":"&flag
+            text_family=""? .text_family:"mathrm"
+            text_group:read(source,position)
+            .position:text_group.stop
+            .diagnostics:raw_diagnostics(diagnostics,text_group.present,text_group.closed)
+            detailed? .details:issues.raw(details,source,text_group.start,text_group.stop,text_group.present,text_group.closed)
+            leaves:text_parser.parse(text_group.value,depth,text_family)
+            .diagnostics:merge_diagnostics(diagnostics,leaves.diagnostics)
+            detailed? .details:issues.merge(details,source,token_begin,position,leaves.diagnostics,fonts)
+            count+leaves.count+1>=capacity?>
+                .kinds:kinds&chunks.empty(capacity)
+                .attrs:attrs&chunks.empty(capacity)
+                .first:first&nil(capacity)
+                .last:last&nil(capacity)
+                .nexts:nexts&nil(capacity)
+                .a:a&nil(capacity)
+                .b:b&nil(capacity)
+                .sup:sup&nil(capacity)
+                .sub:sub&nil(capacity)
+                .limits:limits&nil(capacity)
+                .capacity:capacity*2
+            text_list:count
+            .count:count+1
+            kinds.(text_list):"list"
+            a.(target):text_list
+            leaf_kinds:leaves.kinds
+            leaf_attrs:leaves.attrs
+            leaf_index:0
+            leaf_index<leaves.count?>
+                kinds.(count):leaf_kinds.(leaf_index)
+                attrs.(count):leaf_attrs.(leaf_index)
+                first.(text_list)<0? first.(text_list):count
+                last.(text_list)>=0? nexts.(last.(text_list)):count
+                last.(text_list):count
+                .count:count+1
+                .leaf_index:leaf_index+1
+        (raw="\\\\" \/ raw="\\newline")?
+            gap:raw_option(source,position)
+            gap.present /\ ~gap.closed? .diagnostics:repair(diagnostics,"Inferred a closing option bracket")
+            gap.present /\ ~gap.closed? detailed? .details:issues.add(details,source,gap.start,gap.stop,"Inferred a closing option bracket",fonts)
+            gap.present? .position:gap.stop
+            .kind:"break"
+            .properties:attributes(kind)&",\"gap\":"&j.quote(gap.value)
+        # Every ordinary glyph is checked against the installed generic font.
+        kind="glyph" /\ raw~="\\not" /\ hook.kind~="glyph"?
+            ~catalog.find(fonts,"math/display/"&glyph_token).found?
+                .kind:"hole"
+                .properties:attributes(kind)
+                prefix:"Unsupported symbol: "
+                text.matches(raw,0,"\\")? .prefix:"Unfinished or unsupported command: "
+                .diagnostics:repair(diagnostics,prefix&glyph_token)
+                detailed?
+                    position=text.byte_length(source) /\ packages.command_prefix(context,raw)?
+                        .details:issues.record(details,source,token_begin,position,"INCOMPLETE-COMMAND",true,"This command name is unfinished.","Continue typing the command name.")
+                    ~(position=text.byte_length(source) /\ packages.command_prefix(context,raw))? .details:issues.add(details,source,token_begin,position,prefix&glyph_token,fonts)
+            kind="glyph" /\ tokens.one_of(glyph_token,["\\ldots","\\cdots","\\ddots"])?
+                .properties:properties&",\"class\":\"inner\""
+                glyph_token="\\cdots"?
+                    dot_after:tokens.peek(source,position)
+                    extra:dots.extra(dot_after.raw)
+                    context.restricted /\ ~context.amsmath? .extra:"false"
+                    .properties:properties&",\"ellipsisExtra\":"&extra
+        kinds.(target):kind
+        kind="sizedglyph"? kinds.(target):"glyph"
+        attrs.(target):properties
+        matrix_start?
+            rows_root:count
+            row_node:count+1
+            .count:count+2
+            a.(target):rows_root
+            b.(target):0
+            kinds.(rows_root):"matrix"
+            matrix_shorthand? kinds.(rows_root):"matrixBrace"
+            attrs.(rows_root):environment_name
+            first.(rows_root):row_node
+            last.(rows_root):row_node
+            kinds.(row_node):"row"
+            task_mode.(top):6
+            task_node.(top):target
+            task_depth.(top):depth
+            task_origin.(top):token_begin
+            task_stop.(top):"start"
+            .top:top+1
+            @>
+        arity>0?
+            body:count
+            .count:count+1
+            kinds.(body):"list"
+            a.(target):body
+            kind="arrow"?
+                a.(target): -1
+                sup.(target):body
+            close_stop~=""?
+                task_mode.(top):4
+                task_node.(top):target
+                task_depth.(top):depth
+                task_origin.(top):token_begin
+                task_stop.(top):close_stop
+                .top:top+1
+            arity=2?
+                denominator:count
+                .count:count+1
+                kinds.(denominator):"list"
+                b.(target):denominator
+                stacked?
+                    a.(target):denominator
+                    b.(target): -1
+                    sup.(target):body
+                    raw="\\underset"?
+                        sup.(target): -1
+                        sub.(target):body
+                task_mode.(top):2
+                task_node.(top):denominator
+                task_depth.(top):depth
+                task_origin.(top):token_begin
+                .top:top+1
+            ~strut /\ ~empty_body?
+                task_mode.(top):2
+                task_node.(top):body
+                task_depth.(top):depth
+                task_origin.(top):token_begin
+                body_stop~=""?
+                    task_mode.(top):0
+                    task_stop.(top):body_stop
+                    task_depth.(top):depth+1
+                    task_origin.(top):token_begin
+                .top:top+1
+            strut?
+                kinds.(count):"glyph"
+                attrs.(count):glyph("(")
+                first.(body):count
+                last.(body):count
+                .count:count+1
+            integral_dots?
+                kinds.(count):"space"
+                attrs.(count):attributes("space")&",\"mu\":-3"
+                kinds.(count+1):"glyph"
+                attrs.(count+1):glyph("\\cdots")&",\"class\":\"inner\",\"ellipsisExtra\":false"
+                first.(body):count
+                last.(body):count+1
+                nexts.(count):count+1
+                .count:count+2
+            unit_command?
+                task_mode.(top):8
+                task_node.(top):body
+                task_depth.(top):0
+                task_origin.(top):token_begin
+                task_index.(top):1
+                task_limit.(top):text.byte_length(import_source)-1
+                .top:top+1
+            optional_index?
+                index_list:count
+                .count:count+1
+                kinds.(index_list):"list"
+                b.(target):index_list
+                kind="arrow"?
+                    b.(target): -1
+                    sub.(target):index_list
+                task_mode.(top):4
+                task_node.(top):index_list
+                task_depth.(top):depth
+                task_origin.(top):token_begin
+                task_stop.(top):"]"
+                task_mode.(top+1):0
+                task_node.(top+1):index_list
+                task_depth.(top+1):depth+1
+                task_origin.(top+1):token_begin
+                task_stop.(top+1):"]"
+                .top:top+2
+    @:(arena:(kinds:kinds,attrs:attrs,first:first,last:last,nexts:nexts,a:a,b:b,sup:sup,sub:sub,limits:limits,count:count,diagnostics:diagnostics,atoms:atoms),issues:details)
+
+node_json(arena:Arena,node:int)->str:
+    kind:arena.kinds.(node)
+    result:"{"&arena.attrs.(node)
+    (kind="frac" \/ kind="quotient")?
+        .result:result&",\"num\":"&list_json(arena,arena.a.(node))&",\"den\":"&list_json(arena,arena.b.(node))
+    arena.a.(node)>=0 /\ kind~="frac" /\ kind~="quotient" /\ kind~="matrix"? .result:result&",\"children\":"&list_json(arena,arena.a.(node))
+    kind="matrix"? .result:result&matrix_json(arena,node)
+    kind="radical"?
+        index:"null"
+        arena.b.(node)>=0? .index:list_json(arena,arena.b.(node))
+        .result:result&",\"index\":"&index
+    arena.sup.(node)>=0? .result:result&",\"sup\":"&list_json(arena,arena.sup.(node))
+    arena.sub.(node)>=0? .result:result&",\"sub\":"&list_json(arena,arena.sub.(node))
+    kind="arrow" /\ arena.sub.(node)<0? .result:result&",\"sub\":null"
+    arena.limits.(node)>=0?
+        flag:"false"
+        arena.limits.(node)=1? .flag:"true"
+        .result:result&",\"limits\":"&flag
+    @:result&"}"
+
+matrix_json(arena:Arena,node:int)->str:
+    firsts:arena.first
+    nexts:arena.nexts
+    arguments:arena.a
+    attrs:arena.attrs
+    limits:arena.limits
+    root:arguments.(node)
+    row:firsts.(root)
+    capacity:16
+    row_parts:chunks.empty(capacity)
+    gap_parts:chunks.empty(capacity)
+    row_count:0
+    gap_count:0
+    row>=0?>
+        row_count=capacity?
+            .row_parts:row_parts&chunks.empty(capacity)
+            .gap_parts:gap_parts&chunks.empty(capacity)
+            .capacity:capacity*2
+        cell:firsts.(row)
+        cell_parts:chunks.empty(16)
+        cell_capacity:16
+        cell_count:0
+        cell>=0?>
+            cell_count=cell_capacity?
+                .cell_parts:cell_parts&chunks.empty(cell_capacity)
+                .cell_capacity:cell_capacity*2
+            cell_prefix:""
+            cell_count>0? .cell_prefix:","
+            cell_parts.(cell_count):cell_prefix&list_json(arena,cell)
+            .cell_count:cell_count+1
+            .cell:nexts.(cell)
+        row_prefix:""
+        row_count>0? .row_prefix:","
+        row_parts.(row_count):row_prefix&"["&chunks.join(cell_parts,0,cell_count)&"]"
+        limits.(row)=1?
+            gap_prefix:""
+            gap_count>0? .gap_prefix:","
+            gap_parts.(gap_count):gap_prefix&attrs.(row)
+            .gap_count:gap_count+1
+        .row_count:row_count+1
+        .row:nexts.(row)
+    rule:arguments.(root)
+    rule_parts:chunks.empty(16)
+    rule_capacity:16
+    rule_count:0
+    rule>=0?>
+        rule_count=rule_capacity?
+            .rule_parts:rule_parts&chunks.empty(rule_capacity)
+            .rule_capacity:rule_capacity*2
+        rule_prefix:""
+        rule_count>0? .rule_prefix:","
+        rule_parts.(rule_count):rule_prefix&attrs.(rule)
+        .rule_count:rule_count+1
+        .rule:nexts.(rule)
+    @:",\"rows\":["&chunks.join(row_parts,0,row_count)&"],\"rowGaps\":["&chunks.join(gap_parts,0,gap_count)&"],\"rules\":["&chunks.join(rule_parts,0,rule_count)&"]"
+
+list_json(arena:Arena,list:int)->str:
+    node:arena.first.(list)
+    parts:chunks.empty(32)
+    capacity:32
+    count:0
+    node>=0?>
+        count=capacity?
+            .parts:parts&chunks.empty(capacity)
+            .capacity:capacity*2
+        prefix:""
+        count>0? .prefix:","
+        parts.(count):prefix&node_json(arena,node)
+        .count:count+1
+        .node:arena.nexts.(node)
+    @:"["&chunks.join(parts,0,count)&"]"
+
+json(arena:Arena)->str:
+    @:"{\"nodes\":"&list_json(arena,0)&",\"diagnostics\":["&arena.diagnostics&"],\"atoms\":"&text.integer(arena.atoms)&"}"
+
+# Structured diagnostics are separate from preview's compatibility messages.
+diagnose(source:str,fonts:Catalog,native:bit=true,source_name:str="<math>")->str:
+    @:diagnose_with_context(source,fonts,packages.defaults(),native,source_name)
+
+diagnose_with_context(source:str,fonts:Catalog,context:Context,native:bit=true,source_name:str="<math>")->str:
+    position:0
+    units:0
+    ~vkf_string_eof(source,position)?>
+        step:text.next(source,position)-position
+        .units:units+1
+        step=4? .units:units+1
+        units>12000?
+            detail:issues.record("",source,position,position+step,"LIMIT",false,"The expression exceeds the engine's 12,000 UTF-16-unit limit.","Split this expression into smaller expressions.")
+            @:issues.report(detail,"Expression limit",source_name)
+        .position:position+step
+    result:analyze_with_context(source,fonts,context,native)
+    @:issues.report(result.issues,result.arena.diagnostics,source_name)

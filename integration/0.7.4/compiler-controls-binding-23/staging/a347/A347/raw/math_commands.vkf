@@ -1,0 +1,52 @@
+# Keep command construction in a small frame. Intermediate persistent updates
+# belong to one append, rather than remaining in the full layout traversal.
+pages:.math_command_pages
+metadata:.math_metadata
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Buffer:(heads:[[int]],tails:[[int]],boxes:int,nexts:[[int]],children:[[int]],pool:Pool,payload_ids:[[int]],xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int)
+
+empty(boxes:int)->Buffer:
+    @:(heads:pages.integers((boxes+pages.width()-1)//pages.width()),tails:pages.integers((boxes+pages.width()-1)//pages.width()),boxes:boxes,nexts:pages.integers(1),children:pages.integers(1),pool:metadata.empty(),payload_ids:pages.integers(1),xs:pages.numbers(1),ys:pages.numbers(1),flow:pages.booleans(1),flow_x:pages.numbers(1),flow_width:pages.numbers(1),count:0)
+
+append(buffer:Buffer,owner:int,child:int= -1,value:str="",x:num=0,y:num=0,flow:bit=false,flowX:num=0,flowWidth:num=0)->Buffer:
+    heads:buffer.heads
+    tails:buffer.tails
+    nexts:buffer.nexts
+    children:buffer.children
+    pool:buffer.pool
+    ids:buffer.payload_ids
+    px:buffer.xs
+    py:buffer.ys
+    flags:buffer.flow
+    fx:buffer.flow_x
+    fw:buffer.flow_width
+    count:buffer.count
+    (owner>=0 /\ owner<buffer.boxes)?! "Invalid command owner"
+    count>=ids.length()*pages.width()?
+        .nexts:pages.grow_integers(nexts)
+        .children:pages.grow_integers(children)
+        .ids:pages.grow_integers(ids)
+        .px:pages.grow_numbers(px)
+        .py:pages.grow_numbers(py)
+        .flags:pages.grow_booleans(flags)
+        .fx:pages.grow_numbers(fx)
+        .fw:pages.grow_numbers(fw)
+    row:count//pages.width()
+    column:count%pages.width()
+    children.(row,column):child
+    payload_id: -1
+    value~=""?
+        entry:metadata.intern(pool,value)
+        .pool:entry.pool
+        .payload_id:entry.id
+    ids.(row,column):payload_id
+    px.(row,column):x
+    py.(row,column):y
+    flags.(row,column):flow
+    fx.(row,column):flowX
+    fw.(row,column):flowWidth
+    prior:pages.integer(tails,owner)
+    prior>=0? nexts.(prior//pages.width(),prior%pages.width()):count
+    pages.integer(heads,owner)<0? heads.(owner//pages.width(),owner%pages.width()):count
+    tails.(owner//pages.width(),owner%pages.width()):count
+    @:(heads:heads,tails:tails,boxes:buffer.boxes,nexts:nexts,children:children,pool:pool,payload_ids:ids,xs:px,ys:py,flow:flags,flow_x:fx,flow_width:fw,count:count+1)

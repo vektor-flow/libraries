@@ -1,0 +1,48 @@
+--- a/examples/gpu-math/native-vkf/latex.vkf
++++ b/examples/gpu-math/native-vkf/latex.vkf
+@@ -39,3 +39,8 @@
+ 
+ math_owned(source:str,resources:Resources,options:FragmentOptions,scope:str)->Fragment:
+     @:library.math_owned(source,resources,options,scope)
++
++# Source-only overload; legacy positional resource overload above is unchanged.
++# Selected/editable output and destination publication remain explicit errors.
++tex2pdf(source:str,dest:str="",selectable:bit=true,editable:bit=false,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true):
++    @:library.tex2pdf_named(source,dest,selectable,editable,files_json,job,entry,include_layout)
+--- a/examples/gpu-math/native-vkf/latex_library.vkf
++++ b/examples/gpu-math/native-vkf/latex_library.vkf
+@@ -76,3 +76,11 @@
+ # for the synthetic delimiters (host mathEntry validates this before invocation).
+ math_owned(source:str,resources:Resources,options:FragmentOptions,scope:str)->Fragment:
+     @:text_owned("\$"&source&"\$",resources,options,scope)
++
++# Installation-bound default resources; no caller resource quartet is required.
++latex_default_resources:.latex_default_resources
++tex2pdf_named(source:str,dest:str="",selectable:bit=true,editable:bit=false,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true):
++    (dest="")?! "latex.tex2pdf: atomic destination publication is not implemented"
++    (~(selectable \/ editable))?! "latex.tex2pdf: authenticated selectable/editable output is not implemented"
++    resources:latex_default_resources.load()
++    @:tex2pdf(source,resources.fonts,resources.operators,resources.ordered_roles,resources.language,files_json,job,entry,include_layout)
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/latex_default_resources.vkf
+@@ -0,0 +1,20 @@
++# Generated installation binding from resource-binding.json; NOT portable.
++# Root must verify pinned resource bytes before/after native execution.
++# No missing/corrupt resource fallback and no project/source defaults.
++io:.io
++font_catalog:.font_catalog
++hyphenation:.hyphenation
++text_parser_kernel:.text_parser_kernel
++tex_text:.tex_text
++Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
++Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
++DocumentResources:(fonts:Catalog,operators:str,ordered_roles:[str],language:Language,resource_revision:str)
++load()->DocumentResources:
++    fonts:font_catalog.load(io.read_text("/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/b95d5f5e476473ec7571004dfb68a49e9173c28429c1d6564223691a08dc3236-catalog.vkfont"))
++    operators:io.read_text("/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/9813ddbf0d907eedcf7a6aa8d486228e3580f31f7c7f4eea1748b2d37ba21b55-operators.txt")
++    language:hyphenation.load(io.read_text("/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen"))
++    (fonts.size=11866638)?! "latex.tex2pdf: default font resource length mismatch"
++    (tex_text.byte_length(operators)=9197368)?! "latex.tex2pdf: default operator resource length mismatch"
++    (language.size=228922)?! "latex.tex2pdf: default language resource length mismatch"
++    ordered_roles:text_parser_kernel.roles("[\"roman\", \"bold\", \"italic\", \"mono\", \"sans\", \"slanted\", \"smallcaps\", \"section\", \"subsection\", \"subsubsection\", \"title\", \"author\", \"small\", \"smallbold\", \"footnote\", \"footnotemono\", \"footnotemark\", \"titlemark\", \"notemark\", \"header\", \"abstract\", \"abstractHeading\", \"footnoteitalic\", \"footnotebold\"]")
++    @:(fonts:fonts,operators:operators,ordered_roles:ordered_roles,language:language,resource_revision:"sha256:1c3a7cd46514d05206aa0e5492ba46fb008976d588feb8dcc01b6f3d7c7b8aca")

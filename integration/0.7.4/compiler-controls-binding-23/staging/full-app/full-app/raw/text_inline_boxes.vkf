@@ -1,0 +1,94 @@
+meta:.scene_metadata
+metadata_json:.scene_metadata_json
+j:.resource_json
+scene_store:.paragraph_scene_store
+scene_legacy:.paragraph_scene_legacy
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Store:(arena:Arena,firsts:[int],counts:[int],anchor_firsts:[int],anchor_counts:[int],anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int,widths:[num],heights:[num],depths:[num],tag_widths:[num],inline_destinations:[bit],count:int)
+# Provider-owned native/math nodes. Scenes remain opaque until document assembly.
+# kind 5 is a resolved empty operation; all other kinds match paragraph_breaking.
+p:.paragraph_breaking
+chunks:.text_chunks
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:Store,scene_ids:[int],scene_metadata:Metadata,scene_roots:[int],diagnostics:[str],count:int)
+empty(capacity:int=1)->Provider:
+    @:(operation_ids:p.ints(capacity),kinds:p.ints(capacity),widths:p.nums(capacity),stretches:p.nums(capacity),shrinks:p.nums(capacity),heights:p.nums(capacity),depths:p.nums(capacity),italics:p.nums(capacity),breakable:p.bits(capacity),flagged:p.bits(capacity),penalties:p.ints(capacity),scenes:scene_store.empty(),scene_ids:[-1:capacity],scene_metadata:meta.empty(),scene_roots:[-1:capacity],diagnostics:chunks.empty(capacity),count:0)
+append(input:Provider,operation:int,kind:int,width:num=0,height:num=0,depth:num=0,italic:num=0,scene:str="",diagnostics:str="",stretch:num=0,shrink:num=0,breakable:bit=false,penalty:int=0,flagged:bit=false)->Provider:
+    value:scene_store.empty_scene()
+    metadata:meta.empty()
+    scene~=""?
+        .value:scene_legacy.import_scene(scene)
+        .metadata:metadata_json.import_node(j.parse(scene),0)
+    @:append_typed(input,operation,kind,value,width,height,depth,italic,diagnostics,stretch,shrink,breakable,penalty,flagged,scene~="",metadata)
+append_typed(input:Provider,operation:int,kind:int,scene:Scene,width:num=0,height:num=0,depth:num=0,italic:num=0,diagnostics:str="",stretch:num=0,shrink:num=0,breakable:bit=false,penalty:int=0,flagged:bit=false,scene_present:bit=true,metadata:Metadata=meta.empty())->Provider:
+    out:input
+    count:input.count
+    ids:input.operation_ids
+    kinds:input.kinds
+    widths:input.widths
+    stretches:input.stretches
+    shrinks:input.shrinks
+    heights:input.heights
+    depths:input.depths
+    italics:input.italics
+    breaks:input.breakable
+    flags:input.flagged
+    penalties:input.penalties
+    scenes:input.scenes
+    scene_ids:input.scene_ids
+    scene_roots:input.scene_roots
+    scene_metadata:input.scene_metadata
+    messages:input.diagnostics
+    count>=ids.length()?
+        size:ids.length()+1
+        .ids:ids&p.ints(size)
+        .kinds:kinds&p.ints(size)
+        .widths:widths&p.nums(size)
+        .stretches:stretches&p.nums(size)
+        .shrinks:shrinks&p.nums(size)
+        .heights:heights&p.nums(size)
+        .depths:depths&p.nums(size)
+        .italics:italics&p.nums(size)
+        .breaks:breaks&p.bits(size)
+        .flags:flags&p.bits(size)
+        .penalties:penalties&p.ints(size)
+        .scene_ids:scene_ids&[-1:size]
+        .scene_roots:scene_roots&[-1:size]
+        .messages:messages&chunks.empty(size)
+    ids.(count):operation
+    kinds.(count):kind
+    widths.(count):width
+    stretches.(count):stretch
+    shrinks.(count):shrink
+    heights.(count):height
+    depths.(count):depth
+    italics.(count):italic
+    breaks.(count):breakable
+    flags.(count):flagged
+    penalties.(count):penalty
+    scene_roots.(count): -1
+    scene_ids.(count): -1
+    scene_present?
+        scene_ids.(count):scenes.count
+        .scenes:scene_store.append(scenes,scene)
+        metadata.count>0?
+            scene_roots.(count):scene_metadata.count
+            .scene_metadata:meta.append(scene_metadata,metadata)
+    messages.(count):diagnostics
+    @:(operation_ids:ids,kinds:kinds,widths:widths,stretches:stretches,shrinks:shrinks,heights:heights,depths:depths,italics:italics,breakable:breaks,flagged:flags,penalties:penalties,scenes:scenes,scene_ids:scene_ids,scene_metadata:scene_metadata,scene_roots:scene_roots,diagnostics:messages,count:count+1)
+
+# Absent scene is distinct from a present empty scene. No JSON on this path.
+scene_at(input:Provider,index:int)->Scene:
+    (index>=0 /\ index<input.count)?! "Invalid provider index"
+    id:input.scene_ids.(index)
+    id<0? @:scene_store.empty_scene()
+    @:scene_store.get(input.scenes,id)
+
+# Explicit import envelope is typed, preserving all public scene fields/order.
+metadata_at(input:Provider,index:int)->Metadata:
+    (index>=0 /\ index<input.count)?! "Invalid provider index"
+    @:meta.subtree(input.scene_metadata,input.scene_roots.(index))

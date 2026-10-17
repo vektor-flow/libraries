@@ -1,0 +1,107 @@
+# Tag shaping is independent of equation counters and document references.
+math_text:.math_text_layout
+assembly:.math_assembly
+commands:.math_commands
+parser:.math_parser
+glyphs:.math_glyphs
+text:.tex_text
+chunks:.text_chunks
+j:.resource_json
+numbers:.json_numbers
+tex:.tex_numeric
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Arena:(kinds:[str],attrs:[str],first:[int],last:[int],nexts:[int],a:[int],b:[int],sup:[int],sub:[int],limits:[int],count:int,diagnostics:str,atoms:int)
+Run:(width:num,height:num,depth:num,payload:[str],xs:[num],ys:[num],count:int,diagnostics:str)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Buffer:(heads:[[int]],tails:[[int]],boxes:int,nexts:[[int]],children:[[int]],pool:Pool,payload_ids:[[int]],xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int)
+
+zeros(size:int)->[num]:[0.0:size]
+
+reference(arena:Arena,node:int)->str:
+    firsts:arena.first
+    arguments:arena.a
+    nexts:arena.nexts
+    attrs:arena.attrs
+    list:arguments.(node)
+    list<0? @:""
+    child:firsts.(list)
+    result:""
+    child>=0?>
+        data:j.parse("{"&attrs.(child)&"}")
+        char:j.member(data,0,"char")
+        char>=0? .result:result&j.string(data,char)
+        char<0? .result:result&glyphs.string(data,"token")
+        .child:nexts.(child)
+    @:result
+
+from_node(arena:Arena,node:int,fonts:Catalog,style:int,active_font:str="",color:str="null")->Run:
+    arguments:arena.a
+    attrs:arena.attrs
+    body:math_text.layout(arena,arguments.(node),fonts,style,active_font,color)
+    properties:j.parse("{"&attrs.(node)&"}")
+    star:j.member(properties,0,"star")
+    star>=0?
+        kinds:properties.kinds
+        kinds.(star)=5? @:body
+    left:assembly.delimiter(fonts,"(",style,0,active_font)
+    right:assembly.delimiter(fonts,")",style,0,active_font)
+    payload:chunks.empty(body.count+left.count+right.count)
+    xs:zeros(body.count+left.count+right.count)
+    ys:zeros(body.count+left.count+right.count)
+    keys_left:left.keys
+    keys_right:right.keys
+    lx:left.xs
+    ly:left.ys
+    rx:right.xs
+    ry:right.ys
+    body_payload:body.payload
+    bx:body.xs
+    by:body.ys
+    count:0
+    left_index:0
+    left_index<left.count?>
+        value:math_text.glyph_payload(keys_left.(left_index),color)
+        left.placeholder? .value:math_text.hole_payload(left.width,color)
+        payload.(count):value
+        xs.(count):lx.(left_index)
+        ys.(count):ly.(left_index)
+        .count:count+1
+        .left_index:left_index+1
+    body_index:0
+    body_index<body.count?>
+        payload.(count):body_payload.(body_index)
+        xs.(count):left.width+bx.(body_index)
+        ys.(count):by.(body_index)
+        .count:count+1
+        .body_index:body_index+1
+    right_index:0
+    right_index<right.count?>
+        value:math_text.glyph_payload(keys_right.(right_index),color)
+        right.placeholder? .value:math_text.hole_payload(right.width,color)
+        payload.(count):value
+        xs.(count):left.width+body.width+rx.(right_index)
+        ys.(count):ry.(right_index)
+        .count:count+1
+        .right_index:right_index+1
+    diagnostics:body.diagnostics
+    left.diagnostic~=""? .diagnostics:parser.repair(diagnostics,left.diagnostic)
+    right.diagnostic~=""? .diagnostics:parser.repair(diagnostics,right.diagnostic)
+    @:(width:left.width+body.width+right.width,height:tex.maximum(left.height,tex.maximum(body.height,right.height)),depth:tex.maximum(left.depth,tex.maximum(body.depth,right.depth)),payload:payload,xs:xs,ys:ys,count:count,diagnostics:diagnostics)
+
+generated(number:int,fonts:Catalog,style:int,active_font:str="",color:str="null")->Run:
+    arena:parser.parse("\\tag{"&text.integer(number)&"}",fonts)
+    firsts:arena.first
+    @:from_node(arena,firsts.(0),fonts,style,active_font,color)
+
+emit(buffer:Buffer,owner:int,run:Run,x:num=0,y:num=0,equation:bit=false)->Buffer:
+    out:buffer
+    payload:run.payload
+    xs:run.xs
+    ys:run.ys
+    suffix:""
+    equation? .suffix:",\"equationTag\":true,\"tagWidth\":"&numbers.roundtrip(run.width)
+    index:0
+    index<run.count?>
+        .out:commands.append(out,owner, -1,payload.(index)&suffix,x+xs.(index),y+ys.(index))
+        .index:index+1
+    @:out

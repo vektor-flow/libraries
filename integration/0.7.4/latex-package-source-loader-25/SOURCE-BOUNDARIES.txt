@@ -1,0 +1,51 @@
+Read-only installed sources, no TeX or package manager execution.
+Exact files, sizes, hashes, version declarations, license evidence and first
+boundary UTF-8 offsets/lines: installed-sources.json. dpkg versions separately
+recorded; file hashes/version declarations are authoritative for these inputs.
+latex.ltx 2025-11-01 patch 0; amsmath 2025/07/09 v2.17z;
+xcolor 2024/09/29 v3.02. Representative examples, not user-named requirements.
+Kernel/amsmath headers name LPPL 1.3c-or-later; xcolor generated header delegates
+to xcolor.dtx, not installed here. Distribution copyright + local lppl.tex pinned.
+No full packages copied/relicensed/distributed or claim that missing source exists.
+
+FIRST EXECUTABLE / STATE BOUNDARIES
+latex.ltx:98 begins \ifnum\catcode`\{=1. This intentionally checks the initex
+category state before setting brace catcodes. Current expander has no ifnum,
+integer scanner, mutable category-code table or initex bootstrap. The kernel
+must not simply be prepended to an already formatted document environment.
+Later \let\bgroup={ illustrates token-meaning assignment, not text aliasing.
+
+amsmath.sty:24 first invokes \NeedsTeXFormat; format/version/release/package
+kernel services must already exist. Even if those are supplied, line30
+\edef\@temp{\catcode 96=\number\catcode 96 } requires expansion-time numeric
+catcode reads, stable replacement tokens and later restoration. Implementing
+only a name 'edef' cannot make this safe. Later \catcode/\string/\noexpand,
+AtEndOfPackage, option conditionals and registers need stateful interpretation.
+
+xcolor.sty:24 first invokes \ProvidesPackage. After version/release guards,
+line52 \expandafter\edef\csname XC@catcodes\endcsname builds a control sequence
+name and eagerly snapshots category codes. Its ^^A category manipulation also
+requires TeX input translation before tokenization. Fixed ASCII+@ name scanning
+or stripping comments once at load time cannot reproduce this behavior.
+
+EXISTING SHARED SOURCE (pinned in input-pins.json)
+tex_text.letter treats @ as a letter unconditionally; tex_groups.control scans
+strings with that fixed predicate. There is no dynamic catcode/mouth/token ABI.
+tex_source.strip_comments strips under one fixed lexical model, before expansion.
+tex_macros.expand begins with that stripped string and a fresh definitions table.
+newcommand and renewcommand use the same define path, without existence rules;
+def/gdef/xdef take the same branch, with no eager xdef expansion or group restore.
+let stores spelling as a zero-argument macro rather than the original meaning.
+ifx compares argument spellings. parameter_count only obtains maximum # digit;
+delimited argument scanning and retained token identities are absent.
+These observations concern compatibility, not a request to rewrite the release.
+tex_definitions stores bodies/defaults in concatenated string storage, no token
+catcodes or definition origins. Substitution can add synthetic separating spaces.
+document_project eagerly expands input/include into strings with inserted newlines;
+it remembers input names, not per-token include/call/definition ancestry.
+tex_frontend.prepare resolves then expands strings and exposes no expansion map.
+frontend_kernel exports that same path. document_blocks records usepackage,
+RequirePackage and documentclass metadata; it is not a package program evaluator.
+
+No installed package was evaluated. The new exact-byte envelope is deliberately
+separate until the streaming token/state interface can preserve these semantics.

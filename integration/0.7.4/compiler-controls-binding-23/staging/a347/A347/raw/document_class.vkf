@@ -1,0 +1,113 @@
+# Native class configuration ports the existing article/amsart module rules.
+# These are reusable class defaults and formulas, never article geometry.
+class_data:.document_class_data
+tex_text:.tex_text
+tex_numeric:.tex_numeric
+json_numbers:.json_numbers
+resource_json:.resource_json
+text_chunks:.text_chunks
+resource_numbers:.resource_numbers
+Result:(config:str,overrides:[str],diagnostics:str,complete:bit)
+has(options:[str],wanted:str)->bit:
+    index:0
+    index<options.length()?>
+        options.(index)=wanted? @:true
+        .index:index+1
+    @:false
+field(name:str,value:num)->str:resource_json.quote(name)&":"&json_numbers.roundtrip(value)
+object(fields:[str])->str:"{"&text_chunks.join(fields,0,fields.length())&"}"
+json_strings(values:[str])->str:
+    parts:text_chunks.empty(values.length())
+    index:0
+    index<values.length()?>
+        prefix:""
+        index>0? .prefix:","
+        parts.(index):prefix&resource_json.quote(values.(index))
+        .index:index+1
+    @:"["&text_chunks.join(parts,0,index)&"]"
+size_option(option:str)->bit:
+    length:tex_text.byte_length(option)
+    length<3? @:false
+    tex_text.span(option,length-2,length)~="pt"? @:false
+    index:0
+    index<length-2?>
+        c:tex_text.at(option,index)
+        (c<"0" \/ c>"9")? @:false
+        .index:index+1
+    @:true
+allowed_options(name:str)->[str]:
+    name="amsart"? @:["8pt","9pt","10pt","11pt","12pt","a4paper","letterpaper","draft","final","oneside","twoside"]
+    @:["10pt","11pt","12pt","a4paper","letterpaper","draft","final","oneside"]
+configure(name:str,options:[str])->Result:
+    diagnostics:""
+    overrides:text_chunks.empty(0)
+    (name~="article" /\ name~="amsart")?
+        @:(config:"{}",overrides:overrides,diagnostics:resource_json.quote("Unsupported document class: "&name),complete:false)
+    allowed:allowed_options(name)
+    index:0
+    index<options.length()?>
+        ~has(allowed,options.(index))?
+            diagnostics~=""? .diagnostics:diagnostics&","
+            .diagnostics:diagnostics&resource_json.quote("Unsupported "&name&" option: "&options.(index))
+        .index:index+1
+    pt:tex_numeric.pt()
+    a4:has(options,"a4paper")
+    letter:has(options,"letterpaper")
+    paper_width:612.0
+    paper_height:792.0
+    a4?
+        .paper_width:210*72/25.4
+        .paper_height:297*72/25.4
+    size:10.0
+    has(options,"11pt")? .size:11
+    has(options,"12pt")? .size:12
+    name="article"?
+        actual_width:612.0
+        actual_height:792.0
+        ~letter?
+            .actual_width:210*72/25.4
+            .actual_height:297*72/25.4
+        left:72+62*pt
+        a4? .left:(210*72/25.4-345*pt)/2
+        article_config:object([
+            field("logicalPaperWidth",paper_width)&",",field("logicalPaperHeight",paper_height)&",",
+            field("fontSize",size*pt)&",",field("paperWidth",actual_width)&",",field("paperHeight",actual_height)&",",
+            field("textWidth",345*pt)&",",field("textHeight",550*pt)&",",field("left",left)&",",field("top",72+53*pt)&",",
+            field("paragraphIndent",15*pt)&",",field("lineHeight",12*pt)&",",
+            "\"section\":"&object([field("scale",1.44)&",",field("before",3.5*4.30554*pt)&",",field("after",2.3*4.30554*pt)])&",",
+            "\"subsection\":"&object([field("scale",1.2)&",",field("before",3.25*4.30554*pt)&",",field("after",1.5*4.30554*pt)])])
+        @:(config:article_config,overrides:overrides,diagnostics:diagnostics,complete:diagnostics="")
+    .size:10
+    .index:0
+    index<options.length()?>
+        option:options.(index)
+        size_option(option)?
+            .size:resource_numbers.parse(tex_text.span(option,0,tex_text.byte_length(option)-2))
+            @|
+        .index:index+1
+    native_size:size
+    size=11? .native_size:10.95
+    full_height:50.5*12*pt
+    a4? .full_height:54.5*12*pt
+    leading:(size+2)*pt
+    .overrides:class_data.ams_exceptions()
+    config:object([
+        field("lineSkipLimit",pt)&",",field("lineSkip",pt)&",",field("mathJot",0.25*leading)&",",field("maxDepth",4*pt)&",",
+        "\"penalties\":{\"club\":10000,\"widow\":10000,\"broken\":10000},",
+        "\"hyphenationExceptions\":"&json_strings(overrides)&",",
+        "\"fontProfile\":"&resource_json.quote("amsart-"&tex_text.integer(int(size)))&",",
+        field("fontSize",native_size*pt)&",",field("paperWidth",paper_width)&",",field("paperHeight",paper_height)&",",
+        field("logicalPaperWidth",paper_width)&",",field("logicalPaperHeight",paper_height)&",",
+        field("textWidth",360*pt)&",",field("textHeight",full_height-22*pt)&",",
+        field("left",tex_numeric.maximum(36,(paper_width-360*pt)/2))&",",
+        field("top",tex_numeric.maximum(36,(paper_height-full_height)/2)+22*pt)&",",
+        field("paragraphIndent",12*pt)&",",field("lineHeight",leading)&",",
+        "\"title\":"&object([field("spaceScale",1.3)&",",field("firstBaseline",42*pt)&",",field("lineHeight",leading)&",",field("after",30*pt-10*pt)])&",",
+        "\"author\":"&object([field("lineHeight",12*pt)&",",field("after",20*pt)])&",",
+        "\"section\":"&object([field("before",0.7*leading)&",",field("after",0.5*leading)&",",field("lineHeight",leading)&",","\"align\":\"center\""])&",",
+        "\"subsection\":"&object([field("before",0.5*leading)&",",field("after",0)&",",field("lineHeight",leading)&",","\"runIn\":true"])&",",
+        "\"subsubsection\":"&object([field("before",0.5*leading)&",",field("after",0)&",",field("lineHeight",leading)&",","\"runIn\":true"])&",",
+        "\"abstract\":"&object([field("margin",36*pt)&",",field("lineHeight",12*pt)&",","\"font\":\"abstract\""])&",",
+        field("bibItemSep",0)&",",field("displaySkip",0.35*leading)&",",field("shortDisplaySkip",0.175*leading)&",",
+        field("footnoteLeading",12*pt)&",",field("footnoteSkip",7*pt)&",",field("footerOffset",12*pt)&",",field("headerOffset",14*pt)])
+    @:(config:config,overrides:overrides,diagnostics:diagnostics,complete:diagnostics="")

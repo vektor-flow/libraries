@@ -1,0 +1,22 @@
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/latex_render_result.vkf
+@@ -0,0 +1,19 @@
++# Internal legacy typed transport. Independent module; old render is unchanged.
++# Encode the exact document produced by this single layout invocation.
++# No provenance authentication, selection encoder, destination or publication.
++document_materialize:.document_materialize
++document_pdf_bulk:.document_pdf_bulk
++Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
++Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
++Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
++Paint:(red:num,green:num,blue:num,alpha:num)
++Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
++Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
++PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
++Result:(layout_json:str,diagnostics:str,unresolved_json:str,complete:bit,block_count:int,page_count:int,document:PageDocument)
++TypedRenderResult:(pdf:str,layout:Result)
++render(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true,a261_blocks:[int]=[],a261_scopes:[str]=[],a261_texts:[str]=[],a263_kinds:[str]=[],a267_notes:[int]=[],a267_scopes:[str]=[],a267_texts:[str]=[],a267_kinds:[str]=[])->TypedRenderResult:
++    result:document_materialize.layout(source,fonts,ordered_roles,language,files_json,job,entry,include_layout,a261_blocks,a261_scopes,a261_texts,a263_kinds,a267_notes,a267_scopes,a267_texts,a267_kinds)
++    pdf:""
++    result.complete? .pdf:document_pdf_bulk.encode(result.document,fonts,operators)
++    @:(pdf:pdf,layout:result)

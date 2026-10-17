@@ -1,0 +1,33 @@
+# Source-owned counters/references/destinations; no document or layout cache.
+math_metadata:.math_metadata
+math_references:.math_references
+resource_numbers:.resource_numbers
+tex_text:.tex_text
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Map:(keys:Pool,values:[str])
+empty()->Map:math_references.empty()
+put(map:Map,key:str,value:str)->Map:math_references.put(map,key,value)
+get(map:Map,key:str):
+    id:math_metadata.find(map.keys,key)
+    id>=0? @:(value:map.values.(id),found:true)
+    @:(value:"",found:false)
+key_count(pool:Pool)->int:pool.count
+key_value(pool:Pool,index:int)->str:pool.values.(index)
+equal(left:Map,right:Map)->bit:
+    count:key_count(left.keys)
+    count~=key_count(right.keys)? @:false
+    index:0
+    index<count?>
+        key:key_value(left.keys,index)
+        id:math_metadata.find(right.keys,key)
+        id<0? @:false
+        left.values.(index)~=right.values.(id)? @:false
+        .index:index+1
+    @:true
+increment(map:Map,key:str):
+    entry:get(map,key)
+    count:0
+    entry.found? .count:int(resource_numbers.parse(entry.value))
+    .count:count+1
+    @:(map:put(map,key,tex_text.integer(count)),count:count)
+json(map:Map)->str:math_references.json(map)

@@ -1,0 +1,93 @@
+metadata_json:.scene_metadata_json
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+scene_export:.paragraph_scene_export
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Store:(arena:Arena,firsts:[int],counts:[int],anchor_firsts:[int],anchor_counts:[int],anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int,widths:[num],heights:[num],depths:[num],tag_widths:[num],inline_destinations:[bit],count:int)
+# Reference/file output merges native scenes with ordinary glyphs in source
+# order within each line. Production page assembly may retain their references.
+j:.resource_json
+t:.tex_text
+json_numbers:.json_numbers
+chunks:.text_chunks
+paragraph_output:.text_paragraph_output
+Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_count:int,glyph_operations:[int],scenes:Store,scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int,a260_text:str,a260_starts:[int],a260_stops:[int],a272_anchor_operations:[int],a272_anchor_ids:[str],a277_anchor_scenes:[int],a280_anchor_leaves:[int],a280_anchor_slots:[int],a282_anchor_points:[int])
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Parts:(values:[str],count:int)
+add(input:Parts,value:str)->Parts:
+    values:input.values
+    count:input.count
+    count>=values.length()? .values:values&chunks.empty(values.length()+1)
+    prefix:""
+    count>0? .prefix:","
+    values.(count):prefix&value
+    @:(values:values,count:count+1)
+raw(tape:Tape,node:int)->str:
+    starts:tape.starts
+    stops:tape.stops
+    @:t.span(tape.source,starts.(node),stops.(node))
+placed(tape:Tape,node:int,x:num,y:num,line:int)->str:
+    ends:tape.ends
+    limit:ends.(node)
+    index:node+1
+    parts:(values:chunks.empty(8),count:0)
+    dx:0.0
+    dy:0.0
+    index<limit?>
+        key:j.string(tape,index)
+        key="x"? .dx:j.number(tape,index+1)
+        key="y"? .dy:j.number(tape,index+1)
+        key~="x" /\ key~="y" /\ key~="flowLine"? .parts:add(parts,raw(tape,index)&":"&raw(tape,index+1))
+        .index:ends.(index+1)
+    .parts:add(parts,"\"x\":"&json_numbers.roundtrip(x+dx))
+    .parts:add(parts,"\"y\":"&json_numbers.roundtrip(y+dy))
+    .parts:add(parts,"\"flowLine\":"&t.integer(line))
+    @:"{"&chunks.join(parts.values,0,parts.count)&"}"
+json(q:Packet,include_diagnostics:bit=true)->str:
+    keys:q.keys
+    xs:q.xs
+    ys:q.ys
+    lines:q.flow_lines
+    operations:q.glyph_operations
+    scenes:q.scenes
+    scene_xs:q.scene_xs
+    scene_ys:q.scene_ys
+    scene_lines:q.scene_lines
+    scene_operations:q.scene_operations
+    output:(values:chunks.empty(32),count:0)
+    point_destinations:(values:chunks.empty(4),count:0)
+    glyph:0
+    scene:0
+    glyph<q.glyph_count \/ scene<q.scene_count?>
+        use_scene:scene<q.scene_count
+        glyph<q.glyph_count /\ scene<q.scene_count?
+            .use_scene:scene_lines.(scene)<lines.(glyph) \/ (scene_lines.(scene)=lines.(glyph) /\ scene_operations.(scene)<=operations.(glyph))
+        use_scene?
+            scenes.inline_destinations.(scene)?
+                point:scenes.anchor_firsts.(scene)
+                stop:point+scenes.anchor_counts.(scene)
+                point<stop?>
+                    point_json:"{\"id\":"&j.quote(scenes.anchor_ids.(point))&",\"x\":"&json_numbers.roundtrip(scenes.anchor_xs.(point))&",\"y\":"&json_numbers.roundtrip(scenes.anchor_ys.(point))&"}"
+                    scenes.anchor_roots.(point)>=0? .point_json:metadata_json.encode(scenes.anchor_metadata,scenes.anchor_roots.(point))
+                    .point_destinations:add(point_destinations,point_json)
+                    .point:point+1
+            item:scenes.firsts.(scene)
+            stop:item+scenes.counts.(scene)
+            item<stop?>
+                .output:add(output,scene_export.leaf(scenes.arena,item,scene_xs.(scene),scene_ys.(scene),scene_lines.(scene)))
+                .item:item+1
+            .scene:scene+1
+            .use_scene:false
+            @>
+        .output:add(output,"{\"kind\":\"glyph\",\"key\":"&j.quote(keys.(glyph))&",\"x\":"&json_numbers.roundtrip(xs.(glyph))&",\"y\":"&json_numbers.roundtrip(ys.(glyph))&",\"flowLine\":"&t.integer(lines.(glyph))&"}")
+        .glyph:glyph+1
+    extra:""
+    point_destinations.count>0? .extra:",\"destinations\":["&chunks.join(point_destinations.values,0,point_destinations.count)&"]"
+    @:paragraph_output.json(q,"["&chunks.join(output.values,0,output.count)&"]",extra,include_diagnostics)
+
+# Retained scenes carry diagnostics separately through their provider. Keeping
+# them out of the scene's scalar-only resource parser preserves UTF-16 warnings.
+scene(q:Packet)->str:@:json(q,false)

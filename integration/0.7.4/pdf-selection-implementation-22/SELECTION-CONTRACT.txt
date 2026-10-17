@@ -1,0 +1,109 @@
+SELECTION22 v1 — concrete source proposal; no native/reader qualification
+
+Ownership and entry
+  document_pdf_bulk.encode_selected(doc:PageDocument,fonts:Catalog,operators:str,
+    plan:SelectionPlan,default_color:[num:4]=[0,0,0,1])->str
+Selection22 owns document_pdf_bulk hook, pdf_selection_plan validator,
+latex_pdf_selection host adapter, schema and tests. API21 owns public/resource/
+typed render wrappers. Same-layout contract is API21's (pdf:str,layout:Result):
+encode consumes the exact document in that Result, from ONE layout invocation.
+The proposal is unapplied; neither patch author may change the other's files.
+
+Exact schema
+SelectionPlan.schema.json exact bytes define vkf.pdf.selection-plan/1. plan-type.txt
+is the identical native structural record in bulk and pdf_selection_plan. schema
+is integer1. Offsets are UTF-8 bytes, not UTF-16 indexes. Sources retain complete
+original text including CRLF, IDs and versions. source_revision is the existing
+createSourceSnapshot digest (sha256: prefix), not an arbitrary revision echo.
+Source/group/scope/cluster arrays are dense, aligned, active-length arrays.
+Sources: source_ids/versions/texts; scopes: scope_ids/sources/bases/texts;
+groups: group_ids/sources/starts/stops; clusters: cluster_groups/scopes/operations/
+starts/stops/firsts/counts; emissions: leaf_ids/parts. References use zero-based
+indices within this plan, never inferred identities. document_id/revision come
+from the actual issued owner session. Source spans do not come from geometry.
+
+Implemented subset and boundaries
+Only complete, directly authored literal glyph clusters, kind0/draw=true. Existing
+bridge must validate every parser scope, exact operation byte span, emission part,
+group, revision, source and route. No unknown/generated leaf exemption added.
+Native validator checks direct scope/source equality on scalar boundaries, exact
+six-column agreement against doc, unique IDs/parts/operations, ordered contiguous
+leaf and authored-group coverage, and page partition. One authored source span
+per group. Each distinct scope/operation is one indivisible cluster; all its
+emission parts draw once inside ONE ActualText region. Repeated characters from
+distinct source spans remain distinct even if they share glyph keys/outlines.
+Logical text is sliced from validated authored sources, NEVER accepted as caller
+text and NEVER the whole repeated a260_texts per glyph. Unicode supplementary
+characters, authored ligatures and decomposed combining marks remain exact.
+
+A group may span pages at cluster boundaries. A cluster crossing pages refuses
+with "Cross-page cluster needs producer split map"; no whole-cluster repetition
+on each page and no empty replacement on continuation pages. Current subset
+refuses explicit expansion origins even if legacy bridge validates them, TeX
+syntax, ASCII whitespace/control, active tilde, dash/quote transformations,
+disjoint/multisource groups, and missing authored ranges. These require a real
+logical-text/expansion producer, not a broader boolean or less strict binder.
+Preserving whitespace in the original source record does NOT mean whitespace
+normalization in rendered text has been solved. Exact authored TeX selection
+for macros/math and ordinary-reader visible text are still distinct contracts.
+
+Encoder mechanics and legacy preservation
+Existing encode/encode_detail pass false plus empty selection arrays to the
+factored encode_core. Exact old core body recovered by removing the selection
+hooks is source-identical. Old record/resource/serializer code is unchanged.
+Selected mode groups already complete glyph and paint commands between page q/Q
+boundaries; existing pdf_selection.actual_text applies UTF16BE/BOM, once/cluster.
+No changed glyph bytes, geometry or paint demand order; object offsets/stream
+lengths are recalculated by the existing PDF1.7 serializer. This is source evidence,
+NOT native legacy byte equality or geometry/raster proof. Run exact original40
+legacy bytes and selected raster geometry separately. ActualText around outlines
+alone is not a claim that readers expose selectable text; ToUnicode/text-font
+fallback, source/map attachments and reader qualification remain missing.
+
+Host capability and exact byte contract
+createPdfSelectionSession(sources) internally creates the real existing bridge;
+no supplied bridge/authenticator or caller assertion can bypass it. prepare and
+documentArguments use that bridge. plan(preparation, exactLayoutResult) calls
+bridge.bindDocument; render-only objects and the enclosing {pdf,layout} object
+are rejected. A trusted adapter passes the exact .layout, after its own custody
+checks. plan issues a frozen ticket containing boundDocument and plan, registered
+privately against the preparation and current edit state. encoderArguments(ticket,
+resources) returns [same boundDocument.document,fonts,operators,same plan]; the
+native default color is implicit. It reuses bridge resource copying/guards but
+DOES NOT authenticate resource content or native handles. No separate re-layout.
+
+serializePlan(ticket) returns {schemaSha256,planSha256,byteLength,bytes}. SHA256 is
+lowercase hex. Plan bytes are the exact UTF-8 JSON buffer retained when the ticket
+is issued; serializePlan returns a copy. Schema hash covers exact bytes of
+SelectionPlan.schema.json including final newline. Transport/hash retained bytes,
+never parse/reserialize them to verify a digest. Caller mutations of returned
+copies cannot alter retained bytes. The hashes and tickets are NOT native render
+completion proof. No-op state advances invalidate tickets even with the same
+source digest; foreign preparations/tickets, clones and stale states refuse.
+
+API21 final TRANSPORT-CONTRACT.json aligns exactly: trusted renderPrepared must
+own request/completion membership, exact issued preparation identity, accepted
+resource handles, native byte buffers/lengths, exact typed transport JSON bytes,
+source/compiler/runtime pins, plan/schema digests, terminal exit and joins. Bind
+selectionPlanSchemaSha256 to schemaSha256 and selectionPlanSha256 to planSha256.
+Native structural validation cannot authenticate an arbitrary caller plan or
+prove the document came from native. Do NOT expose encode_core/encode_selected
+or the host fixture binder as a successful public selectable=true bypass.
+The private native request/completion registry/marshaller is NOT implemented here.
+Current host plan tickets prove preparation custody only and cannot publish PDFs.
+
+Indispensable dependencies before API success
+1. Actual parser/expansion/include producer emits stable owner mappings and exact
+   logical text/cluster/page-split policy. Caller-supplied mappings remain explicit
+   assertions compared to actual typed provenance, never automatic native proof.
+2. Native marshaller/same-layout transport and trusted request/completion registry
+   described above, including immutable real fonts/operators/roles/language.
+3. Standard-reader text/ToUnicode fallback and exact source/map/revision embedding;
+   Poppler/PDF.js plus actual Adobe/Edge interactive qualification as required.
+4. Separate publication owner implements guarded standalone PDF atomic commit.
+   No io.rename/fsync or save callback is invented here. Native encoder has no IO.
+
+API21 flags remain explicit refusals while dependencies are missing. Default
+selectable, editable and dest are unsupported; no API default success claimed.
+No native performance claim: scalar-boundary validation currently rescans source
+prefixes; native allocation/runtime/performance require independent qualification.

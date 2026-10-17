@@ -1,0 +1,26 @@
+{
+  "stages": [
+    {
+      "name": "selection-tests",
+      "argv": [
+        "node",
+        "--jitless",
+        "--max-old-space-size=160",
+        "--max-semi-space-size=4",
+        "--experimental-loader",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/pdf-selection-implementation-22/current-source-loader.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/pdf-selection-implementation-22/candidate/examples/gpu-math/native-vkf/host/tests/pdf-selection-plan.mjs"
+      ],
+      "pid": 180531,
+      "exit": -6,
+      "seconds": 1.3250021679559723,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    }
+  ],
+  "passed": false,
+  "all_children_joined": true,
+  "native_executed": false,
+  "child_maxrss_kib": 70540
+}

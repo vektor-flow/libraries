@@ -1,0 +1,351 @@
+# Request preparation: demand source offsets remain separate from shared runs.
+text_shaping:.text_shaping
+text_font_metrics:.text_font_metrics
+font_catalog:.font_catalog
+text_chunks:.text_chunks
+tex_text:.tex_text
+FontState:(slots:[int],keys:[str],raws:[str],names:[str],advances:[num],heights:[num],depths:[num],italics:[num],kern_starts:[int],kern_stops:[int],kern_codes:[str],kern_values:[num],kern_count:int,count:int,role_names:[str],role_ready:[int],role_sizes:[num],role_quads:[num],role_sources:[str],role_spaces:[num],role_stretches:[num],role_shrinks:[num],role_extras:[num],role_slants:[num],role_starts:[int],role_stops:[int],role_count:int,lig_first:[int],lig_second:[int],lig_result:[int],lig_count:int)
+Store:(keys:[str],xs:[num],metrics:[str],codes:[int],starts:[int],stops:[int],offsets:[int],counts:[int],widths:[num],heights:[num],depths:[num],italics:[num],atoms:[int],diagnostics:[str],count:int,glyph_count:int)
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Demand:(sources:[str],roles:[str],starts:[int],stops:[int],count:int)
+Prepared:(font_slots:[int],font_keys:[str],font_raws:[str],font_names:[str],font_advances:[num],font_heights:[num],font_depths:[num],font_italics:[num],font_kern_starts:[int],font_kern_stops:[int],font_kern_codes:[str],font_kern_values:[num],font_kern_count:int,font_count:int,font_role_names:[str],font_role_ready:[int],font_role_sizes:[num],font_role_quads:[num],font_role_sources:[str],font_role_spaces:[num],font_role_stretches:[num],font_role_shrinks:[num],font_role_extras:[num],font_role_slants:[num],font_role_starts:[int],font_role_stops:[int],font_role_count:int,font_lig_first:[int],font_lig_second:[int],font_lig_result:[int],font_lig_count:int,run_keys:[str],run_xs:[num],run_metrics:[str],run_codes:[int],run_starts:[int],run_stops:[int],run_offsets:[int],run_counts:[int],run_widths:[num],run_heights:[num],run_depths:[num],run_italics:[num],run_atoms:[int],run_diagnostics:[str],run_count:int,run_glyph_count:int,texts:[str],roles:[str],slots:[int],ids:[int],bases:[int],count:int,misses:int,hits:int)
+find(texts:[str],roles:[str],slots:[int],value:str,role:str)->int:
+    bucket:font_catalog.hash(role&"/"&value)%slots.length()
+    slots.(bucket)>0?>
+        id:slots.(bucket)-1
+        texts.(id)=value /\ roles.(id)=role? @:id
+        .bucket:(bucket+1)%slots.length()
+    @: -1
+prepare(fonts:Catalog,d:Demand)->Prepared:
+    @:prepare_with_roles(fonts,d,text_chunks.empty(0))
+# Include spacing/style-only roles without introducing fake shaping demands.
+prepare_with_roles(fonts:Catalog,d:Demand,context_roles:[str])->Prepared:
+    requested:text_chunks.empty(d.count+context_roles.length())
+    r:0
+    r<d.count?>
+        requested.(r):d.roles.(r)
+        .r:r+1
+    .r:0
+    r<context_roles.length()?>
+        requested.(d.count+r):context_roles.(r)
+        .r:r+1
+    prepared:text_font_metrics.prepare_selected(fonts,requested)
+    capacity:0
+    ci:0
+    ci<d.count?>
+        .capacity:capacity+d.stops.(ci)-d.starts.(ci)
+        .ci:ci+1
+    run_keys:text_chunks.empty(capacity)
+    run_xs:text_shaping.nums(capacity)
+    run_metrics:text_chunks.empty(capacity)
+    run_codes:text_shaping.ints(capacity)
+    run_starts:text_shaping.ints(capacity)
+    run_stops:text_shaping.ints(capacity)
+    run_offsets:text_shaping.ints(d.count)
+    run_counts:text_shaping.ints(d.count)
+    run_widths:text_shaping.nums(d.count)
+    run_heights:text_shaping.nums(d.count)
+    run_depths:text_shaping.nums(d.count)
+    run_italics:text_shaping.nums(d.count)
+    run_atoms:text_shaping.ints(d.count)
+    run_diagnostics:text_chunks.empty(d.count)
+    run_count:0
+    run_glyph_count:0
+    texts:text_chunks.empty(d.count+1)
+    roles:text_chunks.empty(d.count+1)
+    slots:text_shaping.ints(2*d.count+1)
+    ids:text_shaping.ints(d.count)
+    bases:text_shaping.ints(d.count)
+    at:0
+    misses:0
+    # Invocation-local immutable decoding; roles do not affect UTF-16 offsets.
+    cached_source:""
+    cached_units:text_shaping.units(cached_source)
+    # Keep the first source plus the most recent other source. Separate banks
+    # avoid copying decoded columns when demands revisit an earlier source.
+    other_source:""
+    other_units:text_shaping.units(other_source)
+    at<d.count?>
+        source:d.sources.(at)
+        at=0 /\ source~=cached_source?
+            .cached_units:text_shaping.units(source)
+            .cached_source:source
+        value:""
+        source=cached_source?
+            .value:text_shaping.slice16_indexed(source,d.starts.(at),d.stops.(at),cached_units.count,cached_units.codes,cached_units.bytes)
+        source~=cached_source?
+            source~=other_source?
+                .other_units:text_shaping.units(source)
+                .other_source:source
+            .value:text_shaping.slice16_indexed(source,d.starts.(at),d.stops.(at),other_units.count,other_units.codes,other_units.bytes)
+        role_index:text_font_metrics.context_index(prepared,d.roles.(at))
+        role_index<0? .role_index:text_font_metrics.context_index(prepared,"roman")
+        ctx:text_font_metrics.context_value(prepared,role_index)
+        # Borrow the invocation-local columns by indexed reads during lookup.
+        # Passing mutable columns through find materializes owned snapshots.
+        id: -1
+        lookup_bucket:font_catalog.hash(ctx.role&"/"&value)%slots.length()
+        slots.(lookup_bucket)>0?>
+            found:slots.(lookup_bucket)-1
+            texts.(found)=value /\ roles.(found)=ctx.role?
+                .id:found
+                @|
+            .lookup_bucket:(lookup_bucket+1)%slots.length()
+        id<0?
+            run:text_shaping.shape_frozen(value,ctx,prepared)
+            .id:misses
+            run_offsets.(id):run_glyph_count
+            run_counts.(id):run.count
+            run_widths.(id):run.width
+            run_heights.(id):run.height
+            run_depths.(id):run.depth
+            run_italics.(id):run.italic
+            run_atoms.(id):run.atoms
+            run_diagnostics.(id):run.diagnostics
+            gi:0
+            gi<run.count?>
+                run_keys.(run_glyph_count+gi):run.keys.(gi)
+                run_xs.(run_glyph_count+gi):run.xs.(gi)
+                run_metrics.(run_glyph_count+gi):run.metrics.(gi)
+                run_codes.(run_glyph_count+gi):run.codes.(gi)
+                run_starts.(run_glyph_count+gi):run.starts.(gi)
+                run_stops.(run_glyph_count+gi):run.stops.(gi)
+                .gi:gi+1
+            .run_glyph_count:run_glyph_count+run.count
+            .run_count:run_count+1
+            texts.(id):value
+            roles.(id):ctx.role
+            # Lookup already found this first empty bucket; shaping does not
+            # mutate the invocation-local table. Reuse it without a second hash.
+            slots.(lookup_bucket):id+1
+            .misses:misses+1
+        ids.(at):id
+        bases.(at):d.starts.(at)
+        .at:at+1
+    @:(font_slots:prepared.slots,font_keys:prepared.keys,font_raws:prepared.raws,font_names:prepared.names,font_advances:prepared.advances,font_heights:prepared.heights,font_depths:prepared.depths,font_italics:prepared.italics,font_kern_starts:prepared.kern_starts,font_kern_stops:prepared.kern_stops,font_kern_codes:prepared.kern_codes,font_kern_values:prepared.kern_values,font_kern_count:prepared.kern_count,font_count:prepared.count,font_role_names:prepared.role_names,font_role_ready:prepared.role_ready,font_role_sizes:prepared.role_sizes,font_role_quads:prepared.role_quads,font_role_sources:prepared.role_sources,font_role_spaces:prepared.role_spaces,font_role_stretches:prepared.role_stretches,font_role_shrinks:prepared.role_shrinks,font_role_extras:prepared.role_extras,font_role_slants:prepared.role_slants,font_role_starts:prepared.role_starts,font_role_stops:prepared.role_stops,font_role_count:prepared.role_count,font_lig_first:prepared.lig_first,font_lig_second:prepared.lig_second,font_lig_result:prepared.lig_result,font_lig_count:prepared.lig_count,run_keys:run_keys,run_xs:run_xs,run_metrics:run_metrics,run_codes:run_codes,run_starts:run_starts,run_stops:run_stops,run_offsets:run_offsets,run_counts:run_counts,run_widths:run_widths,run_heights:run_heights,run_depths:run_depths,run_italics:run_italics,run_atoms:run_atoms,run_diagnostics:run_diagnostics,run_count:run_count,run_glyph_count:run_glyph_count,texts:texts,roles:roles,slots:slots,ids:ids,bases:bases,count:d.count,misses:misses,hits:d.count-misses)
+run_id(p:Prepared,demand:int)->int:p.ids.(demand)
+width(p:Prepared,id:int)->num:
+    id= -1? @:0
+    (id>=0 /\ id<p.run_count)?! "Invalid prepared run ID"
+    @:p.run_widths.(id)
+glyph_count(p:Prepared,id:int)->int:
+    id= -1? @:0
+    (id>=0 /\ id<p.run_count)?! "Invalid prepared run ID"
+    @:p.run_counts.(id)
+glyph_key(p:Prepared,id:int,glyph:int)->str:p.run_keys.(p.run_offsets.(id)+glyph)
+glyph_start(p:Prepared,demand:int,glyph:int)->int:p.run_starts.(p.run_offsets.(p.ids.(demand))+glyph)+p.bases.(demand)
+glyph_stop(p:Prepared,demand:int,glyph:int)->int:p.run_stops.(p.run_offsets.(p.ids.(demand))+glyph)+p.bases.(demand)
+diagnostics(p:Prepared,id:int)->str:
+    id= -1? @:""
+    (id>=0 /\ id<p.run_count)?! "Invalid prepared run ID"
+    @:p.run_diagnostics.(id)
+
+text_parser_stream:.text_parser_stream
+math_command_pages:.math_command_pages
+hyphenation:.hyphenation
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+# Collect real parsed word demands, including every discretionary correction
+# interval. Provider-owned and hidden box-content operations never demand text.
+collect(stream:Stream,language:Language,overrides:[str],automatic:bit,provided:[int])->Demand:
+    sources:text_chunks.empty(32)
+    roles:text_chunks.empty(32)
+    starts:text_shaping.ints(32)
+    stops:text_shaping.ints(32)
+    count:0
+    op:0
+    op<stream.count?>
+        id:op
+        .op:op+1
+        kind:text_parser_stream.value(stream,id,"kind")
+        ~(kind="word" \/ kind="literal")? @>
+        hidden:false
+        ancestor:math_command_pages.integer(stream.parents,id)
+        ancestor>=0?>
+            text_parser_stream.value(stream,ancestor,"kind")="box_content"? .hidden:true
+            .ancestor:math_command_pages.integer(stream.parents,ancestor)
+        pi:0
+        pi<provided.length()?>
+            provided.(pi)=id? .hidden:true
+            .pi:pi+1
+        hidden? @>
+        word:text_parser_stream.value(stream,id,"value")
+        role:text_parser_stream.value(stream,id,"role")
+        word="" /\ kind~="literal"? @>
+        input:text_shaping.units(word)
+        size:input.count
+        codes:input.codes
+        marks:text_shaping.ints(size+1)
+        marks.(0):1
+        marks.(size):1
+        eligible:kind~="literal" /\ role~="mono" /\ role~="footnotemono"
+        automatic /\ eligible?
+            points:hyphenation.opportunities(word,language,overrides)
+            k:0
+            k<points.count?>
+                marks.(points.values.(k)):1
+                .k:k+1
+        eligible?
+            k:0
+            k<size?>
+                codes.(k)=45?
+                    .k:k+1
+                    k<size?>
+                        codes.(k)~=45? @|
+                        .k:k+1
+                    k<size? marks.(k):1
+                    @>
+                codes.(k)=8211 \/ codes.(k)=8212?
+                    k+1<size? marks.(k+1):1
+                .k:k+1
+        first:0
+        first<=size?>
+            marks.(first)=0?
+                .first:first+1
+                @>
+            last:first+1
+            last<=size?>
+                marks.(last)>0?
+                    count>=sources.length()?
+                        .sources:sources&text_chunks.empty(sources.length())
+                        .roles:roles&text_chunks.empty(roles.length())
+                        .starts:starts&text_shaping.ints(starts.length())
+                        .stops:stops&text_shaping.ints(stops.length())
+                    sources.(count):word
+                    roles.(count):role
+                    starts.(count):first
+                    stops.(count):last
+                    .count:count+1
+                .last:last+1
+            .first:first+1
+        # A shared hyphen is needed only for automatic discretionary marks.
+        k:1
+        needs_hyphen:false
+        k<size?>
+            marks.(k)>0 /\ codes.(k-1)~=45 /\ codes.(k-1)~=8211 /\ codes.(k-1)~=8212? .needs_hyphen:true
+            .k:k+1
+        needs_hyphen?
+            count>=sources.length()?
+                .sources:sources&text_chunks.empty(sources.length())
+                .roles:roles&text_chunks.empty(roles.length())
+                .starts:starts&text_shaping.ints(starts.length())
+                .stops:stops&text_shaping.ints(stops.length())
+            sources.(count):"-"
+            roles.(count):role
+            starts.(count):0
+            stops.(count):1
+            .count:count+1
+    @:(sources:sources,roles:roles,starts:starts,stops:stops,count:count)
+
+# Empty intervals use -1 without allocating or indexing a run column.
+# Resolve only decoded request roles, exactly as prepare does; never reparse fonts.
+role_index(p:Prepared,role:str)->int:
+    at:0
+    fallback: -1
+    at<p.font_role_count?>
+        p.font_role_ready.(at)>0?
+            p.font_role_names.(at)=role? @:at
+            p.font_role_names.(at)="roman"? .fallback:at
+        .at:at+1
+    (fallback>=0)?! "Missing decoded text role"
+    @:fallback
+canonical_role(p:Prepared,role:str)->str:
+    @:p.font_role_names.(role_index(p,role))
+lookup(p:Prepared,word:str,start:int,stop:int,role:str)->int:
+    (start>=0 /\ stop>=start)?! "Invalid request-wide shaping interval"
+    start=stop? @: -1
+    value:text_shaping.slice16(word,start,stop)
+    resolved:canonical_role(p,role)
+    id:find(p.texts,p.roles,p.slots,value,resolved)
+    (id>=0)?! "Missing request-wide shaping demand"
+    @:id
+height(p:Prepared,id:int)->num:
+    id= -1? @:0
+    (id>=0 /\ id<p.run_count)?! "Invalid prepared run ID"
+    @:p.run_heights.(id)
+depth(p:Prepared,id:int)->num:
+    id= -1? @:0
+    (id>=0 /\ id<p.run_count)?! "Invalid prepared run ID"
+    @:p.run_depths.(id)
+italic(p:Prepared,id:int)->num:
+    id= -1? @:0
+    (id>=0 /\ id<p.run_count)?! "Invalid prepared run ID"
+    @:p.run_italics.(id)
+atoms(p:Prepared,id:int)->int:
+    id= -1? @:0
+    (id>=0 /\ id<p.run_count)?! "Invalid prepared run ID"
+    @:p.run_atoms.(id)
+
+# Request callers collect every final rewritten stream before sealing once.
+# Context-only roles are separate from positive shaping intervals.
+Collection:(sources:[str],roles:[str],starts:[int],stops:[int],count:int,context_roles:[str])
+empty_collection()->Collection:
+    @:(sources:text_chunks.empty(0),roles:text_chunks.empty(0),starts:text_shaping.ints(0),stops:text_shaping.ints(0),count:0,context_roles:text_chunks.empty(0))
+collect_append(c:Collection,stream:Stream,language:Language,overrides:[str],automatic:bit,provided:[int])->Collection:
+    d:collect(stream,language,overrides,automatic,provided)
+    total:c.count+d.count
+    sources:text_chunks.empty(total)
+    roles:text_chunks.empty(total)
+    starts:text_shaping.ints(total)
+    stops:text_shaping.ints(total)
+    at:0
+    at<c.count?>
+        sources.(at):c.sources.(at)
+        roles.(at):c.roles.(at)
+        starts.(at):c.starts.(at)
+        stops.(at):c.stops.(at)
+        .at:at+1
+    i:0
+    i<d.count?>
+        sources.(at):d.sources.(i)
+        roles.(at):d.roles.(i)
+        starts.(at):d.starts.(i)
+        stops.(at):d.stops.(i)
+        .at:at+1
+        .i:i+1
+    # Mirror the builder's exits before its context lookup. Empty optional
+    # newRole is not a request for roman; an actually consumed missing role
+    # still resolves through prepare_selected/context's existing fallback.
+    contexts:text_chunks.empty(c.context_roles.length()+2*stream.count)
+    .i:0
+    i<c.context_roles.length()?>
+        contexts.(i):c.context_roles.(i)
+        .i:i+1
+    op:0
+    op<stream.count?>
+        id:op
+        .op:op+1
+        kind:text_parser_stream.value(stream,id,"kind")
+        kind="diagnostic" \/ kind="box_content"? @>
+        hidden:false
+        ancestor:math_command_pages.integer(stream.parents,id)
+        ancestor>=0?>
+            text_parser_stream.value(stream,ancestor,"kind")="box_content"? .hidden:true
+            .ancestor:math_command_pages.integer(stream.parents,ancestor)
+        pi:0
+        pi<provided.length()?>
+            provided.(pi)=id? .hidden:true
+            .pi:pi+1
+        hidden? @>
+        kind="argument" \/ kind="optional" \/ kind="accent_base"? @>
+        contexts.(i):text_parser_stream.value(stream,id,"role")
+        .i:i+1
+        kind="command" /\ text_parser_stream.attribute(stream,id,"action")="style"?
+            new_role:text_parser_stream.attribute(stream,id,"newRole")
+            new_role~=""?
+                contexts.(i):new_role
+                .i:i+1
+    # Do not pass unused capacity (empty strings) to context preparation.
+    selected:text_chunks.empty(i)
+    .at:0
+    at<i?>
+        selected.(at):contexts.(at)
+        .at:at+1
+    @:(sources:sources,roles:roles,starts:starts,stops:stops,count:total,context_roles:selected)
+seal(fonts:Catalog,c:Collection)->Prepared:
+    d:(sources:c.sources,roles:c.roles,starts:c.starts,stops:c.stops,count:c.count)
+    @:prepare_with_roles(fonts,d,c.context_roles)
+glyph_x(p:Prepared,id:int,glyph:int)->num:p.run_xs.(p.run_offsets.(id)+glyph)
+# Operation-local UTF16 boundaries remain caller-owned; shared glyphs stay relative.
+source_start(p:Prepared,id:int,glyph:int,base:int)->int:p.run_starts.(p.run_offsets.(id)+glyph)+base
+source_stop(p:Prepared,id:int,glyph:int,base:int)->int:p.run_stops.(p.run_offsets.(id)+glyph)+base

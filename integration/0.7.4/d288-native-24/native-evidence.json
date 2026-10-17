@@ -1,0 +1,970 @@
+{
+  "passed": true,
+  "compiler": {
+    "candidate_review": {
+      "accepted": true,
+      "baseline_failure_marker": "cross-ABI child was preserved",
+      "baseline_sha256": "6c9f9cf5d2b60c426f88402c0ae32c294191c26880614e71907354613e27c5bd",
+      "candidate": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-record-projection-repair-05/candidate/layouts_1.cpp",
+        "sha256": "226bb513fec0c2e1d9443fd9ac61d6ab863e9a3a136ab2238cf7d9346130307f"
+      },
+      "candidate_success_stdout": "ordinary counted metadata layout regressions passed\n",
+      "changed_units": [
+        53
+      ],
+      "executable": true,
+      "identity_tag": "compiler-build-preparation-03",
+      "independent_review": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-record-review-07/HANDOFF.txt",
+      "native_executed": false,
+      "regression": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-record-projection-repair-05/regression_layouts.cpp",
+        "sha256": "688a991c0821951d86c1b87330d2def7af6cd0423488c5350eb2005e48a81c86"
+      },
+      "scope": "Accepted source candidate for separately admitted native qualification; no native success or execution authorization",
+      "whole_record_projection_regression_reviewed": true
+    },
+    "candidate_sha256": "226bb513fec0c2e1d9443fd9ac61d6ab863e9a3a136ab2238cf7d9346130307f",
+    "compiler": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+      "sha256": "52116e581d041836505756fcde17d504422429e410f0c84cb353409e121948d9"
+    },
+    "core_regression_passed": true,
+    "identity": "340d32d743bfcd6da076840963974462ed590852314ae483bbde5b4cc20c2e74",
+    "native_build_passed": true,
+    "plan": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/plan.json",
+      "sha256": "8d2af24a53ed0a046e155a24f9ce4f35f23eeb2a19d3c971bb8085ea1619c00f"
+    },
+    "results": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/results.json",
+      "sha256": "ef0f1d9b6a7a44fc24e70aaea5d5b7ad9a7a0d4fd4f56eb673287921ea2e67f7"
+    }
+  },
+  "stages": [
+    {
+      "name": "numeric_only-compile",
+      "exit": 0,
+      "seconds": 0.21667482797056437,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/numeric_only-compile.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/numeric_only-compile.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/numeric_only/case.exe",
+          "sha256": "e852a262a5c9230531e412328c48840bf3d7b204e853c490b57d7b3daf8c215a",
+          "ELF": true,
+          "executable": true
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 6,
+            "pid": 6,
+            "ppid": 2,
+            "session": 6,
+            "starttime": 75826666,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": ""
+    },
+    {
+      "name": "numeric_only-run-0",
+      "exit": 0,
+      "seconds": 0.42062066099606454,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/numeric_only-run-0.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/numeric_only-run-0.stderr",
+          "sha256": "a2dd60213e660cea63cbdc027200c7e7b4cd948eccfddb7f76217d16fb09ce29"
+        }
+      ],
+      "outputs": [],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 8,
+            "pid": 8,
+            "ppid": 2,
+            "session": 8,
+            "starttime": 75826688,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": "==8== Memcheck, a memory error detector\n==8== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.\n==8== Using Valgrind-3.26.0 and LibVEX; rerun with -h for copyright info\n==8== Command: /mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/numeric_only/case.exe\n==8== \n==8== \n==8== HEAP SUMMARY:\n==8==     in use at exit: 0 bytes in 0 blocks\n==8==   total heap usage: 1 allocs, 1 frees, 32 bytes allocated\n==8== \n==8== All heap blocks were freed -- no leaks are possible\n==8== \n==8== For lists of detected and suppressed errors, rerun with: -s\n==8== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)\n"
+    },
+    {
+      "name": "string_only-compile",
+      "exit": 0,
+      "seconds": 0.2190266220131889,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/string_only-compile.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/string_only-compile.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/string_only/case.exe",
+          "sha256": "8e6e6b7c07caa3ec1e0dd6fddd85f18160c152a86901d3f14444c2ee0c2e0c45",
+          "ELF": true,
+          "executable": true
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 9,
+            "pid": 9,
+            "ppid": 2,
+            "session": 9,
+            "starttime": 75826730,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": ""
+    },
+    {
+      "name": "string_only-run-0",
+      "exit": 0,
+      "seconds": 0.4245566080790013,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/string_only-run-0.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/string_only-run-0.stderr",
+          "sha256": "980c75afe278dfe55af0cfd89b69fbf294c20e67995ef038a154cc429ee517f2"
+        }
+      ],
+      "outputs": [],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 11,
+            "pid": 11,
+            "ppid": 2,
+            "session": 11,
+            "starttime": 75826753,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": "==11== Memcheck, a memory error detector\n==11== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.\n==11== Using Valgrind-3.26.0 and LibVEX; rerun with -h for copyright info\n==11== Command: /mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/string_only/case.exe\n==11== \n==11== \n==11== HEAP SUMMARY:\n==11==     in use at exit: 0 bytes in 0 blocks\n==11==   total heap usage: 3 allocs, 3 frees, 72 bytes allocated\n==11== \n==11== All heap blocks were freed -- no leaks are possible\n==11== \n==11== For lists of detected and suppressed errors, rerun with: -s\n==11== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)\n"
+    },
+    {
+      "name": "individual_control-compile",
+      "exit": 0,
+      "seconds": 0.21912855305708945,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/individual_control-compile.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/individual_control-compile.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/individual_control/case.exe",
+          "sha256": "45129d387ba65ab2159583aa04333b55c0eab067b62710555f740d6525bc5b1c",
+          "ELF": true,
+          "executable": true
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 12,
+            "pid": 12,
+            "ppid": 2,
+            "session": 12,
+            "starttime": 75826795,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": ""
+    },
+    {
+      "name": "individual_control-run-0",
+      "exit": 0,
+      "seconds": 0.42309398704674095,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/individual_control-run-0.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/individual_control-run-0.stderr",
+          "sha256": "4449f3e23d9d896fef54d2b75ebd95f97f9fcb0eb0e4d8a4932481a9c3009466"
+        }
+      ],
+      "outputs": [],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 14,
+            "pid": 14,
+            "ppid": 2,
+            "session": 14,
+            "starttime": 75826818,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": "==14== Memcheck, a memory error detector\n==14== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.\n==14== Using Valgrind-3.26.0 and LibVEX; rerun with -h for copyright info\n==14== Command: /mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/individual_control/case.exe\n==14== \n==14== \n==14== HEAP SUMMARY:\n==14==     in use at exit: 0 bytes in 0 blocks\n==14==   total heap usage: 2 allocs, 2 frees, 80 bytes allocated\n==14== \n==14== All heap blocks were freed -- no leaks are possible\n==14== \n==14== For lists of detected and suppressed errors, rerun with: -s\n==14== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)\n"
+    },
+    {
+      "name": "scalar_control-compile",
+      "exit": 0,
+      "seconds": 0.2190798530355096,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/scalar_control-compile.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/scalar_control-compile.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/scalar_control/case.exe",
+          "sha256": "0a176c9fb02088c5a51231690debac527eea38302f982e1033885e5002dc2548",
+          "ELF": true,
+          "executable": true
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 15,
+            "pid": 15,
+            "ppid": 2,
+            "session": 15,
+            "starttime": 75826861,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": ""
+    },
+    {
+      "name": "scalar_control-run-0",
+      "exit": 0,
+      "seconds": 0.4233431010507047,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/scalar_control-run-0.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/scalar_control-run-0.stderr",
+          "sha256": "87ad79e315afeeb3ce60c6923b6fe73633d4dc3e99381944595564f0a7073f26"
+        }
+      ],
+      "outputs": [],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 17,
+            "pid": 17,
+            "ppid": 2,
+            "session": 17,
+            "starttime": 75826883,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": "==17== Memcheck, a memory error detector\n==17== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.\n==17== Using Valgrind-3.26.0 and LibVEX; rerun with -h for copyright info\n==17== Command: /mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/scalar_control/case.exe\n==17== \n==17== \n==17== HEAP SUMMARY:\n==17==     in use at exit: 0 bytes in 0 blocks\n==17==   total heap usage: 0 allocs, 0 frees, 0 bytes allocated\n==17== \n==17== All heap blocks were freed -- no leaks are possible\n==17== \n==17== For lists of detected and suppressed errors, rerun with: -s\n==17== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)\n"
+    },
+    {
+      "name": "borrowed_alias-compile",
+      "exit": 0,
+      "seconds": 0.2193192970007658,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/borrowed_alias-compile.stdout",
+          "sha256": "2ed27c1421e6928dbe13dbfdb5c59e1045b30341fe7ebe05700006bc5ac572c0"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/borrowed_alias-compile.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/borrowed_alias/case.exe",
+          "sha256": "f16ff81062ef224273a7365f3f435a812c06ded6fa25af7f0c7feae9d6cf5980",
+          "ELF": true,
+          "executable": true
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 18,
+            "pid": 18,
+            "ppid": 2,
+            "session": 18,
+            "starttime": 75826926,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "false\n",
+      "stderr": ""
+    },
+    {
+      "name": "borrowed_alias-run-0",
+      "exit": 0,
+      "seconds": 0.42368839494884014,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/borrowed_alias-run-0.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/borrowed_alias-run-0.stderr",
+          "sha256": "bdd4bffca248084b238ebfc43c564ff5d832bae63c7af39952da007d593f87e9"
+        }
+      ],
+      "outputs": [],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 20,
+            "pid": 20,
+            "ppid": 2,
+            "session": 20,
+            "starttime": 75826948,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": "==20== Memcheck, a memory error detector\n==20== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.\n==20== Using Valgrind-3.26.0 and LibVEX; rerun with -h for copyright info\n==20== Command: /mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/borrowed_alias/case.exe\n==20== \n==20== \n==20== HEAP SUMMARY:\n==20==     in use at exit: 0 bytes in 0 blocks\n==20==   total heap usage: 9 allocs, 9 frees, 421 bytes allocated\n==20== \n==20== All heap blocks were freed -- no leaks are possible\n==20== \n==20== For lists of detected and suppressed errors, rerun with: -s\n==20== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)\n"
+    },
+    {
+      "name": "owned-compile",
+      "exit": 0,
+      "seconds": 0.21965617104433477,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/owned-compile.stdout",
+          "sha256": "2ed27c1421e6928dbe13dbfdb5c59e1045b30341fe7ebe05700006bc5ac572c0"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/owned-compile.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/owned/case.exe",
+          "sha256": "95431fed712db588d72646a7bb8b26acbf42baff58560a20ac9424283c143b87",
+          "ELF": true,
+          "executable": true
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 21,
+            "pid": 21,
+            "ppid": 2,
+            "session": 21,
+            "starttime": 75826991,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "false\n",
+      "stderr": ""
+    },
+    {
+      "name": "owned-run-0",
+      "exit": 0,
+      "seconds": 0.42374045692849904,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/owned-run-0.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/owned-run-0.stderr",
+          "sha256": "0807b8730efbeb0ea570410b3c0c41668c08518244aa3862de2782775d4d4fc0"
+        }
+      ],
+      "outputs": [],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 23,
+            "pid": 23,
+            "ppid": 2,
+            "session": 23,
+            "starttime": 75827014,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": "==23== Memcheck, a memory error detector\n==23== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.\n==23== Using Valgrind-3.26.0 and LibVEX; rerun with -h for copyright info\n==23== Command: /mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/owned/case.exe\n==23== \n==23== \n==23== HEAP SUMMARY:\n==23==     in use at exit: 0 bytes in 0 blocks\n==23==   total heap usage: 2 allocs, 2 frees, 297 bytes allocated\n==23== \n==23== All heap blocks were freed -- no leaks are possible\n==23== \n==23== For lists of detected and suppressed errors, rerun with: -s\n==23== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)\n"
+    },
+    {
+      "name": "returned-compile",
+      "exit": 0,
+      "seconds": 0.21951986895874143,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/returned-compile.stdout",
+          "sha256": "2ed27c1421e6928dbe13dbfdb5c59e1045b30341fe7ebe05700006bc5ac572c0"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/returned-compile.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/returned/case.exe",
+          "sha256": "83d7cdf3b21d4587a5e54f0f89841c6b6c9c23ebc47203728a71240dda450d02",
+          "ELF": true,
+          "executable": true
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 24,
+            "pid": 24,
+            "ppid": 2,
+            "session": 24,
+            "starttime": 75827057,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "false\n",
+      "stderr": ""
+    },
+    {
+      "name": "returned-run-0",
+      "exit": 0,
+      "seconds": 0.42434193496592343,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/returned-run-0.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/returned-run-0.stderr",
+          "sha256": "484df0183ddc0fd66a088a8eb7ebe959d6bc3f3e6a78fac0d1e3f57a7675fa90"
+        }
+      ],
+      "outputs": [],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 26,
+            "pid": 26,
+            "ppid": 2,
+            "session": 26,
+            "starttime": 75827080,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": "==26== Memcheck, a memory error detector\n==26== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.\n==26== Using Valgrind-3.26.0 and LibVEX; rerun with -h for copyright info\n==26== Command: /mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/returned/case.exe\n==26== \n==26== \n==26== HEAP SUMMARY:\n==26==     in use at exit: 0 bytes in 0 blocks\n==26==   total heap usage: 9 allocs, 9 frees, 421 bytes allocated\n==26== \n==26== All heap blocks were freed -- no leaks are possible\n==26== \n==26== For lists of detected and suppressed errors, rerun with: -s\n==26== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)\n"
+    },
+    {
+      "name": "independence-compile",
+      "exit": 0,
+      "seconds": 0.21966386097483337,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/independence-compile.stdout",
+          "sha256": "2ed27c1421e6928dbe13dbfdb5c59e1045b30341fe7ebe05700006bc5ac572c0"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/independence-compile.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/independence/case.exe",
+          "sha256": "a45ba4fb1ceb8fe28edebe3f3ccd29e77bee7df7f2bcced54c0b84bb11b45ed6",
+          "ELF": true,
+          "executable": true
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 27,
+            "pid": 27,
+            "ppid": 2,
+            "session": 27,
+            "starttime": 75827123,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "false\n",
+      "stderr": ""
+    },
+    {
+      "name": "independence-run-0",
+      "exit": 0,
+      "seconds": 0.424340394907631,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/independence-run-0.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/independence-run-0.stderr",
+          "sha256": "14882e3bd0d9c18f3b5048e89de55be2d4e32c08b9054c97f6a48cee3ef3ba14"
+        }
+      ],
+      "outputs": [],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 29,
+            "pid": 29,
+            "ppid": 2,
+            "session": 29,
+            "starttime": 75827145,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": "==29== Memcheck, a memory error detector\n==29== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.\n==29== Using Valgrind-3.26.0 and LibVEX; rerun with -h for copyright info\n==29== Command: /mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/independence/case.exe\n==29== \n==29== \n==29== HEAP SUMMARY:\n==29==     in use at exit: 0 bytes in 0 blocks\n==29==   total heap usage: 12 allocs, 12 frees, 491 bytes allocated\n==29== \n==29== All heap blocks were freed -- no leaks are possible\n==29== \n==29== For lists of detected and suppressed errors, rerun with: -s\n==29== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)\n"
+    },
+    {
+      "name": "nested-compile",
+      "exit": 0,
+      "seconds": 0.21966093103401363,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/nested-compile.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/nested-compile.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/nested/case.exe",
+          "sha256": "a8c07724cbed198261733a69691eee0d225ad69eef3dc115a1f53837170aef24",
+          "ELF": true,
+          "executable": true
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 30,
+            "pid": 30,
+            "ppid": 2,
+            "session": 30,
+            "starttime": 75827188,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": ""
+    },
+    {
+      "name": "nested-run-0",
+      "exit": 0,
+      "seconds": 0.4243629249976948,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/nested-run-0.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/nested-run-0.stderr",
+          "sha256": "f6fc9640197f7d58509adb3d6aaa779f853fb06954530e28cecce5e6576c361d"
+        }
+      ],
+      "outputs": [],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 32,
+            "pid": 32,
+            "ppid": 2,
+            "session": 32,
+            "starttime": 75827211,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": "==32== Memcheck, a memory error detector\n==32== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.\n==32== Using Valgrind-3.26.0 and LibVEX; rerun with -h for copyright info\n==32== Command: /mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/nested/case.exe\n==32== \n==32== \n==32== HEAP SUMMARY:\n==32==     in use at exit: 0 bytes in 0 blocks\n==32==   total heap usage: 2 allocs, 2 frees, 80 bytes allocated\n==32== \n==32== All heap blocks were freed -- no leaks are possible\n==32== \n==32== For lists of detected and suppressed errors, rerun with: -s\n==32== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)\n"
+    },
+    {
+      "name": "error_cleanup-compile",
+      "exit": 0,
+      "seconds": 0.21985487407073379,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/error_cleanup-compile.stdout",
+          "sha256": "2ed27c1421e6928dbe13dbfdb5c59e1045b30341fe7ebe05700006bc5ac572c0"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/error_cleanup-compile.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/error_cleanup/case.exe",
+          "sha256": "fbf72de2a67a30965b21cd0955b203c0ef9dea72e622ba5a4087ab2f22e68e8c",
+          "ELF": true,
+          "executable": true
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 33,
+            "pid": 33,
+            "ppid": 2,
+            "session": 33,
+            "starttime": 75827254,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "false\n",
+      "stderr": ""
+    },
+    {
+      "name": "error_cleanup-run-0",
+      "exit": 0,
+      "seconds": 0.4247870519757271,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/error_cleanup-run-0.stdout",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/logs/error_cleanup-run-0.stderr",
+          "sha256": "b8c0e6853752aa5d29ee0ee900aa8510c92bbd70bc98bb747ebc5a24fd5a954f"
+        }
+      ],
+      "outputs": [],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 35,
+            "pid": 35,
+            "ppid": 2,
+            "session": 35,
+            "starttime": 75827277,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "true\n",
+      "stderr": "==35== Memcheck, a memory error detector\n==35== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.\n==35== Using Valgrind-3.26.0 and LibVEX; rerun with -h for copyright info\n==35== Command: /mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/error_cleanup/case.exe\n==35== \n==35== \n==35== HEAP SUMMARY:\n==35==     in use at exit: 0 bytes in 0 blocks\n==35==   total heap usage: 38 allocs, 38 frees, 1,075 bytes allocated\n==35== \n==35== All heap blocks were freed -- no leaks are possible\n==35== \n==35== For lists of detected and suppressed errors, rerun with: -s\n==35== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)\n"
+    }
+  ],
+  "summary": {
+    "all_recorded_children_joined": true,
+    "completed": 20,
+    "error": null,
+    "native_execution": true,
+    "planned": 20,
+    "release_qualified": false,
+    "seconds": 7.105536281946115
+  },
+  "actual_plan": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/plan.json",
+    "sha256": "ee3fe1e321f68c2ed8cdbb9a24822751a4fecff78fb0d4b27e6646343d291db6"
+  },
+  "all_recorded_children_joined": true
+}

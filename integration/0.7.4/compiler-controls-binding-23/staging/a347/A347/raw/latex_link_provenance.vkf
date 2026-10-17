@@ -1,0 +1,81 @@
+a270_text:.tex_text
+# Provenance-only sidecar for the existing link-span producer. Scope owners
+# come directly from text_link_context; targets/geometry never identify owners.
+pages:.math_command_pages
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+Store:(arena:Arena,firsts:[int],counts:[int],anchor_firsts:[int],anchor_counts:[int],anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int,widths:[num],heights:[num],depths:[num],tag_widths:[num],inline_destinations:[bit],count:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+State:(scopes:[int],lefts:[num],rights:[num],count:int)
+attach(input:Store,spans:State,owners:[int],stream:Stream,source:str)->Store:
+    # Compatibility callers without the producer map remain explicitly unknown.
+    owners.length()=0? @:input
+    a270_mapping_valid(input,spans,owners,stream,source)?! "Invalid link provenance mapping"
+    out:input
+    last:input.count-1
+    at:input.firsts.(last)
+    stop:at+input.counts.(last)
+    (at>=0 /\ stop<=input.arena.count)?! "Invalid link provenance scene"
+    updated_arena:out.arena
+    texts:updated_arena.a260_texts
+    operations:updated_arena.a260_operations
+    starts:updated_arena.a260_starts
+    stops:updated_arena.a260_stops
+    i:0
+    i<spans.count?>
+        current:i
+        .i:i+1
+        # Exactly the existing producer's emission predicate, not ID inference.
+        spans.rights.(current)<=spans.lefts.(current)? @>
+        scope:spans.scopes.(current)
+        (scope>=0 /\ scope<owners.length() /\ at<stop)?! "Missing link scope owner"
+        operation:owners.(scope)
+        (operation>=0 /\ operation<stream.count)?! "Invalid link owner operation"
+        texts.(at):source
+        operations.(at):operation
+        starts.(at):pages.integer(stream.starts,operation)
+        stops.(at):pages.integer(stream.stops,operation)
+        .at:at+1
+    at=stop?! "Link emission/provenance count mismatch"
+    updated_arena.a260_texts:texts
+    updated_arena.a260_operations:operations
+    updated_arena.a260_starts:starts
+    updated_arena.a260_stops:stops
+    out.arena:updated_arena
+    @:out
+
+# Validate producer sidecars before any selected-scene/page indexing or writes.
+# Active prefixes may have capacity; missing provenance storage is not capacity.
+a270_mapping_valid(input:Store,spans:State,owners:[int],stream:Stream,source:str)->bit:
+    (input.count<=0 \/ input.count>input.firsts.length() \/ input.count>input.counts.length())? @:false
+    (input.arena.count<0 \/ stream.count<0 \/ spans.count<0)? @:false
+    (spans.count>spans.scopes.length() \/ spans.count>spans.lefts.length() \/ spans.count>spans.rights.length())? @:false
+    first:input.firsts.(input.count-1)
+    count:input.counts.(input.count-1)
+    (first<0 \/ count<0 \/ first>input.arena.count)? @:false
+    count>input.arena.count-first? @:false
+    stop:first+count
+    (stop>input.arena.a260_texts.length() \/ stop>input.arena.a260_operations.length() \/ stop>input.arena.a260_starts.length() \/ stop>input.arena.a260_stops.length())? @:false
+    emitted:0
+    i:0
+    i<spans.count?>
+        current:i
+        .i:i+1
+        spans.rights.(current)<=spans.lefts.(current)? @>
+        scope:spans.scopes.(current)
+        (scope<0 \/ scope>=owners.length())? @:false
+        operation:owners.(scope)
+        (operation<0 \/ operation>=stream.count)? @:false
+        row:operation//pages.width()
+        column:operation%pages.width()
+        (row>=stream.starts.length() \/ row>=stream.stops.length())? @:false
+        (column>=stream.starts.(row).length() \/ column>=stream.stops.(row).length())? @:false
+        start:pages.integer(stream.starts,operation)
+        end:pages.integer(stream.stops,operation)
+        # Unknown spans cannot be converted into a known generated-leaf origin.
+        (start<0 \/ end<start \/ end>a270_text.byte_length(source))? @:false
+        .emitted:emitted+1
+        emitted>count? @:false
+    @:emitted=count

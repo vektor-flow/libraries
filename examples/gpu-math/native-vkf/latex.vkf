@@ -39,3 +39,8 @@ A283FinalAnchors:(leaves:[int],slots:[int],points:[int])
 
 math_owned(source:str,resources:Resources,options:FragmentOptions,scope:str)->Fragment:
     @:library.math_owned(source,resources,options,scope)
+
+# Source-only overload; legacy positional resource overload above is unchanged.
+# Selected/editable output and destination publication remain explicit errors.
+tex2pdf(source:str,dest:str="",selectable:bit=true,editable:bit=false,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true):
+    @:library.tex2pdf_named(source,dest,selectable,editable,files_json,job,entry,include_layout)

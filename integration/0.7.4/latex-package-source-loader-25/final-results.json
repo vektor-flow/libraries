@@ -1,0 +1,56 @@
+{
+  "stages": [
+    {
+      "name": "package-sources",
+      "argv": [
+        "node",
+        "--jitless",
+        "--max-old-space-size=160",
+        "--max-semi-space-size=4",
+        "--import",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-package-source-loader-25/current-source-hooks.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-package-source-loader-25/candidate/examples/gpu-math/native-vkf/host/tests/package-sources.mjs"
+      ],
+      "pid": 206904,
+      "exit": 0,
+      "seconds": 0.16561182599980384,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "source-checks",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-package-source-loader-25/verify_source.py"
+      ],
+      "pid": 206911,
+      "exit": 0,
+      "seconds": 0.06644774600863457,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    },
+    {
+      "name": "patch-check",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "--whitespace=error-all",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-package-source-loader-25/package-source-foundation.patch"
+      ],
+      "pid": 206912,
+      "exit": 0,
+      "seconds": 0.005712231970392168,
+      "joined": true,
+      "timeout": false,
+      "as_limit_bytes": 536870912
+    }
+  ],
+  "passed": true,
+  "all_children_joined": true,
+  "native_executed": false,
+  "child_maxrss_kib": 70588
+}

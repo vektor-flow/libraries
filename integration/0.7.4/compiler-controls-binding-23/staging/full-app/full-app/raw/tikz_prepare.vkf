@@ -1,0 +1,173 @@
+tikz_prepare_control:.tikz_control
+# Textual TikZ extraction. Geometry is compiled from these source requests;
+# no geometry is baked into this preprocessing stage.
+tikz_prepare_text:.tex_text
+tikz_prepare_groups:.tex_groups
+tikz_prepare_literals:.tex_source
+tikz_prepare_numbers:.tikz_numbers
+tikz_prepare_options:.tikz_options
+tikz_prepare_syntax:.tikz_syntax
+tikz_prepare_chunks:.text_chunks
+tikz_prepare_json:.resource_json
+tikz_prepare_decimals:.json_numbers
+Dimensions:(names:[str],values:[num],count:int)
+Styles:(names:[str],values:[str],count:int)
+Result:(source:str,contents:[str],style_snapshots:[str],dimension_snapshots:[str],starts:[int],stops:[int],count:int,diagnostic:str)
+Declaration:(styles:Styles,diagnostic:str)
+ints(size:int)->[int]:[0:size]
+
+styles_json(styles:Styles)->str:
+    names:styles.names
+    values:styles.values
+    parts:tikz_prepare_chunks.empty(styles.count)
+    i:0
+    i<styles.count?>
+        prefix:""
+        i>0? .prefix:","
+        parts.(i):prefix&tikz_prepare_json.quote(names.(i))&":"&tikz_prepare_json.quote(values.(i))
+        .i:i+1
+    @:"{"&tikz_prepare_chunks.join(parts,0,styles.count)&"}"
+dimensions_json(dimensions:Dimensions)->str:
+    names:dimensions.names
+    values:dimensions.values
+    parts:tikz_prepare_chunks.empty(dimensions.count)
+    i:0
+    i<dimensions.count?>
+        prefix:""
+        i>0? .prefix:","
+        parts.(i):prefix&tikz_prepare_json.quote(names.(i))&":"&tikz_prepare_decimals.roundtrip(values.(i))
+        .i:i+1
+    @:"{"&tikz_prepare_chunks.join(parts,0,dimensions.count)&"}"
+declare(styles:Styles,raw:str)->Declaration:
+    result:styles
+    parts:tikz_prepare_syntax.split(raw)
+    parts.diagnostic~=""? @:(styles:result,diagnostic:parts.diagnostic)
+    values:parts.values
+    i:0
+    i<parts.count?>
+        item:values.(i)
+        equal:tikz_prepare_text.find(item,"=")
+        name:item
+        equal>=0? .name:tikz_prepare_text.trim(tikz_prepare_text.span(item,0,equal))
+        size:tikz_prepare_text.byte_length(name)
+        (equal<0 \/ size<7)? @:(styles:result,diagnostic:"Unsupported TikZ style declaration: "&name)
+        ~tikz_prepare_text.matches(name,size-7,"/.style")? @:(styles:result,diagnostic:"Unsupported TikZ style declaration: "&name)
+        value:tikz_prepare_text.trim(tikz_prepare_text.span(item,equal+1,tikz_prepare_text.byte_length(item)))
+        ~tikz_prepare_text.matches(value,0,"{")? @:(styles:result,diagnostic:"Unsupported TikZ style declaration: "&name)
+        group:tikz_prepare_groups.read(value,0)
+        .result:tikz_prepare_options.set(result,tikz_prepare_text.span(name,0,size-7),group.value)
+        .i:i+1
+    @:(styles:result,diagnostic:"")
+
+prepare(source:str,font_size:num=9.962640099626402,font_quad:num=9.962640099626402)->Result:
+    size:tikz_prepare_text.byte_length(source)
+    styles:tikz_prepare_options.empty()
+    dimensions:tikz_prepare_numbers.empty()
+    contents:tikz_prepare_chunks.empty(16)
+    style_snapshots:tikz_prepare_chunks.empty(16)
+    dimension_snapshots:tikz_prepare_chunks.empty(16)
+    starts:ints(16)
+    stops:ints(16)
+    parts:tikz_prepare_chunks.empty(32)
+    part_count:0
+    copied:0
+    count:0
+    at:0
+    diagnostic:""
+    at<size?>
+        c:tikz_prepare_text.at(source,at)
+        c="%"?
+            newline:tikz_prepare_text.find(source,"\n",at)
+            .at:size
+            newline>=0? .at:newline+1
+            @>
+        c~="\\"?
+            .at:tikz_prepare_text.next(source,at)
+            @>
+        command:tikz_prepare_control.read(source,at)
+        literal:tikz_prepare_literals.literal_stop(source,command.name,command.stop)
+        literal>command.stop?
+            .at:literal
+            @>
+        after:command.stop
+        consume:false
+        command.name="begin"?
+            environment:tikz_prepare_groups.read(source,command.stop)
+            environment.value="tikzpicture" /\ environment.closed?
+                close:tikz_prepare_text.find(source,"\\end{tikzpicture}",environment.stop)
+                close<0?
+                    .diagnostic:"Unclosed TikZ picture"
+                    @|
+                count>=256?
+                    .diagnostic:"TikZ picture limit"
+                    @|
+                count>=contents.length()?
+                    capacity:contents.length()
+                    .contents:contents&tikz_prepare_chunks.empty(capacity)
+                    .style_snapshots:style_snapshots&tikz_prepare_chunks.empty(capacity)
+                    .dimension_snapshots:dimension_snapshots&tikz_prepare_chunks.empty(capacity)
+                    .starts:starts&ints(capacity)
+                    .stops:stops&ints(capacity)
+                contents.(count):tikz_prepare_text.span(source,environment.stop,close)
+                style_snapshots.(count):styles_json(styles)
+                dimension_snapshots.(count):dimensions_json(dimensions)
+                starts.(count):at
+                stops.(count):close+17
+                part_count+2>parts.length()? .parts:parts&tikz_prepare_chunks.empty(parts.length())
+                parts.(part_count):tikz_prepare_text.span(source,copied,at)
+                parts.(part_count+1):"\\vkftikzbox{"&tikz_prepare_text.integer(count)&"}"
+                .part_count:part_count+2
+                .count:count+1
+                .at:close+17
+                .copied:at
+                @>
+        command.name="tikzset"?
+            group:tikz_prepare_groups.read(source,command.stop)
+            ~group.present?
+                .diagnostic:"Unfinished TikZ style declaration"
+                @|
+            declaration:declare(styles,group.value)
+            declaration.diagnostic~=""?
+                .diagnostic:declaration.diagnostic
+                @|
+            .styles:declaration.styles
+            .after:group.stop
+            .consume:true
+        (command.name="newlength" \/ command.name="setlength")?
+            group:tikz_prepare_groups.read(source,command.stop)
+            name:group.value
+            stop:group.stop
+            ~group.present?
+                position:tikz_prepare_groups.skip_space(source,command.stop)
+                control:tikz_prepare_control.read(source,position)
+                control.word?
+                    .name:control.spelling
+                    .stop:control.stop
+            name~=""?
+                tikz_prepare_text.matches(name,0,"\\")? .name:tikz_prepare_text.span(name,1,tikz_prepare_text.byte_length(name))
+                command.name="newlength"?
+                    .dimensions:tikz_prepare_numbers.set(dimensions,name,0)
+                    .after:stop
+                    .consume:true
+                command.name="setlength"?
+                    value:tikz_prepare_groups.read(source,stop)
+                    value.present?
+                        known:tikz_prepare_numbers.index(dimensions,name)
+                        known>=0?
+                            number:tikz_prepare_numbers.parse(value.value,tikz_prepare_numbers.context(dimensions,font_quad,4.289454545454546))
+                            number.diagnostic~=""?
+                                .diagnostic:number.diagnostic
+                                @|
+                            .dimensions:tikz_prepare_numbers.set(dimensions,name,tikz_prepare_numbers.scaled(number.value))
+                            .after:value.stop
+                            .consume:true
+                        known<0? .after:value.stop
+        consume?
+            part_count>=parts.length()? .parts:parts&tikz_prepare_chunks.empty(parts.length())
+            parts.(part_count):tikz_prepare_text.span(source,copied,at)
+            .part_count:part_count+1
+            .copied:after
+        .at:after
+    part_count>=parts.length()? .parts:parts&tikz_prepare_chunks.empty(parts.length())
+    parts.(part_count):tikz_prepare_text.span(source,copied,size)
+    @:(source:tikz_prepare_chunks.join(parts,0,part_count+1),contents:contents,style_snapshots:style_snapshots,dimension_snapshots:dimension_snapshots,starts:starts,stops:stops,count:count,diagnostic:diagnostic)

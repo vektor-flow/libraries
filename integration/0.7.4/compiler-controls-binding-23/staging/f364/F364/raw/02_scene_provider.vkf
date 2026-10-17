@@ -1,0 +1,46 @@
+gate_io:.io
+suite_0:.scene_metadata_regression_tests
+suite_1:.scene_metadata_export_regression_tests
+suite_2:.scene_metadata_edit_regression_tests
+suite_3:.scene_anchor_selection_regression_tests
+suite_4:.typed_provider_transport_regression_tests
+suite_5:.typed_provider_reference_adapter_tests
+suite_7:.scene_metadata_export_regression_tests_b347_adapter
+suite_8:.scene_anchor_selection_regression_tests_b347_adapter
+suite_9:.scene_metadata_edit_regression_tests_b347_adapter
+suite_10:.scene_metadata_regression_tests_b347_adapter
+run()->int:
+    selector:gate_io.read_line()
+    selector="scene_metadata_regression_tests"?
+        (suite_0.f358_gate())?! "SCENE_PROVIDER_GATE_FALSE"
+        @:0
+    selector="scene_metadata_export_regression_tests"?
+        (suite_1.f358_gate())?! "SCENE_PROVIDER_GATE_FALSE"
+        @:0
+    selector="scene_metadata_edit_regression_tests"?
+        (suite_2.f358_gate())?! "SCENE_PROVIDER_GATE_FALSE"
+        @:0
+    selector="scene_anchor_selection_regression_tests"?
+        (suite_3.f358_gate())?! "SCENE_PROVIDER_GATE_FALSE"
+        @:0
+    selector="typed_provider_transport_regression_tests"?
+        (suite_4.f358_gate())?! "SCENE_PROVIDER_GATE_FALSE"
+        @:0
+    selector="typed_provider_reference_adapter_tests"?
+        (suite_5.f358_gate())?! "SCENE_PROVIDER_GATE_FALSE"
+        @:0
+    selector="scene_metadata_export_regression_tests_b347_adapter"?
+        (suite_7.f358_gate())?! "SCENE_PROVIDER_GATE_FALSE"
+        @:0
+    selector="scene_anchor_selection_regression_tests_b347_adapter"?
+        (suite_8.f358_gate())?! "SCENE_PROVIDER_GATE_FALSE"
+        @:0
+    selector="scene_metadata_edit_regression_tests_b347_adapter"?
+        (suite_9.f358_gate())?! "SCENE_PROVIDER_GATE_FALSE"
+        @:0
+    selector="scene_metadata_regression_tests_b347_adapter"?
+        (suite_10.f358_gate())?! "SCENE_PROVIDER_GATE_FALSE"
+        @:0
+    (selector="never")?! "SCENE_PROVIDER_UNKNOWN_SELECTOR"
+    @:0
+run()

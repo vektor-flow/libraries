@@ -1,0 +1,143 @@
+# Native header/footer composition uses the same real source paragraph provider.
+document_present:.document_present
+document_materialize_config:.document_materialize_config
+text_source_paragraph:.text_source_paragraph
+text_source_paragraph_output:.text_source_paragraph_output
+text_parser:.text_parser
+paragraph_breaking:.paragraph_breaking
+paragraph_nodes:.paragraph_nodes
+unicode_case:.unicode_case
+tex_groups:.tex_groups
+tex_numeric:.tex_numeric
+tex_text:.tex_text
+resource_json:.resource_json
+text_chunks:.text_chunks
+json_numbers:.json_numbers
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+PageConfig:(values:[num],flags:[bit],penalties:[int])
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Configuration:(config:str,pages:PageConfig,packages:[str],math:MathContext,overrides:[str],class_name:str,optical:bit,hyperref:bit,diagnostics:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Result:(pages:[str],diagnostics:str,unresolved:str)
+number(tape:Tape,node:int,key:str,fallback:num=0)->num:document_materialize_config.number(tape,node,key,fallback)
+string(tape:Tape,node:int,key:str)->str:document_present.string(tape,node,key)
+raw(tape:Tape,node:int)->str:document_materialize_config.raw(tape,node)
+translate(tape:Tape,node:int,dx:num,dy:num,flex:bit=false,shrink:num=0,stretch:num=0)->str:
+    ends:tape.ends
+    at:node+1
+    chunks:text_chunks.empty(ends.(node)-node+4)
+    count:0
+    at<ends.(node)?>
+        key:resource_json.string(tape,at)
+        key~="x" /\ key~="y"?
+            prefix:""
+            count>0? .prefix:","
+            chunks.(count):prefix&raw(tape,at)&":"&raw(tape,at+1)
+            .count:count+1
+        .at:ends.(at+1)
+    prefix:""
+    count>0? .prefix:","
+    chunks.(count):prefix&"\"x\":"&json_numbers.roundtrip(dx+number(tape,node,"x"))&",\"y\":"&json_numbers.roundtrip(dy+number(tape,node,"y"))
+    .count:count+1
+    flex?
+        chunks.(count):",\"verticalShrink\":"&json_numbers.roundtrip(shrink)&",\"verticalStretch\":"&json_numbers.roundtrip(stretch)
+        .count:count+1
+    @:"{"&text_chunks.join(chunks,0,count)&"}"
+measure(source:str,role:str,width:num,scale:num,fonts:Catalog,roles:[str],language:Language,c:Configuration):
+    context:text_parser.context(role,roles,c.optical,c.hyperref)
+    settings:resource_json.parse(c.config)
+    context.legacy_symbols:document_present.flag(settings,0,"legacyTextSymbols")
+    options:paragraph_breaking.options(width)
+    options.justify:false
+    text_options:paragraph_nodes.text_options()
+    text_options.space_scale:scale
+    @:text_source_paragraph.typeset(source,fonts,context,c.math,language,c.overrides,options,text_options,"{}",document_materialize_config.raw_member(settings,0,"linkAppearance","{}"))
+prepare(count:int,source:str,metadata_json:str,has_title:bit,fonts:Catalog,roles:[str],language:Language,c:Configuration)->Result:
+    settings:resource_json.parse(c.config)
+    meta:resource_json.parse(metadata_json)
+    ams:c.class_name="amsart"
+    style:"plain"
+    ams? .style:"headings"
+    style_at:tex_text.find(source,"\\pagestyle{")
+    style_at>=0?
+        argument:tex_groups.read(source,style_at+10)
+        .style:argument.value
+    header:""
+    header_present:false
+    header_at:tex_text.find(source,"\\markboth")
+    header_at>=0?
+        first:tex_groups.read(source,header_at+9)
+        second:tex_groups.read(source,first.stop)
+        .header:second.value
+        .header_present:true
+    pages:text_chunks.empty(count)
+    diagnostics:""
+    unresolved:""
+    pt:tex_numeric.pt()
+    width:number(settings,0,"textWidth")
+    left:number(settings,0,"left")
+    top:number(settings,0,"top")
+    index:0
+    index<count?>
+        pages.(index):"[]"
+        style="empty"?
+            .index:index+1
+            @>
+        page_number:index+1
+        headings:style="headings" /\ ~(page_number=1 /\ (ams \/ has_title))
+        role:"roman"
+        ams? .role:"header"
+        q:measure(tex_text.integer(page_number),role,100,1,fonts,roles,language,c)
+        .diagnostics:document_materialize_config.merge(diagnostics,q.diagnostics)
+        ~q.lowering_complete? .unresolved:"{\"reason\":\"Unresolved page-number shaping\"}"
+        x:left+(width-q.width)/2
+        headings?
+            .x:left+width-q.width
+            ams /\ page_number%2=0? .x:left
+        y:top+number(settings,0,"textHeight")+number(settings,0,"footerOffset",30*pt)
+        headings? .y:top-number(settings,0,"headerOffset",25*pt)
+        packet:resource_json.parse(text_source_paragraph_output.scene(q))
+        items:resource_json.member(packet,0,"items")
+        ends:packet.ends
+        at:items+1
+        parts:text_chunks.empty(packet.count+1)
+        part_count:0
+        at<ends.(items)?>
+            prefix:""
+            part_count>0? .prefix:","
+            parts.(part_count):prefix&translate(packet,at,x,y)
+            .part_count:part_count+1
+            .at:ends.(at)
+        headings /\ (header_present \/ ams)?
+            title:header
+            ~header_present?
+                key:"title"
+                page_number%2=0? .key:"author"
+                .title:string(meta,0,key&"Option")
+                title=""? .title:string(meta,0,key)
+            ams? .title:unicode_case.uppercase(title)
+            title_role:"slanted"
+            ams? .title_role:"header"
+            scale:1.0
+            ams /\ page_number%2=1? .scale:1.3
+            box:measure(title,title_role,width,scale,fonts,roles,language,c)
+            .diagnostics:document_materialize_config.merge(diagnostics,box.diagnostics)
+            ~box.lowering_complete? .unresolved:"{\"reason\":\"Unresolved running-header shaping\"}"
+            title_x:left
+            ams? .title_x:left+(width-box.width)/2
+            title_y:top-number(settings,0,"headerOffset",25*pt)
+            title_packet:resource_json.parse(text_source_paragraph_output.scene(box))
+            title_items:resource_json.member(title_packet,0,"items")
+            title_ends:title_packet.ends
+            title_at:title_items+1
+            title_at<title_ends.(title_items)?>
+                prefix:""
+                part_count>0? .prefix:","
+                part_count>=parts.length()? .parts:parts&text_chunks.empty(parts.length())
+                parts.(part_count):prefix&translate(title_packet,title_at,title_x,title_y)
+                .part_count:part_count+1
+                .title_at:title_ends.(title_at)
+        pages.(index):"["&text_chunks.join(parts,0,part_count)&"]"
+        .index:index+1
+    @:(pages:pages,diagnostics:diagnostics,unresolved:unresolved)

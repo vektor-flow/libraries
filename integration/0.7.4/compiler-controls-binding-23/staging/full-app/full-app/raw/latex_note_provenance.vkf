@@ -1,0 +1,38 @@
+a267_linear:.document_scene_paragraph_linear
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+Store:(arena:Arena,firsts:[int],counts:[int],anchor_firsts:[int],anchor_counts:[int],anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int,widths:[num],heights:[num],depths:[num],tag_widths:[num],inline_destinations:[bit],count:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:Store,scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int,a260_text:str,a260_starts:[int],a260_stops:[int],a272_anchor_operations:[int],a272_anchor_ids:[str],a277_anchor_scenes:[int],a280_anchor_leaves:[int],a280_anchor_slots:[int],a282_anchor_points:[int])
+A267Origins:(scopes:[str],texts:[str],operations:[int],starts:[int],stops:[int],parts:[int],count:int)
+
+# Capture at the parser producer, before note serialization and translation.
+capture(q:Packet,scope:str)->A267Origins:
+    scene:a267_linear.from_paragraph(q)
+    arena:scene.arena
+    scopes:arena.a260_scopes
+    i:0
+    i<arena.count?>
+        scopes.(i):scope
+        .i:i+1
+    arena.a260_scopes:scopes
+    scene.arena:arena
+    a:scene.arena
+    @:(scopes:a.a260_scopes,texts:a.a260_texts,operations:a.a260_operations,starts:a.a260_starts,stops:a.a260_stops,parts:a.a260_parts,count:a.count)
+append(body:A267Origins,marker:A267Origins)->A267Origins:
+    @:(scopes:body.scopes&marker.scopes,texts:body.texts&marker.texts,operations:body.operations&marker.operations,starts:body.starts&marker.starts,stops:body.stops&marker.stops,parts:body.parts&marker.parts,count:body.count+marker.count)
+valid(p:A267Origins,count:int)->bit:
+    @:count>=0 /\ p.count=count /\ p.scopes.length()=count /\ p.texts.length()=count /\ p.operations.length()=count /\ p.starts.length()=count /\ p.stops.length()=count /\ p.parts.length()=count
+attach(input:Arena,p:A267Origins)->Arena:
+    valid(p,input.count)?! "Note emission/provenance cardinality mismatch"
+    out:input
+    out.a260_scopes:p.scopes
+    out.a260_texts:p.texts
+    out.a260_operations:p.operations
+    out.a260_starts:p.starts
+    out.a260_stops:p.stops
+    out.a260_parts:p.parts
+    @:out

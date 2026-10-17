@@ -1,0 +1,20 @@
+# Generated installation binding from resource-binding.json; NOT portable.
+# Root must verify pinned resource bytes before/after native execution.
+# No missing/corrupt resource fallback and no project/source defaults.
+io:.io
+font_catalog:.font_catalog
+hyphenation:.hyphenation
+text_parser_kernel:.text_parser_kernel
+tex_text:.tex_text
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+DocumentResources:(fonts:Catalog,operators:str,ordered_roles:[str],language:Language,resource_revision:str)
+load()->DocumentResources:
+    fonts:font_catalog.load(io.read_text("/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/b95d5f5e476473ec7571004dfb68a49e9173c28429c1d6564223691a08dc3236-catalog.vkfont"))
+    operators:io.read_text("/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/9813ddbf0d907eedcf7a6aa8d486228e3580f31f7c7f4eea1748b2d37ba21b55-operators.txt")
+    language:hyphenation.load(io.read_text("/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen"))
+    (fonts.size=11866638)?! "latex.tex2pdf: default font resource length mismatch"
+    (tex_text.byte_length(operators)=9197368)?! "latex.tex2pdf: default operator resource length mismatch"
+    (language.size=228922)?! "latex.tex2pdf: default language resource length mismatch"
+    ordered_roles:text_parser_kernel.roles("[\"roman\", \"bold\", \"italic\", \"mono\", \"sans\", \"slanted\", \"smallcaps\", \"section\", \"subsection\", \"subsubsection\", \"title\", \"author\", \"small\", \"smallbold\", \"footnote\", \"footnotemono\", \"footnotemark\", \"titlemark\", \"notemark\", \"header\", \"abstract\", \"abstractHeading\", \"footnoteitalic\", \"footnotebold\"]")
+    @:(fonts:fonts,operators:operators,ordered_roles:ordered_roles,language:language,resource_revision:"sha256:1c3a7cd46514d05206aa0e5492ba46fb008976d588feb8dcc01b6f3d7c7b8aca")

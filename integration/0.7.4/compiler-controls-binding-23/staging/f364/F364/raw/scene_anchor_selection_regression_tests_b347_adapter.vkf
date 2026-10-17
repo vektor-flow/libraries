@@ -1,0 +1,29 @@
+# UNCOMPILED source: selected anchor metadata ownership and rebased roots.
+legacy:.paragraph_scene_legacy
+store:.paragraph_scene_store
+metadata:.scene_metadata_json
+native_gate_main():
+    first:legacy.import_scene("{\"items\":[],\"inlineDestinations\":true,\"destinations\":[{\"id\":\"a\",\"x\":3,\"y\":4,\"extra\":[1,{\"z\":true}]}]}")
+    second:legacy.import_scene("{\"items\":[],\"destinations\":[{\"id\":\"b\",\"x\":5,\"y\":6},{\"id\":\"c\",\"x\":7,\"y\":8}]}")
+    retained:store.append(store.append(store.empty(),first),second)
+    selected:store.get(retained,1)
+    selected.anchor_metadata.count=second.anchor_metadata.count?! "Unrelated scene metadata retained"
+    selected.anchor_roots.(0)=0?! "Selected root not rebased"
+    (metadata.encode(selected.anchor_metadata,selected.anchor_roots.(1))=metadata.encode(second.anchor_metadata,second.anchor_roots.(1)))?! "Nested destination values/order"
+    before:metadata.encode(first.anchor_metadata,first.anchor_roots.(0))
+    roundtrip:store.get(store.append(store.empty(),store.get(retained,0)),0)
+    metadata.encode(roundtrip.anchor_metadata,roundtrip.anchor_roots.(0))=before?! "Nested first scene metadata"
+    roundtrip.inline_destinations?! "Inline destination flag"
+    retained.anchor_metadata.count=first.anchor_metadata.count+second.anchor_metadata.count?! "Earlier retained store changed"
+    points:legacy.point_scene(["point"],0)
+    mixed:store.append(retained,points)
+    point:store.get(mixed,2)
+    (point.anchor_metadata.count=0 /\ point.anchor_roots.(0)= -1)?! "Absent point metadata retained unrelated trees"
+    point.anchor_ids.(0)="point"?! "Point ID transport"
+    empty:store.get(store.append(mixed,store.empty_scene()),3)
+    (empty.anchor_metadata.count=0 /\ empty.anchor_roots.length()=0)?! "Empty scene retains unrelated metadata"
+
+
+f358_gate()->bit:
+    native_gate_main()
+    @:true

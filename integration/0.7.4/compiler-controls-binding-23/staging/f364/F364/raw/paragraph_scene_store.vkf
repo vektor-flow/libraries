@@ -1,0 +1,187 @@
+meta:.scene_metadata
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+# Flat retained scene transport. No owned vector of Scenes or JSON payloads.
+# Scene IDs are local value indices; copies retain independent earlier values.
+document_scene:.document_scene
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Store:(arena:Arena,firsts:[int],counts:[int],anchor_firsts:[int],anchor_counts:[int],anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int,widths:[num],heights:[num],depths:[num],tag_widths:[num],inline_destinations:[bit],count:int)
+
+empty()->Store:
+    @:(arena:document_scene.empty(),firsts:[0:0],counts:[0:0],anchor_firsts:[0:0],anchor_counts:[0:0],anchor_ids:document_scene.strings(0),anchor_xs:[0.0:0],anchor_ys:[0.0:0],anchor_lines:[0:0],anchor_scenes:[0:0],anchor_metadata:meta.empty(),anchor_roots:[-1:0],anchor_count:0,widths:[0.0:0],heights:[0.0:0],depths:[0.0:0],tag_widths:[0.0:0],inline_destinations:[false:0],count:0)
+empty_scene()->Scene:
+    @:(arena:document_scene.empty(),anchor_ids:document_scene.strings(0),anchor_xs:[0.0:0],anchor_ys:[0.0:0],anchor_lines:[0:0],anchor_metadata:meta.empty(),anchor_roots:[-1:0],anchor_count:0,width:0.0,height:0.0,depth:0.0,tag_width:0.0,inline_destinations:false)
+shift_payload(value:Payload,paint_base:int)->Payload:
+    out:value
+    value.fill_paint>=0? out.fill_paint:value.fill_paint+paint_base
+    value.stroke_paint>=0? out.stroke_paint:value.stroke_paint+paint_base
+    @:out
+shift_id(value:int,base:int)->int:
+    value<0? @:value
+    @:value+base
+append(input:Store,value:Scene,inline_destinations:bit=false)->Store:
+    out:input
+    a:input.arena
+    b:value.arena
+    [int] paints:[0:b.count]
+    [int] payloads:[0:b.count]
+    [int] destinations:[0:b.count]
+    i:0
+    i<b.count?>
+        paints.(i):shift_id(b.paints.(i),a.paint_count)
+        payloads.(i):shift_id(b.payloads.(i),a.payload_count)
+        destinations.(i):b.destination_firsts.(i)+a.destination_ids.length()
+        .i:i+1
+    [int] payload_indices:[0:b.payload_count]
+    [Payload] shifted_payloads:payload_indices >> shift_payload(b.payload_table.($0),a.paint_count)
+    updated_arena:out.arena
+    updated_arena.kinds:a.kinds&b.kinds
+    updated_arena.keys:a.keys&b.keys
+    updated_arena.xs:a.xs&b.xs
+    updated_arena.ys:a.ys&b.ys
+    updated_arena.sxs:a.sxs&b.sxs
+    updated_arena.sys:a.sys&b.sys
+    updated_arena.widths:a.widths&b.widths
+    updated_arena.heights:a.heights&b.heights
+    updated_arena.lines:a.lines&b.lines
+    updated_arena.equation_tags:a.equation_tags&b.equation_tags
+    updated_arena.tag_widths:a.tag_widths&b.tag_widths
+    updated_arena.draws:a.draws&b.draws
+    [int] metadata_indices:[0:b.count]
+    updated_arena.metadata:meta.append(a.metadata,b.metadata)
+    [int] shifted_metadata_roots:metadata_indices >> meta.shift(b.metadata_roots.($0),a.metadata.count)
+    updated_arena.metadata_roots:a.metadata_roots&shifted_metadata_roots
+    [int] shifted_glyph_parts:metadata_indices >> meta.shift(b.glyph_parts.($0),a.metadata.count)
+    updated_arena.glyph_parts:a.glyph_parts&shifted_glyph_parts
+    updated_arena.flow_xs:a.flow_xs&b.flow_xs
+    updated_arena.flow_widths:a.flow_widths&b.flow_widths
+    updated_arena.has_flows:a.has_flows&b.has_flows
+    updated_arena.vertical_shrinks:a.vertical_shrinks&b.vertical_shrinks
+    updated_arena.vertical_stretches:a.vertical_stretches&b.vertical_stretches
+    updated_arena.paints:a.paints&paints
+    updated_arena.payloads:a.payloads&payloads
+    updated_arena.destination_firsts:a.destination_firsts&destinations
+    updated_arena.destination_counts:a.destination_counts&b.destination_counts
+    updated_arena.destination_ids:a.destination_ids&b.destination_ids
+    updated_arena.count:a.count+b.count
+    updated_arena.paint_table:a.paint_table&b.paint_table
+    updated_arena.paint_count:a.paint_count+b.paint_count
+    updated_arena.payload_table:a.payload_table&shifted_payloads
+    updated_arena.payload_count:a.payload_count+b.payload_count
+    updated_arena.footnote_numbers:a.footnote_numbers&b.footnote_numbers
+    updated_arena.a260_scopes:a.a260_scopes&b.a260_scopes
+    updated_arena.a260_texts:a.a260_texts&b.a260_texts
+    updated_arena.a260_operations:a.a260_operations&b.a260_operations
+    updated_arena.a260_starts:a.a260_starts&b.a260_starts
+    updated_arena.a260_stops:a.a260_stops&b.a260_stops
+    updated_arena.a260_parts:a.a260_parts&b.a260_parts
+    out.arena:updated_arena
+    out.firsts:input.firsts&[a.count]
+    out.counts:input.counts&[b.count]
+    out.anchor_firsts:input.anchor_firsts&[input.anchor_count]
+    out.anchor_counts:input.anchor_counts&[value.anchor_count]
+    out.anchor_ids:input.anchor_ids&value.anchor_ids
+    out.anchor_xs:input.anchor_xs&value.anchor_xs
+    out.anchor_ys:input.anchor_ys&value.anchor_ys
+    out.anchor_lines:input.anchor_lines&value.anchor_lines
+    [int] anchor_metadata_indices:[0:value.anchor_count]
+    out.anchor_metadata:meta.append(input.anchor_metadata,value.anchor_metadata)
+    [int] shifted_anchor_roots:anchor_metadata_indices >> anchor_root(value,$0,input.anchor_metadata.count)
+    out.anchor_roots:input.anchor_roots&shifted_anchor_roots
+    out.anchor_scenes:input.anchor_scenes&[input.count:value.anchor_count]
+    out.anchor_count:input.anchor_count+value.anchor_count
+    out.widths:input.widths&[value.width]
+    out.heights:input.heights&[value.height]
+    out.depths:input.depths&[value.depth]
+    out.tag_widths:input.tag_widths&[value.tag_width]
+    out.inline_destinations:input.inline_destinations&[inline_destinations \/ value.inline_destinations]
+    out.count:input.count+1
+    @:out
+get(input:Store,id:int)->Scene:
+    (id>=0 /\ id<input.count)?! "Invalid retained scene ID"
+    count:input.counts.(id)
+    first:input.firsts.(id)
+    [int] indices:[0:count]
+    [Leaf] leaves:indices >> document_scene.leaf_at(input.arena,first+$0)
+    anchors:input.anchor_counts.(id)
+    anchor_first:input.anchor_firsts.(id)
+    selected:select_anchor_metadata(input,anchor_first,anchors)
+    [int] anchor_indices:[0:anchors]
+    @:(arena:document_scene.from_leaves(leaves,count),anchor_ids:anchor_indices >> input.anchor_ids.(anchor_first+$0),anchor_xs:anchor_indices >> input.anchor_xs.(anchor_first+$0),anchor_ys:anchor_indices >> input.anchor_ys.(anchor_first+$0),anchor_lines:anchor_indices >> input.anchor_lines.(anchor_first+$0),anchor_metadata:selected.metadata,anchor_roots:selected.roots,anchor_count:anchors,width:input.widths.(id),height:input.heights.(id),depth:input.depths.(id),tag_width:input.tag_widths.(id),inline_destinations:input.inline_destinations.(id))
+visible(value:Scene)->bit:
+    i:0
+    i<value.arena.count?>
+        value.arena.kinds.(i)~=3? @:true
+        .i:i+1
+    @:false
+# Append destination strings and retarget only the selected first visible leaf.
+# Old Store/Arena values remain valid; no nested String-vector growth.
+# Selectors captured by the actual mark producer, never semantic identity.
+# first is a leaf-local destination occurrence, not the backing tape offset.
+mark(input:Store,id:int,ids:[str])->Store:
+    @:a279_mark_mapped(input,id,ids).store
+
+a279_mark_mapped(input:Store,id:int,ids:[str]):
+    (id>=0 /\ id<input.count)?! "Invalid retained scene ID"
+    out:input
+    ids.length()=0? @:(store:out,leaf: -1,first: -1,count:0)
+    first:input.firsts.(id)
+    stop:first+input.counts.(id)
+    i:first
+    i<stop?>
+        input.arena.kinds.(i)~=3?
+            old_first:input.arena.destination_firsts.(i)
+            old_count:input.arena.destination_counts.(i)
+            [int] old_indices:[0:old_count]
+            previous:old_indices >> input.arena.destination_ids.(old_first+$0)
+            updated_arena:out.arena
+            destination_firsts:updated_arena.destination_firsts
+            destination_counts:updated_arena.destination_counts
+            destination_firsts.(i):input.arena.destination_ids.length()
+            destination_counts.(i):old_count+ids.length()
+            updated_arena.destination_firsts:destination_firsts
+            updated_arena.destination_counts:destination_counts
+            updated_arena.destination_ids:input.arena.destination_ids&previous&ids
+            root:input.arena.metadata_roots.(i)
+            root>=0?
+                changed:meta.replace_member(input.arena.metadata,root,"destinationIds",meta.string_array(previous&ids))
+                metadata_roots:updated_arena.metadata_roots
+                glyph_parts:updated_arena.glyph_parts
+                metadata_roots.(i):input.arena.metadata.count
+                glyph_parts.(i):meta.shift(meta.member(changed,0,"glyphParts"),input.arena.metadata.count)
+                updated_arena.metadata_roots:metadata_roots
+                updated_arena.glyph_parts:glyph_parts
+                updated_arena.metadata:meta.append(input.arena.metadata,changed)
+            out.arena:updated_arena
+            @:(store:out,leaf:i,first:old_count,count:ids.length())
+        .i:i+1
+    @:(store:out,leaf: -1,first: -1,count:0)
+
+anchor_root(value:Scene,index:int,base:int)->int:
+    index>=value.anchor_roots.length()? @: -1
+    @:meta.shift(value.anchor_roots.(index),base)
+
+# A selected scene owns only its anchor subtrees, never other retained scenes.
+select_anchor_metadata(input:Store,first:int,count:int)->(metadata:Metadata,roots:[int]):
+    metadata:meta.empty()
+    [int] roots:[-1:count]
+    i:0
+    i<count?>
+        root:input.anchor_roots.(first+i)
+        root>=0?
+            roots.(i):metadata.count
+            .metadata:meta.append(metadata,meta.subtree(input.anchor_metadata,root))
+        .i:i+1
+    @:(metadata:metadata,roots:roots)
+
+# Translate an actual mark receipt through A278 emission, without name matching.
+# Unknown/no-visible-leaf receipts reject; point anchors use a separate channel.
+a279_emitted_mark(leaf:int,first:int,count:int,retained_to_leaf:[int],destination_counts:[int]):
+    leaf>=0 /\ leaf<retained_to_leaf.length()?! "Unbound marked leaf"
+    target:retained_to_leaf.(leaf)
+    target>=0 /\ target<destination_counts.length()?! "Unemitted marked leaf"
+    first>=0 /\ count>0 /\ first<=destination_counts.(target) /\ count<=destination_counts.(target)-first?! "Invalid marked occurrence range"
+    @:(leaf:target,first:first,count:count)

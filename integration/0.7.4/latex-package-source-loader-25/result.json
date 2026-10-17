@@ -1,0 +1,75 @@
+{
+  "id": "LPS25",
+  "worker": "01a14a28-8104-77d3-9335-fdb9e8475a73",
+  "status": "source-foundation-ready-package-interpreter-unimplemented",
+  "source_commit": "124ded9a103af1df108ba5b3334021d78b811c65",
+  "shared_source_unchanged": true,
+  "patch": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-package-source-loader-25/package-source-foundation.patch",
+  "patch_sha256": "d8859f3ff4dad39afee09228ecb9cb94199312719c87ef2f704001b57d6f3328",
+  "handoff": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-package-source-loader-25/HANDOFF.txt",
+  "tests": {
+    "stages": [
+      {
+        "name": "package-sources",
+        "argv": [
+          "node",
+          "--jitless",
+          "--max-old-space-size=160",
+          "--max-semi-space-size=4",
+          "--import",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-package-source-loader-25/current-source-hooks.mjs",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-package-source-loader-25/candidate/examples/gpu-math/native-vkf/host/tests/package-sources.mjs"
+        ],
+        "pid": 206904,
+        "exit": 0,
+        "seconds": 0.16561182599980384,
+        "joined": true,
+        "timeout": false,
+        "as_limit_bytes": 536870912
+      },
+      {
+        "name": "source-checks",
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-package-source-loader-25/verify_source.py"
+        ],
+        "pid": 206911,
+        "exit": 0,
+        "seconds": 0.06644774600863457,
+        "joined": true,
+        "timeout": false,
+        "as_limit_bytes": 536870912
+      },
+      {
+        "name": "patch-check",
+        "argv": [
+          "git",
+          "apply",
+          "--check",
+          "--whitespace=error-all",
+          "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-package-source-loader-25/package-source-foundation.patch"
+        ],
+        "pid": 206912,
+        "exit": 0,
+        "seconds": 0.005712231970392168,
+        "joined": true,
+        "timeout": false,
+        "as_limit_bytes": 536870912
+      }
+    ],
+    "passed": true,
+    "all_children_joined": true,
+    "native_executed": false,
+    "child_maxrss_kib": 70588
+  },
+  "host_tests_passed": 11,
+  "source_checks_passed": 5,
+  "native_executed": false,
+  "tex_executed": false,
+  "packages_interpreted": false,
+  "origins": "declared preparation records; not native producer authentication",
+  "notifications": "memory/progress acknowledged; final delivery acknowledgment is recorded separately in done-notification-result.json",
+  "owned_children_joined": true,
+  "done_notification_result": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/latex-package-source-loader-25/done-notification-result.json"
+}

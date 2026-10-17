@@ -1,0 +1,82 @@
+PDF SELECTION22 — SOURCE PROPOSAL COMPLETE; NATIVE/READER/API UNQUALIFIED
+Owner01a14a1d-0472-78f3-a88e-39d98a0256da; root01a14893-cb1e-7203-97dd-de3da44dcf31.
+Grant4302f7a; observed authorized root successor124ded9a103af1df108ba5b3334021d78b811c65.
+All pinned shared production inputs unchanged. API21 final contracts pinned;
+no interface conflict. Project instructions/current handovers, selection03,
+owner04, bridge05 and renderer19 SOURCE-GAPS/assertions read. No on-disk repo
+AGENTS; inherited /home/viktor/Projects/AGENTS.md applies.
+
+DELIVERY
+selection-implementation.patch: five files, unapplied/uncommitted. Exact payload
+under candidate/. One existing file: document_pdf_bulk.vkf. Four new files:
+pdf_selection_plan.vkf, pdf_selection_encoder_tests.vkf,
+host/latex_pdf_selection.mjs, host/tests/pdf-selection-plan.mjs.
+SelectionPlan.schema.json, plan-type.txt, SELECTION-CONTRACT.txt define exact
+schema, native signature and host capability/byte contracts. Artifact digests
+in result.json/artifact-pins.json. Root owns integration; no peer edits.
+
+IMPLEMENTED
+encode_selected(doc,fonts,operators,plan,default_color=[0,0,0,1])->str validates
+full direct-literal plan against typed PageDocument then groups complete original
+paint/glyph chunks through accepted pdf_selection.actual_text UTF16BE/BOM.
+Unique cluster emissions deduplicated once; distinct repeated source glyphs remain.
+Logical group may span pages between clusters; indivisible cross-page cluster
+refuses. Original core drawing statements/records/resources/serializer preserved;
+legacy encode/encode_detail delegate with selected=false and empty arrays.
+Native source equivalence is NOT measured native byte/geometry equivalence.
+
+Host createPdfSelectionSession internally uses real createSourceBindingBridge.
+No injected validator/authenticated flag. Calls exact existing binder with typed
+layout, validates authored coverage, issues current preparation-bound immutable
+plan/document ticket. Foreign/cloned/stale/no-op-raced tickets refuse.
+serializePlan retains exact UTF-8 JSON bytes and SHA256; copies cannot alter sealed
+bytes. Schema digest covers exact schema bytes. This is preparation integrity,
+NOT native completion authentication. API21 same-layout result aligns; trusted
+adapter must consume exact .layout, same native document and resource pair.
+
+LIMITS / DEPENDENCIES
+Only directly authored literal kind0 drawn glyphs; one source span/group.
+TeX expansion, macros, syntax, whitespace normalization, active/dash/quote
+transformations, disjoint sources and crossing clusters fail explicitly. No
+source origin inferred from geometry; no repeated parser source per glyph.
+ActualText outline wrapping alone is not ordinary-reader selection support.
+Real producer mappings/logical text/page split policy, native marshaller/trusted
+request+completion registry, immutable native resource identity, ToUnicode/text
+fallback, source/map attachment and guarded atomic standalone PDF publication
+remain necessary. Native structural plan can never self-authenticate. Public
+selectable/editable/dest/default remains unsupported; no success flags added.
+Performance unmeasured; native scalar-boundary checks rescan source prefixes.
+
+VALIDATION — bounded host only, all children joined
+final-results.json: 13/13 new host tests0.216s; existing bridge17/17 0.217s;
+provenance-entry5checks/1711comparisons0.618s; source contracts7/7 0.067s;
+git apply --check --whitespace=error-all0.006s. Each child AS<=512MiB,
+CPU55s/wall60s, final child maxRSS68580KiB. Raw stdout/stderr retained.
+Supplementary Unicode, ligature, combining/multi-emission cluster, repeated glyph,
+multi-page group, all ownership refusals, source/scalar mismatch, immutable bytes,
+foreign capabilities and no-op stale state covered. Host typed records are explicit
+fixtures, not generated native output. Core inverse-delta check proves original
+source body unchanged; independent stream/UTF16 model is not native or reader proof.
+
+First async-loader Node launch failed std::bad_alloc under512MiB AS; child180531
+joined, maxRSS70540KiB. Immediate root memory notification sent. Synchronous
+registerHooks removed extra loader isolate; same cap, checks02/final passed.
+Failure logs preserved; no cap increase or unchanged blind retry.
+
+NATIVE FIXTURES / NEXT REVIEW
+pdf_selection_encoder_tests.vkf contains actual positive encoder/Unicode/page/
+repeat assertions and eight negative entry functions. future-native/ contains
+nine separate harnesses; native-fixtures.json lists expected runtime assertions.
+ALL UNCOMPILED/UNEXECUTED. Root must require successful compilation first, then
+exact nonzero runtime assertion for negatives; compiler failure is not refusal.
+Next qualify actual producer+same-layout selected path, exact original40 legacy
+PDF bytes, selected geometry/raster and reader interactions. No native credit.
+
+REPRODUCE
+Authoritative final candidate and patch; package_patch.py reconstructs patch.
+run_checks.py uses --import current-source-hooks.mjs against unchanged shared
+dependencies. To rerun full suite use a fresh label beginning final (e.g. final02).
+Historical draft generator texts are evidence only, not final-source generators.
+No native/compiler/link/namespace/services/policy/runtime IO/commit/subagent work.
+All writes own output; D267/D289 exclusions, dispatcherhold and charges preserved.
+ONE DONE notification with this HANDOFF/result follows sealing; then stop.
