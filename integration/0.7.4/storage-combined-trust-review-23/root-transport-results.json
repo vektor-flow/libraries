@@ -1,0 +1,183 @@
+[
+  {
+    "mode": "pre",
+    "fail_guard": true,
+    "reject": false,
+    "pid": 50931,
+    "code": 126,
+    "accepted": [],
+    "stages": [],
+    "frame_sizes": [],
+    "polls": 1,
+    "elapsed": 0.06051365996245295,
+    "joined": {
+      "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+      "timed_out": false,
+      "guard_error": "TEST_ONLY unchanged resource guard rejection",
+      "orphaned_descendant_on_exit": false,
+      "tracked": [
+        {
+          "pid": 50931,
+          "state": "R",
+          "ppid": 50930,
+          "pgrp": 50931,
+          "session": 50931,
+          "starttime": 75207258
+        }
+      ],
+      "reaped_by_controller": [],
+      "remaining_identities": [],
+      "no_live_descendants": true,
+      "limitations": [
+        "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+      ]
+    }
+  },
+  {
+    "mode": "pre",
+    "fail_guard": false,
+    "reject": true,
+    "pid": 50938,
+    "code": 126,
+    "accepted": [],
+    "stages": [],
+    "frame_sizes": [
+      14133
+    ],
+    "polls": 5,
+    "elapsed": 1.1970423200400546,
+    "joined": {
+      "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+      "timed_out": false,
+      "guard_error": "TEST_ONLY observation rejection",
+      "orphaned_descendant_on_exit": false,
+      "tracked": [
+        {
+          "pid": 50938,
+          "state": "R",
+          "ppid": 50930,
+          "pgrp": 50938,
+          "session": 50938,
+          "starttime": 75207264
+        }
+      ],
+      "reaped_by_controller": [],
+      "remaining_identities": [],
+      "no_live_descendants": true,
+      "limitations": [
+        "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+      ]
+    }
+  },
+  {
+    "mode": "partial",
+    "fail_guard": false,
+    "reject": false,
+    "pid": 50956,
+    "code": 0,
+    "accepted": [],
+    "stages": [],
+    "frame_sizes": [],
+    "polls": 1,
+    "elapsed": 0.10337113204877824,
+    "joined": {
+      "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+      "timed_out": false,
+      "guard_error": null,
+      "orphaned_descendant_on_exit": false,
+      "tracked": [
+        {
+          "pid": 50956,
+          "state": "R",
+          "ppid": 50930,
+          "pgrp": 50956,
+          "session": 50956,
+          "starttime": 75207384
+        }
+      ],
+      "reaped_by_controller": [],
+      "remaining_identities": [],
+      "no_live_descendants": true,
+      "limitations": [
+        "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+      ]
+    }
+  },
+  {
+    "mode": "hang",
+    "fail_guard": false,
+    "reject": false,
+    "pid": 50957,
+    "code": 124,
+    "accepted": [],
+    "stages": [],
+    "frame_sizes": [],
+    "polls": 3,
+    "elapsed": 0.43143967096693814,
+    "joined": {
+      "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+      "timed_out": true,
+      "guard_error": null,
+      "orphaned_descendant_on_exit": false,
+      "tracked": [
+        {
+          "pid": 50957,
+          "state": "R",
+          "ppid": 50930,
+          "pgrp": 50957,
+          "session": 50957,
+          "starttime": 75207395
+        }
+      ],
+      "reaped_by_controller": [],
+      "remaining_identities": [],
+      "no_live_descendants": true,
+      "limitations": [
+        "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+      ]
+    }
+  },
+  {
+    "mode": "pre",
+    "fail_guard": false,
+    "reject": false,
+    "pid": 50958,
+    "code": 0,
+    "accepted": [
+      "pre",
+      "post"
+    ],
+    "stages": [
+      "pre",
+      "post"
+    ],
+    "frame_sizes": [
+      14133,
+      12228
+    ],
+    "polls": 8,
+    "elapsed": 2.034070022054948,
+    "joined": {
+      "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+      "timed_out": false,
+      "guard_error": null,
+      "orphaned_descendant_on_exit": false,
+      "tracked": [
+        {
+          "pid": 50958,
+          "state": "R",
+          "ppid": 50930,
+          "pgrp": 50958,
+          "session": 50958,
+          "starttime": 75207438
+        }
+      ],
+      "reaped_by_controller": [],
+      "remaining_identities": [],
+      "no_live_descendants": true,
+      "limitations": [
+        "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+      ]
+    }
+  }
+]

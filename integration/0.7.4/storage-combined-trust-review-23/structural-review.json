@@ -1,0 +1,132 @@
+{
+  "storage_controller.py": {
+    "unchanged": [
+      "pin",
+      "proc",
+      "same",
+      "mem",
+      "free",
+      "resident",
+      "sandbox",
+      "run_command",
+      "typed_json",
+      "parse_get_unit",
+      "parse_exec_start",
+      "Linux.output",
+      "Linux.show",
+      "Linux.argv",
+      "Linux.units",
+      "Linux.empty",
+      "Linux.profile",
+      "Linux.restore_high",
+      "Controller.__init__",
+      "Controller.current",
+      "Controller.service_argv",
+      "Controller.custody",
+      "Controller.authenticate_record_sources",
+      "Controller.authenticate_record",
+      "Controller.host",
+      "Controller.authenticate",
+      "Controller.attach",
+      "Controller.verify_join",
+      "Controller.write_receipt",
+      "Controller.seal_incomplete",
+      "Controller.outer",
+      "main"
+    ],
+    "changed": [
+      "Controller.inner"
+    ],
+    "removed": [],
+    "added": []
+  },
+  "private_workload.py": {
+    "unchanged": [
+      "_security_snapshot",
+      "_security_diagnostic",
+      "_drop_capabilities",
+      "initialize_origin_capabilities",
+      "policy_gate",
+      "private_snapshot",
+      "main"
+    ],
+    "changed": [
+      "verify_dependencies",
+      "context",
+      "command",
+      "gate"
+    ],
+    "removed": [
+      "trusted_system_file"
+    ],
+    "added": [
+      "stat_record",
+      "single_map",
+      "_bounded_read",
+      "_proc_context",
+      "trust_observation",
+      "dependency_diagnostic",
+      "validate_observation",
+      "scaffold_source_contract",
+      "validate_scaffold",
+      "compare_host",
+      "compare_namespace",
+      "validate_stage_context",
+      "_process",
+      "_descendant",
+      "_ns_identity",
+      "_related",
+      "lineage",
+      "_frame",
+      "_write_all",
+      "namespace_trust",
+      "HostTrust.__init__",
+      "HostTrust._open_ns",
+      "HostTrust.pass_fds",
+      "HostTrust.attach",
+      "HostTrust.poll",
+      "HostTrust._accept",
+      "HostTrust.complete",
+      "HostTrust.close",
+      "verify_dependency_contract",
+      "runtime_view"
+    ]
+  },
+  "effective_storage.py": "byte-identical to frozen installed v8",
+  "storage_paths.py": "byte-identical to frozen installed v8",
+  "storage_admission.py": "byte-identical to frozen installed v8",
+  "terminal_recovery.py": "byte-identical to frozen installed v8",
+  "candidate_pins": [
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-namespace-trust-repair-20/combined-review/terminal_recovery.py",
+      "sha256": "5d8bef94d375df2145d4345dcae271382e3cdb408a118f768ab3bb6a43dc489c",
+      "size": 34543
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-namespace-trust-repair-20/combined-review/storage_controller.py",
+      "sha256": "679a326466cc127a0b5a70baca3230c408de9a94b1bb5b7c6d8df9bf8d330bb3",
+      "size": 33060
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-namespace-trust-repair-20/combined-review/effective_storage.py",
+      "sha256": "fa1ed6580ba3a68334c20962e0c0e5bda6119008ba354a7cd7a401bb3f4952e0",
+      "size": 8652
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-namespace-trust-repair-20/combined-review/storage_admission.py",
+      "sha256": "3f81d95ab8efcaa469b7f5c7b7c9e401bebe1acabd2a1cf643ce9eb73394ed61",
+      "size": 31499
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-namespace-trust-repair-20/combined-review/storage_paths.py",
+      "sha256": "5d8e720b1c15ae97dc06e4bb05fe1da6287739f37d525f13d93d38e922760b7d",
+      "size": 5795
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-namespace-trust-repair-20/combined-review/private_workload.py",
+      "sha256": "bb337ff57ecc96cf446d8e251e95dde0428dd2bcf7dea80cb1277e5adf450a1b",
+      "size": 44266
+    }
+  ],
+  "HEAD": "d7c7df2b57116aaf145c599edaddd2dae01a9855"
+}

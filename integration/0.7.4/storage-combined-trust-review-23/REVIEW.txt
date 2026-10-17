@@ -1,0 +1,162 @@
+REVIEW23 — ACCEPT EXACT COMBINED SOURCE FOR ROOT REVIEW; RUNTIME UNQUALIFIED
+2026-10-17. Worker 01a149c3-9d8a-7542-8303-df8791f01fe2.
+
+DECISION AND EXACT SCOPE
+No confirmed concrete blocker or soundness defect found requiring a patch.
+Recommend accepting the exact combined-review source as the proposed successor,
+subject to root's existing adoption/fresh-grant process. This is not deployment
+authority, successful namespace qualification, or permission for another attempt.
+No redesign, policy addition, trust flag, overflow whitelist or patch proposed.
+
+Reviewed controller SHA256:
+679a326466cc127a0b5a70baca3230c408de9a94b1bb5b7c6d8df9bf8d330bb3
+Reviewed combined private_workload SHA256:
+bb337ff57ecc96cf446d8e251e95dde0428dd2bcf7dea80cb1277e5adf450a1b
+structural-review.json binds all six combined files and function comparisons.
+Frozen files matched installed v8 through the 87 inherited input pins. Read the
+shared handover/status and scoped20/21/22 handoffs in date/scope order. No local
+AGENTS.md exists. Root's dd7b21c/d7c7df2 evidence commits followed granted1c69ef8;
+the reviewed candidate hashes did not change. No worker commits or peer writes.
+
+WIRE / ACTUAL OWNED WAIT
+private_workload.py313-350,413-435: compact JSON plus one newline, strict duplicate
+key/nonfinite rejection, MAX_FRAME262144 including newline, incremental host
+buffer; no acceptance before a complete frame. Host read and reply-write ends
+are nonblocking. Consecutive/concatenated requests, premature EOF, overflow and
+out-of-order stages reject. ACK binds stage, nonce and the exact raw request hash;
+the child insists on accepted is True as well as exact response equality.
+
+The original Pipes.invoke test replaces _write_all with immediate synthetic ACK;
+its poll tests replace os.read. Those cannot establish producer backpressure,
+real fragmentation, cross-exec FD survival or guard-driven progress. Review23's
+test_transport.py uses the unchanged real namespace_trust, HostTrust.poll,
+HostTrust.attach and exact pinned owned-processes.py wait_owned. HostTrust._accept
+is explicitly a TEST_ONLY transport verifier, not a namespace/custody authority.
+No test invokes gate(), unshare, bwrap, capset, prctl, services or a compiler.
+
+Actual host-read dependency observation plus the real historical live19 manifest
+and combined command construction generate pre14133/post12228-byte frames.
+No historical grant is executed. A private 4096-byte pipe forces fragmented
+delivery across guard callbacks. An ordinary -I -B Python child sends pre, execs
+another ordinary Python, sends post, and verifies both endpoints closed. The
+two-stage run passes in2.028871s over8 guard polls. Normal joins, injected observer
+failure/no ACK, injected resource-guard rejection, partial-frame fast exit and
+overall timeout all pass. Five children plus the test runner joined/absent.
+TEST_ONLY-transport-results.json contains exact identities, stages and joins.
+
+The fast partial-frame child returns0 before the next guard callback; complete()
+correctly rejects absent stages. Controller.inner523-530 converts that zero-exit
+missing-stage case to126 after joining. This is a real ordering detail that the
+new test preserves, rather than incorrectly requiring poll to observe every EOF.
+
+The helper's15s reply timer starts AFTER its blocking request write. Host polling
+and wait_owned's existing overall timeout bound an otherwise blocked producer;
+the timer alone does not. This distinction is confirmed by source, not hidden
+behind the old immediate-ACK fixture. No new independent hard wall-clock promise
+is made for filesystem/proc reads or existing locked ledger/authentication work.
+The tests use real wait_owned but injected test guards; they do not measure the
+actual operational ledger/systemctl guard latency. Controller still polls on
+each guard call and performs the same >=1s ledger refresh, with a prelaunch guard.
+
+FD / SOURCE TRACE
+Exact applied Ubuntu source under storage-propagation-repair-10/sources:
+ubuntu-unshare.c966-970 selects current IDs;1104 unshares,1213-1232 maps IDs and
+makes mounts private,1288 execvp. This argv has no --fork, mapping helpers,
+namespace persistence or extra endpoint-closing branch. Python pass_fds explicitly
+preserves only the two child endpoints; pre never resets their inheritable flags.
+
+ubuntu-bubblewrap.c3134 clones; parent monitor512-521 closes extra FDs only in
+its branch. Final PID1 fork3558-3590 preserves child endpoints while PID1 closes
+its copies3574-3587. Unconsumed endpoints reach the final command; final post
+closes both before strict storage checking/payload. The ordinary exec test checks
+Python inheritance, not live bwrap inheritance or LSM permission. Controller
+attach closes its child copies and finally closes parent/held-namespace FDs.
+
+PID / CUSTODY / RACES
+_accept437-505 selects exactly one PID from the admitted cgroup with exact helper
+argv and namespace links. It checks the interpreter, starttime-bound descendant
+leader, host UID/GID/cgroup/maps, held namespace identity/lineage and child-root
+descriptor. A second _process(pid)==p rejects starttime, ppid, exe, argv, namespace,
+map or cgroup drift across the observation interval. No PID-number-only success.
+Holding namespace FDs prevents reuse during the proof; process maps and source
+lineage independently constrain the child-reported observations.
+
+_process/attach reads are not atomic. Attach occurs before readiness and could
+fail closed on transient exec/proc inaccessibility; scanning all admitted cgroup
+PIDs can similarly reject an unreadable/exiting member. The actual pinned source
+does not establish an inevitable failure here. Do not call these reads race-free
+or claim a live permission result. Matching helper readiness precedes the
+release's privileged-view root/namespace observations; no earlier monitor is
+accepted as the final helper. Exceptions propagate through wait_owned cleanup.
+The existing snapshot-based descendant cleanup limitation is unchanged; actual
+service/cgroup empty verification is still required outside the owned-child join.
+
+OBSERVER MAPS / PERMISSION POLICY
+Exact bwrap2147,3031-3034,3076-3134,3291-3305,3456-3508 yields host H -> pre U1
+(1000:1000:1) -> setup U2(0:1000:1) -> final U3(1000:0:1). mnt/pid/net belong
+to U2; final pid parent is host pid; cgroup namespace is unchanged. The actual
+lineage checks use held FDs and NS_GET_PARENT/NS_GET_USERNS from H, with failures
+fatal. They do not require the child to inspect inaccessible ancestors.
+
+Final self maps1000:0:1 and host-read final maps1000:1000:1 are distinguished;
+the host status IDs are in host scope. The retained upstream-v7 user_namespace.c
+613-648 implements reader-relative maps,1377-1406 constrains namespace ancestry
+to the observer's userns scope. These files are corroboration, not exact Ubuntu
+kernel sources. No actual intermediate mapping is fabricated: proof explicitly
+says intermediate_maps_observed=false and relies on the pinned binary/argv,
+actual ancestry and separate host/self maps for that intermediate source contract.
+
+Host root means host-side child-root DESCRIPTOR observation, not a UID0 controller.
+The controller remains ordinary UID1000. Target /proc root/exe/ns links require
+ptrace read access; dumpable1 is set by bwrap949-955,3508 before final helper exec.
+Owner-of-descendant-userns authority and the exact profile readby/ptrace rules
+support the intended read; same UID alone is not the argument. Audit21's
+upstream proc-namespaces58/83 and repair18 linux-file619-670/710-750 explain access
+checks and inherited-FD revalidation but do not prove installed-kernel success.
+The pre profile's narrow write rules are not by themselves evidence of anonymous
+pipe denial: anonymous pipe handling is distinct from named path writes. No
+policy relaxation is justified by this source review. Actual inherited-pipe,
+/proc, ioctl and stacked-policy access remains a separately granted live boundary.
+
+SCAFFOLD / ANCESTRY / STRICT GATES
+The combined command actually constructs the four explicit recursive read trees,
+compatibility links, fresh dev/proc, readonly shm, one charged bind and final
+nonrecursive --remount-ro /. Exact BW3318-3337 creates tmpfs/newroot0755 with
+umask0 at3306;3429-3453 pivots into it. BM465-484's EACCES tolerance does NOT
+justify skipping mount rows; the unchanged effective checker still rejects them.
+No /run,/var,/sys host tree is imported. Retained /usr,/etc,/home,/mnt submounts
+remain subject to the complete effective checker, including inaccessible rows.
+
+Only final '/' receives the separate source-enabled scaffold proof. It requires
+actual different dev/inode, ordinary mapped host owner/GID, directory0755,
+tmpfs /newroot, ro/nosuid/nodev, empty propagation fields, matching dev and actual
+descriptor ST_RDONLY. Local evidence must equal host-observed evidence after
+exact owner projection. Source host '/' and pre '/' remain authenticated.
+All system-file ancestors under /usr and /etc retain host UID0, protected modes,
+stable dev/inode/type/ctime, no symlinks, exact file bytes and no filecaps.
+There is no broader imported-parent exemption. User-owned helper/input trees
+retain existing source pins and protected authority placement plus the exact
+source construction; they are not falsely claimed to be host-root-owned paths.
+
+Original Protocol.service uses /attempt and /payload and derives expected argv
+with the same slices as production; mocked() replaces all process/root/lineage
+reads. CombinedReview.test_scaffold_real_accept_path_model swaps the class on
+that standalone fixture and supplies a synthetic root. Its name does NOT mean
+real combined namespace execution. Review23 separately called actual combined
+command() on real manifest/input paths without replacing runtime_view. Actual
+host dependency observation had zero errors, but no namespace lstat/mountinfo
+was captured. Root's64 and repair22's44 results remain model/source evidence.
+
+PRESERVED AUTHORITY / FAILURE PATHS
+AST comparison shows only Controller.inner changed versus v8; current/admission,
+authenticate/host/custody, outer, service profile, accounting and joins are intact.
+effective_storage/storage_paths/storage_admission/terminal_recovery are byte-
+identical. policy_gate, capability drop/init, private_snapshot and security
+diagnostics are unchanged. All original runtime/cap/charge gates remain, and
+both stages still run private checks AFTER ACK; post still runs effective_storage
+and mountinfo stability BEFORE payload. Trust success cannot waive those failures.
+
+The test evidence establishes ordinary transport and cleanup only. No actual
+namespace/service/native/PDF/compiler qualification, new admission, cap reset or
+accounting event occurred. Final seal rechecks six attempts/24MiB, activeRAM0,
+live19 owners, input/candidate pins, empty A/F cgroups and held dispatcher.
