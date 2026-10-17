@@ -6,7 +6,7 @@ main():
     marker:(scopes:["marker"],texts:["1"],operations:[0],starts:[0],stops:[1],parts:[0],count:1)
     joined:notes.append(body,marker)
     notes.valid(joined,3)?! "split body plus marker cardinality"
-    ~notes.valid(joined,2)?! "missing marker rejects"
+    (~notes.valid(joined,2))?! "missing marker rejects"
     a:scene.leaf("same",4,5)
     arena:scene.from_leaves([a,a,a],3)
     result:notes.attach(arena,joined)
