@@ -1,0 +1,55 @@
+CANDIDATE ADOPTION CONTRACT
+
+candidate/storage-direct-v6 is the full seven-file repair10 v6 set plus only a
+two-file delta (policy-setup-v6.patch). The unchanged five files are admission,
+paths, recovery, effective-storage checker, and runtime config. Do not install
+this as a new ledger or rewrite v2/v4/v5 historical bundles. No v6 operational
+phase exists, so review this as the uninstalled v6 candidate revision. A new
+coordinator grant must pin the exact revised controller and all five helpers.
+
+The new namespace binary contract is binary-contract.json: the dedicated
+/usr/local/libexec/vkf-storage-private-v1/unshare copy has exactly the hash of
+installed /usr/bin/unshare. Python3.14/bwrap hashes and argv stay pinned. Both
+inputs arrays must also contain every policy-inputs.json entry (including the
+new system profile, installed bwrap/unprivileged policy, transitive includes and
+ABI). verify_dependencies checks them at controller admission and both helpers.
+Missing local includes are an explicit negative contract: their appearance stops
+execution rather than assuming a harmless override. Do not edit deployed bytes
+or rewrite a grant to bypass a failed check.
+
+Setup installation review is distinct from installing v6 and from authorizing
+qualification. SYSTEM-SETUP.txt and system-setup/*.sh contain exact reviewable
+setup/rollback commands. No helper changes, payload launch or owner rotation are
+part of those scripts. The new binary is never executed by installation.
+
+All repair10 SUCCESSOR.txt ownership rules still apply: real F independent join
+and rotation precede an A full-state snapshot; A append-only unused-owner chain
+must authenticate every prior transition and the complete current quiescent
+state, with fresh owner and nondecreasing integer phase barrier. No fabricated
+phase/join, active-lane rotation, stale owner reuse, legacy rewrite or new ledger.
+Same storage-direct-v4/direct-state-v4.json and parent capacity.lock. The v6
+admission implementation is byte-for-byte repair10. Old dispatcher stays held.
+
+FUTURE QUALIFICATION — NOT AUTHORIZED HERE
+Require newly pinned grant/manifest and independent root approval of installed
+policy. Each real case must have exact custody and bounded resource intent,
+original pre raw snapshot/private gate, post raw snapshot/private/effective-
+storage gate, existing fixture report, profile/capability/NNP observations, and
+actual service/cgroup/descendant joins. Success, nonzero payload and timeout
+cases remain unqualified. Payload cannot start on policy/cgroup/identity/mount
+failure. If any setup step unexpectedly fails, stop; charges stay consumed and
+recovery/join obligations remain. Do not change policy/checker/uid or relaunch
+another shape in the same attempt.
+
+Origin gate requires ordinary UID/GID including all effective/saved/fs IDs,
+zero active/inheritable/ambient caps, unconfined label and NNP0. Pre requires
+vkf-storage-pre-v1 enforce and NNP0. Post requires the bwrap + unpriv_bwrap enforce
+stack, NNP1 and zero capability sets including bounding. Exact recorded policy
+fields accompany existing mountinfo snapshots. Kernel acceptance, library file
+permissions and runtime drop/stack labels are NOT asserted by mocked tests.
+
+Budget: 3 attempts / 12MiB already consumed. This task adds 0 operational
+attempts/bytes, refunds none. 13 attempts/52MiB remain arithmetically only.
+F cumulative19,796,107,264 and A18,778,218,496 bytes retained. No compiler/native
+credit. D267/D289 remain excluded; A333 compiler-only authorization does not
+extend here. No successor work in this worker chat.

@@ -1,0 +1,120 @@
+--- v6/private_workload.py
++++ candidate/private_workload.py
+@@ -16,8 +16,54 @@
+ from storage_paths import pinned, require
+ import effective_storage
+ 
+-BINARIES = [{'path': '/usr/bin/unshare', 'sha256': '41c65e55107cbbb1a1f6994784a938dd7dbbe255d1fea6b7a58ec96eabe382ef'}, {'path': '/usr/bin/python3.14', 'sha256': '52e0a13e60a981d8c4b6478be2ba5176f69da07948a056bf49cf6f077e30cb41'}, {'path': '/usr/bin/bwrap', 'sha256': '523da3e7399044be5163aee6f57a77a6bef7454376e28f0a0627920bae1b76b6'}]
+-UNSHARE, PYTHON, BWRAP = '/usr/bin/unshare', '/usr/bin/python3.14', '/usr/bin/bwrap'
++BINARIES = [{'path': '/usr/local/libexec/vkf-storage-private-v1/unshare', 'sha256': '41c65e55107cbbb1a1f6994784a938dd7dbbe255d1fea6b7a58ec96eabe382ef'}, {'path': '/usr/bin/python3.14', 'sha256': '52e0a13e60a981d8c4b6478be2ba5176f69da07948a056bf49cf6f077e30cb41'}, {'path': '/usr/bin/bwrap', 'sha256': '523da3e7399044be5163aee6f57a77a6bef7454376e28f0a0627920bae1b76b6'}]
++UNSHARE, PYTHON, BWRAP = '/usr/local/libexec/vkf-storage-private-v1/unshare', '/usr/bin/python3.14', '/usr/bin/bwrap'
++
++
++POLICY_INPUTS = [{'path': '/etc/apparmor.d/vkf-storage-private-v1', 'sha256': 'a6a82dd0c9f50c296e88933645e8a8487b947dd4de6ff6e66acee2541e1a17a4'}, {'path': '/etc/apparmor.d/abi/5.0', 'sha256': '6939ba05dd5b8e4934fc8d912d22ad13f4f77710b097287a2d2d37be6cabe775'}, {'path': '/etc/apparmor.d/bwrap-userns-restrict', 'sha256': 'd61facde27707b9c47ffe47921b7273e788784484cb5530eb819e6daac1f1990'}, {'path': '/etc/apparmor.d/tunables/alias', 'sha256': 'e7b8b278db3f7aca74e0176f22cbd3adc3c89212cc9e66a90a2787b3ceee8030'}, {'path': '/etc/apparmor.d/tunables/coreutils', 'sha256': '7160a15b9dbac8280584dc122a0b5a56f6fa4e5ed50c11f165ba0b09d8c305e6'}, {'path': '/etc/apparmor.d/tunables/etc', 'sha256': '4211a2db7a81c3edea6a657f8eacdae4322235c1d766ac95a592cb6f1b43f7ee'}, {'path': '/etc/apparmor.d/tunables/global', 'sha256': 'cb2a6a5aabaeefe52053fb6517202349efc80cf8ee2059fbcd319a4f3e1eb0a0'}, {'path': '/etc/apparmor.d/tunables/home', 'sha256': '806a4e80696e3870d46d1ae99ac7fe7099680b39040c2183094a44671d83218e'}, {'path': '/etc/apparmor.d/tunables/home.d/site.local', 'sha256': 'f6f9d209f8015196f2e391ea02debcebecbf8022ececfee3a08e3973c3bb06d4'}, {'path': '/etc/apparmor.d/tunables/home.d/ubuntu', 'sha256': 'e1b3a24d2ffdcf2b02f8726941f3c6c32dee3c9222553959a335147494d74a2d'}, {'path': '/etc/apparmor.d/tunables/kernelvars', 'sha256': 'a2fa754e93a435722ea4b8b03e2bdf52bf4c029c66397b773f5e4321d6f66ea5'}, {'path': '/etc/apparmor.d/tunables/multiarch', 'sha256': '0d35e0680f4dd9085a1c64911be21e95a65d12db045bde4b4ecae22915ce53ff'}, {'path': '/etc/apparmor.d/tunables/multiarch.d/site.local', 'sha256': '731ad52936633b9a0c738605a2a08aad2357df91ca8fbe3bd2c3427d7aac240b'}, {'path': '/etc/apparmor.d/tunables/proc', 'sha256': 'd6a8ac6910ecdde3930916dcb44d7b3d3bf1cfe5a8f54728f1f599e32a26ece7'}, {'path': '/etc/apparmor.d/tunables/run', 'sha256': 'cbe2d9c99a82124d6206bfdd377895fa3dec48ee255923d2c31b71be53ab9bdd'}, {'path': '/etc/apparmor.d/tunables/share', 'sha256': '5389ddceeb78d2012f528037e5c8205535f145c906cf6266ba400d9bafea26b7'}, {'path': '/etc/apparmor.d/tunables/system', 'sha256': '84dfeb5a2239e9cb7626b8008275c5aa0602d671303f4b43b7db0eff4688b828'}, {'path': '/etc/apparmor.d/tunables/xdg-user-dirs', 'sha256': '1d92b108e04a4067333224c4dbfd19df8ca0f0deef7a28b153995e22fe8cedb7'}, {'path': '/etc/apparmor.d/tunables/xdg-user-dirs.d/site.local', 'sha256': 'd9705b1ab368e32f4cce94f2242c6947b8624985b9c6de2ab4ee01b398dc4703'}, {'path': '/etc/apparmor.d/unprivileged_userns', 'sha256': '3263abe3b090d761a525a5e8c2d62ef89a39b41ab87ba25cecc5a6d686f73e65'}]
++ABSENT_INCLUDES = ['/etc/apparmor.d/local/bwrap-userns-restrict', '/etc/apparmor.d/local/unpriv_bwrap', '/etc/apparmor.d/local/unprivileged_userns', '/etc/apparmor.d/tunables/alias.d', '/etc/apparmor.d/tunables/coreutils.d', '/etc/apparmor.d/tunables/etc.d', '/etc/apparmor.d/tunables/global.d', '/etc/apparmor.d/tunables/kernelvars.d', '/etc/apparmor.d/tunables/proc.d', '/etc/apparmor.d/tunables/run.d', '/etc/apparmor.d/tunables/share.d', '/etc/apparmor.d/tunables/system.d']
++
++
++def trusted_system_file(path):
++    """No symlink, privileged bits, filecaps or non-root-writable system input."""
++    import stat
++    path = Path(path)
++    for p in (path, *path.parents):
++        s = p.lstat()
++        require(not stat.S_ISLNK(s.st_mode) and s.st_uid == 0
++                and not s.st_mode & 0o022, 'untrusted system path '+str(p))
++    s = path.stat()
++    require(stat.S_ISREG(s.st_mode) and not s.st_mode & 0o6000, 'privileged system input')
++    require('security.capability' not in os.listxattr(path), 'file capabilities forbidden')
++
++
++def policy_gate(stage, origin):
++    """Observation only; never changes credentials, policy, or namespaces."""
++    raw = Path('/proc/self/status').read_text()
++    status = {}
++    for line in raw.splitlines():
++        k, _, v = line.partition(':')
++        require(k not in status, 'duplicate status field')
++        status[k] = v.split()
++    for k, value in (('Uid',origin['uid']),('Gid',origin['gid'])):
++        require(value != 0 and status.get(k) == [str(value)]*4, 'ordinary real/effective/saved/fs identity')
++    for k in ('CapInh','CapPrm','CapEff','CapAmb') + (('CapBnd',) if stage == 'post' else ()):
++        require(len(status.get(k, [])) == 1 and int(status[k][0],16) == 0, 'nonzero '+k)
++    require(stage in ('origin','pre','post'), 'policy stage')
++    require(status.get('NoNewPrivs') == ['1' if stage == 'post' else '0'], 'unexpected NoNewPrivs')
++    label = Path('/proc/self/attr/current').read_text().strip()
++    if stage == 'origin':
++        require(label == 'unconfined', 'origin policy changed')
++    elif stage == 'pre':
++        require(label == 'vkf-storage-pre-v1 (enforce)', 'pre policy transition missing')
++    else:
++        # Kernel label components are sorted, duplicates collapsed. No namespaces,
++        # complain, unconfined or additional profiles are accepted here.
++        require(label.endswith(' (enforce)') and
++                set(label[:-10].split('//&')) == {'bwrap','unpriv_bwrap'} and
++                len(label[:-10].split('//&')) == 2, 'payload capability-denial stack missing')
++    return dict(stage=stage, label=label, status={k:status[k] for k in
++        ('Uid','Gid','CapInh','CapPrm','CapEff','CapAmb','CapBnd','NoNewPrivs')})
+ 
+ 
+ def verify_dependencies():
+@@ -25,7 +71,14 @@
+     require(Path(sys.executable).resolve() == Path(PYTHON), 'executing interpreter contract')
+     for p in BINARIES:
+         pinned(p)
+-        require(not (Path(p['path']).stat().st_mode & 0o6000), 'unexpected privileged binary')
++        trusted_system_file(p['path'])
++    for p in POLICY_INPUTS:
++        pinned(p)
++        trusted_system_file(p['path'])
++    for p in ABSENT_INCLUDES:
++        require(not os.path.lexists(p), 'policy include appeared '+p)
++    require(Path('/proc/sys/kernel/apparmor_restrict_unprivileged_userns').read_text().strip() == '1',
++            'userns restriction changed')
+ 
+ 
+ def context():
+@@ -61,6 +114,7 @@
+ def gate(stage, origin, attempt, argv):
+     require(stage in ('pre', 'post') and argv and Path(argv[0]).is_absolute(), 'private gate command')
+     verify_dependencies()
++    security = policy_gate(stage, origin)
+     now = context()
+     require(now['cgroup'] == origin['cgroup'] and origin['cgroup'].endswith('.service'), 'wrapper cgroup changed')
+     require(now['uid'] == origin['uid'] != 0 and now['gid'] == origin['gid'], 'wrapper identity changed')
+@@ -73,7 +127,7 @@
+             fields = Path('/proc/self/'+kind+'_map').read_text().split()
+             require(fields == [str(value), str(value), '1'], 'single current-user mapping required')
+     raw = Path('/proc/self/mountinfo').read_text()
+-    print(json.dumps(dict(private_workload_snapshot=stage, context=now,
++    print(json.dumps(dict(private_workload_snapshot=stage, context=now, policy=security,
+         sha256=hashlib.sha256(raw.encode()).hexdigest(), mountinfo=raw)), flush=True)
+     count = private_snapshot(raw)
+     if stage == 'post':
+--- v6/storage_controller.py
++++ candidate/storage_controller.py
+@@ -217,6 +217,8 @@
+         private_workload.verify_dependencies()
+         require(all(p in g['inputs'] for p in private_workload.BINARIES),
+                 'pinned namespace argv dependencies required')
++        require(all(p in g['inputs'] and p in m['inputs'] for p in private_workload.POLICY_INPUTS),
++                'pinned namespace policy dependencies required')
+         for p in [g['controller'], *g['helpers'], g['owned_processes'], g['resource_ledger'],
+                   g['predecessor_controller'], g['storage_policy'], *g['inputs']]:
+             pinned(p)
+@@ -241,7 +243,7 @@
+             protected = [self.config_pin, self.gp, self.mp, g['controller'], *g['helpers'],
+                          g['owned_processes'], g['resource_ledger'], g['storage_policy'],
+                          c['deployed_volumes'], c['legacy_registry'], c['adopted_offload'], c['recovery_authority'],
+-                         *private_workload.BINARIES]
++                         *private_workload.BINARIES, *private_workload.POLICY_INPUTS]
+             for path in [Path(x['path']) for x in protected] + [self.ledger.state, self.ledger.lock,
+                                                                Path(c['owner_state'])]:
+                 require(not path.is_relative_to(root), 'authority in writable root')
+@@ -495,6 +497,7 @@
+         context = private_workload.context()
+         expected_cgroup = self.config['lane_cgroups'][self.g['worker']]+'/vkfworkers-'+self.g['worker'].lower()+'-'+self.g['attempt']+'.service'
+         require(context['cgroup'] == expected_cgroup, 'private wrapper service cgroup')
++        private_workload.policy_gate('origin', context)
+         argv = sandbox(self.m, context)
+         env = {**os.environ, 'PATH':'/home/viktor/.local/bin:'+os.environ['PATH'],
+                'TMPDIR':self.m['tmpdir'], 'XDG_CACHE_HOME':self.m['cache'],

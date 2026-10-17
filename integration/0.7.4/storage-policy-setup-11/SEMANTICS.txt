@@ -1,0 +1,104 @@
+POLICY-COMPATIBLE SOURCE CANDIDATE; NOT INSTALLED OR RUNTIME-QUALIFIED
+
+OBSERVATION
+Read-only evidence/local-policy.json captures actual loaded relevant names,
+restriction=1, unconfined worker label, both installed policy sources, ABI5 and
+all recursively resolved tunables. All three relevant local overrides are
+ABSENT: local/unprivileged_userns, local/bwrap-userns-restrict, local/unpriv_bwrap.
+The transitive missing .d directories are recorded too. The existing
+unprivileged_userns explicitly denies every capability; its child rule retains
+that denial. An allow at ordinary priority cannot cancel this deny. Source files
+and loaded names alone do not establish the exact loaded binary policy.
+
+Therefore the earlier generic /usr/bin/unshare wrapper is expected to fail:
+unconfined namespace creation transitions into unprivileged_userns before its
+MS_REC|MS_PRIVATE mount needs CAP_SYS_ADMIN. No unshare attachment was observed.
+No failing namespace experiment was repeated here. This is source/policy
+analysis corroborating the root preflight, not a new live failure claim.
+
+CONCRETE TRANSITION
+unconfined ordinary service, NNP=0, no effective/permitted/inheritable/ambient caps
+ -> /usr/local/libexec/vkf-storage-private-v1/unshare
+    attachment vkf-storage-private-v1, one allowed capability sys_admin,
+    only allowed mount operation recursive-private at / in newly owned mountns
+ -> /usr/bin/python3.14 -I -B <deployed-v6>/private_workload.py pre ...
+    explicit Px replacement vkf-storage-pre-v1 (enforce)
+    denies all capabilities, userns, mount/umount/pivot_root, change_profile;
+    only exec target /usr/bin/bwrap via explicit Px -> bwrap
+ -> /usr/bin/bwrap, existing bwrap profile (enforce), NNP initially zero
+    bwrap enables NNP itself, creates own namespaces/mount tree, drops caps
+ -> post Python/payload, existing bwrap//&unpriv_bwrap (enforce)
+    existing stacked profile denies ALL capabilities, recursively for descendants
+
+No fallback exec mode or unconfined transition is used. The pre profile's
+change_profile denial restricts explicit profile-change APIs, not its separately
+specified exec transition. Its capability denial is deliberately replaced at
+bwrap exec BEFORE NNP; the original candidate did not require NNP before bwrap.
+This candidate never clears NNP and refuses inherited NNP=1. Adding NNP to the
+outer service would block this design; do not clear it or weaken a service guard.
+After bwrap, NNP MUST be 1 and the exact two-profile denial stack enforced.
+Missing labels, complain mode, extra label components, namespace-prefixed labels,
+credential drift, nonzero capability masks or malformed status stop before exec.
+CapBnd may remain before bwrap but must be ZERO at post, along with CapInh/Prm/Eff/Amb.
+The four real/effective/saved/fs UID/GID fields must each equal the original
+nonzero identity. No payload is allowed as root, even root in a child userns.
+
+SCOPE OF NEW SYSTEM POLICY
+Dedicated binary is an unchanged copy of installed util-linux, not a renamed
+unrelated whitelisted application or a shell/interpreter with setup capabilities.
+Only that pathname attaches the new setup profile. Ordinary /usr/bin/unshare and
+all system restriction policies remain unchanged. The setup profile permits
+reads and system-library mmap, current-user ID-map/setgroups writes, inherited
+charged receipt writes, and receive/readby custody access from unconfined.
+The rprivate rule's rw token represents absence of MS_RDONLY in the propagation
+syscall; it grants no writable bind/remount. No general mount, umount, pivot_root,
+arbitrary exec, write-to-policy, or change_profile permission is granted.
+The pre Python runs without capabilities and cannot create namespaces or mount;
+only the already-policy-approved bwrap can be execed from that profile.
+
+AppArmor does not authenticate argv, attempt grants or cgroup paths. These remain
+controller responsibilities; the profile alone is NOT a grant or a general
+host sandbox. Direct use of the copied generic unshare with other options is
+outside the contract, and no unrestricted capability-bearing child can be execed
+from its profile. The grant-pinned command builder selects only the exact
+nonforking map-current-user/user/mount/private sequence. No --map-root-user,
+--keep-caps, helper-fork options, persistent namespaces or host setup syscall.
+No C helper or compiled custom executable is introduced.
+
+SOURCE SEMANTICS RETAINED
+Pinned Ubuntu util-linux 2.41.3-3ubuntu2.2 unshare source, lines1104,1213-1232,1288:
+clone namespaces, map current IDs, deny setgroups, recursive private, exec.
+Pinned Ubuntu bubblewrap 0.11.1-1ubuntu0.3 source, lines2919-2920: NNP after entry;
+recursive slave on an already private tree leaves it private; child drop_privs
+plus existing AppArmor stack deny capability gain. Source labels/drop behavior
+are hypotheses to qualify against this exact installed kernel and package set.
+See predecessor documentation-pins.json and sources, all transitively pinned.
+Installed AppArmor5.0.2 manpage documents Px named transitions, mount rprivate,
+userns and explicit deny rules; /etc/apparmor.d/linux-boot-prober provides the
+same options=(rprivate,rw) -> / syntax. Public primary references consulted:
+https://gitlab.com/apparmor/apparmor/-/wikis/unprivileged_userns_restriction
+https://apparmor.dev/man/apparmor.d/
+https://gitlab.com/apparmor/apparmor/-/blob/master/profiles/apparmor/profiles/extras/bwrap-userns-restrict
+Local installed sources/ABI, rather than moving public pages, are the review pins.
+
+GATES/PRESERVATION
+Two existing raw mountinfo snapshots and private-tree checks retained. Post
+strict effective_storage.check remains byte-for-byte unchanged. Single charged
+RW bind; readonly root/dev/proc/shm/pts; same UID and exact service cgroup; changed
+user/mount then user/mount/pid/net namespace checks remain. No cgroup namespace,
+service escape, new process wrapper, guardian replacement or guard relaxation.
+Controller changes only current() dependency pinning and inner() origin policy
+observation. Subreaper/wait_owned, service argv/limits, resource guards, custody,
+terminal joins, admission rules/unused-A chain, authority tuples and config/state
+paths remain exact. The candidate still installs as v6, not a new ledger fork.
+Only private_workload.py and storage_controller.py differ from repair10 v6.
+
+LIMITS
+No AppArmor compilation/load, namespace/syscall setup, service, native/compiler
+workload, real exec-transition/capability probe or policy deny test ran. Tests
+mock OS state and test negative gates/source contracts. Library/proc permission
+coverage, parser/ABI acceptance, inherited labels, actual private snapshots,
+setgroups/nested userns and all inherited mount observations remain unqualified.
+Any unexpected setup or gate failure must stop, preserve evidence/accounting,
+and return to root review. Do not relax policy/checkers, swap profiles, change
+sysctls, alter host mounts, run payload as root or silently retry alternatives.

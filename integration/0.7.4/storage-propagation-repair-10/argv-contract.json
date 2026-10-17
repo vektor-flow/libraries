@@ -1,0 +1,88 @@
+{
+  "status": "source-only; this example is not executable authority",
+  "installed_versions": {
+    "util-linux": "2.41.3-3ubuntu2.2",
+    "bubblewrap": "0.11.1-1ubuntu0.3"
+  },
+  "binary_dependencies": [
+    {
+      "path": "/usr/bin/unshare",
+      "sha256": "41c65e55107cbbb1a1f6994784a938dd7dbbe255d1fea6b7a58ec96eabe382ef"
+    },
+    {
+      "path": "/usr/bin/python3.14",
+      "sha256": "52e0a13e60a981d8c4b6478be2ba5176f69da07948a056bf49cf6f077e30cb41"
+    },
+    {
+      "path": "/usr/bin/bwrap",
+      "sha256": "523da3e7399044be5163aee6f57a77a6bef7454376e28f0a0627920bae1b76b6"
+    }
+  ],
+  "required_helpers": [
+    "storage_admission.py",
+    "storage_paths.py",
+    "terminal_recovery.py",
+    "private_workload.py",
+    "effective_storage.py"
+  ],
+  "grant_manifest_requirements": "Both inputs arrays include every binary dependency plus all payload inputs; helpers equals the exact five-file deployed v6 set; controller/config own pins regenerated after separately authorized installation.",
+  "example_argv": [
+    "/usr/bin/unshare",
+    "--user",
+    "--map-current-user",
+    "--mount",
+    "--propagation",
+    "private",
+    "--",
+    "/usr/bin/python3.14",
+    "-I",
+    "-B",
+    "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-propagation-repair-10/candidate/storage-direct-v6/private_workload.py",
+    "pre",
+    "{\"cgroup\":\"/lane/vkfworkers-f-ATTEMPT.service\",\"gid\":1000,\"namespaces\":{\"mnt\":\"CAPTURED_mnt\",\"net\":\"CAPTURED_net\",\"pid\":\"CAPTURED_pid\",\"user\":\"CAPTURED_user\"},\"uid\":1000}",
+    "/CHARGED_ATTEMPT",
+    "--",
+    "/usr/bin/bwrap",
+    "--unshare-user",
+    "--ro-bind",
+    "/",
+    "/",
+    "--dev",
+    "/dev",
+    "--proc",
+    "/proc",
+    "--ro-bind",
+    "/dev/shm",
+    "/dev/shm",
+    "--remount-ro",
+    "/dev/pts",
+    "--remount-ro",
+    "/dev",
+    "--remount-ro",
+    "/proc",
+    "--bind",
+    "/CHARGED_ATTEMPT",
+    "/CHARGED_ATTEMPT",
+    "--unshare-pid",
+    "--unshare-net",
+    "--die-with-parent",
+    "--chdir",
+    "/CHARGED_ATTEMPT/work",
+    "--",
+    "/usr/bin/python3.14",
+    "-I",
+    "-B",
+    "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-propagation-repair-10/candidate/storage-direct-v6/private_workload.py",
+    "post",
+    "{\"cgroup\":\"/lane/vkfworkers-f-ATTEMPT.service\",\"gid\":1000,\"namespaces\":{\"mnt\":\"CAPTURED_mnt\",\"net\":\"CAPTURED_net\",\"pid\":\"CAPTURED_pid\",\"user\":\"CAPTURED_user\"},\"uid\":1000}",
+    "/CHARGED_ATTEMPT",
+    "--",
+    "/PINNED_PAYLOAD",
+    "ARGUMENT"
+  ],
+  "context_source": "Controller captures own namespace IDs, UID/GID and cgroup after attach; exact cgroup must equal config lane + service unit.",
+  "historical_service_argv": "Unchanged /usr/bin/python3 -B controller...; resolved interpreter must be pinned /usr/bin/python3.14.",
+  "state": "same storage-direct-v4/direct-state-v4.json",
+  "lock": "same parent capacity.lock",
+  "no_runtime_claim": true
+}

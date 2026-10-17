@@ -1,0 +1,511 @@
+--- /dev/null
++++ b/effective_storage.py
+@@ -0,0 +1,218 @@
++"""Fail-closed mount qualification, not a general sandbox/security boundary.
++
++No permission probes or write opens. O_PATH + fdinfo binds observations to the
++actual mount, fstat to its object, and statvfs through that pinned descriptor to
++its effective read-only flag. Unknown/inaccessible topology is a failure.
++"""
++from dataclasses import dataclass, asdict
++import hashlib
++import os
++from pathlib import Path
++import re
++import stat
++
++class Rejected(RuntimeError):
++    pass
++
++def need(ok, why):
++    if not ok:
++        raise Rejected(why)
++
++def unescape(value):
++    # Kernel seq_escape uses these four octal escapes. Single pass: \\134040
++    # means literal backslash + 040, never a space. Do not unicode_escape.
++    escapes = {'040': ' ', '011': '\t', '012': '\n', '134': '\\'}
++    need(not re.search(r'\\(?!040|011|012|134)', value), 'unknown mountinfo escape')
++    return re.sub(r'\\(040|011|012|134)', lambda m: escapes[m[1]], value)
++
++def canonical(path):
++    need(isinstance(path, str) and path.startswith('/') and '\0' not in path,
++         'absolute non-NUL path required')
++    need(path == '/' or all(p not in ('', '.', '..') for p in path[1:].split('/')),
++         'noncanonical path')
++    return path
++
++def within(path, parent):
++    return parent == '/' or path == parent or path.startswith(parent + '/')
++
++@dataclass(frozen=True)
++class Mount:
++    id: int
++    parent: int
++    dev: tuple
++    root: str
++    path: str
++    options: tuple
++    optional: tuple
++    fstype: str
++    source: str
++    super_options: tuple
++
++    @property
++    def readonly(self):
++        return 'ro' in self.options or 'ro' in self.super_options
++
++
++def parse_mountinfo(raw):
++    mounts = {}
++    for line in raw.split('\n'):
++        if not line:
++            continue
++        need(line.count(' - ') == 1, 'mountinfo separator')
++        left, right = line.split(' - ')
++        a, b = left.split(' '), right.split(' ')
++        need(len(a) >= 6 and len(b) == 3 and all(a+b), 'mountinfo fields')
++        need(all(re.fullmatch(r'[0-9]+', v) for v in a[:2])
++             and re.fullmatch(r'[0-9]+:[0-9]+', a[2]), 'mountinfo IDs')
++        mid, parent = map(int, a[:2])
++        need(mid > 0 and parent > 0 and mid != parent and mid not in mounts, 'duplicate/self mount ID')
++        opts, sup = tuple(a[5].split(',')), tuple(b[2].split(','))
++        for o in (opts, sup):
++            need(('ro' in o) != ('rw' in o), 'missing/conflicting mount access flags')
++        mounts[mid] = Mount(mid, parent, tuple(map(int, a[2].split(':'))),
++            unescape(a[3]), canonical(unescape(a[4])), opts, tuple(a[6:]),
++            b[0], unescape(b[1]), sup)
++    need(mounts, 'empty mount table')
++    for m in mounts.values():
++        seen = set()
++        p = m
++        while True:
++            need(p.id not in seen, 'mount parent cycle')
++            seen.add(p.id)
++            if p.parent not in mounts:
++                need(p.path == '/', 'missing non-root mount parent')
++                break
++            parent = mounts[p.parent]
++            need(within(p.path, parent.path), 'mount parent path mismatch')
++            p = parent
++    return mounts
++
++@dataclass(frozen=True)
++class Observation:
++    mount_id: int
++    dev: tuple
++    ino: int
++    mode: int
++    rdev: tuple
++    readonly: bool
++    uid: int
++    gid: int
++
++
++def open_path(path):
++    """Component-wise O_NOFOLLOW, including intermediate symlinks; caller closes."""
++    canonical(path)
++    fd = os.open('/', os.O_PATH | os.O_DIRECTORY | os.O_CLOEXEC)
++    try:
++        for part in ([] if path == '/' else path[1:].split('/')):
++            new = os.open(part, os.O_PATH | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=fd)
++            os.close(fd)
++            fd = new
++            need(not stat.S_ISLNK(os.fstat(fd).st_mode), 'symlink path: '+path)
++        return fd
++    except BaseException:
++        os.close(fd)
++        raise
++
++
++def observe_fd(fd):
++    s = os.fstat(fd)
++    lines = Path(f'/proc/self/fdinfo/{fd}').read_text().splitlines()
++    ids = [x.split(':', 1)[1].strip() for x in lines if x.startswith('mnt_id:')]
++    need(len(ids) == 1 and ids[0].isdigit(), 'fdinfo mount ID missing')
++    # fstatvfs(O_PATH) is not portable across kernels. This proc magic link
++    # refers to our still-open FD, not a fresh lookup of an untrusted path.
++    v = os.statvfs(f'/proc/self/fd/{fd}')
++    return Observation(int(ids[0]), (os.major(s.st_dev), os.minor(s.st_dev)),
++        s.st_ino, s.st_mode, (os.major(s.st_rdev), os.minor(s.st_rdev)),
++        bool(v.f_flag & os.ST_RDONLY), s.st_uid, s.st_gid)
++
++
++def observe(path):
++    fd = open_path(path)
++    try:
++        return observe_fd(fd)
++    finally:
++        os.close(fd)
++
++
++# These are identities of the six bwrap --dev character bindings, NOT a mount
++# name/fstype filter. Directories, regular files, block devices and other rdevs
++# at these paths fail. No write call to a character device is made here.
++DEVICES = {'/dev/null': (1,3), '/dev/zero': (1,5), '/dev/full': (1,7),
++           '/dev/random': (1,8), '/dev/urandom': (1,9), '/dev/tty': (5,0)}
++
++
++def check(raw, attempt, inspect=observe):
++    canonical(attempt)
++    need(attempt != '/', 'attempt cannot be root')
++    mounts = parse_mountinfo(raw)
++    need(sum(m.parent not in mounts for m in mounts.values()) == 1, 'disconnected mount roots')
++    for m in mounts.values():
++        need(not any(x.startswith(('shared:', 'master:', 'propagate_from:')) for x in m.optional),
++             'propagating mount topology')
++    points = sorted({m.path for m in mounts.values()}, key=lambda p:(p.count('/'), p))
++    cache, rows = {}, []
++    def obs(path):
++        if path not in cache:
++            try:
++                o = inspect(path)
++            except (OSError, ValueError) as e:
++                raise Rejected(f'unresolved mount path {path!r}: {e!r}') from e
++            need(o.mount_id in mounts, 'FD mount absent from snapshot: '+path)
++            actual = mounts[o.mount_id]
++            need(within(path, actual.path) and o.dev == actual.dev, 'mount identity/path mismatch: '+path)
++            need(o.readonly == actual.readonly, 'mount flags/statvfs disagreement: '+path)
++            need(not stat.S_ISLNK(o.mode), 'symlink mount object')
++            cache[path] = o
++        return cache[path]
++    for m in sorted(mounts.values(), key=lambda m:m.id):
++        ancestors = {m.id}
++        p = m
++        while p.parent in mounts:
++            p = mounts[p.parent]; ancestors.add(p.id)
++        cover = None
++        for point in points:
++            if not within(m.path, point):
++                continue
++            o = obs(point)
++            if o.mount_id not in ancestors:
++                # First divergent, actually resolved mount blocks this row's
++                # ancestry. Never reach through a hidden subtree to probe it.
++                cover = dict(path=point, mount_id=o.mount_id)
++                break
++        if cover:
++            rows.append(dict(id=m.id, path=m.path, result='hidden', cover=cover))
++            continue
++        o = obs(m.path)
++        need(o.mount_id == m.id, 'unresolved stack at '+m.path)
++        if stat.S_ISCHR(o.mode):
++            need(DEVICES.get(m.path) == o.rdev, 'unapproved character device: '+m.path)
++            result = 'character-device'
++        else:
++            need(stat.S_ISDIR(o.mode) or stat.S_ISREG(o.mode), 'unexpected mount object type: '+m.path)
++            if o.readonly:
++                result = 'readonly'
++            else:
++                need(m.path == attempt and stat.S_ISDIR(o.mode),
++                     'reachable writable filesystem outside exact attempt mount: '+m.path)
++                result = 'charged-attempt'
++        rows.append(dict(id=m.id, path=m.path, result=result, observation=asdict(o)))
++    allowed = [r for r in rows if r['result'] == 'charged-attempt']
++    need(len(allowed) == 1, 'exactly one reachable charged attempt required')
++    return dict(mountinfo_sha256=hashlib.sha256(raw.encode('utf-8', 'surrogateescape')).hexdigest(),
++                attempt_mount_id=allowed[0]['id'], rows=rows)
++
++
++def qualify(attempt):
++    path = Path('/proc/self/mountinfo')
++    raw = path.read_text(errors='surrogateescape')
++    result = check(raw, attempt, observe)
++    need(path.read_text(errors='surrogateescape') == raw, 'mount table changed during inspection')
++    # Re-resolve reachable mountpoints: detect changed object/flags as well as
++    # changes in the table. No concurrent hostile rename/mount actor is admitted.
++    for row in result['rows']:
++        if 'observation' in row:
++            need(asdict(observe(row['path'])) == row['observation'], 'mount object changed')
++    need(path.read_text(errors='surrogateescape') == raw, 'mount table changed during recheck')
++    return result
+--- /dev/null
++++ b/private_workload.py
+@@ -0,0 +1,98 @@
++"""Private propagation setup and mandatory pre-payload gate; never a fallback.
++
++Only command() is called by the service controller. unshare does not fork with
++this exact argv: its PID/starttime becomes this helper, then bwrap via exec.
++All descendants remain in the same service cgroup and existing wait_owned scope.
++"""
++import hashlib
++import json
++import os
++from pathlib import Path
++import sys
++
++HERE = Path(__file__).resolve().parent
++# -I excludes cwd/PYTHONPATH; only the authenticated helper directory is added.
++sys.path.insert(0, str(HERE))
++from storage_paths import pinned, require
++import effective_storage
++
++BINARIES = [{'path': '/usr/bin/unshare', 'sha256': '41c65e55107cbbb1a1f6994784a938dd7dbbe255d1fea6b7a58ec96eabe382ef'}, {'path': '/usr/bin/python3.14', 'sha256': '52e0a13e60a981d8c4b6478be2ba5176f69da07948a056bf49cf6f077e30cb41'}, {'path': '/usr/bin/bwrap', 'sha256': '523da3e7399044be5163aee6f57a77a6bef7454376e28f0a0627920bae1b76b6'}]
++UNSHARE, PYTHON, BWRAP = '/usr/bin/unshare', '/usr/bin/python3.14', '/usr/bin/bwrap'
++
++
++def verify_dependencies():
++    require([p['path'] for p in BINARIES] == [UNSHARE, PYTHON, BWRAP], 'exact binary contract')
++    require(Path(sys.executable).resolve() == Path(PYTHON), 'executing interpreter contract')
++    for p in BINARIES:
++        pinned(p)
++        require(not (Path(p['path']).stat().st_mode & 0o6000), 'unexpected privileged binary')
++
++
++def context():
++    lines = Path('/proc/self/cgroup').read_text().splitlines()
++    require(len(lines) == 1 and lines[0].startswith('0::/'), 'unified service cgroup required')
++    return dict(cgroup=lines[0][3:], uid=os.getuid(), gid=os.getgid(),
++                namespaces={n:os.readlink('/proc/self/ns/'+n) for n in ('mnt','user','pid','net')})
++
++
++def command(m, origin):
++    root = m['attempt_root']
++    encoded = json.dumps(origin, sort_keys=True, separators=(',', ':'))
++    helper = [PYTHON, '-I', '-B', str(HERE/'private_workload.py')]
++    post = [*helper, 'post', encoded, root, '--', *m['argv']]
++    bwrap = [BWRAP, '--unshare-user', '--ro-bind', '/', '/', '--dev', '/dev', '--proc', '/proc',
++             '--ro-bind', '/dev/shm', '/dev/shm',
++             '--remount-ro', '/dev/pts', '--remount-ro', '/dev', '--remount-ro', '/proc',
++             '--bind', root, root,
++             '--unshare-pid', '--unshare-net', '--die-with-parent', '--chdir', m['cwd'],
++             '--', *post]
++    return [UNSHARE, '--user', '--map-current-user', '--mount', '--propagation', 'private',
++            '--', *helper, 'pre', encoded, root, '--', *bwrap]
++
++
++def private_snapshot(raw):
++    mounts = effective_storage.parse_mountinfo(raw)
++    require(sum(m.parent not in mounts for m in mounts.values()) == 1, 'disconnected mount roots')
++    # PRIVATE has no shared/master/propagate_from/unbindable optional field.
++    require(all(not m.optional for m in mounts.values()), 'workload tree is not entirely private')
++    return len(mounts)
++
++
++def gate(stage, origin, attempt, argv):
++    require(stage in ('pre', 'post') and argv and Path(argv[0]).is_absolute(), 'private gate command')
++    verify_dependencies()
++    now = context()
++    require(now['cgroup'] == origin['cgroup'] and origin['cgroup'].endswith('.service'), 'wrapper cgroup changed')
++    require(now['uid'] == origin['uid'] != 0 and now['gid'] == origin['gid'], 'wrapper identity changed')
++    for n in ('mnt','user','pid','net'):
++        changed = now['namespaces'][n] != origin['namespaces'][n]
++        require(changed == (stage == 'post' or n in ('mnt','user')), 'wrapper namespace '+n)
++    if stage == 'pre':
++        require(argv[0] == BWRAP, 'pre gate must exec bwrap')
++        for kind, value in (('uid',origin['uid']), ('gid',origin['gid'])):
++            fields = Path('/proc/self/'+kind+'_map').read_text().split()
++            require(fields == [str(value), str(value), '1'], 'single current-user mapping required')
++    raw = Path('/proc/self/mountinfo').read_text()
++    print(json.dumps(dict(private_workload_snapshot=stage, context=now,
++        sha256=hashlib.sha256(raw.encode()).hexdigest(), mountinfo=raw)), flush=True)
++    count = private_snapshot(raw)
++    if stage == 'post':
++        # Preserve the strict effective-storage checker unchanged; a future
++        # payload cannot bypass it simply by omitting the qualification fixture.
++        report = effective_storage.check(raw, attempt)
++        require(Path('/proc/self/mountinfo').read_text() == raw, 'mount topology changed at payload gate')
++        print(json.dumps(dict(private_workload_postcondition=True, mounts=count,
++                              private_workload_storage=report)), flush=True)
++    else:
++        print(json.dumps(dict(private_workload_precondition=True, mounts=count)), flush=True)
++    os.execv(argv[0], argv)
++    raise RuntimeError('exec unexpectedly returned')
++
++
++def main(argv):
++    require(len(argv) >= 5 and argv[3] == '--', 'exact gate argument shape')
++    gate(argv[0], json.loads(argv[1]), argv[2], argv[4:])
++
++
++if __name__ == '__main__':
++    main(sys.argv[1:])
+--- a/runtime-config.json
++++ b/runtime-config.json
+@@ -146,6 +146,30 @@
+         "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/runtime-config.json",
+         "sha256": "8b8fd81b4ab997d282d5f53556169f23c976c5121895b95b1a071d7dd6deb7ff"
+       }
++    },
++    {
++      "controller": {
++        "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v5/storage_controller.py",
++        "sha256": "52a6b645c0dd2686bb391737809be977cc6d3eac6c7a41949e0b675f7cb339f4"
++      },
++      "helpers": [
++        {
++          "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v5/storage_admission.py",
++          "sha256": "e883e4f8fee686d71307c15008a53a31d120231e509128b89496aaf7f25cd2be"
++        },
++        {
++          "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v5/storage_paths.py",
++          "sha256": "5d8e720b1c15ae97dc06e4bb05fe1da6287739f37d525f13d93d38e922760b7d"
++        },
++        {
++          "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v5/terminal_recovery.py",
++          "sha256": "44c16fea7f44cd6a5a4195e4fd83ade15fedfd31e9c38ac8fc65075331807c0e"
++        }
++      ],
++      "config": {
++        "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v5/runtime-config.json",
++        "sha256": "ea87b84687b215529c69664926e69e0706bdeff2e25b8ac9f3ac0f4134d22383"
++      }
+     }
+   ],
+   "recovery_authority": {
+--- a/storage_admission.py
++++ b/storage_admission.py
+@@ -345,7 +345,8 @@
+         self.released(data)
+         rec = data['lanes'][lane]
+         owner, previous, seen = rec['policy']['owner'], None, {rec['policy']['owner']}
+-        for pin in rec['transitions']:
++        barrier = 0
++        for index, pin in enumerate(rec['transitions']):
+             t = pinned_json(pin)
+             require(t['version'] == VERSION and t['worker'] == lane
+                     and t['coordinator'] == rec['policy']['coordinator']
+@@ -370,27 +371,38 @@
+                                 for r in data['phases'].values()), 'unused owner anchor')
+                 require('prior_join' not in t and 'prior_phase' not in t, 'unused is not joined')
+             elif kind == 'unused-owner-revocation':
+-                # Exact A enrolled-unused case; trusted coordinator transition
+-                # pins an immutable full pre-transition snapshot. No phase/join
+-                # is invented and no charge or recovery record is changed.
++                # Append-only UNUSED chain: authenticate the exact prefix and
++                # immutable quiescent snapshot; never invent a phase or join.
+                 before = pinned_json(t['unused_state'])
++                for authority in (pin, t['unused_state']):
++                    require(all(not Path(authority['path']).is_relative_to(r['policy']['root']['path'])
++                                for r in data['lanes'].values()), 'unused authority in writable root')
+                 require(lane == 'A' and previous is not None
+-                        and rec['transitions'].index(pin) == 1
+-                        and pinned_json(previous)['kind'] == 'enrolled-unused',
+-                        'only first unused A owner may be revoked')
++                        and index > 0
++                        and pinned_json(previous)['kind'] in ('enrolled-unused', 'unused-owner-revocation'),
++                        'unused A chain predecessor required')
+                 self.released(before)
+-                require(before['lanes'][lane] == dict(rec, transitions=[previous])
++                require(recovery.exact(before['lanes'][lane], dict(rec, transitions=rec['transitions'][:index]))
+                         and not any(r['worker'] == lane for r in before['phases'].values())
+                         and not self.active_rows(before), 'unused snapshot anchor')
+                 require(type(t['phase_sequence']) is int
+-                        and t['phase_sequence'] == len(before['phases'])
+-                        and all(k in data['phases'] and data['phases'][k] == r
++                        and barrier <= t['phase_sequence'] == len(before['phases']) <= len(data['phases'])
++                        and all(k in data['phases'] and recovery.exact(data['phases'][k], r)
+                                 for k,r in before['phases'].items())
+                         and all(r['worker'] != lane or
+                                 (r['sequence'] >= t['phase_sequence'] and r['owner'] != owner)
+                                 for r in data['phases'].values()), 'unused owner history')
+                 require(not any(k in t for k in ('prior_join','prior_phase','recovery_event')),
+                         'unused revocation is not phase completion')
++                require(recovery.exact(
++                    {k:v for k,v in before.items() if k not in ('lanes','phases')},
++                    {k:v for k,v in data.items() if k not in ('lanes','phases')}),
++                    'unused snapshot global history changed')
++                require(set(before['lanes']) == set(data['lanes']), 'unused snapshot lanes')
++                for other, old in before['lanes'].items():
++                    now = data['lanes'][other]
++                    require(recovery.exact(old, dict(now, transitions=
++                        now['transitions'][:len(old['transitions'])])), 'unused snapshot lane history changed')
+             else:
+                 require(kind == 'joined', 'unknown owner transition kind')
+                 prior = data['phases'][t['prior_phase']]
+@@ -398,6 +410,10 @@
+                         and prior.get('join') == t['prior_join'] and prior['stage'] == 'joined',
+                         'owner transition requires joined prior phase')
+                 pinned(t['prior_join'])
++            if kind in ('enrolled-unused', 'unused-owner-revocation'):
++                require(type(t['phase_sequence']) is int and t['phase_sequence'] >= barrier,
++                        'unused phase barrier decreased')
++                barrier = t['phase_sequence']
+             owner, previous = t['to_owner'], pin
+             seen.add(owner)
+         return owner
+@@ -419,7 +435,7 @@
+                 require(lane == 'A' and not phases and not rec['transitions']
+                         and t['phase_sequence'] == len(data['phases']), 'exact unused A transition only')
+             elif kind == 'unused-owner-revocation':
+-                require(lane == 'A' and not phases and len(rec['transitions']) == 1
++                require(lane == 'A' and not phases and bool(rec['transitions'])
+                         and not self.active_rows(data), 'exact quiescent unused A only')
+                 require(recovery.exact(pinned_json(t['unused_state']), data),
+                         'unused snapshot no longer current')
+--- a/storage_controller.py
++++ b/storage_controller.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Inactive v5 source candidate; preserved v2 ledger/grant protocol. No shipped config, policy, budget, root, or activation.
++"""Inactive v6 source candidate; preserved v2 ledger/grant protocol. No shipped config, policy, budget, root, or activation.
+ 
+ One controller handles the preserved 3GiB and A-only 8GiB profiles. Old loop
+ launchers are deliberately not dispatched by this executable. All managed
+@@ -18,6 +18,7 @@
+ import time
+ 
+ from storage_admission import Ledger, VERSION, GIB
++import private_workload
+ from storage_paths import contained, directory, pinned, pinned_json, require
+ 
+ HERE = Path(__file__).resolve().parent
+@@ -30,7 +31,8 @@
+ }
+ OWNED_SHA = 'bdc2ccd9861d5a49f80875144963037255afef29f7ed932fea8da28ccb76c442'
+ LEDGER_SHA = '6088d3518a94a49fb23ddc4d5cd8e152779c50b74373cbb19ba26d97aa7f9531'
+-HELPERS = ('storage_admission.py', 'storage_paths.py', 'terminal_recovery.py')
++HELPERS = ('storage_admission.py', 'storage_paths.py', 'terminal_recovery.py',
++           'private_workload.py', 'effective_storage.py')
+ CUSTODY_EXIT = 199  # Deliberately failed transient unit retains independent terminal properties.
+ 
+ 
+@@ -73,14 +75,8 @@
+                ('anon', 'kernel', 'shmem', 'file_dirty', 'file_writeback')))
+ 
+ 
+-def sandbox(m):
+-    root = m['attempt_root']
+-    return ['/usr/bin/bwrap', '--ro-bind', '/', '/', '--dev', '/dev', '--proc', '/proc',
+-            '--ro-bind', '/dev/shm', '/dev/shm',
+-            '--remount-ro', '/dev/pts', '--remount-ro', '/dev', '--remount-ro', '/proc',
+-            '--bind', root, root,
+-            '--unshare-pid', '--unshare-net', '--die-with-parent', '--chdir', m['cwd'],
+-            '--', *m['argv']]
++def sandbox(m, context):
++    return private_workload.command(m, context)
+ 
+ 
+ def run_command(r, g):
+@@ -218,6 +214,9 @@
+         require(g['runtime_config'] == self.config_pin, 'config pin')
+         require(g['controller'] == pin(HERE/'storage_controller.py'), 'executing controller pin')
+         require(g['helpers'] == [pin(HERE/n) for n in HELPERS], 'exact helper set')
++        private_workload.verify_dependencies()
++        require(all(p in g['inputs'] for p in private_workload.BINARIES),
++                'pinned namespace argv dependencies required')
+         for p in [g['controller'], *g['helpers'], g['owned_processes'], g['resource_ledger'],
+                   g['predecessor_controller'], g['storage_policy'], *g['inputs']]:
+             pinned(p)
+@@ -241,7 +240,8 @@
+             root = Path(pinned_json(pp)['root']['path'])
+             protected = [self.config_pin, self.gp, self.mp, g['controller'], *g['helpers'],
+                          g['owned_processes'], g['resource_ledger'], g['storage_policy'],
+-                         c['deployed_volumes'], c['legacy_registry'], c['adopted_offload'], c['recovery_authority']]
++                         c['deployed_volumes'], c['legacy_registry'], c['adopted_offload'], c['recovery_authority'],
++                         *private_workload.BINARIES]
+             for path in [Path(x['path']) for x in protected] + [self.ledger.state, self.ledger.lock,
+                                                                Path(c['owner_state'])]:
+                 require(not path.is_relative_to(root), 'authority in writable root')
+@@ -492,7 +492,10 @@
+         spec = importlib.util.spec_from_file_location('owned_cleanup', self.g['owned_processes']['path'])
+         cleanup = importlib.util.module_from_spec(spec); spec.loader.exec_module(cleanup)
+         cleanup.enable_subreaper()
+-        argv = sandbox(self.m)
++        context = private_workload.context()
++        expected_cgroup = self.config['lane_cgroups'][self.g['worker']]+'/vkfworkers-'+self.g['worker'].lower()+'-'+self.g['attempt']+'.service'
++        require(context['cgroup'] == expected_cgroup, 'private wrapper service cgroup')
++        argv = sandbox(self.m, context)
+         env = {**os.environ, 'PATH':'/home/viktor/.local/bin:'+os.environ['PATH'],
+                'TMPDIR':self.m['tmpdir'], 'XDG_CACHE_HOME':self.m['cache'],
+                'CCACHE_DIR':self.m['ccache'], 'PYTHONDONTWRITEBYTECODE':'1'}

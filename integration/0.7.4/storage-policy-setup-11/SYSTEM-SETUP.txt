@@ -1,0 +1,71 @@
+REVIEW-ONLY SYSTEM SETUP — DO NOT RUN IN THIS ITERATION
+
+Scope: two new AppArmor profiles in ONE new file; one dedicated byte-exact
+copy of /usr/bin/unshare. No replacement of /usr/bin/unshare, Python, bwrap,
+unprivileged_userns, tunables, sysctls, or existing profiles. No host mount
+operation, SUID, file capabilities, root workload, service launch, or grant.
+
+Coordinator review must first accept source/policy semantics, command delta,
+and authority preservation. This task did not run the policy compiler either:
+syntax/feature acceptance is a mandatory outstanding check, not a passing gate.
+The commands below are for a separately authorized root setup review ONLY.
+They do not install the controller or grant permission to run a workload.
+
+1. Keep all old dispatch/entrypoints held. Independently establish zero active
+   storage services, empty service cgroups, and joined tracked descendants.
+   Verify every sourcepins.json entry, absence in evidence/local-policy.json,
+   all reviewed output hashes, and that loaded bwrap/unpriv_bwrap enforce the
+   pinned /etc/apparmor.d/bwrap-userns-restrict (not merely same profile names).
+   Package/ABI/local-include drift requires a new reviewed candidate.
+
+2. In a separate review, run the AppArmor compiler without kernel/cache writes:
+
+   /usr/sbin/apparmor_parser --skip-kernel-load --skip-cache --jobs=1 --max-jobs=1 \
+     --base=/etc/apparmor.d \
+     '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-policy-setup-11/system-setup/vkf-storage-private-v1'
+
+   Zero exit and review of diagnostics are necessary, not runtime proof.
+   No such compiler invocation was made in this iteration.
+
+3. After acceptance, these exact ordered installation commands are reviewable:
+   Run in Bash with `set -euo pipefail`; assign task-specific variables below.
+   Existing destination OR loaded profile collision => stop; never replace.
+   Confirm the profile digest against policy-inputs.json, then substitute its
+   recorded hash into the generated install-reviewed.sh (already supplied with
+   the exact hash; do not type a guessed digest). Review that script and use:
+
+   sudo -n /bin/bash \
+     '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-policy-setup-11/system-setup/install-reviewed.sh'
+
+   It verifies the exact source unshare and policy bytes; requires no existing
+   destination/profile; creates only the dedicated directory; stages unshare
+   mode 0600; installs/loads ONLY the new policy with --add and --skip-cache;
+   enables the binary mode 0755 LAST. It never invokes the binary. The directory
+   is root:root 0755; binary/root profile are regular root-owned files. No daemon
+   restart is used. On any error leave execution disabled, stop, and review the
+   precise partial state; do not retry automatically. If a load is ambiguous,
+   inspect loaded profiles before the explicit rollback below.
+
+4. Before any future namespace attempt, root must compare loaded policy to the
+   reviewed source and rerun read-only local-include/sysctl/binary/path checks.
+   Candidate verify_dependencies() also rejects absent/changed/privileged or
+   user-writable system inputs, new includes, or changed restriction. It cannot
+   prove that the kernel's loaded binary policy equals a source file. Root owns
+   that verification. /proc/self/attr/current later proves the actual enforced
+   labels only, not source-policy equivalence.
+
+ROLLBACK — SEPARATE AUTHORIZED OPERATION, NOT PERFORMED
+First preserve dispatcher hold and independently join all services/descendants.
+Do not remove a loaded profile underneath a live setup or pre-gate process.
+The generated rollback-reviewed.sh refuses modified file contents/owners and
+unknown paths. It disables/removes the dedicated binary BEFORE removing policy,
+then removes ONLY the new profile file and empty dedicated directory. It does
+not delete parent /usr/local/libexec or policy caches, reset state, alter owners,
+or refund any charge. Review and run only after quiescence:
+
+   sudo -n /bin/bash \
+     '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-policy-setup-11/system-setup/rollback-reviewed.sh'
+
+If install stopped before profile load, omit --remove only after proving both
+new profiles absent. Partial/ambiguous failure needs root review; this is not an
+automatic cleanup/retry path. Preserve all evidence and ledger authority.

@@ -1,0 +1,26 @@
+{
+  "restrict_unprivileged_userns": "1",
+  "coordinator_profile": "unconfined",
+  "loaded_read_exit": 0,
+  "relevant_loaded_profiles": [
+    "/usr/bin/papers//bwrap_trans (enforce)",
+    "unprivileged_userns (enforce)",
+    "lxc-unshare (unconfined)",
+    "unpriv_bwrap (enforce)",
+    "bwrap (enforce)",
+    ":glycin:bwrap (enforce)"
+  ],
+  "error": "",
+  "profile_files": [
+    {
+      "path": "/etc/apparmor.d/unprivileged_userns",
+      "sha256": "3263abe3b090d761a525a5e8c2d62ef89a39b41ab87ba25cecc5a6d686f73e65",
+      "text": "# Special profile transitioned to by unconfined when creating an unprivileged\n# user namespace.\n#\nabi <abi/5.0>,\ninclude <tunables/global>\n\nprofile unprivileged_userns {\n     audit deny capability,\n     audit deny change_profile,\n\n     # allow block to be replaced by allow when x dominance test is fixed\n     #allow all,\n     allow network,\n     allow signal,\n     allow dbus,\n     allow file rwlkm /{,**},\n     allow unix,\n     allow mqueue,\n     allow ptrace,\n     allow userns,\n\n     # stack children to strip capabilities\n     allow pix /** -> &unprivileged_userns ,\n\n     # Site-specific additions and overrides. See local/README for details.\n     include if exists <local/unprivileged_userns>\n}\n"
+    },
+    {
+      "path": "/etc/apparmor.d/bwrap-userns-restrict",
+      "sha256": "d61facde27707b9c47ffe47921b7273e788784484cb5530eb819e6daac1f1990",
+      "text": "# This profile allows almost everything and only exists to allow bwrap\n# to work on a system with user namespace restrictions being enforced.\n# bwrap is allowed access to user namespaces and capabilities within\n# the user namespace, but its children do not have capabilities,\n# blocking bwrap from being able to be used to arbitrarily by-pass the\n# user namespace restrictions.\n\n# Note: the bwrap child is stacked against the bwrap profile due to\n# bwraps use of no-new-privs.\n\nabi <abi/5.0>,\n\ninclude <tunables/global>\n\nprofile bwrap /usr/bin/bwrap flags=(attach_disconnected,mediate_deleted) {\n  allow capability,\n  # not allow all, to allow for pix stack on systems that don't support\n  # rule priority.\n  #\n  # sadly we have to allow 'm' every where to allow children to work under\n  # profile stacking atm.\n  allow file rwlkm /{**,},\n  allow network,\n  allow unix,\n  allow ptrace,\n  allow signal,\n  allow mqueue,\n  allow io_uring,\n  allow userns,\n  allow mount,\n  allow umount,\n  allow pivot_root,\n  allow dbus,\n\n  # stacked like this due to no-new-privs restriction\n  # this will stack a target profile against bwrap and unpriv_bwrap\n  # Ideally\n  # - there would be a transition at userns creation first. This would allow\n  #   for the bwrap profile to be tighter, and looser within the user\n  #   ns. bwrap will still have to fairly loose until a transition at\n  #   namespacing in general (not just user ns) is available.\n  # - there would be an independent second target as fallback\n  #   This would allow for select target profiles to be used, and not\n  #   necessarily stack the unpriv_bwrap in cases where this is desired\n  #\n  # the ix works here because stack will apply to ix fallback\n  # Ideally we would sanitize the environment across a privilege boundry\n  # (leaving bwarp into application) but flatpak etc use environment glibc\n  # sanitized environment variables as part of the sandbox setup.\n  allow pix /** -> &bwrap//&unpriv_bwrap,\n\n  # the local include should not be used without understanding the userns\n  # restriction.\n  # Site-specific additions and overrides. See local/README for details.\n  include if exists <local/bwrap-userns-restrict>\n}\n\n# The unpriv_bwrap profile is used to strip capabilities within the userns\nprofile unpriv_bwrap flags=(attach_disconnected,mediate_deleted) {\n  # not allow all, to allow for pix stack\n  allow file rwlkm /{**,},\n  allow network,\n  allow unix,\n  allow ptrace,\n  allow signal,\n  allow mqueue,\n  allow io_uring,\n  allow userns,\n  allow mount,\n  allow umount,\n  allow pivot_root,\n  allow dbus,\n\n  # bwrap profile does stacking against itself this will keep the target\n  # profile from having elevated privileges in the container.\n  # If done recursively the stack will remove any duplicate\n  allow pix /** -> &unpriv_bwrap,\n\n  audit deny capability,\n\n  # the local include should not be used without understanding the userns\n  # restriction.\n  # Site-specific additions and overrides. See local/README for details.\n  include if exists <local/unpriv_bwrap>\n}\n"
+    }
+  ]
+}

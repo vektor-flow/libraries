@@ -1,0 +1,93 @@
+STORAGE POLICY SETUP11 — REVIEWABLE CANDIDATE, NOT DEPLOYED/QUALIFIED
+2026-10-17. Worker 01a14960-ec9f-70c1-b137-57750ee2aa04
+Sole coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31
+
+RESULT
+Confirmed root preflight semantics against actual read-only local policy:
+restriction=1, unconfined origin, loaded unprivileged_userns denies capabilities,
+no unshare attachment, all THREE relevant local overrides absent. Captured the
+transitive includes/ABI and missing include directories in evidence/local-policy.json.
+Generic unprofiled unshare is expected to fail before its private mount/pre gate.
+No namespace experiment was repeated.
+
+Concrete minimal candidate: dedicated byte-identical root-owned unshare copy,
+ONE new policy file with two named profiles. Setup permits only CAP_SYS_ADMIN
+and recursive-private propagation at /. Explicit Px enters a capability-denied
+Python pre profile, then explicitly replaces it with the existing bwrap profile
+before bwrap sets NNP. Existing bwrap/unpriv_bwrap payload denial is retained.
+All actual label/NNP/credential/capability expectations are fail-closed gates.
+No global policy/sysctl change, unrelated program disguise, host mount change,
+root payload, new native helper, or fallback path.
+
+FILES FOR REVIEW
+candidate/storage-direct-v6/ — complete seven-file v6 source/config candidate.
+policy-setup-v6.patch — only private_workload.py and storage_controller.py change.
+system-setup/vkf-storage-private-v1 — exact new AppArmor source, not loaded.
+system-setup/install-reviewed.sh and rollback-reviewed.sh — exact, unexecuted.
+SYSTEM-SETUP.txt — ordered compiler/install/rollback review and quiescence rules.
+SEMANTICS.txt — exact source/policy reasoning, transition model and limits.
+REVIEW.txt — adoption, grant/pin requirements and separate qualification gates.
+binary-contract.json, policy-inputs.json, patch-verification.json,
+sourcepins.json, final-verification.json, evidence/system-file-metadata.json.
+
+PRESERVED
+Repair10's mandatory pre/post raw mountinfo/private gates, byte-exact strict
+storage checker, ordinary payload identity, one charged RW mount, readonly
+root/dev/proc/shm/pts, exact cgroup custody, namespace checks, owned descendants,
+subreaper/joins, service/resource/physical/accounting guards. v6 unused-owner
+chain/admission/config/recovery/old authority tuples remain byte-for-byte.
+Same v4 ledger and parent capacity.lock. No owner transition or state write.
+Old dispatcher remains held. D267/D289 remain excluded. No unrelated controller
+work or peer/shared-source edits, no commits, no other agents.
+
+VALIDATION — EXACT COMMANDS/OUTCOMES
+/usr/bin/python3.14 -I -B <this-directory>/run_tests.py
+Final: 81 tests, 0 failures/errors/skips, 19.455s parent elapsed,
+peak51,340KiB; child4098156/start74547557 joined and absent.
+Includes inherited61 checks (actual unused-A chain/admission, historical bundle
+source authentication, negative storage topology, custody/setup-failure mocks)
+and20 new policy/dependency/identity/capability/NNP/preservation test methods.
+OS/profile observation gates are mocked in inherited wrapper tests and separately
+adversarially tested. No successful live transitions are claimed by these mocks.
+512MiB address-space,45CPU-second,60wall-second limits; no test grandchildren.
+
+Initial:80/81 passed,19.603s,peak51,448KiB; child4093368/start74528267 joined/absent.
+One test text assertion mistook /usr/local/ for an AppArmor local include. Fixed
+assertion to match <local/; no production guard changed. Initial evidence kept.
+all-ownedjoins.json records both actual joins. No redundant test temps remain.
+
+bash -n <this-directory>/system-setup/install-reviewed.sh
+bash -n <this-directory>/system-setup/rollback-reviewed.sh
+Both exit0; scripts NOT run. Exact two-file patch reconstructed in memory; all
+five other v6 files identical. Twenty-one existing system-policy/binary paths
+have root-owned, nonsymlink, nonwritable chains and no filecaps. No installation
+path/profile exists. 226 source/authority/notification-client pins verified.
+
+SOURCE CHECKPOINTS
+Owner grant source HEAD84689e30101b6e5f8b6e1da6c1f36bbbb4345255.
+Observed final HEADd8373abc43c3c64147cd99f58c84669056c3ccb7 adds only separate
+compiler-preparation/projection/review work through three coordinator commits.
+Read-only diff confirmed disjoint directories; every pinned input unchanged.
+Repair10 HANDOFF/SUCCESSOR/SEMANTICS and root preflight are exact pinned inputs.
+System binaries: util-linux2.41.3-3ubuntu2.2, bubblewrap0.11.1-1ubuntu0.3,
+Python3.14; AppArmor5.0.2-0ubuntu1~26.04.1, kernel7.0.0-38-generic.
+Full SHA256s and exact paths in sourcepins.json and binary/policy contracts.
+
+LIMITS / ROOT-OWNED NEXT REVIEW
+NO AppArmor policy compilation/load, system installation, namespace/service,
+native/compiler workload or actual deny/exec-transition probe occurred. The
+reviewable profile uses documented installed syntax, but compiler/ABI acceptance,
+actual Px transitions, library/proc permissions, nested namespaces, all inherited
+mounts, effective storage and real success/nonzero/timeout joins remain unproved.
+Root must review/install exact scoped system files separately, verify loaded
+policy equivalence (file hashes/names alone are insufficient), then issue a fresh
+owner-bound qualification grant if appropriate. Unexpected failure stops; never
+relax guards/profile restrictions, clear NNP, or retry an alternate launch shape.
+This candidate is not environment qualification or compiler-build permission.
+
+ACCOUNTING AND COMPLETION
+3 attempts/12MiB consumed remain unchanged; 0 operational attempts/bytes added,
+no refund/native credit. F19,796,107,264 and A18,778,218,496 cumulative bytes retained.
+13attempts/52MiB remain arithmetic, not authority. All writes confined to this
+owner output. One DONE line via existing app-server notification client; receipt
+records acknowledgement or ambiguity without retry. Stop; no successor work.

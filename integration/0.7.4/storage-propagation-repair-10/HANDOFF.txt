@@ -1,0 +1,49 @@
+STORAGE PROPAGATION REPAIR10 — CONCRETE SOURCE SUCCESSOR; NOT DEPLOYED
+2026-10-17. Owner 01a1494e-a139-72e2-8fb5-b2462e26223c
+Sole coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31
+
+DELIVERED
+candidate/storage-direct-v6 + successor-v6.patch implement a nonforking
+unshare --user --map-current-user --mount --propagation private wrapper BEFORE
+bwrap copies/binds the tree. Exact installed Ubuntu versions/source semantics
+verified. Both pre-bwrap and pre-payload gates capture raw mountinfo and require
+an entirely PRIVATE tree. The unchanged strict effective-storage checker gates
+every payload. Same UID, service cgroup, tracked child/descendant join path,
+one charged RW mount, readonly root/dev/proc/shm and namespace/resource guards.
+No unsafe fallback, master/shared whitelist, host mount operation or sudo.
+
+A-only UNUSED succession now supports authenticated append-only chains beyond
+the existing enrolled-unused + unused-owner-revocation pair. Exact quiescent
+full pinned snapshot, entire prior chain, fresh owner and monotonic phase barrier
+are required. Used/active A, active F, stale/replayed owner, altered history or
+snapshot fail. Only one transition pin is appended; no phase/join is fabricated.
+F still requires its latest actual joined phase and independent join callback.
+Old v5/v4/v2 source authority retained; same v4 ledger/lock, charges and limits.
+
+VALIDATION
+61 final tests PASS, 19.753s, peak48,864KiB; child4069239/start74446003 joined
+and absent. Includes actual raw407/403-propagating live09 regression, unchanged
+checker adversarial suite, mock command/order/failure/custody tests, actual A
+chain and admission/negative tests, exact source/authority checks. All three
+verification children joined/absent; initial expanded fixture error retained
+and corrected. No test grandchildren/services. Seven-file patch reconstruction
+exact in memory. 174 input pins verified unchanged; no overlap detected.
+Grant HEAD554402491748614f39ed6b06eb1d638364f580ce; authorized disjoint coordinator
+advances through observed84689e30101b6e5f8b6e1da6c1f36bbbb4345255.
+
+NOT PROVED / NOT PERFORMED
+No namespace setup, service, native/compiler payload, deployment, owner rotation,
+commit or patch application. Kernel/AppArmor acceptance, nested mount behavior,
+all effective inherited paths, success/nonzero/timeout cases and actual wrapper
+joins remain unqualified. First unexpected live setup failure must stop under
+a separately authorized grant; this source result is not build permission.
+3attempts/12MiB remain consumed;13attempts/52MiB arithmetically remain. No refund
+or native credit. A333 compiler-only; D267/D289 and other rejected scopes held.
+
+REVIEW
+SUCCESSOR.txt: exact deployment/grant/owner/qualification contract.
+SEMANTICS.txt, argv-contract.json, binary-contract.json, documentation-pins.json.
+sourcepins.json, patch-verification.json, topology-regression.json, final-seal.json.
+tests.stderr.txt, test-counts.json, ownedjoins.json; all writes only this output.
+One DONE via existing app-server; notification-result.json records acknowledgement
+or ambiguity without retry. Stop after notification.

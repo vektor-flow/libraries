@@ -1,0 +1,61 @@
+EXACT COMMAND SEMANTICS — SOURCE EVIDENCE, NOT RUNTIME QUALIFICATION
+
+Installed /usr/bin/unshare: util-linux 2.41.3-3ubuntu2.2.
+Installed /usr/bin/bwrap: bubblewrap 0.11.1-1ubuntu0.3.
+Help/version captures and binary-contract.json pin the installed executables.
+Ubuntu applied-version unshare.c, bubblewrap.c, bind-mount.c and changelogs were
+fetched from git.launchpad.net/ubuntu/+source; changelog first lines match both
+installed package versions. documentation-pins.json records URLs and SHA256s.
+Upstream tag sources and Linux sharedsubtree documentation are supplementary.
+
+The exact prefix is:
+/usr/bin/unshare --user --map-current-user --mount --propagation private --
+/usr/bin/python3.14 -I -B <deployed-v6>/private_workload.py pre ... -- /usr/bin/bwrap ...
+
+Ubuntu unshare source maps current effective UID/GID to themselves, leaves
+owneruser/ownergroup unset and mapping-range lists empty. With no persistent
+namespace files, no ranges and no --fork/--kill-child, none of its helper-fork
+branches execute. It unshares CLONE_NEWUSER|CLONE_NEWNS, writes single ID maps
+(and denies setgroups), then applies MS_REC|MS_PRIVATE to /. Failure exits before
+execvp. Thus the mount syscall belongs to the newly owned mount namespace; it
+is not a global host mount operation. No --keep-caps is used: executing the
+nonzero-UID Python helper drops the temporary namespace capabilities.
+
+Bubblewrap receives explicit --unshare-user and the original PID/network,
+readonly-root/dev/proc/shm, one charged bind and die-with-parent options. Its
+source rejects unexpected capabilities for a non-setuid nonzero UID, creates
+its own namespaces, and recursively slaves its inherited tree before binding.
+Linux sharedsubtree.rst states that slaving a non-shared mount has no effect:
+PRIVATE stays PRIVATE, unlike the live09 incoming slave tree. Private source
+binds onto private destinations remain private. Bubblewrap drops privileges
+before its post helper/payload. The unchanged checker still decides whether
+all effective mounts are acceptable; no inherited path is declared safe here.
+
+The first helper verifies current UID/GID, exact single mappings, distinct
+user/mount namespaces, unchanged PID/network namespaces, and the original
+service cgroup. It emits raw mountinfo before requiring every mount to be
+PRIVATE (no optional propagation/unbindable/unknown fields), then execs bwrap.
+The second helper verifies all four namespace IDs differ from the controller
+and that the cgroup/identity remains unchanged. It emits raw mountinfo, checks
+PRIVATE plus the unchanged effective-storage checker and stable mount table,
+then emits the postcondition and execs the authorized payload. There is no
+exception handler, shell, alternate command, or failure fallback.
+
+CUSTODY
+The Popen child PID/starttime persists across unshare -> Python pre -> bwrap
+execs. The existing subreaper/wait_owned watches this child and descendants;
+full sandbox argv and tracked identities enter inner_result. There is no
+cgroup namespace or migration. Existing KillMode=control-group, runtime limit,
+TasksMax128, memory/swap limits, RAM intent, disk/physical guards and terminal
+service verification remain. Tests mock the exec chain and setup failure; they
+do not pretend to have observed a real new wrapper PID or service join.
+
+LIMITS
+No actual unshare/bwrap setup, service, compiler or native payload ran. Kernel
+and AppArmor acceptance, nested-userns/proc/devpts behavior, effective access
+to every inherited mount, and real success/nonzero/timeout joins remain to be
+proved under a separate grant. Package source/version matching is source
+provenance, not a reproducible-build proof of the installed binaries. Any real
+setup/check failure must stop; do not relax checks, raise caps, change host
+propagation or retry another launch shape. This candidate is not a qualified
+storage environment and authorizes no compiler build.

@@ -1,0 +1,76 @@
+REVIEWABLE v6 CANDIDATE — NOT INSTALLED, NO GRANTS OR OWNER CHANGES
+
+candidate/storage-direct-v6 contains the complete seven-file source/config
+successor. successor-v6.patch is relative to the pinned installed v5 file set;
+review it against an isolated v5 copy only. This task reconstructed its exact
+result in memory, never applied it to installed/shared source. The unchanged
+storage_paths.py/terminal_recovery.py are included byte-for-byte; the unchanged
+effective_storage.py is added as a mandatory gate dependency. See sourcepins,
+patch-verification, argv-contract and SEMANTICS.txt.
+
+A future separately authorized installation belongs in storage-direct-v6 next
+to v5/v4/v2, with the SAME v4/direct-state-v4.json and parent capacity.lock.
+Config retains every v2/v4 authority tuple and appends the exact installed v5
+controller/three-helper/config tuple. Recovery authority, owners-v4 path,
+policies, increments, caps, cumulative accounting and old files stay unchanged.
+No enrollment, state migration, reset, refund or native credit is involved.
+Older writer entrypoints must remain held by the coordinator.
+
+Fresh grants/manifests must pin deployed v6 controller/config, the exact five
+HELPERS (including private_workload.py and effective_storage.py), and all three
+binary-contract entries in BOTH inputs arrays, plus every payload input.
+The binaries are /usr/bin/unshare, /usr/bin/python3.14 and /usr/bin/bwrap.
+The service argv remains historical-compatible /usr/bin/python3 -B ...;
+verify_dependencies checks its resolved interpreter and binary bytes. Payload
+argv remains grant-exact and is forwarded without shell interpretation. The
+helper uses isolated Python and only the authenticated sibling helper directory.
+argv-contract.json gives a non-executable example; it is not a pending grant.
+
+The mandatory new raw snapshot records have private_workload_snapshot=pre/post.
+Require exactly one successful precondition and postcondition, matching raw
+snapshot hashes and expected service context before accepting a live case.
+The post storage proof uses private_workload_storage, so it does not collide
+with the existing fixture's effective_storage report selector. Preserve both
+new raw snapshots even on failure. The old fixture's snapshot and report remain
+required for qualification; do not blindly rerun an old live09 launcher/grant.
+A real timeout still needs independent service/cgroup/descendant joins.
+
+OWNER TRANSITIONS
+F uses kind=joined, latest actual F:live09-f-success-01 and its pinned real join,
+with freshly independent Controller.verify_join. No callback returning a
+constant True and no fabricated phase/join is operationally valid.
+
+A currently has enrolled-unused -> unused-owner-revocation, no A phase. v6
+extends only that UNUSED chain. A new transition requires worker A, exact
+version/coordinator/policy/previous/from_owner, a never-used nonempty to_owner,
+kind unused-owner-revocation, pinned immutable unused_state equal to the FULL
+current state under the SAME capacity lock, and integer phase_sequence equal
+to the snapshot phase count (currently 3). No prior_phase/prior_join/recovery_event
+fields are allowed. Snapshot and transition pins must lie outside every enrolled
+writable root. Both lanes must be quiescent and A must never have a phase.
+
+Perform a real F owner rotation before freezing A's full snapshot. Each A
+append authenticates the complete preceding transition prefix, preserved lane
+histories/recovery events/exact phase records and a nondecreasing phase barrier.
+Another unused fresh-owner append with no intervening phase is allowed; the
+barrier need not increment without a phase. Existing and future used-A phases
+permanently block further UNUSED rotation. Replayed/stale/retired owner, wrong
+snapshot, active either lane, history/charge edits and decreasing barriers fail.
+The trusted coordinator API remains the authentication boundary; a content hash
+is not a new signature system. No ownership or phase was changed by this task.
+
+TESTS
+/usr/bin/python3.14 -I -B <this-output>/run_tests.py
+All test files/temps are confined to this output. Tests use the actual current
+chain/phase rows without rebinding them. OwnedLedger only redirects historical
+recovery path validation to its real read-only authority, while transaction
+state/lock and all writes remain local test copies. Capacity/filesystem identity
+and service callbacks are explicit mocks. No runtime isolation/join is claimed.
+Final 61 tests pass; final child joined/absent, 19.753s, peak 48,864KiB.
+Initial 59 passed; expanded first run exposed an incomplete mock custody record,
+which was corrected in the test fixture. All three test children joined/absent.
+
+Carry 3 attempts/12MiB consumed; 13 attempts/52MiB remain arithmetically, not
+launch authority. F cumulative19,796,107,264; A18,778,218,496 bytes. No refund.
+Compiler candidate correction/review and environment qualification remain gates;
+A333 reopening applies only to its compiler worker. D267/D289 remain held.
