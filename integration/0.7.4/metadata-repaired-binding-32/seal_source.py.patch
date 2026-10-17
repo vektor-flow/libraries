@@ -1,0 +1,22 @@
+--- /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/seal_source.py
++++ /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/seal_source.py
+@@ -11,7 +11,7 @@
+ sys.path.insert(0, str(HERE))
+ import adapter as a
+ 
+-HEAD = '9dbabcaea9fce28129469e31a139a8548a14ab22'
++HEAD = '0d6d2bea2eb8015ee56f95b1e0eaf78e3d3c3108'
+ S = Path('/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb')
+ V9 = S/'storage-direct-v9'
+ QUAL = dict(path=str(S/'compiler-qualified-v9-A-root-export-20261017.json'),
+@@ -110,7 +110,9 @@
+     pins += [a.pin(HERE.parent/'compiler-native-binding-08/root-acceptance.json')]
+     compiler = plan['compiler_receipt']['compiler']
+     pins += [a.pin(HERE/n) for n in ('adapter.py','root_steps.py','compiler-receipt.snapshot.json','native-authentication.json','staging/metadata/plan.json','build_packet.py','seal_source.py')]
+-    pins += [a.pin(HERE.parent/'d288-native-24'/n) for n in ('root-acceptance.json','HANDOFF.txt')]
++    pins += [a.pin(HERE.parent/'metadata-native-29'/n) for n in ('root-terminal-review.json','HANDOFF.txt','independent-terminal-join.json','result.json')]
++    pins += [a.pin(HERE.parent/'metadata-entry-repair-31'/n) for n in ('root-adoption.json','prepare.py.patch','prepare.py','metadata_actual_lengths.vkf','HANDOFF.txt','FINDINGS.txt','ROOT-RECIPE-DELTA.txt')]
++    pins += [a.pin(HERE/'grant.snapshot.json')]
+     pins += plan['generated'] + [a.pin(HERE.parent/'compiler-native-17/root-acceptance.json')]
+     pins += mapped_pins + [p for p in elf_pins if p != compiler]
+     # Dynamic loader selection and enabled site bootstrap are runtime inputs too.

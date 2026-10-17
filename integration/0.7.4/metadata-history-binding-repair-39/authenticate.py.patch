@@ -1,0 +1,13 @@
+--- integration/0.7.4/compiler-build-preparation-03/authenticate.py
++++ integration/0.7.4/metadata-history-binding-repair-39/generator/authenticate.py
+@@ -3,8 +3,8 @@
+ import hashlib, json, os, shlex, struct, sys, time
+ from pathlib import Path
+ HERE=Path(__file__).resolve().parent
+-REPO=HERE.parents[2]
+-REPAIR=HERE.parent/'compiler-renderer-repair-02'
++REPO=HERE.parents[3]
++REPAIR=HERE.parents[1]/'compiler-renderer-repair-02'
+ CACHE=Path('/home/viktor/.cache/vkf-s0-runtimes-20261012')
+ D=CACHE/'Proof/tests/independent-worker-D/iteration288-record01'
+ F=CACHE/'Integrator/independent-worker-F/iteration303-compose01'

@@ -1,0 +1,39 @@
+{
+  "admitted": false,
+  "estimates_not_admission": true,
+  "failed_artifacts_retained": true,
+  "forecast_ram_bytes": 4294967296,
+  "historical_proposed_ram_bytes": 8589934592,
+  "includes": [
+    "private sources and VFS/manifests",
+    "objects,typed IR,generated C++ and assembler if emitted",
+    "link outputs and all test executables",
+    "tmp/cache and linker/compiler scratch",
+    "stdout/stderr,depfiles,join receipts",
+    "unsuccessful and interrupted artifacts; no cleanup credit"
+  ],
+  "inclusive_disk_bytes": 1073741824,
+  "native_demand_measured": false,
+  "observed_host_materialization_bytes": 1204224,
+  "observed_host_retained_fake_bytes": 1257472,
+  "phase": "metadata",
+  "prior_permanent_charges": {
+    "A": 24159510528,
+    "F": 19821273088,
+    "failed_native13_retained": true,
+    "failed_native29_retained": true,
+    "tiny_attempts": 12,
+    "tiny_bytes": 50331648
+  },
+  "proposed_A_total_after_single_admission": 25233252352,
+  "reason": "Historical 8GiB RAM proposal is not operational admission; 4GiB is an uncalibrated forecast. Fresh root decision is mandatory. 1GiB includes all sources, real normalization, objects/cache/IR/executables/scratch/logs/receipts and failed artifacts. 300s outer deadline includes validation, existing 10s lock wait, materialization and payload; 270s stage allowances are not guaranteed cumulative runtime.",
+  "source": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-build-preparation-03/estimates.json",
+    "sha256": "5a9ade3da8c4693e053792e2dbca824b7d6d3a15b3e0d28f4b3f6a71f5a6d794"
+  },
+  "stage_timeout_sum_seconds": 270,
+  "stdlib_copy_allocated_bytes": 696320,
+  "stdlib_copy_logical_bytes": 614150,
+  "timeout_seconds": 300,
+  "worker": "A"
+}

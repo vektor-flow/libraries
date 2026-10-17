@@ -1,0 +1,60 @@
+{
+  "passed": true,
+  "verified_paths": 1542,
+  "children": [
+    {
+      "pid": 310539,
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "joined": true,
+      "absent": true
+    },
+    {
+      "pid": 310540,
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+        "diff",
+        "HEAD",
+        "--"
+      ],
+      "exit": 0,
+      "joined": true,
+      "absent": true
+    }
+  ],
+  "all_children_joined": true,
+  "source_head": "0d6d2bea2eb8015ee56f95b1e0eaf78e3d3c3108",
+  "tracked_diff_empty": true,
+  "packet_delivery": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/delivery.json",
+    "sha256": "2ee3ec4d0713886779f8de5aee32b6b5726c3a29ff45f58772e8c199d88e7287"
+  },
+  "ledger": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/direct-state-v4.json",
+    "sha256": "8d4dd1c772a6d1fba46be6869c46d1899e8b0043723e013734a8c2db8d2ca4fa"
+  },
+  "owners": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/owners-v4.json",
+    "sha256": "0f9c81443a2ee94f25a62b4b40e50278b96b34ccc4c05426d066afe6bb0646be"
+  },
+  "dispatcher_mask": {
+    "path": "/run/user/1000/systemd/user/vkf-s0-synchronized-contexts.service",
+    "readlink": "/dev/null"
+  },
+  "seconds": 0.3221215079538524,
+  "memory": [
+    "VmPeak:\t   34040 kB",
+    "VmHWM:\t   20196 kB"
+  ],
+  "native_execution": false,
+  "operational_actions": false,
+  "live_join_reauthentication": false
+}

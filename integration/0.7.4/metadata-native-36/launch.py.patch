@@ -1,0 +1,9 @@
+--- integration/0.7.4/metadata-native-29/launch.py
++++ integration/0.7.4/metadata-native-36/launch.py
+@@ -1,5 +1,5 @@
+ import json,os,pathlib,subprocess,sys,time
+-OUT=pathlib.Path(__file__).resolve().parent;P=OUT.parent/'metadata-control-preparation-27'
++OUT=pathlib.Path(__file__).resolve().parent;P=OUT.parent/'metadata-repaired-binding-32'
+ sys.path.insert(0,str(OUT));from preflight import a,STORAGE,controller,save
+ assert not (OUT/'STOP.json').exists()
+ s=a.static_contract();r=a.read(P/'root-inputs.json');v=a.read(P/'root-packet/PREPARATION-ONLY.json');m=a.load_pin(v['manifest']);g=a.load_pin(v['grant']);config=a.load_pin(s['v6_bundle']['config'])

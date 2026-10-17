@@ -1,0 +1,11 @@
+--- integration/0.7.4/metadata-repaired-binding-32/adapter.py
++++ integration/0.7.4/metadata-history-binding-repair-39/adapter.py
+@@ -19,7 +19,7 @@
+ sys.dont_write_bytecode = True
+ HERE = Path(__file__).resolve().parent
+ REPO = HERE.parents[2]
+-PACKAGE = HERE.parent / 'compiler-build-preparation-03'
++PACKAGE = HERE / 'generator'
+ COORDINATOR = '01a14893-cb1e-7203-97dd-de3da44dcf31'
+ GIB = 2**30
+ STAGES = ['compile-53', 'compile-90', 'link-compiler', 'compile-regression',

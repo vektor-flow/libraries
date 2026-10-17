@@ -1,0 +1,9 @@
+{
+  "reason": "Initial independent commit-scope assertion omitted required root-adoption.json evidence addition; observed exact commit contains only generator modification and adoption evidence addition.",
+  "before_sha256": "ec9b870e209f33de18fbb5317959fcf4014e85eef6f69b2bd10b1183eb125858",
+  "after_sha256": "eb93a9ec4ed6e00a7c59b6626086528cbfd399397e69a4f8209a3ba4865b180a",
+  "sealed_sources_changed": false,
+  "native_retry": false,
+  "second_check": "The end offset after the final assertion newline equals the start offset of ::true; corrected nonoverlap test to <= for half-open byte ranges. Six exact assertion bytes and required following newline remain checked.",
+  "review_before_rerun": "Removed an unexecuted invented stderr rejection test: the original focused oracle specifies exit/stdout, not stderr. Full-plan equality preserves that original absence; no plan or sealed source changed."
+}

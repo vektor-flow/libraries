@@ -1,0 +1,81 @@
+{
+  "assertions": [
+    {
+      "hex": "286c6566742e636f756e743d39202f5c2072696768742e636f756e743d31202f5c206a6f696e65642e636f756e743d3130202f5c20726576657273652e636f756e743d3130293f2120226d6574616461746120636f756e7473220a",
+      "sha256": "06e0a7d3c4a2be0f1add2c59585e303b0f97bea881bd5bb2bfe5b95130a291f2"
+    },
+    {
+      "hex": "286a6f696e65642e6b696e64732e6c656e67746828293d3130202f5c206a6f696e65642e656e64732e6c656e67746828293d3130202f5c206a6f696e65642e74657874732e6c656e67746828293d3130202f5c206a6f696e65642e6e756d626572732e6c656e67746828293d3130293f2120226d6574616461746120766563746f72206c656e67746873220a",
+      "sha256": "755ff033dd67c3eb8bfe28a4054955c774d76874dbb7f9d003c1f1417112a610"
+    },
+    {
+      "hex": "286a6f696e65642e74657874732e2834293d226722202f5c206a6f696e65642e74657874732e2839293d22636f6c6f7222202f5c206a6f696e65642e6e756d626572732e2836293d32293f2120226d657461646174612076616c756573220a",
+      "sha256": "df9a7b2194d60dd8f073933e39ac9560d1746ba1439c62f8e702c1bb073b7628"
+    },
+    {
+      "hex": "286a6f696e65642e656e64732e2830293d39202f5c206a6f696e65642e656e64732e2839293d3130202f5c20726576657273652e656e64732e2830293d31202f5c20726576657273652e656e64732e2831293d3130293f2120226d657461646174612073756274726565206f666673657473220a",
+      "sha256": "a3224dfc921f8e1468dc322f44ca64acdd7d26f1f5d517101e96001048dc16d8"
+    },
+    {
+      "hex": "28726576657273652e74657874732e2830293d22636f6c6f7222202f5c20726576657273652e74657874732e2835293d226722202f5c20726576657273652e6e756d626572732e2837293d32293f212022726576657273652076616c756573220a",
+      "sha256": "9acee928969501c8fcde5e766813fa100a4158abe998375ec7301d23a6708c15"
+    },
+    {
+      "hex": "28656d7074792e636f756e743d30202f5c20656d7074792e74657874732e6c656e67746828293d30202f5c206e696e652e74657874732e2834293d226722202f5c206f6e652e74657874732e2830293d22636f6c6f7222293f212022696e707574206f776e65727368697020707265736572766174696f6e220a",
+      "sha256": "2df97a4eb217552c12df07520995cc74941488a49b83981516667ec151f4e40d"
+    }
+  ],
+  "check_count": 43,
+  "checks": [
+    "grant HEAD and fresh seal exact",
+    "integrated generator exactly reviewed repair31 candidate",
+    "repair31 patch independently reconstructs integrated HEAD generator",
+    "integration commit touches only generator and root adoption evidence",
+    "only metadata branch changes; every other generator byte preserved",
+    "six exact assertion bytes including line endings and order",
+    "only two inserted colon bytes",
+    "explicit output occurs once after all six assertions",
+    "changed/absent/already-emitting suffix rejected f3c4c4375e8a7c94fe950d98c130f4c4bad71dafaa3297bbc42f72df5e9426cd",
+    "changed/absent/already-emitting suffix rejected 987b39eb2f06b22babef3b3b908bd022e6ffd965b0beb0a292381cc4a2d3b472",
+    "changed/absent/already-emitting suffix rejected 5ce9ee2796c76a1bafec905ec3ac40e8d1d09334b99fe2008288167d03f53e1f",
+    "changed/absent/already-emitting suffix rejected 3874f91c14ea151f45b919b97521a4f929b4ed4252ebac237f9b62a3d8bc4415",
+    "original true-newline/exit/stdin oracle exact",
+    "strict oracle rejects (0, '', '')",
+    "strict oracle rejects (0, 'true', '')",
+    "strict oracle rejects (0, 'true\\n\\n', '')",
+    "strict oracle rejects (0, 'false\\n', '')",
+    "strict oracle rejects (0, ' true\\n', '')",
+    "strict oracle rejects (1, 'true\\n', '')",
+    "exact success oracle accepted without executing native",
+    "full-plan equality rejects mutation {'argv': ['/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/case.exe'], 'cwd': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata', 'expected_exit': 0, 'name': 'metadata-run-0', 'outputs': [], 'stdin': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/run-0.stdin', 'stdout': 'true\\n', 'timeout': 60, 'valgrind': False}",
+    "full-plan equality rejects mutation {'argv': ['/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/case.exe'], 'cwd': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata', 'expected_exit': 0, 'name': 'metadata-run-0', 'outputs': [], 'stdin': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/run-0.stdin', 'stdout': 'true\\n', 'timeout': 60, 'valgrind': False}",
+    "full-plan equality rejects mutation {'argv': ['/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/case.exe'], 'cwd': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata', 'expected_exit': 0, 'name': 'metadata-run-0', 'outputs': [], 'stdin': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/run-0.stdin', 'stdout': 'true\\n', 'timeout': 60, 'valgrind': False}",
+    "full-plan equality rejects mutation {'argv': ['/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/case.exe'], 'cwd': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata', 'expected_exit': 0, 'name': 'metadata-run-0', 'outputs': [], 'stdin': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/run-0.stdin', 'stdout': '', 'timeout': 60, 'valgrind': False}",
+    "full-plan equality rejects mutation {'argv': ['/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/case.exe'], 'cwd': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata', 'expected_exit': 0, 'name': 'metadata-run-0', 'outputs': [], 'stdin': '/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/run-0.stdin', 'stdout': 'true\\n', 'timeout': 60, 'valgrind': False}",
+    "accepted complete adapter bytes preserved including lock/validation/materializer",
+    "exact USED joined native29 predecessor predicates accept read-only test state",
+    "succession rejects ('A:d288-native24-01', 14, 'joined', 'new', True, None)",
+    "succession rejects ('A:compiler-native17-01', 13, 'joined', 'new', True, None)",
+    "succession rejects ('A:metadata-native29-01', 15, 'running', 'new', True, None)",
+    "succession rejects ('A:metadata-native29-01', 15, 'joined', 'new', True, None)",
+    "succession rejects ('A:metadata-native29-01', 15, 'joined', 'new', True, None)",
+    "succession rejects ('A:metadata-native29-01', 15, 'joined', '01a14a3a-d0d8-7a10-a188-717e31a22e31', True, None)",
+    "succession rejects ('A:metadata-native29-01', 15, 'joined', 'new', False, None)",
+    "succession rejects ('A:metadata-native29-01', 15, 'joined', 'new', True, {'A:intervening': {'worker': 'A', 'stage': 'joined', 'sequence': 16, 'owner': '01a14a3a-d0d8-7a10-a188-717e31a22e31', 'join': {'path': '/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/receipts/service-join.json', 'sha256': '4a1ed5938463632747f40aba82b60beca7af7de4d676ed7e96ab9b01ea55f002'}}})",
+    "predecessor tests made no authority directory or live lock call",
+    "iteration 27 rejected",
+    "iteration 31 rejected",
+    "iteration 32 rejected",
+    "iteration33 is minimum future proposal",
+    "independent in-lock installed rotation verifier retained",
+    "grant installed inputs and ledger unchanged since initial read-only observation",
+    "tracked shared source untouched"
+  ],
+  "children": [],
+  "native_execution": false,
+  "operational_mutations": 0,
+  "passed": true,
+  "patch_scope": "only reviewed metadata branch; all other generator bytes identical",
+  "seconds": 0.2226397980703041,
+  "source_commit": "0d6d2bea2eb8015ee56f95b1e0eaf78e3d3c3108"
+}

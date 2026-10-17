@@ -1,0 +1,28 @@
+--- integration/0.7.4/metadata-native-29/inspect_packet.py
++++ integration/0.7.4/metadata-native-36/inspect_packet.py
+@@ -29,13 +29,23 @@
+ assert [x['timeout'] for x in actual['stages']]==[30,180,60]
+ assert actual['stages'][2]['stdout']=='true\n' and actual['stages'][2]['expected_exit']==0
+ assert not any(x.get('valgrind') for x in actual['stages'])
+-assert prior_assets==assets,'original generated input bytes changed beyond relocation'
++assert len(prior_assets)==len(assets)
++for (oldpath,oldbytes),(newpath,newbytes) in zip(prior_assets,assets):
++ assert oldpath==newpath
++ if oldpath.endswith('/raw/metadata.vkf'):
++  assert oldbytes.endswith(b'\ntrue\n') and newbytes==oldbytes[:-5]+b'::true\n'
++  assert newbytes.count(b'::true\n')==1
++ else:assert oldbytes==newbytes
++oracle=a.read(PACKET/'exact-oracles.json')
++raw=next(b for path,b in assets if path.endswith('/raw/metadata.vkf'))
++assert [line.hex() for line in raw.splitlines(keepends=True) if b'?!' in line]==[x['hex'] for x in oracle['assertions']]
++assert raw.rfind(b'::true\n')>max(raw.index(bytes.fromhex(x['hex'])) for x in oracle['assertions'])
+ for item in actual['symlinks']:
+  assert dict(path=str(pathlib.Path(item['target']).resolve()),sha256=item['sha256']) in a.controller_inputs(actual['inputs'])
+  assert pathlib.Path(item['path']).is_relative_to(pathlib.Path(actual['out'])/'home')
+  assert a.pin(item['target'])['sha256']==item['sha256']
+ assert len(actual['symlinks'])==30
+ assert a.read(PACKET/'test-results.json')['passed'] and a.read(PACKET/'test-results.json')['tests']==13
+-result=dict(exact_relocation=True,assets_exact=True,original_oracles_preserved=True,compile_cwd_only_changed=True,stdlib_sources=30,attempt_absent=True,inputs_verified=len(p['inputs']),static_pins=len(s['pins']),grant_inputs=len(g['inputs']),stages=[dict(name=x['name'],timeout=x['timeout'],oracle={k:x[k] for k in ('expected_exit','stdout','stderr_contains') if k in x}) for x in actual['stages']],link_order=links,grant=a.pin(PACKET/'root-packet/grant.candidate.json'),manifest=a.pin(PACKET/'root-packet/manifest.candidate.json'),seconds=time.monotonic()-start)
++result=dict(exact_relocation=True,assets_exact=True,original_oracles_preserved=True,compile_cwd_preserved=True,only_generated_delta_two_colons=True,stdlib_sources=30,attempt_absent=True,inputs_verified=len(p['inputs']),static_pins=len(s['pins']),grant_inputs=len(g['inputs']),stages=[dict(name=x['name'],timeout=x['timeout'],oracle={k:x[k] for k in ('expected_exit','stdout','stderr_contains') if k in x}) for x in actual['stages']],link_order=links,grant=a.pin(PACKET/'root-packet/grant.candidate.json'),manifest=a.pin(PACKET/'root-packet/manifest.candidate.json'),seconds=time.monotonic()-start)
+ save('assembled-inspection.json',result)
+ print(json.dumps({k:v for k,v in result.items() if k not in ('link_order','grant','manifest')}))

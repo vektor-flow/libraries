@@ -1,0 +1,86 @@
+{
+  "id": "metadata-native-36",
+  "owner": "01a14a8f-593f-7e52-ab64-5f143417903e",
+  "result": "STOPPED_PREFLIGHT_PREDECESSOR_INPUT_PIN_MISMATCH",
+  "source_commit": "0d6d2bea2eb8015ee56f95b1e0eaf78e3d3c3108",
+  "grant": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/metadata-native-36-visible-chat-grant.json",
+    "sha256": "16a9dec705f261833e0723c9b1c5ce578979b82d769c6d48e1de1b84a8214ba4"
+  },
+  "root_decision": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/metadata-native-36-root-decision.json",
+    "sha256": "995829749b445d13b94a3594e95346df011c5f49f7df06d9eaa7b08ccaf701d5"
+  },
+  "attempt": "A:metadata-native36-01",
+  "native_attempts": 0,
+  "admitted": false,
+  "native_execution": false,
+  "stages_executed": 0,
+  "rotation": false,
+  "export": false,
+  "assembly": false,
+  "publication": false,
+  "new_charge_bytes": 0,
+  "stop_stage": "initial preflight: actual installed Controller.verify_join(metadata29)",
+  "exact_error": "storage_paths.Rejected: source pin mismatch",
+  "error_evidence": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-native-36/preflight.stderr",
+  "mismatch": {
+    "expected": {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-build-preparation-03/prepare.py",
+      "sha256": "fd49773772924b2ccf59b4a9386dc5e22a1062cc8176391c6a0ed5058713ffda"
+    },
+    "actual_sha256": "400a56b07d9cb67c7d4d9331a787d13af43fd60dfba56a09481e88b9f66de169"
+  },
+  "mismatch_provenance": {
+    "old_head": "9dbabcaea9fce28129469e31a139a8548a14ab22",
+    "current_head": "0d6d2bea2eb8015ee56f95b1e0eaf78e3d3c3108",
+    "old_sha256": "fd49773772924b2ccf59b4a9386dc5e22a1062cc8176391c6a0ed5058713ffda",
+    "current_sha256": "400a56b07d9cb67c7d4d9331a787d13af43fd60dfba56a09481e88b9f66de169",
+    "current_exact_repair31_candidate": true,
+    "conclusion": "Authorized source repair changes an input still pinned by the required metadata29 predecessor manifest; installed verify_join refuses that old manifest input."
+  },
+  "preflight_seconds": 6.235312190023251,
+  "terminal_verification_seconds": 4.09352321899496,
+  "initial_audit_seconds": 0.4800482620485127,
+  "final_audit_seconds": 0.4845915900077671,
+  "terminal_safety_verified": true,
+  "predecessor_full_join_verified": false,
+  "custody_service_all_recorded_descendants_verified": true,
+  "active_ram_bytes": 0,
+  "ram_intent_modified": false,
+  "A_high_bytes": 3221225472,
+  "F_high_bytes": 3221225472,
+  "charges": {
+    "A": 24159510528,
+    "F": 19821273088
+  },
+  "tiny_attempts": 12,
+  "tiny_bytes": 50331648,
+  "prior_failed_charges_retained": true,
+  "state_unchanged": true,
+  "owners_unchanged": true,
+  "dispatcher_held": true,
+  "seven_loaded_policies_verified": true,
+  "compiler": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+    "sha256": "52116e581d041836505756fcde17d504422429e410f0c84cb353409e121948d9"
+  },
+  "packet_and_review_posthash_counts": {
+    "metadata-repaired-binding-32/artifact-pins.json": 119,
+    "metadata-repaired-binding-32/input-pins.json": 1074,
+    "metadata-binding-review-35/artifact-pins.json": 38,
+    "metadata-native-29/attempt-artifact-pins.json": 62
+  },
+  "assertions_preserved": 6,
+  "expected_stdout_hex": "747275650a",
+  "native_metadata_qualified": false,
+  "subagents": 0,
+  "commits": 0,
+  "source_guard_policy_setup_edits": 0,
+  "operational_retries": 0,
+  "local_wrapper_corrections": [
+    "inspect_packet indentation during construction",
+    "stopped terminal observer: MainPID is service-only; timer/path still require inactive"
+  ],
+  "next": "Root review required for the preserved predecessor-manifest input incompatibility. No successor work or guard changes authorized by this stopped execution."
+}

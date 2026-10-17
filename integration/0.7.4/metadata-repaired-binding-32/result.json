@@ -1,0 +1,75 @@
+{
+  "D267_D289_excluded": true,
+  "commits": 0,
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "current_charges": {
+    "A": 24159510528,
+    "F": 19821273088
+  },
+  "dispatcher_held": true,
+  "failed_native29_charge_retained": 1073741824,
+  "host_checker_failures_retained": 2,
+  "id": "metadata-repaired-binding-32",
+  "input_pins": 1074,
+  "memory": {
+    "active_ram_intent_unlocked": 0,
+    "admission": false,
+    "all_children_joined": true,
+    "live_lock_acquired": false,
+    "max_child_rss_kib": 248432,
+    "max_host_rss_kib": 248432,
+    "max_runner_seconds": 4.038168795988895,
+    "nested_child_count": 57,
+    "offload_by_task": 0,
+    "runner_count": 9,
+    "task_overlap": 0
+  },
+  "minimum_future_iteration": 33,
+  "native_execution": false,
+  "operational_mutations": 0,
+  "operational_owner_permission_publication": "root only; null/unfulfilled",
+  "owner": "01a14a50-f090-78d3-9fff-ace2210c8800",
+  "plan": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/plan.json",
+    "sha256": "49553ec2c6f775144656e4e4440f706ac0a010f1b158f840915ae24564241b87"
+  },
+  "proposals_only": {
+    "disk_bytes": 1073741824,
+    "outer_seconds": 300,
+    "ram_bytes": 8589934592,
+    "stage_seconds": [
+      30,
+      180,
+      60
+    ]
+  },
+  "recipe": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/ROOT-RECIPE.txt",
+    "sha256": "9023ac3be18134d634d249dafddd1250736680394d5ca0f630f1db2c5d26277d"
+  },
+  "required_predecessor": {
+    "join": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/receipts/service-join.json",
+      "sha256": "4a1ed5938463632747f40aba82b60beca7af7de4d676ed7e96ab9b01ea55f002"
+    },
+    "key": "A:metadata-native29-01",
+    "owner": "01a14a3a-d0d8-7a10-a188-717e31a22e31",
+    "sequence": 15
+  },
+  "result": "PASS_SOURCE_ONLY_PACKET_NATIVE_UNQUALIFIED",
+  "shared_writes": 0,
+  "source_commit": "0d6d2bea2eb8015ee56f95b1e0eaf78e3d3c3108",
+  "source_contract": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/source-contract.json",
+    "sha256": "06b0ea3dd3c3ecbeea37bb4ddc6f969ef1cc86b9758f3b72d5d3a87a15d18710"
+  },
+  "subagents": 0,
+  "tests": {
+    "final_verification": true,
+    "independent_checks": 43,
+    "packet_checks": 66,
+    "unit_tests": 13
+  },
+  "tiny_attempts": 12,
+  "tiny_bytes": 50331648
+}

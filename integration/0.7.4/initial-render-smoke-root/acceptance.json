@@ -1,0 +1,44 @@
+{
+  "purpose": "Initial end-to-end rendering smoke tests requested by user",
+  "cases": [
+    {
+      "name": "plain-message",
+      "source": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/initial-render-smoke-root/plain-message.tex",
+      "sha256": "d9014c4624844aa5bac314773d6b689ad467fa4e1d1a50a1b8a99d5a95f72ff5",
+      "mode": "fragment",
+      "expected_pages": 1,
+      "expected_visible_text": "Hello, world!",
+      "math_visual_check": false,
+      "native_executed": false
+    },
+    {
+      "name": "minimal-article",
+      "source": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/initial-render-smoke-root/minimal-article.tex",
+      "sha256": "ca62d51019d24b7caa9bbc34d6167a86e9a5984e31dd842cecf6057fa80884ec",
+      "mode": "document",
+      "expected_pages": 1,
+      "expected_visible_text": "Hello, world!",
+      "math_visual_check": false,
+      "native_executed": false
+    },
+    {
+      "name": "simple-math",
+      "source": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/initial-render-smoke-root/simple-math.tex",
+      "sha256": "a4f36e4d088c63ee5e5eb21de3fb99e0f71b9a9e353054519df4f1b1a98beb21",
+      "mode": "document",
+      "expected_pages": 1,
+      "expected_visible_text": null,
+      "math_visual_check": true,
+      "native_executed": false
+    }
+  ],
+  "requirements": [
+    "Use actual current engine and authenticated compiler/renderer; record exact binaries and source revision.",
+    "Plain text requires explicit fragment defaults; unsupported mode is failure, not silent rewrite.",
+    "Validate one-page PDF with independent PDF parser and rendered visual inspection.",
+    "Check text extraction only when selectable support is exercised; an outline PDF is not selectable success.",
+    "Record compile and actual full-save elapsed times separately; no performance threshold credit from smoke tests."
+  ],
+  "native_admission": "pending; no execution authorized by this fixture file",
+  "full_package_support": false
+}

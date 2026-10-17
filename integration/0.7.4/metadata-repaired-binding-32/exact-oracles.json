@@ -1,0 +1,100 @@
+{
+  "all_stage_fields_equal_preparation27_after_relocation": true,
+  "assertions": [
+    {
+      "hex": "286c6566742e636f756e743d39202f5c2072696768742e636f756e743d31202f5c206a6f696e65642e636f756e743d3130202f5c20726576657273652e636f756e743d3130293f2120226d6574616461746120636f756e7473220a",
+      "sha256": "06e0a7d3c4a2be0f1add2c59585e303b0f97bea881bd5bb2bfe5b95130a291f2"
+    },
+    {
+      "hex": "286a6f696e65642e6b696e64732e6c656e67746828293d3130202f5c206a6f696e65642e656e64732e6c656e67746828293d3130202f5c206a6f696e65642e74657874732e6c656e67746828293d3130202f5c206a6f696e65642e6e756d626572732e6c656e67746828293d3130293f2120226d6574616461746120766563746f72206c656e67746873220a",
+      "sha256": "755ff033dd67c3eb8bfe28a4054955c774d76874dbb7f9d003c1f1417112a610"
+    },
+    {
+      "hex": "286a6f696e65642e74657874732e2834293d226722202f5c206a6f696e65642e74657874732e2839293d22636f6c6f7222202f5c206a6f696e65642e6e756d626572732e2836293d32293f2120226d657461646174612076616c756573220a",
+      "sha256": "df9a7b2194d60dd8f073933e39ac9560d1746ba1439c62f8e702c1bb073b7628"
+    },
+    {
+      "hex": "286a6f696e65642e656e64732e2830293d39202f5c206a6f696e65642e656e64732e2839293d3130202f5c20726576657273652e656e64732e2830293d31202f5c20726576657273652e656e64732e2831293d3130293f2120226d657461646174612073756274726565206f666673657473220a",
+      "sha256": "a3224dfc921f8e1468dc322f44ca64acdd7d26f1f5d517101e96001048dc16d8"
+    },
+    {
+      "hex": "28726576657273652e74657874732e2830293d22636f6c6f7222202f5c20726576657273652e74657874732e2835293d226722202f5c20726576657273652e6e756d626572732e2837293d32293f212022726576657273652076616c756573220a",
+      "sha256": "9acee928969501c8fcde5e766813fa100a4158abe998375ec7301d23a6708c15"
+    },
+    {
+      "hex": "28656d7074792e636f756e743d30202f5c20656d7074792e74657874732e6c656e67746828293d30202f5c206e696e652e74657874732e2834293d226722202f5c206f6e652e74657874732e2830293d22636f6c6f7222293f212022696e707574206f776e65727368697020707265736572766174696f6e220a",
+      "sha256": "2df97a4eb217552c12df07520995cc74941488a49b83981516667ec151f4e40d"
+    }
+  ],
+  "cases": [
+    {
+      "assertions": {
+        "metadata": 6,
+        "scene_metadata": 1,
+        "text_chunks": 3
+      },
+      "modules": [
+        "metadata",
+        "scene_metadata",
+        "text_chunks"
+      ],
+      "name": "metadata"
+    }
+  ],
+  "compile_cwd": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/home",
+  "expected_stdin_hex": "",
+  "expected_stdout_hex": "747275650a",
+  "native_qualified": false,
+  "only_generated_delta": "two colon bytes before final true",
+  "plan": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/plan.json",
+    "sha256": "49553ec2c6f775144656e4e4440f706ac0a010f1b158f840915ae24564241b87"
+  },
+  "source_commit": "0d6d2bea2eb8015ee56f95b1e0eaf78e3d3c3108",
+  "stages": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/normalize_module_aliases.py",
+        "--source-dir",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/raw",
+        "--output-dir",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/normalized"
+      ],
+      "name": "metadata-normalize",
+      "outputs": [],
+      "timeout": 30
+    },
+    {
+      "argv": [
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+        "-b",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/normalized/source/metadata.vkf",
+        "-o",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/case.exe",
+        "--diagnostics"
+      ],
+      "cwd": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/home",
+      "name": "metadata-compile",
+      "outputs": [
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/case.exe"
+      ],
+      "timeout": 180
+    },
+    {
+      "argv": [
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/case.exe"
+      ],
+      "cwd": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata",
+      "expected_exit": 0,
+      "name": "metadata-run-0",
+      "outputs": [],
+      "stdin": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/metadata/run-0.stdin",
+      "stdout": "true\n",
+      "timeout": 60,
+      "valgrind": false
+    }
+  ],
+  "stderr_oracle": "unspecified in original focused plan; preserved"
+}

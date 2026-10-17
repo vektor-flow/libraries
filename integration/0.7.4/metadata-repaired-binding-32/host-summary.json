@@ -1,0 +1,82 @@
+{
+  "active_ram_intent_unlocked": 0,
+  "admission": false,
+  "all_children_joined": true,
+  "live_lock_acquired": false,
+  "local_checker_corrections": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/host-check-correction.json",
+    "sha256": "573c2fc45699460957183fff7fb7ebb8a35f94608b0a8b5f1fd2e7c4255b9eec"
+  },
+  "max_child_rss_kib": 248432,
+  "max_host_rss_kib": 248432,
+  "max_runner_seconds": 4.038168795988895,
+  "nested_child_count": 57,
+  "offload_by_task": 0,
+  "runner_count": 9,
+  "runs": [
+    {
+      "children": 4,
+      "passed": true,
+      "peak_rss_kib": 28864,
+      "script": "build_packet.py",
+      "seconds": 3.9706718460656703
+    },
+    {
+      "children": 0,
+      "passed": true,
+      "peak_rss_kib": 25292,
+      "script": "describe_packet.py",
+      "seconds": 0.20824030204676092
+    },
+    {
+      "children": 6,
+      "passed": true,
+      "peak_rss_kib": 35436,
+      "script": "final_verify.py",
+      "seconds": 1.3225597110576928
+    },
+    {
+      "children": 4,
+      "passed": false,
+      "peak_rss_kib": 25796,
+      "script": "independent_verify.py",
+      "seconds": 0.1903983949450776
+    },
+    {
+      "children": 5,
+      "passed": true,
+      "peak_rss_kib": 29032,
+      "script": "independent_verify.py",
+      "seconds": 0.24359521991573274
+    },
+    {
+      "children": 4,
+      "passed": false,
+      "peak_rss_kib": 25720,
+      "script": "independent_verify.py",
+      "seconds": 0.18592824100051075
+    },
+    {
+      "children": 2,
+      "passed": true,
+      "peak_rss_kib": 162744,
+      "script": "seal_source.py",
+      "seconds": 0.942724414053373
+    },
+    {
+      "children": 22,
+      "passed": true,
+      "peak_rss_kib": 34412,
+      "script": "test_controls.py",
+      "seconds": 3.2654134050244465
+    },
+    {
+      "children": 10,
+      "passed": true,
+      "peak_rss_kib": 248432,
+      "script": "verify_packet.py",
+      "seconds": 2.3082931640092283
+    }
+  ],
+  "task_overlap": 0
+}

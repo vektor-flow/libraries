@@ -189,11 +189,7 @@ def tests_plan(out,r,auth,compiler_receipt,selection):
             for c in read(folder/'plan.json')['cases']:
                 case(c['name'],{c['name']:Path(c['source']).read_text()},[dict(stdin='0\n',expected_exit=0,stdout=c['oracle'],valgrind=True)],normalize=False)
     elif selection=='metadata':
-        p=REPAIR/'regressions/metadata_actual_lengths.vkf'
-        text=p.read_text()
-        require(text.endswith('\ntrue\n'),'metadata final expression changed; review required')
-        # Bare top-level values are discarded; emit the unchanged success value.
-        case('metadata',{'metadata':text[:-5]+'::true\n'},[dict(expected_exit=0,stdout='true\n')])
+        p=REPAIR/'regressions/metadata_actual_lengths.vkf';case('metadata',{ 'metadata':p.read_text()},[dict(expected_exit=0,stdout='true\n')])
     elif selection=='a345':
         p=next((REPAIR/'regressions').glob('*small*'));case('A345',{'A345':p.read_text()},[dict(expected_exit=0)])
     elif selection=='f364':

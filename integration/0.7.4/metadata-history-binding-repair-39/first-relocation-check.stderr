@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-history-binding-repair-39/run_bounded.py", line 20, in child
+    runpy.run_path(str(H/name),run_name='__main__');success=True;code=0
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 287, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-history-binding-repair-39/test_relocation.py", line 46, in <module>
+    state=Path(seal['state_path']);check(state.read_bytes()==(H.parent/'metadata-native-29/final-state.json').read_bytes(),'full current state equals native29 terminal state')
+                                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-history-binding-repair-39/test_relocation.py", line 10, in check
+    assert ok,label
+           ^^
+AssertionError: full current state equals native29 terminal state

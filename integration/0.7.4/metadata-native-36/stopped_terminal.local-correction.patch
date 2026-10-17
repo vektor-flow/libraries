@@ -1,0 +1,20 @@
+--- integration/0.7.4/metadata-native-36/stopped_terminal.before-local-correction.py
++++ integration/0.7.4/metadata-native-36/stopped_terminal.py
+@@ -3,7 +3,7 @@
+ from preflight import a,PACKET,STORAGE,save,controller,Ledger,Linux,proc,same,pinned,pinned_json,allocated,physical
+ start=time.monotonic();s=a.static_contract();c=a.load_pin(s['v6_bundle']['config']);g=a.read(STORAGE/'metadata-native-36-visible-chat-grant.json');decision=a.load_pin(g['root_decision'])
+ ledger=Ledger(pathlib.Path(s['state_path']),pathlib.Path(s['lock_path']),recovery_pin=c['recovery_authority']);data=ledger.snapshot();ledger.check(data)
+-save('final-state.json',data);owners=a.read(c['owner_state']);save('final-owners.json',owners)
++assert data==a.read(OUT/'final-state.json');owners=a.read(c['owner_state']);assert owners==a.read(OUT/'final-owners.json')
+ assert data==a.read(OUT.parent/'metadata-native-29/final-state.json')
+ assert owners==a.read(OUT.parent/'metadata-native-29/final-owners.json')
+ active=ledger.active_rows(data);assert not active
+@@ -53,7 +53,7 @@
+ holds={}
+ for u in ('vkf-s0-synchronized-contexts.service','vkf-s0-synchronized-contexts.timer','vkf-s0-worker-done.path'):
+  p=subprocess.run(['systemctl','--user','show',u,'-p','ActiveState','-p','MainPID'],capture_output=True,text=True,timeout=15)
+- assert p.returncode==0 and 'ActiveState=inactive' in p.stdout and 'MainPID=0' in p.stdout;holds[u]=p.stdout
++ assert p.returncode==0 and 'ActiveState=inactive' in p.stdout and (not u.endswith('.service') or 'MainPID=0' in p.stdout);holds[u]=p.stdout
+ assert os.readlink('/run/user/1000/systemd/user/vkf-s0-synchronized-contexts.service')=='/dev/null'
+ sys.modules.pop('preflight',None);sys.path.insert(0,str(OUT.parent/'storage-live-24'));import check_loaded
+ check_loaded.save=save;assert check_loaded.check('final')

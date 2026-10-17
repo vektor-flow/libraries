@@ -1,0 +1,39 @@
+--- integration/0.7.4/metadata-native-29/finalize.py
++++ integration/0.7.4/metadata-native-36/finalize.py
+@@ -3,7 +3,7 @@
+ from preflight import a,PACKET,STORAGE,save,controller,Ledger,physical,Linux,proc,same,pinned,pinned_json,allocated
+ start=time.monotonic();s=a.static_contract();c=a.load_pin(s['v6_bundle']['config'])
+ ledger=Ledger(pathlib.Path(s['state_path']),pathlib.Path(s['lock_path']),recovery_pin=c['recovery_authority'])
+-d=ledger.snapshot();ledger.check(d);key='A:metadata-native29-01';row=d['phases'][key];ctrl=controller(s,row)
++d=ledger.snapshot();ledger.check(d);key='A:metadata-native36-01';row=d['phases'][key];ctrl=controller(s,row)
+ assert row['stage']=='joined' and ctrl.verify_join(row,pinned_json(row['join'])) is True
+ identities=[]
+ for saved in [row['custody']['identity'],row['service']['identity'],*row['inner_result']['tracked']]:
+@@ -20,16 +20,16 @@
+ before=a.read(OUT/'initial-state.json');assert {k:v for k,v in d['phases'].items() if k!=key}==before['phases']
+ assert d['recovery_events']==before['recovery_events'] and d['lanes']['F']==before['lanes']['F']
+ assert d['lanes']['A']['transitions'][:-1]==before['lanes']['A']['transitions']
+-assert len(d['phases'])==16 and sum(r['phase_bytes'] for k,r in d['phases'].items() if k not in (key,'A:compiler-native13-01','A:compiler-native17-01','A:d288-native24-01'))==50331648
++assert len(d['phases'])==17 and sum(r['phase_bytes'] for k,r in d['phases'].items() if k not in (key,'A:compiler-native13-01','A:compiler-native17-01','A:d288-native24-01','A:metadata-native29-01'))==50331648
+ lanes={}
+ for w in 'AF':
+  cg=pathlib.Path('/sys/fs/cgroup')/c['lane_cgroups'][w].lstrip('/')
+  vals={n:(cg/n).read_text().strip() for n in ('memory.max','memory.high','memory.swap.max','pids.max','cgroup.events','cgroup.procs')}
+  assert osapi.empty(c['lane_cgroups'][w]) and vals['memory.max']==str((8 if w=='A' else 3)*2**30) and vals['memory.swap.max']=='0' and vals['pids.max']=='160'
+  assert (cg.parent/'memory.max').read_text().strip()==str(21*2**30) and (cg.parent/'memory.swap.max').read_text().strip()=='0'
+- if w=='A':assert vals['memory.high']==str(3*2**30)
++ assert vals['memory.high']==str(3*2**30)
+  p=d['lanes'][w]['policy'];charge=p['historical_charge']+sum(r['phase_bytes'] for r in d['phases'].values() if r['worker']==w)
+- assert charge==({'A':24159510528,'F':19821273088}[w])
++ assert charge==({'A':25233252352,'F':19821273088}[w])
+  lanes[w]=dict(properties=vals,charge=charge,remaining=21900000000+sum(x['bytes'] for x in p['increments'])-charge,old_volume=physical(p['old_volume']['path']),root_allocated=allocated(p['root']['path']))
+ frow=d['phases']['F:live24-f-timeout-01'];assert controller(s,frow).verify_join(frow,pinned_json(frow['join']))
+ owners=a.read(c['owner_state']);oldowners=json.loads((pathlib.Path(a.read(PACKET/'root-inputs.json')['publication_receipt_path']).parent/'owners-before.raw').read_text());assert owners['workers']['F']==oldowners['workers']['F']
+@@ -108,5 +108,6 @@
+ if passed:assert not any(x.get('valgrind') for x in actual_plan['stages']) and len(stdlib)==30
+ save('native-evidence.json',dict(passed=passed,compiler=compiler,stages=stage_checks,summary=summary,actual_plan=a.pin(build/'plan.json') if (build/'plan.json').exists() else None,all_recorded_children_joined=True))
+ save('actual-accounting.json',accounting)
+-result=dict(result='METADATA_ACTUAL_LENGTHS_PASSED' if passed else 'FAILED_ACTUAL_ATTEMPT',attempt=key,controller_exit=inner['exit'],controller_seconds=a.read(OUT/'controller-result.json')['seconds'],metadata_passed=passed,stages_executed=len(stages),original_controls_passed=sum(x['oracle_passed'] for x in stage_checks if '-run-' in x['name']),stages=[{k:x[k] for k in ('name','exit','seconds','oracle_passed')} for x in stage_checks],execution_summary=summary,compiler=compiler['compiler'],compiler_identity=compiler['identity'],error=summary['error'] if summary else (root/'receipts/stderr').read_text()[-6000:],terminal_join_verified=True,join=row['join'],A_high_restored_bytes=3*2**30,permanent_charge_retained_bytes=2**30,attempt_allocated_bytes=accounting['attempt_allocated_bytes'],lanes=lanes,tiny_attempts_unchanged=12,tiny_bytes_unchanged=50331648,active_ram=0,overlap=0,MemAvailable=available,offload=offload,holds=holds,physical={p:physical(p) for p in ('/','/mnt/development','/mnt/vkf-storage-2tb')},posthash=dict(plan_inputs=len(plan['inputs']),static_pins=len(s['pins']),grant_inputs=len(a.load_pin(row['grant'])['inputs']),passed=True),head=a.current_head(),seconds=time.monotonic()-start)
++save('exact-oracles.json',a.read(PACKET/'exact-oracles.json'))
++result=dict(owner='01a14a8f-593f-7e52-ab64-5f143417903e',result='METADATA_ACTUAL_LENGTHS_PASSED' if passed else 'FAILED_ACTUAL_ATTEMPT',attempt=key,controller_exit=inner['exit'],controller_seconds=a.read(OUT/'controller-result.json')['seconds'],metadata_passed=passed,stages_executed=len(stages),original_controls_passed=sum(x['oracle_passed'] for x in stage_checks if '-run-' in x['name']),stages=[{k:x[k] for k in ('name','exit','seconds','oracle_passed')} for x in stage_checks],execution_summary=summary,compiler=compiler['compiler'],compiler_identity=compiler['identity'],error=summary['error'] if summary else (root/'receipts/stderr').read_text()[-6000:],terminal_join_verified=True,join=row['join'],A_high_restored_bytes=3*2**30,permanent_charge_retained_bytes=2**30,attempt_allocated_bytes=accounting['attempt_allocated_bytes'],lanes=lanes,tiny_attempts_unchanged=12,tiny_bytes_unchanged=50331648,active_ram=0,overlap=0,MemAvailable=available,offload=offload,holds=holds,physical={p:physical(p) for p in ('/','/mnt/development','/mnt/vkf-storage-2tb')},posthash=dict(plan_inputs=len(plan['inputs']),static_pins=len(s['pins']),grant_inputs=len(a.load_pin(row['grant'])['inputs']),passed=True),head=a.current_head(),seconds=time.monotonic()-start)
+ save('result.json',result);print(json.dumps(result))

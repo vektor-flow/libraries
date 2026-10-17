@@ -1,0 +1,5 @@
+{
+  "cause": "Worker test incorrectly compared original ledger serialization with reformatted retained snapshot bytes. Existing audit_history already compared full parsed objects; actual shared state remains unchanged and inherited protected state pin passed.",
+  "correction": "Compare complete decoded ledger/owner snapshots; no field excluded; actual byte pin independently retained.",
+  "source_packet_changed": false
+}

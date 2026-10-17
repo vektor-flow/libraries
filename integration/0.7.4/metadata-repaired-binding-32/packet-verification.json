@@ -1,0 +1,369 @@
+{
+  "TEST_ONLY": true,
+  "actual_python_normalizer": true,
+  "all_children_joined": true,
+  "allocation": [
+    {
+      "bytes": 1204224,
+      "label": "materialized"
+    },
+    {
+      "bytes": 1208320,
+      "label": "before metadata-normalize"
+    },
+    {
+      "bytes": 1232896,
+      "label": "after metadata-normalize"
+    },
+    {
+      "bytes": 1241088,
+      "label": "before metadata-compile"
+    },
+    {
+      "bytes": 1245184,
+      "label": "after metadata-compile"
+    },
+    {
+      "bytes": 1245184,
+      "label": "before metadata-run-0"
+    },
+    {
+      "bytes": 1245184,
+      "label": "after metadata-run-0"
+    },
+    {
+      "bytes": 1257472,
+      "label": "retained outputs/logs"
+    }
+  ],
+  "broader_contracts_native_unqualified": true,
+  "checks": [
+    "only repaired metadata raw generated pin differs after relocation",
+    "all original module and assertion counts retained",
+    "only compile cwd differs; all original stage argv/timeouts/oracles unchanged",
+    "actual native17 receipt unchanged",
+    "snapshot byte-identical to actual compiler receipt",
+    "fresh current metadata closure unchanged by applied API/selection/package source",
+    "exact original stdlib membership and source pins retained",
+    "exact two-colon delta after all original fixture bytes",
+    "six exact assertion lines and newline bytes in original order",
+    "single explicit output strictly after original six assertions",
+    "integrated repair31 exact fixture",
+    "fresh traversal of actual current application imports",
+    "current source exact metadata",
+    "current source exact scene_metadata",
+    "current source exact text_chunks",
+    "original broader contract unchanged examples/gpu-math/tests/document-text.test.mjs",
+    "original broader contract unchanged examples/gpu-math/native-vkf/typed_packet_reference_harness_tests.vkf",
+    "original broader contract unchanged examples/gpu-math/native-vkf/test_ordered_json.vkf",
+    "original broader contract unchanged examples/gpu-math/native-vkf/scene_metadata_regression_tests.vkf",
+    "original broader contract unchanged examples/gpu-math/native-vkf/scene_metadata_edit_regression_tests.vkf",
+    "original broader contract unchanged examples/gpu-math/native-vkf/scene_metadata_export_regression_tests.vkf",
+    "independent ordered JSON/binary64 candidate preserved exactly",
+    "driver object is in actual native17 linker dependencies",
+    "driver branch resolve_dot_module(",
+    "driver branch std::filesystem::absolute(importing_source).parent_path() / relative",
+    "driver branch directory / \"compiler\" / \"self_hosted\" / \"stdlib\" / relative",
+    "driver branch std::filesystem::current_path() /\n        \"compiler\" / \"self_hosted\" / \"stdlib\" / relative",
+    "driver branch const auto installed = bundled_stdlib_root / relative;",
+    "driver branch compiler.parent_path() / \".vkfbuild\" / \"stdlib-cache\"",
+    "actual driver does not use VKF_HOME",
+    "accepted binding23 acquire_runtime_lock AST unchanged",
+    "accepted binding23 validate_runtime AST unchanged",
+    "accepted binding23 run AST unchanged",
+    "accepted binding23 protected_inputs AST unchanged",
+    "accepted binding23 relocate AST unchanged",
+    "accepted regular stdlib materializer unchanged",
+    "entire installed allocated materialized",
+    "entire installed allocated before metadata-normalize",
+    "exact original Python normalizer succeeds",
+    "actual normalization exact repaired delta metadata.vkf",
+    "actual normalization exact repaired delta scene_metadata.vkf",
+    "actual normalization exact repaired delta text_chunks.vkf",
+    "normalized six assertion bytes unchanged",
+    "entire installed allocated after metadata-normalize",
+    "entire installed allocated before metadata-compile",
+    "real normalized compiler source exists",
+    "real driver lookup reaches regular io",
+    "real driver lookup reaches regular errors",
+    "entire installed allocated after metadata-compile",
+    "entire installed allocated before metadata-run-0",
+    "entire installed allocated after metadata-run-0",
+    "three original stages visited in order",
+    "synthetic compiler/run evidence cannot be native",
+    "entire installed allocated retained outputs/logs",
+    "charged environment HOME",
+    "charged environment TMPDIR",
+    "charged environment TMP",
+    "charged environment TEMP",
+    "charged environment XDG_CACHE_HOME",
+    "charged environment CLANG_MODULE_CACHE_PATH",
+    "charged environment VKF_HOME",
+    "temporary trees removed",
+    "only new attempt rw in real namespace constructor",
+    "previous compiler under read-only mnt",
+    "all ordinary host children joined and absent",
+    "current HEAD held"
+  ],
+  "children": [
+    {
+      "absent": true,
+      "exit": 0,
+      "joined": true,
+      "pid": 269019
+    },
+    {
+      "absent": true,
+      "exit": 0,
+      "joined": true,
+      "pid": 269020
+    },
+    {
+      "absent": true,
+      "exit": 0,
+      "joined": true,
+      "pid": 269021
+    },
+    {
+      "absent": true,
+      "exit": 0,
+      "joined": true,
+      "pid": 269022
+    },
+    {
+      "absent": true,
+      "exit": 0,
+      "joined": true,
+      "pid": 269023
+    },
+    {
+      "absent": true,
+      "exit": 0,
+      "joined": true,
+      "pid": 269024
+    },
+    {
+      "absent": true,
+      "exit": 0,
+      "joined": true,
+      "pid": 269027
+    }
+  ],
+  "compiler_and_run_synthetic": true,
+  "driver": {
+    "MD": {
+      "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration323-resume01/driver-0.o.d",
+      "sha256": "87bbaf5ef8074cb3bd5fe24272e92799169ff79c46dbe0813e7a3aa1b6b0e3f1"
+    },
+    "object": {
+      "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration323-resume01/driver-0.o",
+      "sha256": "a770df41ad4201e4d575ba0fb94e97701df811b4fbb7e7f73779aea197f4d983"
+    },
+    "profile": {
+      "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iteration303-compose01/native-profile.json",
+      "sha256": "646db3bd165325ce7e859039a972fed28f1b37a1c5ca7dcd3942489fe0e2ffab"
+    },
+    "source": {
+      "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f192-A137-B177-compose01/source/compiler/native/vkf_driver_artifact_smoke.cpp",
+      "sha256": "6ac2ba36118df58f2fc841decfcbc2f70697e4923b30b889e368d635421ac09d"
+    }
+  },
+  "memory": [
+    "VmPeak:\t  267528 kB",
+    "VmHWM:\t  248432 kB"
+  ],
+  "native_execution": false,
+  "passed": true,
+  "preserved_broader_contract_pins": [
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/document-text.test.mjs",
+      "sha256": "7cf5f84c304d00476bc156d5ec3f0967f63e7d32d8c99fcf25171335584e543a"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/typed_packet_reference_harness_tests.vkf",
+      "sha256": "44bed57e5370f8b0bef790e5accd6ccc5b4816c4b78e50a4aef60e777e00a921"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/test_ordered_json.vkf",
+      "sha256": "24da12ba203c8cf5a36d7c8c167e567711c71bd2b9416a711dc57b3efb52cda7"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/scene_metadata_regression_tests.vkf",
+      "sha256": "11e3fcd76046664e6edcd2f19c5b9cbfed062756ec4a467a9a3fcfb882de5cfe"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/scene_metadata_edit_regression_tests.vkf",
+      "sha256": "8c9dad092e4e69be4f2e7408651bfcbe0633611d01cab2967c283a4d427a06f4"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/scene_metadata_export_regression_tests.vkf",
+      "sha256": "46d68556a0e90f0b7e234d547de962074f94d28fda32bd8e42821136ac3a4d4b"
+    }
+  ],
+  "resolver": [
+    {
+      "module": "io",
+      "sha256": "0df4f64fa1597f619743fb0ff01105f59c1e7883e19bc095f00ba48e9a3e7d80",
+      "target": "home/compiler/self_hosted/stdlib/io.vkf"
+    },
+    {
+      "module": "errors",
+      "sha256": "150851cae3b6b1f2fc275de0d8678435a2e765f6b8f085a2c76c06584b7a7345",
+      "target": "home/compiler/self_hosted/stdlib/errors.vkf"
+    }
+  ],
+  "runtime_inputs_verified": 924,
+  "seconds": 2.260370644973591,
+  "stdlib_copies": [
+    {
+      "allocated": 4096,
+      "bytes": 605,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/collections.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 389,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/command.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 1096,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/concurrent.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 592,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/errors.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 543,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/io.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 286,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/io_direct_smoke.vkf"
+    },
+    {
+      "allocated": 45056,
+      "bytes": 44078,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/linalg.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 3955,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/math.vkf"
+    },
+    {
+      "allocated": 8192,
+      "bytes": 5606,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/physics/convex_preparation.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 2830,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/physics/preparation.vkf"
+    },
+    {
+      "allocated": 12288,
+      "bytes": 10046,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/physics/rigid.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 340,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/physics/runtime.vkf"
+    },
+    {
+      "allocated": 8192,
+      "bytes": 7224,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/physics/supported_contact.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 290,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/physics/units/si.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 214,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/physics/units.vkf"
+    },
+    {
+      "allocated": 32768,
+      "bytes": 28856,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/physics.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 324,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/physics_collision_matrix_smoke.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 648,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/physics_contact_model_smoke.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 579,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/physics_rigid_body_smoke.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 2295,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/random.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 460,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/regex.vkf"
+    },
+    {
+      "allocated": 12288,
+      "bytes": 9584,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/stat.vkf"
+    },
+    {
+      "allocated": 483328,
+      "bytes": 483191,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/symbolic.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 375,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/system.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 3986,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/time.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 1396,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/ui/colormaps.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 26,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/ui.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 286,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/units/si.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 151,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib/units.vkf"
+    },
+    {
+      "allocated": 4096,
+      "bytes": 3899,
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/TEST_ONLY_full_tree_i_5tvt3w/metadata/home/compiler/self_hosted/stdlib.vkf"
+    }
+  ]
+}

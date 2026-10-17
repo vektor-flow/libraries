@@ -1,0 +1,29 @@
+--- /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/test_controls.py
++++ /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/test_controls.py
+@@ -84,7 +84,7 @@
+   s=self.plan['stages'][2]
+   self.assertEqual(s['stdout'],'true\n');self.assertFalse(s['valgrind'])
+   self.assertFalse(any('--vgdb' in arg for stage in self.plan['stages'] for arg in stage['argv']))
+-  for code,out in [(1,'true\n'),(0,'false\n'),(0,'true'),(0,'true\nextra')]:
++  for code,out in [(1,'true\n'),(0,''),(0,'false\n'),(0,'true'),(0,'true\nextra'),(0,'true\n\n')]:
+    with self.assertRaises(ValueError):payload.check_result(s,code,out,'')
+   admission=dict(coordinator=a.COORDINATOR,plan=self.seal['control_plan'],charged_attempt=self.plan['out'],native_execution=True,environment_qualified=True,phase='compiler')
+   with self.assertRaisesRegex(ValueError,'wrong phase'):payload.validate_admission(self.plan,admission,self.seal['control_plan'])
+@@ -115,12 +115,12 @@
+   with f.open('rb') as fd:
+    with patch.object(a.fcntl,'flock',side_effect=OSError(errno.EIO,'TEST_ONLY')):
+     with self.assertRaises(OSError):a.acquire_runtime_lock(fd,time.monotonic()+1)
+- def test_successor_exact_d288_sequence14(self):
++ def test_successor_exact_metadata29_sequence15(self):
+   s=(H/'root_steps.py').read_text()
+-  self.assertIn("key=='A:d288-native24-01' and row['sequence']==14",s)
+-  self.assertIn("d['iteration']>27",s)
+-  self.assertIn('01a14a27-ff1d-7620-9972-3885a039887f',s)
+-  self.assertIn('1b0f6b8b7dd6e8f7b655da068158c57091aec1899617e5770e34c673e38e7118',s)
++  self.assertIn("key=='A:metadata-native29-01' and row['sequence']==15",s)
++  self.assertIn("d['iteration']>32",s)
++  self.assertIn('01a14a3a-d0d8-7a10-a188-717e31a22e31',s)
++  self.assertIn('4a1ed5938463632747f40aba82b60beca7af7de4d676ed7e96ab9b01ea55f002',s)
+   self.assertNotIn('compiler-native17-01',s)
+   self.assertIn("verify_join(row,pinned_json(row['join'])) is True",s)
+   self.assertIn('ledger.rotate_owner(tp,verify_join=verify_join)',s)

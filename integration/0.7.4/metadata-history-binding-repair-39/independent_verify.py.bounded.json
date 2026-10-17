@@ -1,0 +1,92 @@
+{
+  "all_children_joined": true,
+  "children": [
+    {
+      "absent": true,
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 375893,
+      "unexpected_live_child": false
+    },
+    {
+      "absent": true,
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+        "show",
+        "0d6d2bea2eb8015ee56f95b1e0eaf78e3d3c3108^:integration/0.7.4/compiler-build-preparation-03/prepare.py"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 375894,
+      "unexpected_live_child": false
+    },
+    {
+      "absent": true,
+      "argv": [
+        "/usr/bin/patch",
+        "--batch",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-history-binding-repair-39/TEST_ONLY_patch_ckfizf52/prepare.py",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-entry-repair-31/prepare.py.patch"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 375895,
+      "unexpected_live_child": false
+    },
+    {
+      "absent": true,
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+        "diff-tree",
+        "--no-commit-id",
+        "--name-only",
+        "-r",
+        "0d6d2bea2eb8015ee56f95b1e0eaf78e3d3c3108"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 375896,
+      "unexpected_live_child": false
+    },
+    {
+      "absent": true,
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+        "diff",
+        "HEAD",
+        "--"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 375897,
+      "unexpected_live_child": false
+    }
+  ],
+  "exit": 0,
+  "limit_address_space_bytes": 536870912,
+  "memory": [
+    "VmPeak:\t   57964 kB",
+    "VmHWM:\t   29224 kB"
+  ],
+  "native_execution": false,
+  "passed": true,
+  "peak_child_rss_kib": 28928,
+  "peak_rss_kib": 28928,
+  "script": "independent_verify.py",
+  "seconds": 0.24504461092874408,
+  "task_overlap": 0,
+  "wall_limit_seconds": 55
+}

@@ -1,0 +1,98 @@
+{
+  "id": "metadata-binding-review-35",
+  "owner": "01a14a69-a1e2-7d20-95ae-6dc1fbd2ac9a",
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "result": "ACCEPT_EXACT_PINNED_PACKET_FOR_ROOT_ADMISSION_REVIEW",
+  "blockers": [],
+  "corrective_patch": null,
+  "grant": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/metadata-binding-review-35-visible-chat-grant.json",
+    "sha256": "f5dd343aa21c4f7111bda62c5b11df1be4635261616299a0314bc5899e579a29"
+  },
+  "source_commit": "0d6d2bea2eb8015ee56f95b1e0eaf78e3d3c3108",
+  "packet_delivery": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/delivery.json",
+    "sha256": "2ee3ec4d0713886779f8de5aee32b6b5726c3a29ff45f58772e8c199d88e7287"
+  },
+  "packet_artifact_manifest": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/artifact-pins.json",
+    "sha256": "987f2641ebfa74979a91ff52ba5abb1d68e2f23eb2a95a873ace6a13e378e9a4"
+  },
+  "source_contract": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/source-contract.json",
+    "sha256": "06b0ea3dd3c3ecbeea37bb4ddc6f969ef1cc86b9758f3b72d5d3a87a15d18710"
+  },
+  "plan": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/staging/metadata/plan.json",
+    "sha256": "49553ec2c6f775144656e4e4440f706ac0a010f1b158f840915ae24564241b87"
+  },
+  "recipe": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/ROOT-RECIPE.txt",
+    "sha256": "9023ac3be18134d634d249dafddd1250736680394d5ca0f630f1db2c5d26277d"
+  },
+  "scope": "source-only independent final review; repaired native metadata remains unqualified",
+  "validation": {
+    "unit_tests": 13,
+    "packet_checks": 66,
+    "succession_oracle_checks": 43,
+    "independent_audit_checks": 4031,
+    "independent_rehashed_paths": 1542,
+    "runtime_elf_edges": 104,
+    "repair31_original_input_pins": 841,
+    "native29_actual_artifacts": 62,
+    "native17_actual_stages": 8,
+    "stdlib_regular_single_link_copies": 30,
+    "materialized_allocated_bytes": 1204224,
+    "normalized_synthetic_retained_bytes": 1257472
+  },
+  "memory": {
+    "AS_limit_bytes": 536870912,
+    "wall_limit_seconds": 55,
+    "max_host_RSS_KiB": 249452,
+    "max_host_VmPeak_KiB": 269040,
+    "max_successful_runner_seconds": 3.296741447993554,
+    "recorded_host_children": 42,
+    "all_children_joined": true,
+    "task_overlap": 0,
+    "peer_write_overlap": 0,
+    "offload_by_task": 0,
+    "live_RAM_observation": "unlocked ledger active_rows zero; not admission"
+  },
+  "latest_USED_predecessor": {
+    "key": "A:metadata-native29-01",
+    "owner": "01a14a3a-d0d8-7a10-a188-717e31a22e31",
+    "sequence": 15,
+    "stage": "joined",
+    "join": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/receipts/service-join.json",
+      "sha256": "4a1ed5938463632747f40aba82b60beca7af7de4d676ed7e96ab9b01ea55f002"
+    }
+  },
+  "minimum_future_iteration": 33,
+  "charges": {
+    "A": 24159510528,
+    "F": 19821273088,
+    "failed_native29_retained": 1073741824,
+    "tiny_attempts": 12,
+    "tiny_bytes": 50331648
+  },
+  "D267_D289_excluded": true,
+  "dispatcher_hold_preserved": true,
+  "operational_grant": false,
+  "native_execution": false,
+  "operational_actions": 0,
+  "live_locks": 0,
+  "shared_or_peer_writes": 0,
+  "commits": 0,
+  "subagents": 0,
+  "reviewer_checker_correction": "One retained failed host check confused two A/F storage policies with seven loaded confinement profiles. Corrected only audit.py; packet unchanged. first-audit.* and first-audit-runner.json retained.",
+  "root_remaining": [
+    "independent actual Controller.verify_join immediately before succession",
+    "fresh decision/grant/owner with integer iteration >32",
+    "current boot, seven loaded enforce profiles, owners/empty lanes/floors/high/dispatcher and installed guards",
+    "existing in-lock rotation/publication/admission, empty-attempt ordering, and at most one separately authorized actual attempt",
+    "terminal stage/oracle/allocation/descendant join verification and A high restoration"
+  ],
+  "duplicate_tiny_qualification_required": false,
+  "broader_gate_credit": false
+}

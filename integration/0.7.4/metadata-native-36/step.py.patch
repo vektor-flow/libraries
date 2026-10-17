@@ -1,0 +1,14 @@
+--- integration/0.7.4/metadata-native-29/step.py
++++ integration/0.7.4/metadata-native-36/step.py
+@@ -1,9 +1,9 @@
+ import json,os,pathlib,subprocess,sys,time
+-OUT=pathlib.Path(__file__).resolve().parent;PACKET=OUT.parent/'metadata-control-preparation-27'
++OUT=pathlib.Path(__file__).resolve().parent;PACKET=OUT.parent/'metadata-repaired-binding-32'
+ STORAGE=pathlib.Path('/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb')
+ def main():
+  step=sys.argv[1];assert not (OUT/'STOP.json').exists()
+- auth=json.loads((STORAGE/'metadata-native-29-visible-chat-grant.json').read_text())['root_decision']
++ auth=json.loads((STORAGE/'metadata-native-36-visible-chat-grant.json').read_text())['root_decision']
+  if step in ('rotate','export','publish'):
+   cmd=['/usr/bin/python3','-I','-B',str(PACKET/'root_steps.py'),step,'--decision',auth['path'],'--decision-sha256',auth['sha256']]
+  elif step=='assemble':

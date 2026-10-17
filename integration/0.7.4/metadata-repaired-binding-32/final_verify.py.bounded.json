@@ -1,0 +1,108 @@
+{
+  "all_children_joined": true,
+  "children": [
+    {
+      "absent": true,
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 272263,
+      "unexpected_live_child": false
+    },
+    {
+      "absent": true,
+      "argv": [
+        "/usr/bin/patch",
+        "--batch",
+        "--output",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/patch-reconstruction/build_packet.py",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/build_packet.py",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/build_packet.py.patch"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 272269,
+      "unexpected_live_child": false
+    },
+    {
+      "absent": true,
+      "argv": [
+        "/usr/bin/patch",
+        "--batch",
+        "--output",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/patch-reconstruction/seal_source.py",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/seal_source.py",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/seal_source.py.patch"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 272270,
+      "unexpected_live_child": false
+    },
+    {
+      "absent": true,
+      "argv": [
+        "/usr/bin/patch",
+        "--batch",
+        "--output",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/patch-reconstruction/root_steps.py",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/root_steps.py",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/root_steps.py.patch"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 272271,
+      "unexpected_live_child": false
+    },
+    {
+      "absent": true,
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 272272,
+      "unexpected_live_child": false
+    },
+    {
+      "absent": true,
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+        "diff",
+        "--exit-code",
+        "HEAD",
+        "--"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 272273,
+      "unexpected_live_child": false
+    }
+  ],
+  "exit": 0,
+  "limit_address_space_bytes": 536870912,
+  "memory": [
+    "VmPeak:\t   58588 kB",
+    "VmHWM:\t   35940 kB"
+  ],
+  "native_execution": false,
+  "passed": true,
+  "peak_child_rss_kib": 35436,
+  "peak_rss_kib": 35436,
+  "script": "final_verify.py",
+  "seconds": 1.3225597110576928,
+  "task_overlap": 0,
+  "wall_limit_seconds": 55
+}

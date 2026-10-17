@@ -1,0 +1,97 @@
+{
+  "all_children_joined": true,
+  "children": [
+    {
+      "absent": true,
+      "argv": [
+        "systemctl",
+        "--user",
+        "show",
+        "vkfworkers-a-metadata-native29-01.service",
+        "--property=LoadState",
+        "--property=MainPID",
+        "--property=ActiveState",
+        "--property=ControlGroup",
+        "--property=InvocationID",
+        "--property=MemoryMax",
+        "--property=MemorySwapMax",
+        "--property=TasksMax",
+        "--property=KillMode",
+        "--property=OOMPolicy",
+        "--property=RuntimeMaxUSec",
+        "--property=TimeoutStopUSec",
+        "--property=ExecMainCode",
+        "--property=ExecMainStatus",
+        "--property=Result"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 371580,
+      "unexpected_live_child": false
+    },
+    {
+      "absent": true,
+      "argv": [
+        "busctl",
+        "--user",
+        "--json=short",
+        "call",
+        "org.freedesktop.systemd1",
+        "/org/freedesktop/systemd1",
+        "org.freedesktop.systemd1.Manager",
+        "GetUnit",
+        "s",
+        "vkfworkers-a-metadata-native29-01.service"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 371581,
+      "unexpected_live_child": false
+    },
+    {
+      "absent": true,
+      "argv": [
+        "busctl",
+        "--user",
+        "--json=short",
+        "get-property",
+        "org.freedesktop.systemd1",
+        "/org/freedesktop/systemd1/unit/vkfworkers_2da_2dmetadata_2dnative29_2d01_2eservice",
+        "org.freedesktop.systemd1.Service",
+        "ExecStart"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 371583,
+      "unexpected_live_child": false
+    },
+    {
+      "absent": true,
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+        "show",
+        "9dbabcaea9fce28129469e31a139a8548a14ab22:integration/0.7.4/compiler-build-preparation-03/prepare.py"
+      ],
+      "exit": 0,
+      "joined": true,
+      "pid": 371584,
+      "unexpected_live_child": false
+    }
+  ],
+  "exit": 0,
+  "limit_address_space_bytes": 536870912,
+  "memory": [
+    "VmPeak:\t  189676 kB",
+    "VmHWM:\t  176076 kB"
+  ],
+  "native_execution": false,
+  "passed": true,
+  "peak_child_rss_kib": 176076,
+  "peak_rss_kib": 176076,
+  "script": "audit_history.py",
+  "seconds": 1.0556738990126178,
+  "task_overlap": 0,
+  "wall_limit_seconds": 55
+}

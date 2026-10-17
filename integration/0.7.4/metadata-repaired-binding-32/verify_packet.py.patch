@@ -1,0 +1,51 @@
+--- /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/verify_packet.py
++++ /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-repaired-binding-32/verify_packet.py
+@@ -6,14 +6,17 @@
+ sys.dont_write_bytecode=True
+ H=Path(__file__).resolve().parent;sys.path.insert(0,str(H));import adapter as a
+ sys.path.insert(0,str(a.PACKAGE));import prepare as p,payload
+-start=time.monotonic();seal=a.static_contract();plan=a.load_pin(seal['control_plan']);oldH=H.parent/'compiler-controls-binding-23'
++start=time.monotonic();seal=a.static_contract();plan=a.load_pin(seal['control_plan']);oldH=H.parent/'metadata-control-preparation-27'
+ sys.path.insert(0,str(Path(seal['v6_bundle']['controller']['path']).parent));import storage_paths,private_workload
+ checks=[];children=[]
+ def check(ok,label):
+  assert ok,label
+  checks.append(label)
+ old=a.read(oldH/'staging/metadata/plan.json');moved,assets=a.relocate(old,plan['out'])
+-check(moved['generated']==plan['generated'],'all original generated metadata source/stdin pins retained after relocation')
++expected_generated=copy.deepcopy(moved['generated'])
++for item in expected_generated:
++ if item['path'].endswith('/metadata/raw/metadata.vkf'):item['sha256']=a.digest(Path(item['path']).read_bytes())
++check(expected_generated==plan['generated'],'only repaired metadata raw generated pin differs after relocation')
+ check(moved['cases']==plan['cases'],'all original module and assertion counts retained')
+ expected=copy.deepcopy(moved['stages']);expected[1]['cwd']=str(Path(plan['out'])/'home')
+ check(expected==plan['stages'],'only compile cwd differs; all original stage argv/timeouts/oracles unchanged')
+@@ -22,8 +25,13 @@
+ check(plan['application_inputs']==old['application_inputs'],'fresh current metadata closure unchanged by applied API/selection/package source')
+ check(plan['symlinks']==moved['symlinks'],'exact original stdlib membership and source pins retained')
+ root=p.REPAIR/'regressions/metadata_actual_lengths.vkf'
+-check((Path(plan['out'])/'metadata/raw/metadata.vkf').read_bytes()==root.read_bytes(),'original six metadata assertions byte-identical')
+-texts,pins=p.closure({'metadata':root.read_text()})
++original=root.read_bytes();repaired=(Path(plan['out'])/'metadata/raw/metadata.vkf').read_bytes()
++check(repaired==original[:-5]+b'::true\n','exact two-colon delta after all original fixture bytes')
++assertions=[x for x in original.splitlines(keepends=True) if b'?!' in x]
++check(len(assertions)==6 and assertions==[x for x in repaired.splitlines(keepends=True) if b'?!' in x],'six exact assertion lines and newline bytes in original order')
++check(repaired.count(b'::true')==1 and repaired.endswith(b'\n::true\n') and repaired.rfind(b'?!')<repaired.rfind(b'::true'),'single explicit output strictly after original six assertions')
++check(repaired==(H.parent/'metadata-entry-repair-31/metadata_actual_lengths.vkf').read_bytes(),'integrated repair31 exact fixture')
++texts,pins=p.closure({'metadata':repaired.decode()})
+ check(sorted(texts)==plan['cases'][0]['modules'] and list(pins.values())==plan['application_inputs'],'fresh traversal of actual current application imports')
+ for name,text in texts.items():check((Path(plan['out'])/'metadata/raw'/(name+'.vkf')).read_text()==text,'current source exact '+name)
+ # Broader geometry/provenance/absence/ordered-tree/binary64 contracts are preserved,
+@@ -80,6 +88,12 @@
+    child=subprocess.Popen(stage['argv'],cwd=q['out'],env=payload.environment(Path(q['out']),q),stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+    out,err=child.communicate(timeout=10);children.append(dict(pid=child.pid,exit=child.returncode,joined=True,absent=not Path('/proc',str(child.pid)).exists()))
+    check(child.returncode==0,'exact original Python normalizer succeeds')
++   normalized=Path(q['out'])/'metadata/normalized/source'
++   for name in ('metadata.vkf','scene_metadata.vkf','text_chunks.vkf'):
++    baseline=(H.parent/'metadata-entry-repair-31/host-original/metadata/normalized/source'/name).read_bytes()
++    expected=baseline[:-5]+b'::true\n' if name=='metadata.vkf' else baseline
++    check((normalized/name).read_bytes()==expected,'actual normalization exact repaired delta '+name)
++   check([x for x in (normalized/'metadata.vkf').read_bytes().splitlines(keepends=True) if b'?!' in x]==assertions,'normalized six assertion bytes unchanged')
+   else:out=stage.get('stdout','');err=''
+   if stage['name'].endswith('-compile'):
+    src=Path(stage['argv'][stage['argv'].index('-b')+1]);cwd=Path(stage['cwd']);check(src.is_file(),'real normalized compiler source exists')

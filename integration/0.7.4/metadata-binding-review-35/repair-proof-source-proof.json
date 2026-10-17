@@ -1,0 +1,1047 @@
+{
+  "passed": true,
+  "seconds": 0.472480384982191,
+  "historical_attempt_pins_verified": 62,
+  "native17": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+    "sha256": "52116e581d041836505756fcde17d504422429e410f0c84cb353409e121948d9"
+  },
+  "identity": "340d32d743bfcd6da076840963974462ed590852314ae483bbde5b4cc20c2e74",
+  "linked_source_provenance": [
+    {
+      "unit": "None",
+      "object": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration323-resume01/driver-0.o",
+        "sha256": "a770df41ad4201e4d575ba0fb94e97701df811b4fbb7e7f73779aea197f4d983"
+      },
+      "MD": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration323-resume01/driver-0.o.d",
+        "sha256": "87bbaf5ef8074cb3bd5fe24272e92799169ff79c46dbe0813e7a3aa1b6b0e3f1"
+      },
+      "source": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f192-A137-B177-compose01/source/compiler/native/vkf_driver_artifact_smoke.cpp",
+        "sha256": "6ac2ba36118df58f2fc841decfcbc2f70697e4923b30b889e368d635421ac09d"
+      },
+      "dependencies": 460,
+      "actual_native17_link_match": true,
+      "argv": [
+        "/usr/bin/clang++-19",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration322-checkpoint02",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration308-compose01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter279-C243-clean01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter279-clean-production01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter278-catalog-visibility01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter277-finite-declarations01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter276-association-trace01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter274-entry-trace01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter271-argument-spine01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter270-receipt-key01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter269-receipt-gate01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter268-deferred-trace01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter267-completion-trace01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter266-source-trace02",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter265-scalar-source01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter263-B291-rebase01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration291-compose01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration289-clean-repair02",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration289-physical-call01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration288-callable-seam03",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration287-callable-seam01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration286-return-seam01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration281-release-composition03",
+        "-DVKF_PRIVATE_HIERARCHICAL_PANELS_V1=1",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration280-clean-B270-01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration270-implicit-direct-custody01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration266-implicit-fact-transport01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration262-implicit-correspondence01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration258-typed-contract-admission01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration246-issued-correspondence01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration242-env-issuer01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration241-implicit-recipe02",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration239-primitive-binding01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration235-selected-custody01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration232-selected01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration229-mixed01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration227-root-capture01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration224-late-metadata01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration223-lifetime01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration221-family01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration221-family01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration219-transaction01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration219-transaction01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration218-prospective02",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration218-prospective02/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration217-singleton03",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration217-singleton03/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration216-home01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration216-home01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration214-inferred-return01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration214-inferred-return01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration213-compatibility02",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration213-compatibility02/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration208-capturecustody01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration208-capturecustody01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration206-adaptercustody01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration206-adaptercustody01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration203-emptycompile01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration203-emptycompile01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration202-params01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration202-params01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration201-returnededge01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration201-returnededge01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration200-closed02",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration200-closed02/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration199-alpha01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration199-alpha01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration197-snapshot01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration197-snapshot01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration196-lexical01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration196-lexical01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-E/iter189-final-composition02",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f193-A137-F192-B181-compose01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f193-A137-F192-B181-compose01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f192-A137-B177-compose01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f192-A137-B177-compose01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A/iter137-consumer-gate01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A/iter137-consumer-gate01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A/iter135-portable01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A/iter135-portable01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A/iter134-B169-compose02",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A/iter134-B169-compose01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration169-D147-composition01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration169-D147-composition01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration147-actual-row-types01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration162-copyowner01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration162-copyowner01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration160-production01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration160-production01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration160-production01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-E/iter157-pending-routing02/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-E/iter157-pending-routing02",
+        "-ivfsoverlay",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration322-checkpoint02/vfs.json",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-E/iter154-accepted-hooks01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-E/iter154-accepted-hooks01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-CD133-D126-root02",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-E148-root01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-E143-root01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-C125-root01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-C119-A100-D116-root01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-C119-root01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-D114-root01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-D112-root01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-D99-root02",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iteration88-clean01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration70-A58-clean01",
+        "-DVKF_NATIVE_FRONTEND_LIBRARY",
+        "-DVKF_STRICT_DIRECT_ONLY",
+        "-DVKF_X64_BACKEND_LIBRARY",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/native/VfOverlay",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/native-build02",
+        "-O3",
+        "-DNDEBUG",
+        "-std=c++17",
+        "-o",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration323-resume01/driver-0.o",
+        "-c",
+        "/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/compiler/native/vkf_driver_artifact_smoke.cpp",
+        "-MD",
+        "-MF",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration323-resume01/driver-0.o.d",
+        "-include",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration122-canonical-D97-03/lowerer.hpp"
+      ]
+    },
+    {
+      "unit": "41",
+      "object": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01/core-41.o",
+        "sha256": "c6e3d8f21b698d82e969a00f008a548c7c25f0fc84f1d1a91f544f748502848a"
+      },
+      "MD": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01/core-41.o.d",
+        "sha256": "3f38e83acfef9f479d3f343f536d58fe88cc9bf873b8889f6e3b3a6d59b77862"
+      },
+      "source": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-C119-root01/source/compiler/native/machine_lowering/lower_statements_stages_2.cpp",
+        "sha256": "a32cbd331b5dc33529e2c9d05f4484fd9fb339076091f0ef5128a959325e5b30"
+      },
+      "dependencies": 336,
+      "actual_native17_link_match": true,
+      "argv": [
+        "/usr/bin/clang++-19",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration169-D147-composition01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration169-D147-composition01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-C119-root01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration69-A57-build03",
+        "-ivfsoverlay",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01/vfs.json",
+        "-DVKF_NATIVE_FRONTEND_LIBRARY",
+        "-DVKF_X64_BACKEND_LIBRARY",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/native/VfOverlay",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/native-build02",
+        "-O3",
+        "-DNDEBUG",
+        "-std=c++17",
+        "-c",
+        "/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/compiler/native/machine_lowering/lower_statements_stages_2.cpp",
+        "-o",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01/core-41.o",
+        "-MD",
+        "-MF",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01/core-41.o.d"
+      ]
+    },
+    {
+      "unit": "48",
+      "object": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01/core-48.o",
+        "sha256": "7828ba7651e004d54dcb002cfae0468fd1b14e42776752742559465b8d5e699d"
+      },
+      "MD": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01/core-48.o.d",
+        "sha256": "fcbffd88e8e8e5a6e61445abda0a49915da11d4dcd07e6ff4b81a211137422d1"
+      },
+      "source": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration162-copyowner01/source/compiler/native/machine_lowering/support_2.cpp",
+        "sha256": "d0a9b41faaa5a30dbc2cc9258acae4791394591a85bb7e4a7c0486e2bc9e8257"
+      },
+      "dependencies": 337,
+      "actual_native17_link_match": true,
+      "argv": [
+        "/usr/bin/clang++-19",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration169-D147-composition01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration169-D147-composition01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration162-copyowner01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration162-copyowner01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration160-production01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-C119-root01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration69-A57-build03",
+        "-ivfsoverlay",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01/vfs.json",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/frontend001002/layout-pregeometry01",
+        "-DVKF_NATIVE_FRONTEND_LIBRARY",
+        "-DVKF_X64_BACKEND_LIBRARY",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/native/VfOverlay",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/native-build02",
+        "-O3",
+        "-DNDEBUG",
+        "-std=c++17",
+        "-c",
+        "/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/compiler/native/machine_lowering/support_2.cpp",
+        "-o",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01/core-48.o",
+        "-MD",
+        "-MF",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01/core-48.o.d"
+      ]
+    },
+    {
+      "unit": "182",
+      "object": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration323-resume01/core-182.o",
+        "sha256": "68631b2f9d4c3b85e3272fa9a9c2663bff6d62fc0528901f19ad20f32c72ea1e"
+      },
+      "MD": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration323-resume01/core-182.o.d",
+        "sha256": "d47ea53d3ccbefa3b55eaba8176d85f9e1d6149086e752a255a4dab090c0cf17"
+      },
+      "source": {
+        "path": "/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/compiler/native/lowering/dispatch_lower_stmt.cpp",
+        "sha256": "5c1657842a6b189378f21312aeccc1ff33213e1504d3a1407c5833b954094af4"
+      },
+      "dependencies": 334,
+      "actual_native17_link_match": true,
+      "argv": [
+        "/usr/bin/clang++-19",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration322-checkpoint02",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f196-C170-F195-compose01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A/iter137-consumer-gate01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A/iter137-consumer-gate01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A/iter135-portable01/source",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A/iter135-portable01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A/iter134-B169-compose01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-CD133-D126-root01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-E143-root01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-C119-A100-D116-root01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-D99-root02",
+        "-ivfsoverlay",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration322-checkpoint02/vfs.json",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration97-owned-table01",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iteration84-typed-recipe-descriptor02",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration69-A57-build03",
+        "-DVKF_NATIVE_FRONTEND_LIBRARY",
+        "-DVKF_X64_BACKEND_LIBRARY",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/native/VfOverlay",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/native-build02",
+        "-O3",
+        "-DNDEBUG",
+        "-std=c++17",
+        "-c",
+        "/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/compiler/native/lowering/dispatch_lower_stmt.cpp",
+        "-o",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration323-resume01/core-182.o",
+        "-MD",
+        "-MF",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration323-resume01/core-182.o.d"
+      ]
+    },
+    {
+      "unit": "233",
+      "object": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration281-vfs-consumers05/core-233.o",
+        "sha256": "b5a90b067c858068b434ec29192cbd2874829589952f80c1ce7c9065f71eea08"
+      },
+      "MD": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration281-vfs-consumers05/core-233.o.d",
+        "sha256": "4087dbe92e1d6231f399d2d186edda5e4b7caeb89211b5639bd43636d592ec52"
+      },
+      "source": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration281-release-composition03/parser.cpp",
+        "sha256": "67eb1a4eb2b221c553d7cc0f61a3425b8a77877dde873b6d05e59942f73473e7"
+      },
+      "dependencies": 277,
+      "actual_native17_link_match": true,
+      "argv": [
+        "/usr/bin/clang++-19",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration281-release-composition03",
+        "-DVKF_PRIVATE_HIERARCHICAL_PANELS_V1=1",
+        "-I/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration69-A57-build03",
+        "-ivfsoverlay",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration281-vfs-consumers05/vfs.json",
+        "-DVKF_NATIVE_FRONTEND_LIBRARY",
+        "-DVKF_X64_BACKEND_LIBRARY",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/native/VfOverlay",
+        "-I/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/native-build02",
+        "-O3",
+        "-DNDEBUG",
+        "-std=c++17",
+        "-c",
+        "/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/compiler/native/vkf_parser_token_stream_smoke.cpp",
+        "-o",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration281-vfs-consumers05/core-233.o",
+        "-MD",
+        "-MF",
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration281-vfs-consumers05/core-233.o.d"
+      ]
+    }
+  ],
+  "source_excerpts": [
+    {
+      "source": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f192-A137-B177-compose01/source/compiler/native/vkf_driver_artifact_smoke.cpp",
+        "sha256": "6ac2ba36118df58f2fc841decfcbc2f70697e4923b30b889e368d635421ac09d"
+      },
+      "first_line": 3633,
+      "last_line": 3642,
+      "text": "        }\n    };\n    for (int index = 1; index < argc; ++index) {\n        const std::string argument = argv[index];\n        if (argument == \"-b\" && index + 1 < argc && args.source.empty() &&\n            args.eval_source.empty()) {\n            build_only = true;\n            args.source = argv[++index];\n            continue;\n        }"
+    },
+    {
+      "source": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f192-A137-B177-compose01/source/compiler/native/vkf_driver_artifact_smoke.cpp",
+        "sha256": "6ac2ba36118df58f2fc841decfcbc2f70697e4923b30b889e368d635421ac09d"
+      },
+      "first_line": 3692,
+      "last_line": 3706,
+      "text": "        }\n        if (!argument.empty() && argument.front() != '-' && args.source.empty() &&\n            args.eval_source.empty()) {\n            args.source = argument;\n            args.run = true;\n            continue;\n        }\n        throw DriverFailure(\"usage: vkf file.vkf [-o executable] | -e source | -b file.vkf [-o executable] | -t file-or-folder | -v\");\n    }\n    if (args.source.empty() && args.eval_source.empty()) {\n        throw DriverFailure(\"usage: vkf file.vkf [-o executable] | -e source | -b file.vkf [-o executable] | -t file-or-folder | -v\");\n    }\n    if (!args.source.empty() && args.output.empty()) args.output = default_output(args.source);\n    if (build_only) args.run = false;\n#else"
+    },
+    {
+      "source": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/f192-A137-B177-compose01/source/compiler/native/vkf_driver_artifact_smoke.cpp",
+        "sha256": "6ac2ba36118df58f2fc841decfcbc2f70697e4923b30b889e368d635421ac09d"
+      },
+      "first_line": 4826,
+      "last_line": 4855,
+      "text": "        const bool ran_program = parsed_args.run;\n        const bool emit_diagnostics = parsed_args.diagnostics;\n#ifdef VKF_STRICT_DIRECT_ONLY\n        // Strict CLI execution inherits the caller's streams directly. This\n        // preserves byte-exact interactive/stdin behavior and avoids running a\n        // freshly signed Mach-O behind the compiler's capture pipes.\n        if (ran_program) parsed_args.run = false;\n#endif\n#if defined(VKF_X64_BACKEND_LIBRARY) && defined(VKF_NATIVE_FRONTEND_LIBRARY)\n        std::shared_ptr<const vkf::native_region::NativeLaunchCapsule> native_launch;\n        std::unique_ptr<vkf::native_region::driver_private::HighDescriptors> native_transport;\n        const std::string rendered = compile_one(std::move(parsed_args),ran_program ? &native_launch : nullptr,ran_program ? &native_transport : nullptr);\n#else\n        const std::string rendered = compile_one(std::move(parsed_args));\n#endif\n#ifdef VKF_STRICT_DIRECT_ONLY\n        if (ran_program) {\n            const auto summary = object_of(vf::parse_json(rendered), \"strict direct summary\");\n            if (emit_diagnostics) std::cout << rendered << \"\\n\";\n#if defined(VKF_X64_BACKEND_LIBRARY) && defined(VKF_NATIVE_FRONTEND_LIBRARY)\n            if(native_launch) {\n                native_launch->require_current();\n                if(!native_transport)throw DriverFailure(\"issued native capsule lacks prepared child descriptors\");\n                return vkf::native_region::driver_private::execute_prepared_descriptors(*native_transport).exit_code;\n            }\n#endif\n            return run_inherited(std::filesystem::path(\n                string_field(summary, \"artifact_path\", \"strict direct summary\")));\n        } else {\n            if (emit_diagnostics) {"
+    },
+    {
+      "source": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration281-release-composition03/parser.cpp",
+        "sha256": "67eb1a4eb2b221c553d7cc0f61a3425b8a77877dde873b6d05e59942f73473e7"
+      },
+      "first_line": 733,
+      "last_line": 749,
+      "text": "        if (starts_function_definition()) {\n            return parse_function_definition();\n        }\n        if (is_at(\"EMIT\")) {\n            advance();\n            if (is_at(\"COLON\")) {\n                advance();\n                auto out = node(\"label_emit\");\n                out[\"value\"] = parse_tuple_expression();\n                return vf::JsonValue(std::move(out));\n            }\n            auto out = node(\"emit\");\n            out[\"value\"] = parse_tuple_expression();\n            return vf::JsonValue(std::move(out));\n        }\n        if (is_at(\"COLON\")) {\n            advance();"
+    },
+    {
+      "source": {
+        "path": "/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/compiler/native/lowering/dispatch_lower_stmt.cpp",
+        "sha256": "5c1657842a6b189378f21312aeccc1ff33213e1504d3a1407c5833b954094af4"
+      },
+      "first_line": 35,
+      "last_line": 56,
+      "text": "        if (kind == \"spill_value\") { if (auto lowered = lower_statement_spill_value(ast, env, object, kind)) return std::move(*lowered); }\n        if (kind == \"emit\") {\n            auto dispatched_ast=object;dispatched_ast[\"kind\"]=vf::JsonValue(\"private_nominal_emit\");\n            if(auto dispatch=private_nominal_dispatch(vf::JsonValue(std::move(dispatched_ast)),env)){auto out=node(\"expr_stmt\");out[\"expr\"]=std::move(*dispatch);return vf::JsonValue(std::move(out));}\n            vf::JsonValue lowered_value = lower_expr(field(object, \"value\", \"emit\"), env);\n            const std::string value_type = string_field(lowered_value.as_object(), \"type\", \"emit value\");\n            vf::JsonValue::Array args;\n            args.push_back(std::move(lowered_value));\n            vf::JsonValue::Array arg_types;\n            arg_types.push_back(vf::JsonValue(value_type));\n            auto call = node(\"call\");\n            call[\"callee\"] = stdlib_function(\"io\", \"print\");\n            call[\"callee_type\"] = vf::JsonValue(\"fn(any)->any\");\n            call[\"arg_types\"] = vf::JsonValue(std::move(arg_types));\n            call[\"args\"] = vf::JsonValue(std::move(args));\n            call[\"named_args\"] = vf::JsonValue(vf::JsonValue::Array{});\n            call[\"spread_args\"] = vf::JsonValue(vf::JsonValue::Array{});\n            call[\"type\"] = vf::JsonValue(value_type);\n            auto out = node(\"expr_stmt\");\n            out[\"expr\"] = vf::JsonValue(std::move(call));\n            return vf::JsonValue(std::move(out));\n        }"
+    },
+    {
+      "source": {
+        "path": "/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/compiler/native/lowering/dispatch_lower_stmt.cpp",
+        "sha256": "5c1657842a6b189378f21312aeccc1ff33213e1504d3a1407c5833b954094af4"
+      },
+      "first_line": 80,
+      "last_line": 87,
+      "text": "        }\n\n        vf::JsonValue expr = lower_expr(ast, env);\n        auto out = node(\"expr_stmt\");\n        out[\"expr\"] = std::move(expr);\n        return vf::JsonValue(std::move(out));\n    }\n"
+    },
+    {
+      "source": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/build-C119-root01/source/compiler/native/machine_lowering/lower_statements_stages_2.cpp",
+        "sha256": "a32cbd331b5dc33529e2c9d05f4484fd9fb339076091f0ef5128a959325e5b30"
+      },
+      "first_line": 176,
+      "last_line": 224,
+      "text": "\n            if (!(function_tail && index + 1 == body.size()) &&\n                lower_discarded_range_pipe(expression, builder, signatures, strings)) {\n                return {vkf::compiler_implementation::StageFlow::continue_loop};\n            }\n            const auto fixed = function_tail && index + 1 == body.size() && function_result_layout\n                ? lower_literal_projection_argument(\n                    expression, *function_result_layout, builder, signatures, strings)\n                : std::optional<ValueLayout>{};\n            const auto expression_begin = builder.instruction_count();\n            auto layout = fixed\n                ? *fixed\n                : lower_expression(expression, builder, signatures, strings);\n            if (function_tail && index + 1 == body.size() && !fixed &&\n                string_field(expression, \"kind\", \"expression\") == \"raise_expr\" &&\n                builder.ends_with_owned_raise_error_value_since(expression_begin)) {\n                // Actual tail lowering authenticated and transferred the error.\n                // The raise exits through its existing handler/error epilogue;\n                // balance only its unreachable synthetic slot, not a return ABI.\n                if (layout.kind != ValueKind::Null || layout.width != 1)\n                    throw LoweringFailure(\"terminal raise requires its dead null slot\");\n                builder.emit({Opcode::Drop});\n                return {vkf::compiler_implementation::StageFlow::continue_loop};\n            }\n            if (function_tail && index + 1 == body.size()) {\n                ensure_independent_value(expression, layout, builder, signatures);\n                if (!builder.block_return() && function_result_layout)\n                    embed_numeric_return(layout, *function_result_layout, builder);\n                if (!emit_block_result(layout,builder)) {\n                    emit_release_owned_values(builder);\n                    emit_return(builder,layout);\n                }\n            }\n            else if (layout.kind == ValueKind::DynamicF64List &&\n                     expression_produces_owned_f64_list(expression, signatures)) {\n                builder.emit({Opcode::ReleaseF64ListValue});\n            } else if (layout.kind == ValueKind::String &&\n                       expression_transfers_string_value(expression, signatures)) {\n                builder.emit({Opcode::ReleaseStringValue});\n            } else if ((layout.kind == ValueKind::Aggregate || layout.kind == ValueKind::StringMultiset) &&\n                       has_owned_resources(layout) &&\n                       expression_transfers_aggregate_value(expression, signatures)) {\n                emit_discard_owned_value(builder, layout);\n            } else {\n                for (std::uint32_t component = 0; component < layout.width; ++component) {\n                    builder.emit({Opcode::Drop});\n                }\n            }\n        }"
+    },
+    {
+      "source": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration162-copyowner01/source/compiler/native/machine_lowering/support_2.cpp",
+        "sha256": "d0a9b41faaa5a30dbc2cc9258acae4791394591a85bb7e4a7c0486e2bc9e8257"
+      },
+      "first_line": 750,
+      "last_line": 763,
+      "text": "        }\n    }\n    for (const auto* statement : entry_statements) {\n        discover_bindings(*statement, entry, signatures);\n    }\n    const auto is_print_statement = [](const vf::JsonValue::Object& statement) {\n        return output_effects::is_print_statement<LoweringFailure>(statement);\n    };\n    const auto output_count = static_cast<std::uint32_t>(std::count_if(\n        entry_statements.begin(), entry_statements.end(), [&](const auto* statement) {\n            return is_print_statement(*statement);\n        }));\n    std::string custom_display_type;\n    const auto custom_display_function = functions.find(\"::\");"
+    },
+    {
+      "source": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration162-copyowner01/source/compiler/native/machine_lowering/support_2.cpp",
+        "sha256": "d0a9b41faaa5a30dbc2cc9258acae4791394591a85bb7e4a7c0486e2bc9e8257"
+      },
+      "first_line": 1047,
+      "last_line": 1097,
+      "text": "    const vf::JsonValue::Object* output = nullptr;\n    for (const auto* statement : entry_statements) {\n        const std::string kind = string_field(*statement, \"kind\", \"top-level statement\");\n        if (kind == \"store_binding\") {\n            if (output) throw LoweringFailure(\"top-level binding cannot follow output\");\n            const std::string binding_name = string_field(*statement, \"name\", \"top-level binding\");\n            const auto& value = object_of(field(*statement, \"value\", \"top-level binding\"), \"binding value\");\n            display_environment[binding_name] =\n                display_shape_from_expression(value, display_environment, &function_displays);\n            vf::JsonValue::Array single_statement;\n            single_statement.emplace_back(*statement);\n            const detail::b162::CopyScope copy_owner(*statement, single_statement);\n            lower_statements(single_statement, entry, false, signatures, strings);\n        } else if (kind == \"update_attr\" || kind == \"update_index\") {\n            if (output) throw LoweringFailure(\"top-level update cannot follow output\");\n            vf::JsonValue::Array single_statement;\n            single_statement.emplace_back(*statement);\n            const detail::b162::CopyScope copy_owner(*statement, single_statement);\n            lower_statements(single_statement, entry, false, signatures, strings);\n        } else if (is_print_statement(*statement)) {\n            if (output) throw LoweringFailure(\"machine IR currently supports one top-level output\");\n            output = statement;\n        } else {\n            if (output) throw LoweringFailure(\"top-level effect cannot follow output\");\n            vf::JsonValue::Array single_statement;\n            single_statement.emplace_back(*statement);\n            const detail::b162::CopyScope copy_owner(*statement, single_statement);\n            lower_statements(single_statement, entry, false, signatures, strings);\n        }\n    }\n    OutputKind output_kind = OutputKind::None;\n    std::vector<OutputToken> output_tokens;\n    if (!output) {\n        emit_release_owned_values(entry);\n        Instruction return_without_output;\n        return_without_output.opcode = Opcode::ReturnValues;\n        return_without_output.result_count = 0;\n        entry.emit(std::move(return_without_output));\n    } else {\n        const auto& outer = object_of(field(*output, \"expr\", \"top-level expression\"), \"top-level call\");\n        const auto& callee = object_of(field(outer, \"callee\", \"top-level call\"), \"top-level callee\");\n        if (string_field(outer, \"kind\", \"top-level expression\") != \"call\" ||\n            string_field(callee, \"kind\", \"top-level callee\") != \"stdlib_function\" ||\n            string_field(callee, \"name\", \"top-level callee\") != \"print\") {\n            throw LoweringFailure(\"machine IR currently requires one top-level print\");\n        }\n        const auto& args = array_of(field(outer, \"args\", \"top-level print\"), \"top-level print args\");\n        if (args.size() != 1) throw LoweringFailure(\"machine IR print requires one argument\");\n        const auto& printed_expression = object_of(args.front(), \"printed expression\");\n        auto display_shape =\n            display_shape_from_expression("
+    },
+    {
+      "source": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration162-copyowner01/source/compiler/native/machine_lowering/support_2.cpp",
+        "sha256": "d0a9b41faaa5a30dbc2cc9258acae4791394591a85bb7e4a7c0486e2bc9e8257"
+      },
+      "first_line": 1123,
+      "last_line": 1150,
+      "text": "        if (!structured && !is_scalar_f64_output(printed_layout, display_shape) &&\n            printed_layout.kind != ValueKind::String) {\n            throw LoweringFailure(\"machine IR print requires a displayable core value\");\n        }\n        if (!formatted_string_owned)\n            ensure_independent_value(printed_expression, printed_layout, entry, signatures);\n        emit_release_owned_values(entry);\n        if (structured) {\n            Instruction return_values;\n            return_values.opcode = Opcode::ReturnValues;\n            return_values.result_count = printed_layout.width;\n            entry.emit(std::move(return_values));\n        } else {\n            emit_return(entry, printed_layout);\n        }\n        output_kind = structured ? OutputKind::StructuredSequence\n            : printed_layout.kind == ValueKind::String ? OutputKind::String : OutputKind::F64;\n        if (structured) {\n            append_display_tokens(display_shape, output_tokens);\n            output_tokens.push_back({OutputTokenKind::Text, \"\\n\"});\n        }\n    }\n\n    Module lowered;\n    lowered.entry = entry.finish();\n    lowered.output_kind = output_kind;\n    lowered.output_count = output ? 1u : 0u;\n    lowered.output_tokens = std::move(output_tokens);"
+    }
+  ],
+  "original_assertions": [
+    "(left.count=9 /\\ right.count=1 /\\ joined.count=10 /\\ reverse.count=10)?! \"metadata counts\"",
+    "(joined.kinds.length()=10 /\\ joined.ends.length()=10 /\\ joined.texts.length()=10 /\\ joined.numbers.length()=10)?! \"metadata vector lengths\"",
+    "(joined.texts.(4)=\"g\" /\\ joined.texts.(9)=\"color\" /\\ joined.numbers.(6)=2)?! \"metadata values\"",
+    "(joined.ends.(0)=9 /\\ joined.ends.(9)=10 /\\ reverse.ends.(0)=1 /\\ reverse.ends.(1)=10)?! \"metadata subtree offsets\"",
+    "(reverse.texts.(0)=\"color\" /\\ reverse.texts.(5)=\"g\" /\\ reverse.numbers.(7)=2)?! \"reverse values\"",
+    "(empty.count=0 /\\ empty.texts.length()=0 /\\ nine.texts.(4)=\"g\" /\\ one.texts.(0)=\"color\")?! \"input ownership preservation\""
+  ],
+  "actual_ast_tail": {
+    "kind": "bool_literal",
+    "source_location": [
+      "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/normalized/source/metadata.vkf",
+      18,
+      1
+    ],
+    "value": true
+  },
+  "actual_typed_tail": {
+    "expr": {
+      "kind": "const",
+      "ordinary_source_type_identity": {
+        "kind": "ordinary_source_type_identity",
+        "owner": "ordinary_expression_typing",
+        "resolved_type": "bit"
+      },
+      "semantic_id": 987,
+      "type": "bit",
+      "value": true
+    },
+    "kind": "expr_stmt"
+  },
+  "typed_following_functions": [
+    "__vkf_module_shared_module_text_chunks_3b4ac16d__empty_leaf",
+    "__vkf_module_shared_module_text_chunks_3b4ac16d__empty",
+    "__vkf_module_shared_module_text_chunks_3b4ac16d__join",
+    "__vkf_module_shared_module_scene_metadata_be88f27c__empty",
+    "__vkf_module_shared_module_scene_metadata_be88f27c__shift",
+    "__vkf_module_shared_module_scene_metadata_be88f27c__append",
+    "__vkf_module_shared_module_scene_metadata_be88f27c__member",
+    "__vkf_module_shared_module_scene_metadata_be88f27c__subtree",
+    "__vkf_module_shared_module_scene_metadata_be88f27c__replace_member",
+    "__vkf_module_shared_module_scene_metadata_be88f27c__string_array"
+  ],
+  "machine_summary": {
+    "output_kind": "none",
+    "output_count": 0,
+    "output_tokens": [],
+    "outputs": []
+  },
+  "machine_instruction_counts": {
+    "push_f64": 97,
+    "push_string": 16,
+    "release_string_local": 40,
+    "store_local": 201,
+    "load_local": 214,
+    "call": 5,
+    "release_f64_list_local": 64,
+    "clone_string": 10,
+    "make_owned_f64_list": 8,
+    "ordered_equal_f64": 20,
+    "booleanize_f64": 32,
+    "duplicate": 16,
+    "jump_if_false": 16,
+    "drop": 27,
+    "label": 16,
+    "assert_truthy": 10,
+    "count_f64_list": 5,
+    "divide_f64": 2,
+    "floor_divide_f64": 4,
+    "load_f64_list_index": 14,
+    "string_equal": 6,
+    "return_values": 1
+  },
+  "actual_compile_diagnostics": {
+    "artifact_fallback": false,
+    "artifact_ms": 25.276167,
+    "artifact_path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/case.exe",
+    "ast_path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/normalized/source/.vkfbuild/metadata/ast.json",
+    "diagnostics_emitted": true,
+    "empirical_tuning": {
+      "cache_hit": false,
+      "candidates": [],
+      "composition_cache_hit": false,
+      "elapsed_ms": 0,
+      "eligible": false,
+      "fingerprint": "25e77ba1133e97eb",
+      "function_landscape_reused_count": 0,
+      "function_landscape_search_count": 0,
+      "function_policies": [],
+      "landscape_runs": 0,
+      "module_abi_policy": "not-applicable",
+      "parallel_eligible": false,
+      "parallel_selected": false,
+      "parallel_thread_handles_closed": 0,
+      "parallel_threads_created": 0,
+      "parallel_threads_joined": 0,
+      "parallel_width": 0,
+      "requested_policy": "auto",
+      "selected_policy": "auto",
+      "total_runs": 0,
+      "tuned": false
+    },
+    "frontend_mode": "integrated",
+    "ir_ms": 144.54562,
+    "lexer_ms": 1.709655,
+    "machine_code_fingerprint": "f6d1e4a69ff5d4b8",
+    "manifest_path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/normalized/source/.vkfbuild/metadata/x64-manifest.json",
+    "optimizer_cache_hit": false,
+    "optimizer_ms": 0,
+    "optimizer_policy": "auto",
+    "parser_ms": 9.186214,
+    "ran": false,
+    "run_ms": 0,
+    "status": "compiled",
+    "stderr": "",
+    "stdlib_ast_cache_hits": 0,
+    "stdlib_ast_cache_misses": 0,
+    "stdout": "",
+    "token_path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/normalized/source/.vkfbuild/metadata/tokens.json",
+    "total_ms": 181.404034,
+    "typed_ir_path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/normalized/source/.vkfbuild/metadata/typed-ir.json"
+  },
+  "actual_stages": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/normalize_module_aliases.py",
+        "--source-dir",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/raw",
+        "--output-dir",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/normalized"
+      ],
+      "name": "metadata-normalize",
+      "outputs": [],
+      "timeout": 30
+    },
+    {
+      "argv": [
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+        "-b",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/normalized/source/metadata.vkf",
+        "-o",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/case.exe",
+        "--diagnostics"
+      ],
+      "cwd": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/home",
+      "name": "metadata-compile",
+      "outputs": [
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/case.exe"
+      ],
+      "timeout": 180
+    },
+    {
+      "argv": [
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/case.exe"
+      ],
+      "cwd": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata",
+      "expected_exit": 0,
+      "name": "metadata-run-0",
+      "outputs": [],
+      "stdin": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/run-0.stdin",
+      "stdout": "true\n",
+      "timeout": 60,
+      "valgrind": false
+    }
+  ],
+  "D288": [
+    {
+      "name": "numeric_only-compile",
+      "argv": [
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/numeric_only/raw/numeric_only.vkf",
+        "-o",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/numeric_only/case.exe"
+      ],
+      "source": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/numeric_only/raw/numeric_only.vkf",
+        "sha256": "c5f1b3a5c3f78639920a2161f1415f01d37307e8fcd9510152db360fadca836b"
+      },
+      "emit_lines": [
+        "::check()"
+      ]
+    },
+    {
+      "name": "string_only-compile",
+      "argv": [
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/string_only/raw/string_only.vkf",
+        "-o",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/string_only/case.exe"
+      ],
+      "source": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/string_only/raw/string_only.vkf",
+        "sha256": "62e18a0a1f3bfb5edd33ae302f593b594293ed2020b1f1e73c43e354bdd22a1c"
+      },
+      "emit_lines": [
+        "::check()"
+      ]
+    },
+    {
+      "name": "individual_control-compile",
+      "argv": [
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/individual_control/raw/individual_control.vkf",
+        "-o",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/individual_control/case.exe"
+      ],
+      "source": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/individual_control/raw/individual_control.vkf",
+        "sha256": "f35b7d5f0a0ef0ca8ccd67fc9b8d8564baf9c0ffdcc36d0c517a322cd5a92cee"
+      },
+      "emit_lines": [
+        "::check()"
+      ]
+    },
+    {
+      "name": "scalar_control-compile",
+      "argv": [
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/scalar_control/raw/scalar_control.vkf",
+        "-o",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/scalar_control/case.exe"
+      ],
+      "source": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/scalar_control/raw/scalar_control.vkf",
+        "sha256": "7b26365cec9c44276da19964f3b7e20dff14a9322170da05d0ed4df08d4e672c"
+      },
+      "emit_lines": [
+        "::check()"
+      ]
+    },
+    {
+      "name": "borrowed_alias-compile",
+      "argv": [
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/borrowed_alias/raw/borrowed_alias.vkf",
+        "-o",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/borrowed_alias/case.exe"
+      ],
+      "source": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/borrowed_alias/raw/borrowed_alias.vkf",
+        "sha256": "7846c073f1789635d74f24ce255d8fe781ebccee0eb56050436be33d5859cb4d"
+      },
+      "emit_lines": [
+        "::run()"
+      ]
+    },
+    {
+      "name": "owned-compile",
+      "argv": [
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/owned/raw/owned.vkf",
+        "-o",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/owned/case.exe"
+      ],
+      "source": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/owned/raw/owned.vkf",
+        "sha256": "75df28af158d0878138b9fe9dba851a792b0a1001b7b3535b2bd1558fd8c8eab"
+      },
+      "emit_lines": [
+        "::check((sources:[io.read_line()],count:1))"
+      ]
+    },
+    {
+      "name": "returned-compile",
+      "argv": [
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/returned/raw/returned.vkf",
+        "-o",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/returned/case.exe"
+      ],
+      "source": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/returned/raw/returned.vkf",
+        "sha256": "d0a3868a4946ae25cf586388f7bcd13cd0e27cfc21790b963e4b01bb0b9dd9ec"
+      },
+      "emit_lines": [
+        "::run()"
+      ]
+    },
+    {
+      "name": "independence-compile",
+      "argv": [
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/independence/raw/independence.vkf",
+        "-o",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/independence/case.exe"
+      ],
+      "source": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/independence/raw/independence.vkf",
+        "sha256": "3f07972b2fd6752479953f23cf9600ce9374565ab3faf597ec223d798e17d6ee"
+      },
+      "emit_lines": [
+        "::run()"
+      ]
+    },
+    {
+      "name": "nested-compile",
+      "argv": [
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/nested/raw/nested.vkf",
+        "-o",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/nested/case.exe"
+      ],
+      "source": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/nested/raw/nested.vkf",
+        "sha256": "6db03efd43662cac4b56c35e44c20230607acc7ac8d7648c8fff58733e1b8dd8"
+      },
+      "emit_lines": [
+        "::check((data:(sources:[\"a\",\"b\"],starts:[7,8]),count:2))"
+      ]
+    },
+    {
+      "name": "error_cleanup-compile",
+      "argv": [
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/error_cleanup/raw/error_cleanup.vkf",
+        "-o",
+        "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/error_cleanup/case.exe"
+      ],
+      "source": {
+        "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/d288/error_cleanup/raw/error_cleanup.vkf",
+        "sha256": "c883d5cf9f964ec18fadd9f8c5a6148d9d3598ddf579df3ae6e3507dbfbcfe8c"
+      },
+      "emit_lines": []
+    }
+  ],
+  "future_plans": {
+    "a345": {
+      "plan": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a345/plan.json",
+        "sha256": "c51fe7f23bff3ff707ed1d8e23865b36833b0b7255db90a5b56673b5d2a74f2e"
+      },
+      "stages": [
+        {
+          "argv": [
+            "/usr/bin/python3",
+            "-B",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/normalize_module_aliases.py",
+            "--source-dir",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a345/A345/raw",
+            "--output-dir",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a345/A345/normalized"
+          ],
+          "name": "A345-normalize",
+          "timeout": 30
+        },
+        {
+          "argv": [
+            "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+            "-b",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a345/A345/normalized/source/A345.vkf",
+            "-o",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a345/A345/case.exe",
+            "--diagnostics"
+          ],
+          "name": "A345-compile",
+          "timeout": 180
+        },
+        {
+          "argv": [
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a345/A345/case.exe"
+          ],
+          "expected_exit": 0,
+          "name": "A345-run-0",
+          "timeout": 60
+        }
+      ]
+    },
+    "f364": {
+      "plan": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/plan.json",
+        "sha256": "a68b4888901c6df274bf22a070d4a20ca725021b89c952ab434308e8d710fedb"
+      },
+      "stages": [
+        {
+          "argv": [
+            "/usr/bin/python3",
+            "-B",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/normalize_module_aliases.py",
+            "--source-dir",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/raw",
+            "--output-dir",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/normalized"
+          ],
+          "name": "F364-normalize",
+          "timeout": 30
+        },
+        {
+          "argv": [
+            "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+            "-b",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/normalized/source/02_scene_provider.vkf",
+            "-o",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/case.exe",
+            "--diagnostics"
+          ],
+          "name": "F364-compile",
+          "timeout": 1800
+        },
+        {
+          "argv": [
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/case.exe"
+          ],
+          "expected_exit": 0,
+          "name": "F364-run-0",
+          "stderr": "",
+          "stdout": null,
+          "timeout": 60
+        },
+        {
+          "argv": [
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/case.exe"
+          ],
+          "expected_exit": 0,
+          "name": "F364-run-1",
+          "stderr": "",
+          "stdout": null,
+          "timeout": 60
+        },
+        {
+          "argv": [
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/case.exe"
+          ],
+          "expected_exit": 0,
+          "name": "F364-run-2",
+          "stderr": "",
+          "stdout": null,
+          "timeout": 60
+        },
+        {
+          "argv": [
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/case.exe"
+          ],
+          "expected_exit": 0,
+          "name": "F364-run-3",
+          "stderr": "",
+          "stdout": null,
+          "timeout": 60
+        },
+        {
+          "argv": [
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/case.exe"
+          ],
+          "expected_exit": 0,
+          "name": "F364-run-4",
+          "stderr": "",
+          "stdout": null,
+          "timeout": 60
+        },
+        {
+          "argv": [
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/case.exe"
+          ],
+          "expected_exit": 0,
+          "name": "F364-run-5",
+          "stderr": "",
+          "stdout": null,
+          "timeout": 60
+        },
+        {
+          "argv": [
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/case.exe"
+          ],
+          "expected_exit": 0,
+          "name": "F364-run-6",
+          "stderr": "",
+          "stdout": null,
+          "timeout": 60
+        },
+        {
+          "argv": [
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/case.exe"
+          ],
+          "expected_exit": 0,
+          "name": "F364-run-7",
+          "stderr": "",
+          "stdout": null,
+          "timeout": 60
+        },
+        {
+          "argv": [
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/case.exe"
+          ],
+          "expected_exit": 0,
+          "name": "F364-run-8",
+          "stderr": "",
+          "stdout": null,
+          "timeout": 60
+        },
+        {
+          "argv": [
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/case.exe"
+          ],
+          "expected_exit": 0,
+          "name": "F364-run-9",
+          "stderr": "",
+          "stdout": null,
+          "timeout": 60
+        },
+        {
+          "argv": [
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/f364/F364/case.exe"
+          ],
+          "expected_exit": 1,
+          "name": "F364-run-10",
+          "stderr": "SCENE_PROVIDER_UNKNOWN_SELECTOR\n",
+          "stdout": "",
+          "timeout": 60
+        }
+      ]
+    },
+    "a347": {
+      "plan": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a347/plan.json",
+        "sha256": "2ebeff05bd68813bbbbf201cf25b6cab0e2f9af71b7598fca92c6598ca8d2ffb"
+      },
+      "stages": [
+        {
+          "argv": [
+            "/usr/bin/python3",
+            "-B",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/normalize_module_aliases.py",
+            "--source-dir",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a347/A347/raw",
+            "--output-dir",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a347/A347/normalized"
+          ],
+          "name": "A347-normalize",
+          "timeout": 30
+        },
+        {
+          "argv": [
+            "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+            "-b",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a347/A347/normalized/source/A347.vkf",
+            "-o",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a347/A347/case.exe",
+            "--diagnostics"
+          ],
+          "name": "A347-compile",
+          "timeout": 1800
+        },
+        {
+          "argv": [
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a347/A347/case.exe"
+          ],
+          "expected_exit": 0,
+          "name": "A347-run-0",
+          "report": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a347/A347/unowned.report",
+          "timeout": 60
+        },
+        {
+          "argv": [
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a347/A347/case.exe"
+          ],
+          "expected_exit": 0,
+          "name": "A347-run-1",
+          "report": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/a347/A347/owned.report",
+          "timeout": 60
+        }
+      ]
+    },
+    "full-app": {
+      "plan": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/full-app/plan.json",
+        "sha256": "b1c3bdfdce796114556489172dbcc225bfef4e33b72ab344bc8dd0a400d02ab2"
+      },
+      "stages": [
+        {
+          "argv": [
+            "/usr/bin/python3",
+            "-B",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/normalize_module_aliases.py",
+            "--source-dir",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/full-app/full-app/raw",
+            "--output-dir",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/full-app/full-app/normalized"
+          ],
+          "name": "full-app-normalize",
+          "timeout": 30
+        },
+        {
+          "argv": [
+            "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+            "-b",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/full-app/full-app/normalized/source/native_document_cli.vkf",
+            "-o",
+            "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-controls-preparation-18/staging/full-app/full-app/case.exe",
+            "--diagnostics"
+          ],
+          "name": "full-app-compile",
+          "timeout": 1800
+        }
+      ]
+    }
+  },
+  "latest_A": {
+    "owner": "01a14a3a-d0d8-7a10-a188-717e31a22e31",
+    "sequence": 15,
+    "stage": "joined",
+    "join": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/receipts/service-join.json",
+      "sha256": "4a1ed5938463632747f40aba82b60beca7af7de4d676ed7e96ab9b01ea55f002"
+    },
+    "phase_bytes": 1073741824
+  },
+  "memory": [
+    "VmPeak:\t  165380 kB",
+    "VmHWM:\t  150920 kB"
+  ],
+  "native_execution": false,
+  "children": [],
+  "overlap": 0
+}

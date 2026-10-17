@@ -1,0 +1,11 @@
+--- integration/0.7.4/metadata-repaired-binding-32/run_bounded.py
++++ integration/0.7.4/metadata-history-binding-repair-39/run_bounded.py
+@@ -2,7 +2,7 @@
+ import json,os,resource,runpy,signal,subprocess,sys,time,traceback
+ from pathlib import Path
+ H=Path(__file__).resolve().parent
+-ALLOWED={'build_packet.py','seal_source.py','test_controls.py','verify_packet.py','describe_packet.py','final_verify.py','independent_verify.py'}
++ALLOWED={'build_packet.py','seal_source.py','test_controls.py','verify_packet.py','describe_packet.py','final_verify.py','independent_verify.py','audit_history.py','test_relocation.py'}
+ def child(name):
+  resource.setrlimit(resource.RLIMIT_AS,(512*2**20,)*2)
+  resource.setrlimit(resource.RLIMIT_CPU,(50,50));resource.setrlimit(resource.RLIMIT_CORE,(0,0))

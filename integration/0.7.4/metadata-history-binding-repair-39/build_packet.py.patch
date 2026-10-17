@@ -1,0 +1,11 @@
+--- integration/0.7.4/metadata-repaired-binding-32/build_packet.py
++++ integration/0.7.4/metadata-history-binding-repair-39/build_packet.py
+@@ -3,7 +3,7 @@
+ from pathlib import Path
+ sys.dont_write_bytecode=True
+ HERE=Path(__file__).resolve().parent
+-sys.path.insert(0,str(HERE.parent/'compiler-build-preparation-03'))
++sys.path.insert(0,str(HERE/'generator'))
+ import prepare as p, payload
+ from authenticate import sha,pin,read,save
+ HEAD='0d6d2bea2eb8015ee56f95b1e0eaf78e3d3c3108'

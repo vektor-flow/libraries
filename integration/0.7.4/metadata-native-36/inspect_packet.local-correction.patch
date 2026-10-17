@@ -1,0 +1,29 @@
+--- integration/0.7.4/metadata-native-36/inspect_packet.before-syntax-correction.py
++++ integration/0.7.4/metadata-native-36/inspect_packet.py
+@@ -30,16 +30,16 @@
+ assert actual['stages'][2]['stdout']=='true\n' and actual['stages'][2]['expected_exit']==0
+ assert not any(x.get('valgrind') for x in actual['stages'])
+ assert len(prior_assets)==len(assets)
+- for (oldpath,oldbytes),(newpath,newbytes) in zip(prior_assets,assets):
+-  assert oldpath==newpath
+-  if oldpath.endswith('/raw/metadata.vkf'):
+-   assert oldbytes.endswith(b'\ntrue\n') and newbytes==oldbytes[:-5]+b'::true\n'
+-   assert newbytes.count(b'::true\n')==1
+-  else:assert oldbytes==newbytes
+- oracle=a.read(PACKET/'exact-oracles.json')
+- raw=next(b for path,b in assets if path.endswith('/raw/metadata.vkf'))
+- assert [line.hex() for line in raw.splitlines(keepends=True) if b'?!' in line]==[x['hex'] for x in oracle['assertions']]
+- assert raw.rfind(b'::true\n')>max(raw.index(bytes.fromhex(x['hex'])) for x in oracle['assertions'])
++for (oldpath,oldbytes),(newpath,newbytes) in zip(prior_assets,assets):
++ assert oldpath==newpath
++ if oldpath.endswith('/raw/metadata.vkf'):
++  assert oldbytes.endswith(b'\ntrue\n') and newbytes==oldbytes[:-5]+b'::true\n'
++  assert newbytes.count(b'::true\n')==1
++ else:assert oldbytes==newbytes
++oracle=a.read(PACKET/'exact-oracles.json')
++raw=next(b for path,b in assets if path.endswith('/raw/metadata.vkf'))
++assert [line.hex() for line in raw.splitlines(keepends=True) if b'?!' in line]==[x['hex'] for x in oracle['assertions']]
++assert raw.rfind(b'::true\n')>max(raw.index(bytes.fromhex(x['hex'])) for x in oracle['assertions'])
+ for item in actual['symlinks']:
+  assert dict(path=str(pathlib.Path(item['target']).resolve()),sha256=item['sha256']) in a.controller_inputs(actual['inputs'])
+  assert pathlib.Path(item['path']).is_relative_to(pathlib.Path(actual['out'])/'home')
