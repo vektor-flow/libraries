@@ -1,0 +1,103 @@
+{
+  "utc": "2026-10-17T10:58:05.074920+00:00",
+  "records": [
+    {
+      "script": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-capability-repair-15/actual_drop.py",
+        "sha256": "1f2a61cad11b50a29ee5ecdcec48e76b92110adbcf2e870f080631fa968d788b"
+      },
+      "argv": [
+        "/usr/bin/python3.14",
+        "-I",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-capability-repair-15/actual_drop.py"
+      ],
+      "identity": {
+        "pid": 4142997,
+        "starttime": 74720502
+      },
+      "exit": 1,
+      "timed_out": false,
+      "seconds": 0.11421768693253398,
+      "waited": true,
+      "identity_after": null,
+      "peak_children_rss_kib": 33916
+    }
+  ],
+  "parent_before": {
+    "Uid": [
+      "1000",
+      "1000",
+      "1000",
+      "1000"
+    ],
+    "Gid": [
+      "1000",
+      "1000",
+      "1000",
+      "1000"
+    ],
+    "CapInh": [
+      "0000000800000000"
+    ],
+    "CapPrm": [
+      "0000000000000000"
+    ],
+    "CapEff": [
+      "0000000000000000"
+    ],
+    "CapBnd": [
+      "000001ffffffffff"
+    ],
+    "CapAmb": [
+      "0000000000000000"
+    ],
+    "NoNewPrivs": [
+      "0"
+    ]
+  },
+  "parent_after": {
+    "Uid": [
+      "1000",
+      "1000",
+      "1000",
+      "1000"
+    ],
+    "Gid": [
+      "1000",
+      "1000",
+      "1000",
+      "1000"
+    ],
+    "CapInh": [
+      "0000000800000000"
+    ],
+    "CapPrm": [
+      "0000000000000000"
+    ],
+    "CapEff": [
+      "0000000000000000"
+    ],
+    "CapBnd": [
+      "000001ffffffffff"
+    ],
+    "CapAmb": [
+      "0000000000000000"
+    ],
+    "NoNewPrivs": [
+      "0"
+    ]
+  },
+  "parent_unchanged": true,
+  "all_children_waited_and_absent": true,
+  "limits": {
+    "address_space_bytes": 536870912,
+    "cpu_seconds": {
+      "actual_drop.py": 10,
+      "test_repair.py": 15
+    },
+    "wall_seconds_per_child": 25,
+    "timeout_cleanup_seconds": 5
+  },
+  "passed": false
+}

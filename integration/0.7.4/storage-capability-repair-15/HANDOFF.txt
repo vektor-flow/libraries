@@ -1,0 +1,114 @@
+STORAGE CAPABILITY REPAIR15 — READY FOR ROOT SOURCE REVIEW; NOT INSTALLED
+2026-10-17. Worker 01a1497e-a963-7351-af5c-23c6a8cc1e5a
+Sole coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31
+
+RESULT
+Minimal two-file patch against authenticated installed v6. Controller adds ONE
+initialization call immediately before its unchanged strict origin policy gate.
+private_workload adds a bounded-shape, drop-only libc capset(v3,self,zero) helper,
+ordinary/sole-thread/ABI preconditions, strict after checks, and diagnostic
+snapshots before/after initialization plus before each origin/pre/post gate.
+No nonzero CapInh is accepted by a gate. No capability is granted. Unexpected
+P/E/A caps, IDs, NNP or origin label reject before any capset. Bounding set,
+IDs/groups and NNP0 remain unchanged, preserving existing namespace setup and
+AppArmor Px requirements. Strict pre/post validation and mount/storage/custody/
+resource/cleanup/join logic are preserved. SEMANTICS.txt gives exact reasoning.
+
+EXACT DELIVERABLES
+capability-drop-v6.patch
+  SHA256 d3bce0298f34f94a7390499923d4dd1186d9f466031ac67a884690f5d2e71267
+proposed/storage_controller.py
+  before 06a7c5bdbd93a6777173eab601f0883d5e3a69b7119d6568d4956db5eb370314
+  after  520b46cae1e9def10320eed9d435df64299f8f5cca1188e02e3887ca698e699c
+proposed/private_workload.py
+  before cf8d1c0b901bd424ea7a0afe45fd44f7c0443808ae0ee23b1f7287672a8c3046
+  after  d9c460205d3512f0ec17c08c4150ed539648753a3c942306987c5cd00958ccc0
+Patch --dry-run and actual application with --fuzz=0 both exit0, exclusively to
+two owned preimage copies in patch-verification/. Applied bytes equal proposed
+bytes exactly; AST parsing passed. patch-verification.json contains commands,
+outputs and pins. No config/install/recovery/admission proposal or edit.
+
+ABI / FAIL-CLOSED CONTRACT
+Only Linux x86_64 little-endian LP64 is supported; pointer/long8, int4, header8,
+data12, expected structure offsets checked. libc.capset has typed pointers and
+c_int result, errno captured. Header version0x20080522,pid0; TWO zero u32 triples
+(24 bytes) clear both halves, including observed bit35. No guessed syscall
+number, fallback, retry, prctl, credential change, bounding drop or NNP change.
+The caller must be the sole main thread, verified before the per-thread syscall.
+Read/parse failure, unsupported ABI, missing symbol, syscall error, no-op/partial
+drop or changed preserved fields fails before sandbox/Popen. Finally diagnostics
+include failed initialization's after observation and error. policy-gate records
+precede rejection too. Diagnostic passed=true denotes drop initialization only,
+never workload completion, join, recovery or environment qualification.
+
+TESTS — BOUNDED ORDINARY SUBPROCESSES ONLY
+Command: /usr/bin/python3 -B <output>/run_tests.py tests02
+Actual child4143405/start74722123: exit0,0.063969s,19,884KiB peak child RSS.
+Actual initial Inh0000000800000000; strict origin gate rejected it. Actual helper
+cleared Inh, independently strict gate then passed; idempotent second drop
+passed. P/E/A stayed0; Bnd000001ffffffffff, IDs1000, groups, NNP0, label,
+namespaces and cgroup unchanged. Parent retained its original inheritable bit.
+No capabilities were synthesized; no namespace/service/native workload launched.
+Mock/source child4143406/start74722129:29 tests PASS,0.164562s parent elapsed,
+0.047s unittest elapsed,39,184KiB peak. Includes inherited9 strict policy tests
+with adversarial subcases, ordinary IDs, nonzero sets, wrong NNP/labels/stack,
+missing/malformed/duplicate observations, I/O failures, ABI/errno/symbol failure,
+zero24-byte/self/v3 binding, partial/no-op drop, controller stop-before-launch,
+installed dependency checks and exact AST/source preservation.
+Limits per child:512MiB address space, CPU10s(actual)/15s(mock), wall25s,
+core0; timeout would kill only owned process group and wait within5s. No timeout,
+no grandchildren. Both waited, independently absent. All joins in tests02/.
+
+Initial tests01 child4142997/start74720502 also waited/absent. Helper/drop/gate
+succeeded; test then failed an overbroad comparison of volatile /proc/status
+accounting fields. Only that assertion was corrected to security fields/context.
+Production sources unchanged between runs. Initial raw stdout/stderr/result and
+hash-exact initial test source retained. preparation-notes.txt also records two
+read-only evidence packaging corrections; neither affected candidate or system.
+
+LIVE14 FAILURE / SEPARATE RECOVERY REQUIRED
+Read live14 HANDOFF, raw failure and root-capability-observation. Actual exited
+service mask is UNKNOWN; traceback establishes nonzero CapInh, not its bitmask.
+Current ordinary host/test subprocess observation is the bit35 mask above.
+Live14 failed after attach_service but before sandbox/Popen/wait_owned/
+finish_service. Thus no inner_result; service exited1 instead of intentional199.
+outer sealed failure and returned125. verify_join requires authenticated inner
+finish AND terminal199. active_rows retains unrecovered rows without join.
+F:live14-f-success-01 therefore remains running,3GiB RAM intent and4MiB permanent
+charge retained. Empty/absent processes alone cannot release it. Existing recovery
+is exact to historical live04 pre-attach failure; it does not cover this row.
+Root was explicitly notified of separate recovery need in the initial acknowledged
+memory/overlap message. No recovery, admission, join fabrication or state change.
+Future pre-result exceptions still fail closed and retain intent under this patch.
+
+PRESERVATION / RESOURCE SEAL
+Initial source HEADb1aaaec; root announced disjoint49cf4fc and4facd9e integration.
+Final HEAD4facd9e4d3414d69db079b5b1b29460855a61904. No unrelated review/edit.
+All seven installed v6 files reauthenticated unchanged; policy/binary hashes,
+absent includes and restriction check passed. Actual loaded policy equivalence
+was not recompiled/rechecked; prior receipts remain historical evidence.
+Final v4 ledger equals live14 full state. Owner pin retained in final seal.
+MemAvailable19,381,903,360 bytes (~18.051GiB); active worker/legacy/offload service
+listing empty; A/F cgroups populated0 and no PIDs. Own operational jobs0.
+A high3GiB/hard8GiB, F high/hard3GiB, swap0, lane pids160 unchanged.
+Dispatcher service/timer/path inactive; exact runtime mask symlink -> /dev/null
+verified (cached UnitFileState=static is not used as mask proof).
+All writes only this output; ordinary-user ownership. No agents, commits, sudo,
+operational execution, installed source/config/policy mutation, host-manager
+change or capability/budget reset. D267/D289 remain excluded. Adds0 operational
+attempts/bytes; original inclusive4/16attempts,16MiB/64MiB retained,12/48MiB
+remaining arithmetic only. F19,800,301,568; A18,778,218,496 cumulative bytes.
+
+ROOT LIMITS / DELIVERY
+Review source and exact syscall/diagnostic behavior. Preserve installed v6 bytes:
+live14's historical authority pins them. Any immutable successor deployment,
+config/authority binding, recovery or qualification requires separate root work;
+none is implemented or authorized by this handoff. No namespace/AppArmor/service
+transition has been tested here. Live14 remains FAILED/UNQUALIFIED; no native,
+compiler or successful storage-phase credit. Bounded actual drop is the only
+new live capability evidence.
+sourcepins.json, reviewed-input-pins.json, patch-verification.json, tests01/,
+tests02/, final-readonly-seal.json, all-owned-joins.json and output-pins.json
+provide exact evidence. One DONE ID/result/path via existing app-server client
+follows; notification-result records acknowledgement/ambiguity without retry.
+Then stop; no successor tasks in this chat.

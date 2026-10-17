@@ -1,0 +1,15 @@
+All issues below were in owned tests/evidence packaging, never installed source.
+1. tests01 actual drop succeeded and strict origin accepted zero capabilities.
+   Its idempotence assertion wrongly compared all /proc/status fields including
+   changing memory/accounting counters. Corrected only the test to compare IDs,
+   groups, Threads, capabilities, NNP, label and context/namespaces. tests02 passed.
+   No production change between tests01 and tests02. Both children joined.
+2. Initial input-pin packaging assumed an on-disk project AGENTS.md, but this
+   project's instructions were supplied in the prompt. The identical actual
+   ancestor is /home/viktor/Projects/AGENTS.md (already read before work). Fixed
+   evidence pin path; source patch/application verification had already passed.
+3. Initial read-only final seal queried the system manager for dispatcher holds.
+   Corrected to existing --user hold check and exact runtime-mask symlink, as
+   live14 uses. User manager's cached UnitFileState=static is not mask evidence;
+   /run/user/1000/systemd/user/vkf-s0-synchronized-contexts.service -> /dev/null
+   and inactive service/timer/path were freshly checked. No manager mutation.

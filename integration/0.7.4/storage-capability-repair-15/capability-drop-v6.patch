@@ -1,0 +1,151 @@
+--- a/storage_controller.py
++++ b/storage_controller.py
+@@ -497,6 +497,7 @@
+         context = private_workload.context()
+         expected_cgroup = self.config['lane_cgroups'][self.g['worker']]+'/vkfworkers-'+self.g['worker'].lower()+'-'+self.g['attempt']+'.service'
+         require(context['cgroup'] == expected_cgroup, 'private wrapper service cgroup')
++        private_workload.initialize_origin_capabilities(context)
+         private_workload.policy_gate('origin', context)
+         argv = sandbox(self.m, context)
+         env = {**os.environ, 'PATH':'/home/viktor/.local/bin:'+os.environ['PATH'],
+--- a/private_workload.py
++++ b/private_workload.py
+@@ -37,21 +37,131 @@
+     require('security.capability' not in os.listxattr(path), 'file capabilities forbidden')
+ 
+ 
++def _security_snapshot():
++    """Best-effort diagnostic only; any read/parse error is a hard gate failure."""
++    result = dict(status={}, label=None, errors=[])
++    try:
++        raw = Path('/proc/self/status').read_text()
++        for line in raw.splitlines():
++            k, _, v = line.partition(':')
++            require(k not in result['status'], 'duplicate status field')
++            result['status'][k] = v.split()
++    except Exception as error:
++        result['errors'].append(type(error).__name__+': '+str(error))
++    try:
++        result['label'] = Path('/proc/self/attr/current').read_text().strip()
++    except Exception as error:
++        result['errors'].append(type(error).__name__+': '+str(error))
++    return result
++
++
++def _security_diagnostic(kind, observation, **details):
++    fields = ('Uid','Gid','Groups','Threads','CapInh','CapPrm','CapEff',
++              'CapAmb','CapBnd','NoNewPrivs')
++    print(json.dumps(dict(private_workload_security=kind,
++        status={k:observation['status'].get(k) for k in fields},
++        label=observation['label'], observation_errors=observation['errors'],
++        **details)), flush=True)
++
++
++def _drop_capabilities():
++    """Linux x86-64 LP64 libc capset(v3, pid=0): two ZERO u32 triples.
++
++    No syscall-number fallback, cap grants, prctl, credential or bounding-set
++    mutation. capset changes only the calling thread; the caller checks that
++    it is the sole thread. Clearing I/P also clears any ambient intersection.
++    """
++    import ctypes
++    require(sys.platform == 'linux' and os.uname().machine == 'x86_64'
++            and sys.byteorder == 'little' and ctypes.sizeof(ctypes.c_void_p) == 8
++            and ctypes.sizeof(ctypes.c_long) == 8 and ctypes.sizeof(ctypes.c_int) == 4,
++            'unsupported capability ABI (Linux x86-64 LP64 required)')
++
++    class Header(ctypes.Structure):
++        _fields_ = [('version', ctypes.c_uint32), ('pid', ctypes.c_int32)]
++
++    class Data(ctypes.Structure):
++        _fields_ = [('effective', ctypes.c_uint32), ('permitted', ctypes.c_uint32),
++                   ('inheritable', ctypes.c_uint32)]
++
++    require(ctypes.sizeof(Header) == 8 and Header.pid.offset == 4
++            and ctypes.sizeof(Data) == 12 and Data.permitted.offset == 4
++            and Data.inheritable.offset == 8, 'capset structure ABI')
++    libc = ctypes.CDLL(None, use_errno=True)
++    capset = libc.capset  # Missing symbol is fatal; never try another ABI.
++    capset.argtypes = [ctypes.POINTER(Header), ctypes.POINTER(Data)]
++    capset.restype = ctypes.c_int
++    header = Header(0x20080522, 0)  # _LINUX_CAPABILITY_VERSION_3, current thread.
++    data = (Data * 2)()  # Exactly 24 zero bytes, including bits 32..63.
++    ctypes.set_errno(0)
++    rc = capset(ctypes.byref(header), data)
++    if rc != 0:
++        err = ctypes.get_errno()
++        raise OSError(err, 'capset(v3, self, zero) failed: '+os.strerror(err))
++
++
++def initialize_origin_capabilities(origin):
++    """Drop inherited bits once, before the independent strict origin gate.
++
++    Unexpected active caps/IDs/NNP/label are rejected, not normalized. Leave
++    CapBnd intact for namespace setup and NNP=0 for the required Px transitions.
++    Diagnostics are observations, never completion/join or recovery authority.
++    """
++    before = _security_snapshot()
++    _security_diagnostic('origin-capability-drop-before', before)
++    after = None
++    error = None
++    try:
++        require(not before['errors'], 'capability observation failed')
++        status = before['status']
++        for k, value in (('Uid',origin['uid']), ('Gid',origin['gid'])):
++            require(value != 0 and status.get(k) == [str(value)]*4,
++                    'ordinary real/effective/saved/fs identity before capability drop')
++        require(status.get('Threads') == ['1']
++                and os.readlink('/proc/thread-self') == f'{os.getpid()}/task/{os.getpid()}',
++                'capability drop requires sole main thread')
++        require(status.get('NoNewPrivs') == ['0'] and before['label'] == 'unconfined',
++                'unexpected origin NNP/policy before capability drop')
++        require('Groups' in status, 'missing supplementary groups')
++        for k in ('CapInh','CapPrm','CapEff','CapAmb','CapBnd'):
++            require(len(status.get(k, [])) == 1 and len(status[k][0]) == 16
++                    and all(c in '0123456789abcdef' for c in status[k][0]),
++                    'invalid capability field '+k)
++        for k in ('CapPrm','CapEff','CapAmb'):
++            require(int(status[k][0], 16) == 0, 'unexpected active '+k+' before drop')
++        _drop_capabilities()
++        after = _security_snapshot()
++        require(not after['errors'], 'post-drop capability observation failed')
++        for k in ('Uid','Gid','Groups','Threads','CapBnd','NoNewPrivs'):
++            require(after['status'].get(k) == status[k], 'capability drop changed '+k)
++        require(after['label'] == before['label'], 'capability drop changed policy')
++        for k in ('CapInh','CapPrm','CapEff','CapAmb'):
++            require(after['status'].get(k) == ['0000000000000000'],
++                    'nonzero/missing '+k+' after capability drop')
++    except BaseException as exc:
++        error = type(exc).__name__+': '+str(exc)
++        raise
++    finally:
++        if after is None:
++            after = _security_snapshot()
++        _security_diagnostic('origin-capability-drop-after', after,
++                             passed=error is None, error=error)
++
++
+ def policy_gate(stage, origin):
+     """Observation only; never changes credentials, policy, or namespaces."""
+-    raw = Path('/proc/self/status').read_text()
+-    status = {}
+-    for line in raw.splitlines():
+-        k, _, v = line.partition(':')
+-        require(k not in status, 'duplicate status field')
+-        status[k] = v.split()
++    observation = _security_snapshot()
++    # Emit even when a strict identity/capability/NNP/label check below rejects.
++    _security_diagnostic('policy-gate', observation, stage=stage)
++    require(not observation['errors'], 'policy observation failed')
++    status = observation['status']
+     for k, value in (('Uid',origin['uid']),('Gid',origin['gid'])):
+         require(value != 0 and status.get(k) == [str(value)]*4, 'ordinary real/effective/saved/fs identity')
+     for k in ('CapInh','CapPrm','CapEff','CapAmb') + (('CapBnd',) if stage == 'post' else ()):
+         require(len(status.get(k, [])) == 1 and int(status[k][0],16) == 0, 'nonzero '+k)
+     require(stage in ('origin','pre','post'), 'policy stage')
+     require(status.get('NoNewPrivs') == ['1' if stage == 'post' else '0'], 'unexpected NoNewPrivs')
+-    label = Path('/proc/self/attr/current').read_text().strip()
++    label = observation['label']
+     if stage == 'origin':
+         require(label == 'unconfined', 'origin policy changed')
+     elif stage == 'pre':

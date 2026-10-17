@@ -1,0 +1,47 @@
+{
+  "patch": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-capability-repair-15/capability-drop-v6.patch",
+    "sha256": "d3bce0298f34f94a7390499923d4dd1186d9f466031ac67a884690f5d2e71267"
+  },
+  "commands": [
+    {
+      "argv": [
+        "patch",
+        "--dry-run",
+        "--batch",
+        "--fuzz=0",
+        "-p1",
+        "-i",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-capability-repair-15/capability-drop-v6.patch"
+      ],
+      "exit": 0,
+      "stdout": "checking file storage_controller.py\nchecking file private_workload.py\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "patch",
+        "--batch",
+        "--fuzz=0",
+        "-p1",
+        "-i",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-capability-repair-15/capability-drop-v6.patch"
+      ],
+      "exit": 0,
+      "stdout": "patching file storage_controller.py\npatching file private_workload.py\n",
+      "stderr": ""
+    }
+  ],
+  "postimages": [
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-capability-repair-15/proposed/storage_controller.py",
+      "sha256": "520b46cae1e9def10320eed9d435df64299f8f5cca1188e02e3887ca698e699c"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-capability-repair-15/proposed/private_workload.py",
+      "sha256": "d9c460205d3512f0ec17c08c4150ed539648753a3c942306987c5cd00958ccc0"
+    }
+  ],
+  "exact": true,
+  "installed_mutation": false
+}

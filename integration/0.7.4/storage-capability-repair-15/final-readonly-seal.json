@@ -1,0 +1,99 @@
+{
+  "utc": "2026-10-17T11:00:25.036176+00:00",
+  "head": "4facd9e4d3414d69db079b5b1b29460855a61904",
+  "MemAvailable": 19381903360,
+  "commands": [
+    {
+      "argv": [
+        "systemctl",
+        "--user",
+        "list-units",
+        "--state=running,activating,deactivating",
+        "--plain",
+        "--no-legend",
+        "vkfworkers-*.service",
+        "vkfs0-*.service",
+        "*offload*.service"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "systemctl",
+        "--user",
+        "show",
+        "vkf-s0-synchronized-contexts.service",
+        "-p",
+        "ActiveState,SubState,UnitFileState"
+      ],
+      "exit": 0,
+      "stdout": "ActiveState=inactive\nSubState=dead\nUnitFileState=static\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "systemctl",
+        "--user",
+        "show",
+        "vkf-s0-synchronized-contexts.timer",
+        "-p",
+        "ActiveState,SubState,UnitFileState"
+      ],
+      "exit": 0,
+      "stdout": "ActiveState=inactive\nSubState=dead\nUnitFileState=enabled\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "systemctl",
+        "--user",
+        "show",
+        "vkf-s0-worker-done.path",
+        "-p",
+        "ActiveState,SubState,UnitFileState"
+      ],
+      "exit": 0,
+      "stdout": "ActiveState=inactive\nSubState=dead\nUnitFileState=enabled\n",
+      "stderr": ""
+    }
+  ],
+  "cgroups": {
+    "F": {
+      "cgroup.events": "populated 0\nfrozen 0",
+      "cgroup.procs": "",
+      "memory.max": "3221225472",
+      "memory.high": "3221225472",
+      "memory.swap.max": "0",
+      "pids.max": "160"
+    },
+    "A": {
+      "cgroup.events": "populated 0\nfrozen 0",
+      "cgroup.procs": "",
+      "memory.max": "8589934592",
+      "memory.high": "3221225472",
+      "memory.swap.max": "0",
+      "pids.max": "160"
+    }
+  },
+  "state_pin": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/direct-state-v4.json",
+    "sha256": "e72158a4bf1a7d7aec559414fc9944ef04424324a02d9a217b1b9bb13c1edbd1"
+  },
+  "state_equals_live14": true,
+  "owner_pin": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v4/owners-v4.json",
+    "sha256": "0a337164dcdf4697071ec31af126e316caf323126dc75d2cedada591824643e6"
+  },
+  "live14": {
+    "stage": "running",
+    "ram_intent_retained": 3221225472,
+    "disk_charge_retained": 4194304,
+    "normal_join": false,
+    "recovery_performed": false
+  },
+  "installed_pins_unchanged": true,
+  "policy_and_binary_pins_unchanged": true,
+  "own_operational_jobs": 0
+}

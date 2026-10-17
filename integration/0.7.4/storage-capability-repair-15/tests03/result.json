@@ -1,0 +1,125 @@
+{
+  "utc": "2026-10-17T11:03:06.223660+00:00",
+  "records": [
+    {
+      "script": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-capability-repair-15/actual_drop.py",
+        "sha256": "308b5adaad4a47943ac09df70c972f0cdb0eb854b64cd64beeaa9a3578c3e7b3"
+      },
+      "argv": [
+        "/usr/bin/python3.14",
+        "-I",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-capability-repair-15/actual_drop.py"
+      ],
+      "identity": {
+        "pid": 4149602,
+        "starttime": 74750606
+      },
+      "exit": 0,
+      "timed_out": false,
+      "seconds": 0.06419395096600056,
+      "waited": true,
+      "identity_after": null,
+      "peak_children_rss_kib": 19940
+    },
+    {
+      "script": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-capability-repair-15/test_repair.py",
+        "sha256": "020e57d644193276feea7c1b31cba841ce57cd8b84004789f2e5318785f4b52c"
+      },
+      "argv": [
+        "/usr/bin/python3.14",
+        "-I",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-capability-repair-15/test_repair.py"
+      ],
+      "identity": {
+        "pid": 4149603,
+        "starttime": 74750612
+      },
+      "exit": 0,
+      "timed_out": false,
+      "seconds": 0.16442556597758085,
+      "waited": true,
+      "identity_after": null,
+      "peak_children_rss_kib": 39152
+    }
+  ],
+  "parent_before": {
+    "Uid": [
+      "1000",
+      "1000",
+      "1000",
+      "1000"
+    ],
+    "Gid": [
+      "1000",
+      "1000",
+      "1000",
+      "1000"
+    ],
+    "CapInh": [
+      "0000000800000000"
+    ],
+    "CapPrm": [
+      "0000000000000000"
+    ],
+    "CapEff": [
+      "0000000000000000"
+    ],
+    "CapBnd": [
+      "000001ffffffffff"
+    ],
+    "CapAmb": [
+      "0000000000000000"
+    ],
+    "NoNewPrivs": [
+      "0"
+    ]
+  },
+  "parent_after": {
+    "Uid": [
+      "1000",
+      "1000",
+      "1000",
+      "1000"
+    ],
+    "Gid": [
+      "1000",
+      "1000",
+      "1000",
+      "1000"
+    ],
+    "CapInh": [
+      "0000000800000000"
+    ],
+    "CapPrm": [
+      "0000000000000000"
+    ],
+    "CapEff": [
+      "0000000000000000"
+    ],
+    "CapBnd": [
+      "000001ffffffffff"
+    ],
+    "CapAmb": [
+      "0000000000000000"
+    ],
+    "NoNewPrivs": [
+      "0"
+    ]
+  },
+  "parent_unchanged": true,
+  "all_children_waited_and_absent": true,
+  "limits": {
+    "address_space_bytes": 536870912,
+    "cpu_seconds": {
+      "actual_drop.py": 10,
+      "test_repair.py": 15
+    },
+    "wall_seconds_per_child": 25,
+    "timeout_cleanup_seconds": 5
+  },
+  "passed": true
+}

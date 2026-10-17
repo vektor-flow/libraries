@@ -1,0 +1,92 @@
+CAPABILITY DROP REPAIR15 — SOURCE REVIEW, NOT DEPLOYMENT
+
+The only controller change is one initialize_origin_capabilities(context) call
+immediately before the existing policy_gate('origin', context). It follows
+current authority validation, attach_service, subreaper setup and expected
+service-cgroup validation; it precedes sandbox construction, service guard and
+Popen. Those existing methods and all cleanup/join/admission logic are unchanged.
+
+The helper first observes and prints IDs, supplementary groups, thread count,
+Inh/Prm/Eff/Amb/Bnd, NNP and AppArmor label. Read/parse errors are recorded and
+rejected. Only the inheritable set may be nonzero at initialization. All four
+UID/GID slots must match the ordinary origin ID; permitted/effective/ambient
+must already be zero, label must be unconfined, NNP must be zero. This does not
+normalize a privileged origin into an accepted one. Sole-main-thread checks
+matter because Linux capabilities are per thread: /proc/self/status Threads=1
+and /proc/thread-self must identify the process leader. No thread is created.
+
+Exact ABI: Linux, x86_64, little endian, LP64 (pointer/long8, int4). All others,
+including x32/i386/aarch64, fail before a capability syscall. ctypes calls the
+process libc's capset symbol with use_errno=True, result c_int and typed header/
+data pointers. Header is {u32 version=0x20080522, s32 pid=0}, size8, pid offset4.
+Data is TWO {u32 effective, u32 permitted, u32 inheritable} structures, each12
+bytes, offsets0/4/8: exactly24 ZERO bytes. The second triple is essential to
+clear the observed high-half bit35 (0x0000000800000000). pid0 targets only the
+calling thread. There is no raw syscall-number guess, alternate ABI, retry,
+libcap executable, external helper, cap raise or privileged process.
+
+Linux's capset validates the requested P/E/I sets against current authority.
+All-zero sets are subsets; the implementation intersects ambient with new P/I.
+It does not write bounding capabilities, IDs, NNP or namespaces. This candidate
+additionally checks all four resulting sets are exactly zero and Bnd, four IDs,
+supplementary groups, Threads, NNP and label unchanged. Any syscall error raises
+OSError with captured errno; missing libc symbol or wrong ABI also aborts. No
+unsupported-kernel fallback exists. Read errors, no-op or partial drop cannot
+be mistaken for success. No prctl capability/NNP/securebit mutation is used.
+
+Source references reviewed, supplementary to installed header and actual test:
+https://github.com/torvalds/linux/blob/v6.17/include/uapi/linux/capability.h
+  _LINUX_CAPABILITY_VERSION_3, U32S_3, fixed-width UAPI structures.
+https://github.com/torvalds/linux/blob/v6.17/kernel/capability.c
+  cap_validate_magic and SYSCALL_DEFINE2(capset): v3 two-word input, current pid,
+  security hook and credential commit/error handling.
+https://github.com/torvalds/linux/blob/v6.17/security/commoncap.c
+  cap_capset: subset checks, assignment of P/E/I, ambient intersection.
+These upstream references describe the ABI; they are not a claim that this
+host runs that upstream revision. Installed /usr/include/linux/capability.h is
+pinned; the actual helper was tested on the host's ordinary x86_64 subprocess.
+
+Preserving CapBnd is deliberate: setup still needs its reviewed namespace path.
+Preserving NNP0 is deliberate: dedicated unshare -> pre Python -> bwrap relies
+on the exact AppArmor Px transitions. The candidate never clears NNP or changes
+AppArmor. The original origin gate independently rejects any nonzero Inh/P/E/A.
+The original pre gate independently enforces zero Inh/P/E/A, NNP0 and exact
+vkf-storage-pre-v1 enforce label. The original post gate independently enforces
+zero Inh/P/E/A/Bnd, NNP1 and exactly bwrap plus unpriv_bwrap enforce stack.
+Every strict validation statement is AST-identical; only observation plumbing
+changes. Existing dependency, absent-include, identity, namespace, private-mount,
+effective-storage, argv, custody/resource and join gates are untouched.
+
+Diagnostics: origin-capability-drop-before precedes the syscall; a finally
+block emits origin-capability-drop-after with actual after observation, error
+and passed flag even when initialization rejects. policy-gate observations are
+emitted before strict checks for origin/pre/post, including on rejected checks.
+A drop-after passed=true means only initialization succeeded; it is not a gate,
+workload, join or qualification result. Normal stdout transport retains these
+records even before payload stdout/stderr files exist. Broken stdout cannot be
+guaranteed to retain evidence and raises instead of proceeding. No authenticated
+inner_result is manufactured from a diagnostic.
+
+RECOVERY IS SEPARATE
+Live14 attached its service, setting stage=running. Its origin CapInh exception
+occurred before Popen/wait_owned and finish_service. Thus no inner_result or
+inner_finished transition exists. main did not reach its deliberate199 return;
+the service exited1. outer sealed controller-failure.json and returned125.
+Normal verify_join requires BOTH authenticated inner_result AND terminal199,
+so an empty cgroup/absent PID alone cannot release this intent. active_rows
+counts every unrecovered row without a join, including this running row.
+Existing terminal_recovery is bound to historical live04 pre-attach identity,
+not live14 attached-service failure. Do not reuse it, forge an inner_result,
+change exit199 acceptance, mark a join, rotate an outstanding owner, or release
+RAM based on the diagnostic. Root received the separate recovery requirement.
+No recovery/admission change is proposed. Future setup exceptions still retain
+intent through the existing fail-closed path; this patch is not crash recovery.
+
+ADOPTION LIMIT
+The patch is against exact installed v6. Live14 pins that historical bundle;
+root must preserve those installed bytes when arranging any separately approved
+immutable successor bundle/authority bindings. This task supplies no config,
+installer, policy, owner, grant or state edit. Correct helper execution alone
+qualifies no service/namespace transition: all six live14 qualification cases
+remain unqualified/unrun beyond the failed first case. No launch is authorized
+by these source files. D267/D289 stay excluded, dispatcher held, budgets intact.
