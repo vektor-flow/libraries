@@ -1,0 +1,211 @@
+AUDIT21 — REMAINING V8 GATES, SOURCE-ONLY COUNTEREXAMPLES
+2026-10-17. Worker01a149ab-4aec-72c3-9f1c-406b345266a4.
+No implementation, namespace/probe/service/native/compiler/load or permission change.
+
+EVIDENCE BASIS
+Granted HEAD1b76a245; observed5a2edfee adds live19 evidence only (81 files).
+No repository-local AGENTS.md; inherited project instructions apply. Initial shared
+HANDOVER is historical. Dated scoped sequence is repair08 unresolved-access limit,
+live09 propagation rejection, repair10 private tree, repair11 policy, repair18 v2/v8
+installation receipts, then live19 actual failure. Current source/config authority
+is installed v8, not earlier preparation candidates. source-verification.json
+records exact eight installed files, binary/policy pins and nine predecessor
+source/document pins checked; input-pins.json has63 entries. dpkg-query reports
+util-linux2.41.3-3ubuntu2.2 and bubblewrap0.11.1-1ubuntu0.3, matching the pinned
+Ubuntu applied-package source retrieved by repair10. Dedicated unshare hash is
+41c65e55107cbbb1a1f6994784a938dd7dbbe255d1fea6b7a58ec96eabe382ef;
+bwrap hash523da3e7399044be5163aee6f57a77a6bef7454376e28f0a0627920bae1b76b6.
+
+Abbreviations below:
+PW = installed storage-direct-v8/private_workload.py
+ES = installed storage-direct-v8/effective_storage.py
+SC = installed storage-direct-v8/storage_controller.py
+BW = integration/0.7.4/storage-propagation-repair-10/sources/ubuntu-bubblewrap.c
+BM = same directory/ubuntu-bind-mount.c
+US = same directory/ubuntu-unshare.c
+Fixture = integration/0.7.4/storage-mount-repair-08/fixture.py
+
+ACTUAL LIVE19 — DO NOT EXTEND THIS INTO A POST OBSERVATION
+raw-stderr proves PW226 -> verify_dependencies184 -> trusted_system_file33-34
+rejected dedicated unshare. Host lstat later showed root-owned0755 ordinary file.
+The namespace lstat values were not emitted. No pre policy diagnostic, mount
+snapshot, post report or fixture output exists. Mapping explains a source-level
+counterexample, not an observed UID value. Repair20 owns that implementation.
+
+A21-1: FINAL SELF MAP IS NOT PRE MAP; NONUSER OWNER IS INTERMEDIATE
+Severity: critical compatibility constraint for repair20's added trust proof.
+Current v8 checks maps only at pre, so this is NOT a newly observed v8 rejection.
+
+PW206-213 specifies --dev /dev and non-setuid bwrap --unshare-user, without custom
+--uid/--gid, --userns, --userns2 or --disable-userns. Exact source trace:
+* US966-970 selects current IDs. US1104 creates user+mount namespaces;
+  US1213-1232 writes single-ID maps, denies setgroups, makes mounts private;
+  US1288 execs Python. With host UID/GID1000, U1 self maps1000 1000 1.
+* BW3031-3034 defaults sandbox IDs to real IDs. BW3076-3102 selects user/mount/
+  pid/net clone flags but not CLONE_NEWCGROUP; BW3134 executes raw_clone.
+* BW2147 sets opt_needs_devpts for --dev. BW3291-3305 uses UID/GID0 for initial
+  unprivileged setup, writing0 1000 1 into intermediate U2. This maps the same
+  host user, not host root. No mapping for unrelated host UID0 is introduced.
+* BW3456-3495 creates U3 because ns_uid0 differs from requested1000, drops
+  bounding caps again, writes1000 0 1 into final U3. U3 self gid_map is analogous.
+* mnt/pid/net were created alongside U2; they remain owned by U2 when the task
+  enters U3. Requiring their owner to equal final U3 would reject this exact
+  chain. Pre U1 owns its new mnt only; pre pid/net remain origin namespaces.
+* BW3508 -> BW949,953-955 drops capabilities and sets dumpable1 before final
+  fork/exec. Uid/Gid observed by final helper remain1000 in all four fields.
+  setgroups denial inherits; no supplementary-group clearing is performed here.
+
+Concrete regression suggestions, no test executed:
+Model H -> U1(1000:1000:1) -> U2(0:1000:1) -> U3(1000:0:1), with U2 owning
+mnt/pid/net. Accept only the authenticated exact composition; reject swapped
+owners, missing intermediate, extra mappings, different outer owner or root
+payload ID. Preserve pre exact map and final ordinary IDs/caps/labels/NNP.
+Do not turn overflow UID into a trusted owner or into mapping authority.
+
+A21-2: MAP RENDERING DEPENDS ON THE OBSERVER; CHILD ANCESTOR IOCTLS FAIL
+Severity: critical compatibility constraint for repair20 outside observation.
+The same U3 uid_map renders1000 0 1 to self, but1000 1000 1 to H. Likewise
+U2 renders0 1000 1 to H. A host-read map is not a parent-relative map unless the
+observer context establishes that relationship. Do not compare raw host/self
+maps for equality or expect host final map1000 0 1.
+
+Linux user_namespaces(7), User and group ID mappings, describes different-
+namespace readers mapping into the opener's namespace and same-namespace readers
+mapping into the target's parent. Locally retained upstream-v7 user_namespace.c
+uid_m_show/gid_m_show implements seq_user_ns(seq), selecting ns->parent only
+when reader namespace equals target. This reference is NOT exact Ubuntu source.
+Primary documentation: https://man7.org/linux/man-pages/man7/user_namespaces.7.html
+
+NS_GET_PARENT(U3) and NS_GET_USERNS(U3's mnt/pid/net) request an ancestor U2 from
+inside U3, outside that caller's namespace scope. EPERM is documented behavior;
+pre U1 cannot traverse to its parent H either. An EPERM result is not lineage
+proof. An outside observer must authenticate PID/starttime/cgroup/readiness and
+namespace identities, then collect the needed relationship from its permitted
+scope; no child-side permission gain, setns or unchecked fallback is suggested.
+Primary documentation: https://man7.org/linux/man-pages/man2/NS_GET_USERNS.2const.html
+
+Regression: distinguish the two readers' valid renderings, reject incorrect
+composition even if all self UIDs equal1000. Inject EPERM/ENOENT/raced PID,
+unknown namespace identity and missing readiness; require rejection and no
+payload release. No ancestor-introspection failure may count as a passing proof.
+
+A21-3: STILL-VISIBLE INACCESSIBLE /run MOUNTS PREDICT POST REJECTION
+Severity: concrete remaining post-gate blocker if current tree persists.
+This is a prediction from actual host topology/metadata plus exact source, not
+live19 post evidence. repair08 HANDOFF already records this unresolved limit.
+
+host-topology-readonly.json records29 selected current host mount rows and bounded
+ancestor lstat metadata. /run/user/60578 is owned60578:975 mode0700 with a nested
+/run/user/60578/doc fuse.portal mount. /run/docker is0:0 mode0700; the direct
+host lstat of /run/docker/netns returned EACCES. Netns mounts remain listed below
+that directory. /var/lib/docker is0:0 mode0710; this is additional context, not
+needed to establish the two /run counterexamples. Historical live09 mountinfo
+rows49-65 shows these inherited /run mounts too, but live09 failed propagation
+before resolving them. Namespace mount IDs/inodes/flags for a new attempt are
+not inferred from host IDs or the old run.
+
+PW206-210 recursively ro-binds /, replaces /dev and /proc, and binds the attempt.
+It has no cover for those /run trees. Making the tree private prevents incoming
+propagation; it does not remove inherited mounts or grant directory search.
+U1/U2/U3 map only host1000. Host root and60578 are unmapped; their0700 directories
+are not searchable by final host identity1000. Capability denial stays strict.
+BM465-484 recursively remounts submounts but deliberately tolerates EACCES.
+Therefore bwrap setup success does not imply every listed path is inspectable.
+ES154-188 enumerates mountpoints, resolves ancestor covers, then resolves each
+visible mount. ES159-161 wraps EACCES as Rejected. open_path102-115 uses O_PATH
+component walks: O_PATH avoids requiring read permission on the final object,
+but still needs search on intermediate directories. A0700 final mountpoint can
+be observed; a child beneath it cannot. Readonly filesystem flags do not alter
+that permission rule. No proven overmount hides these two trees in current argv.
+Thus the strict post ES.check is predicted to reject before Fixture executes.
+Exact first rejected path/order is not asserted; other earlier gates remain
+unqualified. Masking proposal22 is separately assigned; no topology patch here.
+
+Minimal regression suggestion:
+Use existing injected ES.inspect callback, private mountinfo with ro /, rw
+/attempt, ro /run/user/60578 and inherited rw /run/user/60578/doc, no cover.
+Return consistent observations for parent mounts and raise EACCES only at doc.
+Expected: Rejected(unresolved mount path), no payload exec. Preserve existing
+errors_are_unknown_not_safe and hidden-cover tests. Separately test proposal22's
+actual visible cover identities, not name/fstype acceptance. Never skip EACCES,
+accept overflow ownership, chmod ancestors, or call this a safe rw mount.
+
+A21-4: HOST OBSERVER FOLLOW-UP — NO ESTABLISHED BLANKET ACCESS DENIAL
+Specific question from repair20: host same-UID controller reading final
+/proc/PID/{root,ns/*,uid_map} after dumpable1 and before helper release.
+No exact installed-source evidence establishing an inevitable denial was found.
+This is conditional source compatibility, not successful observation evidence.
+
+BW3508 calls drop_privs(!is_privileged,true,true); BW949 drops caps and BW953-955
+sets PR_SET_DUMPABLE1. BW3558-3590 then forks PID1 supervisor and final child;
+only supervisors close extraneous FDs (BW512-521 and3574-3587). The final command
+inherits unconsumed FDs; close-on-exec and controller pass_fds still matter.
+SC513 currently uses Popen default close_fds; a new pipe design must explicitly
+pass only its intended endpoints. This is a regression requirement, not a patch.
+
+Pinned pre-v2 profile39 explicitly permits ptrace(readby) from unconfined.
+Both components of final bwrap//&unpriv_bwrap permit ptrace (installed policy25,64).
+The capability deny on the target is not a ban on the unconfined host's reads.
+
+Upstream-v7 fs/proc/namespaces.c58,83 checks PTRACE_MODE_READ_FSCREDS for namespace
+links. Upstream-v7 fs/proc/base.c proc_pid_get_link/proc_fd_access_allowed applies
+the analogous check to root; proc_id_map_open/uid_map operations are distinct.
+The ptrace(2) commoncap rule requires target-userns CAP_SYS_PTRACE for a reader
+in a different userns; same host UID plus dumpable1 alone is not a general proof.
+Here H's authenticated EUID1000 is the creator/owner of U1, giving capability
+authority over descendant user namespaces by the documented ownership rule.
+This does not require changing the controller's effective mask or target guards.
+Yama's documented additional restrictions concern ATTACH/TRACEME; namespace/
+root links use READ_FSCREDS. Observed host ptrace_scope1, suid_dumpable2, proc
+mount rw,nosuid,nodev,noexec,relatime; these are metadata, not probe outcomes.
+Primary documentation: https://man7.org/linux/man-pages/man2/ptrace.2.html
+
+The retained repair18 upstream linux-exec.c1205-1215 does not equate AppArmor
+secureexec alone to nondumpable: its test is ENFORCE_NONDUMP or differing
+real/effective UID/GID. Do not claim an automatic dumpability failure merely
+because pre uses Px. Actual Ubuntu kernel/LSM behavior remains a live boundary.
+Existing kernel reference files and new upstream-reference-pins.json explicitly
+identify explanatory upstream v7.0, not exact Ubuntu7.0.0-38.38. Three HTTP429
+retrieval failures retained; no local file is claimed for those failed downloads.
+
+Regression: observe only after final helper readiness, not bwrap's transient
+U2/setup PID. Bind host PID/starttime, service cgroup, executable and stage; reject
+wrong monitor/PID1, PID reuse, identity drift, missing/closed pipe, unexpected
+FD inheritance, observation error or premature EOF. Feed host/self maps from
+A21-2 separately. Preserve fail-closed behavior and all bounded child joins.
+Do not turn owner-based capability inference into a successful live receipt.
+
+REMAINING GATE TRACE / NO ADDITIONAL CONCRETE CONFLICT FOUND
+SC492 current() authenticates dependencies on host; SC497-501 captures service
+origin and drops inherited caps before strict origin gate. PW226 currently checks
+dependencies before security/context diagnostics: repair20 correctly owns moving
+bounded observations ahead of trust rejection without releasing payload early.
+
+PW229 requires identical .service cgroup. No --unshare-cgroup is requested, so
+PID/net/user nesting does not by itself rewrite that path; keep this guard.
+PW231-238 pre requires changed mnt/user and unchanged pid/net, plus1000:1000 maps;
+post requires changed all four. These namespace inequality checks do not prove
+parentage, so a stronger proof must add evidence without assuming wrong owners.
+PW151-174 requires final I/P/E/A/B zero, NNP1 and exactly bwrap//&unpriv_bwrap;
+BW drops bounding sets after each userns setup and final capabilities before exec.
+No source-level justification to weaken these guards was found.
+ES Observation.uid/gid are reported but not compared to host UID0: the effective
+checker itself has no hidden root-owner equality to remove. Its failure is access,
+not a reason to permit unknown objects. All six exact character-device rdev/type
+checks, private propagation, readonly mounts, one exact charged writable mount,
+mount-ID/statvfs consistency and stable topology checks remain intact.
+Fixture namespace comparisons are inequalities, not host PID number equality.
+Its cwd checks and payload write occur only after qualify; no extra host UID
+assumption is present. Repeating qualification after the charged write remains
+necessary. Net loopback setup and proc/devpts mounts happen before final drop
+while bwrap has setup permissions; the final denial stack applies on exec.
+No claim is made that these unexecuted gates pass on the actual host.
+
+DELIVERY / OWNERSHIP
+Root received memory, critical-map, critical-access and host-observer notifications
+through the existing app-server Client, each acknowledged once. Repair20 owns
+trust/lineage implementation; proposal22 owns runtime-tree masking. This output
+contains no implementation or operational proposal requiring execution. Root
+combines their disjoint results before deciding any fresh launch. Current state
+and owner JSON compare exactly to live19:6attempts24MiB retained, activeRAM0,
+both owners live19. No attempt consumed, cap reset, permission edit or retry.

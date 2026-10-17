@@ -1,0 +1,56 @@
+AUDIT21 COMPLETE — REMAINING GATE COUNTEREXAMPLES; NO LIVE QUALIFICATION
+2026-10-17. Worker01a149ab-4aec-72c3-9f1c-406b345266a4.
+Coordinator01a14893-cb1e-7203-97dd-de3da44dcf31.
+
+RESULT
+Read-only focused audit of installed v8 after live19. SOURCE-TRACE.txt records
+exact installed Ubuntu unshare/bwrap lines, current helper/policy/storage/fixture
+ordering, concrete counterexamples and minimal unexecuted regression suggestions.
+No implementation duplicated: repair20 owns trust/lineage; separate proposal22
+owns inherited runtime-tree masking, as root subsequently assigned.
+
+CRITICAL FINDINGS (all sent immediately to root; acknowledged)
+1. --dev causes intermediate bwrap UID/GID0 -> parent1000, then final1000 ->0.
+   Final self map1000 0 1; mnt/pid/net owned by intermediate userns. A pre-map or
+   final-owner equality assumption would reject the installed chain.
+2. Host reading final maps sees1000 1000 1, not final self1000 0 1. Map evidence
+   must bind reader context. Child ancestor NS_GET_PARENT/NS_GET_USERNS may EPERM;
+   no inaccessible ancestor traversal or EPERM-as-proof fallback.
+3. Current inherited /run/user/60578/doc and /run/docker/netns mounts below0700
+   ancestors remain visible in current argv. Bwrap tolerates EACCES remounts;
+   strict ES.check rejects unresolved mountpaths. Predicted post blocker, NOT a
+   live19 post observation. Preserve guards; proposal22 handles topology separately.
+4. Repair20 host-read follow-up: no source-established blanket denial after final
+   helper readiness/dumpable1. Exact policies permit ptrace reads. Same UID alone
+   is insufficient across userns; host ownership of U1 supplies descendant
+   capability authority by documented rule. Source compatibility only, actual
+   Ubuntu/LSM access unqualified; fail closed. Observe final PID, not monitor/PID1.
+
+ACTUAL EVIDENCE LIMIT
+Live19 only proves dependency trust rejection before pre policy/context/mount
+observations. Namespace lstat values absent. No pre/post success inferred.
+Upstream kernel/manual references explain semantics; they are not exact installed
+Ubuntu kernel source or a probe. Failed HTTP429 retrievals retained honestly.
+
+VERIFICATION / RESOURCE PRESERVATION
+63 input pins; all eight installed v8 files, pinned binaries/policy inputs and
+predecessor package-source pins match. HEAD5a2edfee is live19 evidence-only
+successor of granted1b76a245. No repository-local AGENTS.md; inherited instructions
+and dated shared/scoped handoffs read. No code/test model/native execution used
+to qualify findings; source assertions and read-only metadata/hash checks only.
+Initial MemAvailable19,462,131,712 bytes, active worker/legacy services0, A/F
+cgroup.procs empty; memory notification acknowledged. Final seal separately records
+fresh memory/overlap, all input rechecks and unchanged actual live19 state/owners.
+6attempts24MiB retained, activeRAM0, both owners live19. D267/D289 excluded;
+dispatcher held. No cap reset, permissions, policy/service/setup/state changes,
+namespace or access probe, compiler/load, agents, commits or attempt use.
+All command children synchronous/awaited; network retrieval session78632 completed
+exit0; no background children or services started. Writes only this output.
+
+ARTIFACTS
+SOURCE-TRACE.txt; source-verification.json; input-pins.json;
+host-topology-readonly.json; initial-memory-overlap.json; final-seal.json;
+upstream-reference-pins.json and two reference source files; notification intents/
+acknowledgments; output-pins.json. Final DONE intent/result appended after seal.
+One DONE ID audit21-01a149ab-source-complete/result/path to coordinator through
+existing app-server Client, then stop. No successor work authorized in this chat.

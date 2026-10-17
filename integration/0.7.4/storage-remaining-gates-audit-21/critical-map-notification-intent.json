@@ -1,0 +1,6 @@
+{
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "message": "CRITICAL SOURCE COMPATIBILITY audit21 -> root/repair20: exact installed Ubuntu bwrap0.11.1-1ubuntu0.3 --dev /dev sets opt_needs_devpts=true (ubuntu-bubblewrap.c2147); unprivileged child maps ns UID/GID0 -> parent1000 (3291-3305), then after mounts unshare(CLONE_NEWUSER) and write_uid_gid_map(final1000, ns0, final1000, ns0,-1,false,false) (3456-3501). Expected self post map is1000 0 1, NOT pre1000 1000 1. mnt/pid/net namespaces are owned by intermediate bwrap userns, not final post userns. No extra cgroup namespace requested. Current v8 checks maps only pre; this is a concrete counterexample for repair20 stage-aware proof assumptions, not an observed live19 post failure (live19 never reached pre policy gate). Preserve exact composed mapping/lineage guards; do not reuse pre map or require final userns to own mnt/pid/net. Source trace and regression suggestions will be in own audit21 output; no implementation or attempt consumed.",
+  "utc": "2026-10-17T11:44:06.780426+00:00",
+  "attempts": 1
+}
