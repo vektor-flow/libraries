@@ -1,0 +1,39 @@
+REVIEW15 MINIMUM ACCEPTANCE FOR REPAIR14 — source/ordinary TEMP processes only
+
+1. Real EX-holder process + original one-shot SH produces EAGAIN. Same
+   temporary lock with proposed bounded SH acquisition succeeds after release.
+   Holder/readiness synchronization must make the contention real, not timing luck.
+2. EX holder outlives short acquisition allowance: bounded diagnostic failure,
+   descriptor closed, no compiler directory/assets/execution marker; all children
+   joined. Test deadline already exhausted before first attempt and expiry just
+   after acquisition; a successful flock must not silently authorize late work.
+3. Retry only EAGAIN/EWOULDBLOCK (and documented EACCES contention if included);
+   unexpected errno (e.g. EBADF/EIO) propagates without sleeping/retrying.
+4. Validate exact running stage, grant/manifest, current owner transition, owner
+   publication, receipt, custody+cgroup and boot UNDER acquired SH, rereading
+   after wait. Negative controls retain failures and no materialization. Assert
+   an independent EX probe fails during validation and succeeds after release.
+5. Release SH before copying assets, payload execute, spawning children, or any
+   operation waiting for controller progress. Do not acquire installed Ledger
+   EX transaction from inside SH; that would create a self-lock cycle.
+6. One monotonic adapter-entry deadline; include prechecks, lock wait, validation,
+   postchecks and materialization in remaining allowance passed to payload.
+   Do not change signed grant.timeout_seconds=1200 or reset payload to1200 after
+   waiting. Preexisting outer wait_owned is an earlier independent deadline;
+   adapter entry is NOT its exact origin. Keep installed v9 timeout unchanged.
+   Test time consumed before lock and immediately before execute; no zero/negative
+   allowance reaches payload. Exact existing eight stage budgets/oracles retained.
+7. Synchronous controller guard: execute TEMP shared-holder versus actual
+   owned.wait_owned guard EX path to document delayed timeout. New bounded
+   acquisition must not add unbounded waits or put materialization inside SH.
+   No need to redesign immutable v9 for this scoped adapter correction.
+8. Fresh recipe binds latest USED A phase A:compiler-native13-01, owner
+   01a149f1-6e6c-7683-8d76-43acab856af5, stage joined, sequence12. Independently
+   authenticate genuine join (sha256 d256ac9107872673b7751c4d7c2490b607ff23e6ec8c16b80257bd6ed63c2492)
+   through preserved installed bundle. Fresh owner/grant/attempt/protected folder;
+   compare max sequence/current owner rather than trusting historical output.
+   Recheck under existing rotate_owner transaction; preserve charges and F.
+   Root integrates, regenerates seal once, then normal separate admission.
+
+No requirement here authorizes native runs, operational writes, live lock tests,
+or requalification. Ordinary tests <=512MiB aggregate/60s; own output only.

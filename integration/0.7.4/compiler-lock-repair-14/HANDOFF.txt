@@ -1,0 +1,104 @@
+COMPILER LOCK REPAIR14 — SOURCE PROPOSAL COMPLETE; NO NATIVE ATTEMPT
+2026-10-17. Owner01a149fc-2e0d-77d2-8ea3-5b44dd93f93d.
+Coordinator01a14893-cb1e-7203-97dd-de3da44dcf31.
+Granted/current HEAD75681db0a87ad5a4bfa948eff43f1decca735076 unchanged.
+
+DELIVERY
+adapter.py SHA4629f4ca3da296e60208e24baf203ee8700432a8a6c3d0b747a9d33b83d33484.
+adapter.patch is the small exact diff against historical binding11 adapter
+SHA7c167a22524f2c35057b2ea094b2488a57d64c0c0307f3fdbeed2421365498c2.
+root_steps.patch / root_steps.proposed.py give the next recipe's exact native13
+USED-owner succession delta; ROOT-RECIPE-DELTA.txt gives fresh packet/seal order.
+result.json, test-results.json, test_lock_repair.py, tests.stdout/stderr,
+input-pins.json and artifact-pins.json provide reproduction/evidence.
+Historical files, operational state, installed v9 and HEAD were not edited.
+
+CORRECTION
+Native13 actually failed at binding11 adapter.py352 LOCK_SH|LOCK_NB EAGAIN
+before materialization. Actual holder and hold duration were NOT captured.
+Controller guard_service legitimately holds EX over authenticate/current input
+hashing, host and ledger checks. Controller inner's first guard is immediate;
+later guards run at least1s after the previous guard completes. No source cycle
+where these checks wait for adapter validation was identified.
+
+The proposal retries ONLY EAGAIN/EWOULDBLOCK, with50ms capped sleeps and an
+absolute monotonic deadline=min(local1200 deadline,acquisition start+10s).
+Same existing read-only descriptor/canonical path; no lock creation/replacement,
+chmod, lockless read, disabled resource check or custody change. Device/inode
+are rechecked after acquiring SH. Unexpected errno propagates immediately.
+Original protected state/owner/publication/cgroup/boot validation and admission
+binding are byte/AST-equivalent under SH. The enclosing context closes the FD
+on every success/failure; SH is released before copying assets or payload.
+Prechecks, wait, validation, postchecks and materialization consume the local
+adapter-entry1200 allowance. Payload receives only positive remaining time.
+Signed grant1200 and unchanged controller outer wait1200 remain authoritative;
+local adapter-entry time is NOT the true, earlier controller deadline origin.
+All other functions, aliases, eight stage budgets and oracles remain unchanged.
+
+BOUNDARIES / LIVENESS LIMITS
+10s is conservative fail-closed acquisition policy, NOT a demonstrated maximum
+legitimate EX duration. EX hashes all inputs and includes individually10s host
+calls; a legitimate long holder can still cause a bounded failure. Never retry
+an actual failed attempt automatically. Root decides any new admission.
+SH's protected read/validation sequence is finite in source, but filesystem I/O
+and scheduler delays are not hard-bounded. Existing synchronous wait_owned guard
+runs before its remaining-time check and can delay timeout while blocked on EX.
+No immutable-v9 redesign or hard-wall-clock guarantee is claimed. The patch adds
+no wait for controller progress while SH is held; materialization/payload remain
+outside SH. Review15 separately demonstrated delayed synchronous-guard timeout.
+Deadline expiry during asset copying stops before payload, but already copied
+assets can remain charged; lock/prevalidation failures create no compiler tree.
+
+VERIFICATION
+Final focused suite16/16 plus15 inherited runtime validation cases passed in
+1.494267s,VmHWM55344KiB.512MiB address-space cap/40CPU seconds/60s wall wrapper;
+all four ordinary test children joined and absent, no native process launched.
+All fixtures/locks were temporary under this output and removed. Never acquired
+live capacity.lock. Tests exercise full adapter run with TEST_ONLY authority
+fixtures, real payload eight fake stages (no executable/native credit), and actual
+installed v9 guard_service/transaction + owned wait bodies with synthetic callbacks.
+Covers synchronized EX transient success and original one-shot EAGAIN, persistent
+bounded failure before snapshot/materialization, unexpected errno propagation,
+FD cleanup, replaced lock rejection, already-expired and late-success deadline,
+SH exclusion during actual runtime validation, release before payload, reduced
+budget including prechecks/materialization, no nonpositive allowance to payload,
+state/owner/publication/custody rejection preservation, aliases and full-plan
+materialization/oracle retention. See raw JSON for timings and PID/join evidence.
+Installed controller/config/helper/owned-process source pins still match binding11.
+No broad/native/runtime qualification is inferred from ordinary-process tests.
+
+INDEPENDENT REVIEW
+Read compiler-lock-review-15/ACCEPTANCE.txt and result.json. Reviewer found no
+blocking correctness defect in exact4629f4ca proposal, with7focused checks and
+4TEMP cases; root reported pin verification and reviewer archival. Our adapter
+bytes remained identical throughout review and final tests. Independent review
+limits are explicitly preserved above. No peer files were written.
+
+NEXT ROOT ACTION
+Integrate this proposal once, freeze final HEAD, then regenerate one fresh staging
+and source seal in a NEW root-owned packet. Do not reuse binding11/native13 seal.
+Fresh copied sealer needs final HEAD and4629f4ca expected adapter hash; regenerate
+runtime closure/import pins and complete plan checks. Existing qualified v9/tiny
+and toolchain provenance evidence remain, subject to root freshness checks.
+root_steps.patch changes iteration>24 to>25; selects max-sequence A and requires
+A:compiler-native13-01,sequence12,stagejoined,owner
+01a149f1-6e6c-7683-8d76-43acab856af5 and joinSHA
+d256ac9107872673b7751c4d7c2490b607ff23e6ec8c16b80257bd6ed63c2492.
+Installed Controller.verify_join and rotate_owner's locked rechecks remain.
+Fresh owner differs from native13. Any newer A state invalidates this recipe.
+Follow ROOT-RECIPE-DELTA.txt: separate actual root decision, normal USED rotation,
+real export, assembly/hash order, separately authorized owner publication, fresh
+empty attempt and installed controller only. No future operational action ran here.
+Preserve A19864543232,F19821273088,tiny12/48MiB; dispatcher hold; high3 baseline.
+D267/D289 remain excluded. No new native/compiler/PDF/performance gate credit.
+
+NOTIFICATION CORRECTION / STOP
+Initial memory/blocker notice acknowledged. First proposal notice accidentally
+retained a native13 DONE template under repair14 identity. It was NOT task
+completion or evidence. Original script and wrong intent/result are retained;
+notification-template-correction.json explains the string substitution bug.
+Corrected PROPOSAL notice with exact patch path was acknowledged; task continued.
+Actual own handoff/result are now complete. Send ONE actual completion notice
+with this ID/result/HANDOFF through existing app-server pattern, record response
+or uncertainty without retry, then stop. No commits, subagents, resealing, live
+lock tests, namespace/service/compiler/link launch or operational mutation.

@@ -1,0 +1,65 @@
+NEXT ROOT RECIPE DELTA — PROPOSAL ONLY, NOT EXECUTED
+
+Baseline: compiler-runtime-binding-11/adapter.py SHA
+7c167a22524f2c35057b2ea094b2488a57d64c0c0307f3fdbeed2421365498c2.
+Apply adapter.patch ONLY to the next root-owned packet's copy; resulting SHA
+4629f4ca3da296e60208e24baf203ee8700432a8a6c3d0b747a9d33b83d33484.
+Do not overwrite historical binding11/native13 packets. Root integrates once,
+then freezes the actual final HEAD. This worker HEAD remains75681db0a87ad5a4bfa948eff43f1decca735076.
+No previous seal, grant, manifest, root decision or publication is reusable.
+
+1. FRESH PACKET AND SEAL (root performs later; no regeneration here)
+Copy reviewed binding11 preparation/sealing/recipe code into a NEW root-owned
+packet. Apply adapter.patch and root_steps.patch to those copies. Preserve the
+qualified installed v9 bundle and qualified-A evidence; legacy v6_bundle is only
+a schema name. Change the copied seal_source.py HEAD constant from168085c... to
+actual final integrated HEAD; change its expected adapter hash to4629f4ca... above.
+Update any copied verify_packet.py expected HEAD/hash constants to actual pins,
+retaining all assertions. Regenerate compiler-only staging via existing
+compiler-build-preparation-03/prepare.py compiler --out NEW_PACKET/staging
+--candidate-review compiler-native-binding-08/corrected-review.json.
+Bound ordinary preparation to512MiB/60s, ordinary user, no compiler invocation.
+Run the copied sealer once after integration. Recompute runtime import closure,
+including errno/time imports, module/cache/DSO pins and view checks; never hand-edit
+old source-contract hashes into apparent authority. Keep the existing sealer's
+stdlib/runtime/policy/loader-cache verification. Verify the whole fresh plan
+against binding11 allowing only new output paths/generated hashes and final HEAD.
+All727 nominal input aliases, canonical controller pins, complete original link
+provider order, production flags, full regression sources, exact baseline marker
+and candidate stdout remain. Exact eight stage budgets180/180/180/180/180/30/180/30.
+Review fresh source-contract/runtime-closure/plan and updated root recipe together.
+
+2. NEW ROOT DECISION / USED OWNER SUCCESSION
+Set fresh source_commit/source_contract pin in copied root-decisions template.
+Root separately supplies actual execution/rotation/owner-publication authorization,
+fresh owner (not native13), iteration>25, unique attempt and fresh protected v9
+folder. Preserve A8GiB hard/high7,1GiB disk,1200s and provenance acceptance evidence.
+No invented root decisions or permission values have been written here.
+root_steps.patch updates latest-phase/owner from live24 to native13 and iteration
+floor from24 to25. It retains max(sequence) selection, requires sequence12/joined,
+exact native13 owner and exact genuine join pin below. It retains independent
+Controller.verify_join before rotation AND installed Ledger.rotate_owner's fresh
+checks under EX. If current latest A/owner/join differs, STOP for a fresh recipe;
+do not silently adapt or treat A as unused. Preserve compare-before/after and F.
+
+Expected latest USED A: A:compiler-native13-01, sequence12, joined.
+Expected owner:01a149f1-6e6c-7683-8d76-43acab856af5; owner iteration25.
+Join:/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native13-01/receipts/service-join.json
+SHA:d256ac9107872673b7751c4d7c2490b607ff23e6ec8c16b80257bd6ed63c2492.
+Authenticate this real failed-attempt join; native failure does not undo charge.
+A permanent19864543232,F19821273088,tiny12attempts/50331648bytes retained.
+
+3. ORDER OF ROOT OPERATIONS REMAINS BINDING11
+Fresh no-overlap/RAM/loaded-policy/physical/bundle checks; normal joined A rotation;
+actual root-input export; assemble relocated assets/plan -> contract -> grant ->
+manifest; separate exact-byte publication and atomic owner publication under
+existing capacity.lock; create only fresh EMPTY attempt; root-authorized A high7;
+one installed-v9 launch (never direct adapter launch). No operational action here.
+The live state snapshot and publication receipt are validated under acquired SH,
+not statically forged/pinned into admission. Release SH before materialization.
+Outer controller deadline remains1200; adapter's local remaining allowance does
+not extend it. All original budgets, resource guards and terminal cleanup remain.
+After actual launch independently authenticate service/controller/cgroup/descendant
+join and A high3 restoration. Preserve all failed-attempt charges. Native stages,
+MD/link/ELF/oracles and later gates receive credit only from actual new evidence.
+No automatic retry, tiny requalification or later compiler/native/PDF control.

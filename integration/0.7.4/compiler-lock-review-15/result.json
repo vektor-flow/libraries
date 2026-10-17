@@ -1,0 +1,37 @@
+{
+  "worker": "01a149fc-2f96-7a31-bb18-5c4b989339cc",
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "utc": "2026-10-17T13:15:41.499870+00:00",
+  "result": "NO_BLOCKING_CORRECTNESS_DEFECT_FOUND_IN_PINNED_REPAIR14_DRAFT",
+  "peer_adapter": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-lock-repair-14/adapter.py",
+    "sha256": "4629f4ca3da296e60208e24baf203ee8700432a8a6c3d0b747a9d33b83d33484",
+    "utc": "2026-10-17T13:13:38.695643+00:00"
+  },
+  "peer_completion_claimed": false,
+  "source_head": "75681db0a87ad5a4bfa948eff43f1decca735076",
+  "inputs_unchanged": true,
+  "actual_native13_lock_holder": "unknown",
+  "native_execution": false,
+  "operational_mutation": false,
+  "live_lock_acquisition": false,
+  "subagents": 0,
+  "competing_patch": false,
+  "tests": {
+    "process_model_cases": 4,
+    "peer_focused_cases": 7,
+    "children": 5,
+    "all_joined_and_absent": true,
+    "model_results": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-lock-review-15/process-model-results.json",
+    "peer_results": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-lock-review-15/peer-review-results.json"
+  },
+  "limits": [
+    "10s acquisition bound is conservative failure policy, not proven sufficient for every legitimate EX guard",
+    "adapter-entry local deadline differs from earlier installed controller deadline; external timeout unchanged and authoritative",
+    "SH validation has finite source control flow and no controller wait/recursive transaction; filesystem reads/hashes have no strict wall-time upper bound",
+    "installed wait_owned checks remaining only after synchronous guard returns; TEMP model demonstrated delayed timeout, not actual native13 deadlock"
+  ],
+  "root_next": "Integrate reviewed narrow patch after peer14 tests; fresh seal once; latest USED A transition authenticates native13 join; fresh root admission required",
+  "acceptance": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-lock-review-15/ACCEPTANCE.txt",
+  "handoff": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-lock-review-15/HANDOFF.txt"
+}

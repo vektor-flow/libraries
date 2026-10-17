@@ -1,0 +1,24 @@
+--- a/root_steps.py
++++ b/root_steps.py
+@@ -31,7 +31,7 @@
+               and d['timeout_seconds']==1200 and d['observed_only_toolchain_accepted'] is True,
+               'root resource/toolchain decision required')
+     a.require(isinstance(d['owner'],str) and d['owner'] and type(d['iteration']) is int
+-              and d['iteration']>24, 'fresh root execution owner/iteration required')
++              and d['iteration']>25, 'fresh root execution owner/iteration required')
+     a.require(d['boot']==Path('/proc/sys/kernel/random/boot_id').read_text().strip(), 'boot changed')
+     q=a.load_pin(s['qualification_review'])
+     a.require(d['boot']==q['boot'] and q['v6_bundle']==s['v6_bundle'], 'qualified installed bundle')
+@@ -83,8 +83,10 @@
+         before=ledger.snapshot();quiescent(before)
+         phases=[(k,r) for k,r in before['phases'].items() if r['worker']=='A']
+         key,row=max(phases,key=lambda x:x[1]['sequence'])
+-        assert key=='A:live24-a-timeout-01' and row['stage']=='joined'
+-        assert ledger.owner(before,'A')=='01a149d1-1ba6-77f0-904a-23fc7490075b'
++        assert key=='A:compiler-native13-01' and row['sequence']==12 and row['stage']=='joined'
++        assert ledger.owner(before,'A')=='01a149f1-6e6c-7683-8d76-43acab856af5'
++        assert d['owner'] != row['owner'], 'fresh execution owner required'
++        assert row['join'] == {'path': '/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native13-01/receipts/service-join.json', 'sha256': 'd256ac9107872673b7751c4d7c2490b607ff23e6ec8c16b80257bd6ed63c2492'}
+         assert row['owner']==ledger.owner(before,'A') and verify_join(row,pinned_json(row['join'])) is True
+         root.mkdir(mode=0o700)
+         immutable(root/'state-before.json',a.encoded(before))

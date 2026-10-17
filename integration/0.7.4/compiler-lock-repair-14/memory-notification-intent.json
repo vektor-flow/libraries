@@ -1,0 +1,6 @@
+{
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "message": "MEMORY/OVERLAP compiler-lock-repair-14 01a149fc-2e0d-77d2-8ea3-5b44dd93f93d: {\n  \"utc\": \"2026-10-17T13:11:16.738543+00:00\",\n  \"memory\": {\n    \"MemAvailable\": \"19017820 kB\",\n    \"SwapTotal\": \"8388604 kB\",\n    \"SwapFree\": \"18488 kB\"\n  },\n  \"compiler_process_matches\": [],\n  \"head\": \"75681db0a87ad5a4bfa948eff43f1decca735076\",\n  \"scope\": \"own outputs only; ordinary TEMP lock tests <=512MiB/60s; no native or operational mutation\",\n  \"overlap\": \"independent review15 coordinated through root; no shared writes\"\n}\n; BLOCKER: actual native13 LOCK_SH|LOCK_NB EAGAIN before materialization; holder unknown. Inspecting installed controller lock/wait interaction, own patch plus TEMP ordinary-process tests only. Please relay coordination to independent review15; no child agents or shared writes.",
+  "utc": "2026-10-17T13:11:16.773489+00:00",
+  "attempts": 1
+}

@@ -1,0 +1,72 @@
+COMPILER LOCK REVIEW15 — NO BLOCKING CORRECTNESS DEFECT FOUND IN PINNED DRAFT
+2026-10-17. Worker01a149fc-2f96-7a31-bb18-5c4b989339cc.
+Root01a14893-cb1e-7203-97dd-de3da44dcf31. Source75681db0 unchanged.
+Read repository STATUS/HANDOVER/COORDINATOR-STATUS and latest scoped native13.
+No repository AGENTS.md exists. Current grant supersedes historical native holds.
+
+EXACT REVIEW
+Peer14 adapter SHA2564629f4ca3da296e60208e24baf203ee8700432a8a6c3d0b747a9d33b83d33484.
+Own inspected-peer14-adapter.py preserves exact bytes. Peer still testing; no
+peer completion inferred from erroneous earlier DONE. No competing patch.
+Retry loop only handles EAGAIN/EWOULDBLOCK, uses read-only same FD/context,
+checks acquired dev/inode against canonical current path and rejects late success.
+Exact original validate_runtime/validate_admission block remains under SH (AST
+comparison passed). SH closes before materialization and payload. Local deadline
+starts at adapter entry; all elapsed preparation/wait/copy time reduces payload
+allowance. Signed grant remains1200; installed earlier outer deadline unchanged.
+No blocking correction requested in this exact draft, subject to peer integration
+coverage in ACCEPTANCE.txt and root review. This is not native qualification.
+
+CONTENTION / LIVENESS
+Installed storage_admission.py52-78 transaction holds LOCK_EX. guard_service503
+retains it through authenticate->current hashing every grant input, host checking
+legacy/active services, and ledger.check. storage_controller.py510-515 triggers
+first postlaunch guard immediately (last=0), later >=1second after previous end.
+Legitimate EX contention is source-supported. Actual native13 holder UNKNOWN.
+Linux.output calls have individual10s timeouts; many calls+hashes occur inside EX.
+Thus10s adapter acquisition bound is conservative fail-closed policy, not proven
+sufficient guard maximum. Polling has no source-proven fairness guarantee;
+repeated contention may exhaust deadline. No unlimited retry or native retry.
+
+No source lock cycle found: retained SH validation performs finite local
+reads/hashes/checks; no wait for controller progress or recursive Ledger EX call.
+Filesystem I/O is not bounded per read, so do not claim strict finite wall-clock
+SH hold. Existing owned-processes.py wait_owned calls guard synchronously BEFORE
+remaining-deadline check. An EX guard can block on SH and delay its own timeout;
+this predates patch and does not require redesigning immutable v9 for this grant.
+External RuntimeMaxSec=timeout+30 and outer wait=timeout+60 are secondary bounds,
+not evidence every inner timeout fires exactly at1200. No operational changes.
+
+MEASURED OWN TESTS
+process_model.py:4cases,1.231s; three real TEMP holder children joined/absent.
+Original one-shot EAGAIN; transient EX->SH0.307s; persistent EX failure0.100s.
+Actual immutable wait_owned(.06s, TEMP EX guard vs SH holder) returned124 after
+0.425s; timed_out=true, no remaining descendants. Shows delayed guard timeout,
+not actual live lock holder, deadlock, or elapsed guard measurement.
+review_peer.py:7checks,0.494s; two real TEMP children joined/absent. Pinned helper
+transient success0.150s, bounded failure0.050s, EIO immediate propagation,
+expired-budget no flock, inode replacement rejection, late-success rejection,
+locked-validation AST identity. All relevant FD contexts closed.
+Each test runner <=60s, at most2processes each256MiB address-space cap; observed
+maxRSS31MiB parent/29MiB child. No live capacity.lock taken. No native/services.
+
+NEXT FRESH ATTEMPT RECIPE
+binding11/root_steps.py91-92 still hardcodes A:live24-a-timeout-01/live24 owner.
+Latest USED A is joined A:compiler-native13-01,sequence12,owner
+01a149f1-6e6c-7683-8d76-43acab856af5,current owner iteration25.
+Genuine join SHA256d256ac9107872673b7751c4d7c2490b607ff23e6ec8c16b80257bd6ed63c2492.
+Fresh recipe must verify latest sequence/current owner and authenticate that
+join via installed preserved bundle, then existing transactional owner rotation.
+Fresh owner/grant/attempt/protected directory; preserve prior charges and F.
+Root integrates then reseals once; no staging or seal duplicated here.
+A19864543232/F19821273088 retained from root/native13 checkpoint, not a fresh
+operational snapshot; tiny12attempts48MiB unchanged by this worker.
+
+DELIVERY
+result.json, ACCEPTANCE.txt, source input pins, exact inspected peer bytes+pins,
+two process test reports/scripts. All inspected inputs and HEAD rechecked.
+Memory/overlap, first blocker, measured liveness and pinned proposal findings
+reported via established native13 app-server pattern; acknowledged.
+One DONE with workerID/result/HANDOFF follows. Stop; root owns integration and
+fresh native admission. No agents,commits,shared writes,operational mutations,
+service/native/compiler/link runs or retries. Native/original419 credit unchanged.

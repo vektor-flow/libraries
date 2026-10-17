@@ -1,0 +1,87 @@
+{
+  "TEST_ONLY": true,
+  "successful": true,
+  "tests": 16,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 1.4942671640310436,
+  "maxrss_kib": 55344,
+  "joined_children": [
+    {
+      "pid": 126741,
+      "returncode": 0,
+      "joined": true,
+      "stderr": ""
+    },
+    {
+      "pid": 126800,
+      "returncode": -15,
+      "joined": true,
+      "stderr": ""
+    },
+    {
+      "pid": 126803,
+      "returncode": 0,
+      "joined": true,
+      "stderr": ""
+    },
+    {
+      "pid": 126804,
+      "returncode": 0,
+      "joined": true,
+      "stderr": ""
+    }
+  ],
+  "observations": [
+    {
+      "case": "real EX transient full adapter + eight TEST_ONLY stages",
+      "wait_seconds": 0.30075152800418437
+    },
+    {
+      "case": "persistent contention bounded failure",
+      "seconds": 0.16523996507748961
+    },
+    {
+      "case": "precheck and materialization budget deduction",
+      "seconds": 1159.9938684010413,
+      "injected_elapsed": 40.0
+    },
+    {
+      "case": "remaining payload budget",
+      "seconds": 1199.7311896880856
+    },
+    {
+      "case": "actual v9 guard_service/transaction + owned wait, TEMP synthetic callbacks",
+      "seconds": 0.363532951916568,
+      "acquire_seconds": 0.2515003610169515,
+      "join": {
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "guard_error": null,
+        "orphaned_descendant_on_exit": false,
+        "tracked": [
+          {
+            "pid": 126804,
+            "state": "R",
+            "ppid": 126740,
+            "pgrp": 126804,
+            "session": 126804,
+            "starttime": 75555214
+          }
+        ],
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "no_live_descendants": true,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ]
+      }
+    },
+    {
+      "case": "inherited unchanged runtime validation negatives",
+      "tests": 15
+    }
+  ],
+  "live_lock_acquisitions": 0,
+  "native_execution": false
+}

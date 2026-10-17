@@ -1,0 +1,86 @@
+--- a/adapter.py
++++ b/adapter.py
+@@ -4,6 +4,7 @@
+ """
+ import argparse
+ import copy
++import errno
+ import fcntl
+ import hashlib
+ import importlib
+@@ -13,6 +14,7 @@
+ import re
+ import subprocess
+ import sys
++import time
+ 
+ sys.dont_write_bytecode = True
+ HERE = Path(__file__).resolve().parent
+@@ -316,7 +318,39 @@
+     return row
+ 
+ 
++def acquire_runtime_lock(lock, deadline):
++    """Retry only contention, on the same read-only FD, within an absolute budget.
++
++    The caller owns the FD context and closes it on every outcome. No snapshot
++    reads occur until this returns; the controller's outer timer keeps running.
++    """
++    started = time.monotonic()
++    attempts = 0
++    while True:
++        remaining = deadline - time.monotonic()
++        if remaining <= 0:
++            raise TimeoutError('capacity shared-lock deadline expired: path=%s '
++                               'waited=%.3fs attempts=%d; no snapshot/materialization; '
++                               'inspect controller guards/lock holders before a new grant'
++                               % (lock.name, time.monotonic()-started, attempts))
++        attempts += 1
++        try:
++            fcntl.flock(lock, fcntl.LOCK_SH | fcntl.LOCK_NB)
++        except OSError as error:
++            if error.errno not in (errno.EAGAIN, errno.EWOULDBLOCK):
++                raise
++            time.sleep(min(0.05, max(0.0, deadline-time.monotonic())))
++        else:
++            require(time.monotonic() < deadline, 'shared lock acquired after deadline')
++            opened, current = os.fstat(lock.fileno()), os.stat(canonical(lock.name))
++            require((opened.st_dev, opened.st_ino) == (current.st_dev, current.st_ino),
++                    'capacity lock replaced during acquisition')
++            return
++
++
+ def run(contract, contract_sha256, grant_path, manifest_path):
++    # Consume preflight/lock/materialization time from the existing 1200s budget.
++    deadline = time.monotonic() + 1200
+     # Only ROOT may arrange this invocation inside v6's already qualified namespace.
+     cp = dict(path=contract, sha256=contract_sha256)
+     c = load_pin(cp)
+@@ -349,7 +383,7 @@
+     require(current_head() == r['source_commit'], 'stale current HEAD')
+     # Existing lock opened read-only; shared lock, no creation/save/owner API call.
+     with open(canonical(s['lock_path']), 'rb') as lock:
+-        fcntl.flock(lock, fcntl.LOCK_SH | fcntl.LOCK_NB)
++        acquire_runtime_lock(lock, min(deadline, time.monotonic()+10.0))
+         state_pin = pin(s['state_path'])
+         state = load_pin(state_pin)
+         owners = read(config['owner_state'])
+@@ -370,6 +404,7 @@
+     require(current_head() == r['source_commit'], 'HEAD changed before materialization')
+     target = canonical(plan['out'])
+     require(target == Path(c['attempt_root'])/'compiler' and not target.exists(), 'fresh compiler subdirectory')
++    require(time.monotonic() < deadline, 'phase deadline before materialization')
+     target.mkdir()
+     for name in ('tmp','cache','home','logs','objects','sources'): (target/name).mkdir()
+     for a in c['assets']:
+@@ -379,7 +414,9 @@
+         with dest.open('xb') as f: f.write(raw(a['source']['path']))
+     with (target/'plan.json').open('xb') as f: f.write(raw(c['plan']['path']))
+     # v6 guards/accounting and its independently joined service remain authoritative.
+-    payload.execute(plan,binding)
++    remaining = deadline - time.monotonic()
++    require(remaining > 0, 'phase deadline before payload')
++    payload.execute(plan,dict(binding, timeout_seconds=remaining))
+ 
+ 
+ def main():

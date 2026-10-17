@@ -1,0 +1,73 @@
+{
+  "kind": "isolated model, not native validation or actual-holder attribution",
+  "cases": [
+    {
+      "case": "original_one_shot_fails_during_legitimate_EX",
+      "passed": true,
+      "elapsed": 2.780999056994915e-05
+    },
+    {
+      "case": "transient_EX_then_SH_acquires",
+      "passed": true,
+      "attempts": 31,
+      "elapsed": 0.3072920519625768
+    },
+    {
+      "case": "EX_outlasts_budget_bounded_failure",
+      "passed": true,
+      "elapsed": 0.100091622909531
+    },
+    {
+      "case": "actual_wait_owned_synchronous_EX_guard_delays_deadline",
+      "passed": true,
+      "requested_timeout": 0.06,
+      "elapsed": 0.4246414379449561,
+      "code": 124,
+      "joined": {
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": true,
+        "guard_error": null,
+        "orphaned_descendant_on_exit": false,
+        "tracked": [
+          {
+            "pid": 120606,
+            "state": "S",
+            "ppid": 120603,
+            "pgrp": 120606,
+            "session": 120606,
+            "starttime": 75526873
+          }
+        ],
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "no_live_descendants": true,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ]
+      }
+    }
+  ],
+  "joins": [
+    {
+      "pid": 120604,
+      "exit": 0,
+      "absent": true
+    },
+    {
+      "pid": 120605,
+      "exit": 0,
+      "absent": true
+    },
+    {
+      "pid": 120606,
+      "exit": 0,
+      "absent": true
+    }
+  ],
+  "all_children_joined": true,
+  "elapsed": 1.2312377330381423,
+  "maxrss_kib": 16336,
+  "child_maxrss_kib": 16080,
+  "per_process_address_space_limit": 268435456,
+  "simultaneous_processes_max": 2
+}

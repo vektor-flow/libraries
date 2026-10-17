@@ -1,0 +1,6 @@
+{
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "message": "REVIEW15 concrete TEMP result: original one-shot EAGAIN reproduced; transient EX release->SH acquired in0.307s; persistent EX bounded failure0.100s. Actual installed owned.wait_owned(timeout=.06, guard=TEMP LOCK_EX) returned124 after0.425s while TEMP SH holder lived. All3children joined/absent, suite1.231s,maxRSS~16MiB each. No live capacity lock or service/native work. This is delayed synchronous timeout, not proof of deadlock/native13 holder. Existing wait_owned deadline already includes adapter contention; avoid claiming a new1200s-from-adapter-entry is the controller whole-run deadline. Minimal fix should consume wait+validation+materialization in local payload remaining budget, release SH before executing, retain external installed timeout. Existing controller limitation need not trigger v9 redesign. Awaiting repair14 proposal for concrete review; models/results in integration/0.7.4/compiler-lock-review-15/process-model-results.json.",
+  "utc": "2026-10-17T13:12:55.356204+00:00",
+  "attempts": 1
+}

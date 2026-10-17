@@ -1,0 +1,55 @@
+{
+  "inspected_sha256": "4629f4ca3da296e60208e24baf203ee8700432a8a6c3d0b747a9d33b83d33484",
+  "cases": [
+    {
+      "case": "peer_real_transient",
+      "passed": true,
+      "elapsed": 0.1504567749798298,
+      "fd_closed": true
+    },
+    {
+      "case": "peer_real_timeout",
+      "passed": true,
+      "elapsed": 0.05012002808507532,
+      "fd_closed": true
+    },
+    {
+      "case": "unexpected_errno_immediate_propagation_cleanup",
+      "passed": true
+    },
+    {
+      "case": "expired_budget_no_flock",
+      "passed": true
+    },
+    {
+      "case": "replaced_lock_inode_rejected_cleanup",
+      "passed": true
+    },
+    {
+      "case": "deadline_crossed_during_successful_flock_rejected_cleanup",
+      "passed": true
+    },
+    {
+      "case": "entire_retained_locked_validation_AST_identical",
+      "passed": true
+    }
+  ],
+  "joins": [
+    {
+      "pid": 123782,
+      "exit": 0,
+      "absent": true
+    },
+    {
+      "pid": 123783,
+      "exit": 0,
+      "absent": true
+    }
+  ],
+  "all_children_joined": true,
+  "elapsed": 0.4936227600555867,
+  "maxrss_kib": 31016,
+  "child_maxrss_kib": 29500,
+  "per_process_address_space_limit": 268435456,
+  "simultaneous_processes_max": 2
+}

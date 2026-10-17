@@ -1,0 +1,87 @@
+{
+  "TEST_ONLY": true,
+  "successful": true,
+  "tests": 16,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 1.4919527609599754,
+  "maxrss_kib": 53960,
+  "joined_children": [
+    {
+      "pid": 130825,
+      "returncode": 0,
+      "joined": true,
+      "stderr": ""
+    },
+    {
+      "pid": 130846,
+      "returncode": -15,
+      "joined": true,
+      "stderr": ""
+    },
+    {
+      "pid": 130847,
+      "returncode": 0,
+      "joined": true,
+      "stderr": ""
+    },
+    {
+      "pid": 130848,
+      "returncode": 0,
+      "joined": true,
+      "stderr": ""
+    }
+  ],
+  "observations": [
+    {
+      "case": "real EX transient full adapter + eight TEST_ONLY stages",
+      "wait_seconds": 0.3013259069994092
+    },
+    {
+      "case": "persistent contention bounded failure",
+      "seconds": 0.16103317495435476
+    },
+    {
+      "case": "precheck and materialization budget deduction",
+      "seconds": 1159.9940759130986,
+      "injected_elapsed": 40.0
+    },
+    {
+      "case": "remaining payload budget",
+      "seconds": 1199.7316425220342
+    },
+    {
+      "case": "actual v9 guard_service/transaction + owned wait, TEMP synthetic callbacks",
+      "seconds": 0.3634023609338328,
+      "acquire_seconds": 0.25178077595774084,
+      "join": {
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "guard_error": null,
+        "orphaned_descendant_on_exit": false,
+        "tracked": [
+          {
+            "pid": 130848,
+            "state": "R",
+            "ppid": 130824,
+            "pgrp": 130848,
+            "session": 130848,
+            "starttime": 75576270
+          }
+        ],
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "no_live_descendants": true,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ]
+      }
+    },
+    {
+      "case": "inherited unchanged runtime validation negatives",
+      "tests": 15
+    }
+  ],
+  "live_lock_acquisitions": 0,
+  "native_execution": false
+}
