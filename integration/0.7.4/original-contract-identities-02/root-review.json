@@ -1,0 +1,28 @@
+{
+  "results": [
+    {
+      "case": "baseline",
+      "exit": 0,
+      "expected": 0,
+      "output": "{\n  \"registered_contract_source_supplement\": null,\n  \"identity_metadata_valid\": true,\n  \"original_rows\": 126,\n  \"verified_source_hashes\": 119,\n  \"held_unavailable_source_identity\": [\n    {\n      \"id\": \"native-contract:c0_regression_attached_structural_suffix\",\n      \"reason\": \"No independent exact source locator/hash; original null/contract identity preserved\"\n    },\n    {\n      \"id\": \"native-contract:c0_gpu_real_literal_source_contract\",\n      \"reason\": \"No independent exact source locator/hash; original null/contract identity preserved\"\n    },\n    {\n      \"id\": \"native-contract:c0_gpu_computed_power_capture_contract\",\n      \"reason\": \"No independent exact source locator/hash; original null/contract identity preserved\"\n    },\n    {\n      \"id\": \"native-contract:c0_runtime_symbolic_observation_contract_0134d\",\n      \"reason\": \"No independent exact source locator/hash; original null/contract identity preserved\"\n    },\n    {\n      \"id\": \"native-contract:c0_runtime_symbolic_compiled_initial_0134d\",\n      \"reason\": \"No independent exact source locator/hash; original null/contract identity preserved\"\n    },\n    {\n      \"id\": \"native-contract:c0_runtime_symbolic_compiled_derivative_0134d\",\n      \"reason\": \"No independent exact source locator/hash; original null/contract identity preserved\"\n    },\n    {\n      \"id\": \"native-contract:c0_runtime_symbolic_compiled_integral_0134d\",\n      \"reason\": \"No independent exact source locator/hash; original null/contract identity preserved\"\n    }\n  ],\n  \"oracle_forms\": {\n    \"explicit_hashed_oracle\": 85,\n    \"retained_contract_or_evidence_not_executable_oracle\": 41\n  },\n  \"executable_rows\": 0,\n  \"native_processes_started\": 0,\n  \"acceptance_credit\": 0,\n  \"limitation\": \"A successful metadata check is not an executable gate, source availability waiver, or permission to retry excluded scopes.\"\n}\n",
+      "error": ""
+    },
+    {
+      "case": "supplement",
+      "exit": 0,
+      "expected": 0,
+      "output": "{\n  \"registered_contract_source_supplement\": {\n    \"verified_registered_contract_identities\": 7,\n    \"verified_source_role_pins\": 15,\n    \"unique_source_files\": 10,\n    \"all_rows_held\": true,\n    \"authoritative_source_nulls_preserved\": true,\n    \"acceptance_credit\": 0,\n    \"limitation\": \"Source/command identity only; helper dependencies, runtime provenance and execution remain unqualified.\"\n  },\n  \"identity_metadata_valid\": true,\n  \"original_rows\": 126,\n  \"verified_source_hashes\": 119,\n  \"held_unavailable_source_identity\": [\n    {\n      \"id\": \"native-contract:c0_regression_attached_structural_suffix\",\n      \"reason\": \"No independent exact source locator/hash; original null/contract identity preserved\"\n    },\n    {\n      \"id\": \"native-contract:c0_gpu_real_literal_source_contract\",\n      \"reason\": \"No independent exact source locator/hash; original null/contract identity preserved\"\n    },\n    {\n      \"id\": \"native-contract:c0_gpu_computed_power_capture_contract\",\n      \"reason\": \"No independent exact source locator/hash; original null/contract identity preserved\"\n    },\n    {\n      \"id\": \"native-contract:c0_runtime_symbolic_observation_contract_0134d\",\n      \"reason\": \"No independent exact source locator/hash; original null/contract identity preserved\"\n    },\n    {\n      \"id\": \"native-contract:c0_runtime_symbolic_compiled_initial_0134d\",\n      \"reason\": \"No independent exact source locator/hash; original null/contract identity preserved\"\n    },\n    {\n      \"id\": \"native-contract:c0_runtime_symbolic_compiled_derivative_0134d\",\n      \"reason\": \"No independent exact source locator/hash; original null/contract identity preserved\"\n    },\n    {\n      \"id\": \"native-contract:c0_runtime_symbolic_compiled_integral_0134d\",\n      \"reason\": \"No independent exact source locator/hash; original null/contract identity preserved\"\n    }\n  ],\n  \"oracle_forms\": {\n    \"explicit_hashed_oracle\": 85,\n    \"retained_contract_or_evidence_not_executable_oracle\": 41\n  },\n  \"executable_rows\": 0,\n  \"native_processes_started\": 0,\n  \"acceptance_credit\": 0,\n  \"limitation\": \"A successful metadata check is not an executable gate, source availability waiver, or permission to retry excluded scopes.\"\n}\n",
+      "error": ""
+    },
+    {
+      "case": "tamper",
+      "exit": 1,
+      "expected": 1,
+      "output": "",
+      "error": "Changed pinned input: integration/0.7.4/original-contract-identities-02/tampered-source-identities.json\n"
+    }
+  ],
+  "patch_applied": true,
+  "credit": 0,
+  "commit_deferred": "Preserve source HEAD during storage-live-04 admission/qualification"
+}

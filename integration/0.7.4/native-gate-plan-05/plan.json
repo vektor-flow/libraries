@@ -1,0 +1,542 @@
+{
+  "source_commit": "5747ff8008ccd580b1b45ebc26560ffb0cda33fa",
+  "branch": "consolidate/0.7.4-shared-base-20261017",
+  "owner": "01a1490c-d8e7-7d01-9b40-acbb03942e2a",
+  "manifest": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/manifest.json",
+    "sha256": "583f66ad57651f8a1f7e4f0792af3815d39e1a8006ad5f3efe7977bb75487146",
+    "bytes": 303136
+  },
+  "application_eligible_order": [],
+  "independent_order": [
+    {
+      "order": 1,
+      "id": "int64",
+      "entry_source": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gate-plan-05/int64.vkf",
+        "sha256": "21a044133889dd3646504affa2b71f31f415c441a0046e5e876d1561febcb690",
+        "bytes": 698
+      },
+      "source_closure": [
+        {
+          "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/test_json_binary64.vkf",
+          "sha256": "e8b11ce95c96163af21564ca7e90bca9fffdf6e975aa876b849ee9e8c4e1b1d1",
+          "bytes": 4361
+        }
+      ],
+      "oracle": "int64 literal/rank arithmetic and exact integer digit extraction",
+      "assertions": [
+        {
+          "line": 3,
+          "text": "(n.unit()=4503599627370496)?! \"exact 2^52 int literal\""
+        },
+        {
+          "line": 4,
+          "text": "(n.maximum()=9218868437227405311)?! \"exact maximum finite rank literal\""
+        },
+        {
+          "line": 5,
+          "text": "(n.maximum()+1=9218868437227405312)?! \"rank increment int64\""
+        },
+        {
+          "line": 6,
+          "text": "(n.maximum()//n.unit()=2046)?! \"rank exponent division\""
+        },
+        {
+          "line": 7,
+          "text": "(n.maximum()%n.unit()=4503599627370495)?! \"rank mantissa remainder\""
+        },
+        {
+          "line": 8,
+          "text": "(n.maximum()//2=4609434218613702655)?! \"binary search midpoint\""
+        },
+        {
+          "line": 9,
+          "text": "(n.maximum()-n.maximum()//2=4609434218613702656)?! \"binary search remainder\""
+        },
+        {
+          "line": 10,
+          "text": "(2*(2*n.unit()-1)+1=18014398509481983)?! \"midpoint coefficient fits int64\""
+        },
+        {
+          "line": 11,
+          "text": "(n.integer(n.maximum())=\"9218868437227405311\")?! \"int64 digit extraction\""
+        }
+      ],
+      "preparation_only": true,
+      "native_executed": false,
+      "launch_authority": false,
+      "disjointness": "Imports only test_json_binary64 (which imports nothing), or no imports for syntax; no renderer/provider/scene/compose or excluded implementation scope. Toolchain/runtime primitives remain shared and unqualified.",
+      "stdin": "",
+      "stdin_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_exit": 0,
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "deadlines_seconds": {
+        "normalize": 30,
+        "compile": 30,
+        "run": 30
+      },
+      "inclusive_artifact_estimate_bytes": 1073741824,
+      "artifact_components_bytes": {
+        "raw_normalized_snapshots_and_metadata": 8388608,
+        "compiler_temporaries_and_diagnostics": 536870912,
+        "executable_and_link_outputs": 134217728,
+        "private_tmp_home_cache": 67108864,
+        "logs_receipts_join_evidence": 16777216,
+        "allocated_block_slack_and_uncertainty": 310378496
+      },
+      "estimate_basis": "Provisional conservative planning allowance, not measured demand or admission. F355 underestimated 512MiB and retained 927752192 allocated bytes; F359 retained about429MB. Account every fresh raw/normalized/temp/cache/compiler/link/log/receipt path, including failures. No refund assumed.",
+      "admission_dependencies": [
+        "Storage-live-04 operational qualification reviewed by coordinator",
+        "Fresh exact owner/source/tool/output/resource grant",
+        "One entry at a time; stop on first unexpected result; no unchanged retry",
+        "Independent pre/posthashes, binary hash, actual stdout/stderr, PID/starttime descendant and service joins; retain all artifacts"
+      ]
+    },
+    {
+      "order": 2,
+      "id": "extraction",
+      "entry_source": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gate-plan-05/extraction.vkf",
+        "sha256": "fa1afe0b0ee44af2f86602adaacf04ba251c46c085130aafb0f38517e699a021",
+        "bytes": 1180
+      },
+      "source_closure": [
+        {
+          "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/test_json_binary64.vkf",
+          "sha256": "e8b11ce95c96163af21564ca7e90bca9fffdf6e975aa876b849ee9e8c4e1b1d1",
+          "bytes": 4361
+        }
+      ],
+      "oracle": "binary64 scaling and int significand extraction against literal IEEE-754 ranks",
+      "assertions": [
+        {
+          "line": 14,
+          "text": "(int((1.0+1.0/4503599627370496.0)*4503599627370496.0)=4503599627370497)?! \"exact scaled significand extraction\""
+        },
+        {
+          "line": 15,
+          "text": "(check(0.0,0,false))?! \"zero rank\""
+        },
+        {
+          "line": 16,
+          "text": "(check(-0.0,0,false))?! \"negative zero canonicalized\""
+        },
+        {
+          "line": 17,
+          "text": "(check(1.0,4607182418800017408,false))?! \"one rank\""
+        },
+        {
+          "line": 18,
+          "text": "(check(-2.5,4612811918334230528,true))?! \"negative sign and rank\""
+        },
+        {
+          "line": 19,
+          "text": "(check(1.0/10.0,4591870180066957722,false))?! \"one tenth rank\""
+        },
+        {
+          "line": 20,
+          "text": "(check(1.0+1.0/4503599627370496.0,4607182418800017409,false))?! \"adjacent one rank\""
+        },
+        {
+          "line": 21,
+          "text": "(check(scale(1.0,1074,false),1,false))?! \"minimum subnormal rank\""
+        },
+        {
+          "line": 22,
+          "text": "(check(scale(1.0,1022,false),4503599627370496,false))?! \"minimum normal rank\""
+        },
+        {
+          "line": 23,
+          "text": "(check(scale(1.0,1022,false)-scale(1.0,1074,false),4503599627370495,false))?! \"maximum subnormal rank\""
+        },
+        {
+          "line": 24,
+          "text": "(check(scale(2.0-1.0/4503599627370496.0,1023,true),9218868437227405311,false))?! \"maximum finite rank\""
+        }
+      ],
+      "preparation_only": true,
+      "native_executed": false,
+      "launch_authority": false,
+      "disjointness": "Imports only test_json_binary64 (which imports nothing), or no imports for syntax; no renderer/provider/scene/compose or excluded implementation scope. Toolchain/runtime primitives remain shared and unqualified.",
+      "stdin": "",
+      "stdin_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_exit": 0,
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "deadlines_seconds": {
+        "normalize": 30,
+        "compile": 30,
+        "run": 30
+      },
+      "inclusive_artifact_estimate_bytes": 1073741824,
+      "artifact_components_bytes": {
+        "raw_normalized_snapshots_and_metadata": 8388608,
+        "compiler_temporaries_and_diagnostics": 536870912,
+        "executable_and_link_outputs": 134217728,
+        "private_tmp_home_cache": 67108864,
+        "logs_receipts_join_evidence": 16777216,
+        "allocated_block_slack_and_uncertainty": 310378496
+      },
+      "estimate_basis": "Provisional conservative planning allowance, not measured demand or admission. F355 underestimated 512MiB and retained 927752192 allocated bytes; F359 retained about429MB. Account every fresh raw/normalized/temp/cache/compiler/link/log/receipt path, including failures. No refund assumed.",
+      "admission_dependencies": [
+        "Storage-live-04 operational qualification reviewed by coordinator",
+        "Fresh exact owner/source/tool/output/resource grant",
+        "One entry at a time; stop on first unexpected result; no unchanged retry",
+        "Independent pre/posthashes, binary hash, actual stdout/stderr, PID/starttime descendant and service joins; retain all artifacts"
+      ]
+    },
+    {
+      "order": 3,
+      "id": "unicode",
+      "entry_source": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gate-plan-05/unicode.vkf",
+        "sha256": "bdd609758774f81fd49fb0d5e48547a061fc6418e828eba46aeb80101785c62c",
+        "bytes": 834
+      },
+      "source_closure": [
+        {
+          "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/test_json_binary64.vkf",
+          "sha256": "e8b11ce95c96163af21564ca7e90bca9fffdf6e975aa876b849ee9e8c4e1b1d1",
+          "bytes": 4361
+        }
+      ],
+      "oracle": "UTF-8 byte offsets, scalar cursor, chr/int and exact scalar equality",
+      "assertions": [
+        {
+          "line": 4,
+          "text": "(n.size(s)=7)?! \"UTF8 byte extent\""
+        },
+        {
+          "line": 5,
+          "text": "(n.at(s,0)=\"A\")?! \"ASCII scalar\""
+        },
+        {
+          "line": 6,
+          "text": "(n.at(s,1)=\"é\")?! \"two byte scalar\""
+        },
+        {
+          "line": 7,
+          "text": "(n.at(s,3)=\"😀\")?! \"four byte scalar\""
+        },
+        {
+          "line": 8,
+          "text": "(n.at(s,7)=\"\")?! \"EOF scalar\""
+        },
+        {
+          "line": 9,
+          "text": "(vkf_utf8_advance(s,0)=1)?! \"ASCII cursor advance\""
+        },
+        {
+          "line": 10,
+          "text": "(vkf_utf8_advance(s,1)=3)?! \"two byte cursor advance\""
+        },
+        {
+          "line": 11,
+          "text": "(vkf_utf8_advance(s,3)=7)?! \"four byte cursor advance\""
+        },
+        {
+          "line": 12,
+          "text": "(~vkf_string_eof(s,3))?! \"not EOF at final scalar\""
+        },
+        {
+          "line": 13,
+          "text": "(vkf_string_eof(s,7))?! \"EOF at byte extent\""
+        },
+        {
+          "line": 14,
+          "text": "(n.code(\"é\")=233)?! \"BMP scalar to int\""
+        },
+        {
+          "line": 15,
+          "text": "(n.code(\"😀\")=128512)?! \"supplementary scalar to int\""
+        },
+        {
+          "line": 16,
+          "text": "(str(chr(233))=\"é\")?! \"BMP chr equality\""
+        },
+        {
+          "line": 17,
+          "text": "(str(chr(128512))=\"😀\")?! \"supplementary chr equality\""
+        },
+        {
+          "line": 18,
+          "text": "(\"é\"~=\"é\")?! \"scalar equality does not normalize\""
+        },
+        {
+          "line": 19,
+          "text": "(n.char(9)=\"9\")?! \"decimal digit chr\""
+        }
+      ],
+      "preparation_only": true,
+      "native_executed": false,
+      "launch_authority": false,
+      "disjointness": "Imports only test_json_binary64 (which imports nothing), or no imports for syntax; no renderer/provider/scene/compose or excluded implementation scope. Toolchain/runtime primitives remain shared and unqualified.",
+      "stdin": "",
+      "stdin_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_exit": 0,
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "deadlines_seconds": {
+        "normalize": 30,
+        "compile": 30,
+        "run": 30
+      },
+      "inclusive_artifact_estimate_bytes": 1073741824,
+      "artifact_components_bytes": {
+        "raw_normalized_snapshots_and_metadata": 8388608,
+        "compiler_temporaries_and_diagnostics": 536870912,
+        "executable_and_link_outputs": 134217728,
+        "private_tmp_home_cache": 67108864,
+        "logs_receipts_join_evidence": 16777216,
+        "allocated_block_slack_and_uncertainty": 310378496
+      },
+      "estimate_basis": "Provisional conservative planning allowance, not measured demand or admission. F355 underestimated 512MiB and retained 927752192 allocated bytes; F359 retained about429MB. Account every fresh raw/normalized/temp/cache/compiler/link/log/receipt path, including failures. No refund assumed.",
+      "admission_dependencies": [
+        "Storage-live-04 operational qualification reviewed by coordinator",
+        "Fresh exact owner/source/tool/output/resource grant",
+        "One entry at a time; stop on first unexpected result; no unchanged retry",
+        "Independent pre/posthashes, binary hash, actual stdout/stderr, PID/starttime descendant and service joins; retain all artifacts"
+      ]
+    },
+    {
+      "order": 4,
+      "id": "native_named_syntax_dependency",
+      "entry_source": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/pdf-api-acceptance/named-syntax.vkf",
+        "sha256": "569b9fb6d21f943ab8d7fa96d29dbe8e0400a88155f8ec042ab01f2e33d54a19",
+        "bytes": 306
+      },
+      "source_closure": [],
+      "oracle": "Existing exact fixture: combine(2,second:3)=5 and combine(2)=2. Syntax/default dependency only; no latex API/resources/PDF acceptance.",
+      "assertions": [
+        {
+          "line": 5,
+          "text": "(combine(2,second:3)=5)?! \"named-syntax-value\""
+        },
+        {
+          "line": 6,
+          "text": "(combine(2)=2)?! \"named-syntax-default\""
+        }
+      ],
+      "preparation_only": true,
+      "native_executed": false,
+      "launch_authority": false,
+      "disjointness": "Imports only test_json_binary64 (which imports nothing), or no imports for syntax; no renderer/provider/scene/compose or excluded implementation scope. Toolchain/runtime primitives remain shared and unqualified.",
+      "stdin": "",
+      "stdin_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_exit": 0,
+      "expected_stdout": "",
+      "expected_stderr": "",
+      "deadlines_seconds": {
+        "normalize": 30,
+        "compile": 30,
+        "run": 30
+      },
+      "inclusive_artifact_estimate_bytes": 1073741824,
+      "artifact_components_bytes": {
+        "raw_normalized_snapshots_and_metadata": 8388608,
+        "compiler_temporaries_and_diagnostics": 536870912,
+        "executable_and_link_outputs": 134217728,
+        "private_tmp_home_cache": 67108864,
+        "logs_receipts_join_evidence": 16777216,
+        "allocated_block_slack_and_uncertainty": 310378496
+      },
+      "estimate_basis": "Provisional conservative planning allowance, not measured demand or admission. F355 underestimated 512MiB and retained 927752192 allocated bytes; F359 retained about429MB. Account every fresh raw/normalized/temp/cache/compiler/link/log/receipt path, including failures. No refund assumed.",
+      "admission_dependencies": [
+        "Storage-live-04 operational qualification reviewed by coordinator",
+        "Fresh exact owner/source/tool/output/resource grant",
+        "One entry at a time; stop on first unexpected result; no unchanged retry",
+        "Independent pre/posthashes, binary hash, actual stdout/stderr, PID/starttime descendant and service joins; retain all artifacts"
+      ]
+    }
+  ],
+  "toolchain": {
+    "recipe": {
+      "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Frontend/experiments/independent-worker-A/iteration335/build-test-recipe.json",
+      "sha256": "d20713e2d4e3197df8446ceab87959e8a9e566d39097a554b6c7a693c5b79c2d"
+    },
+    "tools": [
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration288-record01/vkf-strict",
+        "sha256": "18f402a4a6c793c9b18dd7a1679c99a9c7635831ab5947676afb08e9c071c94a"
+      },
+      {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/normalize_module_aliases.py",
+        "sha256": "a378f452a25c4d412673922907bb37cd455a307e5e13baa0fc9a7e5fb1b1f31b"
+      },
+      {
+        "path": "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/owned-processes.py",
+        "sha256": "bdc2ccd9861d5a49f80875144963037255afef29f7ed932fea8da28ccb76c442"
+      },
+      {
+        "path": "/usr/bin/python3",
+        "sha256": "52e0a13e60a981d8c4b6478be2ba5176f69da07948a056bf49cf6f077e30cb41"
+      }
+    ],
+    "runtime": [
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration318-string-storage01/libvkf-concurrent-runtime.so",
+        "sha256": "2fd3ffa674b62aef1b0a8d3bf28e25194770cea96bc8fcf2607351fdb06ad7ca"
+      }
+    ],
+    "stdlib": [
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib.vkf",
+        "sha256": "43ee8d977ac0ddcc4e4c9492725e5a1948d8dced5bac36697af0500ea9fdb970"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/system.vkf",
+        "sha256": "5c676dc0a433d85cfbaa117b4572516457d8bec92d6cb0d5435f1279f1b89ed9"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/physics_collision_matrix_smoke.vkf",
+        "sha256": "7c7fd8b7fe93197cafbe91c769a39be2ef6913c8d734c3706fddf4765025c8e9"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/regex.vkf",
+        "sha256": "748c91c569cb4e0c19d253f8eba7b47b403353ab21fea9539bccf4b1a2b11df7"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/random.vkf",
+        "sha256": "f1bf76f090e09c8858e45492f1f7f858a89d22dd08e559735bfb69278d4eabe5"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/stat.vkf",
+        "sha256": "a0d3b7c7af273ea8e3f633e9abd24dc6f0494933cd4c22a6c285272b00faf95b"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/ui.vkf",
+        "sha256": "1a71dc8e6b57885c8df654998c2be686a788ec5c47b4575d6b79cc2e9e2f30eb"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/physics_rigid_body_smoke.vkf",
+        "sha256": "3547a685b765a70d4d68c8cfc1835bfd8bea3564e8e66fc6891977066f64058b"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/symbolic.vkf",
+        "sha256": "1d7c7c5e1014f60805ae2ee50da41d43ce5e7c8552761ec6db3301f3da0af094"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/io.vkf",
+        "sha256": "0df4f64fa1597f619743fb0ff01105f59c1e7883e19bc095f00ba48e9a3e7d80"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/units.vkf",
+        "sha256": "c6eae08570c5fa77548d42c69ab590ebff3956aeb04d519980a225d2897819a5"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/math.vkf",
+        "sha256": "ca670afda7c9edc010ca25428f61f79c0fb45bdf5655a4a240d2162e744a2f3f"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/linalg.vkf",
+        "sha256": "0a5e82f24f0bf9ade7e9fbac7adaf9ff534dae26439a9775f64050ceb8c4dbd7"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/physics.vkf",
+        "sha256": "a311aa4c5a9295508cc0554616c380c2dac80a87f745f25788c3e30a653539c3"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/io_direct_smoke.vkf",
+        "sha256": "400c1f216fe490cc77ac4ddb67b2a3f33b85058382737c17e154b70289d80b74"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/concurrent.vkf",
+        "sha256": "0309f6be8a254f1a9282f0ddab9edfdd5f76724bf5870f2bf815fd9883fea8f9"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/command.vkf",
+        "sha256": "1d7b751e40daaf1689bb78dbac8fb593a998841e6b05de50e49130089ac63d34"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/errors.vkf",
+        "sha256": "150851cae3b6b1f2fc275de0d8678435a2e765f6b8f085a2c76c06584b7a7345"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/physics_contact_model_smoke.vkf",
+        "sha256": "203f7d090045469d6459016607c570bd60af87c84cdb2c915e56f1044b4a8152"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/collections.vkf",
+        "sha256": "57014c51de253c74998cdeb450771135d434c50e350d0555ebc032b61307a7a1"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/time.vkf",
+        "sha256": "5f0f6f742cf1a585323e5e562dcf8d99b06164ae3c8d2790c9aefcce77b3c9bc"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/physics/preparation.vkf",
+        "sha256": "02b008fb837933f2a975847fc26e63753988bdec27e7b7004af40f517d4696a8"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/physics/convex_preparation.vkf",
+        "sha256": "69145d0db315e3d97aff50077fedf7c879be1cdb093b63a7aa3b6a9fbf08ae00"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/physics/units.vkf",
+        "sha256": "79039b8d5f00479b1682532f0739d2132694895334dc983b0b6fd524645b2cf2"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/physics/runtime.vkf",
+        "sha256": "28ba2b827cb93c24ae0dad07ee56f444a8e1e7d229c3ece6a4f3dbba272e375b"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/physics/supported_contact.vkf",
+        "sha256": "9005c4186c9896fecee7dfcfe645c019048ae4d741486e8c593796e43bef6a05"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/physics/rigid.vkf",
+        "sha256": "44ba578abc45acbcca83f94487878d212542648e50bf951261d281c54f01d03c"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/ui/colormaps.vkf",
+        "sha256": "1b990601fb9c33eb64c0c72017dcdc0f930ad8d83dbc881566d263d573577c82"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/units/si.vkf",
+        "sha256": "36a2ce04f5ebff724d5c75a330f7eb42a5d816749557fb9f8b6668a60fd928c1"
+      },
+      {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/physics/units/si.vkf",
+        "sha256": "d209486b3645d3faf1ed499356cda2fb268c28c813a100c9d17821f78b5f1f05"
+      }
+    ],
+    "external": {
+      "io": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/io.vkf",
+        "sha256": "0df4f64fa1597f619743fb0ff01105f59c1e7883e19bc095f00ba48e9a3e7d80"
+      },
+      "math": {
+        "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home/compiler/self_hosted/stdlib/math.vkf",
+        "sha256": "ca670afda7c9edc010ca25428f61f79c0fb45bdf5655a4a240d2162e744a2f3f"
+      }
+    },
+    "environment": {
+      "VKF_HOME": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home",
+      "LD_LIBRARY_PATH": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration318-string-storage01",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "LC_ALL": "C",
+      "LANG": "C"
+    },
+    "unset": [
+      "LD_PRELOAD",
+      "VKF_AST_CACHE",
+      "DISPLAY",
+      "WAYLAND_DISPLAY"
+    ]
+  },
+  "sequential_total_provisional_artifact_bytes": 4294967296,
+  "native47_credit_effect": 0,
+  "original419_credit_effect": 0,
+  "grant_issued": false,
+  "exclusions": [
+    "D267 allocator",
+    "D289 typedArena/fixedspread",
+    "A333 compiler-body",
+    "all other rejected scopes",
+    "scene/compose retry or variant"
+  ],
+  "scope_limit": "No whole test_ordered_json lowering, from_token search or renderer tests included. Primitive evidence alone cannot qualify those modules or metadata/reference/application/API gates."
+}

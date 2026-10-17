@@ -1,0 +1,98 @@
+STORAGE LIVE 04 — FAILED FIRST REAL SERVICE; STOPPED — 2026-10-17
+Owner: 01a1490c-d736-79d2-b96f-8195d7406ff3
+Sole coordinator: 01a14893-cb1e-7203-97dd-de3da44dcf31
+Repository: /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries
+Branch: consolidate/0.7.4-shared-base-20261017
+HEAD unchanged: 5747ff8008ccd580b1b45ebc26560ffb0cda33fa
+
+RESULT / PRECISE FAILURE
+One F3GiB real service, zero payload executions, zero qualified phases.
+Linux.argv() line113 expects an extra array nesting for typed D-Bus ExecStart.
+Actual busctl type a(sasbttttuii), len(data)=1, len(data[0])=10: data[0] is
+already the command struct. Its argv exactly equals the authorized service argv.
+The installed controller instead requires len(data[0])==1, raising
+storage_paths.Rejected: single ExecStart required before attach_service persists.
+The outer then assumes r['service'] exists and raises KeyError: 'service'.
+Raw commands, full typed response and independent comparison: dbus-execstart.json.
+No parser patch, guard bypass, retry, forced join or refund was performed.
+
+STATE / ACCOUNTING — PRESERVE THIS EXACT FAILED PHASE
+Explicit ADDITIONAL 68,719,476,736 bytes per A and F enrolled; old21,900,000,000
+base retained. A H=18,778,218,496; F H=19,783,524,352 bytes. Each H is the max
+of fresh actual old-volume use and pinned latest carried accounting evidence.
+Latest authenticated A349/F365 accounting values are lower than fresh actual use.
+Historical evidence/policies/authority and actual identities are pinned under
+storage-direct-v2/storage-live-04. Existing old ledger/state/controllers/grants
+and actual live-capacity.json (which really is {}) remain byte-identical.
+The frozen registry copy preserves the original bytes and pin; A349/F365 real
+terminal receipts and refreshed offload completion/absent cgroup are retained.
+
+F:live04-f-success-01 remains launch_claimed, permanently charged4,194,304 bytes
+and conservatively reserving3,221,225,472 RAM bytes. No service/inner_result/join
+exists in v2 state. F cumulative H+P=19,787,718,656; A unchanged18,778,218,496.
+Only1/16 attempts and4MiB/64MiB qualification charges consumed. Actual attempt
+allocated32,768 bytes. Do not reset state, replay this attempt or release RAM.
+An independent terminal observation is NOT the missing authenticated inner finish.
+
+ACTUAL CHECKS / TIMING
+Preflight0.166465s; enrollment0.160473s; first-phase wrapper1.113366s.
+systemd service runtime180ms, MemoryPeak26,546,176 bytes, swap0.
+Development UUID matched d189b76f-1138-40a0-abdf-da48d249b679. Actual old volume,
+workspace and bind alias identities matched. Internal/backing/loop floors passed;
+atomic reserve/claim/preexec passed. Service MemoryMax3GiB, swap0, TasksMax128,
+KillMode=control-group, OOMPolicy=kill, stop10s, RuntimeMax40s were observed.
+No compiler/native execution, large allocation, deliberate custody crash or mounts.
+F payload success/nonzero/timeout/private namespace remain UNQUALIFIED because
+attachment failed first. A8GiB was never launched; A high stayed3GiB, hard cap8GiB
+and parent21GiB unchanged. No A high activation or restoration was needed.
+Pinned fixture supports success/nonzero23/timeout124 and namespace/write checks;
+its preparation is not execution evidence. No test suite rerun was used as a substitute.
+
+JOINS / OWNED PROCESS EVIDENCE
+Outer controller PID3956685 starttime73984099 boot36e567a7-0fa2-44a9-b95d-d93702c4b628:
+Popen.communicate waited exit1; exact PID absent. Full argv/cgroup in owned-joins.json.
+Service vkfworkers-f-live04-f-success-01.service invocation909c5163c9744502a918d265f61b8f71:
+ExecMainPID3956707, terminal failed/exit1, MainPID0, service cgroup absent/empty,
+PID absent. Inner starttime NOT captured: attach rejected before durable identity.
+No payload/bwrap child started. Missing inner custody keeps the phase and RAM held.
+All active worker/legacy service lists empty at sealing. Unit metadata retained;
+no reset-failed. Exact failure logs remain in the charged attempt receipts directory.
+A read-only broad metadata scan exceeded the intended short preflight and was
+stopped by SIGTERM after exact PID/starttime match. Python3951561/start73965402
+and shell3951440/start73965392 independently absent; tool wait status not captured
+because its session identifier was omitted from displayed output. Evidence in
+accounting-scan-identity/stop/terminal.json; no storage-service or state mutation.
+All preparation/qualification/sealing command sessions returned; no owned live job.
+
+PRESERVED SCOPE / NEXT STEP
+New runtime config/state/policy/grants/dedicated owner state only inside granted
+storage-direct-v2. New empty artifact roots only the authorized owner A/F paths.
+Only output-directory files written in the repository; no commits/source edits.
+Coordinator reported staged checker/supplemental metadata; HEAD remained frozen.
+Old dispatcher service/timer/completion path observed inactive. Runtime /dev/null
+mask symlink exists; systemd reports loaded/static from user config (not masked).
+No dispatcher change; coordinator should retain hold and review effective mask.
+
+Coordinator assigns a NEW repair chat for typed D-Bus decoding and missing-attach
+error reporting. Separately review custody recovery for this held failed phase;
+there is no authorized automatic recovery/force-release path in this controller.
+Do not continue qualification in this chat or launch native work. Preserve all
+historical H and phase charges, exclusions and existing resource limits.
+D267 allocator, D289 typedArena/fixedspread, A333 compiler-body remain excluded.
+Native47 stays18passed/29unqualified; original419 stays293credited.
+
+EXACT PINS
+e9ec18c6378cc4b430a282e792854350c938b2b377422f25d8cd4d08877dcf75  /home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-live-04-visible-chat-grant.json
+139d142f033acce3d14898e3ac0141955940de25b0ea16baeab28a2c0fd98132  /home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2-installed-20261017.json
+351b205d529f25ce4868132e47736645965b2b000504501d51f9cd91e2b69418  /home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_controller.py
+9b409eb4cf7f0b34b1cf2f17d8e709877878afcb8a116dbe141116160fd4b6a8  /home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_admission.py
+3c7eee8d5c96d79fb70641749d6d1daae740578f2cc4666dc2c01d6e71ae1a92  /home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_paths.py
+c74c25834ac8ed6c277bed856d538bbce30d5a959515c347f065f792a8888220  /home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/runtime-config.json
+cb52d84bc7aaf832314970a2e04fd31083923d22ef98dd0556eeb40c2aa4cc34  /home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/direct-state-v2.json
+dc9bd1010a94602899b7ef2538d000661d92b4468116cab498cb29602e12a2cd  /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-04/qualification-result.json
+ce9c90396071abc852b5f1c4b154978210cbea07f4aef8b8d18e746900cbec91  /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-04/dbus-execstart.json
+3b003a10803d9a137f937b15edf9799e84ac8b2f34662a4775847f2177beb8d5  /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-04/owned-joins.json
+
+Additional config/policy/grant/manifest/receipt pins: live-output-pins.json.
+All initial old operational and six installed source pins reverified unchanged.
+One-shot authorized coordinator notification receipt: notification-result.json.

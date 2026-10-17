@@ -1,0 +1,75 @@
+{
+  "result": "FAILED_FIRST_F_SERVICE_DBUS_EXECSTART_SHAPE",
+  "utc": "2026-10-17T08:56:21.021190+00:00",
+  "source_head": "5747ff8008ccd580b1b45ebc26560ffb0cda33fa",
+  "attempts": 1,
+  "services": 1,
+  "payloads_started": 0,
+  "passed_phases": 0,
+  "unrun": [
+    "F success payload/namespace",
+    "F intended nonzero",
+    "F timeout/child join",
+    "A success/namespace",
+    "A intended nonzero",
+    "A timeout/child join"
+  ],
+  "root_cause": "Linux.argv expects data[0] to contain one command; actual busctl data[0] is the 10-field command struct.",
+  "secondary_failure": "outer() assumes r['service'] exists after systemd-run; KeyError masks inner attachment rejection.",
+  "phase_stage": "launch_claimed",
+  "qualification_charge_bytes": 4194304,
+  "held_ram_bytes": 3221225472,
+  "historical_H": {
+    "A": 18778218496,
+    "F": 19783524352
+  },
+  "additions": {
+    "A": 68719476736,
+    "F": 68719476736
+  },
+  "cumulative_charge": {
+    "A": 18778218496,
+    "F": 19787718656
+  },
+  "attempt_allocated_bytes": 32768,
+  "service_wall": 1.1133660050109029,
+  "service_runtime_reported": "180ms",
+  "service_memory_peak": "26546176",
+  "limits": {
+    "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/vkfworkers.slice/vkfworkers-a.slice": {
+      "memory.max": "8589934592",
+      "memory.high": "3221225472",
+      "memory.swap.max": "0",
+      "pids.max": "160"
+    },
+    "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/vkfworkers.slice": {
+      "memory.max": "22548578304",
+      "memory.high": "21474836480",
+      "memory.swap.max": "0",
+      "pids.max": "1024"
+    },
+    "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/vkfworkers.slice/vkfworkers-f.slice": {
+      "memory.max": "3221225472",
+      "memory.high": "3221225472",
+      "memory.swap.max": "0",
+      "pids.max": "160"
+    }
+  },
+  "legacy_and_installed_pins_unchanged": true,
+  "active_worker_services": [],
+  "active_legacy_services": [],
+  "native47": "18 passed / 29 unqualified",
+  "original419_credited": 293,
+  "stop": "No retry, no source edits, no join/rotation/recovery/charge reset; coordinator assigns fresh repair chat.",
+  "next_step": "Repair typed D-Bus response decoding and missing-attach error reporting in a fresh source iteration. Separately review safe custody recovery for held F phase; never reset/replay it.",
+  "own_terminal_evidence": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-04/owned-joins.json",
+    "sha256": "3b003a10803d9a137f937b15edf9799e84ac8b2f34662a4775847f2177beb8d5"
+  },
+  "raw_dbus": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-live-04/dbus-execstart.json",
+    "sha256": "ce9c90396071abc852b5f1c4b154978210cbea07f4aef8b8d18e746900cbec91"
+  },
+  "preflight_elapsed": 0.16646524099633098,
+  "preparation_elapsed": 0.1567205369938165
+}

@@ -1,0 +1,24 @@
+{
+  "shell": {
+    "pid": 3951440,
+    "starttime": 73965392,
+    "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+    "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/codex-phone-host.service",
+    "argv": [
+      "/bin/bash",
+      "-lc",
+      "python3 -B - <<'PY'\nimport json,pathlib\ns=json.load(open('../state.json'))\nfor w in 'AF':\n r=pathlib.Path(s['workers'][w]['profile']['writable_root']);hits=[]\n for pat in ['*.json','*/*.json']:\n  for p in r.glob(pat):\n   if p.stat().st_size>2000000:continue\n   try:d=json.loads(p.read_text())\n   except Exception:continue\n   def walk(v,at=''):\n    if isinstance(v,dict):\n     for k,x in v.items():\n      if type(x)==int and ('carried' in k or 'historical_charge' in k or k in ['lane_used_bytes','volume_used_bytes_before_summary','volume_used_bytes','cumulative_used_bytes','cumulative_bytes','used_bytes']) and 10_000_000_000<x: hits.append((x,str(p),at+k))\n      elif isinstance(x,(dict,list)):walk(x,at+k+'.')\n    elif isinstance(v,list):\n     for x in v:walk(x,at)\n   walk(d)\n print(w, sorted(hits,reverse=True)[:6])\nPY\nsystemctl --user show vkf-s0-synchronized-contexts.service vkf-s0-synchronized-contexts.timer vkf-s0-worker-done.path -p Id -p LoadState -p ActiveState -p MainPID -p UnitFileState"
+    ]
+  },
+  "python": {
+    "pid": 3951561,
+    "starttime": 73965402,
+    "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+    "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/codex-phone-host.service",
+    "argv": [
+      "python3",
+      "-B",
+      "-"
+    ]
+  }
+}

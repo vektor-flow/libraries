@@ -1,0 +1,11 @@
+# Unexecuted independent primitive qualification; no application imports.
+n:.test_json_binary64
+(n.unit()=4503599627370496)?! "exact 2^52 int literal"
+(n.maximum()=9218868437227405311)?! "exact maximum finite rank literal"
+(n.maximum()+1=9218868437227405312)?! "rank increment int64"
+(n.maximum()//n.unit()=2046)?! "rank exponent division"
+(n.maximum()%n.unit()=4503599627370495)?! "rank mantissa remainder"
+(n.maximum()//2=4609434218613702655)?! "binary search midpoint"
+(n.maximum()-n.maximum()//2=4609434218613702656)?! "binary search remainder"
+(2*(2*n.unit()-1)+1=18014398509481983)?! "midpoint coefficient fits int64"
+(n.integer(n.maximum())="9218868437227405311")?! "int64 digit extraction"

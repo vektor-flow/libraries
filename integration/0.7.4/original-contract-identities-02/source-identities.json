@@ -1,0 +1,454 @@
+{
+  "schema": 1,
+  "owner_thread": "01a1490c-da90-7ef0-8cc0-c2d662f0326f",
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "source_commit": "5747ff8008ccd580b1b45ebc26560ffb0cda33fa",
+  "purpose": "Supplemental original registered-contract source/command identity recovery only. Authoritative nulls and oracles preserved.",
+  "executed": false,
+  "execution_authorized": false,
+  "release_qualified": false,
+  "acceptance_credit": 0,
+  "native47": "18pass/29unqualified",
+  "original419_credited": 293,
+  "gate_manifest": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-gates/manifest.json",
+    "sha256": "4e3aeb3435b0677c47435514390717fb2c8dec3873c019a6acd60dda77cc0426"
+  },
+  "ledger": {
+    "path": "/home/viktor/Projects/Vektor Flow/.coordination/0136/Proof/original419-reconciliation.json",
+    "sha256": "aa02b39002e2088d3cd8ee1e602f44dac84354e0073c38a0ef89113c5a11ab44"
+  },
+  "frozen_inventory": {
+    "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap-inventory.json",
+    "sha256": "9e9d08d7e1fcedf01836f9e3160a8961e5ced27b2c893657de129d26ee07aca4"
+  },
+  "registration": {
+    "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt",
+    "sha256": "3c5709da430b85ec3dc7b583a186a324cbfc77933b69675db83c9ec92a888825",
+    "role": "original-registration",
+    "inventory_key": "CMakeLists.txt",
+    "git": {
+      "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+      "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+      "relative_path": "CMakeLists.txt",
+      "blob_oid": "99f47e7438a3434e1e5c4ee88cbcc524e76ccfc0",
+      "blob_sha256": "3c5709da430b85ec3dc7b583a186a324cbfc77933b69675db83c9ec92a888825"
+    }
+  },
+  "ctest": {
+    "path": "/home/viktor/.cache/vkf-merger-0134/native01/CTestTestfile.cmake",
+    "sha256": "bfa4b9aac347ff3545419baeb7f8abe0cb4eca29ba483f4df8bb2bb904ebe832"
+  },
+  "rows": [
+    {
+      "id": "native-contract:c0_regression_attached_structural_suffix",
+      "original_record_sha256": "cfc930f699850c26f0957dce3082303c1e6322b4f161be74f286b0ef5a5b4a07",
+      "oracle_evidence_sha256": "2b10e9f4ad34bfd4afc6bc209c574163c6fe94ce8c25e515cbe630f98e3e2e31",
+      "original_source_sha256": null,
+      "status": "held",
+      "executable": false,
+      "acceptance_credit": 0,
+      "policy_holds": [
+        "A333",
+        "historical-rejected-Proof-WASM-numerical-browser-audits"
+      ],
+      "identity_state": "original-registered-source-and-command-authenticated",
+      "identity_boundary": "Registered fixture/helper source identity only; no dependency closure, rebuilt helper/runtime provenance, numerical oracle or execution qualification.",
+      "original_command": "add_test([=[c0_regression_attached_structural_suffix]=] \"/home/viktor/.cache/vkf-merger-0134/native01/bin/vkf-strict\" \"-t\" \"/home/viktor/Projects/Vektor Flow/bootstrap/seed/tests/vkf/attached_structural_suffix.vkf\")",
+      "original_properties": "set_tests_properties([=[c0_regression_attached_structural_suffix]=] PROPERTIES  TIMEOUT \"60\" WORKING_DIRECTORY \"/home/viktor/.cache/vkf-merger-0134/native01/generated-seed\" _BACKTRACE_TRIPLES \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt;34;add_test;/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt;0;\")",
+      "ctest_command_line": 9,
+      "ctest_properties_line": 10,
+      "registration_spans": [
+        {
+          "first_line": 33,
+          "last_line": 37,
+          "text": "    foreach(fixture IN ITEMS attached_structural_suffix core_lambdas calls core_pipe_surface structural_calls core_ranges record_key_spill math_complex control_flow core_loop_control)\n        add_test(NAME c0_regression_${fixture}\n            COMMAND $<TARGET_FILE:vkf_strict> -t \"${VKF_C0_ROOT}/tests/vkf/${fixture}.vkf\")\n        set_tests_properties(c0_regression_${fixture} PROPERTIES\n            WORKING_DIRECTORY \"${VKF_C0_BUILD_ROOT}\" TIMEOUT 60)\n"
+        }
+      ],
+      "sources": [
+        {
+          "path": "/home/viktor/Projects/Vektor Flow/bootstrap/seed/tests/vkf/attached_structural_suffix.vkf",
+          "sha256": "b0d93beba215b4a53be65155c85bb4313207f4eb29b3f72a1c0488d8b0f69f86",
+          "role": "fixture",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap/seed",
+            "commit": "beb8516575c85b49bd6c904da74ffe52cfca51d6",
+            "relative_path": "tests/vkf/attached_structural_suffix.vkf",
+            "blob_oid": "3a4f06d86f0ecf2d10a9fd7f4bb398ce69c2f2b8",
+            "blob_sha256": "b0d93beba215b4a53be65155c85bb4313207f4eb29b3f72a1c0488d8b0f69f86"
+          }
+        }
+      ]
+    },
+    {
+      "id": "native-contract:c0_gpu_real_literal_source_contract",
+      "original_record_sha256": "dea128978ec4eab6aa2af48eeba8cbd03e1232dee612fdc388351f4cd6da89a5",
+      "oracle_evidence_sha256": "c33f24ea998a8a7e8b6f5370dcc964f8fe971b35b655c350a8dbb030677b6c47",
+      "original_source_sha256": null,
+      "status": "held",
+      "executable": false,
+      "acceptance_credit": 0,
+      "policy_holds": [
+        "A333",
+        "historical-rejected-Proof-WASM-numerical-browser-audits"
+      ],
+      "identity_state": "original-registered-source-and-command-authenticated",
+      "identity_boundary": "Registered fixture/helper source identity only; no dependency closure, rebuilt helper/runtime provenance, numerical oracle or execution qualification.",
+      "original_command": "add_test([=[c0_gpu_real_literal_source_contract]=] \"/usr/bin/python3\" \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/gpu_real_literal_source_contract.py\" \"--compiler\" \"/home/viktor/.cache/vkf-merger-0134/native01/bin/vkf-strict\" \"--runtime-root\" \"/home/viktor/.cache/vkf-merger-0134/native01/generated-seed\" \"--spec\" \"/home/viktor/.cache/vkf-merger-0134/frozen-spec\" \"--output\" \"/home/viktor/.cache/vkf-merger-0134/native01/reports/gpu-real-literal-contract\")",
+      "original_properties": "set_tests_properties([=[c0_gpu_real_literal_source_contract]=] PROPERTIES  TIMEOUT \"900\" _BACKTRACE_TRIPLES \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt;304;add_test;/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt;0;\")",
+      "ctest_command_line": 105,
+      "ctest_properties_line": 106,
+      "registration_spans": [
+        {
+          "first_line": 304,
+          "last_line": 308,
+          "text": "    add_test(NAME c0_gpu_real_literal_source_contract\n        COMMAND \"${Python3_EXECUTABLE}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tests/gpu_real_literal_source_contract.py\"\n            --compiler $<TARGET_FILE:vkf_strict> --runtime-root \"${VKF_C0_BUILD_ROOT}\"\n            --spec \"${VKF_SPEC_ROOT}\" --output \"${CMAKE_BINARY_DIR}/reports/gpu-real-literal-contract\")\n    set_tests_properties(c0_gpu_real_literal_source_contract PROPERTIES TIMEOUT 900)\n"
+        }
+      ],
+      "sources": [
+        {
+          "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/gpu_real_literal_source_contract.py",
+          "sha256": "8dc90f6e1e21fc3c907f9dc643bab32b45055f8b241ef29b9024db214d5d6778",
+          "role": "registered-python-helper",
+          "inventory_key": "tests/gpu_real_literal_source_contract.py",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+            "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+            "relative_path": "tests/gpu_real_literal_source_contract.py",
+            "blob_oid": "5e4060ef869376d8776ad0dce5516084fd7b935b",
+            "blob_sha256": "8dc90f6e1e21fc3c907f9dc643bab32b45055f8b241ef29b9024db214d5d6778"
+          }
+        }
+      ]
+    },
+    {
+      "id": "native-contract:c0_gpu_computed_power_capture_contract",
+      "original_record_sha256": "e4cce48564bf59a053254ed9f5eacb5ea39177d03cc03fdd75afa09b8d90e491",
+      "oracle_evidence_sha256": "336d829682ff0f0b0e1c7a878d9e5c3f59e7ec872d655779ed78ac12a4d26366",
+      "original_source_sha256": null,
+      "status": "held",
+      "executable": false,
+      "acceptance_credit": 0,
+      "policy_holds": [
+        "A333",
+        "historical-rejected-Proof-WASM-numerical-browser-audits"
+      ],
+      "identity_state": "original-registered-source-and-command-authenticated",
+      "identity_boundary": "Registered fixture/helper source identity only; no dependency closure, rebuilt helper/runtime provenance, numerical oracle or execution qualification.",
+      "original_command": "add_test([=[c0_gpu_computed_power_capture_contract]=] \"/usr/bin/python3\" \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/gpu_computed_power_capture_contract.py\" \"--compiler\" \"/home/viktor/.cache/vkf-merger-0134/native01/bin/vkf-strict\" \"--runtime-root\" \"/home/viktor/.cache/vkf-merger-0134/native01/generated-seed\" \"--output-root\" \"/home/viktor/.cache/vkf-merger-0134/native01/reports/gpu-computed-power-capture\")",
+      "original_properties": "set_tests_properties([=[c0_gpu_computed_power_capture_contract]=] PROPERTIES  TIMEOUT \"900\" _BACKTRACE_TRIPLES \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt;309;add_test;/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt;0;\")",
+      "ctest_command_line": 107,
+      "ctest_properties_line": 108,
+      "registration_spans": [
+        {
+          "first_line": 309,
+          "last_line": 313,
+          "text": "    add_test(NAME c0_gpu_computed_power_capture_contract\n        COMMAND \"${Python3_EXECUTABLE}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tests/gpu_computed_power_capture_contract.py\"\n            --compiler $<TARGET_FILE:vkf_strict> --runtime-root \"${VKF_C0_BUILD_ROOT}\"\n            --output-root \"${CMAKE_BINARY_DIR}/reports/gpu-computed-power-capture\")\n    set_tests_properties(c0_gpu_computed_power_capture_contract PROPERTIES TIMEOUT 900)\n"
+        }
+      ],
+      "sources": [
+        {
+          "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/gpu_computed_power_capture_contract.py",
+          "sha256": "6ebd59eb22abdb6366cf1f26ed7b3b01b26691899b9d6b326d5480a83b8006f9",
+          "role": "registered-python-helper",
+          "inventory_key": "tests/gpu_computed_power_capture_contract.py",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+            "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+            "relative_path": "tests/gpu_computed_power_capture_contract.py",
+            "blob_oid": "274de23b757d5472db0d1361c9bf9e06cf5416b5",
+            "blob_sha256": "6ebd59eb22abdb6366cf1f26ed7b3b01b26691899b9d6b326d5480a83b8006f9"
+          }
+        }
+      ]
+    },
+    {
+      "id": "native-contract:c0_runtime_symbolic_observation_contract_0134d",
+      "original_record_sha256": "ccce702f2ffde8aeeeb71b4de5297f97ede46d33aed0f17487a6d09b827c6f8a",
+      "oracle_evidence_sha256": "9ce36b874922dd3cccc82bcc0e4b8d824d14d97f2de913e6e0b12a2e5ebf8c2d",
+      "original_source_sha256": null,
+      "status": "held",
+      "executable": false,
+      "acceptance_credit": 0,
+      "policy_holds": [
+        "A333",
+        "historical-rejected-Proof-WASM-numerical-browser-audits"
+      ],
+      "identity_state": "original-registered-source-and-command-authenticated",
+      "identity_boundary": "Registered fixture/helper source identity only; no dependency closure, rebuilt helper/runtime provenance, numerical oracle or execution qualification.",
+      "original_command": "add_test([=[c0_runtime_symbolic_observation_contract_0134d]=] \"/home/viktor/.cache/vkf-merger-0134/native01/vkf_runtime_symbolic_observation_0134d\" \"/home/viktor/.cache/vkf-merger-0134/native01/generated-seed\" \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_observation_0134d.vkf\" \"/home/viktor/.cache/vkf-merger-0134/native01/bin/vkf_x64_runner_template\" \"/home/viktor/.cache/vkf-merger-0134/native01/reports/runtime-symbolic-observation-0134d\" \"/usr/bin/node\" \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_wasm_transport_0134d.mjs\")",
+      "original_properties": "set_tests_properties([=[c0_runtime_symbolic_observation_contract_0134d]=] PROPERTIES  TIMEOUT \"180\" _BACKTRACE_TRIPLES \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt;437;add_test;/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt;0;\")",
+      "ctest_command_line": 145,
+      "ctest_properties_line": 146,
+      "registration_spans": [
+        {
+          "first_line": 421,
+          "last_line": 431,
+          "text": "    target_link_libraries(vkf_frontend_observation_objects_0134d PRIVATE ${VKF_D_STRICT_LIBRARIES})\n    foreach(contract IN ITEMS lifetime observation)\n        if(contract STREQUAL \"observation\")\n            set(VKF_D_RUNTIME_TEST_SOURCE tests/runtime_symbolic_observation_0134d.cpp)\n        else()\n            set(VKF_D_RUNTIME_TEST_SOURCE tests/runtime_symbolic_lifetime_contract_0134d.cpp)\n        endif()\n        add_executable(vkf_runtime_symbolic_${contract}_0134d ${VKF_D_RUNTIME_TEST_SOURCE})\n        target_compile_definitions(vkf_runtime_symbolic_${contract}_0134d PRIVATE ${VKF_D_STRICT_DEFINITIONS})\n        target_link_libraries(vkf_runtime_symbolic_${contract}_0134d PRIVATE\n            vkf_frontend_observation_objects_0134d ${VKF_D_STRICT_LIBRARIES} Threads::Threads ${CMAKE_DL_LIBS})\n"
+        },
+        {
+          "first_line": 437,
+          "last_line": 441,
+          "text": "    add_test(NAME c0_runtime_symbolic_observation_contract_0134d\n        COMMAND vkf_runtime_symbolic_observation_0134d\n            \"${VKF_C0_BUILD_ROOT}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tests/runtime_symbolic_observation_0134d.vkf\"\n            $<TARGET_FILE:vkf_x64_runner_template> \"${CMAKE_BINARY_DIR}/reports/runtime-symbolic-observation-0134d\"\n            \"${VKF_D_NODE_EXECUTABLE}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tests/runtime_symbolic_wasm_transport_0134d.mjs\")\n"
+        }
+      ],
+      "sources": [
+        {
+          "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_observation_0134d.vkf",
+          "sha256": "8bdcbef1e5b1079c087e9b83c0136c9e02453fe895703abadf3e1f8abec5037f",
+          "role": "fixture",
+          "inventory_key": "tests/runtime_symbolic_observation_0134d.vkf",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+            "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+            "relative_path": "tests/runtime_symbolic_observation_0134d.vkf",
+            "blob_oid": "bf2e094c1ae47574b460f8ecc2e60eea9b029261",
+            "blob_sha256": "8bdcbef1e5b1079c087e9b83c0136c9e02453fe895703abadf3e1f8abec5037f"
+          }
+        },
+        {
+          "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_observation_0134d.cpp",
+          "sha256": "5d99c9d33859a9ab45757f6af4b470a3ae7edf744af8287788fa4926e1475f4c",
+          "role": "registered-cpp-helper",
+          "inventory_key": "tests/runtime_symbolic_observation_0134d.cpp",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+            "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+            "relative_path": "tests/runtime_symbolic_observation_0134d.cpp",
+            "blob_oid": "6624ae2c76af9cb34117b30ca5e9caf841af1a50",
+            "blob_sha256": "5d99c9d33859a9ab45757f6af4b470a3ae7edf744af8287788fa4926e1475f4c"
+          }
+        },
+        {
+          "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_wasm_transport_0134d.mjs",
+          "sha256": "42aba6c2aa4c847286d1095524a36efd8fa9bfad027d3d0800953e244c4a3ca3",
+          "role": "registered-transport-helper",
+          "inventory_key": "tests/runtime_symbolic_wasm_transport_0134d.mjs",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+            "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+            "relative_path": "tests/runtime_symbolic_wasm_transport_0134d.mjs",
+            "blob_oid": "3a2cb825788c9b61aea65e00ad5e81e0c2d489f6",
+            "blob_sha256": "42aba6c2aa4c847286d1095524a36efd8fa9bfad027d3d0800953e244c4a3ca3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "native-contract:c0_runtime_symbolic_compiled_initial_0134d",
+      "original_record_sha256": "1370d2f1a0410f4f4e4d862d67638343d20c2ec6b3f1c5d3c88f76483d58edfd",
+      "oracle_evidence_sha256": "63b9079ba32f2557647e42d301e040fc694ddbda8605bd1a86658eb9d07d6d56",
+      "original_source_sha256": null,
+      "status": "held",
+      "executable": false,
+      "acceptance_credit": 0,
+      "policy_holds": [
+        "A333",
+        "historical-rejected-Proof-WASM-numerical-browser-audits"
+      ],
+      "identity_state": "original-registered-source-and-command-authenticated",
+      "identity_boundary": "Registered fixture/helper source identity only; no dependency closure, rebuilt helper/runtime provenance, numerical oracle or execution qualification.",
+      "original_command": "add_test([=[c0_runtime_symbolic_compiled_initial_0134d]=] \"/home/viktor/.cache/vkf-merger-0134/native01/vkf_runtime_symbolic_compiled_observation_0134d\" \"/home/viktor/.cache/vkf-merger-0134/native01/generated-seed\" \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_compiled_initial_0134d.vkf\" \"/home/viktor/.cache/vkf-merger-0134/native01/bin/vkf_x64_runner_template\" \"/home/viktor/.cache/vkf-merger-0134/native01/reports/runtime-symbolic-compiled-initial-0134d\" \"initial\" \"/usr/bin/node\" \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_wasm_transport_0134d.mjs\")",
+      "original_properties": "set_tests_properties([=[c0_runtime_symbolic_compiled_initial_0134d]=] PROPERTIES  TIMEOUT \"240\" _BACKTRACE_TRIPLES \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt;456;add_test;/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt;0;\")",
+      "ctest_command_line": 147,
+      "ctest_properties_line": 148,
+      "registration_spans": [
+        {
+          "first_line": 445,
+          "last_line": 446,
+          "text": "        add_executable(vkf_runtime_symbolic_compiled_observation_0134d\n            tests/runtime_symbolic_compiled_observation_0134d.cpp)\n"
+        },
+        {
+          "first_line": 455,
+          "last_line": 463,
+          "text": "        foreach(profile IN ITEMS initial derivative integral)\n            add_test(NAME c0_runtime_symbolic_compiled_${profile}_0134d\n                COMMAND vkf_runtime_symbolic_compiled_observation_0134d\n                    \"${VKF_C0_BUILD_ROOT}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tests/runtime_symbolic_compiled_${profile}_0134d.vkf\"\n                    $<TARGET_FILE:vkf_x64_runner_template>\n                    \"${CMAKE_BINARY_DIR}/reports/runtime-symbolic-compiled-${profile}-0134d\" \"${profile}\"\n                    \"${VKF_D_NODE_EXECUTABLE}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tests/runtime_symbolic_wasm_transport_0134d.mjs\")\n            set_tests_properties(c0_runtime_symbolic_compiled_${profile}_0134d PROPERTIES TIMEOUT 240)\n        endforeach()\n"
+        }
+      ],
+      "sources": [
+        {
+          "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_compiled_initial_0134d.vkf",
+          "sha256": "448ff4b96949623afbd11501905a7231a32d45ce4c5c271b11f7b025b14f2f44",
+          "role": "fixture",
+          "inventory_key": "tests/runtime_symbolic_compiled_initial_0134d.vkf",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+            "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+            "relative_path": "tests/runtime_symbolic_compiled_initial_0134d.vkf",
+            "blob_oid": "daa2d003e925196ea4b43598cfa66320d57e9688",
+            "blob_sha256": "448ff4b96949623afbd11501905a7231a32d45ce4c5c271b11f7b025b14f2f44"
+          }
+        },
+        {
+          "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_compiled_observation_0134d.cpp",
+          "sha256": "179344c95b9685fabba483b726b5353d50004782a5172d636cc51a037bbe4417",
+          "role": "registered-cpp-helper",
+          "inventory_key": "tests/runtime_symbolic_compiled_observation_0134d.cpp",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+            "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+            "relative_path": "tests/runtime_symbolic_compiled_observation_0134d.cpp",
+            "blob_oid": "ed183b0bda1ad15eef16066233a069c6db7a0be6",
+            "blob_sha256": "179344c95b9685fabba483b726b5353d50004782a5172d636cc51a037bbe4417"
+          }
+        },
+        {
+          "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_wasm_transport_0134d.mjs",
+          "sha256": "42aba6c2aa4c847286d1095524a36efd8fa9bfad027d3d0800953e244c4a3ca3",
+          "role": "registered-transport-helper",
+          "inventory_key": "tests/runtime_symbolic_wasm_transport_0134d.mjs",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+            "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+            "relative_path": "tests/runtime_symbolic_wasm_transport_0134d.mjs",
+            "blob_oid": "3a2cb825788c9b61aea65e00ad5e81e0c2d489f6",
+            "blob_sha256": "42aba6c2aa4c847286d1095524a36efd8fa9bfad027d3d0800953e244c4a3ca3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "native-contract:c0_runtime_symbolic_compiled_derivative_0134d",
+      "original_record_sha256": "42b30d3dac185b38b76acd05366e1c4b6175bf5246afc6321b78c00df3095321",
+      "oracle_evidence_sha256": "065fdbfc61c92643dfae9f6d51d651e4aa345b472b4ed3ec6f0ed3a05a6097f2",
+      "original_source_sha256": null,
+      "status": "held",
+      "executable": false,
+      "acceptance_credit": 0,
+      "policy_holds": [
+        "A333",
+        "historical-rejected-Proof-WASM-numerical-browser-audits"
+      ],
+      "identity_state": "original-registered-source-and-command-authenticated",
+      "identity_boundary": "Registered fixture/helper source identity only; no dependency closure, rebuilt helper/runtime provenance, numerical oracle or execution qualification.",
+      "original_command": "add_test([=[c0_runtime_symbolic_compiled_derivative_0134d]=] \"/home/viktor/.cache/vkf-merger-0134/native01/vkf_runtime_symbolic_compiled_observation_0134d\" \"/home/viktor/.cache/vkf-merger-0134/native01/generated-seed\" \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_compiled_derivative_0134d.vkf\" \"/home/viktor/.cache/vkf-merger-0134/native01/bin/vkf_x64_runner_template\" \"/home/viktor/.cache/vkf-merger-0134/native01/reports/runtime-symbolic-compiled-derivative-0134d\" \"derivative\" \"/usr/bin/node\" \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_wasm_transport_0134d.mjs\")",
+      "original_properties": "set_tests_properties([=[c0_runtime_symbolic_compiled_derivative_0134d]=] PROPERTIES  TIMEOUT \"240\" _BACKTRACE_TRIPLES \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt;456;add_test;/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt;0;\")",
+      "ctest_command_line": 149,
+      "ctest_properties_line": 150,
+      "registration_spans": [
+        {
+          "first_line": 445,
+          "last_line": 446,
+          "text": "        add_executable(vkf_runtime_symbolic_compiled_observation_0134d\n            tests/runtime_symbolic_compiled_observation_0134d.cpp)\n"
+        },
+        {
+          "first_line": 455,
+          "last_line": 463,
+          "text": "        foreach(profile IN ITEMS initial derivative integral)\n            add_test(NAME c0_runtime_symbolic_compiled_${profile}_0134d\n                COMMAND vkf_runtime_symbolic_compiled_observation_0134d\n                    \"${VKF_C0_BUILD_ROOT}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tests/runtime_symbolic_compiled_${profile}_0134d.vkf\"\n                    $<TARGET_FILE:vkf_x64_runner_template>\n                    \"${CMAKE_BINARY_DIR}/reports/runtime-symbolic-compiled-${profile}-0134d\" \"${profile}\"\n                    \"${VKF_D_NODE_EXECUTABLE}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tests/runtime_symbolic_wasm_transport_0134d.mjs\")\n            set_tests_properties(c0_runtime_symbolic_compiled_${profile}_0134d PROPERTIES TIMEOUT 240)\n        endforeach()\n"
+        }
+      ],
+      "sources": [
+        {
+          "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_compiled_derivative_0134d.vkf",
+          "sha256": "e587fe0126cef32b83424ac758273ea6a2cbb293dffb75a8d3b8236f4ddc9579",
+          "role": "fixture",
+          "inventory_key": "tests/runtime_symbolic_compiled_derivative_0134d.vkf",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+            "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+            "relative_path": "tests/runtime_symbolic_compiled_derivative_0134d.vkf",
+            "blob_oid": "5e6aaed6a8bb085cf1d5bed70f281b37bcb2e3b8",
+            "blob_sha256": "e587fe0126cef32b83424ac758273ea6a2cbb293dffb75a8d3b8236f4ddc9579"
+          }
+        },
+        {
+          "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_compiled_observation_0134d.cpp",
+          "sha256": "179344c95b9685fabba483b726b5353d50004782a5172d636cc51a037bbe4417",
+          "role": "registered-cpp-helper",
+          "inventory_key": "tests/runtime_symbolic_compiled_observation_0134d.cpp",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+            "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+            "relative_path": "tests/runtime_symbolic_compiled_observation_0134d.cpp",
+            "blob_oid": "ed183b0bda1ad15eef16066233a069c6db7a0be6",
+            "blob_sha256": "179344c95b9685fabba483b726b5353d50004782a5172d636cc51a037bbe4417"
+          }
+        },
+        {
+          "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_wasm_transport_0134d.mjs",
+          "sha256": "42aba6c2aa4c847286d1095524a36efd8fa9bfad027d3d0800953e244c4a3ca3",
+          "role": "registered-transport-helper",
+          "inventory_key": "tests/runtime_symbolic_wasm_transport_0134d.mjs",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+            "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+            "relative_path": "tests/runtime_symbolic_wasm_transport_0134d.mjs",
+            "blob_oid": "3a2cb825788c9b61aea65e00ad5e81e0c2d489f6",
+            "blob_sha256": "42aba6c2aa4c847286d1095524a36efd8fa9bfad027d3d0800953e244c4a3ca3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "native-contract:c0_runtime_symbolic_compiled_integral_0134d",
+      "original_record_sha256": "ab802bb76f675fadfd372e01d9003e7d4c1bce21cbbc0a1901b5b5f26a204e6e",
+      "oracle_evidence_sha256": "64640fb5d2898d5b43afd14dfee0792a5f5462b5c4d908e171843743b760dfc9",
+      "original_source_sha256": null,
+      "status": "held",
+      "executable": false,
+      "acceptance_credit": 0,
+      "policy_holds": [
+        "A333",
+        "historical-rejected-Proof-WASM-numerical-browser-audits"
+      ],
+      "identity_state": "original-registered-source-and-command-authenticated",
+      "identity_boundary": "Registered fixture/helper source identity only; no dependency closure, rebuilt helper/runtime provenance, numerical oracle or execution qualification.",
+      "original_command": "add_test([=[c0_runtime_symbolic_compiled_integral_0134d]=] \"/home/viktor/.cache/vkf-merger-0134/native01/vkf_runtime_symbolic_compiled_observation_0134d\" \"/home/viktor/.cache/vkf-merger-0134/native01/generated-seed\" \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_compiled_integral_0134d.vkf\" \"/home/viktor/.cache/vkf-merger-0134/native01/bin/vkf_x64_runner_template\" \"/home/viktor/.cache/vkf-merger-0134/native01/reports/runtime-symbolic-compiled-integral-0134d\" \"integral\" \"/usr/bin/node\" \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_wasm_transport_0134d.mjs\")",
+      "original_properties": "set_tests_properties([=[c0_runtime_symbolic_compiled_integral_0134d]=] PROPERTIES  TIMEOUT \"240\" _BACKTRACE_TRIPLES \"/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt;456;add_test;/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/CMakeLists.txt;0;\")",
+      "ctest_command_line": 151,
+      "ctest_properties_line": 152,
+      "registration_spans": [
+        {
+          "first_line": 445,
+          "last_line": 446,
+          "text": "        add_executable(vkf_runtime_symbolic_compiled_observation_0134d\n            tests/runtime_symbolic_compiled_observation_0134d.cpp)\n"
+        },
+        {
+          "first_line": 455,
+          "last_line": 463,
+          "text": "        foreach(profile IN ITEMS initial derivative integral)\n            add_test(NAME c0_runtime_symbolic_compiled_${profile}_0134d\n                COMMAND vkf_runtime_symbolic_compiled_observation_0134d\n                    \"${VKF_C0_BUILD_ROOT}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tests/runtime_symbolic_compiled_${profile}_0134d.vkf\"\n                    $<TARGET_FILE:vkf_x64_runner_template>\n                    \"${CMAKE_BINARY_DIR}/reports/runtime-symbolic-compiled-${profile}-0134d\" \"${profile}\"\n                    \"${VKF_D_NODE_EXECUTABLE}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tests/runtime_symbolic_wasm_transport_0134d.mjs\")\n            set_tests_properties(c0_runtime_symbolic_compiled_${profile}_0134d PROPERTIES TIMEOUT 240)\n        endforeach()\n"
+        }
+      ],
+      "sources": [
+        {
+          "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_compiled_integral_0134d.vkf",
+          "sha256": "1b352ba4b1f681710f08451e22a91318d2a453b280a10519e135d746970eeca1",
+          "role": "fixture",
+          "inventory_key": "tests/runtime_symbolic_compiled_integral_0134d.vkf",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+            "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+            "relative_path": "tests/runtime_symbolic_compiled_integral_0134d.vkf",
+            "blob_oid": "9d576064a57ecfe4bac783fa9f5c01d10dd21831",
+            "blob_sha256": "1b352ba4b1f681710f08451e22a91318d2a453b280a10519e135d746970eeca1"
+          }
+        },
+        {
+          "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_compiled_observation_0134d.cpp",
+          "sha256": "179344c95b9685fabba483b726b5353d50004782a5172d636cc51a037bbe4417",
+          "role": "registered-cpp-helper",
+          "inventory_key": "tests/runtime_symbolic_compiled_observation_0134d.cpp",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+            "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+            "relative_path": "tests/runtime_symbolic_compiled_observation_0134d.cpp",
+            "blob_oid": "ed183b0bda1ad15eef16066233a069c6db7a0be6",
+            "blob_sha256": "179344c95b9685fabba483b726b5353d50004782a5172d636cc51a037bbe4417"
+          }
+        },
+        {
+          "path": "/home/viktor/.cache/vkf-merger-0134/frozen-bootstrap/tests/runtime_symbolic_wasm_transport_0134d.mjs",
+          "sha256": "42aba6c2aa4c847286d1095524a36efd8fa9bfad027d3d0800953e244c4a3ca3",
+          "role": "registered-transport-helper",
+          "inventory_key": "tests/runtime_symbolic_wasm_transport_0134d.mjs",
+          "git": {
+            "repository": "/home/viktor/Projects/Vektor Flow/bootstrap",
+            "commit": "d8fbc3147eee0f9743f4b33867d78de1db86d3c8",
+            "relative_path": "tests/runtime_symbolic_wasm_transport_0134d.mjs",
+            "blob_oid": "3a2cb825788c9b61aea65e00ad5e81e0c2d489f6",
+            "blob_sha256": "42aba6c2aa4c847286d1095524a36efd8fa9bfad027d3d0800953e244c4a3ca3"
+          }
+        }
+      ]
+    }
+  ]
+}

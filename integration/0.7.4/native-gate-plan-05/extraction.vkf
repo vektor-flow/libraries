@@ -1,0 +1,24 @@
+# Unexecuted independent primitive qualification; IEEE ranks are literal oracles.
+n:.test_json_binary64
+check(value:num,rank:int,negative:bit)->bit:
+    k:n.from_number(value)
+    @:k.valid /\ k.rank=rank /\ k.negative=negative
+scale(value:num,steps:int,up:bit)->num:
+    v:value
+    i:0
+    i<steps?>
+        up? .v:v*2
+        ~up? .v:v/2
+        .i:i+1
+    @:v
+(int((1.0+1.0/4503599627370496.0)*4503599627370496.0)=4503599627370497)?! "exact scaled significand extraction"
+(check(0.0,0,false))?! "zero rank"
+(check(-0.0,0,false))?! "negative zero canonicalized"
+(check(1.0,4607182418800017408,false))?! "one rank"
+(check(-2.5,4612811918334230528,true))?! "negative sign and rank"
+(check(1.0/10.0,4591870180066957722,false))?! "one tenth rank"
+(check(1.0+1.0/4503599627370496.0,4607182418800017409,false))?! "adjacent one rank"
+(check(scale(1.0,1074,false),1,false))?! "minimum subnormal rank"
+(check(scale(1.0,1022,false),4503599627370496,false))?! "minimum normal rank"
+(check(scale(1.0,1022,false)-scale(1.0,1074,false),4503599627370495,false))?! "maximum subnormal rank"
+(check(scale(2.0-1.0/4503599627370496.0,1023,true),9218868437227405311,false))?! "maximum finite rank"

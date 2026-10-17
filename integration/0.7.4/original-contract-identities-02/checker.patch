@@ -1,0 +1,101 @@
+--- a/integration/0.7.4/compiler-gates/check.py
++++ b/integration/0.7.4/compiler-gates/check.py
+@@ -17,7 +17,77 @@
+         raise ValueError('Changed pinned input: ' + str(path))
+ 
+ 
+-def check(path):
++
++def check_registered_supplement(path, manifest):
++    # Exact reviewed supplemental artifact; never replace authoritative source nulls.
++    verify({'path': str(path), 'sha256': '4357b885572e61043d9e2d780dfb20151a6c267e741ab7fa5ad4e54392166271'})
++    supplement = json.loads(Path(path).read_text())
++    if (supplement['schema'] != 1 or supplement['acceptance_credit'] != 0
++            or any(supplement[k] is not False for k in
++                   ('executed', 'execution_authorized', 'release_qualified'))):
++        raise ValueError('Supplement cannot authorize execution or acceptance')
++    verify(supplement['gate_manifest'])
++    if json.loads(Path(supplement['gate_manifest']['path']).read_text()) != manifest:
++        raise ValueError('Supplement belongs to another gate manifest')
++    if supplement['ledger'] != manifest['ledger']:
++        raise ValueError('Supplement belongs to another original ledger')
++    for name in ('frozen_inventory', 'registration', 'ctest'):
++        verify(supplement[name])
++    inventory = json.loads(Path(supplement['frozen_inventory']['path']).read_text())
++    registration = Path(supplement['registration']['path']).read_text().splitlines()
++    ctest = Path(supplement['ctest']['path']).read_text().splitlines()
++    expected = {r['id']: r for r in manifest['rows'] if r['category'] == 'registered-contract'}
++    rows = supplement['rows']
++    if len(rows) != 7 or len(expected) != 7 or {r['id'] for r in rows} != set(expected):
++        raise ValueError('Supplement must cover exactly the seven registered identities')
++    pins = []
++    for recovered in rows:
++        row = expected[recovered['id']]
++        record = row['original_record']
++        if (recovered['original_record_sha256'] != digest(record)
++                or recovered['oracle_evidence_sha256'] != row['oracle_evidence_sha256']
++                or recovered['original_source_sha256'] is not None
++                or record['original_source_sha256'] is not None
++                or recovered['status'] != 'held' or recovered['executable'] is not False
++                or recovered['acceptance_credit'] != 0
++                or recovered['policy_holds'] != row['policy_holds']):
++            raise ValueError('Changed original identity/null/oracle/hold: ' + row['id'])
++        if supplement['ctest'] != {'path': record['original_ctest_file'],
++                                   'sha256': record['original_ctest_sha256']}:
++            raise ValueError('Changed original CTest provenance: ' + row['id'])
++        for name, line_key in (('original_command', 'ctest_command_line'),
++                               ('original_properties', 'ctest_properties_line')):
++            if (recovered[name] != record[name] or ctest.count(record[name]) != 1
++                    or ctest[recovered[line_key] - 1] != record[name]):
++                raise ValueError('Changed original registration: ' + row['id'])
++        for span in recovered['registration_spans']:
++            if '\n'.join(registration[span['first_line'] - 1:span['last_line']]) + '\n' != span['text']:
++                raise ValueError('Changed original CMake registration: ' + row['id'])
++        for source in recovered['sources']:
++            verify(source)
++            data = Path(source['path']).read_bytes()
++            git = source['git']
++            if (git['blob_sha256'] != source['sha256'] or
++                    hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest() != git['blob_oid']):
++                raise ValueError('Changed recovered Git blob: ' + source['path'])
++            if 'inventory_key' in source:
++                if (inventory['commit'] != git['commit'] or
++                        inventory['files_sha256'][source['inventory_key']] != source['sha256']):
++                    raise ValueError('Changed frozen inventory identity: ' + source['path'])
++            else:
++                provenance = record['supplemental_original_checker_provenance']
++                if (provenance['seed_revision'] != git['commit'] or
++                        provenance['fixture_sha256'] != source['sha256']):
++                    raise ValueError('Changed ledger-pinned seed fixture')
++            pins.append(source['path'])
++    return {'verified_registered_contract_identities': len(rows),
++            'verified_source_role_pins': len(pins), 'unique_source_files': len(set(pins)),
++            'all_rows_held': True, 'authoritative_source_nulls_preserved': True,
++            'acceptance_credit': 0,
++            'limitation': 'Source/command identity only; helper dependencies, runtime provenance and execution remain unqualified.'}
++
++
++def check(path, supplement_path=None):
+     manifest = json.loads(Path(path).read_text())
+     if any(manifest[k] is not False for k in ('executed', 'execution_authorized', 'release_qualified')):
+         raise ValueError('Preparation cannot authorize execution or claim acceptance')
+@@ -77,7 +147,8 @@
+     counts = dict(collections.Counter(row['category'] for row in rows))
+     if counts != manifest['category_counts']:
+         raise ValueError('Category counts changed')
+-    return {'identity_metadata_valid': True, 'original_rows': len(rows), 'verified_source_hashes': verified_sources,
++    supplemental_result = check_registered_supplement(supplement_path, manifest) if supplement_path else None
++    return {'registered_contract_source_supplement': supplemental_result, 'identity_metadata_valid': True, 'original_rows': len(rows), 'verified_source_hashes': verified_sources,
+             'held_unavailable_source_identity': unavailable, 'oracle_forms': dict(oracle_forms),
+             'executable_rows': 0, 'native_processes_started': 0, 'acceptance_credit': 0,
+             'limitation': 'A successful metadata check is not an executable gate, source availability waiver, or permission to retry excluded scopes.'}
+@@ -85,7 +156,8 @@
+ 
+ if __name__ == '__main__':
+     try:
+-        print(json.dumps(check(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).with_name('manifest.json')), indent=2))
++        print(json.dumps(check(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).with_name('manifest.json'),
++                               sys.argv[2] if len(sys.argv) > 2 else None), indent=2))
+     except (KeyError, ValueError, OSError, TypeError) as error:
+         print(str(error), file=sys.stderr)
+         sys.exit(1)
