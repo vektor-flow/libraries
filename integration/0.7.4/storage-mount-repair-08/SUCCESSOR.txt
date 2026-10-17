@@ -1,0 +1,85 @@
+SOURCE CANDIDATES ONLY — no deployment or fresh attempt authorized by repair08
+
+1. Fixture contract
+Pin fixture.py AND effective_storage.py as input files in the fresh grant and
+manifest; keep the exact argv/owner/source/input authentication. The argv shape
+is unchanged: mode, charged attempt root, outside source, host PID namespace,
+host network namespace. Only success/nonzero/timeout are accepted. The helper
+must be importable beside the fixture. Do not run the old live07 qualifier
+unchanged: its stdout parser and writable_storage_mounts report expectations
+must consume the mount-snapshot record followed by effective_storage evidence.
+Success requires payload and exact expected exit, authenticated inner finish,
+independent real service join and empty owned descendants. A timeout still needs
+its real descendant/service join; a helper exception is a failed qualification.
+
+The new fixture performs no outside write-open. It checks outside effective
+readonly metadata; historical live07 EROFS evidence is retained unchanged.
+Its only payload write is a bounded exclusive creation below the charged cwd,
+using a no-follow directory FD revalidated by actual mount ID/device/inode.
+It preserves PID/net and root/shm checks and rechecks storage after the write.
+The controller's stdout/stderr FDs already target charged attempt receipts and
+Popen closes other nonstandard inherited FDs. This is a controlled qualification
+snapshot, not proof against concurrent hostile namespace/directory mutation or
+arbitrary inherited descriptors. No unqualified future-workload isolation claim.
+
+2. Minimal mount hardening candidate
+mount-hardening-v5.patch adds three nonrecursive --remount-ro operations, after
+--dev/--proc/shm setup and before the sole attempt bind: /dev/pts, /dev, /proc.
+It places executable source/config in a proposed storage-direct-v5 directory,
+but STATE_HOME remains the one storage-direct-v4 state and existing capacity
+lock. No recovery/enrollment/state migration, capacity increment or reset.
+All controller methods, custody/current/exact historical authentication, limits,
+RAM/physical guards and join paths are unchanged (tested by AST equality).
+--remount-ro also restricts device use on /dev/pts in bwrap's implementation;
+interactive PTY behavior is not qualified or required by these headless fixtures.
+
+This addresses the source-level writable /dev tmpfs exposure and the strict
+checker's /proc/devpts requirement. It does NOT certify inherited Docker/portal
+mounts, or eliminate incoming mount propagation. The checker intentionally
+rejects permission/unknown failures and shared/master propagation. Bwrap v0.11.1
+makes the inherited tree slave, so a fresh topology may still be rejected even
+with this patch. Do not whitelist these failures, relabel them safe, or launch
+repeated variants. Capture the exact mount snapshot and stop. The minimal patch
+is not represented as a complete cure for an unobserved namespace.
+
+For any separately approved v5 deployment, copy the reviewed config to v5;
+retain existing preserved_record_authorities and append the EXACT tuple in
+preserve-v4-record-authority.json. Keep v4 recovery_authority and the one state
+and lock unchanged. Fresh current grants must pin v5 controller, all three exact
+helpers and new config. Old v4 records authenticate against their frozen bundle;
+never replace their pins with v5 pins or loosen tuple matching. Existing v2
+historical bundle remains. Retire/hold older writer entrypoints under coordinator
+control before new owner transitions; this task did not change them.
+
+3. F and A owner succession are distinct
+F has a normal authenticated joined phase F:live07-f-success-01, payload exit1.
+Use the existing Ledger.rotate_owner(kind='joined') with that exact latest
+prior_phase/prior_join and freshly independent Controller.verify_join; do not
+reuse the recovered-terminal initial transition. Test callbacks were mocked,
+not fresh live joins. recovery_admin.py's old rotate CLI only admits initial
+kinds; it cannot perform this normal F rotation. Use the reviewed trusted API.
+
+A has one enrolled-unused transition to retired live07 owner
+01a14932-e9b3-7a33-bff0-0486c870eed7 and NO A phase. Existing API cannot rotate it:
+enrolled-unused forbids an existing transition; joined requires a phase/join.
+unused-owner-revocation.patch separately adds ONE A-only branch to owner() and
+rotate_owner(). It requires exactly that first unused chain position, no A phase,
+no active phase in either lane, and an immutable pinned full current snapshot
+(equal under the existing lock at mutation). Supply kind unused-owner-revocation,
+version direct-directory-v2, worker A, exact coordinator/policy/previous,
+from_owner retired live07, to_owner a fresh never-used owner, unused_state the
+snapshot pin, and phase_sequence=len(snapshot.phases), currently 2.
+No prior_phase, prior_join or recovery_event fields are permitted.
+
+Perform any F owner transition before freezing that A snapshot. Pin the snapshot
+and transition outside every writable attempt root. The reader keeps original
+phase rows/recovery/charges intact, enforces the barrier for future A phases and
+rejects retired-owner phases. The mutation appends only a transition pin; it
+creates no phase, join, completion, recovery, capacity or charge. The existing
+trusted coordinator API is the authorization boundary (same-OS-user caveat in
+Ledger still applies); a file hash is not a new cryptographic signing scheme.
+Fresh owner state/grants/manifests are required; no pending live07 grant reuse.
+
+Preserve 2/16 attempts and 8MiB/64MiB consumed; 14/56MiB remain, not new authority.
+F cumulative 19,791,912,960 bytes; A 18,778,218,496 bytes; active RAM intent zero.
+No compiler/native/PDF credit; D267/D289/A333 exclusions remain unchanged.

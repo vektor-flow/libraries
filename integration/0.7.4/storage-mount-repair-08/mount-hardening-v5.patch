@@ -1,0 +1,29 @@
+--- a/storage_controller.py
++++ b/storage_controller.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Inactive v4 code successor; preserved v2 ledger/grant protocol. No shipped config, policy, budget, root, or activation.
++"""Inactive v5 source candidate; preserved v2 ledger/grant protocol. No shipped config, policy, budget, root, or activation.
+ 
+ One controller handles the preserved 3GiB and A-only 8GiB profiles. Old loop
+ launchers are deliberately not dispatched by this executable. All managed
+@@ -21,7 +21,7 @@
+ from storage_paths import contained, directory, pinned, pinned_json, require
+ 
+ HERE = Path(__file__).resolve().parent
+-STATE_HOME = HERE  # Successor state; historical v2 state remains pinned and unchanged.
++STATE_HOME = HERE.parent/'storage-direct-v4'  # Same authoritative state and lock; no ledger fork.
+ PREDECESSORS = {
+     3*GIB: ('run-worker-capacity21_9gb-20261015.py',
+             '19946c775339233a9bb98b05e6a6fa6d46b7c224c00cde604a128b975b37f274'),
+@@ -76,7 +76,9 @@
+ def sandbox(m):
+     root = m['attempt_root']
+     return ['/usr/bin/bwrap', '--ro-bind', '/', '/', '--dev', '/dev', '--proc', '/proc',
+-            '--ro-bind', '/dev/shm', '/dev/shm', '--bind', root, root,
++            '--ro-bind', '/dev/shm', '/dev/shm',
++            '--remount-ro', '/dev/pts', '--remount-ro', '/dev', '--remount-ro', '/proc',
++            '--bind', root, root,
+             '--unshare-pid', '--unshare-net', '--die-with-parent', '--chdir', m['cwd'],
+             '--', *m['argv']]
+ 

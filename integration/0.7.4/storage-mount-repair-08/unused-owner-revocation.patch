@@ -1,0 +1,49 @@
+--- a/storage_admission.py
++++ b/storage_admission.py
+@@ -1,4 +1,4 @@
+-"""Inactive v4 storage transaction core; paired with storage_controller.py.
++"""Inactive v5 storage transaction core; paired with storage_controller.py.
+ 
+ V1 policies retain their original owner/history. V2 grants/state add custody,
+ launch claims, authenticated inner completion and append-only owner transitions.
+@@ -369,6 +369,28 @@
+                         and all(r['worker'] != lane or r['sequence'] >= t['phase_sequence']
+                                 for r in data['phases'].values()), 'unused owner anchor')
+                 require('prior_join' not in t and 'prior_phase' not in t, 'unused is not joined')
++            elif kind == 'unused-owner-revocation':
++                # Exact A enrolled-unused case; trusted coordinator transition
++                # pins an immutable full pre-transition snapshot. No phase/join
++                # is invented and no charge or recovery record is changed.
++                before = pinned_json(t['unused_state'])
++                require(lane == 'A' and previous is not None
++                        and rec['transitions'].index(pin) == 1
++                        and pinned_json(previous)['kind'] == 'enrolled-unused',
++                        'only first unused A owner may be revoked')
++                self.released(before)
++                require(before['lanes'][lane] == dict(rec, transitions=[previous])
++                        and not any(r['worker'] == lane for r in before['phases'].values())
++                        and not self.active_rows(before), 'unused snapshot anchor')
++                require(type(t['phase_sequence']) is int
++                        and t['phase_sequence'] == len(before['phases'])
++                        and all(k in data['phases'] and data['phases'][k] == r
++                                for k,r in before['phases'].items())
++                        and all(r['worker'] != lane or
++                                (r['sequence'] >= t['phase_sequence'] and r['owner'] != owner)
++                                for r in data['phases'].values()), 'unused owner history')
++                require(not any(k in t for k in ('prior_join','prior_phase','recovery_event')),
++                        'unused revocation is not phase completion')
+             else:
+                 require(kind == 'joined', 'unknown owner transition kind')
+                 prior = data['phases'][t['prior_phase']]
+@@ -396,6 +418,11 @@
+             elif kind == 'enrolled-unused':
+                 require(lane == 'A' and not phases and not rec['transitions']
+                         and t['phase_sequence'] == len(data['phases']), 'exact unused A transition only')
++            elif kind == 'unused-owner-revocation':
++                require(lane == 'A' and not phases and len(rec['transitions']) == 1
++                        and not self.active_rows(data), 'exact quiescent unused A only')
++                require(recovery.exact(pinned_json(t['unused_state']), data),
++                        'unused snapshot no longer current')
+             else:
+                 require(kind == 'joined' and phases, 'absent prior phase')
+                 key, prior = max(phases, key=lambda item: item[1]['sequence'])

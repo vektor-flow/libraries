@@ -1,0 +1,69 @@
+STORAGE MOUNT REPAIR08 — SOURCE-ONLY RESULT; NO LIVE ISOLATION PASS
+Owner 01a14938-16a8-7ea2-8fd3-8ecbde4eba76
+Coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31
+Output integration/0.7.4/storage-mount-repair-08
+Grant source ca3015b4e65a0627c65e2cdc4048b93a0c8673ad.
+Authorized disjoint coordinator advances recorded through aa4784f1f603a46e2302431f89530f3de583b5b4.
+Latest advance forwards eight existing PDF owner fields; no storage input changed.
+
+DELIVERED
+fixture.py + effective_storage.py replace the live07 line22 name/fstype selector
+with component-wise no-follow O_PATH, fdinfo mnt_id, fstat device/object identity
+and descriptor-bound statvfs. Kernel escapes decode once (space/tab/newline/
+backslash); opaque nsfs roots remain data. Actual mount ancestry identifies
+hidden stacks/overmounts. Six bwrap device nodes require character type AND exact
+rdev; a regular file at /dev/null fails. Every reachable rw regular-file or
+directory mount except the exact charged attempt fails, including nested tmpfs.
+Permissions, missing paths without a proven cover, unknown IDs/flags, symlinks,
+disconnected/cyclic/propagating topology and changing observations fail closed.
+A hidden old boundary may correctly resolve as an ordinary directory in its
+covering mount. The fixture keeps namespace/root/shm checks and writes only its
+charged cwd; outside readonly is checked without a write-open probe.
+
+VALIDATION
+44 bounded tests: topology/adversarial controls, actual O_PATH metadata and tiny
+owned temp files, unused-owner transitions/admission, exact historical bundle
+rejection and unchanged controller guard methods. See tests-result.json and raw
+tests.stderr.txt for measured duration and joined child. No live bwrap, service,
+compiler/native execution, peer writes, operational changes or commits.
+Temporary test fixtures removed; no test grandchildren/services were launched.
+Only final evidence retained. Initial test-development failures were corrected
+(nsfs opaque roots, test injection, owned recovery-authority binding).
+
+NARROW CANDIDATES, NOT INSTALLED
+mount-hardening-v5.patch adds readonly remounts for /dev/pts,/dev,/proc and points
+v5 executable source at the same authoritative v4 ledger/lock. Upstream bwrap
+0.11.1 source confirms --dev creates writable tmpfs; installed v4 argv lacks a
+remount. This is source-level evidence, not a demonstrated live write breach.
+The candidate does not resolve inaccessible inherited mounts or incoming mount
+propagation: strict qualification may still fail. See SUCCESSOR.txt; no blind
+retry, filter relaxation, or claim that enumerated Docker/portal paths are safe.
+
+F normal authenticated join exists despite payload exit1. A was rotated to
+retired live07 but never launched. Existing rotate semantics cannot replace that
+unused A owner. Separate unused-owner-revocation.patch adds the minimal exact
+A-only pinned-snapshot/locked branch, tested against owned copies with real
+historical phase rows. No phase/join/history fabrication or charge changes.
+SUCCESSOR.txt gives exact F/API and A/snapshot requirements plus current versus
+historical source/config authentication. preserve-v4-record-authority.json is the
+exact bundle a future v5 config must append, preserving v2 provenance too.
+
+EVIDENCE / LIMITS
+Read live07 handoff, fixture, payload traceback/result, root-review and installed
+sandbox argv. Earlier EROFS/root/shm/PID/net checks passed historically; line22
+failed before payload creation. No full live mountinfo snapshot was preserved,
+so this task cannot classify every historical listed path retrospectively.
+54 input pins unchanged; only coordinator-authorized status text changed.
+Evidence readers authenticate current recovery/owner state without locks/writes
+or new live service observation. Operational v4 code/state/config/grants unchanged.
+2 attempts/8MiB consumed; 14 attempts/56MiB remain. F19,791,912,960 bytes;
+A18,778,218,496 bytes; active RAM intent0. No refund or new execution authority.
+Native/original419 counts unchanged; D267/D289/A333 remain excluded.
+
+Sources (downloaded tag source pins in documentation-pins.json):
+https://github.com/containers/bubblewrap/blob/v0.11.1/bubblewrap.c
+https://github.com/containers/bubblewrap/blob/v0.11.1/bind-mount.c
+https://github.com/containers/bubblewrap/blob/v0.11.1/bwrap.xml
+https://kernel.org/doc/html/v6.15/filesystems/proc.html (mountinfo and fdinfo)
+Installed package 0.11.1-1ubuntu0.3 and bwrap binary pinned in evidence.json;
+Ubuntu downstream source patches were not independently reconstructed.
