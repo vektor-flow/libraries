@@ -1,15 +1,96 @@
-CONSOLIDATION IN PROGRESS — not release qualification.
-Authoritative branch: consolidate/0.7.4-shared-base-20261017
-All new work must use this shared base. Worker snapshots are historical evidence.
-Dispatcher timer/path stopped and service runtime-masked at user request.
-Native: A340/E374/A343 repairs and F348/F349 preparation improvements.
-Host: completed E382 producer provenance; selectable/editable PDF remains incomplete.
-Held: C309/C310 stale picking; B347 incomplete conflicting drafts; A344 unsuccessful alternatives.
-Blocker: full caller-context document_label_scene.compose return shape; original compose passes small A345 fixture.
-Public API intent: latex.tex2pdf(source, dest: ..., selectable: ..., editable: ...) using direct named parameters.
-Selection embeds exact TeX, partial copies in authored order, especially Adobe/Edge compatibility.
-Editable defaults false and implies source embedding/selectability in our viewer.
-Targets: cold40-page PDF<1s; small edit10ms; neither target established.
-Canonical293/419 unchanged; full WASM bad_alloc unresolved.
-Excluded D267/D289/A333 must not be retried/rephrased/transferred.
-Final test/cleanup report pending.
+SHARED 0.7.4 BASE — 2026-10-17 — NOT RELEASE QUALIFIED
+
+START HERE
+Repository: /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries
+Branch: consolidate/0.7.4-shared-base-20261017
+Tested source commit: 48e22d350b7d25b6a158f0d5ab6899952a102bde
+The subsequent handover commit only adds reports, requirements and source pins.
+Use this branch for all further LaTeX integration. Do not rebuild old worker snapshots.
+No remote publication or coordinator ownership transfer has been performed.
+
+WORK IS HELD FOR TAKEOVER
+The dispatcher timer and completion path are stopped; dispatcher service is runtime-masked.
+No worker services were running when this report was sealed. Do not auto-refill stale queues.
+Read .coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/user-consolidation-hold-20261017.json from the project root.
+The new coordinator must establish current ownership before unmasking dispatch.
+Historical worker branches remain evidence, not active source. Other projects are untouched.
+
+WHAT IS IN THIS BASE
+Native: A340/E374/A343 repairs plus F348 copy-free lookup and F349 UTF-16 cache.
+335 authenticated active snapshot modules imported; additional existing tests/modules retained.
+Host: completed E382 producer source provenance; no claim of finished PDF selection/editing.
+UI: complete vendored package from bootstrap commit 623bd309d4cbad52544446a701f833148ed15011,
+replacing the private partial worker dependency. See vendor/vektor-flow/UPSTREAM.json.
+Imports and hashes: source-imports.json, native-source-pins.json, toolchain-pins.json.
+
+ONE BASELINE — EXACT OUTCOME
+See baseline-results.json and /mnt/development/CompilerOptimization/consolidation-20261017/baseline01.
+All hashed source inputs were unchanged during the run. Service terminated, MainPID=0.
+Node: 211/213 passed; failures in document-text.test.mjs:
+- math environments preserve surrounding paragraph geometry like dollar math
+- existing dash breaks are available before automatic hyphenation
+Differences include new provenance fields for differently authored but visually equivalent text.
+Verify the full diff before changing tests; geometry equivalence must remain strict, and source
+mapping must receive separate exact assertions. These failures are not marked waived or passed.
+Browser UI Vitest: 88/88 tests, nine files passed. Analytic curves check passed.
+Python initially failed imports for scipy/pymupdf. After installing dependencies, unchanged
+sources passed 25 tests with four native compiler tests skipped (VKF_COMPILER unset).
+Normalization passed. Full native compiler FAILED in 130.265 seconds:
+  document_label_scene.compose: numeric return paths require compatible fixed shapes
+No new native executable was produced. No 40-page PDF timing can be attributed to this base.
+Full WASM bad_alloc remains unresolved; physical GPU qualification is excluded by policy.
+Original compiler acceptance remains 293/419; this application run did not rerun that suite.
+
+NEXT WORK, IN ORDER
+1. Resolve Node geometry-vs-provenance test contracts without dropping correctness checks.
+2. Reduce the full caller-context compose failure from this exact shared source.
+   A345 original compose passes its small five-module fixture; A344 explicit return type
+   and typed record replacement alternatives both failed full compilation and are not adopted.
+3. Build this source, then use D301's forty-page driver and verify output/page count before timing.
+4. Complete remaining source mappings, PDF embedding and API/reader integration.
+5. Qualify native/WASM and package only demonstrated fixes; do not relabel old binaries 0.7.4.
+
+HELD CANDIDATES / LIMITS
+B347: incomplete conflicting 38-merge draft, including text_paragraph conflict. Not adopted.
+C309/C310: stale picking after updateTransform; private route not adopted. C311 sealed handoff.
+F353: capture stopped before launch; F351 timeout/F352 OOM do not establish document demands.
+E382: inline host provenance only. Display math, revision hashes, native facade, embedded PDF
+source, viewer selection and editing remain unfinished.
+Excluded D267 allocator, D289 typedArena/fixedspread and A333 compiler-body scope must not be
+retried, rephrased or transferred. Preserve current cumulative budgets; no reset or guard bypass.
+
+USER CONTRACT
+latex.tex2pdf(source, dest: ..., selectable: ..., editable: ...) with separate named arguments.
+Cold 40-page save <1 second; small edit regeneration ~10 ms. Neither target is established.
+Selectable embeds exact TeX and glyph/source mapping; partial copying uses authored source order.
+Editable defaults false, implies selectable/source embedding, transactional edits and stale
+revision rejection. dest is the save path; use atomic output replacement.
+Ordinary-reader compatibility prioritizes Adobe and Edge. ToUnicode plus matching ActualText
+is the intended fallback; source attachment alone does not implement ordinary-reader copying.
+Synthetic Poppler/PDF.js evidence exists under CompilerOptimization/pdf-reader-compat-20261017;
+Adobe/Edge interactive compatibility has NOT been demonstrated.
+Unified merged selection outlines, glyph/word/scope/text selection and drag/Ctrl+A remain required.
+Bitmap content stays embedded pixels. Do not claim host-JS timings as native compiler performance.
+
+REPRODUCING THE BASELINE
+Tools: /mnt/development/CompilerOptimization/consolidation-20261017/{tools,venv}
+Node Vitest 4.1.10; Python additional requirements are in test-requirements.txt.
+Run run-baseline.py with --artifacts pointing to a NEW directory, --python to venv/bin/python,
+--vitest to tools/node_modules/vitest/vitest.mjs, and --recipe from toolchain-pins.json.
+The runner records stage failures but returns process success: inspect results.json, never just
+systemd exit status. It does not run the forty-page renderer automatically after compilation.
+D301 driver: /home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration301/driver.py
+SHA256 a095a46a9cb63b24c1a658c14fb8b671f7bce18c382e16ef72a523cc4ad87733
+
+CLEANUP
+1,610 obsolete generated intermediate files removed: 31,936,157,180 bytes (31.94 GB).
+See cleanup-summary.json and its exact deletion receipt. Historical cache payload references
+may now intentionally be unavailable; logs/manifests/source remain. No allocation cap reset.
+Keep useful 0.7.3-string-vectors-r2 release, pinned D288 compiler/B318 runtime, original40
+reference output, fonts, current reproductions and current diagnostic evidence.
+No disks remounted, no archive migration, no unrelated worktrees deleted.
+
+TAKEOVER MESSAGE
+Continue from this HANDOVER.txt and this shared branch. First verify branch/status and source
+pins. Keep old workers held until they can use this exact base. Report actual failed gates and
+newly measured full-save times; do not repeat historical microbenchmark times as release results.

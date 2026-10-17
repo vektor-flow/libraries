@@ -1,0 +1,151 @@
+{
+  "stages": [
+    {
+      "name": "node-tests",
+      "argv": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/amsart-flow.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/amsart.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/bibtex.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/bitmap-glyphs.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/document-native.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/document-project.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/document-shaping-cache.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/document-text.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/faktor.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/field-packet.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/latex-completion.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/math-layout.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/pdf-font-profile.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/pdf-images.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/pdf-links.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/pdf-text-positions.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/text-flow.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/tikz-controls.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/tikz.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/transitions.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/typing-layout.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/vector-pdf.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/branching-transport.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/browser-ui/reuse.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/browser-ui/scale.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/browser-ui/selection.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/embedding-transport.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/object-transport.test.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/visual-properties.test.mjs"
+      ],
+      "exit": 1,
+      "seconds": 12.087201908929273,
+      "status": "fail"
+    },
+    {
+      "name": "browser-ui-unit-tests",
+      "argv": [
+        "node",
+        "/mnt/development/CompilerOptimization/consolidation-20261017/tools/node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+        "--maxWorkers=1",
+        "--no-file-parallelism",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/browser-ui/coordinate-view-3d.test.js",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/browser-ui/coordinate-view.test.js",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/browser-ui/geometry-property-capabilities.test.js",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/browser-ui/geometry-render-size.test.js",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/browser-ui/native-plot-interaction.test.js",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/browser-ui/playground-gpu-scene.test.js",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/browser-ui/retained-plot-view.test.js",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/browser-ui/visible-grid-snap.test.js",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/tests/browser-ui/vkf-view-transform.test.js"
+      ],
+      "exit": 0,
+      "seconds": 3.0703910989686847,
+      "status": "pass"
+    },
+    {
+      "name": "analytic-curves",
+      "argv": [
+        "node",
+        "tests/browser-ui/analytic-curves.check.mjs"
+      ],
+      "exit": 0,
+      "seconds": 0.3647685550386086,
+      "status": "pass"
+    },
+    {
+      "name": "python-tests",
+      "argv": [
+        "/mnt/development/CompilerOptimization/consolidation-20261017/venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "examples/gpu-math/tests",
+        "-p",
+        "test_*.py"
+      ],
+      "exit": 1,
+      "seconds": 0.41470388998277485,
+      "status": "fail"
+    },
+    {
+      "name": "native-normalize",
+      "argv": [
+        "/mnt/development/CompilerOptimization/consolidation-20261017/venv/bin/python",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/normalize_module_aliases.py",
+        "--source-dir",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf",
+        "--output-dir",
+        "/mnt/development/CompilerOptimization/consolidation-20261017/baseline01/native/normalized"
+      ],
+      "exit": 0,
+      "seconds": 2.7694965309929103,
+      "status": "pass"
+    },
+    {
+      "name": "native-full-build",
+      "argv": [
+        "/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration288-record01/vkf-strict",
+        "-b",
+        "/mnt/development/CompilerOptimization/consolidation-20261017/baseline01/native/normalized/source/native_document_cli.vkf",
+        "-o",
+        "/mnt/development/CompilerOptimization/consolidation-20261017/baseline01/native/native-document-cli",
+        "--diagnostics"
+      ],
+      "exit": 1,
+      "seconds": 130.26500055205543,
+      "status": "fail"
+    }
+  ],
+  "release_qualified": false,
+  "source_commit": "48e22d350b7d25b6a158f0d5ab6899952a102bde",
+  "native_binary_produced": false,
+  "blocked_gates": [
+    "40-page save/correctness/timing requires successful native full build and dedicated renderer harness",
+    "full WASM remains an outstanding historical bad_alloc blocker; not rerun as a passing gate",
+    "Adobe/Edge interactive PDF selection and TeX editing remain unimplemented/unqualified",
+    "physical GPU qualification excluded by existing stop policy"
+  ],
+  "source_posthash_match": true,
+  "canonical_original419": "293/419 unchanged; original compiler suite not rerun by this application baseline",
+  "python_dependency_recheck": {
+    "exit": 0,
+    "tests": 29,
+    "passed": 25,
+    "skipped": 4,
+    "reason": "Installed missing scipy and pymupdf; source unchanged",
+    "stderr": "/mnt/development/CompilerOptimization/consolidation-20261017/baseline01/python-tests-dependencies-fixed.stderr"
+  },
+  "counts": {
+    "node": {
+      "passed": 211,
+      "failed": 2
+    },
+    "vitest": {
+      "passed": 88,
+      "files": 9
+    }
+  }
+}
