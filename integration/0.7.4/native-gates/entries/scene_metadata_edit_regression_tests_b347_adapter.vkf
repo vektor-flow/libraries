@@ -11,7 +11,7 @@ native_gate_main():
     link="{\"kind\":\"link\",\"color\":[0,1,0],\"target\":{\"type\":\"uri\",\"value\":\"https://example.test\"}}"?! "Excluded link paint preserves exact metadata"
     packet.leaf(typed.arena,1,10,20,7)="{\"kind\":\"glyph\",\"key\":\"k\",\"glyphParts\":[\"part\"],\"extra\":true,\"color\":[1,0,0],\"destinationIds\":[\"old\",\"new\"],\"x\":10,\"y\":20,\"flowLine\":7}"?! "RGB arity and paint-before-destination ordering"
     shim:legacy.edit(original,"[1,0,0]","[\"new\"]",false)
-    packet.leaf(shim.arena,1,10,20,7)=packet.leaf(typed.arena,1,10,20,7)?! "Legacy edge and typed edit parity"
+    (packet.leaf(shim.arena,1,10,20,7)=packet.leaf(typed.arena,1,10,20,7))?! "Legacy edge and typed edit parity"
     metadata.encode(original.arena.metadata,original.arena.metadata_roots.(1))=earlier?! "Earlier metadata independence"
     rgba:legacy.edit_typed(original,[1.0,0.0,0.0,0.5],[],true)
     rgba.arena.paint_table.(rgba.arena.paints.(0)).alpha=0.5?! "Included link RGBA paint"

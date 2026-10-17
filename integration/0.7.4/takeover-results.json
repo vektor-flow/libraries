@@ -151,6 +151,26 @@
       "retained_bytes_approx": 428880000,
       "remaining_F_cap_bytes": 2144996096,
       "fixture_fixes": "18 negated assertion groupings and scalar dollar escaping"
+    },
+    "F360": {
+      "group": "02_scene_provider",
+      "positive_cases": 11,
+      "compile_exit": 1,
+      "runtime_executed": false,
+      "diagnostic": "scene_metadata_edit_regression_tests:14 assertion condition must be scalar, got str",
+      "next": "Prepare minimal equality/assertion grouping control; no production fix established"
+    },
+    "F361": {
+      "control": "Bare call-to-call string equality assertion rejects at compile; grouped equal0 and unequal1 exactmarker",
+      "root_verified_unique_inputs_results_pins": 64,
+      "evidence": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iteration361-equality01/reviewed-results.json"
+    },
+    "F362": {
+      "compile_exit": 1,
+      "runtime_executed": false,
+      "diagnostic": "scene_anchor_selection_regression_tests:12 assertion condition must be scalar, got str",
+      "fixture_changes": "Two metadata equality assertions parenthesized; sixstaticchecks pass",
+      "next": "Fresh static assertion grouping review; no buildadmission"
     }
   }
 }
