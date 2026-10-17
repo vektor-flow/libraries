@@ -1,0 +1,49 @@
+--- a/integration/0.7.4/compiler-controls-binding-23/build_packet.py
++++ b/integration/0.7.4/compiler-controls-binding-23/build_packet.py
+@@ -6,9 +6,9 @@
+ sys.path.insert(0,str(HERE.parent/'compiler-build-preparation-03'))
+ import prepare as p, payload
+ from authenticate import sha,pin,read,save
+-HEAD='124ded9a103af1df108ba5b3334021d78b811c65'
++HEAD='9dbabcaea9fce28129469e31a139a8548a14ab22'
+ NATIVE=Path('/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01')
+-SELECTIONS=('d288','metadata','a345','f364','a347','full-app')
++SELECTIONS=('metadata',)
+ def main():
+  resource.setrlimit(resource.RLIMIT_AS,(512*1024**2,)*2);resource.setrlimit(resource.RLIMIT_CPU,(50,50));resource.setrlimit(resource.RLIMIT_CORE,(0,0))
+  started=time.monotonic();assert p.current_head()==HEAD
+@@ -41,28 +41,16 @@
+  # Explicit Valgrind launcher/script/interpreter and amd64 memcheck engine/preloads.
+  for path in ['/usr/bin/valgrind','/usr/bin/valgrind.bin','/bin/sh','/usr/libexec/valgrind/memcheck-amd64-linux','/usr/libexec/valgrind/vgpreload_core-amd64-linux.so','/usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so','/usr/libexec/valgrind/default.supp']:
+   extra.append(pin(path))
+- origins=[pin(p.D/'plan.json'),pin(p.CACHE/'Proof/tests/independent-worker-D/iteration288-ownership02/plan.json')]
+- for folder in [p.D,p.CACHE/'Proof/tests/independent-worker-D/iteration288-ownership02']:
+-  origins += [pin(c['source']) for c in read(folder/'plan.json')['cases']]
++ origins=[pin(p.REPAIR/'regressions/metadata_actual_lengths.vkf')]
+  counts=[]
+  for selection in SELECTIONS:
+   out=HERE/'staging'/selection
+   plan=p.tests_plan(out,review,auth,receipt,selection)
+-  if selection == 'd288':
+-   # The pinned driver resolves cwd/compiler/self_hosted/stdlib, not VKF_HOME.
+-   # Sources/output argv stay absolute; RUN/Valgrind cwd stays per-case.
+-   compile_stages = [stage for stage in plan['stages'] if stage['name'].endswith('-compile')]
+-   assert len(compile_stages) == 10 and len(plan['stages']) == 20
+-   for stage in compile_stages:
+-    stage['cwd'] = str(out/'home')
+-   valgrind_stages = [stage for stage in plan['stages'] if stage.get('valgrind') is True]
+-   assert len(valgrind_stages) == 10
+-   for stage in valgrind_stages:
+-    assert stage['argv'][0] == '/usr/bin/valgrind'
+-    assert not any(arg.startswith('--vgdb') for arg in stage['argv'])
+-    # Optional debugger IPC creates FIFOs rejected by installed accounting.
+-    # Keep every original Memcheck/leak/error option and oracle unchanged.
+-    stage['argv'].insert(1, '--vgdb=no')
++  assert selection == 'metadata' and len(plan['cases']) == 1 and len(plan['stages']) == 3
++  compile_stages = [stage for stage in plan['stages'] if stage['name'].endswith('-compile')]
++  assert len(compile_stages) == 1 and not any(stage.get('valgrind') for stage in plan['stages'])
++  # Actual native17 driver searches cwd/compiler/self_hosted/stdlib; VKF_HOME is insufficient.
++  compile_stages[0]['cwd'] = str(out/'home')
+   plan['directories']=[str(x) for x in sorted(out.rglob('*')) if x.is_dir() and not x.is_symlink()]
+   plan['symlinks']=[dict(path=str(x),target=str(x.resolve()),sha256=sha(x)) for x in sorted(out.rglob('*')) if x.is_symlink()]
+   merged={x['path']:x for x in plan['inputs']+extra+origins+plan['application_inputs']}

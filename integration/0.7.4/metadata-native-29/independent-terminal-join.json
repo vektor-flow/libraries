@@ -1,0 +1,158 @@
+{
+  "verified": true,
+  "phase": "A:metadata-native29-01",
+  "join": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/receipts/service-join.json",
+    "sha256": "4a1ed5938463632747f40aba82b60beca7af7de4d676ed7e96ab9b01ea55f002"
+  },
+  "properties": {
+    "LoadState": "loaded",
+    "ActiveState": "failed",
+    "InvocationID": "3d7effa83fbb4499ba43cda23fd35f06",
+    "TimeoutStopUSec": "10s",
+    "RuntimeMaxUSec": "5min 30s",
+    "MainPID": "0",
+    "Result": "exit-code",
+    "OOMPolicy": "kill",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "199",
+    "ControlGroup": "",
+    "MemoryMax": "8589934592",
+    "MemorySwapMax": "0",
+    "TasksMax": "128",
+    "KillMode": "control-group"
+  },
+  "exact_execstart": true,
+  "identities": [
+    {
+      "saved": {
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/storage_controller.py",
+          "--config-sha256",
+          "06af8e27a534b912ff9b0a61107e1a640ab6408af2bd667b6a065a0dbf6965c0",
+          "--grant",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/metadata-native-29/grant.json",
+          "--grant-sha256",
+          "2b664f9fa60f7bca9176260151e67b6871d7fddcabb3d71b42dca8d3dc53ff41",
+          "--manifest",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/metadata-native-29/manifest.json",
+          "--manifest-sha256",
+          "837dace0aea5584dd1abf612db0da524ad0202edd3a0465e054123fa7b3368f7"
+        ],
+        "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+        "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/codex-phone-host.service",
+        "pid": 230024,
+        "starttime": 75943899
+      },
+      "observed": null
+    },
+    {
+      "saved": {
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/storage_controller.py",
+          "--config-sha256",
+          "06af8e27a534b912ff9b0a61107e1a640ab6408af2bd667b6a065a0dbf6965c0",
+          "--grant",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/metadata-native-29/grant.json",
+          "--grant-sha256",
+          "2b664f9fa60f7bca9176260151e67b6871d7fddcabb3d71b42dca8d3dc53ff41",
+          "--manifest",
+          "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v9/metadata-native-29/manifest.json",
+          "--manifest-sha256",
+          "837dace0aea5584dd1abf612db0da524ad0202edd3a0465e054123fa7b3368f7",
+          "--inside-service"
+        ],
+        "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+        "cgroup": "/user.slice/user-1000.slice/user@1000.service/vkfworkers.slice/vkfworkers-a.slice/vkfworkers-a-metadata-native29-01.service",
+        "pid": 230366,
+        "starttime": 75945488
+      },
+      "observed": null
+    },
+    {
+      "saved": {
+        "pgrp": 230787,
+        "pid": 230787,
+        "ppid": 230366,
+        "session": 230787,
+        "starttime": 75946372,
+        "state": "R"
+      },
+      "observed": null
+    },
+    {
+      "saved": {
+        "pgrp": 230787,
+        "pid": 231082,
+        "ppid": 230787,
+        "session": 230787,
+        "starttime": 75946767,
+        "state": "S"
+      },
+      "observed": null
+    },
+    {
+      "saved": {
+        "pgrp": 230787,
+        "pid": 231083,
+        "ppid": 231082,
+        "session": 230787,
+        "starttime": 75946772,
+        "state": "S"
+      },
+      "observed": null
+    }
+  ],
+  "cgroup_empty": true,
+  "outer_controller_joined": true,
+  "owned_descendants_joined": true,
+  "raw_owned_join": {
+    "guard_error": null,
+    "limitations": [
+      "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+    ],
+    "no_live_descendants": true,
+    "orphaned_descendant_on_exit": false,
+    "reaped_by_controller": [
+      {
+        "pid": 231082,
+        "starttime": 75946767,
+        "wait_status": 256
+      }
+    ],
+    "remaining_identities": [],
+    "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+    "timed_out": false,
+    "tracked": [
+      {
+        "pgrp": 230787,
+        "pid": 230787,
+        "ppid": 230366,
+        "session": 230787,
+        "starttime": 75946372,
+        "state": "R"
+      },
+      {
+        "pgrp": 230787,
+        "pid": 231082,
+        "ppid": 230787,
+        "session": 230787,
+        "starttime": 75946767,
+        "state": "S"
+      },
+      {
+        "pgrp": 230787,
+        "pid": 231083,
+        "ppid": 231082,
+        "session": 230787,
+        "starttime": 75946772,
+        "state": "S"
+      }
+    ]
+  },
+  "extra_properties": "ExecMainStartTimestampMonotonic=759454880683\nExecMainExitTimestampMonotonic=759479844829\nMemoryPeak=190787584\nMemorySwapPeak=0\nCPUUsageNSec=25337797000\n"
+}

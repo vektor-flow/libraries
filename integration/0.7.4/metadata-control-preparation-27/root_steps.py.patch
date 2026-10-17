@@ -1,0 +1,31 @@
+--- a/integration/0.7.4/compiler-controls-binding-23/root_steps.py
++++ b/integration/0.7.4/compiler-controls-binding-23/root_steps.py
+@@ -1,4 +1,4 @@
+-"""ROOT-ONLY FUTURE RECIPE. Not executed by preparation11.
++"""ROOT-ONLY FUTURE RECIPE. Not executed by metadata preparation27.
+ 
+ Requires an independently issued, pinned real root decision. Each step is one-shot.
+ No launch function: the installed controller remains the only execution path.
+@@ -31,7 +31,7 @@
+               and d['timeout_seconds']==a.TIMEOUT and d['observed_only_toolchain_accepted'] is True,
+               'root resource/toolchain decision required')
+     a.require(isinstance(d['owner'],str) and d['owner'] and type(d['iteration']) is int
+-              and d['iteration']>26, 'fresh root execution owner/iteration required')
++              and d['iteration']>27, 'fresh root execution owner/iteration required')
+     a.require(d['boot']==Path('/proc/sys/kernel/random/boot_id').read_text().strip(), 'boot changed')
+     q=a.load_pin(s['qualification_review'])
+     a.require(d['boot']==q['boot'] and q['v6_bundle']==s['v6_bundle'], 'qualified installed bundle')
+@@ -83,10 +83,10 @@
+         before=ledger.snapshot();quiescent(before)
+         phases=[(k,r) for k,r in before['phases'].items() if r['worker']=='A']
+         key,row=max(phases,key=lambda x:x[1]['sequence'])
+-        assert key=='A:compiler-native17-01' and row['sequence']==13 and row['stage']=='joined'
+-        assert ledger.owner(before,'A')=='01a14a07-a6c3-7941-b133-31fe3cbbee71'
++        assert key=='A:d288-native24-01' and row['sequence']==14 and row['stage']=='joined'
++        assert ledger.owner(before,'A')=='01a14a27-ff1d-7620-9972-3885a039887f'
+         assert d['owner'] != row['owner'], 'fresh execution owner required'
+-        assert row['join'] == {'path': '/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/receipts/service-join.json', 'sha256': '59a64d4dd9c467d71de4264ddf2c3f6fe8d62763ef9809c16f5ec56aef95b150'}
++        assert row['join'] == {'path': '/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/receipts/service-join.json', 'sha256': '1b0f6b8b7dd6e8f7b655da068158c57091aec1899617e5770e34c673e38e7118'}
+         assert row['owner']==ledger.owner(before,'A') and verify_join(row,pinned_json(row['join'])) is True
+         root.mkdir(mode=0o700)
+         immutable(root/'state-before.json',a.encoded(before))

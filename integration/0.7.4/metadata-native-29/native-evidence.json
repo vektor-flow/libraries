@@ -1,0 +1,193 @@
+{
+  "passed": false,
+  "compiler": {
+    "candidate_review": {
+      "accepted": true,
+      "baseline_failure_marker": "cross-ABI child was preserved",
+      "baseline_sha256": "6c9f9cf5d2b60c426f88402c0ae32c294191c26880614e71907354613e27c5bd",
+      "candidate": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-record-projection-repair-05/candidate/layouts_1.cpp",
+        "sha256": "226bb513fec0c2e1d9443fd9ac61d6ab863e9a3a136ab2238cf7d9346130307f"
+      },
+      "candidate_success_stdout": "ordinary counted metadata layout regressions passed\n",
+      "changed_units": [
+        53
+      ],
+      "executable": true,
+      "identity_tag": "compiler-build-preparation-03",
+      "independent_review": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-record-review-07/HANDOFF.txt",
+      "native_executed": false,
+      "regression": {
+        "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-record-projection-repair-05/regression_layouts.cpp",
+        "sha256": "688a991c0821951d86c1b87330d2def7af6cd0423488c5350eb2005e48a81c86"
+      },
+      "scope": "Accepted source candidate for separately admitted native qualification; no native success or execution authorization",
+      "whole_record_projection_regression_reviewed": true
+    },
+    "candidate_sha256": "226bb513fec0c2e1d9443fd9ac61d6ab863e9a3a136ab2238cf7d9346130307f",
+    "compiler": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+      "sha256": "52116e581d041836505756fcde17d504422429e410f0c84cb353409e121948d9"
+    },
+    "core_regression_passed": true,
+    "identity": "340d32d743bfcd6da076840963974462ed590852314ae483bbde5b4cc20c2e74",
+    "native_build_passed": true,
+    "plan": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/plan.json",
+      "sha256": "8d2af24a53ed0a046e155a24f9ce4f35f23eeb2a19d3c971bb8085ea1619c00f"
+    },
+    "results": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/results.json",
+      "sha256": "ef0f1d9b6a7a44fc24e70aaea5d5b7ad9a7a0d4fd4f56eb673287921ea2e67f7"
+    }
+  },
+  "stages": [
+    {
+      "name": "metadata-normalize",
+      "exit": 0,
+      "seconds": 0.06620875094085932,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/logs/metadata-normalize.stdout",
+          "sha256": "b2f00540e2adcbe6dcd7d48695c7d1fa2ff9325e109ef8f17b769bc3a898ca98"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/logs/metadata-normalize.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "outputs": [],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 6,
+            "pid": 6,
+            "ppid": 2,
+            "session": 6,
+            "starttime": 75947362,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "{\"changedFiles\": 2, \"rewrittenCalls\": 6, \"ambiguousAliases\": 0, \"files\": 3, \"source\": \"/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/normalized/source\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "metadata-compile",
+      "exit": 0,
+      "seconds": 0.36923412303440273,
+      "oracle_passed": true,
+      "error": null,
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/logs/metadata-compile.stdout",
+          "sha256": "6e3b336e41fe3fb4d16620c4139770e6b6152e0cfbba2726dce03734eae84402"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/logs/metadata-compile.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/case.exe",
+          "sha256": "86a7811bc5ab0fe12f28f6d98c471aef960f007d3756bfdf6c6e7fc1bbcf20a1",
+          "ELF": true,
+          "executable": true
+        }
+      ],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 7,
+            "pid": 7,
+            "ppid": 2,
+            "session": 7,
+            "starttime": 75947368,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "{\"artifact_fallback\":false, \"artifact_ms\":25.276167000000001, \"artifact_path\":\"/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/case.exe\", \"ast_path\":\"/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/normalized/source/.vkfbuild/metadata/ast.json\", \"diagnostics_emitted\":true, \"empirical_tuning\":{\"cache_hit\":false, \"candidates\":[], \"composition_cache_hit\":false, \"elapsed_ms\":0, \"eligible\":false, \"fingerprint\":\"25e77ba1133e97eb\", \"function_landscape_reused_count\":0, \"function_landscape_search_count\":0, \"function_policies\":[], \"landscape_runs\":0, \"module_abi_policy\":\"not-applicable\", \"parallel_eligible\":false, \"parallel_selected\":false, \"parallel_thread_handles_closed\":0, \"parallel_threads_created\":0, \"parallel_threads_joined\":0, \"parallel_width\":0, \"requested_policy\":\"auto\", \"selected_policy\":\"auto\", \"total_runs\":0, \"tuned\":false}, \"frontend_mode\":\"integrated\", \"ir_ms\":144.54562000000001, \"lexer_ms\":1.7096549999999999, \"machine_code_fingerprint\":\"f6d1e4a69ff5d4b8\", \"manifest_path\":\"/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/normalized/source/.vkfbuild/metadata/x64-manifest.json\", \"optimizer_cache_hit\":false, \"optimizer_ms\":0, \"optimizer_policy\":\"auto\", \"parser_ms\":9.1862139999999997, \"ran\":false, \"run_ms\":0, \"status\":\"compiled\", \"stderr\":\"\", \"stdlib_ast_cache_hits\":0, \"stdlib_ast_cache_misses\":0, \"stdout\":\"\", \"token_path\":\"/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/normalized/source/.vkfbuild/metadata/tokens.json\", \"total_ms\":181.404034, \"typed_ir_path\":\"/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/metadata/normalized/source/.vkfbuild/metadata/typed-ir.json\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "metadata-run-0",
+      "exit": 0,
+      "seconds": 0.0045082359574735165,
+      "oracle_passed": false,
+      "error": "stdout oracle mismatch: metadata-run-0",
+      "logs": [
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/logs/metadata-run-0.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/logs/metadata-run-0.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "outputs": [],
+      "join": {
+        "guard_error": null,
+        "limitations": [
+          "A child forked and reparented between 250ms snapshots may escape ancestry observation; systemd KillMode=control-group is secondary cleanup."
+        ],
+        "no_live_descendants": true,
+        "orphaned_descendant_on_exit": false,
+        "reaped_by_controller": [],
+        "remaining_identities": [],
+        "scope": "only recursively observed descendants of this Popen child, authenticated by PID/starttime",
+        "timed_out": false,
+        "tracked": [
+          {
+            "pgrp": 8,
+            "pid": 8,
+            "ppid": 2,
+            "session": 8,
+            "starttime": 75947406,
+            "state": "R"
+          }
+        ]
+      },
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "summary": {
+    "all_recorded_children_joined": true,
+    "completed": 3,
+    "error": "stdout oracle mismatch: metadata-run-0",
+    "native_execution": true,
+    "planned": 3,
+    "release_qualified": false,
+    "seconds": 0.7182393029797822
+  },
+  "actual_plan": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/metadata/plan.json",
+    "sha256": "8e71f2fa8ea739f1e1d6acee3004e131e4c6dced4df16a413c6bd03ab3957981"
+  },
+  "all_recorded_children_joined": true
+}

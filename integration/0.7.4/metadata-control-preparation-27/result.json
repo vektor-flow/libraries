@@ -1,0 +1,77 @@
+{
+  "status": "DONE_SOURCE_PACKET_READY_FOR_ROOT_REVIEW",
+  "owner_thread": "01a14a33-052c-7ff0-95f3-b508a163c4ef",
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "source_commit": "9dbabcaea9fce28129469e31a139a8548a14ab22",
+  "phase": "metadata",
+  "source_contract": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/source-contract.json",
+    "sha256": "a283382f4c6a0b7c78b124acd188e4451e9c26245b6fb9180e00edb8d96e4f2c"
+  },
+  "plan": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/staging/metadata/plan.json",
+    "sha256": "2e99f2d5b2b774d81b165b527257409a6fbe17479ffd78375810c989e4e232f4"
+  },
+  "native_execution": false,
+  "operational_mutation": false,
+  "shared_source_writes": false,
+  "subagents": 0,
+  "commits": 0,
+  "host_unit_tests": 13,
+  "host_packet_checks": 59,
+  "all_checks_passed": true,
+  "all_children_joined": true,
+  "compiler": "existing native17 ELF52116e58; actual original receipt authenticated",
+  "proposed_admission": {
+    "ram_bytes": 8589934592,
+    "disk_bytes": 1073741824,
+    "timeout_seconds": 300
+  },
+  "admitted": false,
+  "source_blockers": [],
+  "native_demand_uncalibrated": true,
+  "metadata_native_qualified": false,
+  "broader_metadata_geometry_provenance_absence_ordering_binary64_native_qualified": false,
+  "stage_delta": "only compile cwd to metadata/home; argv/oracles unchanged",
+  "latest_A": {
+    "join": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/d288-native24-01/receipts/service-join.json",
+      "sha256": "1b0f6b8b7dd6e8f7b655da068158c57091aec1899617e5770e34c673e38e7118"
+    },
+    "key": "A:d288-native24-01",
+    "owner": "01a14a27-ff1d-7620-9972-3885a039887f",
+    "sequence": 14
+  },
+  "charges": {
+    "A": 23085768704,
+    "F": 19821273088
+  },
+  "active_ram_intent": 0,
+  "validation_reports": [
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/native-authentication.json",
+      "sha256": "32713513dc32bd9a4baf52b24479bf025f5bb458b7ef51b8217e524e9b8330a6"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/seal-result.json",
+      "sha256": "6b2d768f057b8738ccc638668d03e79c735863c88f594b066e9d85b7f8d38242"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/test-results.json",
+      "sha256": "51f61cb60ee8558d260ebb55e0bd542fcde7411ad522b2903ff5b6f13aa3b8f0"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/packet-verification.json",
+      "sha256": "f26c91790cf516989359fd71c0c35756ad8c2c80af90358fcef1be5ecbcdd400"
+    },
+    {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/final-verification.json",
+      "sha256": "2ece04f7f33dbcfc3dc2d39e42de1c307e6355241fa3faa00703080b0fec6444"
+    }
+  ],
+  "root_recipe": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/ROOT-RECIPE.txt",
+    "sha256": "df9cc476533fd6041f342bcfefef3950bc3d4b20847c6a0451510bcdf620a372"
+  },
+  "next_action": "root reviews packet, regenerates/reseals if integration changes HEAD, then separately grants actual metadata only"
+}

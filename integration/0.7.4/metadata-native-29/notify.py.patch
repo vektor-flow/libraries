@@ -1,0 +1,26 @@
+--- /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/d288-native-24/notify.py
++++ /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-native-29/notify.py
+@@ -1,11 +1,11 @@
+-"""Deliver one current D288 native24 message via established native13 app-server protocol."""
++"""Deliver one current metadata native29 message via established native13 app-server protocol."""
+ import datetime,importlib.util,json,sys,uuid
+ from pathlib import Path
+ HERE=Path(__file__).resolve().parent
+ STORAGE=Path('/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb')
+-auth=json.loads((STORAGE/'d288-native-24-visible-chat-grant.json').read_text())
++auth=json.loads((STORAGE/'metadata-native-29-visible-chat-grant.json').read_text())
+ kind=sys.argv[1];message=(HERE/(kind+'-message.txt')).read_text()
+-assert 'd288-native-24' in message and auth['owner_thread'] in message
++assert 'metadata-native-29' in message and auth['owner_thread'] in message
+ assert (kind=='done') == message.startswith('DONE ')
+ intent=dict(coordinator=auth['coordinator'],worker=auth['owner_thread'],message=message,utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),attempts=1)
+ with (HERE/(kind+'-notification-intent.json')).open('x') as f:json.dump(intent,f,indent=2)
+@@ -19,7 +19,7 @@
+  active=protocol.active(thread);method='turn/steer' if active else 'turn/start'
+  params=dict(threadId=auth['coordinator'],input=[dict(type='text',text=message)])
+  if active:params['expectedTurnId']=active['id']
+- else:params['clientUserMessageId']=str(uuid.uuid5(uuid.NAMESPACE_URL,'d288-native-24-'+kind+':'+auth['owner_thread']))
++ else:params['clientUserMessageId']=str(uuid.uuid5(uuid.NAMESPACE_URL,'metadata-native-29-'+kind+':'+auth['owner_thread']))
+  response=client.rpc(method,params)
+  record=dict(method=method,acknowledged=True,response=response,retry=False)
+ except BaseException as error:

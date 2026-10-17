@@ -1,0 +1,20 @@
+# Owned chunk vectors let loops append without recopying the accumulated text.
+# A balanced final join copies each byte only logarithmically many times.
+# The published backend builds dynamic string repeats by repeated append.
+# Restrict that leaf to 0/1 and double owned columns once per recursion level.
+empty_leaf(capacity:int)->[str]:["":capacity]
+empty(capacity:int)->[str]:
+    (capacity%1=0)?!
+    (capacity>=0)?!
+    (capacity<=536870909)?!
+    capacity<=1? @:empty_leaf(capacity)
+    half:empty(capacity//2)
+    [str] doubled:half&half
+    capacity%2=1? @:doubled&empty_leaf(1)
+    @:doubled
+
+join(chunks:[str],begin:int,stop:int)->str:
+    begin>=stop? @:""
+    stop-begin=1? @:chunks.(begin)
+    middle:(begin+stop)//2
+    @:join(chunks,begin,middle)&join(chunks,middle,stop)

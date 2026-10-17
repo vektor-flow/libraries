@@ -1,0 +1,62 @@
+--- a/integration/0.7.4/compiler-controls-binding-23/seal_source.py
++++ b/integration/0.7.4/compiler-controls-binding-23/seal_source.py
+@@ -11,7 +11,7 @@
+ sys.path.insert(0, str(HERE))
+ import adapter as a
+ 
+-HEAD = '124ded9a103af1df108ba5b3334021d78b811c65'
++HEAD = '9dbabcaea9fce28129469e31a139a8548a14ab22'
+ S = Path('/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb')
+ V9 = S/'storage-direct-v9'
+ QUAL = dict(path=str(S/'compiler-qualified-v9-A-root-export-20261017.json'),
+@@ -45,8 +45,8 @@
+     ap = next(p for p in config['approved_policies'] if a.load_pin(p)['worker'] == 'A')
+     policy = a.load_pin(ap)
+     review = a.pin(HERE.parent/'compiler-native-binding-08/corrected-review.json')
+-    plan = a.read(HERE/'staging/d288/plan.json')
+-    assert plan['selection'] == 'd288' and plan['application_head_at_preparation'] == HEAD
++    plan = a.read(HERE/'staging/metadata/plan.json')
++    assert plan['selection'] == 'metadata' and plan['application_head_at_preparation'] == HEAD
+ 
+     # Import the actual materialization/payload path in the isolated host interpreter.
+     # This imports code only; execute()/run()/enable_subreaper() are never called.
+@@ -109,7 +109,8 @@
+     pins += [a.pin(HERE.parent/'compiler-controller-preparation-09'/n) for n in ('adapter.py','root-adoption.json')]
+     pins += [a.pin(HERE.parent/'compiler-native-binding-08/root-acceptance.json')]
+     compiler = plan['compiler_receipt']['compiler']
+-    pins += [a.pin(HERE/n) for n in ('adapter.py','root_steps.py','compiler-receipt.snapshot.json','native-authentication.json','staging/d288/plan.json')]
++    pins += [a.pin(HERE/n) for n in ('adapter.py','root_steps.py','compiler-receipt.snapshot.json','native-authentication.json','staging/metadata/plan.json','build_packet.py','seal_source.py')]
++    pins += [a.pin(HERE.parent/'d288-native-24'/n) for n in ('root-acceptance.json','HANDOFF.txt')]
+     pins += plan['generated'] + [a.pin(HERE.parent/'compiler-native-17/root-acceptance.json')]
+     pins += mapped_pins + [p for p in elf_pins if p != compiler]
+     # Dynamic loader selection and enabled site bootstrap are runtime inputs too.
+@@ -129,24 +130,24 @@
+     inputs = a.unique(pins+a.controller_inputs(plan['inputs']))
+     # Calls only the existing pure argv constructor; no namespace or service run.
+     view = private.runtime_view(dict(inputs=inputs,argv=['/usr/bin/python3.14'],
+-                                    attempt_root=policy['root']['path']+'/UNFULFILLED-next-d288'))
++                                    attempt_root=policy['root']['path']+'/UNFULFILLED-next-metadata'))
+     for p in inputs: private.pinned(p)
+     # Also validate uncanonicalized compiler aliases against v9 visibility.
+     private.runtime_view(dict(inputs=plan['inputs'],argv=['/usr/bin/python3.14'],
+-                              attempt_root=policy['root']['path']+'/UNFULFILLED-next-d288'))
++                              attempt_root=policy['root']['path']+'/UNFULFILLED-next-metadata'))
+     result = dict(schema=1,source_commit=HEAD,v6_bundle=bundle,a_policy=ap,
+-                  control_plan=a.pin(HERE/'staging/d288/plan.json'),
++                  control_plan=a.pin(HERE/'staging/metadata/plan.json'),
+                   compiler_receipt=a.pin(HERE/'compiler-receipt.snapshot.json'),
+                   owned_processes=a.pin(S/'owned-processes.py'),python=a.pin('/usr/bin/python3.14'),
+                   review=review,state_path=str(S/'storage-direct-v4/direct-state-v4.json'),
+                   lock_path=str(S/'capacity.lock'),pins=pins,
+                   installed_version=9,qualification_review=QUAL,
+-                  scope='D288-only source seal; genuine fresh root ownership/admission/publication still required')
++                  scope='metadata-only source seal; genuine fresh root ownership/admission/publication still required')
+     a.save(HERE/'source-contract.json',result)
+     a.save(HERE/'runtime-closure.json',dict(modules=module_rows,mapped=mapped_pins,elf_edges=edges,
+            elf_pins=a.unique(elf_pins),runtime_view_argv=view,
+            host_imports_only=True,native_execution=False,
+-           limitation='Static ELF/import closure and read-view compatibility. Prior native17 actual MD/ELF reverified; D288 execution remains unexecuted.'))
++           limitation='Static ELF/import closure and read-view compatibility. Prior native17 actual MD/ELF reverified; metadata execution remains unexecuted.'))
+     template = a.read(HERE.parent/'compiler-controller-preparation-09/root-inputs.REQUIRED.json')
+     template.update(source_commit=HEAD,qualification_review=QUAL,boot=qualified['boot'],phase=a.PHASE,ram_bytes=8*a.GIB,disk_bytes=a.DISK,timeout_seconds=a.TIMEOUT)
+     a.save(HERE/'root-inputs.REQUIRED.json',template)

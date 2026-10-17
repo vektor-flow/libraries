@@ -1,0 +1,48 @@
+--- /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/d288-native-24/preflight.py
++++ /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-native-29/preflight.py
+@@ -1,6 +1,6 @@
+ import argparse, importlib.util, json, os, pathlib, stat, subprocess, sys, time
+ OUT=pathlib.Path(__file__).resolve().parent
+-REPO=OUT.parents[2]; PACKET=OUT.parent/'compiler-controls-binding-23'
++REPO=OUT.parents[2]; PACKET=OUT.parent/'metadata-control-preparation-27'
+ STORAGE=pathlib.Path('/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb')
+ sys.path.insert(0,str(PACKET));import adapter as a
+ sys.path.insert(0,str(STORAGE/'storage-direct-v9'))
+@@ -16,14 +16,14 @@
+  return Controller(argparse.Namespace(config_sha256=s['v6_bundle']['config']['sha256'],grant=pathlib.Path(gp['path']),grant_sha256=gp['sha256'],manifest=pathlib.Path(mp['path']),manifest_sha256=mp['sha256']))
+ def main():
+  start=time.monotonic();tag=sys.argv[1]
+- grant=a.read(STORAGE/'d288-native-24-visible-chat-grant.json');a.verify(grant['root_decision'])
++ grant=a.read(STORAGE/'metadata-native-29-visible-chat-grant.json');a.verify(grant['root_decision'])
+  sys.path.insert(0,str(PACKET));import root_steps
+  d,s,c,protected=root_steps.decision(grant['root_decision'])
+  artifacts=list(d['root_review'].values())
+  for p in artifacts:a.verify(p)
+  provenance=a.load_pin(d['provenance_decision'])
+  for k in ('provenance','authentication','classification','corrected_review'):a.verify(provenance[k])
+- assert len(artifacts)==7 and len(s['pins'])==255
++ assert len(artifacts)==7 and len(s['pins'])==243
+  private_workload.verify_dependencies()
+  install=a.read(OUT.parent/'storage-combined-trust-review-23/root-v9-installed.json')
+  for p in install['installed_files']:
+@@ -32,9 +32,9 @@
+   for p in [bundle['controller'],*bundle['helpers'],bundle['config']]:pinned(p)
+  ledger=Ledger(pathlib.Path(s['state_path']),pathlib.Path(s['lock_path']),recovery_pin=c['recovery_authority'])
+  data=ledger.snapshot();ledger.check(data);assert not ledger.active_rows(data)
+- initial=a.read(OUT.parent/'compiler-native-17/final-state.json')
++ initial=a.read(OUT.parent/'d288-native-24/final-state.json')
+  assert data['phases']==initial['phases'] and data['recovery_events']==initial['recovery_events']
+- assert len(data['phases'])==14 and sum(r['phase_bytes'] for k,r in data['phases'].items() if k not in ('A:compiler-native13-01','A:compiler-native17-01'))==50331648
++ assert len(data['phases'])==15 and sum(r['phase_bytes'] for k,r in data['phases'].items() if k not in ('A:compiler-native13-01','A:compiler-native17-01','A:d288-native24-01'))==50331648
+  osapi=Linux();assert not osapi.units('vkfworkers-*.service') and not osapi.units('vkfs0-*.service')
+  joins={};lanes={}
+  for w in 'AF':
+@@ -48,7 +48,7 @@
+   assert osapi.empty(c['lane_cgroups'][w]) and (cg.parent/'memory.max').read_text().strip()==str(21*2**30) and (cg.parent/'memory.swap.max').read_text().strip()=='0'
+   if w=='A':assert props['memory.high']==str(3*2**30)
+   charge=p['historical_charge']+sum(r['phase_bytes'] for r in data['phases'].values() if r['worker']==w)
+-  assert charge==({'A':20938285056,'F':19821273088}[w])
++  assert charge==({'A':23085768704,'F':19821273088}[w])
+   lanes[w]=dict(owner=ledger.owner(data,w),charge=charge,properties=props,old_volume=physical(p['old_volume']['path']),root_allocated=allocated(p['root']['path']),root_identity=identity(p['root']['path']))
+  available,offload=ctrl.host(data);assert offload==0 and available>=10*2**30
+  holds={}

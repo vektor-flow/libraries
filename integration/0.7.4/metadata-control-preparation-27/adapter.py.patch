@@ -1,0 +1,58 @@
+--- a/integration/0.7.4/compiler-controls-binding-23/adapter.py
++++ b/integration/0.7.4/compiler-controls-binding-23/adapter.py
+@@ -126,22 +126,22 @@
+                         sha256=p['sha256']) for p in pins])
+ 
+ 
+-PHASE = 'd288'
+-DISK = 2*GIB
+-TIMEOUT = 2400
++PHASE = 'metadata'
++DISK = GIB
++TIMEOUT = 300
+ 
+ 
+ def check_plan(plan, head, review):
+-    require(plan['kind'] == 'vkf' and plan.get('selection') == PHASE, 'D288 phase only')
++    require(plan['kind'] == 'vkf' and plan.get('selection') == PHASE, 'metadata phase only')
+     require(plan['application_head_at_preparation'] == head, 'stale plan HEAD')
+     require(plan['candidate_review'] == dict(review, executable=True), 'complete corrected review')
+     require(plan['executable'] is True, 'held plan')
+     seal = read(HERE/'source-contract.json')
+     expected = load_pin(seal['control_plan'])
+     expected, _ = relocate(expected, plan['out'])
+-    require(plan == expected, 'complete sealed D288 plan mismatch')
++    require(plan == expected, 'complete sealed metadata plan mismatch')
+     require(plan['compiler_receipt'] == load_pin(seal['compiler_receipt']), 'actual native17 receipt')
+-    require(len(plan['cases']) == 10 and len(plan['stages']) == 20, 'all ten original D288 cases')
++    require(len(plan['cases']) == 1 and len(plan['stages']) == 3, 'original metadata case and three stages')
+ 
+ 
+ def protected_inputs(pins, roots, target):
+@@ -160,7 +160,7 @@
+ 
+ 
+ def materialize(plan, assets, plan_pin, target):
+-    require(not target.exists(), 'fresh D288 subdirectory')
++    require(not target.exists(), 'fresh metadata subdirectory')
+     target.mkdir()
+     for path in plan['directories']:
+         dest = canonical(path)
+@@ -242,7 +242,7 @@
+             'actual root execution decision required')
+     require(request['phase'] == PHASE and request['worker'] == 'A' and
+             request['ram_bytes'] == 8*GIB and request['disk_bytes'] == DISK and
+-            request['timeout_seconds'] == TIMEOUT, 'root must admit D288 A8GiB/2GiB/2400s explicitly')
++            request['timeout_seconds'] == TIMEOUT, 'root must admit metadata A8GiB/1GiB/300s explicitly')
+     require(request['source_commit'] == s['source_commit'], 'source transition needs resealed packet')
+     q = load_pin(request['qualification_review'])
+     require(q['coordinator'] == COORDINATOR and q['qualified'] is True and q['worker'] == 'A'
+@@ -397,7 +397,7 @@
+ 
+ 
+ def run(contract, contract_sha256, grant_path, manifest_path):
+-    # Consume preflight/lock/materialization time from the exact D288 phase budget.
++    # Consume preflight/lock/materialization time from the exact metadata phase budget.
+     deadline = time.monotonic() + TIMEOUT
+     # Only ROOT may arrange this invocation inside v6's already qualified namespace.
+     cp = dict(path=contract, sha256=contract_sha256)

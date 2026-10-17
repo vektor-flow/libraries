@@ -1,0 +1,60 @@
+--- /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/d288-native-24/finalize.py
++++ /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-native-29/finalize.py
+@@ -3,7 +3,7 @@
+ from preflight import a,PACKET,STORAGE,save,controller,Ledger,physical,Linux,proc,same,pinned,pinned_json,allocated
+ start=time.monotonic();s=a.static_contract();c=a.load_pin(s['v6_bundle']['config'])
+ ledger=Ledger(pathlib.Path(s['state_path']),pathlib.Path(s['lock_path']),recovery_pin=c['recovery_authority'])
+-d=ledger.snapshot();ledger.check(d);key='A:d288-native24-01';row=d['phases'][key];ctrl=controller(s,row)
++d=ledger.snapshot();ledger.check(d);key='A:metadata-native29-01';row=d['phases'][key];ctrl=controller(s,row)
+ assert row['stage']=='joined' and ctrl.verify_join(row,pinned_json(row['join'])) is True
+ identities=[]
+ for saved in [row['custody']['identity'],row['service']['identity'],*row['inner_result']['tracked']]:
+@@ -20,7 +20,7 @@
+ before=a.read(OUT/'initial-state.json');assert {k:v for k,v in d['phases'].items() if k!=key}==before['phases']
+ assert d['recovery_events']==before['recovery_events'] and d['lanes']['F']==before['lanes']['F']
+ assert d['lanes']['A']['transitions'][:-1]==before['lanes']['A']['transitions']
+-assert len(d['phases'])==15 and sum(r['phase_bytes'] for k,r in d['phases'].items() if k not in (key,'A:compiler-native13-01','A:compiler-native17-01'))==50331648
++assert len(d['phases'])==16 and sum(r['phase_bytes'] for k,r in d['phases'].items() if k not in (key,'A:compiler-native13-01','A:compiler-native17-01','A:d288-native24-01'))==50331648
+ lanes={}
+ for w in 'AF':
+  cg=pathlib.Path('/sys/fs/cgroup')/c['lane_cgroups'][w].lstrip('/')
+@@ -29,7 +29,7 @@
+  assert (cg.parent/'memory.max').read_text().strip()==str(21*2**30) and (cg.parent/'memory.swap.max').read_text().strip()=='0'
+  if w=='A':assert vals['memory.high']==str(3*2**30)
+  p=d['lanes'][w]['policy'];charge=p['historical_charge']+sum(r['phase_bytes'] for r in d['phases'].values() if r['worker']==w)
+- assert charge==({'A':23085768704,'F':19821273088}[w])
++ assert charge==({'A':24159510528,'F':19821273088}[w])
+  lanes[w]=dict(properties=vals,charge=charge,remaining=21900000000+sum(x['bytes'] for x in p['increments'])-charge,old_volume=physical(p['old_volume']['path']),root_allocated=allocated(p['root']['path']))
+ frow=d['phases']['F:live24-f-timeout-01'];assert controller(s,frow).verify_join(frow,pinned_json(frow['join']))
+ owners=a.read(c['owner_state']);oldowners=json.loads((pathlib.Path(a.read(PACKET/'root-inputs.json')['publication_receipt_path']).parent/'owners-before.raw').read_text());assert owners['workers']['F']==oldowners['workers']['F']
+@@ -47,7 +47,7 @@
+ for p in sorted(root.rglob('*')):
+  if p.is_file():files.append(dict(a.pin(p),bytes=p.stat().st_size))
+ for p in a.load_pin(row['grant'])['inputs']:pinned(p)
+-plan=a.read(PACKET/'staging/d288/plan.json')
++plan=a.read(PACKET/'staging/metadata/plan.json')
+ for p in plan['inputs']+plan['generated']:a.verify(p)
+ assert a.current_head()==s['source_commit']
+ extra=subprocess.run(['systemctl','--user','show',row['custody']['unit'],'-p','MemoryPeak','-p','MemorySwapPeak','-p','CPUUsageNSec','-p','ExecMainStartTimestampMonotonic','-p','ExecMainExitTimestampMonotonic'],capture_output=True,text=True,timeout=15);assert extra.returncode==0
+@@ -55,7 +55,7 @@
+ save('final-state.json',d);save('final-owners.json',owners);save('attempt-artifact-pins.json',files)
+ for name in ('stderr','outer.stderr'):
+  with (OUT/('actual-'+name+'.txt')).open('xb') as f:f.write((root/'receipts'/name).read_bytes())
+-build=root/'d288'
++build=root/'metadata'
+ stages=a.read(build/'results.json') if (build/'results.json').exists() else []
+ summary=a.read(build/'execution-summary.json') if (build/'execution-summary.json').exists() else None
+ actual_plan=a.read(PACKET/'root-packet/plan.json')
+@@ -104,9 +104,9 @@
+  while chunk:=f.read(262144):found|=marker in tail+chunk;tail=chunk[-len(marker):]
+  assert found
+ accounting=dict(installed_allocator=a.pin(STORAGE/'storage-direct-v9/storage_paths.py'),attempt_allocated_bytes=allocated(root),full_lane_allocated_bytes=allocated(d['lanes']['A']['policy']['root']['path']),entries=entries,special_files=bad,regular_stdlib_copies=stdlib,installed_guard_error=owned.get('guard_error'),runtime_guard_entire_lane=True)
+-passed=(inner['exit']==0 and summary is not None and summary['error'] is None and summary['native_execution'] is True and summary['completed']==20 and len(stages)==20 and all(x['oracle_passed'] for x in stage_checks) and all(o['ELF'] and o['executable'] for x in stage_checks for o in x['outputs']) and not any(owned.get(k) for k in ('timed_out','guard_error','orphaned_descendant_on_exit')))
+-if passed:assert sum(bool(x.get('valgrind')) for x in actual_plan['stages'])==10 and len(stdlib)==30
++passed=(inner['exit']==0 and summary is not None and summary['error'] is None and summary['native_execution'] is True and summary['completed']==3 and len(stages)==3 and all(x['oracle_passed'] for x in stage_checks) and all(o['ELF'] and o['executable'] for x in stage_checks for o in x['outputs']) and not any(owned.get(k) for k in ('timed_out','guard_error','orphaned_descendant_on_exit')))
++if passed:assert not any(x.get('valgrind') for x in actual_plan['stages']) and len(stdlib)==30
+ save('native-evidence.json',dict(passed=passed,compiler=compiler,stages=stage_checks,summary=summary,actual_plan=a.pin(build/'plan.json') if (build/'plan.json').exists() else None,all_recorded_children_joined=True))
+ save('actual-accounting.json',accounting)
+-result=dict(result='D288_TEN_ORIGINAL_CONTROLS_PASSED' if passed else 'FAILED_ACTUAL_ATTEMPT',attempt=key,controller_exit=inner['exit'],controller_seconds=a.read(OUT/'controller-result.json')['seconds'],d288_passed=passed,stages_executed=len(stages),original_controls_passed=sum(x['oracle_passed'] for x in stage_checks if '-run-' in x['name']),stages=[{k:x[k] for k in ('name','exit','seconds','oracle_passed')} for x in stage_checks],execution_summary=summary,compiler=compiler['compiler'],compiler_identity=compiler['identity'],error=summary['error'] if summary else (root/'receipts/stderr').read_text()[-6000:],terminal_join_verified=True,join=row['join'],A_high_restored_bytes=3*2**30,permanent_charge_retained_bytes=2*2**30,attempt_allocated_bytes=accounting['attempt_allocated_bytes'],lanes=lanes,tiny_attempts_unchanged=12,tiny_bytes_unchanged=50331648,active_ram=0,overlap=0,MemAvailable=available,offload=offload,holds=holds,physical={p:physical(p) for p in ('/','/mnt/development','/mnt/vkf-storage-2tb')},posthash=dict(plan_inputs=len(plan['inputs']),static_pins=len(s['pins']),grant_inputs=len(a.load_pin(row['grant'])['inputs']),passed=True),head=a.current_head(),seconds=time.monotonic()-start)
++result=dict(result='METADATA_ACTUAL_LENGTHS_PASSED' if passed else 'FAILED_ACTUAL_ATTEMPT',attempt=key,controller_exit=inner['exit'],controller_seconds=a.read(OUT/'controller-result.json')['seconds'],metadata_passed=passed,stages_executed=len(stages),original_controls_passed=sum(x['oracle_passed'] for x in stage_checks if '-run-' in x['name']),stages=[{k:x[k] for k in ('name','exit','seconds','oracle_passed')} for x in stage_checks],execution_summary=summary,compiler=compiler['compiler'],compiler_identity=compiler['identity'],error=summary['error'] if summary else (root/'receipts/stderr').read_text()[-6000:],terminal_join_verified=True,join=row['join'],A_high_restored_bytes=3*2**30,permanent_charge_retained_bytes=2**30,attempt_allocated_bytes=accounting['attempt_allocated_bytes'],lanes=lanes,tiny_attempts_unchanged=12,tiny_bytes_unchanged=50331648,active_ram=0,overlap=0,MemAvailable=available,offload=offload,holds=holds,physical={p:physical(p) for p in ('/','/mnt/development','/mnt/vkf-storage-2tb')},posthash=dict(plan_inputs=len(plan['inputs']),static_pins=len(s['pins']),grant_inputs=len(a.load_pin(row['grant'])['inputs']),passed=True),head=a.current_head(),seconds=time.monotonic()-start)
+ save('result.json',result);print(json.dumps(result))

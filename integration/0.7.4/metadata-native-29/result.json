@@ -1,0 +1,121 @@
+{
+  "result": "FAILED_ACTUAL_ATTEMPT",
+  "attempt": "A:metadata-native29-01",
+  "controller_exit": 1,
+  "controller_seconds": 44.15661591896787,
+  "metadata_passed": false,
+  "stages_executed": 3,
+  "original_controls_passed": 0,
+  "stages": [
+    {
+      "name": "metadata-normalize",
+      "exit": 0,
+      "seconds": 0.06620875094085932,
+      "oracle_passed": true
+    },
+    {
+      "name": "metadata-compile",
+      "exit": 0,
+      "seconds": 0.36923412303440273,
+      "oracle_passed": true
+    },
+    {
+      "name": "metadata-run-0",
+      "exit": 0,
+      "seconds": 0.0045082359574735165,
+      "oracle_passed": false
+    }
+  ],
+  "execution_summary": {
+    "all_recorded_children_joined": true,
+    "completed": 3,
+    "error": "stdout oracle mismatch: metadata-run-0",
+    "native_execution": true,
+    "planned": 3,
+    "release_qualified": false,
+    "seconds": 0.7182393029797822
+  },
+  "compiler": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+    "sha256": "52116e581d041836505756fcde17d504422429e410f0c84cb353409e121948d9"
+  },
+  "compiler_identity": "340d32d743bfcd6da076840963974462ed590852314ae483bbde5b4cc20c2e74",
+  "error": "stdout oracle mismatch: metadata-run-0",
+  "terminal_join_verified": true,
+  "join": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/receipts/service-join.json",
+    "sha256": "4a1ed5938463632747f40aba82b60beca7af7de4d676ed7e96ab9b01ea55f002"
+  },
+  "A_high_restored_bytes": 3221225472,
+  "permanent_charge_retained_bytes": 1073741824,
+  "attempt_allocated_bytes": 3067904,
+  "lanes": {
+    "A": {
+      "properties": {
+        "memory.max": "8589934592",
+        "memory.high": "3221225472",
+        "memory.swap.max": "0",
+        "pids.max": "160",
+        "cgroup.events": "populated 0\nfrozen 0",
+        "cgroup.procs": ""
+      },
+      "charge": 24159510528,
+      "remaining": 66459966208,
+      "old_volume": {
+        "free": 4276248576,
+        "used": 18778218496
+      },
+      "root_allocated": 86831104
+    },
+    "F": {
+      "properties": {
+        "memory.max": "3221225472",
+        "memory.high": "3221225472",
+        "memory.swap.max": "0",
+        "pids.max": "160",
+        "cgroup.events": "populated 0\nfrozen 0",
+        "cgroup.procs": ""
+      },
+      "charge": 19821273088,
+      "remaining": 70798203648,
+      "old_volume": {
+        "free": 3270942720,
+        "used": 19783524352
+      },
+      "root_allocated": 2088960
+    }
+  },
+  "tiny_attempts_unchanged": 12,
+  "tiny_bytes_unchanged": 50331648,
+  "active_ram": 0,
+  "overlap": 0,
+  "MemAvailable": 19253116928,
+  "offload": 0,
+  "holds": {
+    "vkf-s0-synchronized-contexts.service": "ActiveState=inactive\nMainPID=0\n",
+    "vkf-s0-synchronized-contexts.timer": "ActiveState=inactive\n",
+    "vkf-s0-worker-done.path": "ActiveState=inactive\n"
+  },
+  "physical": {
+    "/": {
+      "free": 54774218752,
+      "used": 431694274560
+    },
+    "/mnt/development": {
+      "free": 1562221735936,
+      "used": 385603579904
+    },
+    "/mnt/vkf-storage-2tb": {
+      "free": 1562221735936,
+      "used": 385603579904
+    }
+  },
+  "posthash": {
+    "plan_inputs": 732,
+    "static_pins": 243,
+    "grant_inputs": 915,
+    "passed": true
+  },
+  "head": "9dbabcaea9fce28129469e31a139a8548a14ab22",
+  "seconds": 4.1051737199304625
+}

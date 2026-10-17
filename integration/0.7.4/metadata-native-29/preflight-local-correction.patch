@@ -1,0 +1,11 @@
+--- preflight-before-local-correction.py
++++ preflight.py
+@@ -23,7 +23,7 @@
+  for p in artifacts:a.verify(p)
+  provenance=a.load_pin(d['provenance_decision'])
+  for k in ('provenance','authentication','classification','corrected_review'):a.verify(provenance[k])
+- assert len(artifacts)==7 and len(s['pins'])==243
++ assert len(artifacts)==6 and len(s['pins'])==243
+  private_workload.verify_dependencies()
+  install=a.read(OUT.parent/'storage-combined-trust-review-23/root-v9-installed.json')
+  for p in install['installed_files']:

@@ -1,0 +1,41 @@
+{
+  "exact_relocation": true,
+  "assets_exact": true,
+  "original_oracles_preserved": true,
+  "compile_cwd_only_changed": true,
+  "stdlib_sources": 30,
+  "attempt_absent": true,
+  "inputs_verified": 732,
+  "static_pins": 243,
+  "grant_inputs": 915,
+  "stages": [
+    {
+      "name": "metadata-normalize",
+      "timeout": 30,
+      "oracle": {}
+    },
+    {
+      "name": "metadata-compile",
+      "timeout": 180,
+      "oracle": {}
+    },
+    {
+      "name": "metadata-run-0",
+      "timeout": 60,
+      "oracle": {
+        "expected_exit": 0,
+        "stdout": "true\n"
+      }
+    }
+  ],
+  "link_order": [],
+  "grant": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/root-packet/grant.candidate.json",
+    "sha256": "2b664f9fa60f7bca9176260151e67b6871d7fddcabb3d71b42dca8d3dc53ff41"
+  },
+  "manifest": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-control-preparation-27/root-packet/manifest.candidate.json",
+    "sha256": "837dace0aea5584dd1abf612db0da524ad0202edd3a0465e054123fa7b3368f7"
+  },
+  "seconds": 1.2196899669943377
+}
