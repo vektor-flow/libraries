@@ -1,0 +1,331 @@
+diff --git a/examples/gpu-math/native-vkf/document_materialize.vkf b/examples/gpu-math/native-vkf/document_materialize.vkf
+--- a/examples/gpu-math/native-vkf/document_materialize.vkf
++++ b/examples/gpu-math/native-vkf/document_materialize.vkf
+@@ -142,8 +142,10 @@
+     include_layout? .layout_json:document_scene_export.encode(page_document,debug_modes,debug_has_lines)
+     complete:diagnostics="" /\ unresolved=""
+     @:(layout_json:layout_json,diagnostics:diagnostics,unresolved_json:"["&unresolved&"]",complete:complete,block_count:plan.count,page_count:page_count,document:page_document)
+-render(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true):
+-    result:layout(source,fonts,ordered_roles,language,files_json,job,entry,include_layout)
++# Optional bindings address this prepared plan and exact parser inputs;
++# layout validates them. Empty bindings preserve unknown ownership.
++render(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true,a261_blocks:[int]=[],a261_scopes:[str]=[],a261_texts:[str]=[],a263_kinds:[str]=[],a267_notes:[int]=[],a267_scopes:[str]=[],a267_texts:[str]=[],a267_kinds:[str]=[]):
++    result:layout(source,fonts,ordered_roles,language,files_json,job,entry,include_layout,a261_blocks,a261_scopes,a261_texts,a263_kinds,a267_notes,a267_scopes,a267_texts,a267_kinds)
+     pdf:""
+     result.complete? .pdf:document_pdf_bulk.encode(result.document,fonts,operators)
+     @:(pdf:pdf,layout_json:result.layout_json,diagnostics:result.diagnostics,unresolved_json:result.unresolved_json,complete:result.complete,block_count:result.block_count,page_count:result.page_count)
+diff --git a/examples/gpu-math/native-vkf/host/tests/pdf-owner-transport.mjs b/examples/gpu-math/native-vkf/host/tests/pdf-owner-transport.mjs
+new file mode 100644
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/host/tests/pdf-owner-transport.mjs
+@@ -0,0 +1,278 @@
++// Host source/model regression only. No VKF compiler, renderer or PDF is run.
++// The narrow evaluator reads the actual three forwarding function bodies;
++// layout and encode are explicit test doubles. Boundary validation below is
++// a model checked against established native route fixtures, NOT native proof.
++// Run after integration: node host/tests/pdf-owner-transport.mjs
++// Candidate review: node <this-file> <candidate-native-dir> <baseline-native-dir>
++import assert from 'node:assert/strict';
++import {readFileSync} from 'node:fs';
++import {dirname, resolve} from 'node:path';
++import {fileURLToPath, pathToFileURL} from 'node:url';
++
++const native = resolve(process.argv[2] ?? resolve(dirname(fileURLToPath(import.meta.url)), '../..'));
++const base = resolve(process.argv[3] ?? native);
++const {beginProvenance, documentAndNoteEntryRoutes} = await import(pathToFileURL(resolve(base, 'host/latex_operation_binding.mjs')));
++const read = (dir, name) => readFileSync(resolve(dir, name), 'utf8');
++const files = ['latex.vkf', 'latex_library.vkf', 'document_materialize.vkf'];
++const sources = Object.fromEntries(files.map(f => [f, read(native, f)]));
++const originals = Object.fromEntries(files.map(f => [f, read(base, f)]));
++const fields = ['a261_blocks', 'a261_scopes', 'a261_texts', 'a263_kinds', 'a267_notes', 'a267_scopes', 'a267_texts', 'a267_kinds'];
++const checks = [];
++function test(name, fn) { fn(); checks.push(name); }
++
++// Split only at top level; do not eval arbitrary source or silently accept a
++// newly added construct. Unsupported syntax fails this bounded source probe.
++function split(s) {
++  const out = []; let start = 0, depth = 0, quote = false, escape = false;
++  for (let i = 0; i < s.length; i++) {
++    const c = s[i];
++    if (quote) { if (escape) escape = false; else if (c === '\\') escape = true; else if (c === '"') quote = false; }
++    else if (c === '"') quote = true;
++    else if ('([{'.includes(c)) depth++;
++    else if (')]}'.includes(c)) depth--;
++    else if (c === ',' && depth === 0) { out.push(s.slice(start, i)); start = i + 1; }
++  }
++  assert.equal(depth, 0); assert.equal(quote, false);
++  if (s.length) out.push(s.slice(start));
++  return out;
++}
++function declaration(source, name) {
++  const lines = source.split('\n'), i = lines.findIndex(l => l.startsWith(name + '('));
++  assert.ok(i >= 0, name);
++  const header = lines[i].match(/^\w+\((.*)\)(?:->\w+)?:$/);
++  assert.ok(header, lines[i]);
++  const params = split(header[1]).map(p => {
++    const match = p.match(/^(\w+):(?:\w+|\[\w+\])(?:=(.*))?$/);
++    assert.ok(match, p); return {name: match[1], fallback: match[2]};
++  });
++  const body = [];
++  for (let j = i + 1; j < lines.length && lines[j].startsWith('    '); j++) body.push(lines[j].trim());
++  return {params, body};
++}
++function value(expr, env, calls) {
++  expr = expr.trim();
++  if (expr.startsWith('[') || expr.startsWith('"') || /^(true|false|-?\d+)$/.test(expr)) return JSON.parse(expr.replaceAll('\\$', '$'));
++  if (expr.startsWith('(') && expr.endsWith(')')) {
++    return Object.fromEntries(split(expr.slice(1, -1)).map(pair => {
++      const i = pair.indexOf(':'); assert.ok(i > 0); return [pair.slice(0, i), value(pair.slice(i + 1), env, calls)];
++    }));
++  }
++  const call = expr.match(/^([\w.]+)\((.*)\)$/);
++  if (call) { assert.equal(typeof calls[call[1]], 'function', call[1]); return calls[call[1]](...split(call[2]).map(x => value(x, env, calls))); }
++  assert.match(expr, /^\w+(?:\.\w+)*$/);
++  const parts = expr.split('.'); assert.ok(Object.hasOwn(env, parts[0]), expr);
++  return parts.reduce((o, p) => o[p], env);
++}
++function bind(def, args) {
++  assert.ok(args.length <= def.params.length, 'too many arguments');
++  return Object.fromEntries(def.params.map((p, i) => {
++    assert.ok(i < args.length || p.fallback !== undefined, 'missing ' + p.name);
++    return [p.name, i < args.length ? args[i] : value(p.fallback, {}, {})];
++  }));
++}
++function execute(def, args, calls) {
++  const env = bind(def, args);
++  for (const original of def.body) {
++    let line = original;
++    const conditional = line.match(/^([\w.]+)\? (.*)$/);
++    if (conditional) { if (!value(conditional[1], env, calls)) continue; line = conditional[2]; }
++    if (line.startsWith('@:')) return value(line.slice(2), env, calls);
++    const assignment = line.match(/^\.?([\w]+):(.*)$/); assert.ok(assignment, line);
++    env[assignment[1]] = value(assignment[2], env, calls);
++  }
++  assert.fail('missing return');
++}
++
++// Independent model of the existing latex_document_routes boundary. The
++// production validators are unchanged, and source-mismatch native execution
++// remains UNEXECUTED. Local selectors never become source-file identities.
++const requireRoute = (ok, message) => { if (!ok) throw Error(message); };
++function kind(kinds, at) {
++  const k = kinds.length ? kinds[at] : 'body';
++  requireRoute(k === 'body' || k === 'label' || /^outer:(0|[1-9][0-9]*)$/.test(k), 'Unknown provenance producer kind');
++  return k;
++}
++function columns(blocks, scopes, texts, kinds) {
++  requireRoute(blocks.length === scopes.length && blocks.length === texts.length, 'Provenance route column mismatch');
++  requireRoute(!kinds.length || kinds.length === blocks.length, 'Provenance kind column mismatch');
++}
++function validate(count, blocks, scopes, texts, kinds = []) {
++  columns(blocks, scopes, texts, kinds);
++  blocks.forEach((block, i) => {
++    requireRoute(block >= 0 && block < count && scopes[i] !== '', 'Invalid provenance route');
++    const current = kind(kinds, i);
++    for (let j = 0; j < i; j++) requireRoute((blocks[j] !== block || kind(kinds, j) !== current) && scopes[j] !== scopes[i], 'Duplicate provenance route');
++  });
++  return true;
++}
++function select(block, source, blocks, scopes, texts, kinds = [], producer = 'body') {
++  columns(blocks, scopes, texts, kinds); let result = '';
++  blocks.forEach((b, i) => {
++    if (b === block && kind(kinds, i) === producer) {
++      requireRoute(result === '' && scopes[i] !== '' && texts[i] === source, 'Unbound resolved parser source'); result = scopes[i];
++    }
++  });
++  return result;
++}
++const unknown = {scope: '', text: '', operation: -1, start: -1, stop: -1, part: -1};
++// These plan inputs mirror reordered body/label/outer/note source fixtures.
++const bodyInputs = [[2, 'body', 'fi $x$'], [0, 'body', 'B'], [2, 'label', 'x'], [2, 'outer:0', 'x'], [2, 'outer:1', 'x'], [1, 'body', 'generated']];
++const noteInputs = [[0, 'body', 'é😀中x\r\n'], [0, 'label', '1'], [1, 'body', 'generated note']];
++function boundary(env, complete) {
++  const b = fields.slice(0, 4).map(k => env[k]), n = fields.slice(4).map(k => env[k]);
++  for (const scope of n[1]) requireRoute(!b[1].includes(scope), 'Body/note scope alias');
++  validate(3, ...b); validate(2, ...n);
++  for (const k of n[3]) requireRoute(k === 'body' || k === 'label', 'Invalid note provenance producer');
++  const owners = (inputs, routes) => inputs.map(([block, producer, source]) => select(block, source, ...routes, producer));
++  return {document: {bodyOwners: owners(bodyInputs, b), noteOwners: owners(noteInputs, n), generated: {...unknown}},
++    layout_json: env.include_layout ? 'layout sentinel' : '', diagnostics: complete ? '' : 'pending sentinel', unresolved_json: complete ? '[]' : '["pending"]', complete, block_count: 3, page_count: 2};
++}
++function chain(src = sources, complete = true) {
++  const observed = {layouts: [], encodes: []};
++  const calls = {
++    layout: (...args) => {
++      const env = bind(declaration(src['document_materialize.vkf'], 'layout'), args);
++      observed.layouts.push(env); const result = boundary(env, complete); observed.result = result; return result;
++    },
++    'document_pdf_bulk.encode': (...args) => { observed.encodes.push(args); return 'encoder sentinel'; }
++  };
++  const render = (...args) => execute(declaration(src['document_materialize.vkf'], 'render'), args, calls);
++  const library = (...args) => execute(declaration(src['latex_library.vkf'], 'tex2pdf'), args, {'a261_document.render': render});
++  const publicEntry = (...args) => execute(declaration(src['latex.vkf'], 'tex2pdf'), args, {'library.tex2pdf': library});
++  return {entries: [publicEntry, library, render], observed};
++}
++const prefix = ['source sentinel', {font: 'sentinel'}, 'operators sentinel', ['roles sentinel'], {language: 'sentinel'}];
++const legacy = [...prefix, '{"file":"sentinel"}', 'job sentinel', 'entry sentinel', false];
++function ownerFixture() {
++  const scopes = [['stable-A', 'fi $x$'], ['stable-B', 'B'], ['primary', 'x'], ['outer-a', 'x'], ['outer-b', 'x'], ['note-body', 'é😀中x\r\n'], ['note-marker', '1']];
++  // Established host entry fixture shape, with caller-issued test IDs only.
++  return {documentId: 'entry', revision: 0, resources: [], groups: [{id: 'g', spans: []}],
++    sources: scopes.map(([id, text]) => ({id: 's-' + id, version: 0, text})),
++    scopes: scopes.map(([id, text]) => ({id, sourceId: 's-' + id, text, baseByte: 0,
++      operations: [9, 2].map(operation => ({operation, start: 0, stop: Buffer.byteLength(text), groupId: 'g', leaves: []}))}))};
++}
++const bodyRoutes = [{block: 2, scope: 'stable-A'}, {block: 0, scope: 'stable-B'}, {block: 2, scope: 'primary', kind: 'label'}, {block: 2, scope: 'outer-a', kind: 'outer:0'}, {block: 2, scope: 'outer-b', kind: 'outer:1'}];
++const noteRoutes = [{block: 0, scope: 'note-body'}, {block: 0, scope: 'note-marker', kind: 'label'}];
++const session = beginProvenance(ownerFixture());
++const routes = documentAndNoteEntryRoutes(session, bodyRoutes, noteRoutes);
++const bindings = [routes.body.blocks, routes.body.scopes, routes.body.texts, routes.body.kinds, routes.notes.blocks, routes.notes.scopes, routes.notes.texts, routes.notes.kinds];
++function assertTransport(src = sources, entry = 0) {
++  const {entries, observed} = chain(src), result = entries[entry](...legacy, ...bindings);
++  fields.forEach((key, i) => assert.equal(observed.layouts[0][key], bindings[i], key));
++  assert.deepEqual(observed.result.document.bodyOwners, ['stable-A', 'stable-B', 'primary', 'outer-a', 'outer-b', '']);
++  assert.deepEqual(observed.result.document.noteOwners, ['note-body', 'note-marker', '']);
++  assert.deepEqual(observed.result.document.generated, unknown);
++  assert.equal(observed.encodes.length, 1);
++  assert.equal(observed.encodes[0][0], observed.result.document);
++  assert.equal(observed.encodes[0][1], prefix[1]); assert.equal(observed.encodes[0][2], prefix[2]);
++  assert.deepEqual(result, {pdf: 'encoder sentinel', layout_json: '', diagnostics: '', unresolved_json: '[]', complete: true, block_count: 3, page_count: 2});
++}
++
++test('all three entries forward eight exact arrays, order and document to encoder spy', () => {
++  for (let entry = 0; entry < 3; entry++) assertTransport(sources, entry);
++});
++test('all legacy positional arities preserve defaults, resources and result fields', () => {
++  for (let entry = 0; entry < 3; entry++) for (let count = 5; count <= 9; count++) {
++    const before = chain(originals), after = chain();
++    assert.deepEqual(after.entries[entry](...legacy.slice(0, count)), before.entries[entry](...legacy.slice(0, count)));
++    assert.deepEqual(after.observed, before.observed);
++    const supplied = legacy.slice(0, count), defaults = [...prefix, '{}', 'main', 'main.tex', true];
++    const names = ['source', 'fonts', 'operators', 'ordered_roles', 'language', 'files_json', 'job', 'entry', 'include_layout'];
++    names.forEach((key, i) => {
++      if (key !== 'operators') assert.equal(after.observed.layouts[0][key], i < supplied.length ? supplied[i] : defaults[i], key);
++    });
++    for (const key of fields) assert.deepEqual(after.observed.layouts[0][key], []);
++    assert.ok(after.observed.result.document.bodyOwners.every(s => s === ''));
++    assert.ok(after.observed.result.document.noteOwners.every(s => s === ''));
++  }
++});
++test('partial trailing binding arities retain optional defaults and default body kind', () => {
++  for (let entry = 0; entry < 3; entry++) for (let extra = 0; extra <= 8; extra++) {
++    const {entries, observed} = chain(); entries[entry](...legacy, ...Array.from({length: extra}, () => []));
++    for (const key of fields) assert.deepEqual(observed.layouts[0][key], []);
++  }
++  const {entries, observed} = chain(); entries[0](...legacy, [2, 0], ['stable-A', 'stable-B'], ['fi $x$', 'B']);
++  assert.deepEqual(observed.result.document.bodyOwners, ['stable-A', 'stable-B', '', '', '', '']);
++});
++test('incomplete layout skips encoder and preserves diagnostics/result contract', () => {
++  for (let entry = 0; entry < 3; entry++) {
++    const {entries, observed} = chain(sources, false), result = entries[entry](...legacy, ...bindings);
++    assert.deepEqual(observed.encodes, []);
++    assert.deepEqual(result, {pdf: '', layout_json: '', diagnostics: 'pending sentinel', unresolved_json: '["pending"]', complete: false, block_count: 3, page_count: 2});
++    fields.forEach((key, i) => assert.equal(observed.layouts[0][key], bindings[i]));
++  }
++});
++test('invalid vectors/selectors/kinds/source bindings fail in layout model before encoding', () => {
++  const cases = [
++    [b => b[1].pop(), 'Provenance route column mismatch'],
++    [b => b[2].pop(), 'Provenance route column mismatch'],
++    [b => b[3].pop(), 'Provenance kind column mismatch'],
++    [b => b[0][0] = 3, 'Invalid provenance route'],
++    [b => b[0][0] = -1, 'Invalid provenance route'],
++    [b => b[1][0] = '', 'Invalid provenance route'],
++    [b => b[0][1] = 2, 'Duplicate provenance route'],
++    [b => b[1][1] = b[1][0], 'Duplicate provenance route'],
++    [b => b[3][0] = 'decoration', 'Unknown provenance producer kind'],
++    [b => b[3][3] = 'outer:01', 'Unknown provenance producer kind'],
++    [b => b[2][0] = 'resolved-reference', 'Unbound resolved parser source'],
++    [b => b[2][2] = 'changed label', 'Unbound resolved parser source'],
++    [b => b[2][4] = 'changed outer', 'Unbound resolved parser source'],
++    [b => b[5].pop(), 'Provenance route column mismatch'],
++    [b => b[6].pop(), 'Provenance route column mismatch'],
++    [b => b[7].pop(), 'Provenance kind column mismatch'],
++    [b => b[4][0] = 2, 'Invalid provenance route'],
++    [b => b[7][1] = 'body', 'Duplicate provenance route'],
++    [b => b[7][0] = 'outer:0', 'Invalid note provenance producer'],
++    [b => b[6][0] = 'é😀中x\n', 'Unbound resolved parser source'],
++    [b => b[6][1] = '2', 'Unbound resolved parser source'],
++    [b => b[5][0] = b[1][0], 'Body/note scope alias']
++  ];
++  for (let entry = 0; entry < 3; entry++) for (const [mutate, error] of cases) {
++    const b = structuredClone(bindings); mutate(b); const {entries, observed} = chain();
++    assert.throws(() => entries[entry](...legacy, ...b), {message: error});
++    assert.equal(observed.layouts.length, 1); assert.equal(observed.encodes.length, 0);
++  }
++});
++test('existing native fixture positive/negative expressions constrain the boundary model', () => {
++  const calls = {'routes.validate': validate, 'routes.select': select}; let positive = 0, negative = 0;
++  for (const file of ['latex_document_routes_regression_tests_b347_adapter.vkf', 'latex_label_routes_regression_tests_b347_adapter.vkf', 'latex_outer_routes_regression_tests_b347_adapter.vkf']) {
++    for (const line of read(base, file).split('\n')) {
++      const accepted = line.trim().match(/^(routes\.(?:select|validate)\(.*\))(?:=(".*"))?\?! /);
++      if (accepted) { assert.equal(value(accepted[1], {}, calls), accepted[2] ? value(accepted[2], {}, {}) : true); positive++; }
++      const rejected = line.match(/^reject_\w+\(\)->\w+:(routes\.(?:select|validate)\(.*\))$/);
++      if (rejected) { assert.throws(() => value(rejected[1], {}, calls)); negative++; }
++    }
++  }
++  assert.equal(positive, 16); assert.equal(negative, 10);
++});
++test('real host authentication rejects unknown scopes, cloned sessions, source mismatch and missing source version', () => {
++  assert.throws(() => documentAndNoteEntryRoutes(structuredClone(session), bodyRoutes, noteRoutes), /Entry owner session required/);
++  assert.throws(() => documentAndNoteEntryRoutes(session, [{block: 0, scope: 'missing'}], []), /Unknown document or note scope/);
++  assert.throws(() => documentAndNoteEntryRoutes(session, bodyRoutes, []), /Missing document or note scope route/);
++  const changed = ownerFixture(); changed.scopes[0].text = 'fi $y$';
++  assert.throws(() => beginProvenance(changed), /Parse scope differs from source/);
++  const missing = ownerFixture(); delete missing.sources[0].version;
++  assert.throws(() => beginProvenance(missing), /Invalid owner source/);
++  // Transport does not claim to authenticate native arrays: scope strings pass
++  // through unchanged; the real host session/revision is not a render argument.
++  const {observed, entries} = chain(); entries[0](...legacy, [0], ['caller-only'], ['B']);
++  assert.equal(observed.result.document.bodyOwners[1], 'caller-only');
++  assert.equal(Object.hasOwn(observed.layouts[0], 'revision'), false);
++});
++test('regression oracle detects each dropped/swapped forwarding edge and legacy implementation', () => {
++  const suffix = ',' + fields.join(','); let rejected = 0;
++  for (const file of files) {
++    const src = sources[file];
++    for (const replacement of ['', ',' + [fields[0], fields[2], fields[1], ...fields.slice(3)].join(','), ',' + [...fields.slice(0, 5), fields[6], fields[5], fields[7]].join(',')]) {
++      assert.ok(src.includes(suffix + ')'));
++      assert.throws(() => assertTransport({...sources, [file]: src.replace(suffix + ')', replacement + ')')})); rejected++;
++    }
++  }
++  // Also detect a changed default and encoding a different value than result.document.
++  assert.throws(() => assertTransport({...sources, 'document_materialize.vkf': sources['document_materialize.vkf'].replace('encode(result.document,', 'encode(result,')})); rejected++;
++  const changed = {...sources, 'latex.vkf': sources['latex.vkf'].replace('a261_blocks:[int]=[]', 'a261_blocks:[int]=[0]')};
++  assert.throws(() => chain(changed).entries[0](...prefix)); rejected++;
++  if (base !== native) { assert.throws(() => assertTransport(originals)); rejected++; }
++  assert.equal(rejected, base !== native ? 12 : 11);
++});
++console.log(JSON.stringify({passed: checks.length, checks, native: 'UNEXECUTED', renderer: 'NOT RUN', boundary: 'host model with established source fixtures', forwarding: 'source expressions with layout/encoder doubles'}));
+diff --git a/examples/gpu-math/native-vkf/latex.vkf b/examples/gpu-math/native-vkf/latex.vkf
+--- a/examples/gpu-math/native-vkf/latex.vkf
++++ b/examples/gpu-math/native-vkf/latex.vkf
+@@ -2,8 +2,10 @@
+ library:.latex_library
+ Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+ Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+-tex2pdf(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true):
+-    @:library.tex2pdf(source,fonts,operators,ordered_roles,language,files_json,job,entry,include_layout)
++# Optional bindings address this prepared plan and exact parser inputs;
++# layout validates them. Empty bindings preserve unknown ownership.
++tex2pdf(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true,a261_blocks:[int]=[],a261_scopes:[str]=[],a261_texts:[str]=[],a263_kinds:[str]=[],a267_notes:[int]=[],a267_scopes:[str]=[],a267_texts:[str]=[],a267_kinds:[str]=[]):
++    @:library.tex2pdf(source,fonts,operators,ordered_roles,language,files_json,job,entry,include_layout,a261_blocks,a261_scopes,a261_texts,a263_kinds,a267_notes,a267_scopes,a267_texts,a267_kinds)
+ 
+ # Shared fragment API: retain resources across calls; no implicit owner identity.
+ Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+diff --git a/examples/gpu-math/native-vkf/latex_library.vkf b/examples/gpu-math/native-vkf/latex_library.vkf
+--- a/examples/gpu-math/native-vkf/latex_library.vkf
++++ b/examples/gpu-math/native-vkf/latex_library.vkf
+@@ -66,8 +66,10 @@
+     @:a261_document.layout(source,resources.fonts,resources.roles,resources.language,files_json,job,entry,false,blocks,scopes,texts,a263_kinds,a267_notes,a267_scopes,a267_texts,a267_kinds)
+ 
+ # Public PDF route preserves the document renderer inputs and complete result.
+-tex2pdf(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true):
+-    @:a261_document.render(source,fonts,operators,ordered_roles,language,files_json,job,entry,include_layout)
++# Optional bindings address this prepared plan and exact parser inputs;
++# layout validates them. Empty bindings preserve unknown ownership.
++tex2pdf(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true,a261_blocks:[int]=[],a261_scopes:[str]=[],a261_texts:[str]=[],a263_kinds:[str]=[],a267_notes:[int]=[],a267_scopes:[str]=[],a267_texts:[str]=[],a267_kinds:[str]=[]):
++    @:a261_document.render(source,fonts,operators,ordered_roles,language,files_json,job,entry,include_layout,a261_blocks,a261_scopes,a261_texts,a263_kinds,a267_notes,a267_scopes,a267_texts,a267_kinds)
+ 
+ # Delimiter-free math uses the same real parser and leaf provenance path as text.
+ # Owner scope must describe the wrapped parser input, with explicit source origins

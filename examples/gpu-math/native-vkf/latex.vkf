@@ -2,8 +2,10 @@
 library:.latex_library
 Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
 Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
-tex2pdf(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true):
-    @:library.tex2pdf(source,fonts,operators,ordered_roles,language,files_json,job,entry,include_layout)
+# Optional bindings address this prepared plan and exact parser inputs;
+# layout validates them. Empty bindings preserve unknown ownership.
+tex2pdf(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true,a261_blocks:[int]=[],a261_scopes:[str]=[],a261_texts:[str]=[],a263_kinds:[str]=[],a267_notes:[int]=[],a267_scopes:[str]=[],a267_texts:[str]=[],a267_kinds:[str]=[]):
+    @:library.tex2pdf(source,fonts,operators,ordered_roles,language,files_json,job,entry,include_layout,a261_blocks,a261_scopes,a261_texts,a263_kinds,a267_notes,a267_scopes,a267_texts,a267_kinds)
 
 # Shared fragment API: retain resources across calls; no implicit owner identity.
 Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)

@@ -1,0 +1,74 @@
+{
+  "runner_pid": 4026472,
+  "checks": [
+    {
+      "name": "head",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "pid": 4026537,
+      "exit": 0,
+      "seconds": 0.001932568964548409,
+      "joined": true,
+      "timeout": false
+    },
+    {
+      "name": "forwarding-model",
+      "argv": [
+        "node",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/pdf-owner-transport-04/candidate/examples/gpu-math/native-vkf/host/tests/pdf-owner-transport.mjs",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/pdf-owner-transport-04/candidate/examples/gpu-math/native-vkf",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf"
+      ],
+      "pid": 4026538,
+      "exit": 0,
+      "seconds": 0.15324547700583935,
+      "joined": true,
+      "timeout": false
+    },
+    {
+      "name": "host-provenance-entry",
+      "argv": [
+        "node",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/host/tests/provenance-entry.mjs"
+      ],
+      "pid": 4026545,
+      "exit": 0,
+      "seconds": 0.5279813560191542,
+      "joined": true,
+      "timeout": false
+    },
+    {
+      "name": "patch-check",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "--whitespace=error-all",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/pdf-owner-transport-04/owner-transport.patch"
+      ],
+      "pid": 4026622,
+      "exit": 0,
+      "seconds": 0.0021825520088896155,
+      "joined": true,
+      "timeout": false
+    }
+  ],
+  "native": "UNEXECUTED",
+  "renderer": "NOT RUN",
+  "patch_applied": false,
+  "pdf_generated": false,
+  "head": "897e3802cb1d61c7a6437eb2ae1c266d9dbdfc4e",
+  "changed_nonproduction_pins": [
+    "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/COORDINATOR-STATUS.txt"
+  ],
+  "patch_matches_candidate": true,
+  "patch_sha256": "778ebd9a43cba9653f73ba288cd9a703dcece0a12d1cdb353bc6bb66fdf41f2f",
+  "production_inputs_unchanged": true,
+  "all_checks_passed": true,
+  "owned_children_joined": true,
+  "child_maxrss_kib": 76316,
+  "self_maxrss_kib": 625936
+}

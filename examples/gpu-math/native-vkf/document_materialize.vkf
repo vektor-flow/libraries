@@ -142,8 +142,10 @@ layout(source:str,fonts:Catalog,ordered_roles:[str],language:Language,files_json
     include_layout? .layout_json:document_scene_export.encode(page_document,debug_modes,debug_has_lines)
     complete:diagnostics="" /\ unresolved=""
     @:(layout_json:layout_json,diagnostics:diagnostics,unresolved_json:"["&unresolved&"]",complete:complete,block_count:plan.count,page_count:page_count,document:page_document)
-render(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true):
-    result:layout(source,fonts,ordered_roles,language,files_json,job,entry,include_layout)
+# Optional bindings address this prepared plan and exact parser inputs;
+# layout validates them. Empty bindings preserve unknown ownership.
+render(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true,a261_blocks:[int]=[],a261_scopes:[str]=[],a261_texts:[str]=[],a263_kinds:[str]=[],a267_notes:[int]=[],a267_scopes:[str]=[],a267_texts:[str]=[],a267_kinds:[str]=[]):
+    result:layout(source,fonts,ordered_roles,language,files_json,job,entry,include_layout,a261_blocks,a261_scopes,a261_texts,a263_kinds,a267_notes,a267_scopes,a267_texts,a267_kinds)
     pdf:""
     result.complete? .pdf:document_pdf_bulk.encode(result.document,fonts,operators)
     @:(pdf:pdf,layout_json:result.layout_json,diagnostics:result.diagnostics,unresolved_json:result.unresolved_json,complete:result.complete,block_count:result.block_count,page_count:result.page_count)

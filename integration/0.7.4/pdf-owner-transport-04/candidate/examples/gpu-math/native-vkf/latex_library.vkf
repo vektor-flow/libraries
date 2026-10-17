@@ -1,0 +1,78 @@
+a261_document:.document_materialize
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+# Public typed facade prototype; no host I/O and no layout serialization.
+# Caller prepares immutable resources once and retains the resulting value.
+fonts_import:.font_catalog
+language_import:.hyphenation
+profiles_import:.math_profiles
+paragraph_import:.text_source_paragraph
+context_import:.text_parser
+packages_import:.math_packages
+breaks_import:.paragraph_breaking
+words_import:.paragraph_nodes
+scene_import:.document_scene_paragraph_linear
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+Resources:(fonts:Catalog,roles:[str],language:Language,tables:Tables,resource_id:str)
+FragmentOptions:(width:num,font:str,optical:bit,justify:bit,hyphens:bit)
+A272AnchorOrigins:(scope:str,text:str,ids:[str],operations:[int],starts:[int],stops:[int])
+A277AnchorPlacements:(scenes:[int],scene_count:int)
+A280AnchorReceipts:(leaves:[int],slots:[int])
+A282PointReceipts:(points:[int])
+A283FinalAnchors:(leaves:[int],slots:[int],points:[int])
+Fragment:(scene:Scene,complete:bit,diagnostics:str,pending_count:int,a272_anchor_origins:A272AnchorOrigins,a277_anchor_placements:A277AnchorPlacements,a280_anchor_receipts:A280AnchorReceipts,a282_point_receipts:A282PointReceipts,a283_final_anchors:A283FinalAnchors)
+prepare(font_source:str,language_source:str,roles:[str],resource_id:str)->Resources:
+    fonts:fonts_import.load(font_source)
+    @:(fonts:fonts,roles:roles,language:language_import.load(language_source),tables:profiles_import.load(fonts),resource_id:resource_id)
+defaults(width:num=400)->FragmentOptions:
+    @:(width:width,font:"roman",optical:false,justify:false,hyphens:false)
+text(source:str,resources:Resources,options:FragmentOptions)->Fragment:
+    options.width>0?! "Fragment width must be positive"
+    context:context_import.context(options.font,resources.roles,options.optical,false)
+    breaks:breaks_import.options(options.width)
+    breaks.justify:options.justify
+    breaks.hyphens:options.hyphens
+    packet:paragraph_import.typeset_prepared(source,resources.fonts,context,packages_import.defaults(),resources.language,[],breaks,words_import.text_options(),resources.tables)
+    emitted:scene_import.a278_from_paragraph_mapped(packet)
+    anchors:scene_import.a283_final_anchors(packet,emitted.scene,emitted.retained_to_leaf,emitted.scene_firsts,emitted.scene_counts)
+    @:(scene:emitted.scene,complete:packet.complete,diagnostics:packet.diagnostics,pending_count:packet.pending_count,a272_anchor_origins:scene_import.a272_anchor_origins(packet,""),a277_anchor_placements:scene_import.a277_anchor_placements(packet),a280_anchor_receipts:scene_import.a280_anchor_receipts(packet),a282_point_receipts:scene_import.a282_point_receipts(packet),a283_final_anchors:anchors)
+# Math input is delimiter-free TeX. Only inline delimiters are supplied; no
+# class, package, document environment or preamble is synthesized.
+math(source:str,resources:Resources,options:FragmentOptions)->Fragment:
+    @:text("\$"&source&"\$",resources,options)
+
+# Explicit edit-owner scope, issued before rendering and stable across edits.
+text_owned(source:str,resources:Resources,options:FragmentOptions,scope:str)->Fragment:
+    (options.width>0 /\ scope~="")?! "Missing fragment width/owner scope"
+    context:context_import.context(options.font,resources.roles,options.optical,false)
+    breaks:breaks_import.options(options.width)
+    breaks.justify:options.justify
+    breaks.hyphens:options.hyphens
+    packet:paragraph_import.typeset_prepared(source,resources.fonts,context,packages_import.defaults(),resources.language,[],breaks,words_import.text_options(),resources.tables)
+    emitted:scene_import.a278_from_paragraph_owned_mapped(packet,scope)
+    anchors:scene_import.a283_final_anchors(packet,emitted.scene,emitted.retained_to_leaf,emitted.scene_firsts,emitted.scene_counts)
+    @:(scene:emitted.scene,complete:packet.complete,diagnostics:packet.diagnostics,pending_count:packet.pending_count,a272_anchor_origins:scene_import.a272_anchor_origins(packet,scope),a277_anchor_placements:scene_import.a277_anchor_placements(packet),a280_anchor_receipts:scene_import.a280_anchor_receipts(packet),a282_point_receipts:scene_import.a282_point_receipts(packet),a283_final_anchors:anchors)
+
+# Owner supplies THIS prepared plan's block selectors, scopes and exact parse text.
+# Kinds distinguish body and primary label parser invocations of the same block.
+# Unknown outer labels, notes and decorations remain unbound.
+document_owned(source:str,resources:Resources,blocks:[int],scopes:[str],texts:[str],files_json:str="{}",job:str="main",entry:str="main.tex",a263_kinds:[str]=[],a267_notes:[int]=[],a267_scopes:[str]=[],a267_texts:[str]=[],a267_kinds:[str]=[]):
+    @:a261_document.layout(source,resources.fonts,resources.roles,resources.language,files_json,job,entry,false,blocks,scopes,texts,a263_kinds,a267_notes,a267_scopes,a267_texts,a267_kinds)
+
+# Public PDF route preserves the document renderer inputs and complete result.
+# Optional bindings address this prepared plan and exact parser inputs;
+# layout validates them. Empty bindings preserve unknown ownership.
+tex2pdf(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true,a261_blocks:[int]=[],a261_scopes:[str]=[],a261_texts:[str]=[],a263_kinds:[str]=[],a267_notes:[int]=[],a267_scopes:[str]=[],a267_texts:[str]=[],a267_kinds:[str]=[]):
+    @:a261_document.render(source,fonts,operators,ordered_roles,language,files_json,job,entry,include_layout,a261_blocks,a261_scopes,a261_texts,a263_kinds,a267_notes,a267_scopes,a267_texts,a267_kinds)
+
+# Delimiter-free math uses the same real parser and leaf provenance path as text.
+# Owner scope must describe the wrapped parser input, with explicit source origins
+# for the synthetic delimiters (host mathEntry validates this before invocation).
+math_owned(source:str,resources:Resources,options:FragmentOptions,scope:str)->Fragment:
+    @:text_owned("\$"&source&"\$",resources,options,scope)

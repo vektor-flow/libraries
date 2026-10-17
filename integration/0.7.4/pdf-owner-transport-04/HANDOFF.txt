@@ -1,0 +1,67 @@
+PDF OWNER TRANSPORT 04 — reviewed production candidate; native UNEXECUTED
+Worker 01a1493d-6129-75d3-96aa-70b23b058e99; coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31.
+Grant HEAD b7a52f790aa9334689200103d5616421869495bf. User authorized evidence/runner
+advance to 897e3802cb1d61c7a6437eb2ae1c266d9dbdfc4e; production pins unchanged.
+Project instructions supplied in chat; no project/repository AGENTS.md exists.
+Read current COORDINATOR-STATUS over historical HANDOVER plus both scoped PDF handoffs.
+
+DELIVERY
+owner-transport.patch SHA256 778ebd9a43cba9653f73ba288cd9a703dcece0a12d1cdb353bc6bb66fdf41f2f
+Four files: three production forwarding edits and one host source/model regression.
+Production edits append exactly layout's eight optional binding fields to render,
+latex_library.tex2pdf and latex.tex2pdf and forward them positionally unchanged:
+a261_blocks/scopes/texts, a263_kinds, a267_notes/scopes/texts/kinds.
+Previous five required and four optional arguments/defaults stay unchanged.
+No new wrapper, resource defaults, result fields, flags, validator or encoder change.
+Patch is NOT applied or committed. candidate/ is the exact reviewable payload.
+
+SOURCE REVIEW
+latex.tex2pdf -> latex_library.tex2pdf -> document_materialize.render -> layout.
+Layout's existing alias check and routes.validate remain the boundary. Body flow:
+metrics.shape_request_core -> groups.measure_range_request/measure_one_request ->
+measure.measure_block_request_core; select checks resolved.source and primary label;
+materialize_labels selects outer invocation source. Notes: prepare_core validates
+note columns/kinds/count, selects exact body/marker text, captures origins, then
+scene_sources.a267_combine_notes attaches them. Typed output copies six provenance
+columns (output_typed:217-222) into PageDocument. render passes result.document
+unchanged to encode only when complete. Unbound producers/decorations stay unbound.
+This is source review plus host forwarding evaluation, NOT native path execution.
+
+EXACT VALIDATION
+python3 -B <this-directory>/validate.py: PASS, validation.json records argv/PIDs/joins.
+Node v22.22.1 forwarding-model: 8/8 checks, 0.153245s; includes 3 entry paths,
+15 legacy arity cases, 27 empty trailing-arity cases, default body kind, incomplete
+result/encoder gate, 66 invalid-boundary cases (22 mutations x 3 entries),
+16 positive/10 negative established native fixture expressions evaluated by HOST
+MODEL, real host session rejection checks and 12 detected forwarding/default faults.
+Existing host provenance-entry: 5 checks/1711 comparisons PASS, 0.527981s.
+git apply --check --whitespace=error-all: PASS, 0.002183s. No application.
+Patch reconstruction matches candidate; production pre/post hashes unchanged.
+Native tests/render/compiler ALL UNEXECUTED; model validation is not native rejection
+proof. No new native fixture or compiler variant. No PDF, selection or gate credit.
+Initial host run failed a fixture expectation: longer changed text hit byte bounds
+first; equal-length fi $y$ now exercises exact source mismatch. Original failure
+and its joined child receipt retained; no duplicate fixture snapshots.
+All validation children joined; child maxRSS76316KiB, validator self625936KiB.
+No memory/overlap condition observed. No background/native/service jobs or agents.
+
+PRECISE REMAINING GAP
+Bindings contain local prepared-plan selectors, caller scope strings and exact
+parser text, not an authenticated authored-file identity/revision or source map.
+Existing host sessions authenticate owner data but are NOT automatically carried
+by this native route. In-range selectors alone do not prove a parser invocation;
+unused routes retain existing behavior. Matching parser spans must not be promoted
+to authored provenance. Expanded/macros/includes/synthetic content still needs a
+proven original-source mapping, scalar-safe offsets, complete operation/cluster
+ownership, deduplication and logical grouping/order across glyphs and page splits.
+Encoder does not consume these columns for PDF selection. Visible ActualText and
+raw authored TeX remain distinct; authenticated grouped replacement text and drawing
+boundaries are required before wiring. compose/from_leaves blockers stay held;
+D267/D289/A333 and rejected variants unchanged, no compiler authority inferred.
+
+REPRODUCE / COMPLETION
+Run validate.py only before integration; integrated host test can run directly.
+input-pins.json, additional-input-pins.json, head-advance.json and artifact-pins.json
+seal evidence. All writes are under this grant output directory. One authorized
+app-server DONE notification follows sealing; notification-result/process and pins
+record its outcome. No ambiguous delivery retry. Stop after delivery.
