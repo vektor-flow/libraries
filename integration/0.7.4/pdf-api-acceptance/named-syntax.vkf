@@ -1,0 +1,6 @@
+# Future authorized syntax-only probe. Uncompiled; colon call syntax is intent,
+# not a claim of support by the pinned compiler. Does not import renderer or I/O.
+combine(first:int,second:int=0)->int:
+    @:first+second
+(combine(2,second:3)=5)?! "named-syntax-value"
+(combine(2)=2)?! "named-syntax-default"

@@ -1,0 +1,328 @@
+diff --git a/integration/0.7.4/pdf-api-acceptance/ACCEPTANCE.txt b/integration/0.7.4/pdf-api-acceptance/ACCEPTANCE.txt
+new file mode 100644
+--- /dev/null
++++ b/integration/0.7.4/pdf-api-acceptance/ACCEPTANCE.txt
+@@ -0,0 +1,64 @@
++Prepared acceptance only. No compiler, renderer, PDF or performance result here.
++Public intent is latex.tex2pdf(source,dest:...,selectable:...,editable:...).
++Do not substitute an options record, JS renderer, or user-visible save wrapper.
++No source signature patch is proposed: current backend cannot honor these flags.
++
++LIGHTWEIGHT
++python3 -B -m unittest discover -s <this-directory> -p test_acceptance.py -v
++python3 -B <this-directory>/check_surface.py --repo <shared-repo>
++The preflight must currently exit 2. Its eventual exit 0 checks only declarations;
++it cannot prove named-call syntax, destination writes, selection or editing.
++The default empty dest follows existing no-dest return behavior; selectable=true,
++editable=false follow the persisted user contracts. Extra required renderer
++resources must be resolved through an established internal resource binding.
++
++NATIVE ACCEPTANCE -- PENDING FRESH COORDINATOR GRANT AND WORKING PRODUCER
++1. First qualify named-syntax.vkf with the exact pinned toolchain. No build is
++   authorized by this document. If colon calls are unsupported, hand that precise
++   language capability dependency back; never replace the direct named API.
++2. cases.json contains intended literal calls, not claimed runnable VKF programs.
++   Bind source to exact source.tex bytes and dest to an admitted fresh path with
++   spaces and Unicode in its name. Use the shared native library, retaining the
++   legacy no-dest result/metadata. Qualify all four flag pairs, default arguments,
++   and omitted dest. Compare returned PDF bytes to saved bytes, count two pages
++   independently, and compare page geometry/appearance across flags.
++3. Start with existing destination containing sentinel bytes. Inject render
++   failure before save; then an actual write/rename failure. Old bytes must stay
++   exact, failure must be explicit, no truncated final file or leaked temporary
++   file. Successful publication is atomic same-filesystem replacement. A reader
++   during replacement must observe either complete old or complete new bytes.
++   Omitting dest performs no filesystem save. Do not invent an io.rename API:
++   the pinned stdlib capability manifest currently has no replacement primitive.
++4. Effective selectable = selectable OR editable. When false, omit source/map
++   attachments AND the text-extraction/selection layer; our viewer refuses copy,
++   drag and Ctrl/Cmd+A. When true, extract exact source.tex bytes and authenticate
++   source/map/render revisions. Require real producer glyph/cluster IDs, UTF-16
++   spans with exact byte conversion, logical order and page placements. Compare
++   selection.json to producer output, never use it to manufacture producer IDs.
++   'office' exercises a ligature; math/display scopes may be atomic. Macro \sq{z}
++   selects its invocation, not definition '#1^2'; reject ambiguous ownership.
++   Reverse hits and repeated cluster glyphs yield ordered deduplicated fragments
++   in the oracle. Test partial word, whole math, wrapped/page-crossing selections
++   on actual geometry; no surrogate or ligature split. Tampered/missing mappings
++   must reject selection. Include/project-file coverage remains a later gate.
++5. Independently inspect the actual native PDF: positioned selectable standard
++   text, ToUnicode and matching ActualText must carry faithful TeX. Attachment
++   extraction alone is insufficient. Compare Poppler AND PDF.js extraction to
++   authored spans without duplication, and exercise Adobe/Edge GUI copy when
++   available. Record versions, exact strings, granularity and unsupported cases;
++   synthetic reader fixtures are not native renderer acceptance. Do not claim
++   Adobe/Edge compatibility from a PDFium or extraction-only proxy.
++6. editable=false keeps our source editor read-only; it is not PDF DRM. With
++   editable=true, replace the exact 'math' range with '\frac{a}{c}', using the
++   current source revision. Regenerate and publish source/map/PDF together.
++   Stale revisions, invalid parse/layout and failed save preserve ALL prior
++   committed values. Two in-flight edits cannot commit stale output. The existing
++   host createSourceEditSession tests establish only an in-memory prerequisite;
++   its render callback MUST NOT save externally before the final revision guard.
++7. Native bitmap illustration path currently explicitly rejects kind=4. Require
++   a separate real image-provider fixture proving embedded pixel preservation
++   before any bitmap-support claim. No silent vectorization or dropped images.
++
++Record input/source/toolchain/binary hashes, real output hashes/page counts,
++exit codes, logs and joined jobs. Keep timing null until actual native save.
++Existing 40-page driver/limits apply only after all prerequisite admissions.
+diff --git a/integration/0.7.4/pdf-api-acceptance/cases.json b/integration/0.7.4/pdf-api-acceptance/cases.json
+new file mode 100644
+--- /dev/null
++++ b/integration/0.7.4/pdf-api-acceptance/cases.json
+@@ -0,0 +1,44 @@
++[
++  {
++    "id": "flags-00",
++    "selectable": false,
++    "editable": false,
++    "effectiveSelectable": false,
++    "call": "latex.tex2pdf(source,dest:dest,selectable:false,editable:false)"
++  },
++  {
++    "id": "flags-10",
++    "selectable": true,
++    "editable": false,
++    "effectiveSelectable": true,
++    "call": "latex.tex2pdf(source,dest:dest,selectable:true,editable:false)"
++  },
++  {
++    "id": "flags-01",
++    "selectable": false,
++    "editable": true,
++    "effectiveSelectable": true,
++    "call": "latex.tex2pdf(source,dest:dest,selectable:false,editable:true)"
++  },
++  {
++    "id": "flags-11",
++    "selectable": true,
++    "editable": true,
++    "effectiveSelectable": true,
++    "call": "latex.tex2pdf(source,dest:dest,selectable:true,editable:true)"
++  },
++  {
++    "id": "defaults",
++    "selectable": true,
++    "editable": false,
++    "effectiveSelectable": true,
++    "call": "latex.tex2pdf(source,dest:dest)"
++  },
++  {
++    "id": "no-dest",
++    "selectable": false,
++    "editable": false,
++    "effectiveSelectable": false,
++    "call": "latex.tex2pdf(source,selectable:false,editable:false)"
++  }
++]
+diff --git a/integration/0.7.4/pdf-api-acceptance/check_surface.py b/integration/0.7.4/pdf-api-acceptance/check_surface.py
+new file mode 100644
+--- /dev/null
++++ b/integration/0.7.4/pdf-api-acceptance/check_surface.py
+@@ -0,0 +1,53 @@
++"""Read-only preflight, NOT a VKF parser, compiler or PDF acceptance test.
++
++Exit 2 means the intended calls cannot match the current single-line facade.
++Exit 0 only permits a separately authorized native syntax/behavior check.
++"""
++import argparse
++import json
++import re
++from pathlib import Path
++
++
++def gaps(text):
++    signatures = re.findall(r'^tex2pdf\(([^\n]*)\)(?:->[^:\n]+)?:\s*$', text, re.M)
++    if len(signatures) != 1:
++        return ['Expected one single-line tex2pdf signature; inspect manually']
++    # Deliberately accept only the scalar/vector/named-record parameter grammar
++    # used by this facade. Fail closed on nested defaults or unfamiliar syntax.
++    parameters = {}
++    for item in signatures[0].split(','):
++        match = re.fullmatch(r'\s*(\w+)\s*:\s*([\w\[\]]+)\s*(?:=\s*(.*?))?\s*', item)
++        if not match or match[1] in parameters:
++            return ['Unsupported or duplicate parameter syntax; inspect manually']
++        parameters[match[1]] = (match[2], match[3])
++    errors = []
++    for name, kind, default in [('source', 'str', None), ('dest', 'str', '""'),
++                                ('selectable', 'bit', 'true'), ('editable', 'bit', 'false')]:
++        if name not in parameters:
++            errors.append('Missing direct parameter: ' + name)
++        elif parameters[name] != (kind, default):
++            errors.append('Wrong type/default: ' + name)
++    if next(iter(parameters), None) != 'source':
++        errors.append('First positional parameter must be source')
++    required = [name for name, (_, default) in parameters.items()
++                if name != 'source' and default is None]
++    if required:
++        errors.append('Source-only named call still requires: ' + ', '.join(required))
++    return errors
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--repo', type=Path, required=True)
++    args = parser.parse_args()
++    path = args.repo / 'examples/gpu-math/native-vkf/latex.vkf'
++    errors = gaps(path.read_text())
++    print(json.dumps({'scope': 'signature preflight only', 'path': str(path.resolve()),
++                      'gaps': errors, 'ready_for_native_check': not errors,
++                      'native_executed': False, 'pdf_acceptance': 'unqualified'}, indent=2))
++    return 2 if errors else 0
++
++
++if __name__ == '__main__':
++    raise SystemExit(main())
+diff --git a/integration/0.7.4/pdf-api-acceptance/named-syntax.vkf b/integration/0.7.4/pdf-api-acceptance/named-syntax.vkf
+new file mode 100644
+--- /dev/null
++++ b/integration/0.7.4/pdf-api-acceptance/named-syntax.vkf
+@@ -0,0 +1,6 @@
++# Future authorized syntax-only probe. Uncompiled; colon call syntax is intent,
++# not a claim of support by the pinned compiler. Does not import renderer or I/O.
++combine(first:int,second:int=0)->int:
++    @:first+second
++(combine(2,second:3)=5)?! "named-syntax-value"
++(combine(2)=2)?! "named-syntax-default"
+diff --git a/integration/0.7.4/pdf-api-acceptance/selection.json b/integration/0.7.4/pdf-api-acceptance/selection.json
+new file mode 100644
+--- /dev/null
++++ b/integration/0.7.4/pdf-api-acceptance/selection.json
+@@ -0,0 +1,54 @@
++{
++  "offsetUnit": "utf16",
++  "sourceSha256": "ce5c75c082a770dbe85cda7189e0a6f64152ac29f1de6dd45f36fb01e9a5b58a",
++  "spans": [
++    {
++      "id": "word",
++      "sourceId": "main.tex",
++      "start": 101,
++      "end": 107,
++      "text": "office"
++    },
++    {
++      "id": "math",
++      "sourceId": "main.tex",
++      "start": 113,
++      "end": 124,
++      "text": "\\frac{a}{b}"
++    },
++    {
++      "id": "display",
++      "sourceId": "main.tex",
++      "start": 141,
++      "end": 152,
++      "text": "x^2+y^2=z^2"
++    },
++    {
++      "id": "macro",
++      "sourceId": "main.tex",
++      "start": 163,
++      "end": 169,
++      "text": "\\sq{z}"
++    },
++    {
++      "id": "page2",
++      "sourceId": "main.tex",
++      "start": 183,
++      "end": 202,
++      "text": "Second page office."
++    }
++  ],
++  "reverseAndDuplicateHitIds": [
++    "page2",
++    "macro",
++    "math",
++    "math",
++    "word"
++  ],
++  "expectedOrderedSourceFragments": [
++    "office",
++    "\\frac{a}{b}",
++    "\\sq{z}",
++    "Second page office."
++  ]
++}
+diff --git a/integration/0.7.4/pdf-api-acceptance/source.tex b/integration/0.7.4/pdf-api-acceptance/source.tex
+new file mode 100644
+--- /dev/null
++++ b/integration/0.7.4/pdf-api-acceptance/source.tex
+@@ -0,0 +1,10 @@
++\documentclass{article}
++% exact Unicode source: 😀 é
++\newcommand{\sq}[1]{#1^2}
++\begin{document}
++office and $\frac{a}{b}$, then text.
++\[x^2+y^2=z^2\]
++Macro $\sq{z}$.
++\newpage
++Second page office.
++\end{document}
+diff --git a/integration/0.7.4/pdf-api-acceptance/test_acceptance.py b/integration/0.7.4/pdf-api-acceptance/test_acceptance.py
+new file mode 100644
+--- /dev/null
++++ b/integration/0.7.4/pdf-api-acceptance/test_acceptance.py
+@@ -0,0 +1,62 @@
++"""Lightweight fixture/preflight checks; never invoke a renderer or compiler."""
++import json
++from pathlib import Path
++import unittest
++from check_surface import gaps
++
++ROOT = Path(__file__).resolve().parent
++GOOD = 'tex2pdf(source:str,dest:str="",selectable:bit=true,editable:bit=false):\n    @:source\n'
++
++
++class AcceptancePreparation(unittest.TestCase):
++    def test_current_resource_signature_is_not_requested_api(self):
++        legacy = 'tex2pdf(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,include_layout:bit=true):'
++        self.assertEqual(gaps(legacy), ['Missing direct parameter: dest',
++            'Missing direct parameter: selectable', 'Missing direct parameter: editable',
++            'Source-only named call still requires: fonts, operators, ordered_roles, language'])
++
++    def test_surface_only_accepts_direct_optional_flags(self):
++        # This deliberately fake implementation proves preflight is NOT behavior acceptance.
++        self.assertEqual(gaps(GOOD), [])
++        self.assertTrue(gaps(GOOD.replace('selectable:bit=true,editable:bit=false', 'options:Options')))
++        self.assertTrue(gaps(GOOD.replace('dest:str=""', 'dest:str')))
++        self.assertTrue(gaps(GOOD.replace('selectable:bit=true', 'selectable:bit=false')))
++        self.assertTrue(gaps(GOOD.replace('editable:bit=false', 'editable:bit=true')))
++
++    def test_preflight_fails_closed(self):
++        for text in ['', GOOD + GOOD, GOOD.replace('source:str', 'source:str,source:str'),
++                     GOOD.replace('dest:str=""', 'dest:str=choose("a","b")')]:
++            self.assertTrue(gaps(text))
++
++    def test_policy_matrix_and_dest_omission(self):
++        cases = json.loads((ROOT / 'cases.json').read_text())
++        self.assertEqual(len(cases), 6)
++        self.assertEqual({(c['selectable'], c['editable']) for c in cases if c['id'].startswith('flags-')},
++                         {(False, False), (False, True), (True, False), (True, True)})
++        for case in cases:
++            self.assertEqual(case['effectiveSelectable'], case['selectable'] or case['editable'])
++            self.assertIn('latex.tex2pdf(source', case['call'])
++        self.assertNotIn('editable:', cases[4]['call'])
++        self.assertNotIn('dest:', cases[5]['call'])
++
++    def test_exact_authored_selection_oracles(self):
++        oracle = json.loads((ROOT / 'selection.json').read_text())
++        source = (ROOT / 'source.tex').read_bytes().decode('utf8')
++        self.assertIn('\r\n', source)
++        self.assertIn('😀', source)
++        self.assertIn('e\u0301', source)
++        encoded = source.encode('utf-16-le')
++        spans = oracle['spans']
++        self.assertEqual([s['id'] for s in spans], ['word', 'math', 'display', 'macro', 'page2'])
++        for span in spans:
++            self.assertEqual(encoded[2*span['start']:2*span['end']].decode('utf-16-le'), span['text'])
++        # Reverse hit order and duplicate glyphs still copy exact authored order.
++        ids = oracle['reverseAndDuplicateHitIds']
++        ordered = sorted((s for s in spans if s['id'] in set(ids)), key=lambda s: s['start'])
++        self.assertEqual([s['text'] for s in ordered], oracle['expectedOrderedSourceFragments'])
++        # An invocation must not silently select the macro definition's expansion.
++        self.assertEqual(spans[3]['text'], '\\sq{z}')
++
++
++if __name__ == '__main__':
++    unittest.main()

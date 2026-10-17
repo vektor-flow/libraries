@@ -1,0 +1,68 @@
+COMPLETED — STORAGE IMPLEMENTATION 02 — 2026-10-17 — INACTIVE CANDIDATE
+Owner chat: 01a148ef-8b6e-7f92-a863-4e346d4e2969
+Sole coordinator: 01a14893-cb1e-7203-97dd-de3da44dcf31
+Granted base: e4df9851f6c9973b78d784da45e094703f972762
+Branch: consolidate/0.7.4-shared-base-20261017
+Cwd remained /home/viktor/Projects/Vektor Flow. No AGENTS.md found in repository.
+Read HANDOVER, newer COORDINATOR-STATUS, exact grant and iteration1 proposal.
+
+DELIVERY / EXACT CHANGES
+storage_admission.py: explicit additive owner-bound enrollment/amendments; H+sum(P)
+permanent accounting; shared flock; durable fsync/atomic rename/fsync transaction
+with full RAM intents; no implicit initialization/refund/replay; monitor/join API.
+storage_paths.py: no-follow descriptors, identity/UUID/mount/boot/device/inode pins,
+allocated-block tree checks; reject symlink/hardlink/special/nested-mount escapes.
+candidate-integration.patch: exact installation patch for these TWO NEW LIBRARIES
+only, targeting storage-direct-v1 beside historical controllers. Not applied there.
+INTEGRATION.txt: schema, trust boundaries, exact successor call sites and remaining
+controller integration steps. This is NOT an executable successor controller.
+test_storage_admission.py: small local mocked/unit checks; no real artifact roots.
+
+SOURCE / INPUT / OUTPUT PINS
+input-pins.json contains full absolute paths and SHA256 of grant, proposal, reports,
+old ledger/controllers, deployed volumes, old grants, process helper and RPC Client.
+Grant SHA256 1e4d9650b12212678b540b5342c9a697f45a9df7a094dfebbc26861ace9da6e2
+Proposal SHA256 476cf69e03d67fa24a268f995b0441fe76b972920f3678cda448dd08aaa1a21e
+output-pins.json contains exact candidate/test/report SHA256s (handoff excluded).
+input-recheck.json: all task/operational inputs unchanged except coordinator status.
+Concurrent unrelated coordinator integration advanced HEAD to
+84ebd6d761b61e544dd304859ac33fcd94064fa3; status hash now
+033c1a05a1e9bd8de8c6b762a11709b3f8d374cca3206247d46bbecd322ccede.
+Read its new reference-repair/status note; no conflicting storage edit observed.
+No peer source/output was edited or deleted. No commits or coordination mutations.
+
+ACTUAL CHECKS / JOINS
+17/17 local tests passed, subprocess exit0, 0.520574s outer wall / 0.433s unittest.
+See test-results.txt and check-results.json. Three Python AST syntax checks passed.
+Patch git-apply --check and actual apply in disposable OWN output fixture exit0;
+both installed helper bytes matched originals. Fixture directories cleaned up.
+Coverage: cross-lane flock/RAM race, restart/replay, full accounting boundaries,
+append-only capacity, old growth, deletion/failure charge retention, alias grouping,
+path escapes, bad grants/pins/identity, free/RAM boundaries, ambiguous join and
+injected failures before rename/after rename-directory-fsync.
+Owned race children3903624/3903625 each exit0, joined, alive=false; exact records in
+owned-job-joins.json. Both test-runner commands and all checks returned; no owned
+jobs remain. No services/native/compiler/heavy/full-suite jobs were started.
+Filesystem inventory/free/RAM/service-custody mocks are NOT live qualification.
+
+LIMITATIONS / NEXT STEP
+Coordinator reviews core and integrates only after separately completing successor
+wiring: authenticate/store service custody in SAME transaction, combined registry
+RAM accounting under capacity.lock, one-attempt sandbox bind, exact controller
+and root registration pins, pre-exec/runtime checks, terminal service/cgroup/owned
+PID joins and tiny real namespace/timeout qualification. No active budget supplied.
+Core reserves FULL explicit additions for backing free space and FULL outstanding
+RAM intents: conservative, no sampled physical/resident credit. One root/owner per
+A/F lane only; no implicit coordinator/other-lane enrollment or owner rotation.
+Direct directories provide NO kernel physical quota. Polling can overshoot;
+open-unlinked files/extra filesystem metadata and check-to-exec races need preserved
+monitoring, conservative overhead and trusted ancestors. See INTEGRATION.txt.
+Old loop controllers/ledger unchanged. No artifact-root creation, mount/service
+changes, disk moves, budget reset or excluded D267/D289/A333 work.
+Native47 remains18pass/29unqualified; original419 remains293credited. No new credit.
+Completed bounded preparation; stop. Coordinator reviews; any next task gets a
+fresh separate visible chat. No successor created and no self-archive performed.
+
+AUTHORIZED COMPLETION MESSAGE (exactly one notification; no blind retry)
+DONE 01a148ef-8b6e-7f92-a863-4e346d4e2969 | Inactive storage core and patch; 17 unit checks passed, two children joined; controller wiring pending review | /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-implementation-02/HANDOFF.txt
+Notification outcome: acknowledged; see notification-result.json.

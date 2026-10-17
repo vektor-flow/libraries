@@ -1,0 +1,69 @@
+PDF API INTEGRATION 01 — acceptance preparation; API still UNQUALIFIED
+Owner: 01a148f4-9eed-79c0-ab7b-795a03b1a655; sole coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31.
+Grant base: e4df9851f6c9973b78d784da45e094703f972762
+Observed test HEAD: 84ebd6d761b61e544dd304859ac33fcd94064fa3
+Branch: consolidate/0.7.4-shared-base-20261017. Root integrated reference repair
+while this chat worked; all eight relevant examples source/test files remain
+byte-identical to grant base (input-pins.json); postcheck.json has no pin changes.
+Exact inputs/contracts/io manifest SHA256: input-pins.json.
+Toolchain provenance: integration/0.7.4/toolchain-pins.json; D288 compiler expected
+18f402a4a6c793c9b18dd7a1679c99a9c7635831ab5947676afb08e9c071c94a.
+No compiler invoked or binary qualification inferred from that recorded pin.
+
+DELIVERY
+acceptance.patch SHA256 d12116b5c0c53abd482802700a8c3aeed47ba6bf53956ca72b2c8fd3287358de
+Seven new files under integration/0.7.4/pdf-api-acceptance for root review/application.
+candidate/ contains exact patch payload. No production source patch, application
+or commit: no established minimal integration can honestly implement these flags.
+Six intended direct-call cases, two-page CRLF/Unicode/ligature/math/macro source,
+exact authored UTF16 selection oracles, syntax-only future probe, signature
+preflight and five lightweight tests. ACCEPTANCE.txt specifies real native save,
+reader, edit and failure gates. No wrapper replacement or unused flag facade.
+
+TRACE / IMPLEMENTED
+examples/gpu-math/native-vkf/latex.vkf:5 -> latex_library.vkf:69 ->
+document_materialize.vkf:145 -> document_pdf_bulk.encode. Existing low-level API
+returns pdf, layout_json, diagnostics, unresolved_json, complete, block/page counts;
+fonts/operators/roles/language remain required. render calls layout with no source
+owner bindings. Arena provenance columns exist, but encode does not consume them.
+native_document_cli.vkf:30 supplies resources positionally; :34 writes returned
+PDF directly with io.write_text iff complete. Destination is solely CLI-owned;
+PDF internal navigation destinations are unrelated to the requested save path.
+document_pdf_bulk.vkf:238,264-265 uses outline Form XObjects; :405 resources are
+XObject/ExtGState only. No ToUnicode, ActualText, source/map attachment path.
+Kind=4 explicitly rejects illustrations; bitmap support must not be claimed.
+host/latex_source_revision.mjs:15,35,70 implements exact source hashes, immutable
+UTF16 edits, stale/concurrent rejection and in-memory commit. Eight tests pass.
+It is NOT wired to tex2pdf, embedded PDF source, external saves or a PDF editor.
+
+PRECISE DEPENDENCIES / NEXT STEP
+Root can apply acceptance.patch independently now. Feature work requires actual
+native producer/encoder qualification: existing compose/from_leaves fixed-shape
+failures remain; no retry, reduction or compiler-body task is proposed here.
+Also missing independently of those failures: (1) proven named-call syntax plus
+internal resource binding for source-only public calls; (2) genuine atomic save
+capability at shared runtime boundary, absent from pinned io direct/ABI manifest;
+(3) authentic source-owner propagation into full-document render and source/map
+PDF serialization with matching ToUnicode/ActualText; (4) revision-checked edit
+publication that commits source/map/PDF together. Never save from the existing
+edit session preparation callback: stale rejection occurs AFTER it resolves.
+Defaults: selectable=true, editable=false, editable=true forces selectable=true;
+omit dest preserves return-only behavior. False/false omits selection payload.
+Persisted user-final-selectable policy explicitly rejects prior API-only drafts.
+Next fresh bounded work should establish the actual named-call/resource binding
+and runtime atomic-publication interface under coordinator scope, then wire proven
+producer output. Hold renderer-dependent execution pending fresh native admission.
+No change to the excluded D267, D289 or A333 scope and no transfer of those tasks.
+
+ACTUAL CHECKS / RESOURCES / JOINS
+results.json plus *.stdout/*.stderr contain commands, exits and measured times.
+Python 3.14.4: 5/5 preparation tests, 0.065s outer elapsed; preflight exit2,0.045s:
+missing dest/selectable/editable, extra required resources. This is expected failure,
+NOT API acceptance. Node v22.22.1: existing source-revision8/8,0.299s outer elapsed.
+git apply --check acceptance.patch: exit0,0.003s. Applied nothing.
+Max observed child RSS 71028KiB; no native/heavy/full-renderer process. All four
+verification subprocesses exited and were waited; all shell tool calls joined;
+no owned background process, service, dispatcher, state or ledger mutation.
+No memory/ownership conflict observed. Only grant output directory was written.
+No PDF generated; native save timing null; no reader compatibility claim.
+Native47 stays18passed/29unqualified; original419 stays293credited.

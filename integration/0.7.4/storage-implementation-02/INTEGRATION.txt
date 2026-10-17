@@ -1,0 +1,157 @@
+INACTIVE CANDIDATE — storage implementation 02 — 2026-10-17
+
+Scope and delivery
+storage_admission.py + storage_paths.py implement the storage transaction core.
+candidate-integration.patch installs exactly these two new library files in a
+proposed storage-direct-v1 directory beside the historical controllers. It is a
+review artifact only; not applied. It does NOT implement or activate a launcher.
+The controller call sites below are remaining integration work, explicitly held
+for coordinator review. No active budget, root, grant or state file is supplied.
+The test values are synthetic and authorize nothing.
+
+Why a separate core
+Both old controllers have identical disk/current/manifest/admit/release structure;
+the RAM/service profile differs (3GiB versus 8GiB). Old code stays byte-identical.
+They cannot simply be pointed at a development directory: their 22GB..24GiB loop
+identity, workspace alias, disk budget and writable binds are intentionally strict.
+New code needs versioned successors, not a change to these pinned predecessors.
+
+Core API / trust boundary
+Ledger(state_path, capacity_lock, observe=identity, usage=allocated, space=physical)
+  Production defaults inspect Linux ext4 UUID, mount ID, mount source/target/root,
+  boot ID, filesystem size, device, inode, uid/gid. Test callbacks replace only
+  inventory/free-space, never bypass the real no-follow path/block scan tests.
+initialize(): explicit one-time bootstrap; never called on missing/corrupt state.
+enroll(policy_pin): explicit initial registration or append-only capacity increase.
+reserve(grant_pin, manifest_pin, current=..., host=...): full P plus RAM intent in
+  one durable atomic replacement, under the existing capacity.lock. No exec.
+monitor(key, current=..., host_available=...): runtime ownership/input pins,
+  historical growth, all registered identities, allocated blocks and free floors.
+join(key, receipt_pin, verify_join=...): authenticate terminal custody; release only
+  RAM liveness. Full P remains permanently in phases, independent of exit status.
+snapshot(): locked inspection, no modification.
+
+One shared state file and one lock are required across all enrolled direct lanes.
+Paths and callbacks are supplied by a trusted controller, never chosen by a job.
+Protect state, lock, policy/grant/source pins and every ancestor against job writes.
+No state/lock path may be inside any writable sandbox bind. Use a local filesystem
+with reliable flock, atomic rename and fsync. State rollback/manual deletion is
+outside this API's threat model; missing/corrupt state must stop activation, never
+trigger initialize(). Retain independent coordinator evidence of state lineage.
+Tests inject failures around rename/fsync; they do not simulate a hardware power cut.
+
+Policy schema (see Fixture.enroll for a small concrete, NON-operational example)
+version=direct-directory-v1; worker=A or F only; coordinator; owner;
+predecessor_ledger/controller={path,sha256}; historical_evidence={path,sha256};
+historical_charge=max(evidence.old_used,evidence.carried_charge);
+root, old_volume, old_workspace, old_workspace_alias=complete identity dictionaries;
+increments=[{id,bytes,authority:{path,sha256}}]. Each pinned authority must name the
+same coordinator/owner/worker/id and exact positive additional_bytes. No defaults.
+The predecessor ledger must still declare 21,900,000,000 bytes for this lane.
+Historical evidence is root-authenticated, not inferred from filesystem snapshots.
+Initial root is empty; its directory blocks and empty attempt metadata must fit P.
+An amendment can only append increments; it cannot rewrite root, owner or history.
+This small first candidate supports one root/owner per A/F lane. Owner/root rotation
+needs a separately reviewed append-only registration extension, not a reset.
+No enrollment of B/C/D/E or coordinator is implemented or implied.
+
+Grant/manifest
+Exact owner/worker/iteration/attempt/phase_scope/source_commit/input pins/argv/P/RAM/
+timeout, controller/helper/owned-process pins and policy/predecessor pins are bound.
+Current state must pin the exact grant. Manifest pins grant/controller and repeats
+the exact phase fields. All cwd/output/temp/cache/ccache/receipt paths stay below the
+specific root/attempt. Inputs must match the complete grant input set and hashes.
+The controller still must validate its own actual path/hash and source revision;
+the core authenticates those grant fields but does not infer that a hash names the
+currently executing controller or resolve a Git commit into all necessary inputs.
+
+Accounting
+B = 21,900,000,000 + sum(explicit positive increments).
+D = immutable historical_charge + sum(ALL phase_bytes, joined or outstanding).
+Admit D+P <= B; active P is counted once. Failed and crashed reservations retain P.
+No refund/shrink/delete API. Restart cannot replay a previously charged attempt.
+old_used > H rejects as unexplained growth; cleanup never decreases H or P.
+Also old_used + allocated(root) <= B, each attempt allocated <= its P, and after
+first reservation allocated(root) <= sum(P), including directory metadata.
+Reject symlinks, multiply linked files, special files and nested mounts (including
+same-device bind mounts via mount ID). Aliased/nested root registrations reject.
+UUID groups deduplicate the backing filesystem; demands ADD across lanes, while
+the 250GB +10GiB backing floor is checked once per UUID using minimum observed free.
+Same UUID with inconsistent device/size, or same device with different UUID, rejects.
+
+Deliberate conservative differences from the proposal
+Keep sum(ALL explicit additions) in backing free-space demand, even after completion.
+No decrease based on allocated sampling, completion or deletion. This can admit
+less work than a reviewed physical-credit implementation, never more. The existing
+250GB old backing reservation remains intact. No invented unlimited-disk entitlement.
+Outstanding extension RAM intents reserve their FULL 3GiB/8GiB, rather than taking
+resident-memory credit. Legacy measured-demand checks remain mandatory. This can
+reduce concurrency but does not relax any floor or create a slot.
+
+Exact successor integration work (not yet implemented / not launch-qualified)
+1. Copy each pinned historical controller to a versioned successor. Keep their
+   legacy current()/manifest()/inner()/guard() paths and all checks unchanged.
+   Explicit storage_admission_version selects the new path; unknown versions fail.
+   Old grants cannot authorize a successor because controller path/hash differs.
+   Pin helper BOTH files, successor, old controllers/ledger, root registration and
+   historical evidence in new owner-bound grants; do not reuse A349/F365 grants.
+2. Direct current(): preserve fresh STATE worker/thread/iteration/grant pins,
+   exact executing controller, owned-process, old resource ledger and deployed
+   volume/workspace alias checks. Run the core's identity/space checks in addition.
+   Assert the development UUID and approved coordinator/lane/admission-id path from
+   reviewed policy; ensure enrollment is coordinator-authorized. Re-observe identities
+   after reboot/remount; mismatches are held, never silently repinned.
+3. Direct manifest(): preserve exact argv, timeout and 3GiB/8GiB profile checks;
+   authenticate all source/compiler inputs. All outer/inner logs, admission/final
+   receipts, cwd/temp/cache/ccache must go inside the charged attempt. Bootstrap only
+   empty registration/attempt directory metadata before reserve; no copied inputs or
+   logs until the full P is committed. Include bootstrap/log/metadata overhead in P.
+4. admit(): refactor the existing lock body into a read/check portion callable
+   WITHOUT reacquiring capacity.lock. Ledger.reserve holds that same lock; current()
+   rechecks authority, host() runs offload_remaining, exact argv/cgroup validation,
+   unknown worker/legacy service checks and existing measured legacy demand. Return
+   MemAvailable and that legacy demand. Core adds full extension intents +2GiB floor.
+   Persist unit, controller PID/starttime/boot/cgroup, exact service_argv and existing
+   registry metadata into the SAME atomic state transaction before enabling launch;
+   this candidate core currently stores only grant/manifest pins and RAM intent.
+   The current separate live-capacity.json save is NOT an atomic dual-resource commit.
+   Do not wire reserve()+save(old_registry) and claim atomicity. Successor legacy
+   admissions must count extension intents under the same lock, and all successor
+   unregistered-service checks must authenticate the combined service set. Until
+   that is done, mixed old-controller/direct execution is forbidden. Historical
+   loop admission checks themselves stay unchanged; leave dispatcher held.
+5. After durable reservation, revalidate ownership/identities/space and host floors
+   under capacity.lock immediately before launching. A crash between reservation and
+   exec remains charged and blocks replay. There is deliberately no launch callback
+   or unverified service recovery shortcut in this helper.
+6. Direct inner(): keep the existing cgroup hierarchy MemoryMax (3/8GiB, parent21GiB),
+   zero swap, TasksMax128, private PID/network, read-only / and /dev/shm, subreaper,
+   die-with-parent, exact argv and timeout. Replace the TWO old writable root/volume
+   binds with ONE bind of the registered attempt. Old roots remain read-only.
+   Preserve separate A memory.high7GiB active/3GiB after authenticated join policy.
+7. guard(): preserve current 1s interval, owned-process wait/cleanup, 1GiB RAM emergency
+   floor, host/internal free floors. Call monitor for direct mode and record guard
+   failure. Extend the trusted runtime adapter to revalidate sandbox path bindings
+   and controller/helper pins, and account open-but-unlinked files conservatively;
+   allocated tree polling is not a physical quota or complete live-allocation census.
+8. release(): only after exact unit/ExecStart/controller custody, MainPID=0, terminal
+   service, empty cgroup and PID/starttime descendant joins, pin receipt and call join.
+   verify_join MUST perform these independent checks; receipt booleans alone are
+   insufficient. Preserve failed reservations when receipt write/joins are ambiguous.
+   Reverify source inputs after join using the existing controller behavior.
+9. Independently qualify successor with tiny storage-only children: guard/timeout,
+   crash-before/after-exec, descendant/cgroup joins, receipt write failure, RAM intent
+   recovery, both profiles and real namespace/bind checks. No compiler test as probe.
+   Refresh actual free/used/identity, current state and all pins; issue a NEW task
+   grant with explicit additional_bytes and inclusive P only after root review.
+
+Limitations to retain in grants/handoffs
+Direct ext4 directories have NO kernel per-lane physical quota. Runtime polling is
+soft enforcement and may overshoot; st_blocks omits some filesystem metadata and
+open-unlinked allocations. Keep conservative phase overhead and free-space monitoring.
+FD-relative no-follow traversal rejects observed escapes but does not freeze the
+tree between check and launch; trusted protected ancestors and sandbox boundaries
+plus rechecks are essential. This is not isolation against a malicious same-uid
+controller. No quota setup/remount or ancestor permission mutation is proposed here.
+No operational adapters, services, real mount checks or compiler execution were run.
+Do not treat these unit results as service/namespace/physical-quota qualification.

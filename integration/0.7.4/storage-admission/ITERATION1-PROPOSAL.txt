@@ -1,0 +1,160 @@
+STORAGE ADMISSION — FRESH ASTRA ITERATION 1 — 2026-10-17
+Proposal only. No controller/grant/ledger changes, allocation, launch, move or mount.
+Integration owner: 01a14893-cb1e-7203-97dd-de3da44dcf31.
+Base inspected: e4df9851f6c9973b78d784da45e094703f972762.
+Read HANDOVER.txt and newer COORDINATOR-STATUS.txt; the latter supersedes earlier
+hold/takeover descriptions where explicit. No repository AGENTS.md exists.
+COORDINATOR-STATUS.txt was already modified by the parent; left untouched.
+
+DECISION / AUTHORITY
+Use NEW future output directories on mounted DEVELOPMENT. Old files stay put.
+The parent's current user-instruction relay explicitly requests use of external
+capacity and a fresh chat per iteration; prior no-move/no-mount constraints remain.
+That supports designing a prospective capacity extension, not silently changing
+21.9GB to unlimited or resetting lane consumption. No exact new byte allowance or
+compiler phase is inferred from that instruction. Existing A349/F365 grants are
+completed, scope-specific evidence, not authorization for another build.
+The 2026-10-15 ledger records an older 1.9GB increase; this is provenance, not new
+permission. New owner-bound amendment must name its actual current authority.
+This iteration is specifically limited to proposal; implementation is next work.
+
+READ-ONLY OBSERVATION — 2026-10-17T08:09:31Z (refresh before admission)
+DEVELOPMENT: /dev/sdc1, ext4, UUID d189b76f-1138-40a0-abdf-da48d249b679.
+/mnt/development AND /mnt/vkf-storage-2tb have st_dev 2081 and the same filesystem:
+  total 1,967,846,068,224; available 1,562,310,668,288 bytes.
+Do not count their free capacity twice. No SIMULATIONS mount is needed.
+SIMULATIONS /dev/sdd1 is ext4, unmounted, ~2TB; leave unchanged.
+Old A filesystem used 18,778,218,496; cap 21,900,000,000 bytes.
+Old F filesystem used 19,783,524,352; cap 21,900,000,000 bytes.
+Coordinator filesystem used 21,838,598,144; available 1,215,868,928 bytes.
+Internal / available 55,261,814,784, above the existing 50GB+800MB requirement.
+These are physical filesystem snapshots, NOT reconstructed lifetime write totals.
+The current controller calculates used = (f_blocks-f_bfree)*f_frsize; it has no
+monotonic cumulative-written counter. Preserve all authoritative carried charges;
+do not label these snapshots alone a complete historical high-water ledger.
+
+MINIMAL ADDITIVE CONTRACT
+Keep existing ledger/controller/grants immutable. Add a versioned extension ledger
+and a versioned successor controller for the 3GiB and 8GiB paths. Legacy mode
+retains exactly its existing checks. Extension mode requires a new pinned grant,
+explicit storage_admission_version, predecessor pins and owner/state agreement.
+Do not enroll B/C/D/E or coordinator implicitly. Coordinator needs its own pinned
+historical ledger/controller review before it may use an extension for native work.
+
+Register future lane root, initially empty, under:
+ /mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/<lane>/<admission-id>/
+Use a distinct attempt subdirectory. Never bind CompilerOptimization as a whole.
+Persist UUID, filesystem size, mount source/target, device identity for this boot,
+resolved path, root inode, uid/gid, predecessor loop volume identity, and historical
+charge floor H_lane. H_lane = max(current old filesystem used, any authoritative
+higher carried charge); retain evidence explaining how it was established.
+Old roots remain read-only to the new job. Old status/evidence paths are not moved.
+
+For the next actual task choose inclusive phase disk budget P from concrete inputs,
+objects, outputs, temporary files, caches, logs and receipts. Example only: a 16GiB
+phase would require an explicit +17,179,869,184-byte extension, not authorize one.
+Record B_lane = 21,900,000,000 + sum(explicit extension increments).
+Record D_lane = H_lane + sum(completed/failed phase charges).
+Admit only D_lane + P <= B_lane. At reservation, commit P durably; after join its
+entire P becomes a permanent conservative charge (including failure/crash), so
+cleanup or deletion cannot reopen spent capacity. Do not charge active P twice.
+This intentionally conservative accounting avoids pretending a 1-second sampler
+measures all transient allocations. Later amendments may add capacity, never erase
+historical charges. No arbitrary all-disk entitlement is proposed.
+For retained physical usage verify old-used + sum(new-root allocated usage) <= B_lane
+as a separate invariant; any unexplained old-volume growth is accounted or rejected.
+Count new directories/files by allocated blocks without following symlinks; reject
+foreign mounts and unaccounted hardlinks. Include directory/metadata allowance in P.
+Known snapshots/pins remain on old roots; newly copied inputs consume P.
+
+EXACT CONTROLLER DIFF PLAN
+current(): Preserve grant/state/iteration/worker/controller/ledger pin checks.
+Replace the hardcoded budget==21_900_000_000 ONLY in explicit extension mode with
+validated predecessor base+append-only increments. Keep old volume/workspace inode
+and 22GB..24GiB filesystem checks applied to old profiles; do not pretend a 2TB
+output filesystem satisfies them. Validate the separately registered new root and
+its DEVELOPMENT UUID/device/size on every admission and runtime guard. Fail closed
+if the mount disappeared, root was replaced, path escaped, or source FS changed.
+
+manifest(): Require exact old read-only input pins, output-root registration pin,
+P, phase scope, RAM/time limits and new attempt identity. Cwd/output/temp/cache/log
+paths must resolve within the new attempt. Reject symlink escapes and nested mounts.
+Use lstat/open-with-no-follow checks for registered roots and parents, not only a
+string-prefix test. Preparation copying into the new root is also an accounted
+phase; no uncharged staging outside the guard.
+
+admit(): Under existing capacity.lock, revalidate ownership and filesystem identities,
+commit storage reservation atomically with RAM reservation before launching. Recover
+crashed reservations conservatively; no release until authenticated terminal join.
+Use durable journal/atomic rename for charge state; do not mutate immutable pins.
+Group free-space reservations by filesystem UUID, not path spelling. Preserve:
+ free('/') - 800,000,000 >= 50,000,000,000;
+ free(DEVELOPMENT) >= 250,000,000,000 + 10GiB + R_new_remaining.
+The 250GB existing backing reservation remains intact; new prospective reservations
+are additive. R_new_remaining includes every unspent extension commitment plus
+active committed demand not yet physically allocated. Decrease physical reservation
+only for verified allocated bytes, never refund cumulative lane charge.
+Keep old read-only loop free >1GiB (old disk_peak=0). Also require new target free
+> its remaining phase demand +1GiB. The backing floor above is the stronger check.
+Recheck under the same lock immediately before exec; unrelated filesystem activity
+can still consume space, so retain runtime free-space emergency checks.
+
+inner()/guard(): Keep bwrap read-only /, private PID/network namespaces, read-only
+/dev/shm and die-with-parent. Bind ONLY the registered new attempt writable; do not
+bind old workspace or other lanes writable. Redirect all receipts/stdout/stderr,
+TMPDIR/XDG_CACHE_HOME/CCACHE_DIR to charged new paths. Guard current physical usage,
+phase bound and filesystem free reserve at the existing interval; guard failure
+uses the same owned-child cleanup and failure receipt. Save final charge and join
+receipts even after failure; lost/ambiguous outcome retains the full reservation.
+Direct ext4 directories do not supply the old loop filesystem's hard physical
+ceiling: polling remains a soft enforcement bound with possible short overshoot.
+Do not claim a kernel quota. If strict hard per-lane disk isolation is required,
+check existing quota support separately; do not silently enable quotas/remount.
+
+UNCHANGED EXECUTION GUARANTEES
+No relaxation of 3GiB/8GiB per-phase MemoryMax, parent21GiB, zero worker swap,
+TasksMax128, measured RAM demand, 2GiB admission floor, 1GiB emergency floor,
+timeouts, exact argv authentication, subreaper, KillMode=control-group, OOMPolicy,
+owned PID/starttime cleanup or service/descendant joins. Existing phase-specific
+A memory.high 7GiB while active/3GiB after join remains separately enforced.
+No extra concurrency slot or general build admission. Dispatcher stays held.
+No D267/D289/A333 retry, rephrase, transfer or compiler-body work.
+
+CHECKS BEFORE ANY REAL LAUNCH (next fresh iteration)
+1. Review successor diff, pins and schema; old grant must fail on successor, unknown
+   extension/version/root/owner must fail. Legacy path behavior remains unchanged.
+2. Tiny controlled storage-only fixture: old/new total and P boundary admission,
+   additive increments, failure charge retention, deletion without credit, restart
+   with outstanding reservation, and cross-lane filesystem reservation races.
+3. Reject absent/replaced mount, symlink/hardlink escape, wrong inode/UUID, path
+   alias double-reservation, mismatched manifest or altered old input.
+4. Tiny owned child intentionally crosses prospective guard/timeout; verify exact
+   descendant/cgroup joins and retained charge. Do not use compiler work as test.
+5. Recheck all actual free bytes, historical charge floors, empty live registry,
+   cgroup limits and source pins, then issue a NEW specific task grant/manifest.
+No checks requiring allocation or new services were executed in this iteration.
+
+RAM / CONTEXT
+Snapshot MemAvailable 19,297,398,784/32,521,691,136; swap used 8,571,609,088 of
+8,589,930,496 bytes. live-capacity.json={} and worker/legacy running-service query
+returned none. No memory-pressure cleanup is justified by this snapshot alone.
+owned-processes.py already joins recursively observed descendants using PID/starttime,
+with systemd cgroup cleanup as a second layer. If a future deficit occurs, inspect
+only authenticated owned units; release reservation only after terminal MainPID=0,
+empty cgroup and joined descendants. Stop/reap a proven leftover owned child only
+under that custody. Do not stop unrelated processes or remove other projects' tmpfs
+content. No global cache flush, swapoff or speculative cgroup reclaim.
+Fresh chats reduce conversation context; they do not establish host RAM reclamation.
+Persist this compact handoff and retire this worker. Next iteration must be fresh.
+
+SOURCE PINS (storage20gb/)
+run-worker-capacity21_9gb-20261015.py
+ 19946c775339233a9bb98b05e6a6fa6d46b7c224c00cde604a128b975b37f274
+run-worker-latex074-build8gb-20261017.py
+ 264c5c506b50d00f47ce78f6b8152254d5346ac1fb92a0a76225822c5c6624c3
+resource-ledger21_9gb-20261015.json
+ 6088d3518a94a49fb23ddc4d5cd8e152779c50b74373cbb19ba26d97aa7f9531
+owned-processes.py
+ bdc2ccd9861d5a49f80875144963037255afef29f7ed932fea8da28ccb76c442
+A349 grant (parent directory): ca1df6ebd319af3a71ed89260ebb9d166a700347404021415f1ceb238607e9ed
+F365 grant (parent directory): 52a475baac7e0adfcfbd7417f324f65abf66e67ce280a97cbea92bde1b82642f

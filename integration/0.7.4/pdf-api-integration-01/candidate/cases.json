@@ -1,0 +1,44 @@
+[
+  {
+    "id": "flags-00",
+    "selectable": false,
+    "editable": false,
+    "effectiveSelectable": false,
+    "call": "latex.tex2pdf(source,dest:dest,selectable:false,editable:false)"
+  },
+  {
+    "id": "flags-10",
+    "selectable": true,
+    "editable": false,
+    "effectiveSelectable": true,
+    "call": "latex.tex2pdf(source,dest:dest,selectable:true,editable:false)"
+  },
+  {
+    "id": "flags-01",
+    "selectable": false,
+    "editable": true,
+    "effectiveSelectable": true,
+    "call": "latex.tex2pdf(source,dest:dest,selectable:false,editable:true)"
+  },
+  {
+    "id": "flags-11",
+    "selectable": true,
+    "editable": true,
+    "effectiveSelectable": true,
+    "call": "latex.tex2pdf(source,dest:dest,selectable:true,editable:true)"
+  },
+  {
+    "id": "defaults",
+    "selectable": true,
+    "editable": false,
+    "effectiveSelectable": true,
+    "call": "latex.tex2pdf(source,dest:dest)"
+  },
+  {
+    "id": "no-dest",
+    "selectable": false,
+    "editable": false,
+    "effectiveSelectable": false,
+    "call": "latex.tex2pdf(source,selectable:false,editable:false)"
+  }
+]

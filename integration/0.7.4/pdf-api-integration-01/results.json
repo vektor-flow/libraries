@@ -1,0 +1,71 @@
+{
+  "nativeExecuted": false,
+  "pdfGenerated": false,
+  "nativeSaveSeconds": null,
+  "jobs": [
+    {
+      "name": "acceptance-tests",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/pdf-api-integration-01/candidate",
+        "-p",
+        "test_acceptance.py",
+        "-v"
+      ],
+      "expectedExit": 0,
+      "actualExit": 0,
+      "expectedOutcome": true,
+      "elapsedSeconds": 0.06505896197631955,
+      "joined": true
+    },
+    {
+      "name": "surface-preflight",
+      "command": [
+        "python3",
+        "-B",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/pdf-api-integration-01/candidate/check_surface.py",
+        "--repo",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries"
+      ],
+      "expectedExit": 2,
+      "actualExit": 2,
+      "expectedOutcome": true,
+      "elapsedSeconds": 0.04454642301425338,
+      "joined": true
+    },
+    {
+      "name": "source-revision",
+      "command": [
+        "node",
+        "--max-old-space-size=128",
+        "--test",
+        "examples/gpu-math/tests/source-revision.test.mjs"
+      ],
+      "expectedExit": 0,
+      "actualExit": 0,
+      "expectedOutcome": true,
+      "elapsedSeconds": 0.29881890199612826,
+      "joined": true
+    },
+    {
+      "name": "patch-check",
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/pdf-api-integration-01/acceptance.patch"
+      ],
+      "expectedExit": 0,
+      "actualExit": 0,
+      "expectedOutcome": true,
+      "elapsedSeconds": 0.0034729819744825363,
+      "joined": true
+    }
+  ],
+  "maxChildRssKiB": 71028
+}

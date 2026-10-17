@@ -1,0 +1,54 @@
+{
+  "offsetUnit": "utf16",
+  "sourceSha256": "ce5c75c082a770dbe85cda7189e0a6f64152ac29f1de6dd45f36fb01e9a5b58a",
+  "spans": [
+    {
+      "id": "word",
+      "sourceId": "main.tex",
+      "start": 101,
+      "end": 107,
+      "text": "office"
+    },
+    {
+      "id": "math",
+      "sourceId": "main.tex",
+      "start": 113,
+      "end": 124,
+      "text": "\\frac{a}{b}"
+    },
+    {
+      "id": "display",
+      "sourceId": "main.tex",
+      "start": 141,
+      "end": 152,
+      "text": "x^2+y^2=z^2"
+    },
+    {
+      "id": "macro",
+      "sourceId": "main.tex",
+      "start": 163,
+      "end": 169,
+      "text": "\\sq{z}"
+    },
+    {
+      "id": "page2",
+      "sourceId": "main.tex",
+      "start": 183,
+      "end": 202,
+      "text": "Second page office."
+    }
+  ],
+  "reverseAndDuplicateHitIds": [
+    "page2",
+    "macro",
+    "math",
+    "math",
+    "word"
+  ],
+  "expectedOrderedSourceFragments": [
+    "office",
+    "\\frac{a}{b}",
+    "\\sq{z}",
+    "Second page office."
+  ]
+}

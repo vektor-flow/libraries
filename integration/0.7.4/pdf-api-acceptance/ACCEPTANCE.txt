@@ -1,0 +1,64 @@
+Prepared acceptance only. No compiler, renderer, PDF or performance result here.
+Public intent is latex.tex2pdf(source,dest:...,selectable:...,editable:...).
+Do not substitute an options record, JS renderer, or user-visible save wrapper.
+No source signature patch is proposed: current backend cannot honor these flags.
+
+LIGHTWEIGHT
+python3 -B -m unittest discover -s <this-directory> -p test_acceptance.py -v
+python3 -B <this-directory>/check_surface.py --repo <shared-repo>
+The preflight must currently exit 2. Its eventual exit 0 checks only declarations;
+it cannot prove named-call syntax, destination writes, selection or editing.
+The default empty dest follows existing no-dest return behavior; selectable=true,
+editable=false follow the persisted user contracts. Extra required renderer
+resources must be resolved through an established internal resource binding.
+
+NATIVE ACCEPTANCE -- PENDING FRESH COORDINATOR GRANT AND WORKING PRODUCER
+1. First qualify named-syntax.vkf with the exact pinned toolchain. No build is
+   authorized by this document. If colon calls are unsupported, hand that precise
+   language capability dependency back; never replace the direct named API.
+2. cases.json contains intended literal calls, not claimed runnable VKF programs.
+   Bind source to exact source.tex bytes and dest to an admitted fresh path with
+   spaces and Unicode in its name. Use the shared native library, retaining the
+   legacy no-dest result/metadata. Qualify all four flag pairs, default arguments,
+   and omitted dest. Compare returned PDF bytes to saved bytes, count two pages
+   independently, and compare page geometry/appearance across flags.
+3. Start with existing destination containing sentinel bytes. Inject render
+   failure before save; then an actual write/rename failure. Old bytes must stay
+   exact, failure must be explicit, no truncated final file or leaked temporary
+   file. Successful publication is atomic same-filesystem replacement. A reader
+   during replacement must observe either complete old or complete new bytes.
+   Omitting dest performs no filesystem save. Do not invent an io.rename API:
+   the pinned stdlib capability manifest currently has no replacement primitive.
+4. Effective selectable = selectable OR editable. When false, omit source/map
+   attachments AND the text-extraction/selection layer; our viewer refuses copy,
+   drag and Ctrl/Cmd+A. When true, extract exact source.tex bytes and authenticate
+   source/map/render revisions. Require real producer glyph/cluster IDs, UTF-16
+   spans with exact byte conversion, logical order and page placements. Compare
+   selection.json to producer output, never use it to manufacture producer IDs.
+   'office' exercises a ligature; math/display scopes may be atomic. Macro \sq{z}
+   selects its invocation, not definition '#1^2'; reject ambiguous ownership.
+   Reverse hits and repeated cluster glyphs yield ordered deduplicated fragments
+   in the oracle. Test partial word, whole math, wrapped/page-crossing selections
+   on actual geometry; no surrogate or ligature split. Tampered/missing mappings
+   must reject selection. Include/project-file coverage remains a later gate.
+5. Independently inspect the actual native PDF: positioned selectable standard
+   text, ToUnicode and matching ActualText must carry faithful TeX. Attachment
+   extraction alone is insufficient. Compare Poppler AND PDF.js extraction to
+   authored spans without duplication, and exercise Adobe/Edge GUI copy when
+   available. Record versions, exact strings, granularity and unsupported cases;
+   synthetic reader fixtures are not native renderer acceptance. Do not claim
+   Adobe/Edge compatibility from a PDFium or extraction-only proxy.
+6. editable=false keeps our source editor read-only; it is not PDF DRM. With
+   editable=true, replace the exact 'math' range with '\frac{a}{c}', using the
+   current source revision. Regenerate and publish source/map/PDF together.
+   Stale revisions, invalid parse/layout and failed save preserve ALL prior
+   committed values. Two in-flight edits cannot commit stale output. The existing
+   host createSourceEditSession tests establish only an in-memory prerequisite;
+   its render callback MUST NOT save externally before the final revision guard.
+7. Native bitmap illustration path currently explicitly rejects kind=4. Require
+   a separate real image-provider fixture proving embedded pixel preservation
+   before any bitmap-support claim. No silent vectorization or dropped images.
+
+Record input/source/toolchain/binary hashes, real output hashes/page counts,
+exit codes, logs and joined jobs. Keep timing null until actual native save.
+Existing 40-page driver/limits apply only after all prerequisite admissions.

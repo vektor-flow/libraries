@@ -96,3 +96,14 @@ separate-project-chats-20261017.json. Three worker slots plus coordinator.
 Completion/blocker notifications go directly to coordinator; finished chats archived
 after review, successors receive essential handoff only. Old dispatcher stays held.
 Owned idle worker cgroup cache reclaimed718655488bytes; no globalcacheflush.
+
+STORAGE AND API PREPARATION JOINED — 2026-10-17
+Storage implementation02 core retained in branch as INACTIVE code. Root reran17
+unit tests successfully; both race children joined. No controller activated or
+budget issued. Next: service custody/RAM atomic wiring, append-only owner rotation,
+real namespace/timeouts/joins qualification before a native build.
+PDF/API acceptance fixtures integrated: root5preparation and8revision tests pass.
+Signature preflight intentionally exits2: missing dest/selectable/editable and
+source-only resource binding. Native API and PDFsave remain unqualified.
+Explicit CRLF/Unicode fixture bytes preserved. Next isolated runtime/API boundary
+work must produce concrete integration without flags that the encoder cannot honor.
