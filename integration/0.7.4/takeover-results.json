@@ -18,7 +18,7 @@
     "examples/gpu-math/tests/source-revision.test.mjs": "d6674ac51fd8b99f34b5552ed2f87d1c64a49c94623113fbf6420ce8a427f0f8"
   },
   "native": {
-    "status": "A346 sealed; A347 explicit singleton diagnostic correction assigned; no production fix",
+    "status": "A348 whole-Leaf assignment overlay rejected: unsupported dynamic list update; no production fix. Existing diagnostics review underway.",
     "used_bytes": 21838598144,
     "retained_charge_bytes": 60000000,
     "budget_bytes": 21900000000,
@@ -47,7 +47,13 @@
         "result": "new width mismatch; possible inferred-singleton fixture artifact, not original-failure localization",
         "compile_seconds": 76.087
       }
-    ]
+    ],
+    "rejected_overlay": {
+      "attempt": "A348",
+      "seconds": 75.938,
+      "error": "dynamic list update value requires scalar values",
+      "production_adopted": false
+    }
   },
   "unchanged_limits": true,
   "release_qualified": false,
@@ -83,8 +89,42 @@
     "suites": 37,
     "cases": 47,
     "ready_positive": 35,
-    "blocked_rejections": 12,
+    "blocked_rejections": 0,
     "executed_native": 0,
-    "static_checks_passed": 5
+    "static_checks_passed": 6,
+    "rejection_cases_ready": 12
+  },
+  "native_rejection_results": {
+    "passed": 10,
+    "compile_failures": 0,
+    "not_executed": 2,
+    "source_fix": "Escaped native dollar literals verified by document-route positive and4negative cases",
+    "root_verified_result_pins": 55,
+    "root_verified_receipt_pins": 7
+  },
+  "resource_estimate_corrections": [
+    {
+      "attempt": "A346-02",
+      "estimated_bytes": 1000000000,
+      "retained_bytes": 1217544192,
+      "cumulative_cap_respected": true
+    },
+    {
+      "attempt": "F355",
+      "estimated_bytes": 536870912,
+      "retained_bytes": 927752192,
+      "cumulative_cap_respected": true
+    }
+  ],
+  "native_gate_results": {
+    "total_cases": 47,
+    "passed": 12,
+    "failed": 1,
+    "not_executed": 34,
+    "passing_positive_cases": 2,
+    "passing_rejection_cases": 10,
+    "failure": "outer routes positive: noncanonical ordinal",
+    "extra_unknown_selector_controls_passed": 2,
+    "root_verified_F356_pins": 133
   }
 }

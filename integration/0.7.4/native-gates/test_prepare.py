@@ -38,6 +38,26 @@ class ReceiptTests(unittest.TestCase):
         with self.assertRaises(ValueError):self.run_receipt([self.row(),self.row()])
         row=self.row();row['id']='foreign'
         with self.assertRaises(ValueError):self.run_receipt([row])
+    def test_rejection_requires_exit_one_and_exact_pinned_logs(self):
+        with tempfile.TemporaryDirectory(dir=HERE) as temp:
+            root=Path(temp);manifest=root/'manifest.json';manifest.write_text('{}')
+            stdout=root/'run.stdout';stdout.write_bytes(b'')
+            stderr=root/'run.stderr';stderr.write_bytes(b'Expected rejection\n')
+            case=dict(id='positive',status='ready',expected_exit=1,expected_stdout='',expected_stderr='Expected rejection\n')
+            row=self.row();row['run'].update(exit=1,stdout=gate.pin(stdout),stderr=gate.pin(stderr))
+            receipt=root/'receipt.json'
+            def inspect():
+                receipt.write_text(json.dumps(dict(owner=gate.OWNER,manifest=gate.pin(manifest),cases=[row])))
+                capture=io.StringIO()
+                with patch.object(gate,'check',return_value={'cases':[case]}),contextlib.redirect_stdout(capture):
+                    self.assertEqual(gate.assess(manifest,receipt),1)
+                return json.loads(capture.getvalue())
+            self.assertEqual(inspect()['reported_success_cases_UNVERIFIED'],['positive'])
+            row['run']['exit']=0
+            self.assertEqual(inspect()['failed_or_missing_cases'],['positive'])
+            row['run']['exit']=1;stderr.write_bytes(b'Wrong rejection\n');row['run']['stderr']=gate.pin(stderr)
+            self.assertEqual(inspect()['failed_or_missing_cases'],['positive'])
+
     def test_mutated_pin_rejected(self):
         with tempfile.TemporaryDirectory(dir=HERE) as temp:
             file=Path(temp)/'source';file.write_text('original');pin=gate.pin(file)

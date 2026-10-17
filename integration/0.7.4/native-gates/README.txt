@@ -29,15 +29,20 @@ asserted, and existing boolean renderer/tests invocations are asserted. Existing
 checked run() invocations remain intact. identical_source_to identifies repeated
 suite sources; these are not independent correctness evidence.
 
-37 historical suite names produce 47 cases: 35 runnable positive cases plus 12
-blocked rejection cases. The two original rejection-only suites and ten route
-rejection functions are not counted as passes. Expected assertion messages are
-recorded where proved by current source. Native assertion exit/diagnostic
-semantics are not established, and malformed-scene diagnosis is also unresolved.
-Never interpret a signal, timeout, compile failure or arbitrary nonzero exit as
-an expected rejection. Three route suites therefore have runnable positive cases
-but remain incomplete until their rejection cases qualify. Entry derivatives for
-blocked cases are inspectable only; no launch commands are emitted for them.
+37 historical suite names produce 47 cases: 35 positive and 12 rejection cases.
+F354's root-reviewed pinned control establishes clean assertion exit 1 with exact
+stderr message plus newline and empty stdout (no signal/timeout). Each rejection
+now carries that explicit contract; normalization and compilation still require
+exit 0. Readiness means an inspectable plan, never a native pass.
+
+F355 first execution stopped at the third case, as required: malformed scene and
+invalid ID passed exact runtime contracts; document_routes__reject_changed_source
+failed compilation with "invalid $ in string" in the retained source. No runtime
+for that case, and nine remaining cases were not launched. No unchanged retry.
+Its suite contains an unescaped dollar in a positive fixture even in the negative
+entry derivative; a separately reviewed fixture adaptation is needed. The shared
+production source was not edited. Evidence is retained privately under F's
+iteration355-rejections01; root must authenticate receipts before adoption.
 
 External launcher contract:
 - Pin manifest.json and every referenced input in a fresh admission. Admit all
@@ -49,7 +54,7 @@ External launcher contract:
   process-tree deadline and descendant joining. A failed stage stops that case.
 - Require a new executable before run; capture file-backed stdin/stdout/stderr,
   binary hash, input pre/posthashes, stage exit, elapsed time, timeout and join.
-- Do not start any blocked case. Preserve complete evidence even after failure.
+- Do not start any blocked case or retry a failed unchanged boundary. Preserve complete evidence even after failure.
 
 The assess action inspects an UNTRUSTED summary shaped as:
   {"owner":"01a14893-cb1e-7203-97dd-de3da44dcf31",
@@ -60,8 +65,9 @@ The assess action inspects an UNTRUSTED summary shaped as:
      "compile":{"exit":0,"timed_out":false,"no_live_descendants":true,"elapsed_seconds":1},
      "run":{"exit":0,"timed_out":false,"no_live_descendants":true,"elapsed_seconds":1}}]}
 This summary is not authenticated execution evidence or an admission token.
-Owner and manifest fields alone are NOT proof of an external guarded launch. Assessment rechecks source/tool pins, rejects foreign manifests,
-duplicate/unknown results, and fails missing/nonzero/timed-out/unjoined stages.
+Owner and manifest fields alone are NOT proof of an external guarded launch. Assessment rechecks source/tool pins, rejects foreign manifests and duplicate/
+unknown results. It requires normalize/compile exit 0, per-case run exit, exact
+pinned runtime output where specified, and no timeout or unjoined descendants.
 Assessment ALWAYS exits nonzero, reports execution_verified false and null pass
 totals. All apparent successes are explicitly UNVERIFIED. The external controller
 receipt, executable hash, actual argv/stdin/source binding and terminal descendant

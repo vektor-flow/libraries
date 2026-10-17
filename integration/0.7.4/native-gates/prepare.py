@@ -12,6 +12,7 @@ REPO = HERE.parents[2]
 SOURCE = REPO / 'examples/gpu-math/native-vkf'
 INVENTORY = Path('/mnt/development/CompilerOptimization/latex074-integrated-20261017/integration-config.json')
 IMPORT = re.compile(r'^([A-Za-z_]\w*)\s*:\s*\.([A-Za-z_]\w*)\s*(?:#.*)?$', re.M)
+ASSERTION_CONTROL = {'path': '/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iteration354-assertion01/reviewed-contract.json', 'sha256': 'e0d84d1e59853a55061da727c113071e51223758a523ab6388bf4a67f9b701ce'}
 OWNER = '01a14893-cb1e-7203-97dd-de3da44dcf31'
 ROUTES = {
     'latex_document_routes_regression_tests_b347_adapter': 'routes_tests',
@@ -52,6 +53,7 @@ def imports(text):
     return [m[2] for m in IMPORT.finditer(text)]
 
 def prepare():
+    verify(ASSERTION_CONTROL)
     old = json.loads(INVENTORY.read_text())
     recipe_path = Path(json.loads((REPO/'integration/0.7.4/toolchain-pins.json').read_text())['recipe'])
     recipe = json.loads(recipe_path.read_text())
@@ -116,17 +118,16 @@ def prepare():
         else:
             entry = None; derivative = text; error = error or 'No established executable assertion entry'
         negative = suite in ('paragraph_scene_store_malformed_tests', 'paragraph_scene_store_invalid_id_tests')
-        if negative:
-            error = error or 'Native assertion termination/diagnostic contract unqualified; crashes cannot count as rejection'
         wrapper = wrappers/(suite+'.vkf')
         wrapper.write_text(derivative)
         case = {'id': suite, 'suite': suite, 'kind': 'rejection' if negative else 'positive',
                 'status': 'blocked' if error else 'ready', 'blocked_reason': error,
                 'entry': entry, 'entry_source': pin(wrapper), 'closure': closure,
                 'stdin': old['stdin'][suite], 'assertion_count': text.count('?!'),
-                'expected_exit': None if negative else 0, 'timeout_seconds': 30}
+                'expected_exit': 1 if negative else 0, 'expected_stdout': '' if negative else None, 'expected_stderr': None, 'timeout_seconds': 30}
         if negative:
-            case['expected_diagnostic'] = 'Invalid retained scene ID' if 'invalid_id' in suite else None
+            case['expected_diagnostic'] = 'Invalid retained scene ID' if 'invalid_id' in suite else 'Invalid retained scene JSON'
+            case['expected_stderr'] = case['expected_diagnostic'] + '\n'
         digest = sha(text.encode())
         case['identical_source_to'] = equivalent_sources.get(digest)
         equivalent_sources.setdefault(digest, suite)
@@ -135,9 +136,9 @@ def prepare():
             name_path = wrappers/(suite+'__'+name+'.vkf')
             name_path.write_text(text+'\n'+name+'()\n')
             cases.append({'id': suite+'__'+name, 'suite': suite, 'kind': 'rejection',
-                'status': 'blocked', 'blocked_reason': error or 'Native assertion termination/diagnostic contract unqualified; crashes cannot count as rejection',
+                'status': 'blocked' if error or name not in REJECTIONS else 'ready', 'blocked_reason': error or (None if name in REJECTIONS else 'Unknown rejection diagnostic'),
                 'entry': name+'()', 'entry_source': pin(name_path), 'closure': closure,
-                'stdin': '', 'expected_exit': None, 'expected_diagnostic': REJECTIONS.get(name),
+                'stdin': '', 'expected_exit': 1, 'expected_diagnostic': REJECTIONS.get(name), 'expected_stdout': '', 'expected_stderr': REJECTIONS.get(name, '')+'\n',
                 'timeout_seconds': 30})
     tools = recipe['tools'] + recipe['runtime'] + recipe['stdlib']
     for p in tools + old['assets']:
@@ -145,7 +146,7 @@ def prepare():
     result = {'schema': 1, 'owner': OWNER, 'source_root': str(SOURCE),
         'suite_count': len(old['suites']), 'case_count': len(cases), 'executed': False,
         'release_qualified': False, 'origin_inventory': pin(INVENTORY),
-        'recipe': pin(recipe_path), 'preparer': pin(__file__),
+        'recipe': pin(recipe_path), 'preparer': pin(__file__), 'assertion_control': ASSERTION_CONTROL,
         'environment': recipe['environment'], 'unset': recipe['unset'],
         'tools': recipe['tools'], 'runtime': recipe['runtime'], 'stdlib': recipe['stdlib'],
         'external': external, 'assets': old['assets'], 'modules': modules, 'cases': cases,
@@ -157,11 +158,11 @@ def prepare():
 
 def check(manifest):
     m = json.loads(Path(manifest).read_text())
-    pins = [m['origin_inventory'], m['recipe'], m['preparer']] + m['tools'] + m['runtime'] + m['stdlib'] + m['assets'] + list(m['external'].values())
+    pins = [m['origin_inventory'], m['recipe'], m['preparer'], m['assertion_control']] + m['tools'] + m['runtime'] + m['stdlib'] + m['assets'] + list(m['external'].values())
     pins += list(m['modules'].values()) + [c['entry_source'] for c in m['cases']]
     for p in pins: verify(p)
     for c in m['cases']:
-        if c['status']=='ready' and (not c['entry'] or c['assertion_count']<1):
+        if c['status']=='ready' and (not c['entry'] or (c['kind']=='positive' and c['assertion_count']<1)):
             raise ValueError('empty assertion entry: '+c['id'])
         for n in c['closure']:
             for d in m['modules'][n]['imports']:
@@ -187,7 +188,7 @@ def plan(manifest, output):
             'materialize': [{'source': m['modules'][n], 'destination': str(raw/(n+'.vkf'))} for n in c['closure'] if n != c['suite']] + [{'source': c['entry_source'], 'destination': str(raw/(c['suite']+'.vkf'))}],
             'normalize': ['/usr/bin/python3','-B',normalizer['path'],'--source-dir',str(raw),'--output-dir',str(normalized)],
             'compile': [compiler['path'],'-b',str(normalized/'source'/(c['suite']+'.vkf')),'-o',str(base/'case.exe'),'--diagnostics'],
-            'run': [str(base/'case.exe')], 'stdin': c['stdin'], 'expected_exit': 0})
+            'run': [str(base/'case.exe')], 'stdin': c['stdin'], 'expected_exit': c['expected_exit'], 'expected_stdout': c['expected_stdout'], 'expected_stderr': c['expected_stderr']})
     print(json.dumps({'manifest': pin(manifest), 'output_root': str(root),
         'environment': m['environment'], 'unset': m['unset'],
         'required_stdlib_symlinks': m['stdlib'], 'stages': stages,
@@ -211,10 +212,17 @@ def assess(manifest, receipt):
         ok=True
         for stage in ('normalize','compile','run'):
             s=row.get(stage,{})
-            ok &= (s.get('exit')==0 and s.get('timed_out') is False and
+            ok &= (s.get('exit')==(c.get('expected_exit',0) if stage=='run' else 0) and s.get('timed_out') is False and
                    s.get('no_live_descendants') is True and
                    isinstance(s.get('elapsed_seconds'),(float,int)) and
                    0 <= s['elapsed_seconds'] <= 30)
+        for field in ('stdout','stderr'):
+            expected=c.get('expected_'+field)
+            if expected is not None:
+                log=row.get('run',{}).get(field)
+                if not isinstance(log,dict): ok=False; continue
+                verify(log)
+                ok &= Path(log['path']).read_bytes()==expected.encode()
         ok &= row.get('posthash_match') is True and row.get('binary_produced') is True
         (passed if ok else failed).append(c['id'])
     summary={'reported_success_cases_UNVERIFIED':passed,'failed_or_missing_cases':failed,'blocked_cases':blocked,

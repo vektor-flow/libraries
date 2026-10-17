@@ -16,7 +16,11 @@
   },
   "preparer": {
     "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/prepare.py",
-    "sha256": "60c4bfd105da11dabd86268ec4d78315f0086c2165ab9d8670a3a757cb0517c0"
+    "sha256": "7de07286109095d7b77a287040e1774b8f71058996d6d80db671fbacd2428c23"
+  },
+  "assertion_control": {
+    "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iteration354-assertion01/reviewed-contract.json",
+    "sha256": "e0d84d1e59853a55061da727c113071e51223758a523ab6388bf4a67f9b701ce"
   },
   "environment": {
     "VKF_HOME": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home",
@@ -3774,7 +3778,7 @@
     },
     "latex_document_routes_regression_tests_b347_adapter": {
       "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/latex_document_routes_regression_tests_b347_adapter.vkf",
-      "sha256": "0dc2ca9917d7e651f917c5b4db46352b2628ffd7ec248f5f6aa88542cf965dc5",
+      "sha256": "6d86432d23385fa6317b0b53a54b0aae90a7c431a492fe166a1e1cafef3dfd70",
       "imports": [
         "latex_document_routes"
       ],
@@ -4092,6 +4096,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 10,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -4201,6 +4207,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 3,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -4310,6 +4318,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 6,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -4419,6 +4429,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 3,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -4528,6 +4540,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 4,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -4562,6 +4576,8 @@
       "stdin": "",
       "assertion_count": 23,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -4596,6 +4612,8 @@
       "stdin": "",
       "assertion_count": 5,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -4630,6 +4648,8 @@
       "stdin": "",
       "assertion_count": 13,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -4662,6 +4682,8 @@
       "stdin": "",
       "assertion_count": 9,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -4669,8 +4691,8 @@
       "id": "paragraph_scene_store_malformed_tests",
       "suite": "paragraph_scene_store_malformed_tests",
       "kind": "rejection",
-      "status": "blocked",
-      "blocked_reason": "Native assertion termination/diagnostic contract unqualified; crashes cannot count as rejection",
+      "status": "ready",
+      "blocked_reason": null,
       "entry": "native_gate_main()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/paragraph_scene_store_malformed_tests.vkf",
@@ -4693,17 +4715,19 @@
       ],
       "stdin": "",
       "assertion_count": 1,
-      "expected_exit": null,
+      "expected_exit": 1,
+      "expected_stdout": "",
+      "expected_stderr": "Invalid retained scene JSON\n",
       "timeout_seconds": 30,
-      "expected_diagnostic": null,
+      "expected_diagnostic": "Invalid retained scene JSON",
       "identical_source_to": null
     },
     {
       "id": "paragraph_scene_store_invalid_id_tests",
       "suite": "paragraph_scene_store_invalid_id_tests",
       "kind": "rejection",
-      "status": "blocked",
-      "blocked_reason": "Native assertion termination/diagnostic contract unqualified; crashes cannot count as rejection",
+      "status": "ready",
+      "blocked_reason": null,
       "entry": "native_gate_main()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/paragraph_scene_store_invalid_id_tests.vkf",
@@ -4718,7 +4742,9 @@
       ],
       "stdin": "",
       "assertion_count": 1,
-      "expected_exit": null,
+      "expected_exit": 1,
+      "expected_stdout": "",
+      "expected_stderr": "Invalid retained scene ID\n",
       "timeout_seconds": 30,
       "expected_diagnostic": "Invalid retained scene ID",
       "identical_source_to": null
@@ -4757,6 +4783,8 @@
       "stdin": "",
       "assertion_count": 13,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -4795,6 +4823,8 @@
       "stdin": "",
       "assertion_count": 18,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -4831,6 +4861,8 @@
       "stdin": "",
       "assertion_count": 286,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -4992,6 +5024,8 @@
       "stdin": "",
       "assertion_count": 8,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -5154,6 +5188,8 @@
       "stdin": "",
       "assertion_count": 12,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -5314,6 +5350,8 @@
       "stdin": "",
       "assertion_count": 20,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -5584,6 +5622,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 14,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -5835,6 +5875,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 8,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -6082,6 +6124,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 6,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -6329,6 +6373,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 9,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -6576,6 +6622,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 7,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -6823,6 +6871,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 6,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -7070,6 +7120,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 8,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -7104,6 +7156,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 5,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": "scene_metadata_export_regression_tests"
     },
@@ -7136,6 +7190,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 9,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": "scene_anchor_selection_regression_tests"
     },
@@ -7213,6 +7269,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 9,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -7247,6 +7305,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 13,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": "scene_metadata_edit_regression_tests"
     },
@@ -7281,6 +7341,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 23,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": "scene_metadata_regression_tests"
     },
@@ -7293,7 +7355,7 @@
       "entry": "routes_tests()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/latex_document_routes_regression_tests_b347_adapter.vkf",
-        "sha256": "87de30d8c6f9de06d5ba96b3ae719770395aba8d3bba4ded83578af91efc2051"
+        "sha256": "64075d41bf1787e2e7f354a262e83866024929cd45fc527ad0cc8be14f1aaacf"
       },
       "closure": [
         "latex_document_routes",
@@ -7303,6 +7365,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 6,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -7310,12 +7374,12 @@
       "id": "latex_document_routes_regression_tests_b347_adapter__reject_changed_source",
       "suite": "latex_document_routes_regression_tests_b347_adapter",
       "kind": "rejection",
-      "status": "blocked",
-      "blocked_reason": "Native assertion termination/diagnostic contract unqualified; crashes cannot count as rejection",
+      "status": "ready",
+      "blocked_reason": null,
       "entry": "reject_changed_source()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/latex_document_routes_regression_tests_b347_adapter__reject_changed_source.vkf",
-        "sha256": "cb4c3ad691e047b326f5b81aadbf00ac79c621a44078a54b4a92b78d10ef098b"
+        "sha256": "c5dd3cc2030cde7d20acc5063a6542ed4078dab29325c7375f8e39f7050a766e"
       },
       "closure": [
         "latex_document_routes",
@@ -7323,20 +7387,22 @@
         "tex_text"
       ],
       "stdin": "",
-      "expected_exit": null,
+      "expected_exit": 1,
       "expected_diagnostic": "Unbound resolved parser source",
+      "expected_stdout": "",
+      "expected_stderr": "Unbound resolved parser source\n",
       "timeout_seconds": 30
     },
     {
       "id": "latex_document_routes_regression_tests_b347_adapter__reject_duplicate",
       "suite": "latex_document_routes_regression_tests_b347_adapter",
       "kind": "rejection",
-      "status": "blocked",
-      "blocked_reason": "Native assertion termination/diagnostic contract unqualified; crashes cannot count as rejection",
+      "status": "ready",
+      "blocked_reason": null,
       "entry": "reject_duplicate()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/latex_document_routes_regression_tests_b347_adapter__reject_duplicate.vkf",
-        "sha256": "45b2cec990cf1c77917433148de19b3203d9e8368c82961da0cfada9f4e124a7"
+        "sha256": "fb7f68f8028771222491908da8174eeecec81a4161b51a745066e344512cc3a6"
       },
       "closure": [
         "latex_document_routes",
@@ -7344,20 +7410,22 @@
         "tex_text"
       ],
       "stdin": "",
-      "expected_exit": null,
+      "expected_exit": 1,
       "expected_diagnostic": "Duplicate provenance route",
+      "expected_stdout": "",
+      "expected_stderr": "Duplicate provenance route\n",
       "timeout_seconds": 30
     },
     {
       "id": "latex_document_routes_regression_tests_b347_adapter__reject_missing_column",
       "suite": "latex_document_routes_regression_tests_b347_adapter",
       "kind": "rejection",
-      "status": "blocked",
-      "blocked_reason": "Native assertion termination/diagnostic contract unqualified; crashes cannot count as rejection",
+      "status": "ready",
+      "blocked_reason": null,
       "entry": "reject_missing_column()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/latex_document_routes_regression_tests_b347_adapter__reject_missing_column.vkf",
-        "sha256": "f713de5ec2dc687fa055e3848d0fbb8dd3988c52ec06783b510f15c3aa9ce10d"
+        "sha256": "a7e86b736305be342d330ff5bb790123a8951b2674a8b163c75e030ff0e1f809"
       },
       "closure": [
         "latex_document_routes",
@@ -7365,20 +7433,22 @@
         "tex_text"
       ],
       "stdin": "",
-      "expected_exit": null,
+      "expected_exit": 1,
       "expected_diagnostic": "Provenance route column mismatch",
+      "expected_stdout": "",
+      "expected_stderr": "Provenance route column mismatch\n",
       "timeout_seconds": 30
     },
     {
       "id": "latex_document_routes_regression_tests_b347_adapter__reject_out_of_range",
       "suite": "latex_document_routes_regression_tests_b347_adapter",
       "kind": "rejection",
-      "status": "blocked",
-      "blocked_reason": "Native assertion termination/diagnostic contract unqualified; crashes cannot count as rejection",
+      "status": "ready",
+      "blocked_reason": null,
       "entry": "reject_out_of_range()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/latex_document_routes_regression_tests_b347_adapter__reject_out_of_range.vkf",
-        "sha256": "122c4c96d2d3cf4147dfe9d21feb11e576d0bad42eef759973201874f5b4a661"
+        "sha256": "50c0c13283e102a39dc1d3144b0658f3e781ec19bac7c33ece48f149a44a7e7b"
       },
       "closure": [
         "latex_document_routes",
@@ -7386,8 +7456,10 @@
         "tex_text"
       ],
       "stdin": "",
-      "expected_exit": null,
+      "expected_exit": 1,
       "expected_diagnostic": "Invalid provenance route",
+      "expected_stdout": "",
+      "expected_stderr": "Invalid provenance route\n",
       "timeout_seconds": 30
     },
     {
@@ -7409,6 +7481,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 6,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -7416,8 +7490,8 @@
       "id": "latex_label_routes_regression_tests_b347_adapter__reject_label_text",
       "suite": "latex_label_routes_regression_tests_b347_adapter",
       "kind": "rejection",
-      "status": "blocked",
-      "blocked_reason": "Native assertion termination/diagnostic contract unqualified; crashes cannot count as rejection",
+      "status": "ready",
+      "blocked_reason": null,
       "entry": "reject_label_text()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/latex_label_routes_regression_tests_b347_adapter__reject_label_text.vkf",
@@ -7429,16 +7503,18 @@
         "tex_text"
       ],
       "stdin": "",
-      "expected_exit": null,
+      "expected_exit": 1,
       "expected_diagnostic": "Unbound resolved parser source",
+      "expected_stdout": "",
+      "expected_stderr": "Unbound resolved parser source\n",
       "timeout_seconds": 30
     },
     {
       "id": "latex_label_routes_regression_tests_b347_adapter__reject_label_duplicate",
       "suite": "latex_label_routes_regression_tests_b347_adapter",
       "kind": "rejection",
-      "status": "blocked",
-      "blocked_reason": "Native assertion termination/diagnostic contract unqualified; crashes cannot count as rejection",
+      "status": "ready",
+      "blocked_reason": null,
       "entry": "reject_label_duplicate()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/latex_label_routes_regression_tests_b347_adapter__reject_label_duplicate.vkf",
@@ -7450,16 +7526,18 @@
         "tex_text"
       ],
       "stdin": "",
-      "expected_exit": null,
+      "expected_exit": 1,
       "expected_diagnostic": "Duplicate provenance route",
+      "expected_stdout": "",
+      "expected_stderr": "Duplicate provenance route\n",
       "timeout_seconds": 30
     },
     {
       "id": "latex_label_routes_regression_tests_b347_adapter__reject_unknown_producer",
       "suite": "latex_label_routes_regression_tests_b347_adapter",
       "kind": "rejection",
-      "status": "blocked",
-      "blocked_reason": "Native assertion termination/diagnostic contract unqualified; crashes cannot count as rejection",
+      "status": "ready",
+      "blocked_reason": null,
       "entry": "reject_unknown_producer()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/latex_label_routes_regression_tests_b347_adapter__reject_unknown_producer.vkf",
@@ -7471,16 +7549,18 @@
         "tex_text"
       ],
       "stdin": "",
-      "expected_exit": null,
+      "expected_exit": 1,
       "expected_diagnostic": "Unknown provenance producer kind",
+      "expected_stdout": "",
+      "expected_stderr": "Unknown provenance producer kind\n",
       "timeout_seconds": 30
     },
     {
       "id": "latex_label_routes_regression_tests_b347_adapter__reject_kind_length",
       "suite": "latex_label_routes_regression_tests_b347_adapter",
       "kind": "rejection",
-      "status": "blocked",
-      "blocked_reason": "Native assertion termination/diagnostic contract unqualified; crashes cannot count as rejection",
+      "status": "ready",
+      "blocked_reason": null,
       "entry": "reject_kind_length()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/latex_label_routes_regression_tests_b347_adapter__reject_kind_length.vkf",
@@ -7492,8 +7572,10 @@
         "tex_text"
       ],
       "stdin": "",
-      "expected_exit": null,
+      "expected_exit": 1,
       "expected_diagnostic": "Provenance kind column mismatch",
+      "expected_stdout": "",
+      "expected_stderr": "Provenance kind column mismatch\n",
       "timeout_seconds": 30
     },
     {
@@ -7515,6 +7597,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 6,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -7522,8 +7606,8 @@
       "id": "latex_outer_routes_regression_tests_b347_adapter__reject_outer_source",
       "suite": "latex_outer_routes_regression_tests_b347_adapter",
       "kind": "rejection",
-      "status": "blocked",
-      "blocked_reason": "Native assertion termination/diagnostic contract unqualified; crashes cannot count as rejection",
+      "status": "ready",
+      "blocked_reason": null,
       "entry": "reject_outer_source()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/latex_outer_routes_regression_tests_b347_adapter__reject_outer_source.vkf",
@@ -7535,16 +7619,18 @@
         "tex_text"
       ],
       "stdin": "",
-      "expected_exit": null,
+      "expected_exit": 1,
       "expected_diagnostic": "Unbound resolved parser source",
+      "expected_stdout": "",
+      "expected_stderr": "Unbound resolved parser source\n",
       "timeout_seconds": 30
     },
     {
       "id": "latex_outer_routes_regression_tests_b347_adapter__reject_outer_duplicate",
       "suite": "latex_outer_routes_regression_tests_b347_adapter",
       "kind": "rejection",
-      "status": "blocked",
-      "blocked_reason": "Native assertion termination/diagnostic contract unqualified; crashes cannot count as rejection",
+      "status": "ready",
+      "blocked_reason": null,
       "entry": "reject_outer_duplicate()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/latex_outer_routes_regression_tests_b347_adapter__reject_outer_duplicate.vkf",
@@ -7556,8 +7642,10 @@
         "tex_text"
       ],
       "stdin": "",
-      "expected_exit": null,
+      "expected_exit": 1,
       "expected_diagnostic": "Duplicate provenance route",
+      "expected_stdout": "",
+      "expected_stderr": "Duplicate provenance route\n",
       "timeout_seconds": 30
     },
     {
@@ -7582,6 +7670,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 17,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -7607,6 +7697,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 19,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -7634,6 +7726,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 7,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -7716,6 +7810,8 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 12,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     },
@@ -7798,13 +7894,15 @@
       "stdin": "/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/395cc412356fa656a0fc859110ea7a91bcc43ca320e3fc2473b1b4d0fbd0c8db-catalog.vkfont\n/mnt/development/CuvamiLaTeX/typed-inline-stream-073-04/inputs/ea332df6cd8017603cfe43c34ea15f5e0e926469ece719aa5f2bf33b64dd7e96-english.vkhyphen\n",
       "assertion_count": 8,
       "expected_exit": 0,
+      "expected_stdout": null,
+      "expected_stderr": null,
       "timeout_seconds": 30,
       "identical_source_to": null
     }
   ],
   "summary": {
-    "ready_cases": 35,
-    "blocked_cases": 12,
+    "ready_cases": 47,
+    "blocked_cases": 0,
     "passed": 0
   },
   "execution_policy": "External coordinator guarded launch only; fresh admission must pin this manifest, all inputs and output paths. No native execution is provided by this tool."
