@@ -1,0 +1,88 @@
+HOST SOURCE BINDING BRIDGE — internal preparation prerequisite
+
+createSourceBindingBridge(sources) owns a real createSourceEditSession. Sources
+are exact {id,version,text} records, copied/frozen without normalization. Source
+SHA-256 revisions and numeric owner.revision are distinct. Sources may contain
+CRLF and non-BMP scalars; malformed surrogate source is rejected before transport.
+
+const bridge = createSourceBindingBridge(sources);
+const snapshot = bridge.current.snapshot;
+const request = {expectedSnapshot:snapshot, expectedRevision:snapshot.revision};
+const prepared = bridge.prepare(request, mapping);
+const args = bridge.pdfArguments(prepared, {fonts,operators,ordered_roles,language});
+// args is the frozen 17-position latex.tex2pdf invocation input. No invocation,
+// rendering, publication, provenance authentication or file saving occurs here.
+
+mapping = {owner, bodyRoutes, noteRoutes, sourceId,
+           files:[{path,sourceId}], job?, entry?, includeLayout?}.
+owner is the existing beginProvenance schema: documentId, revision, resources,
+sources, groups, scopes. Every source ID/version/text must equal the current (or
+staged) snapshot; source row order is immaterial. sourceId explicitly identifies
+the main input. files explicitly maps the other source IDs to native files_json
+keys and uses snapshot text, never caller-supplied substitute text. All snapshot
+sources need input coverage. Path validity/resolution remains the native check.
+Defaults match native: files=[], job="main", entry="main.tex", includeLayout=true.
+
+Routes use the real documentAndNoteEntryRoutes schema: {block,scope,kind?}.
+Body accepts body/label/outer:N; notes accept body/label. Selectors are local to
+the current prepared plan, not stable authored IDs. Scopes cannot alias between
+routes or namespaces; duplicate selectors, missing and unknown scopes fail.
+The resulting eight columns are a261_blocks/scopes/texts, a263_kinds and
+a267_notes/scopes/texts/kinds. They remain unchanged and frozen in prepared.columns.
+
+Direct scope text must equal the source substring at baseByte; native offsets
+are UTF-8 bytes. Expanded/synthetic input must set a262_originMode="explicit"
+and supply EVERY operation's nonempty a262_origins [{sourceId,startByte,stopByte}].
+These explicit origins may reference multiple source files and may repeat.
+Group spans use UTF-16. Every authored operation origin must lie within one
+declared group span; scalar splits, empty/unmapped operations/emissions and unused
+groups fail. A synthetic note marker with an explicit authored origin is valid.
+An unknown/generated route has no such ownership and is never guessed or promoted.
+The owner, resources, groups, routes, result and arguments accept plain data only:
+accessors, sparse arrays, cycles, Map/Set/Date/typed arrays and opaque handles fail.
+
+For real document_owned/layout output only:
+const args = bridge.documentArguments(prepared, {fonts,roles,language,...});
+// args is the frozen 13-position latex_library.document_owned invocation input.
+const bound = bridge.bindDocument(prepared, actualDocumentResult);
+Binding copies/freeze the result and calls the existing bindOperationDocument;
+it adds no output-origin authority beyond that binder's checks. Native results
+must expose the real six a260 columns and complete page ranges. Missing, unknown,
+duplicate, unconsumed, wrong-text/span/operation/part mappings fail closed, including
+unmapped decorations. No renderer-output success is fabricated by this bridge.
+
+For an in-memory source edit with a typed-document preparation callback:
+await bridge.apply({...request, edits}, mappingForStagedSources, async prepared => {
+  // Existing native bridge would consume bridge.documentArguments(prepared,...).
+  // Return its ACTUAL typed DocumentResult. Do not publish or save externally.
+  return actualDocumentResult;
+});
+The mapper must explicitly provide the staged source versions/text and operation
+origins; this module does not derive them from edits. Both source snapshot and
+boundDocument commit together only after existing provenance validation succeeds.
+After a committed owner exists, documentId must match and numeric owner revision
+must advance; group/resource/source checks remain in the existing binder.
+Failed preparation leaves state unchanged. First successful concurrent completion
+wins; identity rejects old tokens even for no-op edits with an unchanged hash.
+Preparations are bridge-local capabilities; clones and cross-session use fail.
+Already extracted argument arrays cannot be revoked: check/use the bridge boundary
+again before consuming results; apply does this after its await. No cancellation
+or external side-effect rollback is claimed.
+
+CURRENT LIMITS
+document_materialize.render/latex.tex2pdf return exactly pdf, layout_json,
+diagnostics, unresolved_json, complete, block_count, page_count. They DO NOT return
+document. bindDocument/apply reject this shape; PDF bytes are not an authenticated
+source map. Native resource marshalling and a native invocation transport are still
+external. No sound existing executable host/native PDF caller was found to wire;
+the explicit positional preparation objects are the consumption boundary.
+Caller mappings remain assertions: only the native parser can check actual plan
+selector ranges, actual text and emitted provenance. Includes, comments and macro
+expansion do not automatically carry authored-source mappings. Host tests use real
+provenance/revision implementations plus clearly declared typed result fixtures;
+they do not execute the native parser/renderer, prove parser mappings, or produce PDF.
+There is no dest/selectable/editable facade, ActualText wiring, reader qualification,
+source-map embedding, glyph-ID inference, performance target or native gate credit.
+
+Run after integration:
+node --test examples/gpu-math/native-vkf/host/tests/source-binding-bridge.mjs

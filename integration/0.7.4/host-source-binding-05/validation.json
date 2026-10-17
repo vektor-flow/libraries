@@ -1,0 +1,79 @@
+{
+  "steps": [
+    {
+      "name": "bridge-tests",
+      "argv": [
+        "node",
+        "--experimental-loader",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/host-source-binding-05/current-source-loader.mjs",
+        "--test",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/host-source-binding-05/candidate/examples/gpu-math/native-vkf/host/tests/source-binding-bridge.mjs"
+      ],
+      "pid": 4049074,
+      "returncode": 0,
+      "joined": true,
+      "seconds": 0.41462559800129384
+    },
+    {
+      "name": "revision-tests",
+      "argv": [
+        "node",
+        "--test",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/tests/source-revision.test.mjs"
+      ],
+      "pid": 4049088,
+      "returncode": 0,
+      "joined": true,
+      "seconds": 0.31474247691221535
+    },
+    {
+      "name": "provenance-entry",
+      "argv": [
+        "node",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/host/tests/provenance-entry.mjs"
+      ],
+      "pid": 4049101,
+      "returncode": 0,
+      "joined": true,
+      "seconds": 0.5151405270444229
+    },
+    {
+      "name": "provenance-revision",
+      "argv": [
+        "node",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/host/tests/provenance-revision.mjs"
+      ],
+      "pid": 4049128,
+      "returncode": 0,
+      "joined": true,
+      "seconds": 0.16441690002102405
+    },
+    {
+      "name": "owner-transport",
+      "argv": [
+        "node",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/host/tests/pdf-owner-transport.mjs"
+      ],
+      "pid": 4049154,
+      "returncode": 0,
+      "joined": true,
+      "seconds": 0.16434891801327467
+    },
+    {
+      "name": "patch-check",
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "--whitespace=error-all",
+        "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/host-source-binding-05/source-binding.patch"
+      ],
+      "pid": 4049161,
+      "returncode": 0,
+      "joined": true,
+      "seconds": 0.003954809973947704
+    }
+  ],
+  "passed": true,
+  "native_executed": false
+}
