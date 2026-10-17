@@ -1,0 +1,83 @@
+[
+  {
+    "label": "tests-02",
+    "command": [
+      "node",
+      "--test",
+      "examples/gpu-math/tests/source-revision.test.mjs",
+      "examples/gpu-math/tests/source-publication.test.mjs"
+    ],
+    "cwd": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/atomic-publication-02/candidate",
+    "elapsed_seconds": 0.611690626014024,
+    "exit_code": 0,
+    "max_child_rss_kib_cumulative": 75320,
+    "joined": true,
+    "utc": "2026-10-17T08:35:50.489547+00:00"
+  },
+  {
+    "label": "baseline-revision",
+    "command": [
+      "node",
+      "--test",
+      "examples/gpu-math/tests/source-revision.test.mjs"
+    ],
+    "cwd": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/atomic-publication-02/original",
+    "elapsed_seconds": 0.2894665600033477,
+    "exit_code": 0,
+    "max_child_rss_kib_cumulative": 75320,
+    "joined": true,
+    "utc": "2026-10-17T08:35:50.779098+00:00"
+  },
+  {
+    "label": "acceptance",
+    "command": [
+      "python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "integration/0.7.4/pdf-api-acceptance",
+      "-p",
+      "test_acceptance.py",
+      "-v"
+    ],
+    "cwd": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+    "elapsed_seconds": 0.04468297609128058,
+    "exit_code": 0,
+    "max_child_rss_kib_cumulative": 75320,
+    "joined": true,
+    "utc": "2026-10-17T08:35:50.823849+00:00"
+  },
+  {
+    "label": "patch-check",
+    "command": [
+      "git",
+      "apply",
+      "--check",
+      "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/atomic-publication-02/atomic-publication.patch"
+    ],
+    "cwd": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+    "elapsed_seconds": 0.003463382017798722,
+    "exit_code": 0,
+    "max_child_rss_kib_cumulative": 75320,
+    "joined": true,
+    "utc": "2026-10-17T08:35:50.827361+00:00"
+  },
+  {
+    "label": "patch-whitespace",
+    "command": [
+      "git",
+      "apply",
+      "--check",
+      "--whitespace=error-all",
+      "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/atomic-publication-02/atomic-publication.patch"
+    ],
+    "cwd": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries",
+    "elapsed_seconds": 0.0017508160090073943,
+    "exit_code": 0,
+    "max_child_rss_kib_cumulative": 75320,
+    "joined": true,
+    "utc": "2026-10-17T08:35:50.829150+00:00"
+  }
+]

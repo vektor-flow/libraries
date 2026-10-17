@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+import {copySourcePublicationReplacement,openSourcePublication,stageSourcePublication,preparedSourceReplacement,commitSourcePublication,discardSourcePublication} from './latex_source_publication.mjs';
 
 const snapshots=new WeakSet();
 const check=(ok,message)=>{if(!ok)throw Error(message);};
@@ -62,13 +63,22 @@ export function stageSourceEdits(snapshot,{expectedRevision,edits}={}){
 
 /** Render is a preparation callback: render(candidate) ->
  * {complete:true, replacement, diagnostics?:[], unresolved?:[]}.
- * It must not publish external side effects; this session commits only its own
- * snapshot/replacement pair. Failed or stale preparation leaves that pair intact.
+ * It must not publish external side effects. Without publicationPath the session
+ * commits only its own snapshot/replacement pair. Failed or stale preparation
+ * leaves that pair intact.
+ * Optional {publicationPath} enables the small host bundle prerequisite, NOT a
+ * native tex2pdf API. replacement must then contain {sourceRevision,map,pdf},
+ * with Uint8Array map/PDF bytes supplied by the caller, never synthesized here.
+ * A single bundle rename commits all three; publication warnings mean the rename
+ * committed but crash durability/cleanup was not confirmed. See publication docs.
  * Among concurrent requests from one base, the first successful commit wins.
  * Snapshot identity also rejects stale no-op completions (the hash may be equal).
  */
-export function createSourceEditSession(sources,initialReplacement=null){
+export function createSourceEditSession(sources,initialReplacement=null,{publicationPath}={}){
  let state=Object.freeze({snapshot:createSourceSnapshot(sources),replacement:initialReplacement});
+ if(publicationPath!==undefined&&initialReplacement!==null)state=Object.freeze({snapshot:state.snapshot,
+  replacement:copySourcePublicationReplacement(state.snapshot,initialReplacement)});
+ const publication=publicationPath===undefined?null:openSourcePublication(publicationPath,state.snapshot,state.replacement);
  function apply(request,render){
   check(typeof render==='function','Missing render callback');
   const base=state,candidate=stageSourceEdits(base.snapshot,request);
@@ -77,10 +87,22 @@ export function createSourceEditSession(sources,initialReplacement=null){
    check(state===base,'Stale source completion');
    const {complete,replacement,diagnostics=[],unresolved=[]}=result??{};
    check(complete===true&&replacement!==undefined&&replacement!==null&&Array.isArray(diagnostics)&&diagnostics.length===0&&Array.isArray(unresolved)&&unresolved.length===0,'Incomplete source replacement');
-   // Read callback-owned properties before the final guard: even a getter can
-   // initiate another request. There is no await or caller code after this guard.
-   check(state===base,'Stale source completion');
-   state=Object.freeze({snapshot:candidate,replacement});return state;
+   let prepared;
+   try{
+    prepared=publication?stageSourcePublication(publication,candidate,replacement):null;
+    const committedReplacement=prepared?preparedSourceReplacement(prepared):replacement;
+    // All caller-owned properties and bytes were read before this final guard.
+    // Trusted synchronous commit performs CAS+rename without yielding to another
+    // request. Its pre-rename errors preserve state; post-rename warnings commit.
+    check(state===base,'Stale source completion');
+    const receipt=prepared?commitSourcePublication(publication,prepared):null;
+    state=Object.freeze({snapshot:candidate,replacement:committedReplacement,
+     ...(receipt?{publication:receipt}:{})});return state;
+   }catch(error){
+    try{if(prepared)discardSourcePublication(prepared);}
+    catch(cleanup){throw new AggregateError([error,cleanup],error.message,{cause:error});}
+    throw error;
+   }
   })();
  }
  return Object.freeze({apply,get current(){return state;}});

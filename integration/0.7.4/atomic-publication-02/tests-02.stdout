@@ -1,0 +1,160 @@
+TAP version 13
+# Subtest: Unicode destination publishes one complete bundle, preserving exact source and immutable byte copies
+ok 1 - Unicode destination publishes one complete bundle, preserving exact source and immutable byte copies
+  ---
+  duration_ms: 16.358798
+  type: 'test'
+  ...
+# Subtest: stale completion, stale request and invalid preparation never replace the previous bundle
+ok 2 - stale completion, stale request and invalid preparation never replace the previous bundle
+  ---
+  duration_ms: 15.987462
+  type: 'test'
+  ...
+# Subtest: write failure preserves old source/map/PDF and cleans temporary files
+ok 3 - write failure preserves old source/map/PDF and cleans temporary files
+  ---
+  duration_ms: 14.298156
+  type: 'test'
+  ...
+# Subtest: flush failure preserves old source/map/PDF and cleans temporary files
+ok 4 - flush failure preserves old source/map/PDF and cleans temporary files
+  ---
+  duration_ms: 13.001007
+  type: 'test'
+  ...
+# Subtest: close failure preserves old source/map/PDF and cleans temporary files
+ok 5 - close failure preserves old source/map/PDF and cleans temporary files
+  ---
+  duration_ms: 17.505535
+  type: 'test'
+  ...
+# Subtest: rename failure preserves old source/map/PDF and cleans temporary files
+ok 6 - rename failure preserves old source/map/PDF and cleans temporary files
+  ---
+  duration_ms: 16.079724
+  type: 'test'
+  ...
+# Subtest: real filesystem rename error preserves the destination and removes its staged file
+ok 7 - real filesystem rename error preserves the destination and removes its staged file
+  ---
+  duration_ms: 4.286845
+  type: 'test'
+  ...
+# Subtest: missing parent fails real temp creation without changing session state
+ok 8 - missing parent fails real temp creation without changing session state
+  ---
+  duration_ms: 0.824552
+  type: 'test'
+  ...
+# Subtest: post-rename directory flush failure commits state and returns durability warning
+ok 9 - post-rename directory flush failure commits state and returns durability warning
+  ---
+  duration_ms: 10.471298
+  type: 'test'
+  ...
+# Subtest: lock contention fails closed without deleting another writer lock
+ok 10 - lock contention fails closed without deleting another writer lock
+  ---
+  duration_ms: 9.87291
+  type: 'test'
+  ...
+# Subtest: two sessions opened on the same generation cannot overwrite a newer no-op bundle
+ok 11 - two sessions opened on the same generation cannot overwrite a newer no-op bundle
+  ---
+  duration_ms: 16.232825
+  type: 'test'
+  ...
+# Subtest: same-session no-op commit rejects pending older output even with equal hashes
+ok 12 - same-session no-op commit rejects pending older output even with equal hashes
+  ---
+  duration_ms: 7.025486
+  type: 'test'
+  ...
+# Subtest: real competing processes publish at most one generation and every read is coherent
+ok 13 - real competing processes publish at most one generation and every read is coherent
+  ---
+  duration_ms: 155.389771
+  type: 'test'
+  ...
+# Subtest: post-rename lock removal failure is committed, reported and fails subsequent writers closed
+ok 14 - post-rename lock removal failure is committed, reported and fails subsequent writers closed
+  ---
+  duration_ms: 9.980251
+  type: 'test'
+  ...
+# Subtest: cleanup failure is explicit and does not hide the pre-publication error or replace prior bytes
+ok 15 - cleanup failure is explicit and does not hide the pre-publication error or replace prior bytes
+  ---
+  duration_ms: 9.553244
+  type: 'test'
+  ...
+# Subtest: existing bundle mismatch refuses attachment; copied initial bytes remain stable on failed edits
+ok 16 - existing bundle mismatch refuses attachment; copied initial bytes remain stable on failed edits
+  ---
+  duration_ms: 12.330956
+  type: 'test'
+  ...
+# Subtest: file bytes are copied before publication and caller getters cannot publish a stale nested completion
+ok 17 - file bytes are copied before publication and caller getters cannot publish a stale nested completion
+  ---
+  duration_ms: 6.523029
+  type: 'test'
+  ...
+# Subtest: snapshots copy and freeze exact source-binding rows with stable order-independent hashes
+ok 18 - snapshots copy and freeze exact source-binding rows with stable order-independent hashes
+  ---
+  duration_ms: 4.125133
+  type: 'test'
+  ...
+# Subtest: hash framing distinguishes IDs, versions, boundaries, line endings and exact Unicode
+ok 19 - hash framing distinguishes IDs, versions, boundaries, line endings and exact Unicode
+  ---
+  duration_ms: 0.627479
+  type: 'test'
+  ...
+# Subtest: multifile edits use original offsets, preserve CRLF and advance only changed file versions
+ok 20 - multifile edits use original offsets, preserve CRLF and advance only changed file versions
+  ---
+  duration_ms: 0.815652
+  type: 'test'
+  ...
+# Subtest: staging rejects stale revisions, missing IDs, invalid ranges and ambiguous overlaps
+ok 21 - staging rejects stale revisions, missing IDs, invalid ranges and ambiguous overlaps
+  ---
+  duration_ms: 0.761521
+  type: 'test'
+  ...
+# Subtest: session commits source and complete replacement together and snapshots edits before await
+ok 22 - session commits source and complete replacement together and snapshots edits before await
+  ---
+  duration_ms: 0.743711
+  type: 'test'
+  ...
+# Subtest: render throws, rejection, incomplete and unresolved replacements leave committed state unchanged
+ok 23 - render throws, rejection, incomplete and unresolved replacements leave committed state unchanged
+  ---
+  duration_ms: 0.882433
+  type: 'test'
+  ...
+# Subtest: concurrent completion cannot overwrite a newer committed replacement
+ok 24 - concurrent completion cannot overwrite a newer committed replacement
+  ---
+  duration_ms: 0.412666
+  type: 'test'
+  ...
+# Subtest: failed concurrent requests do not revoke a valid preparation; no-op commits still reject old completions
+ok 25 - failed concurrent requests do not revoke a valid preparation; no-op commits still reject old completions
+  ---
+  duration_ms: 0.461667
+  type: 'test'
+  ...
+1..25
+# tests 25
+# suites 0
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 490.659765

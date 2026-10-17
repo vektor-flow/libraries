@@ -1,0 +1,129 @@
+ATOMIC PUBLICATION 02 — completed host prerequisite; native/API UNQUALIFIED
+Owner: 01a148fb-6f95-7aa3-a7f2-d4106680f3fb
+Sole coordinator: 01a14893-cb1e-7203-97dd-de3da44dcf31
+Repository: /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries
+Branch: consolidate/0.7.4-shared-base-20261017
+Grant/test input base: c7310d4ee3007d198eebc058da9256571064098b
+Final check HEAD: b90d65bbe8df2ce3110288caf66816a6b150930b
+Only this grant output directory was written. No source application or commits.
+
+DELIVERY
+Patch: /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/atomic-publication-02/atomic-publication.patch
+SHA256: 26be12404884c618e033e1a2411d12d117841b5ee61c1480291086553d3ac8f4
+Four paths: new host/latex_source_publication.mjs, host/latex_source_publication.txt,
+modified host/latex_source_revision.mjs, new tests/source-publication.test.mjs,
+all beneath examples/gpu-math. candidate/ holds exact payload plus unchanged
+original revision tests; original/ preserves the original two input files.
+508 insertions / 7 deletions. No runtime ABI/compiler/API or metadata/storage edits.
+
+CONCRETE COMMIT BOUNDARY
+Optional third session argument {publicationPath} selects one JSON bundle file,
+NOT a standalone PDF save path. The bundle carries the exact snapshot and supplied
+map/PDF bytes. Render remains preparation only; it must not publish externally.
+No API can prevent arbitrary malicious callback side effects. The integration
+itself never calls a publication callback or saves from the render callback.
+Copy callback bytes, write same-directory exclusive 0600 temp, fsync and close;
+then final in-memory identity check, exclusive cooperative .lock, destination
+SHA256 generation check and synchronous rename. No await/caller code between
+final validation and commit. Unique bundle generations reject no-op ABA too.
+Source, map and PDF cross ONE rename boundary as a container, not three renames.
+Initial bundle attachment validates exact initial state and copies getters once.
+Committed byte getters return independent copies; existing in-memory API stays
+compatible, including arbitrary replacements and stale no-op identity checks.
+
+Pre-rename failures leave prior disk bytes and session state exact. Owned temps
+and locks are removed on normal failures; cleanup failures are explicit aggregate
+errors, never claims of guaranteed cleanup after filesystem refusal. Other
+writers' locks are never removed. Lock contention fails closed without retries.
+Rename is irreversible commit. Subsequent directory fsync/lock cleanup failures
+return committed:true,durable:false,warnings, and advance session state. They do
+not report a false rollback. File+directory fsync requests local POSIX durability;
+no power-loss/hardware/network/Windows guarantee. Crash after rename may precede
+memory assignment: disk is authoritative on reopen. Crash leftovers need sole
+owner recovery; no lock stealing/janitor. All writers must share the protocol,
+trusted directory and identical destination spelling without aliases. No claim
+against arbitrary writers. This is small synchronous buffered host I/O only.
+Full boundary, restoration example and limits: candidate/examples/gpu-math/
+native-vkf/host/latex_source_publication.txt (also in patch).
+
+TESTS / ACTUAL TIMING / JOINS
+Node v22.22.1, Python 3.14.4. final-results.json and raw stdout/stderr retained.
+Final candidate: 26/26 (18 new filesystem/publication + original 8),
+0.642753436s measured outer elapsed, exit0.
+Checks cover Unicode paths/exact CRLF/non-BMP/lone-surrogate sources; failed
+render, diagnostics, unresolved output, bad revision/byte types; partial real
+temp write then injected EIO; file fsync/close/rename faults; kernel ENOTDIR via
+rename target redirection; missing parent; temp cleanup failure; committed
+post-rename dir-fsync/lock-cleanup warnings; live lock preservation; independent
+session and two real process CAS competition; old/new coherent reader samples;
+no-op stale completion/generation; reentrant getters; restart/mismatch/copying.
+Fault injection is explicit in tests, not a production filesystem adapter.
+Each two-process race asserts both exit0 and joins both children. All Node test
+workers and outer verification processes exited and were waited. Three candidate
+runs (21,25,26 tests) created six race children total, all joined. No background
+job/service/native process exists from this iteration. test-tmp/ is empty.
+Original baseline revision8/8: 0.289466560s, exit0.
+Committed acceptance preparation5/5: 0.044682976s, exit0.
+Final git apply --check --whitespace=error-all: 0.003361380s, exit0.
+Earlier candidate runs retained: tests-01.json (0.564125796s),
+verification-results.json (0.611690626s). No failed test run was discarded.
+Maximum observed descendant ru_maxrss: 75320KiB; not aggregate process-tree RSS.
+No native compile, render, benchmark or performance credit. Native save time null.
+Iteration started 2026-10-17T08:30:06Z; handoff sealed 2026-10-17T08:38:35.168148+00:00;
+actual elapsed to sealing 509.168s. All resource accounting/limits unchanged.
+
+EXACT INPUT HASHES (SHA256)
+examples/gpu-math/native-vkf/host/latex_source_revision.mjs
+  dc365aaead2c3536ddb9390680dfd5ca08e677d0a5a08a4f34a7d795b6e13d9f
+examples/gpu-math/tests/source-revision.test.mjs
+  d6674ac51fd8b99f34b5552ed2f87d1c64a49c94623113fbf6420ce8a427f0f8
+integration/0.7.4/pdf-api-acceptance/ACCEPTANCE.txt
+  bd93e91d4c1abeac5835f503de4aa6202db8d876425977dafddef0cc75360323
+integration/0.7.4/HANDOVER.txt
+  253f0a12aeb86d1abf54f524791a33e5a721489f8cd7cfdad0c369245e1271da
+integration/0.7.4/COORDINATOR-STATUS.txt
+  783f8e1b569789a9cb25bcc820405d015d7ec31bca72468fca5750bb7ab4b63a
+integration/0.7.4/pdf-api-integration-01/HANDOFF.txt
+  061f09e0a7f54565cb390ef18725ba1ecf4b46ab1d4c626aa5749d277a7ecd5f
+/home/viktor/Projects/AGENTS.md
+  258535a2f4262f01e618af7d60564fc20628fda9aa5e8b697843df7f3ec1fc62
+/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/atomic-publication-02-visible-chat-grant.json
+  bd48d879113198964d628d501708f8d8a4eeed75d1d2cafa3398bbc5c9083006
+
+additional-input-pins.json pins all seven committed acceptance files, package
+metadata and existing supervisor Client source. postcheck.json confirms source
+module, original test and acceptance contract unchanged. Coordinator advanced
+metadata-only work during this task; COORDINATOR-STATUS.txt changed to
+85eeefb4ad1b5197c90a7e4276b6dc0dcb69d82c18ea65bb0c9426c801539661.
+Read its delta: only metadata absence boundary acceptance, no scope collision.
+No memory or owned-file overlap blocker observed. Other workers' untracked
+schema/storage directories were untouched. No cumulative budget or guard changes.
+Manifest hashes:
+input-pins.json: 5c59fe032c5242478c48fc320ab28b8f92c215174effce39dab82ce079fee849
+additional-input-pins.json: 2cdb3d3d5f7f70e8288a85da0448816cacca7074a6dc7be37329896135ab9720
+postcheck.json: af5dfabbd044f1f7ae76798678707524752924b1804658ae4d92fc10de13d888
+final-results.json: f2af1281e1bc7c124952bc111669b1d26737daa603d19a756b4122eaa8234e1a
+verification-results.json: b39a2459eee4d5ecc3029a33592a8e8409493b49b0943055e51b2ef1875bd73b
+
+REMAINING CONCRETE STEPS (COORDINATOR)
+1. Review four-file patch and documentation; check exact input pins, then apply
+   atomic-publication.patch at repository root. This worker applied nothing.
+2. Run node --test examples/gpu-math/tests/source-revision.test.mjs
+   examples/gpu-math/tests/source-publication.test.mjs after application. The
+   supplied verify.py reruns the isolated candidate + unapplied-patch check and
+   keeps all test temp files here (VKF_PUBLICATION_TEST_TMPDIR); after applying,
+   use the direct Node command rather than its forward patch check.
+3. Keep this as host prerequisite only. Native latex.tex2pdf still needs proven
+   named-call/resource binding and a real runtime atomic save primitive, genuine
+   source-owner propagation, PDF source/map serialization and reader acceptance.
+   A bundle is not an ordinary-reader .pdf. Independent .tex/.map/.pdf exports
+   would need their own coherent publication design; this patch provides none.
+4. Archive this completed chat after review. Any successor receives fresh grant
+   and compact context. No native/API qualification or original419 credit added;
+   native47 stays18/47, original419293. Excluded compiler scopes remain untouched.
+
+COORDINATOR NOTIFICATION
+Existing Client read coordinator idle and issued one authorized turn/start at
+2026-10-17T08:38:35.202044+00:00; acknowledged=true, turn ID 01a14903-4c0b-7eb2-9f79-67dca9b9f09a.
+Receipt: coordinator-notification.json. Client socket closed; no retry or new
+chat. Notification process exited0 and joined. Completed iteration stopped.

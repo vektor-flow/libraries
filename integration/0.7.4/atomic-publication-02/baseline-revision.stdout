@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: snapshots copy and freeze exact source-binding rows with stable order-independent hashes
+ok 1 - snapshots copy and freeze exact source-binding rows with stable order-independent hashes
+  ---
+  duration_ms: 4.065061
+  type: 'test'
+  ...
+# Subtest: hash framing distinguishes IDs, versions, boundaries, line endings and exact Unicode
+ok 2 - hash framing distinguishes IDs, versions, boundaries, line endings and exact Unicode
+  ---
+  duration_ms: 0.613479
+  type: 'test'
+  ...
+# Subtest: multifile edits use original offsets, preserve CRLF and advance only changed file versions
+ok 3 - multifile edits use original offsets, preserve CRLF and advance only changed file versions
+  ---
+  duration_ms: 0.789302
+  type: 'test'
+  ...
+# Subtest: staging rejects stale revisions, missing IDs, invalid ranges and ambiguous overlaps
+ok 4 - staging rejects stale revisions, missing IDs, invalid ranges and ambiguous overlaps
+  ---
+  duration_ms: 0.754761
+  type: 'test'
+  ...
+# Subtest: session commits source and complete replacement together and snapshots edits before await
+ok 5 - session commits source and complete replacement together and snapshots edits before await
+  ---
+  duration_ms: 0.69166
+  type: 'test'
+  ...
+# Subtest: render throws, rejection, incomplete and unresolved replacements leave committed state unchanged
+ok 6 - render throws, rejection, incomplete and unresolved replacements leave committed state unchanged
+  ---
+  duration_ms: 0.862883
+  type: 'test'
+  ...
+# Subtest: concurrent completion cannot overwrite a newer committed replacement
+ok 7 - concurrent completion cannot overwrite a newer committed replacement
+  ---
+  duration_ms: 0.397886
+  type: 'test'
+  ...
+# Subtest: failed concurrent requests do not revoke a valid preparation; no-op commits still reject old completions
+ok 8 - failed concurrent requests do not revoke a valid preparation; no-op commits still reject old completions
+  ---
+  duration_ms: 0.454927
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 172.766924

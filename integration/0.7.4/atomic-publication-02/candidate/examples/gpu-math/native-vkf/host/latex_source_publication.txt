@@ -1,0 +1,97 @@
+Small host source-publication prerequisite (Node, local POSIX filesystem)
+
+This module does not implement latex.tex2pdf, a native save, PDF serialization,
+source mapping, selection, or an editor. No native flags or ABI are introduced.
+Callers supply genuine producer output when that producer becomes available.
+Tests use explicitly synthetic opaque byte fixtures, not fabricated glyph maps.
+
+Session use
+  createSourceEditSession(sources, initialReplacement, {publicationPath})
+The existing two-argument in-memory API and replacement values are unchanged.
+With publicationPath, render(candidate) still only PREPARES and returns:
+  {complete:true, replacement:{sourceRevision:candidate.revision, map, pdf}}
+map and pdf must be Uint8Array (including Buffer); diagnostics/unresolved must
+be empty. The callback must not save, rename, mutate committed files, or publish
+anything externally. Arbitrary JS callbacks cannot be sandboxed by this API.
+The sourceRevision check binds supplied bytes to the caller's stated revision;
+it does not authenticate or validate a producer's glyph map or PDF semantics.
+
+publicationPath names a SINGLE JSON bundle, NOT an ordinary-reader PDF path.
+Each bundle contains a unique generation, exact source snapshot, and base64 map
+and PDF bytes. JSON escapes preserve CRLF/non-BMP and lone UTF-16 surrogates.
+The session returns copied map/pdf Buffers on each getter access; mutating those
+copies cannot change the committed replacement or disk bytes. Other replacement
+properties are not preserved in publication mode. No-op publications get unique
+generations even when the source hash and artifact bytes are unchanged.
+
+A missing destination is permitted; there is no initial external save just from
+constructing a session. An existing destination must have this bundle format and
+match the supplied initial sources/replacement exactly, or construction rejects.
+To restore, read and parse ONE bundle, supply content.snapshot.sources and
+{sourceRevision:content.snapshot.revision,
+ map:Buffer.from(content.mapBase64,'base64'),
+ pdf:Buffer.from(content.pdfBase64,'base64')} to the session constructor. It reads
+and checks the destination again, so a concurrent intervening commit rejects
+attachment instead of silently adopting a different baseline. Snapshot hashing
+is recomputed by the session. Corrupt/mismatched bundles fail closed.
+
+Commit order and guarantees
+1. Snapshot/edit validation, then await render. Reject failed, incomplete or
+   stale results. Copy all callback-owned fields/bytes before the final guard.
+2. Exclusively create an unpredictable 0600 temporary file in the destination's
+   existing directory; write complete bundle bytes, fsync the file, then close.
+   This file is unreferenced staging, not a published version. It is private by
+   permissions, not hidden from filesystem observers. No final path changes yet.
+3. Recheck in-memory base state identity (also catches old no-op completions).
+   From this point through state assignment there is no await or caller callback.
+4. Exclusively create destination+'.lock'. Under this cooperative lock, compare
+   the SHA-256 of current destination bytes (or absence) to the generation seen
+   when attaching/last committing. Reject if changed, even for equal source hashes.
+5. Rename the staged file over the bundle path. THIS is the publication boundary.
+   One open/read sees either complete old or complete new bundle on a filesystem
+   providing atomic same-filesystem rename. Readers parse a single read, not
+   independently reopened source/map/PDF paths. An already-open old fd stays old.
+6. Release the lock and fsync the parent directory. Commit the session snapshot
+   and copied replacement. Return publication:{committed:true,durable,warnings}.
+
+Pre-rename errors preserve the prior destination bytes and in-memory state.
+Normal error paths remove owned temporary/lock files. If cleanup itself fails,
+AggregateError retains the primary error and cleanup failures; removal is not
+magically guaranteed after an OS refusal. A failed lock acquisition never removes
+another writer's lock. No lock stealing, waiting, automatic retries, or timeouts.
+
+After rename, failure to flush the directory, close its descriptor, or remove the
+lock is a committed result with durable:false and explicit warnings, NOT a failed
+edit and NOT a rollback. Retrying it as an uncommitted edit would be wrong. On a
+supported local filesystem, file fsync plus successful parent fsync requests data
+and directory-entry crash durability. This is not a hardware/power-loss guarantee
+or a Windows/network-filesystem qualification. Metadata mode is replaced with
+0600; original permissions/ownership/xattrs/hardlink relationships are not copied.
+
+Process death can leave staging files/locks; there is no crash-recovery janitor.
+After death, a sole owner must verify no live writer before removing leftovers.
+If death occurs after rename but before session state assignment, the disk bundle
+is authoritative; reopen from it. Memory and disk are NOT crash-atomic together.
+A session represents its last own commit; another cooperating process can later
+advance disk state. This session's next write then fails its destination CAS.
+
+Scope and limits
+All writers must use this protocol, the same absolute destination spelling and
+reserved .lock namespace, in a trusted directory without path/symlink aliases,
+ancestor replacements, hostile filesystem writers, or noncooperative overwrites.
+No OS-wide protection against arbitrary writers is claimed. Parent creation is
+caller-owned. Existing live locks cause explicit failure. Locks left by a crash
+also fail closed, requiring operator recovery. Bundle generation prevents normal
+no-op ABA; external restoration of old bytes is outside this protocol.
+
+There is ONE renamed container. This is not multi-file atomicity from three
+renames. Independently exporting .tex, a map sidecar and a standalone .pdf cannot
+inherit this guarantee. Native dest integration still needs a proven runtime
+publication primitive and an explicit persisted-artifact/recovery design, e.g.
+a PDF containing authenticated source/map, or a bundle-aware reader. That work,
+native producer/encoder qualification and ordinary-reader acceptance remain open.
+
+I/O is synchronous and buffers/base64-encodes the entire bundle. This deliberate
+small-host prerequisite has no native/40-page/~10ms performance claim. Test wall
+times measure host tests only. The helper exports are internal session mechanics;
+applications should use the session, not manually bypass its revision guard.
