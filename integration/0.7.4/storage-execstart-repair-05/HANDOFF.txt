@@ -1,0 +1,95 @@
+COMPLETED SOURCE-ONLY ITERATION — STORAGE EXECSTART REPAIR05
+Worker/chat:01a14913-f96d-7d80-8d51-64073fb4e3c4
+Sole coordinator:01a14893-cb1e-7203-97dd-de3da44dcf31
+Authorized start HEAD5747ff8008ccd580b1b45ebc26560ffb0cda33fa.
+Observed final HEAD80b2108a810df829a3164da020f274e89d27820e, coordinator's
+explicitly permitted metadata/live-evidence commit; installed source unchanged.
+No repository-local AGENTS present; parent instructions, current HANDOVER and
+COORDINATOR-STATUS, exact repair grant, storage03 handoff, live04 failure/result,
+new root review and installed controller/core/path/config/state were read.
+
+RESULT / CONCRETE PATCH
+candidate-new-files.patch creates ONLY NEW storage-direct-v3 source files beside
+installed storage-direct-v2, for root review/application later. controller-review.diff
+shows the exact delta against installed controller351b205d529f25ce4868132e47736645965b2b000504501d51f9cd91e2b69418.
+Core and path helper are byte-identical copies. No install/config/activation done.
+- Linux.argv now validates actual ten-field data[0] ExecStart JSON, exact signature,
+  envelope, types, integer ranges, one command, path/argv and ignore-failure=false.
+  GetUnit object path validated; duplicate JSON keys and invented wrapper rejected.
+- Outer missing service/inner_result produces exclusive fsynced controller-failure
+  JSON with missing fields, explicit failure kind, transport exit/log pins, retained
+  charges, passed=false and workload_result=null. Return125, no fake join/inner
+  completion. Transport failure also seals; receipt failure explicitly says NOT
+  sealed and keeps reservations. Normal authenticated completion path unchanged.
+- Historical record authentication accepts only a config-approved exact old source
+  bundle and rehashes its bytes. Never substitutes the new controller hash into old
+  records. New launches still require executing v3 hash. Same old state/capacity.lock.
+
+ACTUAL FAILURE AND REAL READ-ONLY PROOF
+Original inner traceback copied with pin: Linux.argv rejected single ExecStart
+before attach_service saved service identity. Original outer raised KeyError service.
+Raw busctl/systemctl/introspection/journal captures retained with argv/UTC/status.
+Installed busctl systemd259.5 returns data[0] with10 fields, not data[0][0]. SCHEMA.txt
+links primary systemd259 documentation; tests use actual raw recording.
+Exact retained unit vkfworkers-f-live04-f-success-01.service, invocation
+909c5163c9744502a918d265f61b8f71, failed/exit-code/status1, MainPID0, ExecMainPID3956707.
+Read-only verifier authenticates old source pins and original custody, then samples
+stable exact argv/properties twice, same boot, absent outer3956685 and inner3956707,
+and empty exact service cgroup. Final read-only result passes these bounded checks.
+It DOES NOT release RAM or claim workload pass. Original phase remains
+launch_claimed; permanent4MiB charge4194304 and3GiB RAM3221225472 remain held.
+Historical F19783524352 + failed4194304 = total19787718656 bytes charged.
+
+RECOVERY LIMITATION / NEXT STEP
+recovery_check.py is executable READ-ONLY evidence verification, not a release API.
+RECOVERY-BOUNDARY.txt provides the required atomic recovery protocol and rollout
+boundary: distinct append-only successor release journal under existing lock,
+fresh original pins/invocation/PID/cgroup validation, disk/history/failed attempt
+preserved, no service/inner_result/join synthesis, and no replay or cap reset.
+A release journal, all RAM admission/host/preexec reader changes, crash/durability
+checks and explicit owner-transition handling are NOT implemented here. Old state
+must remain untouched; existing rotate_owner cannot accept this failed attempt.
+Applying this source patch alone intentionally keeps RAM held and lane blocked.
+Root next reviews parser/reporting patch and pins, then scopes/implements that
+release protocol or continues the hold. Root must reobserve terminal custody at
+execution time; collected/replaced service, changed pins, reboot or ambiguity blocks
+release. No new service/grant/attempt or native work is authorized by these files.
+
+BOUNDED VERIFICATION
+23/23 unittest methods pass; final unittest time0.058s. Runner wall for tests
+0.164112s, independent real read-only check0.164472s.
+Recorded-response positive and mutation negatives, reproduced installed-parser bug,
+Linux adapter path, explicit sealed missing-attach/finish and transport failure,
+receipt no-overwrite, old bundle accepted/new launch old hash rejected, changed
+source bundle rejection, exact terminal/PID/cgroup/argv/invocation negatives.
+Launch transport mocked; no service/bwrap/payload executed. Temporary fixtures only
+under this output directory, removed. No native, compiler, or419 credit.
+AST checks passed. git apply --check and actual apply into owned temporary directory
+passed; all three applied files matched candidate bytes. Fixture removed.
+verify_artifacts.py reruns these bounded checks; writes only here.
+Development harness issues corrected: one command-vector assertion index and git
+apply working-directory skip. Neither involved operational execution or retry.
+An initial broad historical-pin walk stopped at an unavailable old Windows path;
+input pinning was bounded to actual task/controller/authority inputs, no missing
+historical artifact was invented or restored.
+
+PINS / OWNERSHIP
+Patch SHA256 be59f426dd2a46e63b61ad5405a4f744fa8d22a6972cdcf1e6131fa76ed00ee6
+New controller SHA256 d425a731a25b241c7b1d19d6263e5c92b489b40f39649c99513f0c2d034498d9
+Read-only recovery checker SHA256 02ec5d6e3f19f76e331713a1b12c438c481b6b35fca8ae6f7ecbaeff960c1b58
+Input-pins and final-input-recheck seal129 actual sources/evidence, all unchanged.
+Recovery-anchors explicitly pin original state/result/STOP/root-review/old bundle.
+output-pins.json seals deliverables except itself, handoff and notification records.
+verification.json records joined test PID3969116 and read-only checker
+PID3969117; each exit0, waited, /proc absent. Verification runner
+PID3969115 also absent. All foreground commands returned; no owned jobs remain.
+
+SCOPE PRESERVED
+Only files beneath this output directory written. No operational writes, commits,
+new chats/subagents, dispatcher change, budget/resourceguard/cap reset, mount/disk
+change, source HEAD change, or excluded D267/D289/A333 work. No memory/overlap blocker
+observed; source-only scope disjoint from completed archived live04. Old installed
+v2 source/config/grants/state hashes unchanged. No workload pass or native credit.
+Completed iteration. Coordinator reviews/integrates/archives; this chat stops.
+Authorized one-shot coordinator DONE notification recorded separately; no ambiguous
+retry. A notification error, if any, is left for coordinator inspection.

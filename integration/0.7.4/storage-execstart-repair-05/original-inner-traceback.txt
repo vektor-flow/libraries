@@ -1,0 +1,35 @@
+Running as unit: vkfworkers-f-live04-f-success-01.service; invocation ID: 909c5163c9744502a918d265f61b8f71
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_controller.py", line 447, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_controller.py", line 441, in main
+    controller.inner()  # Real result is durably stored in inner_result, even for failure/timeout.
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_controller.py", line 403, in inner
+    self.ledger.attach_service(self.key, authenticate=self.attach)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_admission.py", line 378, in attach_service
+    service = authenticate(data, r)
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_controller.py", line 344, in attach
+    self.authenticate(data, r)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_controller.py", line 341, in authenticate
+    self.authenticate_record(r)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_controller.py", line 269, in authenticate_record
+    require(props['LoadState'] == 'loaded' and self.os.argv(c['unit']) == c['service_argv'], 'exact ExecStart')
+                                               ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_controller.py", line 113, in argv
+    require(value['type'] == 'a(sasbttttuii)' and len(value['data']) == 1
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and len(value['data'][0]) == 1, 'single ExecStart required')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_paths.py", line 17, in require
+    raise Rejected(message)
+storage_paths.Rejected: single ExecStart required
+          Finished with result: exit-code
+Main processes terminated with: code=exited, status=1/FAILURE
+               Service runtime: 180ms
+             CPU time consumed: 158ms
+                   Memory peak: 25.3M (swap: 0B)

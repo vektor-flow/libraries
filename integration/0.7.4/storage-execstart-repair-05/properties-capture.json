@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "systemctl",
+    "--user",
+    "show",
+    "vkfworkers-f-live04-f-success-01.service",
+    "-p",
+    "LoadState,ActiveState,SubState,MainPID,ControlGroup,InvocationID,Result,ExecMainCode,ExecMainStatus,MemoryMax,MemorySwapMax,TasksMax,KillMode,OOMPolicy,RuntimeMaxUSec,TimeoutStopUSec,ExecMainPID"
+  ],
+  "exit": 0,
+  "stdout": "LoadState=loaded\nActiveState=failed\nSubState=failed\nInvocationID=909c5163c9744502a918d265f61b8f71\nTimeoutStopUSec=10s\nRuntimeMaxUSec=40s\nMainPID=0\nResult=exit-code\nOOMPolicy=kill\nExecMainPID=3956707\nExecMainCode=1\nExecMainStatus=1\nControlGroup=\nMemoryMax=3221225472\nMemorySwapMax=0\nTasksMax=128\nKillMode=control-group\n",
+  "stderr": "",
+  "utc": "2026-10-17T08:57:58.576017+00:00"
+}

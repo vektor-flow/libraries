@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "busctl",
+    "--user",
+    "--json=short",
+    "get-property",
+    "org.freedesktop.systemd1",
+    "/org/freedesktop/systemd1/unit/vkfworkers_2df_2dlive04_2df_2dsuccess_2d01_2eservice",
+    "org.freedesktop.systemd1.Service",
+    "ExecStart"
+  ],
+  "exit": 0,
+  "stdout": "{\"type\":\"a(sasbttttuii)\",\"data\":[[\"/usr/bin/python3\",[\"/usr/bin/python3\",\"-B\",\"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_controller.py\",\"--config-sha256\",\"c74c25834ac8ed6c277bed856d538bbce30d5a959515c347f065f792a8888220\",\"--grant\",\"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage-live-04/live04-f-success-01-grant.json\",\"--grant-sha256\",\"7b8fe65958612d2d26cabb405c2e487116f6372706432e3b93f607710401a011\",\"--manifest\",\"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage-live-04/live04-f-success-01-manifest.json\",\"--manifest-sha256\",\"c79f6e7e9f018c1ddea34251fa63756f12dbdef932fb8e19c3636b9dab8f33ef\",\"--inside-service\"],false,1792227321692243,739841758752,1792227321872292,739841938801,3956707,1,1]]}\n",
+  "stderr": "",
+  "utc": "2026-10-17T08:57:58.558167+00:00"
+}

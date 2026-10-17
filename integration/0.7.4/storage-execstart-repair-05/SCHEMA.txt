@@ -1,0 +1,30 @@
+REAL SCHEMA AND FAILURE
+Captured busctl reports systemd259 (259.5-0ubuntu3.4). getunit-capture.json and
+execstart-capture.json preserve exact command argv, exit, stdout, stderr and UTC.
+introspection-capture.json independently reports ExecStart a(sasbttttuii).
+
+GetUnit returns {"type":"o","data":["/org/freedesktop/systemd1/unit/..."]}.
+ExecStart get-property returns {"type":"a(sasbttttuii)","data":[[path,argv,
+ignore_failure,start_realtime,start_monotonic,exit_realtime,exit_monotonic,pid,
+exit_code,exit_status]]}. The one ten-field struct is data[0], NOT data[0][0].
+The installed parser checked len(data[0])==1 and therefore rejected the real10
+fields. Outer then indexed service and inner_result despite attach not persisting.
+
+Primary documentation for the exact systemd major version:
+https://github.com/systemd/systemd/blob/v259/man/org.freedesktop.systemd1.xml
+Property declaration at lines2643 and explanatory section at4534-4542.
+https://github.com/systemd/systemd/blob/v259/src/busctl/busctl.c
+https://github.com/systemd/systemd/blob/v259/man/busctl.xml
+The manual describes the ten ordered fields and typed signature. The local captured
+get-property output establishes this installed busctl JSON envelope independently.
+The parser deliberately rejects the previously assumed extra array layer, multi-
+command/empty arrays, wrong field counts/types/ranges, duplicate JSON keys, wrong
+signature/path/argv and ignore-failure=true. Callers retain exact argv equality.
+PID/timestamps accept their documented numeric ranges; terminal recovery separately
+requires positive completed timestamps, exact PID and exit1. Successful retained
+normal joins continue requiring exit199 plus authenticated inner_result.
+
+No normalization, auto-detection fallback, shell splitting or test-only shape.
+The old parser failure is reproduced against the actual recorded raw response in
+ParserTests.test_old_bug_reproduced_on_recording; Linux.argv is exercised with those
+same raw GetUnit/ExecStart bytes. Negative cases mutate that recording.

@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "busctl",
+    "--user",
+    "--json=short",
+    "call",
+    "org.freedesktop.systemd1",
+    "/org/freedesktop/systemd1",
+    "org.freedesktop.systemd1.Manager",
+    "GetUnit",
+    "s",
+    "vkfworkers-f-live04-f-success-01.service"
+  ],
+  "exit": 0,
+  "stdout": "{\"type\":\"o\",\"data\":[\"/org/freedesktop/systemd1/unit/vkfworkers_2df_2dlive04_2df_2dsuccess_2d01_2eservice\"]}\n",
+  "stderr": "",
+  "utc": "2026-10-17T08:57:58.554712+00:00"
+}

@@ -1,0 +1,85 @@
+EXACT TERMINAL PRE-ATTACH RECOVERY — PROPOSAL, NOT A RELEASE IMPLEMENTATION
+
+Only F:live04-f-success-01, InvocationID909c5163c9744502a918d265f61b8f71,
+ExecMainPID3956707, failed/exit-code/status1/MainPID0, outer3956685 with saved
+starttime73984099 and boot36e567a7-0fa2-44a9-b95d-d93702c4b628 are in scope.
+All other absent-attach failures, missing/collected services, changed invocations,
+reboots, recycled PIDs, attached-but-unfinished executions and unknown descendants
+are rejected. There is no generic force-release or crash recovery interface.
+
+WHAT IS IMPLEMENTED
+recovery_check.py is a READ-ONLY authenticator, with no ledger writer or launcher.
+It validates pinned operational state and the independent original failure result,
+STOP binding, root-review pin, exact old controller/helper/config bundle, original
+manifest/grant/source pins and declared historical commit (not current repo HEAD).
+It derives exact service/outer argv from those pins, checks historical policy/charge,
+and compares the recorded invocation to two fresh systemd property/ExecStart reads.
+It requires terminal exit1, exact resource properties, completed timestamps and PID,
+same boot, both PIDs absent before/after, and the exact cgroup empty before/after.
+The source/state pins are revalidated after those samples. Old argv with spaces
+stays a JSON argument vector; neither substring matching nor shell splitting occurs.
+An absent service cgroup under the still-known hierarchy counts as no members.
+Permission/read errors, missing unit, malformed response and pin mismatch fail closed.
+The observed proof is a sample; it is NOT a release capability or normal join receipt.
+
+REQUIRED COORDINATOR RELEASE PROTOCOL (NOT IMPLEMENTED OR AUTHORIZED HERE)
+1. Review/pin this candidate and the separately pinned original v2 source bundle,
+   original state, failure result, root review and STOP. Keep v2 code/config/grants/
+   state byte-identical. Preserve dispatcher hold and all old controllers as evidence.
+   Exclude concurrent service restart/recreation and all predecessor writers before
+   the transaction. capacity.lock alone does not prevent same-uid systemctl actions.
+2. Implement a successor-only append-only terminal-failure release journal, separate
+   from direct-state-v2.json. Bind each entry to exact phase, full original record
+   hash, state snapshot, old authority bundle, original invocation and failed result.
+   Give the journal its own reviewed schema/config pin; no permissive absent-journal
+   fallback. Creation/enrollment is an explicit coordinator operation, not reserve().
+3. Under the EXISTING capacity.lock, re-read and authenticate all old custody/source
+   pins and both terminal observations. Revalidate the saved outer identity by boot,
+   PID/starttime: this exact case conservatively requires /proc/3956685 absent; also
+   require /proc/3956707 absent and the full service cgroup empty. Require unchanged
+   state and exact service invocation immediately before durable publication. An
+   ambiguous window, replaced service, reboot or changed pin aborts without release.
+4. Append/fsync/atomically publish the distinct release entry with result
+   terminal-failed-before-attach, passed=false, workload_result=null, RAM-only release
+   of3221225472, permanent phase charge4194304, no service/inner_result/join synthesis.
+   A receipt written before ledger publication is only an uncommitted proposal;
+   publication failures and uncertain durability retain RAM until authenticated
+   reread. Duplicate entries/replay must reject; original attempt remains consumed.
+5. Review/update ALL successor admission/preexec/host/runtime readers to authenticate
+   that journal and exclude only the verified terminal-failure RAM intent. Do not
+   infer release from stage strings or field presence. Disk accounting MUST still
+   sum every original phase_bytes plus historical_charge. F stays19787718656 bytes
+   charged (19783524352 historical +4194304 failed attempt). Keep full explicit
+   capacity commitments/increments and every original policy/history record.
+6. Extend owner rotation explicitly to recognize a verified terminal-failure anchor,
+   distinct from a successful joined prior phase. Existing v2 rotate_owner requires
+   a normal join, so it cannot safely be reused or fed a fabricated join. Root must
+   authorize any fresh owner/grant/attempt separately. Never replay live04-f-success-01.
+7. Unit/invocation loss before live revalidation is a BLOCKER, not permission to
+   trust stale screenshots/JSON. Retain unit until root decides custody handling.
+   After a committed release, retained receipts need a separately designed historic
+   verification policy; this iteration does not prescribe collection/reset-failed.
+
+SUCCESSOR DEPLOYMENT BOUNDARY
+candidate-new-files.patch creates storage-direct-v3/{storage_controller.py,
+storage_admission.py,storage_paths.py}; it never replaces installed v2 files.
+This is a code version; unchanged ledger/grant protocol remains direct-directory-v2.
+The successor shares ../storage-direct-v2/direct-state-v2.json and ../capacity.lock.
+No runtime config, grant, enrollment or activation is shipped. A new pinned v3
+runtime-config must carry preserved_record_authorities = [the exact bundle in
+recovery-anchors.json], alongside freshly reviewed existing config fields. New
+execution grants/helpers/manifests must pin v3 code and its new config. Historical
+records retain their v2 controller/helper/config paths and hashes. Existing v2
+config/grants cannot launch v3, and v3 never invokes the old controller for recovery.
+The unchanged core still charges this phase's3GiB RAM and blocks lane reuse. Applying
+this source patch alone intentionally does not resolve that hold. Recovery journal,
+reader changes, atomic crash tests and owner-transition support are a separate
+required review before ANY release or fresh live qualification.
+
+LIMITS
+No real service, bwrap, payload, compiler, mount or disk operation was executed here.
+Unit tests mock launch transport and use recorded D-Bus responses; the independent
+read-only terminal checks and source hashes are real. No fresh launch qualification,
+normal successful join, physical quota, ownership transition or recovery commit was
+claimed. Old polling/quota/authority trust limitations remain; same-uid root authority
+must be protected operationally. No native/original419 credit, no release pass.

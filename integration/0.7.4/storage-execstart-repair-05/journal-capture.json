@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "journalctl",
+    "--user",
+    "-u",
+    "vkfworkers-f-live04-f-success-01.service",
+    "--no-pager",
+    "-n",
+    "60",
+    "-o",
+    "short-precise"
+  ],
+  "exit": 0,
+  "stdout": "Oct 17 10:55:21.692642 ubuntu-station systemd[3336]: Starting vkfworkers-f-live04-f-success-01.service - [systemd-run] /usr/bin/python3 -B \"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_controller.py\" --config-sha256 c74c25834ac8ed6c277bed856d538bbce30d5a959515c347f065f792a8888220 --grant \"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage-live-04/live04-f-success-01-grant.json\" --grant-sha256 7b8fe65958612d2d26cabb405c2e487116f6372706432e3b93f607710401a011 --manifest \"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage-live-04/live04-f-success-01-manifest.json\" --manifest-sha256 c79f6e7e9f018c1ddea34251fa63756f12dbdef932fb8e19c3636b9dab8f33ef --inside-service...\nOct 17 10:55:21.718296 ubuntu-station systemd[3336]: Started vkfworkers-f-live04-f-success-01.service - [systemd-run] /usr/bin/python3 -B \"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage_controller.py\" --config-sha256 c74c25834ac8ed6c277bed856d538bbce30d5a959515c347f065f792a8888220 --grant \"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage-live-04/live04-f-success-01-grant.json\" --grant-sha256 7b8fe65958612d2d26cabb405c2e487116f6372706432e3b93f607710401a011 --manifest \"/home/viktor/Projects/Vektor Flow/.coordination/s0-plan-20261012/synchronized-contexts/independent-workers/storage20gb/storage-direct-v2/storage-live-04/live04-f-success-01-manifest.json\" --manifest-sha256 c79f6e7e9f018c1ddea34251fa63756f12dbdef932fb8e19c3636b9dab8f33ef --inside-service.\nOct 17 10:55:21.872319 ubuntu-station systemd[3336]: vkfworkers-f-live04-f-success-01.service: Main process exited, code=exited, status=1/FAILURE\nOct 17 10:55:21.872590 ubuntu-station systemd[3336]: vkfworkers-f-live04-f-success-01.service: Failed with result 'exit-code'.\n",
+  "stderr": "",
+  "utc": "2026-10-17T08:57:58.586088+00:00"
+}
