@@ -1,0 +1,37 @@
+url_output_parser:.text_parser
+url_output_boxes:.text_url_boxes
+url_output_catalog:.font_catalog
+url_output_json:.resource_json
+url_output_chunks:.text_chunks
+url_output_decimal:.json_numbers
+packet(source:str,font_source:str,width:num,bib_url:bit)->str:
+    parser_context:url_output_parser.context("roman",["roman","mono"],false,true)
+    fonts:url_output_catalog.load(font_source)
+    parsed:url_output_parser.parse(source,fonts,parser_context)
+    provider:url_output_boxes.provide(parsed.stream,fonts,width,bib_url)
+    kinds:provider.kinds
+    widths:provider.widths
+    stretches:provider.stretches
+    shrinks:provider.shrinks
+    penalties:provider.penalties
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    parts:url_output_chunks.empty(provider.count)
+    count:0
+    diagnostics:""
+    index:0
+    index<provider.count?>
+        value:""
+        kinds.(index)=0? .value:"{\"type\":\"box\",\"box\":"&scenes.(index)&"}"
+        kinds.(index)=1? .value:"{\"type\":\"glue\",\"width\":"&url_output_decimal.roundtrip(widths.(index))&",\"stretch\":"&url_output_decimal.roundtrip(stretches.(index))&",\"shrink\":"&url_output_decimal.roundtrip(shrinks.(index))&",\"breakable\":false}"
+        kinds.(index)=3? .value:"{\"type\":\"penalty\",\"penalty\":"&url_output_decimal.roundtrip(num(penalties.(index)))&"}"
+        value~=""?
+            prefix:""
+            count>0? .prefix:","
+            parts.(count):prefix&value
+            .count:count+1
+        messages.(index)~=""?
+            diagnostics~=""? .diagnostics:diagnostics&","
+            .diagnostics:diagnostics&messages.(index)
+        .index:index+1
+    @:"{\"nodes\":["&url_output_chunks.join(parts,0,count)&"],\"diagnostics\":["&diagnostics&"]}"

@@ -1,0 +1,839 @@
+math_retained_directory:.frozen285_math_retained_directory
+Directory:(source:str,boxes:[str],count:int,prepared:bit)
+# Source presentation pass: scopes/counters/prefixes remain runtime decisions.
+document_figure_source:.frozen285_document_figure_source
+document_figure_flow:.frozen285_document_figure_flow
+document_present_context:.frozen285_document_present_context
+document_present_links:.frozen285_document_present_links
+document_present_maps:.frozen285_document_present_maps
+document_theorem_counters:.frozen285_document_theorem_counters
+document_materialize_config:.frozen285_document_materialize_config
+resource_json:.frozen285_resource_json
+json_numbers:.frozen285_json_numbers
+tex_decimal:.frozen285_tex_decimal
+tex_text:.frozen285_tex_text
+tex_numeric:.frozen285_tex_numeric
+text_chunks:.frozen285_text_chunks
+unicode_case:.frozen285_unicode_case
+tex_groups:.frozen285_tex_groups
+font_catalog:.frozen285_font_catalog
+text_source_paragraph:.frozen285_text_source_paragraph
+text_source_paragraph_output:.frozen285_text_source_paragraph_output
+text_parser:.frozen285_text_parser
+paragraph_breaking:.frozen285_paragraph_breaking
+paragraph_nodes:.frozen285_paragraph_nodes
+math_parser:.frozen285_math_parser
+math_layout:.frozen285_math_layout
+math_profiles:.frozen285_math_profiles
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+PageConfig:(values:[num],flags:[bit],penalties:[int])
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Configuration:(config:str,pages:PageConfig,packages:[str],math:MathContext,overrides:[str],class_name:str,optical:bit,hyperref:bit,diagnostics:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Map:(keys:Pool,values:[str])
+Document:(kinds:[str],sources:[str],attrs:[str],starts:[int],stops:[int],parents:[int],count:int,metadata:str,footnotes:str,diagnostics:str,class_name:str,class_options:str,imports:str,body_start:int,body_stop:int)
+Context:(font:str,kind:str,align:str,label:str,prefix:str,run_in_prefix:str,destination:str,left:num,right:num,indent:num,before:num,before_shrink:num,before_stretch:num,leading:num,paragraph_skip:num,paragraph_shrink:num,paragraph_stretch:num,description_margin:num,proof_top:num,emergency:num,label_sep:num,tolerance:int,sentence:bit,no_indent_after_list:bit,paragraph_after_display:bit,after_display:bit,center_awaiting:bit,explicit_noindent:bit,space_after_float:bit,list_end_display:bit,list_top:num,list_top_shrink:num,list_top_stretch:num,list_parsep:num,list_parsep_shrink:num,list_parsep_stretch:num,link_appearance:str,next_link_appearance:str,pending_outer_labels:str)
+Plan:(kinds:[str],sources:[str],contexts:[str],attrs:[str],origins:[int],scenes:[str],count:int,references:Map,reference_destinations:Map,footnotes:str,diagnostics:str,unresolved:str)
+empty(footnotes:str,diagnostics:str="")->Plan:
+    @:(kinds:text_chunks.empty(64),sources:text_chunks.empty(64),contexts:text_chunks.empty(64),attrs:text_chunks.empty(64),origins:[0:64],scenes:text_chunks.empty(64),count:0,references:document_present_maps.empty(),reference_destinations:document_present_maps.empty(),footnotes:footnotes,diagnostics:diagnostics,unresolved:"")
+raw(tape:Tape,node:int)->str:document_materialize_config.raw(tape,node)
+number(tape:Tape,node:int,key:str,fallback:num=0)->num:document_materialize_config.number(tape,node,key,fallback)
+string(tape:Tape,node:int,key:str)->str:
+    (~tape.valid \/ node<0 \/ node>=tape.count)? @:""
+    at:resource_json.member(tape,node,key)
+    at<0? @:""
+    kinds:tape.kinds
+    kinds.(at)=7? @:""
+    @:resource_json.string(tape,at)
+flag(tape:Tape,node:int,key:str)->bit:
+    (~tape.valid \/ node<0 \/ node>=tape.count)? @:false
+    at:resource_json.member(tape,node,key)
+    at<0? @:false
+    kinds:tape.kinds
+    @:kinds.(at)=5
+emit(plan:Plan,kind:str,source:str,context:Context,attrs:str,origin:int,scene:str="")->Plan:
+    count:plan.count
+    kinds:plan.kinds
+    sources:plan.sources
+    contexts:plan.contexts
+    properties:plan.attrs
+    origins:plan.origins
+    scenes:plan.scenes
+    count>=kinds.length()?
+        .kinds:kinds&text_chunks.empty(kinds.length())
+        .sources:sources&text_chunks.empty(sources.length())
+        .contexts:contexts&text_chunks.empty(contexts.length())
+        .properties:properties&text_chunks.empty(properties.length())
+        .origins:origins&[0:origins.length()]
+        .scenes:scenes&text_chunks.empty(scenes.length())
+    actual:document_present_context.clone(context)
+    context.explicit_noindent? actual.indent:0
+    kinds.(count):kind
+    sources.(count):source
+    contexts.(count):document_present_context.json(actual)
+    actual_attrs:attrs
+    (kind="figure" \/ kind="image") /\ actual.link_appearance~=""?
+        attr_fields:resource_json.parse("{"&attrs&"}")
+        resource_json.member(attr_fields,0,"linkAppearance")<0?
+            actual_attrs~=""? .actual_attrs:actual_attrs&","
+            .actual_attrs:actual_attrs&"\"linkAppearance\":"&actual.link_appearance
+    properties.(count):actual_attrs
+    origins.(count):origin
+    scenes.(count):scene
+    out:plan
+    out.kinds:kinds
+    out.sources:sources
+    out.contexts:contexts
+    out.attrs:properties
+    out.origins:origins
+    out.scenes:scenes
+    out.count:count+1
+    @:out
+pending(plan:Plan,origin:int,kind:str,source:str,reason:str)->Plan:
+    unresolved:plan.unresolved
+    unresolved~=""? .unresolved:unresolved&","
+    .unresolved:unresolved&"{\"origin\":"&tex_text.integer(origin)&",\"kind\":"&resource_json.quote(kind)&",\"source\":"&resource_json.quote(source)&",\"reason\":"&resource_json.quote(reason)&"}"
+    out:plan
+    out.unresolved:unresolved
+    @:out
+quad(fonts:Catalog,role:str)->num:
+    table:font_catalog.text_font(fonts,role)
+    spaces:resource_json.member(table,0,"spaces")
+    @:number(table,spaces,"quad")
+blank_after(source:str,at:int)->bit:
+    newlines:0
+    stop:at
+    ~vkf_string_eof(source,stop)?>
+        c:tex_text.at(source,stop)
+        c="%"?
+            ~vkf_string_eof(source,stop) /\ tex_text.at(source,stop)~="\n"?>
+                .stop:tex_text.next(source,stop)
+            .stop:stop
+            ~vkf_string_eof(source,stop)? .stop:tex_text.next(source,stop)
+            @>
+        c="\n"? .newlines:newlines+1
+        ~(c=" " \/ c="\t" \/ c="\r" \/ c="\n")? @|
+        newlines>=2? @:true
+        .stop:tex_text.next(source,stop)
+    @:false
+blank_after_display(source:str,at:int)->bit:
+    end:at
+    (tex_text.matches(source,end,"\\]") \/ tex_text.matches(source,end,"\$\$"))? .end:end+2
+    @:blank_after(source,end)
+period(source:str)->str:
+    size:tex_text.byte_length(source)
+    size>0?
+        c:tex_text.at(source,size-1)
+        c="." \/ c="!" \/ c="?"? @:source
+    @:source&"."
+roman(value:int)->str:
+    numbers:[1000,900,500,400,100,90,50,40,10,9,5,4,1]
+    letters:["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
+    remaining:value
+    out:""
+    i:0
+    i<numbers.length()?>
+        remaining>=numbers.(i)?>
+            .out:out&letters.(i)
+            .remaining:remaining-numbers.(i)
+        .i:i+1
+    @:out
+# Real paragraph provider is used for source-dependent label margin metrics.
+measure(source:str,role:str,fonts:Catalog,roles:[str],language:Language,c:Configuration,document_boxes_json:str="{}"):
+    context:text_parser.context(role,roles,c.optical,c.hyperref)
+    options:paragraph_breaking.options(1000000)
+    options.justify:false
+    options.hyphens:false
+    settings:resource_json.parse(c.config)
+    @:text_source_paragraph.typeset(source,fonts,context,c.math,language,c.overrides,options,paragraph_nodes.text_options(),document_boxes_json,document_materialize_config.raw_member(settings,0,"linkAppearance","{}"))
+
+split_authors(source:str):
+    values:text_chunks.empty(8)
+    count:0
+    start:0
+    at:0
+    depth:0
+    ~vkf_string_eof(source,at)?>
+        character:tex_text.at(source,at)
+        character="\\"?
+            command:tex_groups.control(source,at)
+            command.name="and" /\ depth=0?
+                count>=values.length()? .values:values&text_chunks.empty(values.length())
+                values.(count):tex_text.trim(tex_text.span(source,start,at))
+                .count:count+1
+                .start:command.stop
+            .at:command.stop
+            @>
+        character="{"? .depth:depth+1
+        character="}"? .depth:depth-1
+        .at:tex_text.next(source,at)
+    count>=values.length()? .values:values&text_chunks.empty(values.length())
+    values.(count):tex_text.trim(tex_text.span(source,start,tex_text.byte_length(source)))
+    @:(values:values,count:count+1)
+compose_authors(source:str,fonts:Catalog,roles:[str],language:Language,c:Configuration,document_boxes_json:str="{}"):
+    authors:split_authors(source)
+    values:authors.values
+    authors.count=1? @:(source:values.(0),complete:true)
+    settings:resource_json.parse(c.config)
+    width:number(settings,0,"textWidth")
+    context:text_parser.context("author",roles,c.optical,c.hyperref)
+    context.legacy_symbols:flag(settings,0,"legacyTextSymbols")
+    options:paragraph_breaking.options(width)
+    options.justify:false
+    sum:0.0
+    complete:true
+    index:0
+    index<authors.count?>
+        box:text_source_paragraph.typeset(values.(index),fonts,context,c.math,language,c.overrides,options,paragraph_nodes.text_options(),document_boxes_json)
+        .sum:sum+box.width
+        ~box.lowering_complete? .complete:false
+        .index:index+1
+    author_quad:quad(fonts,"author")
+    free:maximum(0,width-sum-authors.count*12*tex_numeric.pt()-(authors.count-1)*author_quad)
+    gap:12*tex_numeric.pt()+author_quad+free*0.17/(2+(authors.count-1)*0.17)
+    result:""
+    .index:0
+    index<authors.count?>
+        index>0? .result:result&"\\hspace{"&tex_decimal.plain(gap)&"bp}"
+        .result:result&values.(index)
+        .index:index+1
+    @:(source:result,complete:complete)
+
+math_metrics(config:Tape,ams:bit)->str:
+    ~ams? @:""
+    @:"{\"baseline\":"&json_numbers.roundtrip(number(config,0,"lineHeight"))&",\"jot\":"&json_numbers.roundtrip(number(config,0,"mathJot"))&",\"lineSkip\":"&json_numbers.roundtrip(number(config,0,"lineSkip"))&",\"lineSkipLimit\":"&json_numbers.roundtrip(number(config,0,"lineSkipLimit"))&"}"
+display_core(source:str,fonts:Catalog,c:Configuration,role:str,width:num,equation_start:int,document_boxes_json:str,tables:Tables,prepared:bit):
+    @:display_retained_core(source,fonts,c,role,width,equation_start,math_retained_directory.unprepared(document_boxes_json),tables,prepared)
+display_retained_core(source:str,fonts:Catalog,c:Configuration,role:str,width:num,equation_start:int,retained:Directory,tables:Tables,prepared:bit):
+    arena:math_parser.parse_with_retained_context(source,fonts,c.math,true,retained)
+    font:font_catalog.text_font(fonts,role)
+    spacing:raw(font,resource_json.member(font,0,"spaces"))
+    config:resource_json.parse(c.config)
+    profiles:tables
+    ~prepared? .profiles:math_profiles.load(fonts)
+    scene:math_layout.layout_with_profiles(arena,fonts,profiles,false,true,true,equation_start,false,spacing,math_metrics(config,c.class_name="amsart"),width,false,c.math.qed_symbol)
+    @:(json:math_layout.json(scene),next_equation_number:scene.next_equation_number,references:scene.equation_references,diagnostics:scene.diagnostics)
+display(source:str,fonts:Catalog,c:Configuration,role:str,width:num,equation_start:int=1,document_boxes_json:str="{}"):
+    tables:(values:math_profiles.zeros(0),ems:math_profiles.zeros(0),delim1:math_profiles.zeros(0),delim2:math_profiles.zeros(0),mus:math_profiles.zeros(0))
+    @:display_core(source,fonts,c,role,width,equation_start,document_boxes_json,tables,false)
+display_prepared(source:str,fonts:Catalog,c:Configuration,role:str,width:num,tables:Tables,equation_start:int=1,document_boxes_json:str="{}"):
+    @:display_core(source,fonts,c,role,width,equation_start,document_boxes_json,tables,true)
+merge_math_references(plan:Plan,references:str)->Plan:
+    tape:resource_json.parse(references)
+    ends:tape.ends
+    index:1
+    values:plan.references
+    destinations:plan.reference_destinations
+    index<tape.count?>
+        key:resource_json.string(tape,index)
+        value:resource_json.string(tape,index+1)
+        .values:document_present_maps.put(values,key,value)
+        .destinations:document_present_maps.put(destinations,key,"label:"&key)
+        .index:ends.(index+1)
+    out:plan
+    out.references:values
+    out.reference_destinations:destinations
+    @:out
+
+maximum(a:num,b:num)->num:
+    a>b? @:a
+    @:b
+maximum_int(a:int,b:int)->int:
+    a>b? @:a
+    @:b
+choose_number(condition:bit,yes:num,no:num)->num:
+    condition? @:yes
+    @:no
+choose_string(condition:bit,yes:str,no:str)->str:
+    condition? @:yes
+    @:no
+
+clear_paragraph(input:Context,ams:bit)->Context:
+    out:document_present_context.clone(input)
+    out.link_appearance:document_present_links.effective(input.link_appearance,input.next_link_appearance)
+    out.next_link_appearance:""
+    out.before:input.paragraph_skip
+    out.before_shrink:input.paragraph_shrink
+    out.before_stretch:input.paragraph_stretch
+    out.label:""
+    out.pending_outer_labels:"[]"
+    out.prefix:""
+    out.run_in_prefix:""
+    out.destination:""
+    out.no_indent_after_list:false
+    out.paragraph_after_display:false
+    out.space_after_float:false
+    out.list_end_display:false
+    out.explicit_noindent:false
+    out.center_awaiting:false
+    out.after_display:false
+    input.kind="description"? out.indent:0
+    @:out
+
+# Presentation consumes ordered source IR. It retains unresolved operations as
+# explicit source packets; it never substitutes fixture text or page geometry.
+prepare(document:Document,expanded_source:str,fonts:Catalog,roles:[str],language:Language,c:Configuration,document_boxes_json:str="{}",declarations_json:str="[]")->Plan:
+    @:prepare_retained(document,expanded_source,fonts,roles,language,c,math_retained_directory.unprepared(document_boxes_json),declarations_json)
+prepare_retained(document:Document,expanded_source:str,fonts:Catalog,roles:[str],language:Language,c:Configuration,retained:Directory,declarations_json:str="[]")->Plan:
+    config:resource_json.parse(c.config)
+    ams:c.class_name="amsart"
+    pt:tex_numeric.pt()
+    leading:number(config,0,"lineHeight")
+    indent:number(config,0,"paragraphIndent")
+    context:document_present_context.empty(indent,leading,ams)
+    context.link_appearance:document_present_links.initial(config,c.hyperref \/ flag(config,0,"legacyEquationAnchor"))
+    plan:empty(document.footnotes,document_materialize_config.merge(document.diagnostics,c.diagnostics))
+    note_appearances:document_present_maps.empty()
+    emission_count:0
+    kinds:document.kinds
+    sources:document.sources
+    attrs:document.attrs
+    starts:document.starts
+    stops:document.stops
+    saved:text_chunks.empty(document.count+1)
+    names:text_chunks.empty(document.count+1)
+    stack:[0:document.count+1]
+    counts:[0:document.count+1]
+    metric:[false:document.count+1]
+    theorem_metric:[false:document.count+1]
+    tops:[0.0:document.count+1]
+    befores:[0.0:document.count+1]
+    shrinks:[0.0:document.count+1]
+    stretches:[0.0:document.count+1]
+    parseps:[0.0:document.count+1]
+    parsep_shrinks:[0.0:document.count+1]
+    parsep_stretches:[0.0:document.count+1]
+    itemseps:[0.0:document.count+1]
+    depth:0
+    section:0
+    subsection:0
+    subsubsection:0
+    equation:0
+    figure:0
+    theorem_counts:document_present_maps.empty()
+    theorem_within:document_present_maps.empty()
+    last_label:""
+    current_destination:""
+    bibliography:document_present_maps.empty()
+    # Bibitem numeric labels are a first source pass, independent of page flow.
+    index:0
+    index<document.count?>
+        kinds.(index)="bibitem"?
+            bib_properties:resource_json.parse("{"&attrs.(index)&"}")
+            bib_label:string(bib_properties,0,"option")
+            bib_label=""? .bib_label:tex_text.integer(bibliography.keys.count+1)
+            .bibliography:document_present_maps.put(bibliography,sources.(index),bib_label)
+        .index:index+1
+    .index:0
+    index<document.count?>
+        plan.count>emission_count? .context:document_present_context.promote(context)
+        .emission_count:plan.count
+        kind:kinds.(index)
+        source:sources.(index)
+        properties:resource_json.parse("{"&attrs.(index)&"}")
+        # A theorem/proof/run-in heading is real buffered text even if the next
+        # item is a display or end; source extraction has no synthetic paragraph.
+        kind~="paragraph" /\ kind~="directive" /\ context.prefix~=""?
+            .plan:emit(plan,"paragraph",tex_text.trim(context.prefix),context,"",index)
+            .context:clear_paragraph(context,ams)
+        kind="paragraph"?
+            value:context.prefix&source
+            .plan:emit(plan,"paragraph",tex_text.trim(value),context,attrs.(index),index)
+            .context:clear_paragraph(context,ams)
+            .index:index+1
+            @>
+        kind="directive"?
+            command:string(properties,0,"name")
+            command="hypersetup"?
+                setup_current:document_present_links.effective(context.link_appearance,context.next_link_appearance)
+                setup_result:document_present_links.setup(source,setup_current)
+                ~flag(properties,0,"diagnosticsCaptured")? plan.diagnostics:document_materialize_config.merge(plan.diagnostics,setup_result.diagnostics)
+                setup_inline:flag(properties,0,"buffered") \/ context.prefix~=""
+                setup_inline? context.next_link_appearance:setup_result.appearance
+                ~setup_inline? context.link_appearance:setup_result.appearance
+                ~flag(properties,0,"buffered") /\ context.prefix~=""? context.prefix:context.prefix&"\\hypersetup{"&source&"}"
+                .index:index+1
+                @>
+            command="footnotedefinition"?
+                note_number:tex_text.integer(int(number(properties,0,"number")))
+                .note_appearances:document_present_maps.put(note_appearances,note_number,document_present_links.effective(context.link_appearance,context.next_link_appearance))
+                .index:index+1
+                @>
+            command="label"?
+                plan.references:document_present_maps.put(plan.references,source,last_label)
+                plan.reference_destinations:document_present_maps.put(plan.reference_destinations,source,current_destination)
+            command="noindent"? context.explicit_noindent:true
+            command="centering"? context.align:"center"
+            command="footnotesize"?
+                context.font:"footnote"
+                context.leading:9.5*pt
+            ~(command="label" \/ command="noindent" \/ command="centering" \/ command="footnotesize" \/ command="pagestyle" \/ command="markboth" \/ command="makeatletter" \/ command="makeatother")?
+                .plan:pending(plan,index,kind,source,"Unconnected document directive: "&command)
+            .index:index+1
+            @>
+        kind="section" \/ kind="subsection" \/ kind="subsubsection"?
+            heading_starred:flag(properties,0,"star")
+            ~heading_starred?
+                kind="section"?
+                    .section:section+1
+                    .subsection:0
+                    .subsubsection:0
+                    # Reset only counters whose declaration is section-scoped.
+                    heading_keys:theorem_within.keys.values
+                    heading_n:0
+                    heading_n<theorem_within.keys.count?>
+                        heading_item:document_present_maps.get(theorem_within,heading_keys.(heading_n))
+                        heading_item.value="section"? .theorem_counts:document_present_maps.put(theorem_counts,heading_keys.(heading_n),"0")
+                        .heading_n:heading_n+1
+                kind="subsection"?
+                    .subsection:subsection+1
+                    .subsubsection:0
+                kind="subsubsection"? .subsubsection:subsubsection+1
+            .last_label:tex_text.integer(section)
+            kind~="section"? .last_label:last_label&"."&tex_text.integer(subsection)
+            kind="subsubsection"? .last_label:last_label&"."&tex_text.integer(subsubsection)
+            .current_destination:"heading:"&tex_text.integer(plan.count)
+            heading_heading:resource_json.member(config,0,kind)
+            heading_heading_prefix:""
+            ~heading_starred?
+                .heading_heading_prefix:last_label&"\\quad "
+                ams? .heading_heading_prefix:"\\textrm{"&last_label&".}\\hspace{"&tex_decimal.plain(0.5*quad(fonts,"roman"))&"bp}"
+            flag(config,heading_heading,"runIn")?
+                heading_style:"textbf"
+                kind="subsubsection"? .heading_style:"textit"
+                context.prefix:heading_heading_prefix&"\\"&heading_style&"{"&period(source)&"}\\hspace{"&tex_decimal.plain(0.5*quad(fonts,"roman"))&"bp}\\ignorespaces "
+                context.run_in_prefix:tex_text.trim(context.prefix)
+                context.before:number(config,heading_heading,"before")
+                context.before_stretch:0.7*leading
+                context.explicit_noindent:true
+                context.destination:current_destination
+            ~flag(config,heading_heading,"runIn")?
+                heading_snapshot:document_present_context.clone(context)
+                heading_snapshot.destination:current_destination
+                .plan:emit(plan,kind,heading_heading_prefix&source,heading_snapshot,attrs.(index),index)
+                context.before:0
+                context.before_shrink:0
+                context.before_stretch:0
+                context.after_display:false
+                context.paragraph_after_display:false
+            .index:index+1
+            @>
+        kind="math"?
+            context.center_awaiting?
+                .plan:emit(plan,"paragraph","\\mbox{}",context,"",index)
+                context.before:0
+                context.before_shrink:0
+                context.before_stretch:0
+                context.center_awaiting:false
+            math_environment:string(properties,0,"environment")
+            math_expression:source
+            math_scene:""
+            math_equation_start:equation+1
+            math_previous_destination:context.destination
+            math_environment~=""?
+                .last_label:""
+                flag(properties,0,"numbered")? .last_label:tex_text.integer(math_equation_start)
+                .current_destination:"equation:"&tex_text.integer(plan.count)
+                context.destination:current_destination
+            math_width:number(config,0,"textWidth")-context.left-context.right
+            math_display_font:font_catalog.style(fonts,"display")
+            math_display_em:number(math_display_font,0,"em")
+            math_unit:number(config,0,"fontSize")/math_display_em
+            |math_unit-1|<0.000000000001? .math_unit:1
+            math_measured:display_retained_core(math_expression,fonts,c,context.font,math_width/math_unit,math_equation_start,retained,(values:math_profiles.zeros(0),ems:math_profiles.zeros(0),delim1:math_profiles.zeros(0),delim2:math_profiles.zeros(0),mus:math_profiles.zeros(0)),false)
+            .math_scene:math_measured.json
+            .plan:merge_math_references(plan,math_measured.references)
+            plan.diagnostics:document_materialize_config.merge(plan.diagnostics,math_measured.diagnostics)
+            flag(properties,0,"numbered")? .equation:maximum_int(equation,math_measured.next_equation_number-1)
+            math_extra:attrs.(index)
+            math_extra~=""? .math_extra:math_extra&","
+            .math_extra:math_extra&"\"equationStart\":"&tex_text.integer(math_equation_start)
+            .plan:emit(plan,"math",math_expression,context,math_extra,index,math_scene)
+            context.destination:math_previous_destination
+            context.after_display:true
+            blank_after_display(expanded_source,stops.(index))? context.paragraph_after_display:true
+            context.before:0
+            context.before_shrink:0
+            context.before_stretch:0
+            .index:index+1
+            @>
+        kind="image"?
+            .plan:emit(plan,"image",source,context,attrs.(index),index)
+            .index:index+1
+            @>
+        kind="environment_start"?
+            begin_name:string(properties,0,"name")
+            (begin_name="figure" \/ begin_name="figure*")?
+                figure_end:index+1
+                figure_depth:1
+                figure_end<document.count?>
+                    kinds.(figure_end)="environment_start"? .figure_depth:figure_depth+1
+                    kinds.(figure_end)="environment_end"? .figure_depth:figure_depth-1
+                    figure_depth=0? @|
+                    .figure_end:figure_end+1
+                figure_end>=document.count?
+                    .plan:pending(plan,index,kind,source,"Unclosed source figure")
+                    .index:document.count
+                    @>
+                .figure:figure+1
+                figure_content:tex_text.span(expanded_source,stops.(index),starts.(figure_end))
+                figure_source:document_figure_source.extract(figure_content,string(properties,0,"option"),figure,c.config)
+                plan.diagnostics:document_materialize_config.merge(plan.diagnostics,figure_source.diagnostics)
+                ~document_materialize_config.has(c.packages,"graphicx")? plan.diagnostics:document_materialize_config.merge(plan.diagnostics,resource_json.quote("Figure requires graphicx for images"))
+                .current_destination:"figure:"&tex_text.integer(figure)
+                figure_labels:figure_source.labels
+                figure_label:0
+                figure_label<figure_labels.length()?>
+                    plan.references:document_present_maps.put(plan.references,figure_labels.(figure_label),tex_text.integer(figure))
+                    plan.reference_destinations:document_present_maps.put(plan.reference_destinations,figure_labels.(figure_label),current_destination)
+                    .figure_label:figure_label+1
+                figure_context:document_present_context.clone(context)
+                figure_context.destination:current_destination
+                figure_properties:figure_source.attrs
+                figure_source.here? .figure_properties:figure_properties&",\"here\":true"
+                figure_source.immediate? .figure_properties:figure_properties&",\"immediate\":true"
+                .plan:emit(plan,"figure",figure_content,figure_context,figure_properties,index)
+                context.after_display? context.space_after_float:true
+                .index:figure_end+1
+                @>
+            saved.(index):document_present_context.json(context)
+            ams /\ (begin_name="itemize" \/ begin_name="enumerate" \/ begin_name="description") /\ context.label~=""?
+                outer_saved:document_present_context.clone(context)
+                outer_saved.label:""
+                saved.(index):document_present_context.json(outer_saved)
+                .context:document_present_context.with_outer_label(context)
+            names.(index):begin_name
+            stack.(depth):index
+            .depth:depth+1
+            begin_theorem:resource_json.member(properties,0,"theorem")
+            begin_list_like:begin_name="quote" \/ begin_name="quotation" \/ begin_name="verse" \/ begin_name="itemize" \/ begin_name="enumerate" \/ begin_name="description" \/ begin_name="center"
+            begin_level:0
+            begin_list_depth:0
+            begin_n:0
+            begin_n<depth?>
+                begin_parent:stack.(begin_n)
+                begin_parent_name:names.(begin_parent)
+                metric.(begin_parent) /\ (~ams \/ begin_parent_name~="center")? .begin_level:begin_level+1
+                (begin_parent_name="itemize" \/ begin_parent_name="enumerate" \/ begin_parent_name="description")? .begin_list_depth:begin_list_depth+1
+                .begin_n:begin_n+1
+            begin_list_like?
+                .begin_level:maximum_int(1,begin_level+1)
+                # Source begin_before begin decides begin_vertical-vs-horizontal entry.
+                begin_vertical:true
+                index>0?
+                    kinds.(index-1)="paragraph" /\ stops.(index-1)=starts.(index)? .begin_vertical:false
+                begin_top:2*pt
+                begin_parsep:0.0
+                begin_itemsep:2*pt
+                begin_level=1?
+                    .begin_top:8*pt
+                    .begin_parsep:4*pt
+                    .begin_itemsep:4*pt
+                begin_level=2?
+                    .begin_top:4*pt
+                    .begin_parsep:2*pt
+                begin_name="quotation"? .begin_parsep:0
+                begin_before:begin_top+context.paragraph_skip
+                begin_vertical? .begin_before:begin_before+choose_number(begin_level<3,2,1)*pt
+                begin_shrink:choose_number(begin_level=1,4,1)*pt+choose_number(begin_vertical,pt,0)+context.paragraph_shrink
+                begin_stretch:choose_number(begin_level<3,2,1)*pt+choose_number(begin_vertical /\ begin_level<3,pt,0)+context.paragraph_stretch
+                begin_parsep_shrink:choose_number(begin_parsep>0,pt,0)
+                begin_parsep_stretch:choose_number(begin_parsep>0,choose_number(begin_level=1,2,1)*pt,0)
+                ams?
+                    .begin_top:choose_number(begin_level=1,0.175*leading,0)
+                    begin_name="center" /\ context.proof_top>0? .begin_top:context.proof_top
+                    .begin_before:begin_top
+                    .begin_shrink:0
+                    .begin_stretch:begin_top
+                    .begin_parsep:0
+                    .begin_itemsep:0
+                    .begin_parsep_shrink:0
+                    .begin_parsep_stretch:0
+                metric.(index):true
+                tops.(index):begin_top
+                befores.(index):begin_before
+                shrinks.(index):begin_shrink
+                stretches.(index):begin_stretch
+                parseps.(index):begin_parsep
+                parsep_shrinks.(index):begin_parsep_shrink
+                parsep_stretches.(index):begin_parsep_stretch
+                itemseps.(index):begin_itemsep
+                context.before:begin_before
+                context.before_shrink:begin_shrink
+                context.before_stretch:begin_stretch
+                context.paragraph_skip:begin_parsep
+                context.paragraph_shrink:begin_parsep_shrink
+                context.paragraph_stretch:begin_parsep_stretch
+            ~begin_list_like? context.before:10*pt
+            begin_name="abstract"?
+                .plan:emit(plan,"abstractHeading","Abstract",context,"",index)
+                context.left:25*pt
+                context.right:25*pt
+                context.font:"small"
+                context.indent:1.5*quad(fonts,"small")
+                context.before:0
+                context.leading:11*pt
+                context.paragraph_skip:0
+            begin_name="center"?
+                context.align:"center"
+                context.indent:0
+                ams? context.center_awaiting:true
+            begin_name="em"?
+                context.before:0
+                context.font:choose_string(context.font="italic","roman","italic")
+            begin_name="quote" \/ begin_name="quotation" \/ begin_name="verse"?
+                context.left:context.left+25*pt
+                context.right:context.right+25*pt
+                context.indent:choose_number(begin_name="quotation",15*pt,0)
+                context.kind:begin_name
+                begin_name="verse"?
+                    context.left:context.left+15*pt
+                    context.indent:-15*pt
+            begin_name="itemize" \/ begin_name="enumerate" \/ begin_name="description"?
+                begin_margin:choose_number(begin_list_depth=1,25,choose_number(begin_list_depth=2,22,18.7))*pt
+                ams?
+                    begin_widest:"(M)"
+                    begin_list_depth=1? .begin_widest:"(13)"
+                    begin_list_depth=2? .begin_widest:"(m)"
+                    begin_list_depth=3? .begin_widest:"(xiii)"
+                    begin_measured:measure(begin_widest,"roman",fonts,roles,language,c,retained.source)
+                    .begin_margin:begin_measured.width+5*pt+choose_number(begin_list_depth=1,indent,0)
+                    plan.diagnostics:document_materialize_config.merge(plan.diagnostics,begin_measured.diagnostics)
+                context.left:context.left+begin_margin
+                context.indent:choose_number(begin_name="description",5*pt-begin_margin,0)
+                context.kind:choose_string(begin_name="description","description","list")
+                begin_name="description"? context.description_margin:begin_margin
+            begin_theorem>=0 \/ begin_name="proof"?
+                theorem_before:8*pt
+                theorem_shrink:4*pt
+                theorem_stretch:2*pt
+                theorem_top:8*pt
+                ams?
+                    .theorem_top:0.5*leading
+                    .theorem_before:theorem_top
+                    .theorem_shrink:0.2*leading
+                    .theorem_stretch:theorem_shrink
+                begin_name="proof" /\ ams?
+                    .theorem_top:6*pt
+                    .theorem_before:theorem_top
+                    .theorem_shrink:0
+                    .theorem_stretch:theorem_top
+                    context.proof_top:theorem_top
+                theorem_metric.(index):true
+                tops.(index):theorem_top
+                befores.(index):theorem_before
+                shrinks.(index):theorem_shrink
+                stretches.(index):theorem_stretch
+                begin_prior:document_present_context.parse(saved.(index))
+                begin_collapse:ams /\ begin_prior.before>theorem_before
+                context.before:choose_number(begin_collapse,begin_prior.before,theorem_before)
+                context.before_shrink:choose_number(begin_collapse,begin_prior.before_shrink,theorem_shrink)
+                context.before_stretch:choose_number(begin_collapse,begin_prior.before_stretch,theorem_stretch)
+                context.indent:choose_number(ams,indent,0)
+                context.explicit_noindent:ams
+                begin_theorem>=0?
+                    begin_key:string(properties,begin_theorem,"shared")
+                    begin_key=""? .begin_key:begin_name
+                    .begin_key:document_theorem_counters.root(declarations_json,begin_key)
+                    begin_within:string(properties,begin_theorem,"within")
+                    begin_within=""? .begin_within:document_theorem_counters.within(declarations_json,begin_key)
+                    begin_within=""?
+                        begin_inherited:document_present_maps.get(theorem_within,begin_key)
+                        .begin_within:begin_inherited.value
+                    .theorem_within:document_present_maps.put(theorem_within,begin_key,begin_within)
+                    begin_increment:document_present_maps.increment(theorem_counts,begin_key)
+                    .theorem_counts:begin_increment.map
+                    .last_label:tex_text.integer(begin_increment.count)
+                    begin_within="section"? .last_label:tex_text.integer(section)&"."&last_label
+                    flag(properties,begin_theorem,"star")? .last_label:""
+                    .current_destination:"theorem:"&begin_name&":"&last_label
+                    context.destination:current_destination
+                    begin_style:string(properties,begin_theorem,"style")
+                    context.font:choose_string(begin_style="plain","italic","roman")
+                    context.kind:"theorem"
+                    begin_header:string(properties,begin_theorem,"title")
+                    last_label~=""?
+                        begin_num:last_label
+                        ams /\ begin_style="remark"? .begin_num:"\\textrm{"&begin_num&"}"
+                        .begin_header:begin_header&choose_string(ams /\ begin_style~="remark","\\/ "," ")&begin_num
+                    begin_note:string(properties,0,"option")
+                    ams /\ begin_note~=""? .begin_header:begin_header&" \\textrm{("&begin_note&")}"
+                    begin_command:choose_string(begin_style="remark","textit","textbf")
+                    document_materialize_config.has(c.packages,"amsthm")?
+                        context.prefix:"\\"&begin_command&"{"&begin_header&".}\\hspace{5pt plus 1pt minus 1pt}\\ignorespaces "
+                    ~document_materialize_config.has(c.packages,"amsthm")?
+                        context.prefix:"\\"&begin_command&"{"&begin_header&"}\\hspace{"&tex_decimal.plain(0.5*quad(fonts,"roman"))&"bp}\\ignorespaces "
+                    ~ams /\ begin_note~=""? context.prefix:context.prefix&"("&begin_note&") "
+                begin_name="proof"?
+                    begin_title:string(properties,0,"option")
+                    begin_title=""? .begin_title:"Proof"
+                    context.font:"roman"
+                    context.prefix:"\\textit{"&period(begin_title)&"} "
+                    ams? context.prefix:"\\mbox{\\itshape "&period(begin_title)&"}\\hspace{5pt}\\ignorespaces "
+            begin_name="thebibliography"?
+                ams /\ document_materialize_config.has(c.packages,"biblatex")? .plan:emit(plan,"bibliographysetup","",context,"",index)
+                .plan:emit(plan,"section","References",context,"\"star\":true",index)
+                bibliography_widest:string(properties,0,"widest")
+                bibliography_measured:measure("["&bibliography_widest&"]","roman",fonts,roles,language,c,retained.source)
+                context.label_sep:number(config,0,"bibLabelSep",5*pt)
+                context.left:bibliography_measured.width+context.label_sep
+                context.indent:0
+                context.kind:"bibliography"
+                context.before:0
+                context.sentence:false
+                context.tolerance:int(choose_number(document_materialize_config.has(c.packages,"biblatex"),200,9999))
+                context.emergency:choose_number(document_materialize_config.has(c.packages,"biblatex"),0,3*quad(fonts,"roman"))
+            ~(begin_list_like \/ begin_theorem>=0 \/ begin_name="proof" \/ begin_name="abstract" \/ begin_name="em" \/ begin_name="thebibliography")?
+                .plan:pending(plan,index,kind,source,"Unconnected document environment: "&begin_name)
+            .index:index+1
+            @>
+        kind="environment_end"?
+            depth>0?
+                .depth:depth-1
+                end_parent:stack.(depth)
+                end_name:names.(end_parent)
+                end_ends_display:context.after_display
+                .context:document_present_context.parse(saved.(end_parent))
+                context.before:choose_number(end_name="em",0,10*pt)
+                metric.(end_parent) \/ theorem_metric.(end_parent)?
+                    context.before:befores.(end_parent)
+                    context.before_shrink:shrinks.(end_parent)
+                    context.before_stretch:stretches.(end_parent)
+                    context.no_indent_after_list:~blank_after(expanded_source,stops.(index))
+                    context.paragraph_after_display:end_ends_display /\ blank_after(expanded_source,stops.(index))
+                    context.list_end_display:end_ends_display
+                    context.list_top:tops.(end_parent)+choose_number(ams,0,2*pt)
+                    context.list_top_shrink:shrinks.(end_parent)
+                    context.list_top_stretch:stretches.(end_parent)
+                    context.list_parsep:parseps.(end_parent)
+                    context.list_parsep_shrink:parsep_shrinks.(end_parent)
+                    context.list_parsep_stretch:parsep_stretches.(end_parent)
+                    ams? context.after_display:end_ends_display
+                    ams /\ theorem_metric.(end_parent)?
+                        context.no_indent_after_list:false
+                        context.paragraph_after_display:end_ends_display
+            .index:index+1
+            @>
+        kind="item" \/ kind="bibitem"?
+            item_parent:-1
+            item_n:depth-1
+            item_n>=0?>
+                candidate_name:names.(stack.(item_n))
+                ((kind="item" /\ (candidate_name="itemize" \/ candidate_name="enumerate" \/ candidate_name="description")) \/ (kind="bibitem" /\ candidate_name="thebibliography"))?
+                    .item_parent:stack.(item_n)
+                    @|
+                .item_n:item_n-1
+            item_parent<0?
+                .plan:pending(plan,index,kind,source,"List item has no matching environment")
+                .index:index+1
+                @>
+            counts.(item_parent):counts.(item_parent)+1
+            item_name:names.(item_parent)
+            item_count:counts.(item_parent)
+            item_option:string(properties,0,"option")
+            item_label:""
+            kind="bibitem"?
+                item_entry:document_present_maps.get(bibliography,source)
+                .item_label:"["&item_entry.value&"]"
+                .current_destination:"cite:"&source
+                context.destination:current_destination
+                context.before:choose_number(item_count=1,0,number(config,0,"bibItemSep",8*pt))
+                context.before_shrink:choose_number(item_count=1 \/ ams,0,2*pt)
+                context.before_stretch:choose_number(item_count=1 \/ ams,0,4*pt)
+            kind="item"?
+                item_list_depth:0
+                item_enum_depth:0
+                .item_n:0
+                item_n<depth?>
+                    names.(stack.(item_n))=item_name? .item_list_depth:item_list_depth+1
+                    names.(stack.(item_n))="enumerate"? .item_enum_depth:item_enum_depth+1
+                    .item_n:item_n+1
+                item_name="enumerate"?
+                    .last_label:tex_text.integer(item_count)
+                    .current_destination:"item:"&tex_text.integer(plan.count)
+                    context.destination:current_destination
+                    item_value:tex_text.integer(item_count)
+                    item_enum_depth=2? .item_value:str(chr(96+item_count))
+                    item_enum_depth=3? .item_value:unicode_case.lowercase(roman(item_count))
+                    item_enum_depth=4? .item_value:str(chr(64+item_count))
+                    .item_label:choose_string(ams,"("&item_value&")",tex_text.integer(item_count)&".")
+                item_name="itemize"?
+                    .item_label:"\\textbullet"
+                    ams?
+                        .item_label:"\$\\bullet\$"
+                        item_list_depth=2? .item_label:"{\\bfseries --}"
+                        item_list_depth=3? .item_label:"\$\\ast\$"
+                        item_list_depth=4? .item_label:"\$\\cdot\$"
+                item_option~=""? .item_label:item_option
+                item_item_before:choose_number(item_count=1,befores.(item_parent),itemseps.(item_parent)+parseps.(item_parent))
+                context.before<=item_item_before?
+                    context.before:item_item_before
+                    context.before_shrink:choose_number(item_count=1,shrinks.(item_parent),choose_number(ams,0,pt+parsep_shrinks.(item_parent)))
+                    context.before_stretch:choose_number(item_count=1,stretches.(item_parent),choose_number(ams,0,2*pt+parsep_stretches.(item_parent)))
+            context.label:item_label
+            item_name="description"?
+                context.indent:choose_number(item_label~="",0,5*pt)-context.description_margin
+                item_label~=""? context.prefix:"\\mbox{\\textbf{"&item_label&"}}\\hspace{5pt}\\ignorespaces "
+                context.label:""
+            .index:index+1
+            @>
+        kind="title" \/ kind="author" \/ kind="date"?
+            title_value:source
+            ams? .title_value:unicode_case.upper_tex(source,unicode_case.load())
+            ~ams /\ kind="author"?
+                .note_appearances:document_present_links.symbol_appearances(plan.footnotes,note_appearances,document_present_links.effective(context.link_appearance,context.next_link_appearance))
+                composed_author:compose_authors(source,fonts,roles,language,c,retained.source)
+                .title_value:composed_author.source
+                ~composed_author.complete? .plan:pending(plan,index,kind,source,"Unresolved native author paragraph provider")
+            title_titlepart:kind
+            kind="date"? .kind:"author"
+            .plan:emit(plan,kind,title_value,context,"\"titlePart\":"&resource_json.quote(title_titlepart),index)
+            .index:index+1
+            @>
+        kind="abstract" /\ flag(properties,0,"frontmatter")?
+            abstract_abstract:resource_json.member(config,0,"abstract")
+            abstract_snapshot:document_present_context.clone(context)
+            abstract_snapshot.left:number(config,abstract_abstract,"margin")
+            abstract_snapshot.right:abstract_snapshot.left
+            abstract_snapshot.font:string(config,abstract_abstract,"font")
+            abstract_snapshot.indent:0
+            abstract_snapshot.leading:number(config,abstract_abstract,"lineHeight")
+            abstract_snapshot.before:0
+            .plan:emit(plan,"paragraph","\\textsc{Abstract.}\\hspace{5pt}\\ignorespaces "&source,abstract_snapshot,"\"titlePart\":\"abstract\"",index)
+            .index:index+1
+            @>
+        kind="pagebreak" \/ kind="proofend" \/ kind="vspace" \/ kind="verbatim" \/ kind="caption"?
+            .plan:emit(plan,kind,source,context,attrs.(index),index)
+            kind="verbatim"?
+                context.before:0
+                context.no_indent_after_list:~blank_after(expanded_source,stops.(index))
+            .index:index+1
+            @>
+        .plan:pending(plan,index,kind,source,"Unconnected document block: "&kind)
+        .index:index+1
+    plan.count>emission_count? .context:document_present_context.promote(context)
+    context.prefix~=""?
+        .plan:emit(plan,"paragraph",tex_text.trim(context.prefix),context,"",document.count)
+        .context:document_present_context.promote(context)
+    # AMS places correspondence after the final body paragraph, using the
+    # current source context with its documented footnote role and spacing.
+    ams?
+        correspondence:resource_json.parse(document.metadata)
+        address:string(correspondence,0,"address")
+        email:string(correspondence,0,"email")
+        address~="" \/ email~=""?
+            correspondence_context:document_present_context.clone(context)
+            correspondence_context.font:"footnote"
+            correspondence_context.leading:number(config,0,"footnoteLeading")
+            correspondence_context.indent:number(config,0,"paragraphIndent")
+            correspondence_context.before:0.175*leading+0.7*correspondence_context.leading
+            address~=""?
+                .plan:emit(plan,"paragraph","\\textsc{"&address&"}",correspondence_context,"",document.count)
+                correspondence_context.before:0
+            email~=""? .plan:emit(plan,"paragraph","\\textit{Email address}: \\texttt{"&email&"}",correspondence_context,"",document.count)
+    plan.footnotes:document_present_links.decorate(plan.footnotes,note_appearances)
+    figure=0? @:plan
+    @:document_figure_flow.expand(plan,indent,leading,ams)

@@ -1,0 +1,20 @@
+docblock_j:.resource_json
+docblock_chunks:.text_chunks
+docblock_text:.tex_text
+Document:(kinds:[str],sources:[str],attrs:[str],starts:[int],stops:[int],parents:[int],count:int,metadata:str,footnotes:str,diagnostics:str,class_name:str,class_options:str,imports:str,body_start:int,body_stop:int)
+
+json(doc:Document)->str:
+    parts:docblock_chunks.empty(doc.count)
+    kinds:doc.kinds
+    sources:doc.sources
+    attrs:doc.attrs
+    starts:doc.starts
+    stops:doc.stops
+    parents:doc.parents
+    i:0
+    i<doc.count?>
+        prefix:""
+        i>0? .prefix:","
+        parts.(i):prefix&"{\"kind\":"&docblock_j.quote(kinds.(i))&",\"source\":"&docblock_j.quote(sources.(i))&",\"attrs\":{"&attrs.(i)&"},\"start\":"&docblock_text.integer(starts.(i))&",\"stop\":"&docblock_text.integer(stops.(i))&",\"parent\":"&docblock_text.integer(parents.(i))&"}"
+        .i:i+1
+    @:"{\"blocks\":["&docblock_chunks.join(parts,0,doc.count)&"],\"metadata\":"&doc.metadata&",\"footnotes\":"&doc.footnotes&",\"diagnostics\":["&doc.diagnostics&"],\"className\":"&docblock_j.quote(doc.class_name)&",\"classOptions\":"&docblock_j.quote(doc.class_options)&",\"imports\":"&doc.imports&",\"bodyStart\":"&docblock_text.integer(doc.body_start)&",\"bodyStop\":"&docblock_text.integer(doc.body_stop)&"}"

@@ -1,0 +1,28 @@
+# Ordered request-owned equation references. Repeated keys replace their value.
+metadata:.frozen285_math_metadata
+chunks:.frozen285_text_chunks
+j:.frozen285_resource_json
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+References:(keys:Pool,values:[str])
+
+empty()->References:@:(keys:metadata.empty(),values:chunks.empty(64))
+
+put(references:References,key:str,value:str)->References:
+    entry:metadata.intern(references.keys,key)
+    values:references.values
+    entry.id>=values.length()? .values:values&chunks.empty(values.length())
+    values.(entry.id):value
+    @:(keys:entry.pool,values:values)
+
+json(references:References)->str:
+    pool:references.keys
+    keys:pool.values
+    values:references.values
+    parts:chunks.empty(pool.count)
+    index:0
+    index<pool.count?>
+        prefix:""
+        index>0? .prefix:","
+        parts.(index):prefix&j.quote(keys.(index))&":"&j.quote(values.(index))
+        .index:index+1
+    @:"{"&chunks.join(parts,0,pool.count)&"}"

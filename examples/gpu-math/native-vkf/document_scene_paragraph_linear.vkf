@@ -1,0 +1,392 @@
+a265_text:.tex_text
+meta:.scene_metadata
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+Store:(arena:Arena,firsts:[int],counts:[int],anchor_firsts:[int],anchor_counts:[int],anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int,widths:[num],heights:[num],depths:[num],tag_widths:[num],inline_destinations:[bit],count:int)
+# Typed paragraph columns merge directly; retained records decode once.
+# No per-glyph wide-record MAP or second Arena reconstruction.
+document_scene:.document_scene
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:Store,scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int,a260_text:str,a260_starts:[int],a260_stops:[int],a272_anchor_operations:[int],a272_anchor_ids:[str],a277_anchor_scenes:[int],a280_anchor_leaves:[int],a280_anchor_slots:[int],a282_anchor_points:[int])
+merged_leaf(keys:[str],xs:[num],ys:[num],flow_lines:[int],scene_xs:[num],scene_ys:[num],scene_lines:[int],retained:Arena,sources:[int],indices:[int],fragments:[int],index:int)->Leaf:
+    item:document_scene.leaf()
+    source_index:indices.(index)
+    sources.(index)=0? .item:document_scene.leaf(keys.(source_index),xs.(source_index),ys.(source_index),flow_lines.(source_index))
+    sources.(index)=1?
+        fragment:fragments.(index)
+        .item:document_scene.leaf_at(retained,source_index)
+        item.x:item.x+scene_xs.(fragment)
+        item.y:item.y+scene_ys.(fragment)
+        item.line:scene_lines.(fragment)
+    @:item
+a278_from_paragraph_mapped(q:Packet):
+    (a265_provenance_valid(a265_text.byte_length(q.a260_text),q.a260_starts,q.a260_stops,q.glyph_operations,q.glyph_count,q.scene_operations,q.scene_count))?! "Invalid parser provenance columns"
+    (a266_scalar_spans_valid(q.a260_text,q.a260_starts,q.a260_stops))?! "Parser provenance splits a Unicode scalar"
+    flat:q.scenes
+    (flat.count=q.scene_count)?! "Packet scene count mismatch"
+    retained:flat.arena
+    fragment_firsts:flat.firsts
+    fragment_counts:flat.counts
+    count:q.glyph_count+retained.count
+    [int] kinds:[0:count]
+    keys:document_scene.strings(count)
+    [num] xs:[0.0:count]
+    [num] ys:[0.0:count]
+    [num] sxs:[1.0:count]
+    [num] sys:[1.0:count]
+    [num] widths:[0.0:count]
+    [num] heights:[0.0:count]
+    [int] lines:[0:count]
+    [bit] equation_tags:[false:count]
+    [num] tag_widths:[0.0:count]
+    [bit] draws:[true:count]
+    metadata:retained.metadata
+    [int] metadata_roots:[-1:count]
+    [int] glyph_parts:[-1:count]
+    [num] flow_xs:[0.0:count]
+    [num] flow_widths:[0.0:count]
+    [bit] has_flows:[false:count]
+    [num] vertical_shrinks:[0.0:count]
+    [num] vertical_stretches:[0.0:count]
+    [int] paints:[-1:count]
+    [int] payloads:[-1:count]
+    [int] destination_firsts:[0:count]
+    [int] destination_counts:[0:count]
+    [int] footnote_numbers:[0:count]
+    a260_scopes:document_scene.strings(count)
+    a260_texts:document_scene.strings(count)
+    [int] a260_operations:[-1:count]
+    [int] a260_starts:[-1:count]
+    [int] a260_stops:[-1:count]
+    [int] a260_parts:[-1:count]
+    [int] a260_next:[0:q.a260_starts.length()]
+    # Current-output selectors, captured at actual emission; never stable IDs.
+    [int] a278_retained_to_leaf:[-1:retained.count]
+    [int] a278_scene_firsts:[-1:q.scene_count]
+    glyph:0
+    fragment:0
+    at:0
+    destination_cursor:0
+    glyph<q.glyph_count \/ fragment<q.scene_count?>
+        use_scene:fragment<q.scene_count
+        glyph<q.glyph_count /\ fragment<q.scene_count?
+            .use_scene:q.scene_lines.(fragment)<q.flow_lines.(glyph) \/ (q.scene_lines.(fragment)=q.flow_lines.(glyph) /\ q.scene_operations.(fragment)<=q.glyph_operations.(glyph))
+        use_scene?
+            a278_scene_firsts.(fragment):at
+            source:fragment_firsts.(fragment)
+            stop:source+fragment_counts.(fragment)
+            source<stop?>
+                (a278_retained_to_leaf.(source)= -1)?! "Duplicate retained leaf emission"
+                a278_retained_to_leaf.(source):at
+                kinds.(at):retained.kinds.(source)
+                keys.(at):retained.keys.(source)
+                xs.(at):retained.xs.(source)+q.scene_xs.(fragment)
+                ys.(at):retained.ys.(source)+q.scene_ys.(fragment)
+                sxs.(at):retained.sxs.(source)
+                sys.(at):retained.sys.(source)
+                widths.(at):retained.widths.(source)
+                heights.(at):retained.heights.(source)
+                lines.(at):q.scene_lines.(fragment)
+                equation_tags.(at):retained.equation_tags.(source)
+                tag_widths.(at):retained.tag_widths.(source)
+                draws.(at):retained.draws.(source)
+                metadata_roots.(at):retained.metadata_roots.(source)
+                glyph_parts.(at):retained.glyph_parts.(source)
+                flow_xs.(at):retained.flow_xs.(source)
+                flow_widths.(at):retained.flow_widths.(source)
+                has_flows.(at):retained.has_flows.(source)
+                vertical_shrinks.(at):retained.vertical_shrinks.(source)
+                vertical_stretches.(at):retained.vertical_stretches.(source)
+                paints.(at):retained.paints.(source)
+                payloads.(at):retained.payloads.(source)
+                destination_firsts.(at):retained.destination_firsts.(source)
+                destination_counts.(at):retained.destination_counts.(source)
+                footnote_numbers.(at):retained.footnote_numbers.(source)
+                a260_op:q.scene_operations.(fragment)
+                # Generated link scenes retain their ordering sentinel. Only the
+                # producer's actual operation/span columns supply provenance.
+                a260_op=q.a260_starts.length() /\ retained.a260_operations.(source)>=0?
+                    a268_owner:retained.a260_operations.(source)
+                    ((a268_owner<q.a260_starts.length() /\ retained.a260_texts.(source)=q.a260_text))?! "Invalid retained link origin"
+                    ((retained.a260_starts.(source)=q.a260_starts.(a268_owner) /\ retained.a260_stops.(source)=q.a260_stops.(a268_owner)))?! "Retained link span mismatch"
+                    .a260_op:a268_owner
+                a260_texts.(at):q.a260_text
+                a260_op>=0 /\ a260_op<q.a260_starts.length() /\ q.a260_starts.(a260_op)>=0?
+                    a260_operations.(at):a260_op
+                    a260_starts.(at):q.a260_starts.(a260_op)
+                    a260_stops.(at):q.a260_stops.(a260_op)
+                    a260_parts.(at):a260_next.(a260_op)
+                    a260_next.(a260_op):a260_next.(a260_op)+1
+                .destination_cursor:destination_firsts.(at)+destination_counts.(at)
+                .at:at+1
+                .source:source+1
+            .fragment:fragment+1
+            @>
+        a260_op:q.glyph_operations.(glyph)
+        a260_texts.(at):q.a260_text
+        a260_op>=0 /\ a260_op<q.a260_starts.length() /\ q.a260_starts.(a260_op)>=0?
+            a260_operations.(at):a260_op
+            a260_starts.(at):q.a260_starts.(a260_op)
+            a260_stops.(at):q.a260_stops.(a260_op)
+            a260_parts.(at):a260_next.(a260_op)
+            a260_next.(a260_op):a260_next.(a260_op)+1
+        keys.(at):q.keys.(glyph)
+        xs.(at):q.xs.(glyph)
+        ys.(at):q.ys.(glyph)
+        lines.(at):q.flow_lines.(glyph)
+        destination_firsts.(at):destination_cursor
+        .at:at+1
+        .glyph:glyph+1
+    # Retained leaves stay in flat encounter order, so resource IDs and
+    # destination offsets remain valid when ordinary glyphs are interleaved.
+    Arena arena:(kinds:kinds,keys:keys,xs:xs,ys:ys,sxs:sxs,sys:sys,widths:widths,heights:heights,lines:lines,equation_tags:equation_tags,tag_widths:tag_widths,draws:draws,metadata:metadata,metadata_roots:metadata_roots,glyph_parts:glyph_parts,flow_xs:flow_xs,flow_widths:flow_widths,has_flows:has_flows,vertical_shrinks:vertical_shrinks,vertical_stretches:vertical_stretches,paints:paints,payloads:payloads,destination_firsts:destination_firsts,destination_counts:destination_counts,destination_ids:retained.destination_ids,count:count,paint_table:retained.paint_table,paint_count:retained.paint_count,payload_table:retained.payload_table,payload_count:retained.payload_count,footnote_numbers:footnote_numbers,a260_scopes:a260_scopes,a260_texts:a260_texts,a260_operations:a260_operations,a260_starts:a260_starts,a260_stops:a260_stops,a260_parts:a260_parts)
+    tag_width:0.0
+    i:0
+    i<count?>
+        arena.equation_tags.(i) /\ arena.tag_widths.(i)>tag_width? .tag_width:arena.tag_widths.(i)
+        .i:i+1
+    anchor_count:flat.anchor_count
+    source_anchor_ids:flat.anchor_ids
+    source_anchor_xs:flat.anchor_xs
+    source_anchor_ys:flat.anchor_ys
+    source_anchor_scenes:flat.anchor_scenes
+    anchor_ids:document_scene.strings(anchor_count)
+    [num] anchor_xs:[0.0:anchor_count]
+    [num] anchor_ys:[0.0:anchor_count]
+    [int] anchor_lines:[0:anchor_count]
+    .i:0
+    i<anchor_count?>
+        .fragment:source_anchor_scenes.(i)
+        anchor_ids.(i):source_anchor_ids.(i)
+        anchor_xs.(i):source_anchor_xs.(i)+q.scene_xs.(fragment)
+        anchor_ys.(i):source_anchor_ys.(i)+q.scene_ys.(fragment)
+        anchor_lines.(i):q.scene_lines.(fragment)
+        .i:i+1
+    Scene a278_scene:(arena:arena,anchor_ids:anchor_ids,anchor_xs:anchor_xs,anchor_ys:anchor_ys,anchor_lines:anchor_lines,anchor_metadata:flat.anchor_metadata,anchor_roots:flat.anchor_roots,anchor_count:anchor_count,width:q.width,height:q.height,depth:q.depth,tag_width:tag_width,inline_destinations:false)
+    @:(scene:a278_scene,retained_to_leaf:a278_retained_to_leaf,scene_firsts:a278_scene_firsts,scene_counts:fragment_counts)
+
+# Validate only provenance transport; active prefixes may have spare capacity.
+# stream.count is the existing generated link/anchor sentinel, NOT an operation.
+a265_provenance_valid(bytes:int,starts:[int],stops:[int],glyphs:[int],glyph_count:int,scenes:[int],scene_count:int)->bit:
+    (bytes<0 \/ starts.length()~=stops.length() \/ glyph_count<0 \/ scene_count<0)? @:false
+    (glyph_count>glyphs.length() \/ scene_count>scenes.length())? @:false
+    at:0
+    at<starts.length()?>
+        start:starts.(at)
+        stop:stops.(at)
+        ~((start= -1 /\ stop= -1) \/ (start>=0 /\ stop>=start /\ stop<=bytes))? @:false
+        .at:at+1
+    .at:0
+    at<glyph_count?>
+        (glyphs.(at)< -1 \/ glyphs.(at)>starts.length())? @:false
+        .at:at+1
+    .at:0
+    at<scene_count?>
+        (scenes.(at)< -1 \/ scenes.(at)>starts.length())? @:false
+        .at:at+1
+    @:true
+
+# Scope is issued by the edit owner before layout, never from a source offset.
+# Bind each paragraph before concatenation/materialization; unknown generated
+# operations remain unknown and are rejected by the host metadata binder.
+from_paragraph_owned(q:Packet,scope:str)->Scene:
+    (scope~="")?! "Missing edit-owner scope"
+    out:from_paragraph(q)
+    arena:out.arena
+    scopes:arena.a260_scopes
+    i:0
+    i<arena.count?>
+        scopes.(i):scope
+        .i:i+1
+    arena.a260_scopes:scopes
+    out.arena:arena
+    @:out
+
+# Provenance offsets must be scalar boundaries, including empty spans.
+# Build once per paragraph; operation spans can overlap or arrive out of order.
+a266_scalar_spans_valid(source:str,starts:[int],stops:[int])->bit:
+    starts.length()~=stops.length()? @:false
+    starts.length()=0? @:true
+    size:a265_text.byte_length(source)
+    [bit] boundaries:[false:size+1]
+    boundaries.(0):true
+    cursor:0
+    cursor<size?>
+        following:a265_text.next(source,cursor)
+        (following<=cursor \/ following>size)? @:false
+        boundaries.(following):true
+        .cursor:following
+    at:0
+    at<starts.length()?>
+        start:starts.(at)
+        stop:stops.(at)
+        ~(start= -1 /\ stop= -1)?
+            (start<0 \/ stop<start \/ stop>size)? @:false
+            (~boundaries.(start) \/ ~boundaries.(stop))? @:false
+        .at:at+1
+    @:true
+
+
+# Capture the anchor command's actual parser operation, never the scene ordering
+# sentinel or the visible glyph carrying its destination. Payload IDs stay payload.
+a272_anchor_origins(q:Packet,scope:str):
+    count:q.a272_anchor_operations.length()
+    (count=q.a272_anchor_ids.length())?! "Invalid anchor provenance columns"
+    (a266_scalar_spans_valid(q.a260_text,q.a260_starts,q.a260_stops))?! "Invalid anchor parser spans"
+    [int] starts:[-1:count]
+    [int] stops:[-1:count]
+    at:0
+    at<count?>
+        operation:q.a272_anchor_operations.(at)
+        ((operation>=0 /\ operation<q.a260_starts.length()))?! "Anchor operation outside parser"
+        ((q.a260_starts.(operation)>=0 /\ q.a260_stops.(operation)>=q.a260_starts.(operation)))?! "Unknown anchor parser span"
+        starts.(at):q.a260_starts.(operation)
+        stops.(at):q.a260_stops.(operation)
+        .at:at+1
+    @:(scope:scope,text:q.a260_text,ids:q.a272_anchor_ids,operations:q.a272_anchor_operations,starts:starts,stops:stops)
+
+# Actual event-to-retained-scene assignment captured where mark/edit occurs.
+# Scene indices are current-layout selectors only; no destination-name search.
+# This is not yet final page destination association or reuse authorization.
+a277_anchor_placements(q:Packet):
+    count:q.a272_anchor_operations.length()
+    (count=q.a277_anchor_scenes.length() /\ count=q.a272_anchor_ids.length())?! "Invalid anchor placement columns"
+    i:0
+    i<count?>
+        target:q.a277_anchor_scenes.(i)
+        (target>=0 /\ target<q.scene_count /\ target<q.scenes.count)?! "Unbound anchor placement"
+        .i:i+1
+    @:(scenes:q.a277_anchor_scenes,scene_count:q.scene_count)
+
+# Event-aligned actual mark receipt, not name/geometry-based association.
+# Unknown pairs are transport only; a280_emitted_anchor rejects them for binding.
+a280_anchor_receipts(q:Packet):
+    count:q.a272_anchor_operations.length()
+    (count=q.a280_anchor_leaves.length() /\ count=q.a280_anchor_slots.length())?! "Invalid anchor receipt columns"
+    i:0
+    i<count?>
+        leaf:q.a280_anchor_leaves.(i)
+        slot:q.a280_anchor_slots.(i)
+        ((leaf= -1 /\ slot= -1) \/ (leaf>=0 /\ slot>=0))?! "Invalid anchor receipt pair"
+        .i:i+1
+    @:(leaves:q.a280_anchor_leaves,slots:q.a280_anchor_slots)
+
+# Compose an individual bound event with the A278 emission map.
+# Selectors are never stable semantic IDs. Owner/source binding remains required.
+a280_emitted_anchor(leaves:[int],slots:[int],event:int,retained_to_leaf:[int],destination_counts:[int]):
+    (leaves.length()=slots.length() /\ event>=0 /\ event<leaves.length())?! "Invalid anchor event"
+    retained:leaves.(event)
+    (retained>=0 /\ retained<retained_to_leaf.length())?! "Unknown anchor leaf"
+    leaf:retained_to_leaf.(retained)
+    (leaf>=0 /\ leaf<destination_counts.length())?! "Unemitted anchor leaf"
+    slot:slots.(event)
+    (slot>=0 /\ slot<destination_counts.(leaf))?! "Invalid anchor occurrence"
+    @:(leaf:leaf,slot:slot)
+
+# Generated point occurrences are a separate channel from leaf destinations.
+# Current-layout selectors only; owner/span binding is still required for reuse.
+A282PointReceipts:(points:[int])
+a282_point_receipts(q:Packet)->A282PointReceipts:
+    count:q.a272_anchor_operations.length()
+    (count=q.a282_anchor_points.length() /\ count=q.a280_anchor_leaves.length() /\ count=q.a280_anchor_slots.length() /\ count=q.a277_anchor_scenes.length())?! "Invalid point receipt columns"
+    i:0
+    i<count?>
+        point:q.a282_anchor_points.(i)
+        (point>= -1)?! "Invalid point sentinel"
+        point>=0?
+            (q.a280_anchor_leaves.(i)= -1 /\ q.a280_anchor_slots.(i)= -1)?! "Ambiguous anchor receipt channels"
+            scene:q.a277_anchor_scenes.(i)
+            (scene>=0 /\ scene<q.scenes.count)?! "Unknown point scene"
+            (point<q.scenes.anchor_count /\ point>=q.scenes.anchor_firsts.(scene) /\ point<q.scenes.anchor_firsts.(scene)+q.scenes.anchor_counts.(scene))?! "Point outside actual scene"
+            (q.scenes.anchor_scenes.(point)=scene)?! "Point scene mismatch"
+        .i:i+1
+    @:(points:q.a282_anchor_points,)
+
+# A278 preserves flat anchor encounter order during placement. No name lookup.
+a282_emitted_point(points:[int],event:int,anchor_count:int)->int:
+    (event>=0 /\ event<points.length())?! "Invalid point event"
+    point:points.(event)
+    (point>=0 /\ point<anchor_count)?! "Unknown or unemitted point"
+    @:point
+
+# Preserve the existing Scene API; mapped entry returns the same single layout.
+from_paragraph(q:Packet)->Scene:
+    @:a278_from_paragraph_mapped(q).scene
+
+# Range validation never turns empty scenes or unknown mappings into leaf IDs.
+a278_range_valid(first:int,count:int,total:int)->bit:
+    @:first>=0 /\ count>=0 /\ total>=0 /\ first<=total /\ count<=total-first
+
+a278_from_paragraph_owned_mapped(q:Packet,scope:str):
+    (scope~="")?! "Missing edit-owner scope"
+    out:a278_from_paragraph_mapped(q)
+    scene:out.scene
+    arena:scene.arena
+    scopes:arena.a260_scopes
+    i:0
+    i<arena.count?>
+        scopes.(i):scope
+        .i:i+1
+    arena.a260_scopes:scopes
+    scene.arena:arena
+    out.scene:scene
+    @:out
+
+# Event to FINAL emitted range, without destination-name/geometry matching.
+# A range is placement evidence, NOT exact destination-slot ownership or reuse.
+a278_anchor_ranges(scenes:[int],firsts:[int],counts:[int],total:int):
+    (firsts.length()=counts.length())?! "Invalid emitted range columns"
+    [int] event_firsts:[-1:scenes.length()]
+    [int] event_counts:[0:scenes.length()]
+    i:0
+    i<scenes.length()?>
+        scene:scenes.(i)
+        (scene>=0 /\ scene<firsts.length())?! "Unbound emitted scene"
+        first:firsts.(scene)
+        count:counts.(scene)
+        (a278_range_valid(first,count,total))?! "Invalid emitted leaf range"
+        event_firsts.(i):first
+        event_counts.(i):count
+        .i:i+1
+    @:(firsts:event_firsts,counts:event_counts)
+
+# Compose receipts at the actual Fragment emission boundary. These are selectors
+# into THIS result, never semantic identity or permission to reuse an old result.
+a283_final_anchors(q:Packet,scene:Scene,retained_to_leaf:[int],scene_firsts:[int],scene_counts:[int]):
+    receipts:a280_anchor_receipts(q)
+    points:a282_point_receipts(q)
+    placements:a277_anchor_placements(q)
+    origins:a272_anchor_origins(q,"")
+    ranges:a278_anchor_ranges(placements.scenes,scene_firsts,scene_counts,scene.arena.count)
+    count:origins.operations.length()
+    [int] leaves:[-1:count]
+    [int] slots:[-1:count]
+    [int] emitted_points:[-1:count]
+    i:0
+    i<count?>
+        points.points.(i)>=0?
+            point:a282_emitted_point(points.points,i,scene.anchor_count)
+            (point<scene.anchor_ids.length() /\ scene.anchor_ids.(point)=origins.ids.(i))?! "Point destination payload mismatch"
+            emitted_points.(i):point
+        points.points.(i)<0?
+            bound:a280_emitted_anchor(receipts.leaves,receipts.slots,i,retained_to_leaf,scene.arena.destination_counts)
+            (bound.leaf>=ranges.firsts.(i) /\ bound.leaf<ranges.firsts.(i)+ranges.counts.(i))?! "Anchor leaf outside emitted scene"
+            retained:receipts.leaves.(i)
+            owner:placements.scenes.(i)
+            (retained>=q.scenes.firsts.(owner) /\ retained<q.scenes.firsts.(owner)+q.scenes.counts.(owner))?! "Anchor retained owner mismatch"
+            (bound.leaf<scene.arena.destination_firsts.length())?! "Missing destination prefix"
+            first:scene.arena.destination_firsts.(bound.leaf)
+            (a278_range_valid(first,scene.arena.destination_counts.(bound.leaf),scene.arena.destination_ids.length()))?! "Invalid destination prefix"
+            (scene.arena.destination_ids.(first+bound.slot)=origins.ids.(i))?! "Leaf destination payload mismatch"
+            leaves.(i):bound.leaf
+            slots.(i):bound.slot
+        prior:0
+        prior<i?>
+            (~(emitted_points.(i)>=0 /\ emitted_points.(prior)=emitted_points.(i)))?! "Duplicate emitted point receipt"
+            (~(leaves.(i)>=0 /\ leaves.(prior)=leaves.(i) /\ slots.(prior)=slots.(i)))?! "Duplicate emitted leaf receipt"
+            .prior:prior+1
+        .i:i+1
+    @:(leaves:leaves,slots:slots,points:emitted_points)

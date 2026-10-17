@@ -1,0 +1,99 @@
+# Native math glyph selection and noad kerns. Metrics retain their complete
+# generic font record so future layout never loses optional font information.
+catalog:.frozen285_font_catalog
+j:.frozen285_resource_json
+text:.frozen285_tex_text
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Glyph:(token:str,key:str,width:num,height:num,depth:num,class_id:int,italic:num,character:bit,metric:str,diagnostic:str,placeholder:bit)
+
+style_name(style:int)->str:
+    style=0? @:"display"
+    style=1? @:"text"
+    style=2? @:"script"
+    (style=3)?! "Invalid math style"
+    @:"scriptscript"
+
+class_id(name:str)->int:
+    name="op"? @:1
+    name="bin"? @:2
+    name="rel"? @:3
+    name="open"? @:4
+    name="close"? @:5
+    name="punct"? @:6
+    name="inner"? @:7
+    @:0
+
+numeric(tape:Tape,node:int,key:str,fallback:num=0)->num:
+    index:j.member(tape,node,key)
+    index<0? @:fallback
+    tape.kinds.(index)=7? @:fallback
+    @:j.number(tape,index)
+
+string(tape:Tape,key:str,fallback:str="")->str:
+    index:j.member(tape,0,key)
+    index<0? @:fallback
+    @:j.string(tape,index)
+
+hole(fonts:Catalog,style:int,diagnostic:str="")->Glyph:
+    profile:catalog.style(fonts,style_name(style))
+    size:numeric(profile,0,"em")*0.32
+    @:(token:"",key:"",width:size,height:size,depth:0,class_id:0,italic:0,character:false,metric:"",diagnostic:diagnostic,placeholder:true)
+
+ascii_alphanumeric(token:str)->bit:
+    text.byte_length(token)~=1? @:false
+    @:(token>="A" /\ token<="Z") \/ (token>="a" /\ token<="z") \/ (token>="0" /\ token<="9")
+
+glyph(fonts:Catalog,token:str,style:int,active_font:str="")->Glyph:
+    name:style_name(style)
+    active_font="boldsymbol" /\ text.matches(token,0,"@latexsym:")? @:hole(fonts,style,"Bold latexsym font is unavailable")
+    chosen:token
+    active_font~="" /\ ~text.matches(token,0,"@")?
+        key:"@font:"&active_font&":"&token
+        exists:catalog.find(fonts,"math/"&name&"/"&key).found
+        exists?
+            .chosen:key
+        ~exists /\ ascii_alphanumeric(token)?
+            @:hole(fonts,style,"Unsupported "&active_font&" character: "&token)
+    raw:catalog.raw(fonts,"math/"&name&"/"&chosen)
+    raw=""? @:hole(fonts,style,"Missing native glyph: "&chosen&" ("&name&")")
+    metric:j.parse(raw)
+    (metric.valid)?! "Invalid native glyph record"
+    klass:class_id(string(metric,"class"))
+    @:(token:chosen,key:name&"/"&chosen,width:numeric(metric,0,"width"),height:numeric(metric,0,"height"),depth:numeric(metric,0,"depth"),class_id:klass,italic:numeric(metric,0,"italic"),character:klass~=1,metric:raw,diagnostic:"",placeholder:false)
+
+text_token(fonts:Catalog,chars:str,font:str,style:int)->str:
+    prefix:"math/"&style_name(style)&"/"
+    font="mathrm"?
+        catalog.find(fonts,prefix&"@text:"&chars).found? @:"@text:"&chars
+        @:"@roman:"&chars
+    catalog.find(fonts,prefix&"@font:"&font&":"&chars).found? @:"@font:"&font&":"&chars
+    catalog.find(fonts,prefix&"@text:"&chars).found? @:"@text:"&chars
+    @:"@roman:"&chars
+
+has_family(font:str,family:str)->bit:
+    ~text.matches(font,0,family)? @:false
+    vkf_string_eof(font,text.byte_length(family))? @:false
+    next:text.at(font,text.byte_length(family))
+    @:next>="0" /\ next<="9"
+
+math_italic(font:str)->bit:has_family(font,"cmmi") \/ has_family(font,"cmmib")
+
+kern_family(font:str)->bit:
+    @:has_family(font,"cmr") \/ has_family(font,"cmbx") \/ has_family(font,"cmti") \/ has_family(font,"cmbxti") \/ has_family(font,"cmss") \/ has_family(font,"cmssi") \/ has_family(font,"cmtt") \/ math_italic(font)
+
+kern(previous:Glyph,current:Glyph,text_mode:bit=false)->num:
+    (previous.placeholder \/ current.placeholder)? @:0
+    ~text_mode /\ (previous.class_id~=0 \/ current.class_id=7)? @:0
+    prior:j.parse(previous.metric)
+    next:j.parse(current.metric)
+    font:string(prior,"fontName")
+    (font="" \/ font~=string(next,"fontName"))? @:0
+    ~text_mode /\ ~kern_family(font)? @:0
+    kerns:j.member(prior,0,"kerns")
+    width:0.0
+    kerns>=0?
+        code:numeric(next,0,"fontCode",-1)
+        code>=0? .width:numeric(prior,kerns,text.integer(int(code)))
+    ~text_mode /\ ~math_italic(font)? .width:width-previous.italic
+    @:width

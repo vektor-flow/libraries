@@ -1,0 +1,22 @@
+g:.math_glyphs
+f:.font_catalog
+data:.test_font_data
+
+renderer_tests()->bit:
+    keys:["style/display","math/display/a","math/display/b","math/display/@font:mathbf:a","math/display/@text:ffi"]
+    values:["{\"em\":10}","{\"width\":5,\"height\":7,\"depth\":1,\"class\":\"ord\",\"italic\":0.25,\"fontName\":\"cmr10\",\"fontCode\":97,\"kerns\":{\"98\":-0.75}}","{\"width\":6,\"height\":4,\"depth\":0,\"class\":\"ord\",\"fontName\":\"cmr10\",\"fontCode\":98}","{\"width\":7,\"height\":8,\"depth\":0,\"class\":\"ord\"}","{}"]
+    fonts:f.load(data.pack(keys,values))
+    a:g.glyph(fonts,"a",0)
+    b:g.glyph(fonts,"b",0)
+    (a.width=5 /\ a.height=7 /\ a.depth=1 /\ a.character /\ ~a.placeholder)?! "native glyph box"
+    (g.kern(a,b)= -1 /\ g.kern(a,b,true)= -0.75)?! "noad kern subtracts italic, text kern does not"
+    bold:g.glyph(fonts,"a",0,"mathbf")
+    (bold.width=7 /\ bold.key="display/@font:mathbf:a")?! "active font lookup"
+    missing:g.glyph(fonts,"b",0,"mathbf")
+    (missing.placeholder /\ missing.width=3.2 /\ missing.diagnostic="Unsupported mathbf character: b")?! "unsupported font diagnostic"
+    absent:g.glyph(fonts,"?",0)
+    (absent.placeholder /\ absent.diagnostic="Missing native glyph: ? (display)")?! "missing native glyph diagnostic"
+    (g.text_token(fonts,"ffi","mathrm",0)="@text:ffi" /\ g.text_token(fonts,"x","mathrm",0)="@roman:x")?! "text ligature token and fallback"
+    (g.kern_family("cmbxti12") /\ ~g.kern_family("cmr") /\ ~g.kern_family("cmsy10") /\ g.math_italic("cmmib7"))?! "native kern family matcher"
+    @:true
+renderer_tests()

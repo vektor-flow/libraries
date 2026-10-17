@@ -1,0 +1,33 @@
+t:.tex_theorems
+j:.resource_json
+
+declarations():
+    result:t.extract("A\\newtheorem{theorem}{Theorem}[section]B\\theoremstyle{remark}\\newtheorem{note}[theorem]{Note}C\\newtheorem*{claim}{Claim}D")
+    (result.source="ABCD" /\ result.count=3)?! "remove only theorem declarations"
+    tape:j.parse(result.declarations)
+    first:j.element(tape,0,0)
+    (j.string(tape,j.member(tape,first,"name"))="theorem")?! "theorem name"
+    (j.string(tape,j.member(tape,first,"style"))="plain")?! "initial style"
+    (j.string(tape,j.member(tape,first,"within"))="section")?! "scoped counter"
+    second:j.element(tape,0,1)
+    (j.string(tape,j.member(tape,second,"shared"))="theorem")?! "shared counter"
+    (j.string(tape,j.member(tape,second,"style"))="remark")?! "selected style"
+    last:j.element(tape,0,2)
+    (tape.kinds.(j.member(tape,last,"star"))=5)?! "unnumbered theorem"
+
+literal_and_custom_metadata():
+    source:"\\url{a/\\newtheorem{x}{Y}}% \\theoremstyle{fake}\n\\verb|\\newtheorem{x}{Y}|\\begin{verbatim}\\newtheorem{x}{Y}\\end{verbatim}"
+    protected:t.extract(source)
+    (protected.source=source /\ protected.count=0)?! "literal declarations and comments preserved"
+    custom:t.extract("\\theoremstyle{custom}\\newtheorem{α}{A \"quote\" \\textit{title}}")
+    tape:j.parse(custom.declarations)
+    first:j.element(tape,0,0)
+    (j.string(tape,j.member(tape,first,"title"))="A \"quote\" \\textit{title}")?! "title formatting and JSON escaping"
+    (j.string(tape,j.member(tape,first,"name"))="α")?! "Unicode metadata"
+    (j.string(tape,j.member(tape,first,"style"))="custom")?! "custom style retained"
+
+renderer_tests()->bit:
+    declarations()
+    literal_and_custom_metadata()
+    @:true
+renderer_tests()

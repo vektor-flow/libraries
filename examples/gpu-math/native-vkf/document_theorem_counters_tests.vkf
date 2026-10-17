@@ -1,0 +1,10 @@
+c:.document_theorem_counters
+renderer_tests()->bit:
+    declarations:"[{\"name\":\"theorem\",\"shared\":null,\"within\":\"section\"},{\"name\":\"definition\",\"shared\":\"theorem\",\"within\":null},{\"name\":\"example\",\"shared\":\"definition\",\"within\":null}]"
+    (c.root(declarations,"definition")="theorem")?! "Shared declaration resolves before parent use"
+    (c.root(declarations,"example")="theorem")?! "Transitive shared counter retains root"
+    (c.within(declarations,"example")="section")?! "Numbering scope is inherited from declaration"
+    (c.root("[]","independent")="independent")?! "Independent counter is unchanged"
+    (c.within("[]","independent")="")?! "Unscoped counter stays unscoped"
+    @:true
+renderer_tests()

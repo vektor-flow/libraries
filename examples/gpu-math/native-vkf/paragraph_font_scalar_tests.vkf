@@ -1,0 +1,48 @@
+p:.paragraph_inline_nodes
+metrics:.text_font_metrics
+catalog:.font_catalog
+data:.test_font_data
+fonts():
+    keys:["font/roman","font/italic"]
+    values:["{\"size\":10,\"spaces\":{\"space\":3,\"stretch\":1.25,\"shrink\":0.5,\"extraspace\":3,\"quad\":10,\"slant\":0}}","{\"size\":12,\"spaces\":{\"space\":4,\"stretch\":2.5,\"shrink\":0.75,\"extraspace\":4,\"quad\":12,\"slant\":0.25}}"]
+    @:catalog.load(data.pack(keys,values))
+renderer_tests()->bit:
+    fonts:fonts()
+    initial:p.empty_cache()
+    first:metrics.context(initial.fonts,fonts,"roman")
+    cache:p.with_fonts(initial,first.state)
+    state:cache.fonts
+    (p.font_stretch(cache.fonts,0)=first.stretch)?! "Decoded roman stretch"
+    (p.font_stretch(cache.fonts,0)=cache.fonts.role_stretches.(0))?! "Original nested roman stretch"
+    (p.font_shrink(cache.fonts,0)=first.shrink)?! "Decoded roman shrink"
+    (p.font_shrink(cache.fonts,0)=cache.fonts.role_shrinks.(0))?! "Original nested roman shrink"
+    (p.font_extra(cache.fonts,0)=first.extra)?! "Decoded roman extra"
+    (p.font_extra(cache.fonts,0)=cache.fonts.role_extras.(0))?! "Original nested roman extra"
+    (p.font_size(cache.fonts,0)=first.size)?! "Decoded roman size"
+    (p.font_size(cache.fonts,0)=cache.fonts.role_sizes.(0))?! "Original nested roman size"
+    (p.font_quad(cache.fonts,0)=first.quad)?! "Decoded roman quad"
+    (p.font_quad(cache.fonts,0)=cache.fonts.role_quads.(0))?! "Original nested roman quad"
+    (p.font_slant(cache.fonts,0)=first.slant)?! "Decoded roman slant"
+    (p.font_slant(cache.fonts,0)=cache.fonts.role_slants.(0))?! "Original nested roman slant"
+    second:metrics.context(state,fonts,"italic")
+    next:p.with_fonts(cache,second.state)
+    (p.font_stretch(next.fonts,1)=second.stretch)?! "Decoded italic stretch"
+    (p.font_stretch(next.fonts,1)=next.fonts.role_stretches.(1))?! "Original nested italic stretch"
+    (p.font_stretch(cache.fonts,0)=first.stretch)?! "Prior cache remains unchanged stretch"
+    (p.font_shrink(next.fonts,1)=second.shrink)?! "Decoded italic shrink"
+    (p.font_shrink(next.fonts,1)=next.fonts.role_shrinks.(1))?! "Original nested italic shrink"
+    (p.font_shrink(cache.fonts,0)=first.shrink)?! "Prior cache remains unchanged shrink"
+    (p.font_extra(next.fonts,1)=second.extra)?! "Decoded italic extra"
+    (p.font_extra(next.fonts,1)=next.fonts.role_extras.(1))?! "Original nested italic extra"
+    (p.font_extra(cache.fonts,0)=first.extra)?! "Prior cache remains unchanged extra"
+    (p.font_size(next.fonts,1)=second.size)?! "Decoded italic size"
+    (p.font_size(next.fonts,1)=next.fonts.role_sizes.(1))?! "Original nested italic size"
+    (p.font_size(cache.fonts,0)=first.size)?! "Prior cache remains unchanged size"
+    (p.font_quad(next.fonts,1)=second.quad)?! "Decoded italic quad"
+    (p.font_quad(next.fonts,1)=next.fonts.role_quads.(1))?! "Original nested italic quad"
+    (p.font_quad(cache.fonts,0)=first.quad)?! "Prior cache remains unchanged quad"
+    (p.font_slant(next.fonts,1)=second.slant)?! "Decoded italic slant"
+    (p.font_slant(next.fonts,1)=next.fonts.role_slants.(1))?! "Original nested italic slant"
+    (p.font_slant(cache.fonts,0)=first.slant)?! "Prior cache remains unchanged slant"
+    @:true
+renderer_tests()

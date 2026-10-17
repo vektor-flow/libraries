@@ -1,0 +1,63 @@
+p:.document_project
+paths:.project_paths
+text:.tex_text
+
+relative_paths():
+    result:paths.canonical("../common.tex","sections/a.tex")
+    (result.valid /\ result.value="common.tex")?! "parent relative include"
+    (paths.canonical("./one//two/../three").value="one/three")?! "canonical components"
+    (~paths.canonical("../secret").valid)?! "escape project root"
+    (~paths.canonical("/etc/passwd").valid)?! "absolute path"
+    (~paths.canonical("https:source").valid)?! "URI scheme"
+    (~paths.canonical("a\\b").valid)?! "host separator"
+    (~paths.canonical("a"&str(chr(0))&"b").valid)?! "zero in filename"
+    (paths.canonical("α/../é.tex").value="é.tex")?! "Unicode path"
+    (paths.has_extension("dir/a.tex") /\ ~paths.has_extension("dir.tex/a"))?! "last component extension"
+
+nested_inputs():
+    files:"{\"sections/a.tex\":\"A \\\\input{../common.tex}\",\"common.tex\":\"B\",\"paper.bbl\":\"\\\\begin{thebibliography}{1}ref\\\\end{thebibliography}\"}"
+    source:"\\input{sections/a} % \\input{missing}\n\\verb|\\input{also-missing}|\\begin{verbatim}\\input{not-code}\\end{verbatim}\n\\bibliographystyle{siam}\\bibliography{database}"
+    result:p.resolve(source,files,"paper","paper.tex")
+    (result.diagnostic_count=0 /\ result.input_count=3)?! "nested project and job bibliography"
+    (p.input_name(result,0)="sections/a.tex" /\ p.input_name(result,1)="common.tex" /\ p.input_name(result,2)="paper.bbl")?! "ordered project inputs"
+    (text.find(result.source,"A \nB\n")>=0)?! "expanded relative input"
+    (text.find(result.source,"input{not-code}")>=0 /\ text.find(result.source,"input{missing}")>=0)?! "literal and comment inputs preserved"
+    (text.find(result.source,"bibliographystyle")<0 /\ text.find(result.source,"ref\\end")>=0)?! "job bibliography insertion"
+
+errors_and_cycles():
+    missing:p.resolve("prefix \\input{missing} suffix")
+    (missing.source="prefix \\input{missing} suffix")?! "missing command retained with prefix"
+    (missing.diagnostic_count=1 /\ text.find(missing.diagnostics,"Missing project input: missing.tex")>=0)?! "missing input diagnostic"
+    escape:p.resolve("\\input{../secret}")
+    (text.find(escape.diagnostics,"escapes root")>=0)?! "path escape diagnostic"
+    files:"{\"a.tex\":\"A \\\\input{b}\",\"b.tex\":\"B \\\\input{a}\"}"
+    cycle:p.resolve("\\input{a}",files)
+    (cycle.diagnostic_count=1 /\ cycle.input_count=2)?! "cycle terminates"
+    (text.find(cycle.diagnostics,"Cyclic project input: a.tex")>=0)?! "cycle names active file"
+    (text.find(cycle.source,"A \nB \\input{a}")>=0)?! "preserve deepest cyclic command only"
+
+literal_targets_and_biblatex():
+    literal:"\\url{https://a.test/\\input{missing}%20} \\href{https://a.test/\\input{x}}{label} \\begin{lstlisting}\\input{code}\\end{lstlisting}"
+    protected:p.resolve(literal)
+    (protected.source=literal /\ protected.diagnostic_count=0)?! "URL, href and listing payloads"
+    bib:p.resolve("\\usepackage[backend=biber]{amsmath,biblatex}\\bibliography{refs}")
+    (bib.diagnostic_count=0 /\ text.find(bib.source,"bibliography{refs}")>=0)?! "biblatex retains database declaration"
+    fake:p.resolve("% \\usepackage{biblatex}\n\\bibliography{refs}")
+    (fake.diagnostic_count=1)?! "comment is not a package declaration"
+
+repeat_inputs_and_file_objects():
+    files:"{\"a.tex\":{\"text\":\"α\"},\"bare\":\"B\",\"empty.tex\":\"\"}"
+    result:p.resolve("\\input{a}\\include{a.tex}\\input bare \\input{empty}",files)
+    (result.diagnostic_count=0 /\ result.input_count=3)?! "unique inputs and file objects"
+    (result.source="\nα\n\nα\n\nB\n \n\n")?! "repeat input is actually expanded and empty file succeeds"
+    changed:p.resolve("\\input{a}","{\"a.tex\":\"changed\"}")
+    (changed.source="\nchanged\n")?! "fresh project data per invocation"
+
+renderer_tests()->bit:
+    relative_paths()
+    nested_inputs()
+    errors_and_cycles()
+    literal_targets_and_biblatex()
+    repeat_inputs_and_file_objects()
+    @:true
+renderer_tests()

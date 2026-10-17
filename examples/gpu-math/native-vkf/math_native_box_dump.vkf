@@ -1,0 +1,18 @@
+native_box_io:.io
+native_box_kernel:.math_native_box_kernel
+native_box_font_loader:.font_catalog
+native_box_checker:.math_display_metrics_kernel
+run()->int:
+    fonts:native_box_font_loader.load(native_box_io.read_text(native_box_io.read_line()))
+    count:int(vkf_decimal_parse(native_box_io.read_line()))
+    index:0
+    index<count?>
+        request:native_box_io.read_text(native_box_io.read_line())
+        expected:native_box_io.read_text(native_box_io.read_line())
+        output:native_box_io.read_line()
+        actual:native_box_kernel.json(fonts,request)
+        native_box_io.write_text(output,actual)
+        native_box_checker.assert_projection(expected,actual)?! "Retained TikZ native boxes match actual JS math extension"
+        .index:index+1
+    @:0
+run()

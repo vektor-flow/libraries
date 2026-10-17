@@ -1,0 +1,60 @@
+# Project-relative names shared by the native host and browser/WASM core.
+text:.tex_text
+Path:(value:str,valid:bit,error:int)
+
+ascii_letter(c:str)->bit:(c>="a" /\ c<="z") \/ (c>="A" /\ c<="Z")
+
+canonical(name:str,from:str="")->Path:
+    size:text.byte_length(name)
+    size>0?
+        text.at(name,0)="/"? @:(value:"",valid:false,error:1)
+    index:0
+    scheme:true
+    last_slash: -1
+    index<size?>
+        c:text.at(name,index)
+        (c="\\" \/ c=str(chr(0)))? @:(value:"",valid:false,error:1)
+        scheme /\ index>0 /\ c=":"? @:(value:"",valid:false,error:1)
+        ~ascii_letter(c)? .scheme:false
+        .index:text.next(name,index)
+    .index:0
+    from_size:text.byte_length(from)
+    index<from_size?>
+        text.at(from,index)="/"? .last_slash:index
+        .index:text.next(from,index)
+    joined:text.span(from,0,last_slash+1)&name
+    length:text.byte_length(joined)
+    [int] ends:[0:length+1]
+    count:0
+    position:0
+    result:""
+    position<length?>
+        begin:position
+        position<length /\ text.at(joined,position)~="/"?> .position:text.next(joined,position)
+        part:text.span(joined,begin,position)
+        .position:position+1
+        (part="" \/ part=".")? @>
+        part=".."?
+            count=0? @:(value:"",valid:false,error:2)
+            .count:count-1
+            stop:0
+            count>0? .stop:ends.(count-1)
+            .result:text.span(result,0,stop)
+            @>
+        count>0? .result:result&"/"
+        .result:result&part
+        ends.(count):text.byte_length(result)
+        .count:count+1
+    @:(value:result,valid:true,error:0)
+
+has_extension(path:str)->bit:
+    last_slash: -1
+    last_dot: -1
+    index:0
+    size:text.byte_length(path)
+    index<size?>
+        c:text.at(path,index)
+        c="/"? .last_slash:index
+        c="."? .last_dot:index
+        .index:text.next(path,index)
+    @:last_dot>last_slash /\ last_dot<size-1

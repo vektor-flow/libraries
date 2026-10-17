@@ -1,0 +1,13 @@
+document_scene_json:.document_scene_json
+renderer_tests()->bit:
+    scene:document_scene_json.decode("{\"items\":[{\"kind\":\"glyph\",\"key\":\"text/roman65\",\"x\":1,\"y\":2},{\"kind\":\"bezier\",\"x\":3,\"y\":4,\"delta\":[5,6],\"controls\":[{\"x\":7,\"y\":8},{\"x\":9,\"y\":10}],\"lineWidth\":0.5,\"color\":[1,0,0,0.5],\"crop\":[null,3],\"destinationIds\":[\"a\"]}],\"destinations\":[{\"id\":\"point\",\"x\":11,\"y\":12}],\"width\":13,\"height\":14,\"depth\":15}")
+    (scene.arena.count=2 /\ scene.width=13 /\ scene.arena.keys.(0)="text/roman65")?! "decoded glyph and metrics"
+    p:scene.arena.payload_table.(0)
+    (p.dx=5 /\ p.dy=6 /\ p.c1x=7 /\ p.c2y=10)?! "decoded cubic geometry"
+    (p.crop_y /\ ~p.crop_top /\ p.crop_bottom /\ p.bottom=3)?! "null crop fallback"
+    (scene.arena.paint_table.(0).alpha=0.5 /\ scene.arena.destination_ids.(0)="a")?! "paint and destination ids"
+    (scene.anchor_count=1 /\ scene.anchor_ids.(0)="point" /\ scene.anchor_xs.(0)=11)?! "standalone anchor"
+    empty:document_scene_json.empty()
+    (empty.arena.count=0)?! "empty scene"
+    @:true
+renderer_tests()

@@ -1,0 +1,37 @@
+p:.tex_definitions
+names:.tex_names
+collections:.collections
+
+store_definitions():
+    empty:p.create(2)
+    first:p.define(empty,"foo",2,"#1+#2")
+    id:names.get(first.names,"foo")
+    (id=0 /\ first.count=1)?! "definition identifier"
+    (p.body(first,id)="#1+#2" /\ first.counts.(id)=2)?! "definition body and arity"
+    optional:p.define(first,"bar",1,"x#1",true,"label")
+    (p.default(optional,1)="label" /\ optional.optional.(1)=1)?! "optional default"
+    replacement:p.define(optional,"foo",0,"replacement")
+    (p.body(replacement,0)="replacement" /\ replacement.count=2)?! "replace macro"
+    provided:p.define(replacement,"foo",0,"ignored",false,"",true)
+    (p.body(provided,0)="replacement")?! "providecommand preserves a definition"
+    (names.get(empty.names,"foo")= -1)?! "independent prior state"
+
+substitution():
+    starts:collections.list(0,1)
+    stops:collections.list(1,2)
+    (p.substitute("#1+#2+#1","xy",starts,stops)="x+y+x")?! "ordered repeated parameters"
+    (p.substitute("\\alpha#1","x",collections.list(0),collections.list(1))="\\alpha x")?! "control-word parameter boundary"
+    (p.substitute("#1z","\\alpha",collections.list(0),collections.list(6))="\\alpha z")?! "parameter control-word suffix"
+    (p.substitute("literal # x","",collections.list(0),collections.list(0))="literal # x")?! "literal hash"
+
+control_boundaries():
+    p.ends_control_word("before \\alpha")?! "word control suffix"
+    (~p.ends_control_word("\\alpha{x}"))?! "group ends suffix"
+    (~p.ends_control_word("\\%"))?! "control symbol suffix"
+
+renderer_tests()->bit:
+    store_definitions()
+    substitution()
+    control_boundaries()
+    @:true
+renderer_tests()

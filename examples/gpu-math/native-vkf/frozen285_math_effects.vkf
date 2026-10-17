@@ -1,0 +1,211 @@
+# Counter/reference effects are replayed independently of retained geometry.
+# complete=false means QED state was encountered: caller must not apply a
+# partial result as a complete replay of all stateful layout semantics.
+references:.frozen285_math_references
+tags:.frozen285_math_tags
+parser:.frozen285_math_parser
+glyphs:.frozen285_math_glyphs
+j:.frozen285_resource_json
+text:.frozen285_tex_text
+tokens:.frozen285_math_tokens
+Arena:(kinds:[str],attrs:[str],first:[int],last:[int],nexts:[int],a:[int],b:[int],sup:[int],sub:[int],limits:[int],count:int,diagnostics:str,atoms:int)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+References:(keys:Pool,values:[str])
+
+row_info(arena:Arena,row:int):
+    firsts:arena.first
+    nexts:arena.nexts
+    kinds:arena.kinds
+    attrs:arena.attrs
+    custom: -1
+    no_number:false
+    cell:firsts.(row)
+    cell>=0?>
+        child:firsts.(cell)
+        child>=0?>
+            (kinds.(child)="tag" /\ custom<0)? .custom:child
+            data:j.parse("{"&attrs.(child)&"}")
+            field:j.member(data,0,"noNumber")
+            field>=0?
+                types:data.kinds
+                types.(field)=5? .no_number:true
+            .child:nexts.(child)
+        .cell:nexts.(cell)
+    @:(custom:custom,no_number:no_number)
+
+labels(arena:Arena,row:int,refs:References,value:str)->References:
+    firsts:arena.first
+    nexts:arena.nexts
+    kinds:arena.kinds
+    attrs:arena.attrs
+    out:refs
+    cell:firsts.(row)
+    cell>=0?>
+        child:firsts.(cell)
+        child>=0?>
+            kinds.(child)="label"?
+                data:j.parse("{"&attrs.(child)&"}")
+                .out:references.put(out,glyphs.string(data,"key"),value)
+            .child:nexts.(child)
+        .cell:nexts.(cell)
+    @:out
+
+replay(arena:Arena,list:int,start_number:int,refs:References):
+    firsts:arena.first
+    nexts:arena.nexts
+    kinds:arena.kinds
+    attrs:arena.attrs
+    arguments:arena.a
+    denominators:arena.b
+    supers:arena.sup
+    subs:arena.sub
+    number:start_number
+    out:refs
+    complete:true
+    stack:parser.nil(arena.count*5+16)
+    modes:parser.nil(arena.count*5+16)
+    top:0
+    stack.(0):list
+    modes.(0):0
+    top>=0?>
+        node:stack.(top)
+        mode:modes.(top)
+        .top:top-1
+        node<0? @>
+        node<arena.count?! "Invalid effect node"
+        # Cursor modes preserve source order without visiting external siblings
+        # of a root atom.8 skips tags removed by non-equation matrix layout.
+        (mode=1 \/ mode=8)?
+            .top:top+1
+            stack.(top):nexts.(node)
+            modes.(top):mode
+            (mode=1 \/ kinds.(node)~="tag")?
+                .top:top+1
+                stack.(top):node
+                modes.(top):0
+            .mode:mode
+            @>
+        (mode=4 \/ mode=6)?
+            .top:top+1
+            stack.(top):nexts.(node)
+            modes.(top):mode
+            .top:top+1
+            stack.(top):firsts.(node)
+            modes.(top):mode+1
+            .mode:mode
+            @>
+        (mode=5 \/ mode=7)?
+            .top:top+1
+            stack.(top):nexts.(node)
+            modes.(top):mode
+            .top:top+1
+            stack.(top):node
+            modes.(top):0
+            mode=7?
+                stack.(top):firsts.(node)
+                modes.(top):8
+            .mode:mode
+            @>
+        kind:kinds.(node)
+        data:j.parse("{"&attrs.(node)&"}")
+        mode=2?
+            auto:glyphs.string(data,"name")="equation"
+            row:firsts.(arguments.(node))
+            row>=0?>
+                info:row_info(arena,row)
+                (info.no_number \/ info.custom>=0)? .auto:false
+                .row:nexts.(row)
+            auto? .number:number+1
+            .mode:mode
+            @>
+        mode=3?
+            raw_name:glyphs.string(data,"name")
+            name:raw_name
+            length:text.byte_length(name)
+            length>0 /\ text.at(name,length-1)="*"? .name:text.span(name,0,length-1)
+            numbered:raw_name=name /\ tokens.one_of(name,["eqnarray","align","alignat","gather","multline"])
+            row:firsts.(arguments.(node))
+            row>=0?>
+                info:row_info(arena,row)
+                show:name~="multline" \/ nexts.(row)<0
+                (info.custom>=0 \/ numbered /\ ~info.no_number /\ show)?
+                    value:text.integer(number)
+                    info.custom>=0? .value:tags.reference(arena,info.custom)
+                    .out:labels(arena,row,out,value)
+                    info.custom<0? .number:number+1
+                .row:nexts.(row)
+            .mode:mode
+            @>
+        tokens.one_of(kind,["qed","qedpush","qedpop","qedhere"])?
+            .complete:false
+            .mode:mode
+            @>
+        tokens.one_of(kind,["space","label","style","color"])? @>
+        kind="list"?
+            .top:top+1
+            stack.(top):firsts.(node)
+            modes.(top):1
+            .mode:mode
+            @>
+        # Generic scripts follow the complete atom branch (including counters).
+        subs.(node)>=0?
+            .top:top+1
+            stack.(top):subs.(node)
+            modes.(top):0
+        supers.(node)>=0?
+            .top:top+1
+            stack.(top):supers.(node)
+            modes.(top):0
+        kind="matrix"?
+            name:glyphs.string(data,"name")
+            equation:name="equation" \/ name="equation*"
+            equation?
+                row:firsts.(arguments.(node))
+                row>=0?>
+                    .out:labels(arena,row,out,text.integer(number))
+                    .row:nexts.(row)
+            .top:top+1
+            stack.(top):node
+            modes.(top):3
+            equation? modes.(top):2
+            .top:top+1
+            stack.(top):firsts.(arguments.(node))
+            modes.(top):6
+            equation? modes.(top):4
+            .mode:mode
+            @>
+        kind="arrow"?
+            subs.(node)>=0?
+                .top:top+1
+                stack.(top):subs.(node)
+                modes.(top):0
+            supers.(node)>=0?
+                .top:top+1
+                stack.(top):supers.(node)
+                modes.(top):0
+            .mode:mode
+            @>
+        (kind="frac" \/ kind="quotient" \/ kind="radical") /\ denominators.(node)>=0?
+            .top:top+1
+            stack.(top):denominators.(node)
+            modes.(top):0
+        child:arguments.(node)
+        has_body:tokens.one_of(kind,["group","stack","font","paint","class","frac","quotient","delimited","radical","box","decoration","mod"])
+        has_body /\ child>=0?
+            repeat:false
+            kind="decoration"?
+                name:glyphs.string(data,"name")
+                .repeat:name="widehat" \/ name="widetilde"
+            kind="delimited"?
+                body_node:firsts.(child)
+                body_node>=0?>
+                    kinds.(body_node)="middle"? .repeat:true
+                    .body_node:nexts.(body_node)
+            repeat?
+                .top:top+1
+                stack.(top):child
+                modes.(top):0
+            .top:top+1
+            stack.(top):child
+            modes.(top):0
+    @:(next_number:number,refs:out,complete:complete)

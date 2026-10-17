@@ -1,0 +1,40 @@
+p:.math_packages
+text:.tex_text
+j:.resource_json
+
+renderer_tests()->bit:
+    defaults:p.defaults()
+    empty:p.from_names([])
+    (defaults.amsmath /\ ~defaults.restricted /\ empty.restricted /\ ~empty.amsmath /\ ~empty.amsthm)?! "default math remains permissive AMS without enabling package hooks"
+    (p.dispatch(defaults,"\\qed").kind="" /\ p.dispatch(defaults,"\\mathbbm").kind="" /\ p.dispatch(defaults,"\\Box").kind="" /\ p.dispatch(defaults,"\\faktor").kind="")?! "default extension commands retain ordinary parser fallback"
+    ams:p.from_names([],"amsart")
+    (ams.amsmath /\ ams.amsthm /\ ams.qed_symbol="\\square" /\ ~ams.bbm /\ ~ams.latexsym)?! "AMS class enables exact math/theorem dependencies and class symbol override"
+    theorem:p.from_names(["amsthm"])
+    (theorem.amsthm /\ ~theorem.amsmath /\ theorem.qed_symbol="")?! "amsthm alone does not imply amsmath or an AMS class square"
+    all:p.from_names(["bbm","latexsym","faktor","amsthm","amsmath"])
+    bbm:p.dispatch(all,"\\mathbbmss")
+    (bbm.kind="font" /\ bbm.name="mathbbmss" /\ bbm.arity=1 /\ ~bbm.reparse)?! "bbm hook uses normal operand grammar and exact family name"
+    latexsym:p.dispatch(all,"\\Box")
+    (latexsym.kind="glyph" /\ latexsym.token="@latexsym:\\Box" /\ latexsym.arity=0)?! "latexsym hook takes precedence over builtin font glyph aliases"
+    push:p.dispatch(all,"\\pushQED")
+    faktor:p.dispatch(all,"\\faktor")
+    (push.kind="qedpush" /\ push.arity=1 /\ push.reparse /\ faktor.kind="quotient" /\ faktor.arity=2 /\ faktor.reparse)?! "captured QED and quotient arguments require fresh extension parsing"
+    (p.dispatch(all,"\\qed").kind="qed" /\ p.dispatch(all,"\\qedhere").kind="qedhere" /\ p.dispatch(all,"\\popQED").kind="qedpop")?! "zero-argument theorem hook node names"
+    (p.requires_amsmath(empty,"\\binom") /\ p.requires_amsmath(empty,"\\tag") /\ ~p.requires_amsmath(empty,"\\frac") /\ ~p.requires_amsmath(empty,"\\dfrac") /\ ~p.requires_amsmath(ams,"\\tag"))?! "explicit package restriction applies only to actual AMS hook command list"
+    (p.extension_limit(33) /\ ~p.extension_limit(32))?! "extension nesting bound is independent of ordinary AST depth"
+    (p.command_prefix(all,"\\qedh") /\ p.command_prefix(all,"\\mathbbms") /\ ~p.command_prefix(defaults,"\\qedh") /\ ~p.command_prefix(all,"\\qedhereX"))?! "structured command completion follows only activated package spellings"
+    raw:p.raw_argument(" \\alpha {b}",0)
+    group:p.raw_argument(" {a_{b}} +c",0)
+    missing:p.raw_argument("",0)
+    boundary:p.raw_argument("}",0)
+    (raw.value="\\alpha" /\ raw.stop=7 /\ group.value="a_{b}" /\ group.closed /\ missing.value="" /\ missing.diagnostic="" /\ boundary.value="}")?! "raw extension arguments consume one token or raw group without ordinary operand boundary holes"
+    sources:p.faktor_sources("[\\scriptstyle]{a_b}{\\frac bc}",0)
+    (sources.numerator="\\scriptstyle{a_b}" /\ sources.denominator="\\scriptstyle{\\frac bc}" /\ sources.stop=text.byte_length("[\\scriptstyle]{a_b}{\\frac bc}") /\ sources.diagnostics="")?! "faktor modifier prefixes fresh wrapped numerator and denominator sources"
+    unbraced:p.faktor_sources("a b",0)
+    (unbraced.numerator="{a}" /\ unbraced.denominator="{b}")?! "unbraced quotient arguments remain independently grouped"
+    unfinished:p.faktor_sources("{a",0)
+    (unfinished.numerator="{a}" /\ unfinished.denominator="{}" /\ unfinished.diagnostics=j.quote("Inferred a closing brace"))?! "missing raw group close repairs once while absent second argument parses empty group"
+    nested:p.option("[{a]b}]rest",0)
+    (nested.value="{a]b}" /\ nested.closed /\ nested.stop=7)?! "optional raw modifier brackets close only outside braces"
+    @:true
+renderer_tests()

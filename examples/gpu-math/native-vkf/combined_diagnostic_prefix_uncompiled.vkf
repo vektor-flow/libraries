@@ -1,0 +1,24 @@
+legacy_boxes:.frozen285_typed_test_legacy_inline_boxes
+# SOURCE WITNESS ONLY; not compiled/executed. Bind before to frozen canonical builder.
+fonts:.font_catalog
+data:.test_font_data
+parser:.text_parser
+h:.hyphenation
+io:.io
+boxes:.text_inline_boxes
+candidate:.paragraph_inline_nodes
+before:.frozen285_paragraph_inline_nodes
+run()->bit:
+    language:h.load(io.read_text(io.read_line()))
+    font:"{\"size\":10,\"spaces\":{\"space\":3,\"quad\":10},\"ligatures\":{\"102\":{\"102\":[\"LIG\",11]},\"11\":{\"105\":[\"LIG\",14]}}}"
+    glyph:"{\"key\":\"witness\",\"advance\":1,\"height\":1,\"depth\":0}"
+    installed:fonts.load(data.pack(["font/roman","text/roman/102","text/roman/105","text/roman/97","text/roman/14","text/roman/45"],[font,glyph,glyph,glyph,glyph,glyph]))
+    # Deliberately omit text/roman/11 and fallback math/text/@text:f.
+    source:"ffiaa"
+    parsed:parser.parse(source,installed,parser.context("roman",["roman"]))
+    expected:before.build(source,parsed.stream,installed,language,["f-f-iaa"],true,before.text_options(),legacy_boxes.empty())
+    (expected.cache.diagnostics="\"Unsupported document text character: f\"")?! "Frozen prefix measurement diagnostic oracle"
+    actual:candidate.build(source,parsed.stream,installed,language,["f-f-iaa"],true,candidate.text_options(),boxes.empty())
+    (actual.diagnostics=expected.cache.diagnostics)?! "Prepared consumer must replay prefix-only diagnostics"
+    @:true
+(run())?! "Prefix diagnostic parity"

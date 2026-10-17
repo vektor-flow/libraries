@@ -1,0 +1,56 @@
+font_catalog:.font_catalog
+test_font_data:.test_font_data
+text_chunks:.text_chunks
+tex_text:.tex_text
+test_layout_fonts:.test_layout_fonts
+math_profiles:.math_profiles
+math_packages:.math_packages
+text_parser:.text_parser
+paragraph_breaking:.paragraph_breaking
+paragraph_nodes:.paragraph_nodes
+hyphenation:.hyphenation
+hyphenation_test_asset:.hyphenation_test_asset
+text_source_paragraph_prepared_compare:.text_source_paragraph_prepared_compare
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+fonts_with_role()->Catalog:
+    original:test_layout_fonts.fonts()
+    keys:text_chunks.empty(original.count+1)
+    values:text_chunks.empty(original.count+1)
+    at:0
+    i:0
+    i<original.capacity?>
+        entry:font_catalog.slot(original,i)
+        entry.found?
+            key_size:font_catalog.fixed(original.source,font_catalog.header_size()+i*font_catalog.slot_size()+12)
+            keys.(at):tex_text.span(original.source,entry.start,entry.start+key_size)
+            values.(at):tex_text.span(original.source,entry.start+key_size,entry.stop)
+            .at:at+1
+        .i:i+1
+    keys.(at):"font/roman"
+    values.(at):"{\"spaces\":{\"space\":3.3,\"stretch\":1.6,\"shrink\":1.1,\"extra\":1.1}}"
+    @:font_catalog.load(test_font_data.pack(keys,values))
+renderer_tests()->bit:
+    fonts:fonts_with_role()
+    tables:math_profiles.load(fonts)
+    language:hyphenation.load(hyphenation_test_asset.source())
+    context:text_parser.context("roman",["roman"],hyperref:true)
+    math:math_packages.from_names(["amsmath","amsthm"])
+    options:paragraph_breaking.options(30)
+    options.justify:false
+    options.hyphens:false
+    overrides:hyphenation.strings(0)
+    text_options:paragraph_nodes.text_options()
+    cases:["\\(a+b\\) \\(a_b\\)","\\mbox{\\(a+b\\) \\mbox{\\(a_b\\)}}","\\documentlink{ref}{\\(a+b\\)}{label%3Ax}","\\hyperlink{target}{\\(a+b\\)}","\\footnotemark{2}","\\mbox{\\(a\\)\\footnotemark{2}}","","\\mbox{\\unknown}","\\mbox{\\vkftikzbox{9}} \\(a\\)"]
+    directory:"{\"9\":{\"items\":[{\"kind\":\"rule\",\"x\":0,\"y\":0,\"width\":5,\"height\":2}],\"width\":5,\"height\":2,\"depth\":1}}"
+    i:0
+    i<cases.length()?>
+        text_source_paragraph_prepared_compare.check(cases.(i),fonts,context,math,language,overrides,options,text_options,tables,directory)?! "recursive prepared paragraph"
+        .i:i+1
+    styles:["\\displaystyle ","\\textstyle ","\\scriptstyle ","\\scriptscriptstyle "]
+    .i:0
+    i<styles.length()?>
+        text_source_paragraph_prepared_compare.check("\\("&styles.(i)&"a+b\\)",fonts,context,math,language,overrides,options,text_options,tables)?! "all paragraph math styles"
+        text_source_paragraph_prepared_compare.check("\\("&styles.(i)&"\\boldsymbol{a+b}\\)",fonts,context,math,language,overrides,options,text_options,tables)?! "all bold paragraph math styles"
+        .i:i+1
+    @:true
+renderer_tests()

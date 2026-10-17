@@ -1,0 +1,362 @@
+# Complete inline command recognition as an explicit source/semantic stream.
+# Native boxes and Unicode transforms remain actions for shaping/lowering.
+text:.frozen285_tex_text
+lex:.frozen285_text_parser_lex
+ops:.frozen285_text_parser_stream
+catalog:.frozen285_font_catalog
+j:.frozen285_resource_json
+glyphs:.frozen285_math_glyphs
+numbers:.frozen285_text_parser_numbers
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Context:(font:str,roles:[str],optical:bit,hyperref:bit,literal:bit,literal_input:bit,legacy_symbols:bit,bib_url:bit)
+context(font:str,roles:[str],optical:bit=false,hyperref:bit=false)->Context:
+    @:(font:font,roles:roles,optical:optical,hyperref:hyperref,literal:false,literal_input:false,legacy_symbols:false,bib_url:false)
+family(value:str)->str:
+    end:text.byte_length(value)
+    end>0?>
+        c:text.at(value,end-1)
+        (c<"0" \/ c>"9")? @|
+        .end:end-1
+    @:text.span(value,0,end)
+optical(fonts:Catalog,c:Context,requested:str,current:str):
+    ~c.optical? @:(role:requested,diagnostic:"")
+    target_raw:catalog.raw(fonts,"font/"&requested)
+    current_raw:catalog.raw(fonts,"font/"&current)
+    target_raw="" \/ current_raw=""? @:(role:requested,diagnostic:"")
+    target:j.parse(target_raw)
+    old:j.parse(current_raw)
+    size:glyphs.numeric(old,0,"size")
+    |glyphs.numeric(target,0,"size")-size|<0.000001? @:(role:requested,diagnostic:"")
+    name:family(glyphs.string(target,"name"))
+    roles:c.roles
+    i:0
+    i<roles.length()?>
+        role:roles.(i)
+        raw:catalog.raw(fonts,"font/"&role)
+        raw~=""?
+            candidate:j.parse(raw)
+            family(glyphs.string(candidate,"name"))=name /\ |glyphs.numeric(candidate,0,"size")-size|<0.000001? @:(role:role,diagnostic:"")
+        .i:i+1
+    @:(role:requested,diagnostic:"Missing optical text font: "&name&" at "&numbers.shortest(size)&"bp")
+
+argument(s:Stream,source:str,at:int,parent:int,role:str):
+    span:lex.group(source,at)
+    value:""
+    span.found? .value:text.span(source,span.start,span.stop)
+    entry:ops.append(s,"argument",role,value,ops.attributes(found:span.found,closed:span.closed,present:1),span.start,span.stop,parent)
+    @:(stream:entry.stream,value:value,start:span.start,stop:span.stop,end:span.end,found:span.found,closed:span.closed)
+word(s:Stream,role:str,value:str,start:int,stop:int,parent:int)->Stream:
+    value=""? @:s
+    @:ops.append(s,"word",role,value,ops.attributes(),start,stop,parent).stream
+command_action(name:str)->str:
+    lex.accent(name)>=0? @:"accent"
+    lex.formatting(name)~="" \/ name="emph"? @:"style"
+    lex.declaration(name)~=""? @:"declaration"
+    name="char"? @:"char"
+    name="symbolfootnotemark" \/ name="footnotemark"? @:"footnote"
+    name="hspace" \/ name="quad" \/ name="qquad" \/ name="newblock" \/ name=","? @:"spacing"
+    name="/" \/ name="italiccorrection"? @:"italiccorrection"
+    name="TeX" \/ name="LaTeX"? @:"logo"
+    name="textbullet"? @:"bullet"
+    name="dots" \/ name="ldots"? @:"dots"
+    name="vkftikzbox"? @:"tikz"
+    name="documentanchor" \/ name="hypertarget"? @:"anchor"
+    name="href" \/ name="url" \/ name="nolinkurl" \/ name="hyperlink" \/ name="hyperref" \/ name="documentlinkspan"? @:"link"
+    name="hypersetup"? @:"linksetup"
+    name="documentlink" \/ name="mbox"? @:"box"
+    name="lowercase"? @:"lowercase"
+    name="\\"? @:"forced"
+    name="@"? @:"spacefactor"
+    name="protect" \/ name="relax" \/ name="ignorespaces"? @:"ignore"
+    name="i" \/ name="j" \/ name="lq" \/ name="rq" \/ name="textbackslash"? @:"transparent"
+    name=" "? @:"explicitspace"
+    name="{" \/ name="}" \/ name="_" \/ name="%" \/ name="#" \/ name="\$" \/ name="&"? @:"escaped"
+    @:"unsupported"
+
+link_target(source:str,at:int):
+    href:lex.target(source,at,true)
+    href.found? @:(name:"href",start:href.start,stop:href.stop,end:href.end,found:true,closed:href.closed)
+    url:lex.target(source,at,false)
+    name:"url"
+    text.matches(source,at,"\\nolinkurl")? .name:"nolinkurl"
+    @:(name:name,start:url.start,stop:url.stop,end:url.end,found:url.found,closed:url.closed)
+
+# Recursion consumes only actual grouped/fragments ranges. Role declarations are
+# local to that range; link setup actions remain ordered for global lowering.
+parse_range(s:Stream,source:str,begin:int,limit:int,initial_role:str,parent:int,fonts:Catalog,c:Context,stop_on_brace:bit=false):
+    input:source
+    limit<text.byte_length(source)? .input:text.span(source,0,limit)
+    out:s
+    role:initial_role
+    at:begin
+    at<limit?>
+        target:link_target(input,at)
+        target.found?
+            name:target.name
+            raw:text.span(input,target.start,target.stop)
+            aux:ops.attributes(action:"link",target:lex.uri_value(raw),raw_target:raw,closed:target.closed,present:16)
+            entry:ops.append(out,"command",role,name,aux,at,target.end,parent)
+            .out:entry.stream
+            .at:target.end
+            name="href"?
+                label:argument(out,input,at,entry.id,role)
+                .out:label.stream
+                .at:label.end
+                ~c.hyperref? .out:ops.message(out,"Command requires hyperref: href",at,at,parent,role)
+                ~target.closed \/ ~label.found? .out:ops.message(out,"Unfinished href",at,at,parent,role)
+                label.found?
+                    child:parse_range(out,input,label.start,label.stop,role,entry.id,fonts,c)
+                    .out:child.stream
+            name~="href"?
+                pos:target.start
+                pos<target.stop?>
+                    char:text.at(input,pos)
+                    (char<"!" \/ char>"~")? .out:ops.message(out,"URL whitespace and non-ASCII normalization are not implemented",at,at,parent,role)
+                    .pos:text.next(input,pos)
+                ~target.closed? .out:ops.message(out,"Unfinished URL",at,at,parent,role)
+                .out:ops.append(out,"url", "mono",raw,ops.attributes(),target.start,target.stop,entry.id).stream
+            .at:at
+            @>
+        char:text.at(input,at)
+        char="{"?
+            child:parse_range(out,input,at+1,limit,role,parent,fonts,c,true)
+            .out:child.stream
+            .at:child.end
+            @>
+        char="}"?
+            stop_on_brace? @:(stream:out,end:at+1,role:role)
+            .at:at+1
+            @>
+        char="\$" \/ text.matches(input,at,"\\(")?
+            opening:1
+            closing:"\$"
+            char~="\$"?
+                .opening:2
+                .closing:"\\)"
+            start:at+opening
+            stop:text.find(input,closing,start)
+            stop<0 \/ stop>limit?
+                .stop:limit
+                .out:ops.message(out,"Inferred inline math close",at,at,parent,role)
+            .out:ops.append(out,"math",role,text.span(input,start,stop),ops.attributes(),start,stop,parent).stream
+            .at:stop+text.byte_length(closing)
+            @>
+        lex.space(char)?
+            start:at
+            .at:lex.skip_space(input,at)
+            .out:ops.append(out,"glue",role,"",ops.attributes(conditional:true,present:6),start,at,parent).stream
+            @>
+        char="~"?
+            .out:ops.append(out,"glue",role,"",ops.attributes(nonbreak:true,present:2),at,at+1,parent).stream
+            .at:at+1
+            @>
+        char~="\\"?
+            start:at
+            at<limit?>
+                next_char:text.at(input,at)
+                lex.space(next_char) \/ next_char="\\" \/ next_char="{" \/ next_char="}" \/ next_char="\$" \/ next_char="~"? @|
+                .at:text.next(input,at)
+            .out:word(out,role,text.span(input,start,at),start,at,parent)
+            @>
+        parsed:lex.command(input,at)
+        ~parsed.found?
+            .at:at+1
+            @>
+        command_start:at
+        name:parsed.name
+        .at:parsed.end
+        lex.letter(text.at(name,0))?
+            at<limit?>
+                following:text.at(input,at)
+                (following~=" " /\ following~="\t" /\ following~="\n")? @|
+                .at:text.next(input,at)
+        action:command_action(name)
+        entry:ops.append(out,"command",role,name,ops.attributes(action:action),command_start,at,parent)
+        .out:entry.stream
+        id:entry.id
+        action="style"?
+            requested:lex.formatting(name)
+            name="texttt" /\ role="footnote"? .requested:"footnotemono"
+            name="emph"?
+                table:catalog.raw(fonts,"font/"&role)
+                slant:0.0
+                table~=""?
+                    tape:j.parse(table)
+                    slant_id:j.member(tape,0,"spaces")
+                    .slant:glyphs.numeric(tape,slant_id,"slant")
+                .requested:"italic"
+                slant>0? .requested:"roman"
+            chosen:optical(fonts,c,requested,role)
+            at<limit?
+                text.at(input,at)="{"?
+                    .out:ops.replace(out,id,"command",role,name,ops.attributes(action:"style",new_role:chosen.role))
+                    chosen.diagnostic~=""? .out:ops.message(out,chosen.diagnostic,at,at,parent,role)
+                    child:parse_range(out,input,at+1,limit,chosen.role,id,fonts,c,true)
+                    .out:child.stream
+                    .at:child.end
+                    next_char:""
+                    at<text.byte_length(input)? .next_char:text.at(input,at)
+                    .out:ops.append(out,"style_end",role,next_char,ops.attributes(),at,at,id).stream
+                    @>
+            .out:ops.message(out,"Unsupported document text command: \\"&name,at,at,parent,role)
+            @>
+        action="declaration"?
+            chosen:optical(fonts,c,lex.declaration(name),role)
+            .out:ops.replace(out,id,"command",role,name,ops.attributes(action:"declaration",new_role:chosen.role))
+            chosen.diagnostic~=""? .out:ops.message(out,chosen.diagnostic,at,at,parent,role)
+            .role:chosen.role
+            @>
+        name="i" \/ name="j" \/ name="textbackslash"?
+            value:"ı"
+            name="j"? .value:"ȷ"
+            name="textbackslash"? .value:"\\"
+            .out:word(out,role,value,command_start,at,id)
+            @>
+        name="lq" \/ name="rq"?
+            value:"‘"
+            name="rq"? .value:"’"
+            next:lex.command(input,at)
+            next.found /\ next.name=name?
+                .at:lex.skip_space(input,next.end)
+                .value:"“"
+                name="rq"? .value:"”"
+            .out:word(out,role,value,command_start,at,id)
+            @>
+        name=" "?
+            .out:ops.append(out,"glue",role,"",ops.attributes(explicit:true,present:2),command_start,at,id).stream
+            @>
+        action="accent"?
+            value:""
+            found:false
+            at<limit?
+                text.at(input,at)="{"?
+                    arg:argument(out,input,at,id,role)
+                    .out:arg.stream
+                    .value:arg.value
+                    .at:arg.end
+                    .found:arg.found
+                ~found?
+                    escaped:text.at(input,at)="\\"
+                    escaped?
+                        start:at+1
+                        .at:lex.next(input,start)
+                        start<limit? .value:text.span(input,start,at)
+                    ~escaped?
+                        .value:text.at(input,at)
+                        .at:text.next(input,at)
+                    .found:true
+            ~found \/ value=""? .out:ops.message(out,"Missing text accent base",at,at,parent,role)
+            value="\\i"? .value:"ı"
+            value="\\j"? .value:"ȷ"
+            .out:ops.replace(out,id,"command",role,name,ops.attributes(action:"accent",base:value,code_number:lex.accent(name)))
+            value~=""? .out:ops.append(out,"accent_base",role,value,ops.attributes(),command_start,at,id).stream
+            @>
+        name="char"?
+            start:lex.skip_space(input,at)
+            end:start
+            end<limit?>
+                digit:text.at(input,end)
+                (digit<"0" \/ digit>"9")? @|
+                .end:end+1
+            end>start?
+                value:text.span(input,start,end)
+                .at:lex.skip_space(input,end)
+                .out:ops.replace(out,id,"command",role,name,ops.attributes(action:"char",code:value))
+                @>
+            .out:ops.message(out,"Unsupported document text command: \\"&name,at,at,parent,role)
+            @>
+        action="link" \/ action="anchor" \/ action="linksetup" \/ action="box" \/ action="lowercase" \/ action="footnote" \/ name="hspace" \/ name="vkftikzbox"?
+            name="hspace" /\ at<limit?
+                text.at(input,at)="*"? .at:at+1
+            name="hyperref"?
+                ~c.hyperref? .out:ops.message(out,"Command requires hyperref: hyperref",at,at,parent,role)
+                missing:at>=limit
+                at<limit?
+                    text.at(input,at)~="["? .missing:true
+                missing?
+                    .out:ops.message(out,"Only hyperref[label]{text} is supported",at,at,parent,role)
+                    @>
+                stop:text.find(input,"]",at+1)
+                stop<0 \/ stop>limit? .stop:limit
+                key:text.span(input,at+1,stop)
+                .out:ops.append(out,"optional",role,key,ops.attributes(),at+1,stop,id).stream
+                .at:stop
+                at<limit? .at:at+1
+            first:argument(out,input,at,id,role)
+            .out:first.stream
+            .at:first.end
+            (name="hyperlink" \/ name="hypertarget" \/ name="documentlinkspan" \/ name="documentlink")?
+                second:argument(out,input,at,id,role)
+                .out:second.stream
+                .at:second.end
+                (name="hyperlink" \/ name="hypertarget")?
+                    ~c.hyperref? .out:ops.message(out,"Command requires hyperref: "&name,at,at,parent,role)
+                child_start:second.start
+                child_stop:second.stop
+                (name="documentlinkspan" \/ name="documentlink")?
+                    third:argument(out,input,at,id,role)
+                    .out:third.stream
+                    .at:third.end
+                    name="documentlinkspan"?
+                        .child_start:third.start
+                        .child_stop:third.stop
+                name~="documentlink"?
+                    child:parse_range(out,input,child_start,child_stop,role,id,fonts,c)
+                    .out:child.stream
+                name="documentlink"?
+                    content:ops.append(out,"box_content",role,"",ops.attributes(isolated:true,present:8),child_start,child_stop,id)
+                    .out:content.stream
+                    child:parse_range(out,input,child_start,child_stop,role,content.id,fonts,c)
+                    .out:child.stream
+            (name="hyperref")?
+                child:parse_range(out,input,first.start,first.stop,role,id,fonts,c)
+                .out:child.stream
+            name="mbox" /\ first.found?
+                content:ops.append(out,"box_content",role,"",ops.attributes(isolated:true,present:8),first.start,first.stop,id)
+                .out:content.stream
+                child:parse_range(out,input,first.start,first.stop,role,content.id,fonts,c)
+                .out:child.stream
+            .at:at
+            @>
+        action="unsupported"? .out:ops.message(out,"Unsupported document text command: \\"&name,at,at,parent,role)
+        .at:at
+    @:(stream:out,end:at,role:role)
+
+parse(source:str,fonts:Catalog,c:Context):
+    out:ops.empty()
+    ~c.literal?
+        result:parse_range(out,source,0,text.byte_length(source),c.font, -1,fonts,c)
+        @:(source:source,stream:result.stream,lowering_required:true)
+    start:0
+    stop:text.byte_length(source)
+    ~c.literal_input?
+        text.matches(source,0,"\r\n")? .start:2
+        text.matches(source,0,"\n")? .start:1
+    tail:stop
+    ~c.literal_input?
+        tail>start?>
+            last:text.at(source,tail-1)
+            (last~=" " /\ last~="\t")? @|
+            .tail:tail-1
+    tail>start?
+        text.at(source,tail-1)="\n"?
+            .stop:tail-1
+            stop>start?
+                text.at(source,stop-1)="\r"? .stop:stop-1
+    line_start:start
+    at:start
+    at<=stop?>
+        newline:at=stop
+        at<stop?
+            text.at(source,at)="\n"? .newline:true
+        newline?
+            end:at
+            end>line_start /\ at<stop?
+                text.at(source,end-1)="\r"? .end:end-1
+            .out:ops.append(out,"literal",c.font,text.span(source,line_start,end),ops.attributes(),line_start,end, -1).stream
+            at<stop? .out:ops.append(out,"forced",c.font,"",ops.attributes(),at,at+1, -1).stream
+            .line_start:at+1
+        .at:at+1
+    @:(source:source,stream:out,lowering_required:true)

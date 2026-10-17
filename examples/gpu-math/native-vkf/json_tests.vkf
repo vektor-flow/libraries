@@ -1,0 +1,57 @@
+j:.resource_json
+
+nested_resource():
+    tape:j.parse(" {\"glyphs\":[{\"x\":-0.25,\"font\":\"cmmi10\"},null,true,false],\"em\":9.962640099626402} \n")
+    (tape.valid)?! "font-shaped JSON"
+    glyphs:j.member(tape,0,"glyphs")
+    glyph:j.element(tape,glyphs,0)
+    (j.number(tape,j.member(tape,glyph,"x"))= -0.25)?! "nested signed coordinate"
+    (j.string(tape,j.member(tape,glyph,"font"))="cmmi10")?! "font name"
+    (tape.kinds.(j.element(tape,glyphs,1))=7)?! "null extension"
+    (tape.kinds.(j.element(tape,glyphs,2))=5 /\ tape.kinds.(j.element(tape,glyphs,3))=6)?! "boolean resources"
+    (j.member(tape,0,"missing")= -1 /\ j.element(tape,glyphs,4)= -1)?! "absent entry"
+    (|j.number(tape,j.member(tape,0,"em"))-9.962640099626402|<0.0000000000001)?! "font em precision"
+
+strings_and_unicode():
+    tape:j.parse("[\"αé🙂\",\"\\u03b1\\u00e9\\ud83d\\ude42\",\"\\\"\\\\\\/\\b\\f\\n\\r\\t\",\"\",\"\\u0000\"]")
+    (tape.valid)?! "Unicode and JSON escapes"
+    (j.string(tape,j.element(tape,0,0))="αé🙂")?! "raw UTF-8"
+    (j.string(tape,j.element(tape,0,1))="αé🙂")?! "surrogate pair"
+    (j.string(tape,j.element(tape,0,2))="\"\\/"&str(chr(8))&str(chr(12))&"\n\r\t")?! "all simple escapes"
+    (j.string(tape,j.element(tape,0,3))="")?! "empty string"
+    (j.string(tape,j.element(tape,0,4))=str(chr(0)))?! "embedded zero scalar"
+    keys:j.parse("{\"\\u0061\":1,\"a\":2}")
+    (j.number(keys,j.member(keys,0,"a"))=2)?! "decoded keys and last duplicate value"
+    quoted:j.quote("α🙂\"\\\n"&str(chr(0)))
+    round_trip:j.parse(quoted)
+    (round_trip.valid /\ j.string(round_trip,0)="α🙂\"\\\n"&str(chr(0)))?! "JSON writer Unicode and controls"
+
+empty_and_growth():
+    (j.parse("{}").valid /\ j.parse("[]").valid /\ j.parse("0").valid)?! "root values"
+    source:"[0"
+    index:1
+    index<2050?>
+        .source:source&",1"
+        .index:index+1
+    tape:j.parse(source&"]")
+    (tape.valid /\ tape.count=2051)?! "grow indexed storage across five boundaries"
+    (j.number(tape,j.element(tape,0,2049))=1)?! "last grown entry"
+
+malformed():
+    (~j.parse("").valid /\ ~j.parse(" ").valid)?! "empty document"
+    (~j.parse("[1,]").valid /\ ~j.parse("{\"x\":1,}").valid)?! "trailing comma"
+    (~j.parse("[1 2]").valid /\ ~j.parse("{\"x\" 1}").valid)?! "missing delimiter"
+    (~j.parse("[}").valid /\ ~j.parse("{]").valid)?! "mismatched close"
+    (~j.parse("{\"x\":").valid /\ ~j.parse("[[0]").valid)?! "unfinished containers"
+    (~j.parse("true false").valid /\ ~j.parse("nullx").valid)?! "trailing content"
+    (~j.parse("[01]").valid /\ ~j.parse("[1e]").valid)?! "malformed number"
+    (~j.parse("\"a\nb\"").valid /\ ~j.parse("\"\\q\"").valid)?! "invalid string"
+    (~j.parse("\"\\ud800\"").valid /\ ~j.parse("\"\\udc00\"").valid)?! "unpaired surrogate"
+
+renderer_tests()->bit:
+    nested_resource()
+    strings_and_unicode()
+    empty_and_growth()
+    malformed()
+    @:true
+renderer_tests()

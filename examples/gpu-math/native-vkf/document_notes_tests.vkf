@@ -1,0 +1,46 @@
+document_notes:.document_notes
+document_blocks:.document_blocks
+document_pages:.document_pages
+document_present:.document_present
+resource_json:.resource_json
+tex_text:.tex_text
+renderer_tests()->bit:
+    definitions:document_blocks.parse("\\documentclass{amsart}\\date{Today}\\keywords{algebra}\\begin{document}\\maketitle Text\\footnote{First} more\\footnote{Second}.\\end{document}")
+    notes:resource_json.parse(definitions.footnotes)
+    (document_notes.count(notes,0)=4)?! "Administrative notes and body notes share a unique source-order namespace"
+    first:resource_json.element(notes,0,2)
+    second:resource_json.element(notes,0,3)
+    (document_notes.number(notes,first,"number")=3 /\ document_notes.number(notes,first,"marker")=1 /\ document_notes.number(notes,second,"marker")=2)?! "Body marker numbering remains independent of administrative note IDs"
+    (tex_text.find(definitions.sources.(definitions.count-1),"\\footnotemark{3:1}")>=0)?! "Body source retains global destination number and visible body counter"
+    marker:resource_json.parse("[{\"number\":3,\"marker\":1},{\"number\":4,\"symbol\":2}]")
+    (document_notes.marker_source(marker,resource_json.element(marker,0,0))="1" /\ document_notes.marker_source(marker,resource_json.element(marker,0,1))="\\char121 ")?! "Decimal and symbolic markers use the correct independent source"
+    scene:"{\"items\":[{\"kind\":\"glyph\",\"key\":\"a\",\"x\":1,\"y\":0,\"flowLine\":0}],\"width\":2}"
+    marked:document_notes.destination(scene,"footnote:3")
+    (tex_text.find(marked,"\"destinationIds\":[\"footnote:3\"]")>=0)?! "Note destination retains the first actual scene leaf"
+    empty:document_notes.append_items("{\"items\":[],\"width\":0}","{\"kind\":\"glyph\",\"key\":\"b\"}")
+    packet:resource_json.parse(empty)
+    (packet.valid /\ document_notes.count(packet,resource_json.member(packet,0,"items"))=1)?! "Empty note scenes accept their visible marker without invalid punctuation"
+    grown:document_notes.extend_lines(document_pages.empty_lines(2),3)
+    (grown.count=5 /\ grown.scenes.length()=5 /\ grown.marker_counts.length()=5)?! "Notes append to body line columns without resetting body indices"
+    (document_notes.trim_start(" \n\t note ")="note ")?! "Legacy leading note spaces preserve trailing source whitespace"
+    article:document_blocks.parse("\\documentclass{article}\\author{Alice\\thanks{Grant {one}} \\and Bob\\thanks{Two}}\\begin{document}\\maketitle Text\\footnote{Body}.\\end{document}")
+    article_notes:resource_json.parse(article.footnotes)
+    (document_notes.count(article_notes,0)=3 /\ document_notes.number(article_notes,resource_json.element(article_notes,0,0),"symbol")=1 /\ document_notes.number(article_notes,resource_json.element(article_notes,0,2),"marker")=1)?! "Article author thanks definitions precede independent body note markers"
+    authors:document_present.split_authors(" Alice {\\and nested} \\and Bob\\{braced\\} \\and Carol ")
+    author_values:authors.values
+    (authors.count=3 /\ author_values.(0)="Alice {\\and nested}" /\ author_values.(1)="Bob\\{braced\\}" /\ author_values.(2)="Carol")?! "Author splitting respects groups and escaped braces"
+    body:document_pages.empty_lines(2)
+    scene_ids:body.scenes
+    source_lines:body.source_lines
+    scene_ids.(0):0
+    scene_ids.(1):0
+    source_lines.(1):1
+    body.scenes:scene_ids
+    body.source_lines:source_lines
+    indexed:document_notes.index_markers(body,2,["{\"items\":[{\"flowLine\":1,\"footnoteNumber\":3},{\"flowLine\":0,\"footnoteNumber\":1},{\"flowLine\":0,\"footnoteNumber\":1},{\"flowLine\":0,\"footnoteNumber\":2}]}"],3)
+    marker_ids:indexed.markers.ids
+    marker_firsts:indexed.lines.marker_firsts
+    marker_counts:indexed.lines.marker_counts
+    (indexed.markers.count=3 /\ marker_ids.(0)=0 /\ marker_ids.(1)=1 /\ marker_ids.(2)=2 /\ marker_firsts.(0)=0 /\ marker_firsts.(1)=2 /\ marker_counts.(0)=2 /\ marker_counts.(1)=1)?! "Body marker indexing deduplicates per line and preserves encounter order independently of scene leaf line order"
+    @:true
+::renderer_tests()

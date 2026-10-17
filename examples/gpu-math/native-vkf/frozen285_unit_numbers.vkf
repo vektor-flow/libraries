@@ -1,0 +1,85 @@
+text:.frozen285_tex_text
+s:.frozen285_unit_syntax
+symbols:.frozen285_unit_symbols
+chunks:.frozen285_text_chunks
+j:.frozen285_resource_json
+Options:(mode:str,group:bit,decimal:str,diagnostics:str)
+Nodes:(nodes:str,diagnostics:str)
+
+group_digits(value:str,group:bit,integer:bit)->str:
+    size:text.byte_length(value)
+    (size<5 \/ ~group)? @:symbols.roman(value)
+    first:3
+    integer?
+        .first:size%3
+        first=0? .first:3
+    parts:chunks.empty(size+1)
+    count:0
+    begin:0
+    width:first
+    begin<size?>
+        stop:begin+width
+        stop>size? .stop:size
+        prefix:""
+        count>0? .prefix:","&symbols.space()&","
+        parts.(count):prefix&symbols.roman(text.span(value,begin,stop))
+        .count:count+1
+        .begin:stop
+        .width:3
+    @:chunks.join(parts,0,count)
+
+parse(raw:str,options:Options)->Nodes:
+    source:s.compact(raw)
+    size:text.byte_length(source)
+    size=0? @:(nodes:symbols.hole(),diagnostics:j.quote("Empty number placeholder"))
+    position:0
+    sign:""
+    first:text.at(source,0)
+    (first="+" \/ first="-")?
+        .sign:first
+        .position:1
+    integer_start:position
+    position<size /\ s.digit(text.at(source,position))?> .position:position+1
+    integer:text.span(source,integer_start,position)
+    has_decimal:false
+    fraction:""
+    position<size?
+        point:text.at(source,position)
+        (point="." \/ point=",")?
+            .has_decimal:true
+            .position:position+1
+            fraction_start:position
+            position<size /\ s.digit(text.at(source,position))?> .position:position+1
+            .fraction:text.span(source,fraction_start,position)
+    no_digits:integer="" /\ fraction=""
+    exponent:""
+    has_exponent:false
+    exponent_valid:false
+    position<size?
+        e:text.at(source,position)
+        (e="e" \/ e="E")?
+            .has_exponent:true
+            .position:position+1
+            exponent_start:position
+            position<size?
+                exponent_sign:text.at(source,position)
+                (exponent_sign="+" \/ exponent_sign="-")? .position:position+1
+            digits_start:position
+            position<size /\ s.digit(text.at(source,position))?> .position:position+1
+            .exponent_valid:position>digits_start
+            .exponent:text.span(source,exponent_start,position)
+    (no_digits \/ position~=size)? @:(nodes:symbols.hole(),diagnostics:j.quote("Unfinished or unsupported number"))
+    integer=""? .integer:"0"
+    result:""
+    sign~=""? .result:symbols.glyph(sign)&","
+    .result:result&group_digits(integer,options.group,true)
+    has_decimal?
+        .result:result&",{\"type\":\"glyph\",\"token\":"&j.quote(options.decimal)&",\"class\":\"ord\"}"
+        fraction~=""? .result:result&","&group_digits(fraction,options.group,false)
+    messages:""
+    has_exponent?
+        superscript:symbols.hole()
+        exponent_valid? .superscript:symbols.roman(exponent)
+        ~exponent_valid? .messages:j.quote("Empty exponent placeholder")
+        .result:result&","&symbols.glyph("\\times")&",{\"type\":\"group\",\"unit\":true,\"children\":["&symbols.roman("10")&"],\"sup\":["&superscript&"]}"
+    @:(nodes:result,diagnostics:messages)

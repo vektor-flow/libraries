@@ -1,0 +1,45 @@
+p:.text_parser
+s:.text_parser_stream
+f:.font_catalog
+d:.test_font_data
+j:.resource_json
+pages:.math_command_pages
+
+fonts():
+    keys:["font/roman","font/bold","font/italic","font/footnote","font/footnoteitalic","font/footnoteitalic_alias"]
+    values:["{\"name\":\"cmr10\",\"size\":10,\"spaces\":{\"slant\":0}}","{\"name\":\"cmbx10\",\"size\":10,\"spaces\":{\"slant\":0}}","{\"name\":\"cmti10\",\"size\":10,\"spaces\":{\"slant\":0.25}}","{\"name\":\"cmr8\",\"size\":8,\"spaces\":{\"slant\":0}}","{\"name\":\"cmti8\",\"size\":8,\"spaces\":{\"slant\":0.25}}","{\"name\":\"cmti8\",\"size\":8,\"spaces\":{\"slant\":0.25}}"]
+    @:f.load(d.pack(keys,values))
+roles()->[str]:["roman","bold","italic","footnote","footnoteitalic","footnoteitalic_alias"]
+renderer_tests()->bit:
+    catalog:fonts()
+    context:p.context("roman",roles())
+    parsed:p.parse("A \\textbf{B \\emph{C}} D",catalog,context)
+    tape:parsed.stream
+    (tape.count=11 /\ tape.diagnostics="")?! "scoped inline tree operation count"
+    (s.value(tape,3,"value")="B" /\ s.value(tape,3,"role")="bold" /\ s.value(tape,6,"value")="C" /\ s.value(tape,6,"role")="italic" /\ s.value(tape,10,"role")="roman")?! "nested formatting resolves then restores optical roles"
+    (pages.integer(tape.parents,6)=5 /\ pages.integer(tape.parents,3)=2 /\ pages.integer(tape.parents,10)= -1)?! "parent indices retain style scopes"
+    declaration:p.parse("{\\itshape italic} roman",catalog,context)
+    declared:declaration.stream
+    (s.value(declared,1,"role")="italic" /\ s.value(declared,3,"role")="roman")?! "font declarations remain inside their brace scope"
+    recovered:p.parse("\\textbf{\$a}b\$ c} tail",catalog,context)
+    recovery:recovered.stream
+    (s.value(recovery,1,"kind")="math" /\ s.value(recovery,1,"value")="a}b" /\ s.value(recovery,3,"role")="bold" /\ s.value(recovery,6,"value")="tail" /\ s.value(recovery,6,"role")="roman" /\ recovery.diagnostics="")?! "math can consume a closing brace before its delimiter"
+    optical:p.context("footnote",roles(),true)
+    selected:p.optical(catalog,optical,"italic","footnote")
+    (selected.role="footnoteitalic" /\ selected.diagnostic="")?! "optical roles use family,size and caller order"
+    reversed:p.context("footnote",["footnoteitalic_alias","footnoteitalic"],true)
+    reverse:p.optical(catalog,reversed,"italic","footnote")
+    (reverse.role="footnoteitalic_alias")?! "optical role ties preserve supplied asset order"
+    unknown:p.parse("x \\Huge y \\unknown{z}",catalog,context)
+    errors:unknown.stream
+    (errors.diagnostics=j.quote("Unsupported document text command: \\Huge")&","&j.quote("Unsupported document text command: \\unknown"))?! "unsupported commands recover into following groups"
+    literal_context:p.context("roman",roles())
+    literal_context.literal:true
+    literal:p.parse("\nA  B\nC\n",catalog,literal_context)
+    code:literal.stream
+    (code.count=3 /\ s.value(code,0,"kind")="literal" /\ s.value(code,0,"value")="A  B" /\ s.value(code,1,"kind")="forced" /\ s.value(code,2,"value")="C")?! "literal mode preserves spaces and exact initial/final newline policy"
+    percent:p.parse("a%raw b",catalog,context)
+    raw:percent.stream
+    (s.value(raw,0,"value")="a%raw")?! "inline input preserves percent; upstream preprocessing owns comments"
+    @:true
+renderer_tests()

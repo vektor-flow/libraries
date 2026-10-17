@@ -1,0 +1,134 @@
+# Generic retained wide marks. All geometry comes from the installed font
+# catalog; this module owns no state outside one layout request.
+commands:.math_commands
+assembly:.math_assembly
+glyphs:.math_glyphs
+catalog:.font_catalog
+parser:.math_parser
+j:.resource_json
+numbers:.json_numbers
+text:.tex_text
+tex:.tex_numeric
+Glyph:(token:str,key:str,width:num,height:num,depth:num,class_id:int,italic:num,character:bit,metric:str,diagnostic:str,placeholder:bit)
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Buffer:(heads:[[int]],tails:[[int]],boxes:int,nexts:[[int]],children:[[int]],pool:Pool,payload_ids:[[int]],xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int)
+
+add(buffer:Buffer,owner:int,glyph:Glyph,color:str,x:num,y:num)->Buffer:
+    value:"\"kind\":\"glyph\",\"color\":"&color&",\"key\":"&j.quote(glyph.key)
+    py:y
+    glyph.placeholder?
+        .value:"\"kind\":\"placeholder\",\"color\":"&color&",\"width\":"&numbers.roundtrip(glyph.width)&",\"height\":"&numbers.roundtrip(glyph.height)
+        .py:y-glyph.height
+    @:commands.append(buffer,owner, -1,value,x,py)
+
+arrow(buffer:Buffer,owner:int,fonts:Catalog,required:num,mu:num,direction:str,native:bit=true,style:int=0,font:str="",color:str="null",y_offset:num=0):
+    (direction="left" \/ direction="right" \/ direction="both")?! "Invalid decoration arrow direction"
+    first_token:"\\leftarrow"
+    last_token:"\\rightarrow"
+    direction="right"? .first_token:"-"
+    direction="left"? .last_token:"-"
+    first:glyphs.glyph(fonts,first_token,style,font)
+    last:glyphs.glyph(fonts,last_token,style,font)
+    height:tex.maximum(first.height,last.height)
+    depth:tex.maximum(first.depth,last.depth)
+    direction="right"?
+        .height:tex.maximum(0,last.height)
+        .depth:tex.maximum(0,last.depth)
+    direction="left"?
+        .height:tex.maximum(0,first.height)
+        .depth:tex.maximum(0,first.depth)
+    width:tex.maximum(required,first.width+last.width-14*mu)
+    out:add(buffer,owner,first,color,0,y_offset)
+    .out:add(out,owner,last,color,width-last.width,y_offset)
+    diagnostic:""
+    first.diagnostic~=""? .diagnostic:parser.repair(diagnostic,first.diagnostic)
+    last.diagnostic~=""? .diagnostic:parser.repair(diagnostic,last.diagnostic)
+    lo:first.width-7*mu
+    hi:width-last.width+7*mu
+    hi>lo?
+        native?
+            bar:glyphs.glyph(fonts,"-",style,font)
+            bar.diagnostic~=""? .diagnostic:parser.repair(diagnostic,bar.diagnostic)
+            leader:bar.width-4*mu
+            (leader>0)?! "Invalid installed arrow leader width"
+            count:int(((hi-lo)/leader+0.000000001)//1)
+            offset:(hi-lo-num(count)*leader)/2
+            i:0
+            i<count?>
+                .out:add(out,owner,bar,color,lo+offset+num(i)*leader-2*mu,y_offset)
+                .i:i+1
+        ~native?
+            metric:catalog.math_symbol(fonts,glyphs.style_name(style),"-")
+            bounds:j.member(metric,0,"inkBounds")
+            start:j.number(metric,j.element(metric,bounds,1))
+            stop:j.number(metric,j.element(metric,bounds,3))
+            value:"\"kind\":\"rule\",\"color\":"&color&",\"width\":"&numbers.roundtrip(hi-lo)&",\"height\":"&numbers.roundtrip(stop-start)
+            .out:commands.append(out,owner, -1,value,lo,start+y_offset)
+    @:(buffer:out,width:width,height:height,depth:depth,diagnostic:diagnostic)
+
+# The body is scheduled at display style. Piece fonts are always text style,
+# including inside scripts, matching TeX's fixed native brace pieces.
+brace(buffer:Buffer,owner:int,child:int,fonts:Catalog,body_width:num,body_height:num,body_depth:num,under:bit,font:str="",color:str="null"):
+    names:["@braceld","@braceru","@bracelu","@bracerd"]
+    under? .names:["@bracelu","@bracerd","@braceld","@braceru"]
+    total:0.0
+    height:0.0
+    depth:0.0
+    diagnostic:""
+    i:0
+    i<4?>
+        piece:glyphs.glyph(fonts,names.(i),1,font)
+        .total:total+piece.width
+        .height:tex.maximum(height,piece.height)
+        .depth:tex.maximum(depth,piece.depth)
+        piece.diagnostic~=""? .diagnostic:parser.repair(diagnostic,piece.diagnostic)
+        .i:i+1
+    width:tex.maximum(body_width,total)
+    gap:(width-total)/2
+    y: -body_height-3*tex.pt()-depth
+    under? .y:body_depth+3*tex.pt()+height
+    out:commands.append(buffer,owner,child,"",(width-body_width)/2,0)
+    x:0.0
+    .i:0
+    i<4?>
+        piece:glyphs.glyph(fonts,names.(i),1,font)
+        value:"\"kind\":\"glyph\",\"color\":"&color&",\"key\":"&j.quote(piece.key)
+        py:y
+        piece.placeholder?
+            .value:"\"kind\":\"placeholder\",\"color\":"&color&",\"width\":"&numbers.roundtrip(piece.width)&",\"height\":"&numbers.roundtrip(piece.height)
+            .py:y-piece.height
+        .out:commands.append(out,owner, -1,value,x,py)
+        .x:x+piece.width
+        (i=0 \/ i=2)?
+            gap>0?
+                rule:"\"kind\":\"rule\",\"color\":"&color&",\"width\":"&numbers.roundtrip(gap)&",\"height\":"&numbers.roundtrip(height)
+                .out:commands.append(out,owner, -1,rule,x,y-height)
+            .x:x+gap
+        .i:i+1
+    final_height:body_height
+    final_depth:body_depth
+    under? .final_depth:y+depth+3*tex.pt()
+    ~under? .final_height: -y+height+3*tex.pt()
+    @:(buffer:out,width:width,height:final_height,depth:final_depth,diagnostic:diagnostic)
+
+# Family choice uses an independently scheduled textstyle cramped copy of the
+# body. Final candidate size uses the actual surrounding style/body width.
+wide(fonts:Catalog,name:str,style:int,body_width:num,text_width:num,text_em:num,font:str=""):
+    (name="widehat" \/ name="widetilde")?! "Invalid wide accent"
+    ams:text_width>2*text_em
+    family:""
+    ams? .family:"AMS"
+    prefix:"@accent:"&name&family
+    key:prefix&"0"
+    stop:3
+    ams? .stop:2
+    i:1
+    i<stop?>
+        candidate:prefix&text.integer(i)
+        raw:catalog.raw(fonts,"math/"&glyphs.style_name(style)&"/"&candidate)
+        raw~=""?
+            metric:j.parse(raw)
+            glyphs.numeric(metric,0,"width")<=body_width? .key:candidate
+        .i:i+1
+    @:assembly.single(glyphs.glyph(fonts,key,style,font))

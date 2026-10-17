@@ -1,0 +1,26 @@
+tikz_arithmetic:.tikz_numbers
+
+renderer_tests()->bit:
+    dims:tikz_arithmetic.set(tikz_arithmetic.empty(),"nodeheight",3*72.0/72.27)
+    ctx:tikz_arithmetic.context(dims,12,5)
+    first:tikz_arithmetic.parse("-(-.5+1.25)*2e2 / {4}",ctx)
+    (first.diagnostic="" /\ |first.value+37.5|<0.00000000001 /\ ~first.dimensioned)?! "TikZ recursive arithmetic honors precedence and signed decimals"
+    dimension:tikz_arithmetic.parse("2*\\nodeheight + 3pt",ctx)
+    (dimension.diagnostic="")?! "Dimension parse diagnostic"
+    (dimension.dimensioned)?! "Dimension parse flag"
+    (|dimension.value-9*72.0/72.27|<0.00000000001)?! "Dimension parse numeric value"
+    optical:tikz_arithmetic.parse("2em+3ex",ctx)
+    (optical.diagnostic="" /\ optical.value=39)?! "Optical em and ex supplied by caller"
+    bad:tikz_arithmetic.parse("1/0",ctx)
+    (bad.diagnostic="TikZ division by zero")?! "Division zero diagnosed"
+    unknown:tikz_arithmetic.parse("\\missing",ctx)
+    (unknown.diagnostic="Unknown TikZ dimension: \\missing")?! "Unknown dimensions diagnosed"
+    tail:tikz_arithmetic.parse("2ptail",ctx)
+    (tail.diagnostic~="")?! "Unit regex has a word boundary"
+    oversized:tikz_arithmetic.parse("1e8",ctx)
+    (oversized.diagnostic~="")?! "Excessive coordinates rejected"
+    (tikz_arithmetic.round(-1.5)= -1 /\ tikz_arithmetic.round(1.5)=2)?! "Negative assignment ties round toward positive infinity exactly as JS"
+    default_ex:tikz_arithmetic.parse("1ex",tikz_arithmetic.context(tikz_arithmetic.empty()))
+    (|default_ex.value-4.30554*72.0/72.27|<0.000000000001)?! "Global dimension ex uses actual JS default independently of picture optical size"
+    @:true
+renderer_tests()

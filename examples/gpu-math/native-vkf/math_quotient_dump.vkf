@@ -1,0 +1,18 @@
+io:.io
+catalog:.font_catalog
+output:.math_quotient_output
+
+run()->int:
+    fonts:catalog.load(io.read_text(io.read_line()))
+    count:int(vkf_decimal_parse(io.read_line()))
+    i:0
+    i<count?>
+        sizes:io.read_line()
+        style:int(vkf_decimal_parse(io.read_line()))
+        font:io.read_line()
+        color:io.read_line()
+        path:io.read_line()
+        io.write_text(path,output.packet(fonts,sizes,style,font,color))
+        .i:i+1
+    @:0
+run()

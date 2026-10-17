@@ -1,0 +1,21 @@
+document_present_context:.document_present_context
+resource_json:.resource_json
+renderer_tests()->bit:
+    parent:document_present_context.empty(10,12,true)
+    parent.label:"\$\\bullet\$"
+    parent.left:20
+    parent.font:"italic"
+    nested:document_present_context.with_outer_label(parent)
+    (nested.label="" /\ parent.label~="")?! "pending parent label transfers without changing saved source value"
+    nested.label:"(a)"
+    nested.left:40
+    twice:document_present_context.with_outer_label(nested)
+    restored:document_present_context.parse(document_present_context.json(twice))
+    (restored.label="")?! "current child label clears"
+    pending:resource_json.parse(restored.pending_outer_labels)
+    first:resource_json.element(pending,0,0)
+    second:resource_json.element(pending,0,1)
+    (resource_json.string(pending,resource_json.member(pending,first,"font"))="italic")?! "outer font snapshot preserved"
+    (resource_json.number(pending,resource_json.member(pending,first,"left"))=20 /\ resource_json.number(pending,resource_json.member(pending,second,"left"))=40)?! "all ancestor margins survive context roundtrip"
+    @:true
+renderer_tests()

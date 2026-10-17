@@ -1,0 +1,17 @@
+io:.io
+kernel:.math_middle_kernel
+numbers:.resource_numbers
+run()->int:
+    font_source:io.read_text(io.read_line())
+    count:int(vkf_decimal_parse(io.read_line()))
+    index:0
+    index<count?>
+        token:io.read_line()
+        style:int(vkf_decimal_parse(io.read_line()))
+        required:numbers.parse(io.read_line())
+        font:io.read_line()
+        output:io.read_line()
+        io.write_text(output,kernel.middle_json(font_source,token,style,required,font))
+        .index:index+1
+    @:0
+run()

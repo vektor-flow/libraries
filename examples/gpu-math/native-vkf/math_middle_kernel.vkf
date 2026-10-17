@@ -1,0 +1,23 @@
+middle:.math_middle
+catalog:.font_catalog
+j:.resource_json
+numbers:.json_numbers
+
+middle_packet(font_source:str,token:str,style:int,required:num,font:str=""):
+    @:middle.middle(catalog.load(font_source),token,style,required,font)
+
+middle_json(font_source:str,token:str,style:int,required:num,font:str="")->str:
+    shape:middle_packet(font_source,token,style,required,font)
+    keys:shape.keys
+    xs:shape.xs
+    ys:shape.ys
+    items:""
+    index:0
+    index<shape.count?>
+        index>0? .items:items&","
+        .items:items&"{\"key\":"&j.quote(keys.(index))&",\"x\":"&numbers.roundtrip(xs.(index))&",\"y\":"&numbers.roundtrip(ys.(index))&"}"
+        .index:index+1
+    @:"{\"width\":"&numbers.roundtrip(shape.width)&",\"height\":"&numbers.roundtrip(shape.height)&",\"depth\":"&numbers.roundtrip(shape.depth)&",\"items\":["&items&"]}"
+
+noop()->int:0
+noop()

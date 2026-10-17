@@ -1,0 +1,44 @@
+# Generated from actual typing-layout.mjs; fixture preparation is independent.
+# Assertions and the effect replay itself run in VKF on native and WASM.
+e:.math_effects
+p:.math_parser
+r:.math_references
+c:.font_catalog
+data:.test_font_data
+
+check(source:str,number:int,refs:str):
+    fonts:c.load(data.math_catalog())
+    arena:p.parse(source,fonts)
+    frozen:p.json(arena)
+    prior:r.put(r.empty(),"existing","value")
+    result:e.replay(arena,0,1,prior)
+    (result.complete /\ result.next_number=number /\ r.json(result.refs)=refs)?! "actual JavaScript effect reference"
+    (p.json(arena)=frozen /\ r.json(prior)="{\"existing\":\"value\"}")?! "effect replay preserves arena and reference input snapshots"
+
+renderer_tests()->bit:
+    check("\\begin{equation}x\\label{eq:x}\\end{equation}+\\begin{equation}y\\end{equation}",3,"{\"existing\":\"value\",\"eq:x\":\"1\"}")
+    check("\\widehat{\\begin{equation}x\\label{eq:x}\\end{equation}}+\\begin{equation}y\\end{equation}",4,"{\"existing\":\"value\",\"eq:x\":\"2\"}")
+    check("\\widetilde{\\begin{equation}x\\label{eq:x}\\end{equation}}+\\begin{equation}y\\end{equation}",4,"{\"existing\":\"value\",\"eq:x\":\"2\"}")
+    check("\\widehat{\\widetilde{\\begin{equation}x\\label{eq:x}\\end{equation}}}+\\begin{equation}y\\end{equation}",6,"{\"existing\":\"value\",\"eq:x\":\"4\"}")
+    check("\\widehat{\\begin{equation*}x\\label{eq:x}\\end{equation*}}+\\begin{equation}y\\end{equation}",2,"{\"existing\":\"value\",\"eq:x\":\"1\"}")
+    check("\\widehat{\\begin{equation}x\\tag{A}\\label{eq:x}\\end{equation}}+\\begin{equation}y\\end{equation}",2,"{\"existing\":\"value\",\"eq:x\":\"1\"}")
+    check("\\widehat{\\begin{equation}x\\notag\\label{eq:x}\\end{equation}}+\\begin{equation}y\\end{equation}",2,"{\"existing\":\"value\",\"eq:x\":\"1\"}")
+    check("\\widehat{\\begin{equation}x\\label{eq:x}\\end{equation}}+\\widetilde{\\begin{equation}y\\label{eq:y}\\end{equation}}+\\begin{equation}z\\end{equation}",6,"{\"existing\":\"value\",\"eq:x\":\"2\",\"eq:y\":\"4\"}")
+    check("\\widehat{\\begin{equation}x\\label{eq:x}\\end{equation}+\\begin{equation}y\\label{eq:y}\\end{equation}}+\\begin{equation}z\\end{equation}",6,"{\"existing\":\"value\",\"eq:x\":\"3\",\"eq:y\":\"4\"}")
+    check("\\widehat{\\begin{align}x&=y\\label{eq:x}\\\\y&=z\\label{eq:y}\\end{align}}+\\begin{equation}z\\end{equation}",6,"{\"existing\":\"value\",\"eq:x\":\"3\",\"eq:y\":\"4\"}")
+    check("\\scriptstyle\\widehat{\\begin{equation}x\\label{eq:x}\\end{equation}}+\\begin{equation}y\\end{equation}",4,"{\"existing\":\"value\",\"eq:x\":\"2\"}")
+    check("\\widehat{\\begin{equation}x+\\widehat{\\begin{equation}y\\label{eq:y}\\end{equation}}\\label{eq:x}\\end{equation}}+\\begin{equation}z\\end{equation}",8,"{\"existing\":\"value\",\"eq:x\":\"4\",\"eq:y\":\"5\"}")
+    check("\\begin{equation}x\\label{base}\\end{equation}^{\\begin{equation}y\\label{sup}\\end{equation}}_{\\begin{equation}a\\label{sub}\\end{equation}}",4,"{\"existing\":\"value\",\"base\":\"1\",\"sup\":\"2\",\"sub\":\"3\"}")
+    check("\\frac{\\begin{equation}x\\label{num}\\end{equation}}{\\begin{equation}y\\label{den}\\end{equation}}+\\begin{equation}a\\end{equation}",4,"{\"existing\":\"value\",\"num\":\"1\",\"den\":\"2\"}")
+    check("\\sqrt[\\begin{equation}x\\label{index}\\end{equation}]{\\begin{equation}y\\label{body}\\end{equation}}+\\begin{equation}a\\end{equation}",4,"{\"existing\":\"value\",\"body\":\"1\",\"index\":\"2\"}")
+    check("\\overset{\\begin{equation}x\\label{over}\\end{equation}}{\\begin{equation}y\\label{body}\\end{equation}}+\\begin{equation}a\\end{equation}",4,"{\"existing\":\"value\",\"body\":\"1\",\"over\":\"2\"}")
+    check("\\underset{\\begin{equation}x\\label{under}\\end{equation}}{\\begin{equation}y\\label{body}\\end{equation}}+\\begin{equation}a\\end{equation}",4,"{\"existing\":\"value\",\"body\":\"1\",\"under\":\"2\"}")
+    check("\\xrightarrow{\\begin{equation}x\\label{arrow}\\end{equation}}+\\begin{equation}y\\end{equation}",4,"{\"existing\":\"value\",\"arrow\":\"2\"}")
+    check("\\left(\\begin{equation}x\\label{middle}\\end{equation}\\middle|y\\right)+\\begin{equation}a\\end{equation}",4,"{\"existing\":\"value\",\"middle\":\"2\"}")
+    check("\\begin{align}x&\\begin{equation}y\\label{inner}\\end{equation}\\\\a&b\\label{outer}\\end{align}",4,"{\"existing\":\"value\",\"inner\":\"1\",\"outer\":\"3\"}")
+    check("\\begin{align*}x&y\\tag{a}\\label{custom}\\\\a&b\\notag\\label{absent}\\end{align*}",1,"{\"existing\":\"value\",\"custom\":\"a\"}")
+    check("\\begin{multline}x\\label{first}\\\\y\\label{last}\\end{multline}",2,"{\"existing\":\"value\",\"last\":\"1\"}")
+    check("\\widehat{\\begin{equation}x\\label{body}\\end{equation}}^{\\begin{equation}y\\label{script}\\end{equation}}+\\begin{equation}a\\end{equation}",5,"{\"existing\":\"value\",\"body\":\"2\",\"script\":\"3\"}")
+    check("\\begin{equation}x&+y\\\\=a\\label{flat}\\end{equation}",2,"{\"existing\":\"value\",\"flat\":\"1\"}")
+    @:true
+renderer_tests()

@@ -1,0 +1,77 @@
+# Document link-policy transitions and source-note appearance snapshots.
+# Source parsing owns event order; this helper never shapes or caches text.
+present_links_policy:.frozen285_document_link_policy
+present_links_inline:.frozen285_text_link_context
+present_links_maps:.frozen285_document_present_maps
+present_links_json:.frozen285_resource_json
+present_links_text:.frozen285_tex_text
+present_links_chunks:.frozen285_text_chunks
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Map:(keys:Pool,values:[str])
+raw(tape:Tape,node:int)->str:
+    starts:tape.starts
+    stops:tape.stops
+    @:present_links_text.span(tape.source,starts.(node),stops.(node))
+number(tape:Tape,node:int,key:str)->int:
+    member:present_links_json.member(tape,node,key)
+    member<0? @:0
+    @:int(present_links_json.number(tape,member))
+initial(config:Tape,enabled:bit)->str:
+    configured:present_links_json.member(config,0,"linkAppearance")
+    configured>=0? @:raw(config,configured)
+    seed:"{\"enabled\":false}"
+    enabled? .seed:"{\"enabled\":true}"
+    @:present_links_policy.configure(present_links_chunks.empty(0),seed).appearance
+setup(options:str,current:str):
+    @:present_links_policy.configure(present_links_inline.split_options(options),current)
+effective(current:str,next:str)->str:
+    next~=""? @:next
+    @:current
+symbol_appearances(definitions:str,appearances:Map,appearance:str)->Map:
+    tape:present_links_json.parse(definitions)
+    ends:tape.ends
+    out:appearances
+    at:1
+    at<ends.(0)?>
+        symbol:present_links_json.member(tape,at,"symbol")
+        symbol>=0?
+            key:present_links_text.integer(number(tape,at,"number"))
+            prior:present_links_maps.get(out,key)
+            ~prior.found? .out:present_links_maps.put(out,key,appearance)
+        .at:ends.(at)
+    @:out
+decorate(definitions:str,appearances:Map)->str:
+    appearances.keys.count=0? @:definitions
+    tape:present_links_json.parse(definitions)
+    ends:tape.ends
+    parts:present_links_chunks.empty(appearances.keys.count+16)
+    count:0
+    at:1
+    at<ends.(0)?>
+        key:present_links_text.integer(number(tape,at,"number"))
+        style:present_links_maps.get(appearances,key)
+        value:raw(tape,at)
+        style.found?
+            fields:present_links_chunks.empty(16)
+            field_count:0
+            field:at+1
+            field<ends.(at)?>
+                name:present_links_json.string(tape,field)
+                name~="linkAppearance"?
+                    field_count>=fields.length()? .fields:fields&present_links_chunks.empty(fields.length())
+                    comma:""
+                    field_count>0? .comma:","
+                    fields.(field_count):comma&raw(tape,field)&":"&raw(tape,field+1)
+                    .field_count:field_count+1
+                .field:ends.(field+1)
+            prefix:""
+            field_count>0? .prefix:","
+            .value:"{"&present_links_chunks.join(fields,0,field_count)&prefix&"\"linkAppearance\":"&style.value&"}"
+        count>=parts.length()? .parts:parts&present_links_chunks.empty(parts.length())
+        comma:""
+        count>0? .comma:","
+        parts.(count):comma&value
+        .count:count+1
+        .at:ends.(at)
+    @:"["&present_links_chunks.join(parts,0,count)&"]"

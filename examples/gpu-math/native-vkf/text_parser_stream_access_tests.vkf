@@ -1,0 +1,35 @@
+math_command_pages_read:.math_command_pages_read
+math_command_pages:.math_command_pages
+text_parser_stream_access:.text_parser_stream_access
+text_parser_stream:.text_parser_stream
+renderer_tests()->bit:
+    numbers:math_command_pages.numbers(3)
+    integers:math_command_pages.integers(3)
+    booleans:math_command_pages.booleans(3)
+    numbers.(0,127):12.5
+    numbers.(1,0): -0.25
+    numbers.(2,1):72.125
+    integers.(0,127):37
+    integers.(1,0): -9
+    integers.(2,1):1279
+    booleans.(0,127):true
+    booleans.(2,1):true
+    index:0
+    index<384?>
+        (math_command_pages_read.number(numbers,index)=math_command_pages.number(numbers,index))?! "Read-only numeric pages preserve row-boundary values"
+        (math_command_pages_read.integer(integers,index)=math_command_pages.integer(integers,index))?! "Read-only integer pages preserve row-boundary values"
+        (math_command_pages_read.boolean(booleans,index)=math_command_pages.boolean(booleans,index))?! "Read-only boolean pages preserve row-boundary values"
+        .index:index+1
+    original:text_parser_stream.empty()
+    first:text_parser_stream.append(original,"text","roman","å \"x\"",text_parser_stream.attributes(),0,5, -1)
+    second:text_parser_stream.append(first.stream,"math","italic","x^2",text_parser_stream.attributes(),5,8,0)
+    third:text_parser_stream.append(second.stream,"text","bold","",text_parser_stream.attributes(),8,8, -1)
+    .index:0
+    index<3?>
+        (text_parser_stream_access.raw(third.stream,index)=text_parser_stream.raw(third.stream,index))?! "Read-only stream payload preserves JSON, Unicode and empty values"
+        .index:index+1
+    changed:text_parser_stream.replace(third.stream,1,"math","italic","y^3",text_parser_stream.attributes())
+    (text_parser_stream_access.raw(changed,1)=text_parser_stream.raw(changed,1))?! "Read-only stream lookup observes current replacement"
+    (text_parser_stream_access.raw(second.stream,1)=text_parser_stream.raw(second.stream,1))?! "Earlier stream retains its payload after replacement"
+    @:true
+renderer_tests()

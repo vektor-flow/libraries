@@ -1,0 +1,43 @@
+s:.unit_syntax
+n:.unit_numbers
+f:.unit_factors
+m:.math_parser
+c:.font_catalog
+fixtures:.test_font_data
+j:.resource_json
+text:.tex_text
+
+numeric_grouping_and_exponents():
+    options:s.options("output-decimal-marker={,}")
+    result:n.parse("-12345.67890e+2",options)
+    (result.diagnostics="" /\ text.find(result.nodes,"\"text\":\"12\"")>=0 /\ text.find(result.nodes,"\"text\":\"345\"")>=0 /\ text.find(result.nodes,"\"token\":\",\"")>=0 /\ text.find(result.nodes,"\"text\":\"+2\"")>=0)?! "number grouping, decimal marker and exponent text"
+    unfinished:n.parse("1e-",options)
+    (text.find(unfinished.diagnostics,"Empty exponent placeholder")>=0 /\ text.find(unfinished.nodes,"\"type\":\"hole\"")>=0)?! "current-source empty exponent"
+
+prefixes_powers_and_denominators():
+    options:s.options("per-mode=fraction")
+    result:f.parse("\\kilo\\metre\\per\\second\\squared",options)
+    (result.diagnostics="" /\ text.find(result.nodes,"\"type\":\"frac\"")>=0 /\ text.find(result.nodes,"\"text\":\"k\"")>=0 /\ text.find(result.nodes,"\"text\":\"2\"")>=0)?! "prefix, inverse power and denominator fraction"
+    broken:f.parse("\\kilo\\per",options)
+    (text.find(broken.diagnostics,"Empty unit operand placeholder")>=0 /\ text.find(broken.nodes,"\"type\":\"hole\"")>=0)?! "unfinished unit preserves prefix and hole"
+    optional:s.options("group-digits=none,unknown=yes")
+    (~optional.group /\ text.find(optional.diagnostics,"Unsupported unit option: unknown")>=0)?! "explicit option diagnostics"
+
+connected_tree_import():
+    fonts:c.load(fixtures.math_catalog())
+    arena:m.parse("\\qty[per-mode=fraction]{1.2e3}{\\metre\\per\\second}^2+\\ang{1;2;3}",fonts)
+    tape:j.parse(m.json(arena))
+    nodes:j.member(tape,0,"nodes")
+    quantity:j.element(tape,nodes,0)
+    (j.member(tape,quantity,"sup")>=0 /\ arena.atoms=3 /\ arena.diagnostics="")?! "unit tree import preserves source scripts and atom count"
+    children:j.member(tape,quantity,"children")
+    denominator:j.element(tape,children,6)
+    (j.string(tape,j.member(tape,denominator,"type"))="frac")?! "unit denominator is a real child AST"
+    (text.find(m.json(arena),"@unit:arcsecond")>=0)?! "angle components"
+
+renderer_tests()->bit:
+    numeric_grouping_and_exponents()
+    prefixes_powers_and_denominators()
+    connected_tree_import()
+    @:true
+renderer_tests()

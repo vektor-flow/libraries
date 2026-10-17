@@ -1,0 +1,9 @@
+document_graphics:.document_graphics
+graphics_kernel_json:.resource_json
+graphics_metric_check:.math_display_metrics_kernel
+json(asset:str,options:str,config:str,native_box:bit=true,x:num=0,y:num=0)->str:
+    dims:document_graphics.dimensions(asset,options,config,native_box)
+    ~dims.complete? @:"{\"diagnostics\":["&dims.diagnostics&"]}"
+    @:"{\"dimensions\":"&document_graphics.json(dims)&",\"items\":"&document_graphics.items(asset,"asset",x,y,dims)&"}"
+check(asset:str,options:str,config:str,native_box:bit,x:num,y:num,expected:str)->bit:
+    @:graphics_metric_check.assert_projection(expected,json(asset,options,config,native_box,x,y))

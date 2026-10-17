@@ -1,0 +1,89 @@
+# Reference/file output merges native scenes with ordinary glyphs in source
+# order within each line. Production page assembly may retain their references.
+j:.frozen285_resource_json
+t:.frozen285_tex_text
+json_numbers:.frozen285_json_numbers
+chunks:.frozen285_text_chunks
+paragraph_output:.frozen285_text_paragraph_output
+Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_count:int,glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Parts:(values:[str],count:int)
+add(input:Parts,value:str)->Parts:
+    values:input.values
+    count:input.count
+    count>=values.length()? .values:values&chunks.empty(values.length()+1)
+    prefix:""
+    count>0? .prefix:","
+    values.(count):prefix&value
+    @:(values:values,count:count+1)
+raw(tape:Tape,node:int)->str:
+    starts:tape.starts
+    stops:tape.stops
+    @:t.span(tape.source,starts.(node),stops.(node))
+placed(tape:Tape,node:int,x:num,y:num,line:int)->str:
+    ends:tape.ends
+    limit:ends.(node)
+    index:node+1
+    parts:(values:chunks.empty(8),count:0)
+    dx:0.0
+    dy:0.0
+    index<limit?>
+        key:j.string(tape,index)
+        key="x"? .dx:j.number(tape,index+1)
+        key="y"? .dy:j.number(tape,index+1)
+        key~="x" /\ key~="y" /\ key~="flowLine"? .parts:add(parts,raw(tape,index)&":"&raw(tape,index+1))
+        .index:ends.(index+1)
+    .parts:add(parts,"\"x\":"&json_numbers.roundtrip(x+dx))
+    .parts:add(parts,"\"y\":"&json_numbers.roundtrip(y+dy))
+    .parts:add(parts,"\"flowLine\":"&t.integer(line))
+    @:"{"&chunks.join(parts.values,0,parts.count)&"}"
+json(q:Packet,include_diagnostics:bit=true)->str:
+    keys:q.keys
+    xs:q.xs
+    ys:q.ys
+    lines:q.flow_lines
+    operations:q.glyph_operations
+    scenes:q.scenes
+    scene_xs:q.scene_xs
+    scene_ys:q.scene_ys
+    scene_lines:q.scene_lines
+    scene_operations:q.scene_operations
+    output:(values:chunks.empty(32),count:0)
+    point_destinations:(values:chunks.empty(4),count:0)
+    glyph:0
+    scene:0
+    glyph<q.glyph_count \/ scene<q.scene_count?>
+        use_scene:scene<q.scene_count
+        glyph<q.glyph_count /\ scene<q.scene_count?
+            .use_scene:scene_lines.(scene)<lines.(glyph) \/ (scene_lines.(scene)=lines.(glyph) /\ scene_operations.(scene)<=operations.(glyph))
+        use_scene?
+            box:j.parse(scenes.(scene))
+            marker:j.member(box,0,"inlineDestinations")
+            marker>=0?
+                raw(box,marker)="true"?
+                    points:j.member(box,0,"destinations")
+                    point_ends:box.ends
+                    point:points+1
+                    point<point_ends.(points)?>
+                        .point_destinations:add(point_destinations,raw(box,point))
+                        .point:point_ends.(point)
+            items:j.member(box,0,"items")
+            items>=0?! "Retained paragraph scene requires items"
+            ends:box.ends
+            item:items+1
+            stop:ends.(items)
+            item<stop?>
+                .output:add(output,placed(box,item,scene_xs.(scene),scene_ys.(scene),scene_lines.(scene)))
+                .item:ends.(item)
+            .scene:scene+1
+            .use_scene:false
+            @>
+        .output:add(output,"{\"kind\":\"glyph\",\"key\":"&j.quote(keys.(glyph))&",\"x\":"&json_numbers.roundtrip(xs.(glyph))&",\"y\":"&json_numbers.roundtrip(ys.(glyph))&",\"flowLine\":"&t.integer(lines.(glyph))&"}")
+        .glyph:glyph+1
+    extra:""
+    point_destinations.count>0? .extra:",\"destinations\":["&chunks.join(point_destinations.values,0,point_destinations.count)&"]"
+    @:paragraph_output.json(q,"["&chunks.join(output.values,0,output.count)&"]",extra,include_diagnostics)
+
+# Retained scenes carry diagnostics separately through their provider. Keeping
+# them out of the scene's scalar-only resource parser preserves UTF-16 warnings.
+scene(q:Packet)->str:@:json(q,false)

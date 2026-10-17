@@ -1,0 +1,164 @@
+text:.frozen285_tex_text
+tokens:.frozen285_math_tokens
+j:.frozen285_resource_json
+chunks:.frozen285_text_chunks
+
+trim(raw:str)->str:
+    start:tokens.skip_space(raw,0)
+    stop:start
+    position:start
+    ~vkf_string_eof(raw,position)?>
+        c:text.at(raw,position)
+        .position:text.next(raw,position)
+        ~tokens.space(c)? .stop:position
+    @:text.span(raw,start,stop)
+
+repair(messages:str,message:str)->str:
+    quoted:j.quote(message)
+    text.find(","&messages&",",","&quoted&",")>=0? @:messages
+    messages=""? @:quoted
+    prior:j.parse("["&messages&"]")
+    prior.count>=25? @:messages
+    @:messages&","&quoted
+
+merge(messages:str,additional:str)->str:
+    additional=""? @:messages
+    tape:j.parse("["&additional&"]")
+    result:messages
+    index:1
+    index<tape.count?>
+        .result:repair(result,j.string(tape,index))
+        .index:index+1
+    @:result
+
+digit(c:str)->bit:c>="0" /\ c<="9"
+
+compact(raw:str)->str:
+    parts:chunks.empty(64)
+    capacity:64
+    count:0
+    position:0
+    ~vkf_string_eof(raw,position)?>
+        c:text.at(raw,position)
+        .position:text.next(raw,position)
+        tokens.space(c)? @>
+        count=capacity?
+            .parts:parts&chunks.empty(capacity)
+            .capacity:capacity*2
+        parts.(count):c
+        .count:count+1
+    @:chunks.join(parts,0,count)
+
+options(raw:str)->(mode:str,group:bit,decimal:str,diagnostics:str):
+    mode:"power"
+    group:true
+    decimal:"."
+    messages:""
+    size:text.byte_length(raw)
+    begin:0
+    position:0
+    position<=size?>
+        split:position=size
+        position<size /\ text.at(raw,position)=","?
+            look:position+1
+            split_here:true
+            look<size?>
+                c:text.at(raw,look)
+                c="{"? @|
+                c="}"?
+                    .split_here:false
+                    @|
+                .look:text.next(raw,look)
+            .split:split_here
+        ~split?
+            .position:text.next(raw,position)
+            @>
+        part:text.span(raw,begin,position)
+        .position:position+1
+        .begin:position
+        part=""? @>
+        equal:text.find(part,"=")
+        key:trim(part)
+        value:""
+        equal>=0?
+            .key:trim(text.span(part,0,equal))
+            stop:text.find(part,"=",equal+1)
+            stop<0? .stop:text.byte_length(part)
+            .value:trim(text.span(part,equal+1,stop))
+        text.matches(value,0,"{")? .value:text.span(value,1,text.byte_length(value))
+        end:text.byte_length(value)
+        end>0?
+            text.at(value,end-1)="}"? .value:text.span(value,0,end-1)
+        accepted:false
+        key="per-mode" /\ tokens.one_of(value,["power","symbol","fraction","reciprocal"])?
+            .mode:value
+            value="reciprocal"? .mode:"power"
+            .accepted:true
+        key="group-digits" /\ tokens.one_of(value,["true","false","all","none"])?
+            .group:~tokens.one_of(value,["false","none"])
+            .accepted:true
+        key="output-decimal-marker" /\ (value="." \/ value=",")?
+            .decimal:value
+            .accepted:true
+        ~accepted? .messages:repair(messages,"Unsupported unit option: "&key)
+    @:(mode:mode,group:group,decimal:decimal,diagnostics:messages)
+
+lex(raw:str)->(values:[str],count:int):
+    size:text.byte_length(raw)
+    values:chunks.empty(size+1)
+    count:0
+    position:0
+    position<size?>
+        c:text.at(raw,position)
+        tokens.space(c)?
+            .position:text.next(raw,position)
+            @>
+        start:position
+        .position:text.next(raw,position)
+        c="\\" /\ position<size?
+            following:text.at(raw,position)
+            tokens.letter(following)?
+                position<size /\ tokens.letter(text.at(raw,position))?> .position:text.next(raw,position)
+            ~tokens.letter(following) /\ following~="\n" /\ following~="\r" /\ following~=" " /\ following~=" "? .position:text.next(raw,position)
+        c~="\\" /\ tokens.letter(c)?
+            position<size /\ tokens.letter(text.at(raw,position))?> .position:text.next(raw,position)
+        number:digit(c)
+        (c="+" \/ c="-") /\ position<size? .number:digit(text.at(raw,position))
+        number?
+            position<size /\ digit(text.at(raw,position))?> .position:text.next(raw,position)
+        values.(count):text.span(raw,start,position)
+        .count:count+1
+    @:(values:values,count:count)
+
+power(values:[str],begin:int,count:int)->(value:int,valid:bit,stop:int,diagnostics:str):
+    position:begin
+    value:""
+    messages:""
+    position<count?
+        values.(position)="{"?
+            .position:position+1
+            position<count /\ values.(position)~="}"?>
+                .value:value&values.(position)
+                .position:position+1
+            position=count? .messages:repair(messages,"Inferred a unit power closing brace")
+            position<count? .position:position+1
+        values.(begin)~="{"?
+            .value:values.(position)
+            .position:position+1
+    size:text.byte_length(value)
+    size>8? @:(value:0,valid:false,stop:position,diagnostics:repair(messages,"Empty unit power placeholder"))
+    cursor:0
+    sign:1
+    size>0?
+        first:text.at(value,0)
+        first="-"? .sign: -1
+        (first="-" \/ first="+")? .cursor:1
+    valid:size<=8 /\ cursor<size
+    integer:0
+    cursor<size?>
+        c:text.at(value,cursor)
+        ~digit(c)? @:(value:0,valid:false,stop:position,diagnostics:repair(messages,"Empty unit power placeholder"))
+        .integer:integer*10+int(vkf_decimal_parse(c))
+        .cursor:cursor+1
+    ~valid? .messages:repair(messages,"Empty unit power placeholder")
+    @:(value:sign*integer,valid:valid,stop:position,diagnostics:messages)

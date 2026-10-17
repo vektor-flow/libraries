@@ -1,0 +1,358 @@
+# Positioned page packets -> ordinary vector PDF. Each request owns all objects,
+# glyph digest/key interning, paint and alpha maps. No layout or output cache.
+# Coordinates are bp with y down, matching vector-pdf.mjs.
+font_catalog:.font_catalog
+resource_json:.resource_json
+math_metadata:.math_metadata
+pdf_syntax:.pdf_syntax
+pdf_objects:.pdf_objects
+pdf_resources:.pdf_resources
+pdf_paths:.pdf_paths
+pdf_links:.pdf_links
+json_numbers:.json_numbers
+tex_text:.tex_text
+text_chunks:.text_chunks
+tex_numeric:.tex_numeric
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+State:(objects:[str],object_count:int,keys:Pool,key_forms:[int],forms:Pool,form_ids:[int],lefts:[num],tops:[num],rights:[num],bottoms:[num],paints:Pool,paint_commands:[str],alphas:Pool,alpha_ids:[int])
+ints(size:int)->[int]:[0:size]
+nums(size:int)->[num]:[0.0:size]
+empty(reserved:int)->State:
+    @:(objects:text_chunks.empty(reserved+64),object_count:reserved,keys:math_metadata.empty(),key_forms:ints(64),forms:math_metadata.empty(),form_ids:ints(64),lefts:nums(64),tops:nums(64),rights:nums(64),bottoms:nums(64),paints:math_metadata.empty(),paint_commands:text_chunks.empty(64),alphas:math_metadata.empty(),alpha_ids:ints(64))
+add(state:State,body:str):
+    values:state.objects
+    at:state.object_count
+    at>=values.length()? .values:values&text_chunks.empty(values.length())
+    values.(at):body
+    out:state
+    out.objects:values
+    out.object_count:at+1
+    @:(state:out,id:at+1)
+set(state:State,id:int,body:str)->State:
+    (id>0 /\ id<=state.object_count)?! "Invalid reserved PDF object"
+    values:state.objects
+    values.(id-1):body
+    out:state
+    out.objects:values
+    @:out
+raw(tape:Tape,node:int)->str:
+    @:tex_text.span(tape.source,tape.starts.(node),tape.stops.(node))
+kind(tape:Tape,node:int)->int:
+    node<0? @:0
+    @:tape.kinds.(node)
+member(tape:Tape,node:int,key:str)->int:
+    node<0? @: -1
+    @:resource_json.member(tape,node,key)
+value(tape:Tape,node:int,fallback:num=0)->num:
+    node<0? @:fallback
+    kind(tape,node)=7? @:fallback
+    @:resource_json.number(tape,node)
+number(tape:Tape,node:int,key:str,fallback:num=0)->num:value(tape,member(tape,node,key),fallback)
+string(tape:Tape,node:int,key:str)->str:
+    at:member(tape,node,key)
+    at<0? @:""
+    @:resource_json.string(tape,at)
+flag(tape:Tape,node:int,key:str)->bit:kind(tape,member(tape,node,key))=5
+array_size(tape:Tape,node:int)->int:
+    (kind(tape,node)=2)?! "PDF array required"
+    at:node+1
+    count:0
+    at<tape.ends.(node)?>
+        .count:count+1
+        .at:tape.ends.(at)
+    @:count
+# Typed loop copy avoids treating a sequence of integer values as map indices.
+copy_ints(values:[int],count:int)->[int]:
+    out:ints(count)
+    at:0
+    at<count?>
+        out.(at):values.(at)
+        .at:at+1
+    @:out
+copy_strings(values:[str],count:int)->[str]:
+    out:text_chunks.empty(count)
+    at:0
+    at<count?>
+        out.(at):values.(at)
+        .at:at+1
+    @:out
+
+paint(state:State,tape:Tape,color:int):
+    (kind(tape,color)=2)?! "Invalid PDF color"
+    length:array_size(tape,color)
+    (length=3 \/ length=4)?! "Invalid PDF color"
+    key:raw(tape,color)
+    red:value(tape,resource_json.element(tape,color,0))
+    green:value(tape,resource_json.element(tape,color,1))
+    blue:value(tape,resource_json.element(tape,color,2))
+    alpha:value(tape,resource_json.element(tape,color,3),1)
+    @:paint_rgba(state,red,green,blue,alpha,key)
+
+# Typed paint entrypoint: no JSON and no vector ownership on a lookup hit.
+paint_rgba(state:State,red:num,green:num,blue:num,alpha:num,key:str):
+    entry:math_metadata.intern(state.paints,key)
+    entry.id<state.paints.count? @:(state:state,command:state.paint_commands.(entry.id))
+    commands:state.paint_commands
+    (red>=0 /\ red<=1 /\ green>=0 /\ green<=1 /\ blue>=0 /\ blue<=1 /\ alpha>=0 /\ alpha<=1)?! "Invalid PDF color"
+    alpha_key:json_numbers.roundtrip(alpha)
+    alpha_entry:math_metadata.intern(state.alphas,alpha_key)
+    out:state
+    alpha_ids:state.alpha_ids
+    alpha_entry.id>=state.alphas.count?
+        alpha_entry.id>=alpha_ids.length()? .alpha_ids:alpha_ids&ints(alpha_ids.length())
+        object:add(out,pdf_resources.alpha(alpha))
+        .out:object.state
+        alpha_ids.(alpha_entry.id):object.id
+    entry.id>=commands.length()? .commands:commands&text_chunks.empty(commands.length())
+    command:pdf_paths.rgb(red,green,blue,alpha_entry.id)
+    commands.(entry.id):command
+    out.paints:entry.pool
+    out.paint_commands:commands
+    out.alphas:alpha_entry.pool
+    out.alpha_ids:alpha_ids
+    @:(state:out,command:command)
+
+form(state:State,fonts:Catalog,operators:str,key:str):
+    entry:math_metadata.intern(state.keys,key)
+    entry.id<state.keys.count? @:(state:state,index:state.key_forms.(entry.id))
+    key_forms:state.key_forms
+    alias:font_catalog.raw(fonts,"vector/"&key)
+    (alias~="")?! "Missing PDF vector outline"
+    digest:resource_json.string(resource_json.parse(alias),0)
+    form_entry:math_metadata.intern(state.forms,digest)
+    form_ids:state.form_ids
+    lefts:state.lefts
+    tops:state.tops
+    rights:state.rights
+    bottoms:state.bottoms
+    out:state
+    index:form_entry.id
+    index>=state.forms.count?
+        index>=form_ids.length()?
+            .form_ids:form_ids&ints(form_ids.length())
+            .lefts:lefts&nums(lefts.length())
+            .tops:tops&nums(tops.length())
+            .rights:rights&nums(rights.length())
+            .bottoms:bottoms&nums(bottoms.length())
+        path:font_catalog.vector_path(fonts,key)
+        bounds:resource_json.member(path,0,"bounds")
+        (array_size(path,bounds)=4)?! "Invalid PDF vector bounds"
+        lefts.(index):value(path,resource_json.element(path,bounds,0))
+        tops.(index):value(path,resource_json.element(path,bounds,1))
+        rights.(index):value(path,resource_json.element(path,bounds,2))
+        bottoms.(index):value(path,resource_json.element(path,bounds,3))
+        object:add(out,font_catalog.vector_form(fonts,operators,key))
+        .out:object.state
+        form_ids.(index):object.id
+    entry.id>=key_forms.length()? .key_forms:key_forms&ints(key_forms.length())
+    key_forms.(entry.id):index
+    out.keys:entry.pool
+    out.key_forms:key_forms
+    out.forms:form_entry.pool
+    out.form_ids:form_ids
+    out.lefts:lefts
+    out.tops:tops
+    out.rights:rights
+    out.bottoms:bottoms
+    @:(state:out,index:index)
+
+annotation(tape:Tape,item:int,page_node:int,page_id:int,page_nodes:[int],page_ids:[int],destinations:int)->str:
+    target:member(tape,item,"target")
+    target<0? @:""
+    kind(tape,target)=7? @:""
+    width:number(tape,item,"width")
+    height:number(tape,item,"height")
+    page_width:number(tape,page_node,"width")
+    page_height:number(tape,page_node,"height")
+    x:number(tape,item,"x")
+    y:number(tape,item,"y")
+    type:string(tape,target,"type")
+    name:string(tape,target,"value")
+    type="uri"? @:pdf_links.external(page_id,page_width,page_height,x,y,width,height,name)
+    (type="destination")?! "Unsupported PDF link target"
+    point:member(tape,destinations,name)
+    (point>=0)?! "Missing PDF link destination"
+    page:number(tape,point,"page", -1)
+    (page=page//1 /\ page>=0 /\ page<page_ids.length())?! "Missing PDF link destination page"
+    index:int(page)
+    @:pdf_links.internal(page_id,page_width,page_height,x,y,width,height,page_ids.(index),number(tape,page_nodes.(index),"height"),number(tape,point,"x"),number(tape,point,"y"))
+
+dash(tape:Tape,item:int)->int:
+    name:string(tape,item,"dash")
+    name="" \/ name="solid"? @:0
+    name="dashed"? @:1
+    name="dotted"? @:2
+    name="densely dotted"? @:3
+    (name="loosely dotted")?! "Unsupported PDF dash style"
+    @:4
+
+primitive(tape:Tape,item:int,type:str)->str:
+    type="vectorrect"? @:pdf_paths.rectangle(0,0,number(tape,item,"width"),number(tape,item,"height"))
+    type="circle"? @:pdf_paths.ellipse(number(tape,item,"width"),number(tape,item,"height"))
+    delta:member(tape,item,"delta")
+    (array_size(tape,delta)=2)?! "Invalid PDF primitive delta"
+    dx:value(tape,resource_json.element(tape,delta,0))
+    dy:value(tape,resource_json.element(tape,delta,1))
+    type="segment"? @:pdf_paths.segment(dx,dy)
+    controls:member(tape,item,"controls")
+    (array_size(tape,controls)=2)?! "Invalid PDF Bezier controls"
+    first:resource_json.element(tape,controls,0)
+    second:resource_json.element(tape,controls,1)
+    @:pdf_paths.bezier(number(tape,first,"x"),number(tape,first,"y"),number(tape,second,"x"),number(tape,second,"y"),dx,dy)
+
+choose(tape:Tape,preferred:int,fallback:int)->int:
+    preferred<0? @:fallback
+    kind(tape,preferred)=7? @:fallback
+    @:preferred
+paint_default(state:State,tape:Tape,node:int,default_tape:Tape):
+    node<0? @:paint(state,default_tape,0)
+    kind(tape,node)=7? @:paint(state,default_tape,0)
+    @:paint(state,tape,node)
+required_number(tape:Tape,node:int,key:str)->num:
+    at:member(tape,node,key)
+    (kind(tape,at)=4)?! "Missing PDF coordinate"
+    @:resource_json.number(tape,at)
+
+encode_detail(layout:str,fonts:Catalog,operators:str,default_color:str="[0,0,0,1]"):
+    tape:resource_json.parse(layout)
+    (tape.valid /\ kind(tape,0)=1)?! "Invalid PDF layout packet"
+    pages:member(tape,0,"pages")
+    page_count:array_size(tape,pages)
+    (page_count>0 /\ page_count<=100)?! "PDF requires 1-100 layout pages"
+    default_tape:resource_json.parse(default_color)
+    default_tape.valid?! "Invalid default PDF paint"
+    page_nodes:ints(page_count)
+    page_ids:ints(page_count)
+    ends:tape.ends
+    node:pages+1
+    index:0
+    index<page_count?>
+        page_nodes.(index):node
+        page_ids.(index):4+index
+        .node:ends.(node)
+        .index:index+1
+    destinations:member(tape,0,"destinations")
+    state:empty(3+page_count)
+    .index:0
+    index<page_count?>
+        page:page_nodes.(index)
+        page_width:required_number(tape,page,"width")
+        page_height:required_number(tape,page,"height")
+        (page_width>0 /\ page_height>0)?! "Invalid PDF page dimensions"
+        items:member(tape,page,"items")
+        item_count:array_size(tape,items)
+        (item_count<=50000)?! "Invalid PDF layout item count"
+        extra_links:member(tape,page,"links")
+        kind(tape,extra_links)=7? .extra_links: -1
+        extra_count:0
+        extra_links>=0? .extra_count:array_size(tape,extra_links)
+        annotations:ints(item_count+extra_count)
+        annotation_count:0
+        commands:text_chunks.empty(2*item_count+2)
+        commands.(0):"q 1 0 0 -1 0 "&pdf_syntax.number(page_height)&" cm"
+        command_count:1
+        current_paint:""
+        item:items+1
+        item<ends.(items)?>
+            color:member(tape,item,"color")
+            painted:paint_default(state,tape,color,default_tape)
+            .state:painted.state
+            painted.command~=current_paint?
+                commands.(command_count):"\n"&painted.command
+                .command_count:command_count+1
+                .current_paint:painted.command
+            x:required_number(tape,item,"x")
+            y:required_number(tape,item,"y")
+            (|x|<=1000000000 /\ |y|<=1000000000)?! "Invalid PDF coordinate"
+            type:string(tape,item,"kind")
+            command:""
+            type="glyph" \/ type="field"?
+                outline:form(state,fonts,operators,string(tape,item,"key"))
+                .state:outline.state
+                sx:number(tape,item,"sx",1)
+                sy:number(tape,item,"sy",1)
+                sx~=0 /\ sy~=0?
+                    crop:member(tape,item,"crop")
+                    crop_x:member(tape,item,"cropX")
+                    kind(tape,crop)=7? .crop: -1
+                    kind(tape,crop_x)=7? .crop_x: -1
+                    crop>=0 \/ crop_x>=0?
+                        lefts:state.lefts
+                        tops:state.tops
+                        rights:state.rights
+                        bottoms:state.bottoms
+                        left:lefts.(outline.index)
+                        top:tops.(outline.index)
+                        right:rights.(outline.index)
+                        bottom:bottoms.(outline.index)
+                        crop>=0?
+                            .top:tex_numeric.maximum(top,value(tape,resource_json.element(tape,crop,0),top))
+                            .bottom:tex_numeric.minimum(bottom,value(tape,resource_json.element(tape,crop,1),bottom))
+                        crop_x>=0?
+                            .left:tex_numeric.maximum(left,value(tape,resource_json.element(tape,crop_x,0),left))
+                            .right:tex_numeric.minimum(right,value(tape,resource_json.element(tape,crop_x,1),right))
+                        .command:pdf_paths.clipped_glyph(outline.index,x,y,sx,sy,left,top,right,bottom)
+                    crop<0 /\ crop_x<0? .command:pdf_paths.glyph(outline.index,x,y,sx,sy)
+            type="rule"? .command:pdf_paths.rule(x,y,required_number(tape,item,"width"),required_number(tape,item,"height"))
+            type="link"?
+                border:number(tape,item,"borderWidth",1)
+                .command:pdf_links.border(x,y,number(tape,item,"width"),number(tape,item,"height"),border)
+                body:annotation(tape,item,page,page_ids.(index),page_nodes,page_ids,destinations)
+                body~=""?
+                    object:add(state,body)
+                    .state:object.state
+                    annotations.(annotation_count):object.id
+                    .annotation_count:annotation_count+1
+            type="segment" \/ type="bezier" \/ type="circle" \/ type="vectorrect"?
+                width:number(tape,item,"lineWidth")
+                width>=0?! "Invalid PDF stroke width"
+                fill:flag(tape,item,"fill")
+                fill_paint:""
+                stroke_paint:""
+                fill?
+                    fill_color:choose(tape,member(tape,item,"fillColor"),color)
+                    fill_commands:paint_default(state,tape,fill_color,default_tape)
+                    .state:fill_commands.state
+                    .fill_paint:fill_commands.command
+                width>0?
+                    stroke_color:choose(tape,member(tape,item,"strokeColor"),color)
+                    stroke_commands:paint_default(state,tape,stroke_color,default_tape)
+                    .state:stroke_commands.state
+                    .stroke_paint:stroke_commands.command
+                style:0
+                width>0? .style:dash(tape,item)
+                .command:pdf_paths.paint(primitive(tape,item,type),x,y,number(tape,item,"sx",1),number(tape,item,"sy",1),width,style,fill,fill_paint,stroke_paint)
+            type="image"? false?! "PDF illustration byte provider is not connected"
+            (type="glyph" \/ type="field" \/ type="rule" \/ type="link" \/ type="segment" \/ type="bezier" \/ type="circle" \/ type="vectorrect")?! "Unsupported PDF layout item"
+            command~=""?
+                commands.(command_count):"\n"&command
+                .command_count:command_count+1
+            .item:ends.(item)
+        commands.(command_count):"\nQ"
+        .command_count:command_count+1
+        extra:0
+        extra_links>=0?
+            .extra:extra_links+1
+        extra_links>=0?>
+            extra>=ends.(extra_links)? @|
+            body:annotation(tape,extra,page,page_ids.(index),page_nodes,page_ids,destinations)
+            body~=""?
+                object:add(state,body)
+                .state:object.state
+                annotations.(annotation_count):object.id
+                .annotation_count:annotation_count+1
+            .extra:ends.(extra)
+        content:add(state,pdf_syntax.stream("",text_chunks.join(commands,0,command_count)))
+        .state:content.state
+        .state:set(state,page_ids.(index),pdf_resources.page(2,3,content.id,page_width,page_height,copy_ints(annotations,annotation_count)))
+        .index:index+1
+    .state:set(state,3,pdf_resources.resources(copy_ints(state.form_ids,state.forms.count),copy_ints(state.alpha_ids,state.alphas.count)))
+    .state:set(state,2,pdf_resources.pages(page_ids))
+    .state:set(state,1,pdf_resources.catalog(2))
+    pdf:pdf_objects.serialize(pdf_objects.pack(copy_strings(state.objects,state.object_count)),1)
+    @:(pdf:pdf,page_count:page_count,form_count:state.forms.count,alpha_count:state.alphas.count,object_count:state.object_count)
+
+encode(layout:str,fonts:Catalog,operators:str,default_color:str="[0,0,0,1]")->str:
+    @:encode_detail(layout,fonts,operators,default_color).pdf

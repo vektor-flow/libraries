@@ -1,0 +1,69 @@
+# Equation environments are one noad list even when their source uses & or \\
+# row boundaries. Normalize topology before layout/measurement, retaining IDs.
+j:.resource_json
+parser:.math_parser
+Arena:(kinds:[str],attrs:[str],first:[int],last:[int],nexts:[int],a:[int],b:[int],sup:[int],sub:[int],limits:[int],count:int,diagnostics:str,atoms:int)
+
+prepare(arena:Arena)->Arena:
+    kinds:arena.kinds
+    attrs:arena.attrs
+    arguments:arena.a
+    oldFirst:arena.first
+    oldNext:arena.nexts
+    firsts:arena.first
+    lasts:arena.last
+    nexts:arena.nexts
+    collected:parser.nil(arena.count)
+    node:0
+    node<arena.count?>
+        kinds.(node)="matrix"?
+            data:j.parse("{"&attrs.(node)&"}")
+            name: -1
+            data.valid? .name:j.member(data,0,"name")
+            is_equation:false
+            name>=0?
+                value:j.string(data,name)
+                .is_equation:value="equation" \/ value="equation*"
+            is_equation /\ arguments.(node)>=0?
+                rows:arguments.(node)
+                firstRow:oldFirst.(rows)
+                firstRow>=0?
+                    # An immediately closed environment has no original cell.
+                    # Leave that empty row intact rather than fabricating IDs.
+                    firstCell:oldFirst.(firstRow)
+                    firstCell>=0?
+                        count:0
+                        row:firstRow
+                        row>=0?>
+                            cell:oldFirst.(row)
+                            cell>=0?>
+                                child:oldFirst.(cell)
+                                child>=0?>
+                                    collected.(count):child
+                                    .count:count+1
+                                    .child:oldNext.(child)
+                                .cell:oldNext.(cell)
+                            .row:oldNext.(row)
+                        firsts.(rows):firstRow
+                        lasts.(rows):firstRow
+                        nexts.(firstRow): -1
+                        firsts.(firstRow):firstCell
+                        lasts.(firstRow):firstCell
+                        nexts.(firstCell): -1
+                        firsts.(firstCell): -1
+                        lasts.(firstCell): -1
+                        count>0?
+                            firsts.(firstCell):collected.(0)
+                            lasts.(firstCell):collected.(count-1)
+                            index:0
+                            index<count?>
+                                following: -1
+                                index+1<count? .following:collected.(index+1)
+                                nexts.(collected.(index)):following
+                                .index:index+1
+        .node:node+1
+    out:arena
+    out.first:firsts
+    out.last:lasts
+    out.nexts:nexts
+    @:out

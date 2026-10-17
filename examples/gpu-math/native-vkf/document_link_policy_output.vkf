@@ -1,0 +1,38 @@
+link_output_policy:.document_link_policy
+link_output_uri:.document_uri
+link_output_json:.resource_json
+link_output_text:.tex_text
+link_output_chunks:.text_chunks
+batch(cases:str)->str:
+    tape:link_output_json.parse(cases)
+    outputs:link_output_chunks.empty(64)
+    index:0
+    true?>
+        item:link_output_json.element(tape,0,index)
+        item<0? @|
+        option_node:link_output_json.member(tape,item,"options")
+        options:link_output_chunks.empty(16)
+        count:0
+        true?>
+            option:link_output_json.element(tape,option_node,count)
+            option<0? @|
+            count>=options.length()? .options:options&link_output_chunks.empty(options.length())
+            options.(count):link_output_json.string(tape,option)
+            .count:count+1
+        exact:link_output_chunks.empty(count)
+        i:0
+        i<count?>
+            exact.(i):options.(i)
+            .i:i+1
+        initial:link_output_policy.raw(tape,link_output_json.member(tape,item,"initial"))
+        configured:link_output_policy.configure(exact,initial)
+        source:link_output_json.string(tape,link_output_json.member(tape,item,"uri"))
+        decoded:link_output_uri.decode_destination(source)
+        valid:"false"
+        decoded.valid? .valid:"true"
+        index>=outputs.length()? .outputs:outputs&link_output_chunks.empty(outputs.length())
+        prefix:""
+        index>0? .prefix:","
+        outputs.(index):prefix&"{\"appearance\":"&configured.appearance&",\"diagnostics\":["&configured.diagnostics&"],\"encoded\":"&link_output_json.quote(link_output_uri.encode_destination(source))&",\"decoded\":{\"value\":"&link_output_json.quote(decoded.value)&",\"valid\":"&valid&",\"diagnostic\":"&link_output_json.quote(decoded.diagnostic)&"},\"uri\":"&link_output_json.quote(link_output_uri.uri_value(source))&"}"
+        .index:index+1
+    @:"["&link_output_chunks.join(outputs,0,index)&"]"

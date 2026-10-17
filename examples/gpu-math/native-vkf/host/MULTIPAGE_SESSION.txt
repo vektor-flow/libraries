@@ -1,0 +1,26 @@
+Multi-page incremental session qualification (synthetic only)
+
+Prepare the explicit decoded PageDocument with beginProvenance and page selection.
+Keep prepared.bound as the exact full-document predecessor; selectProducerPage
+projects pages without inventing document/page ownership or source revisions.
+Pass selected.update to a single document session, await update, then render.
+The receipt completion is queue completion, not a PDF save.
+
+For a real source edit, reviseProvenance with UTF-8 operation extents and UTF-16 group spans and explicit
+affected dependency closure; increment content/layout versions as required.
+Reprepare against the full prior bound before selecting edited pages. Resources
+with unchanged identity/version share a texture through page switches and edits.
+Changed resource versions require corresponding owner and payload versions.
+A failed preparation leaves the previous session drawable intact.
+
+The additive A323 suite reuses columns-fixture and the A320 synthetic backend.
+Three glyph pages share one resource; alpha-to-beta changes source bytes while
+a declared dependent page changes layout and a third page remains unchanged.
+Literal geometry and independent fresh preparation constrain every page.
+Tests also cover mutation isolation and deferred cancel/dispose completion.
+No physical GPU, native producer, complete engine, PDF or performance claim.
+Resource table changes use a fresh authenticated beginProvenance owner at the next
+revision: reviseProvenance intentionally accepts only source/scope/group deltas.
+Both content and layout versions advance for replaced dependent groups.
+Resource versions affect every referencing group: advance their layout versions,
+including groups on otherwise unchanged pages, before preparing replacement.

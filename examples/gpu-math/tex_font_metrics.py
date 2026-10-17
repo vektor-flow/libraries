@@ -4,9 +4,16 @@ fontTools currently overwrites earlier kerns when a shared program tail repeats
 a next-character code. TeX stops at the first match (including a ligature).
 Outlines and all other fontTools metrics remain unchanged.
 """
-import struct
+import struct,math
 from pathlib import Path
 from fontTools.tfmLib import TFM
+
+
+def native_scaled(value,size_pt):
+    """TeX's scaled font metric in bp for the supported optical font sizes."""
+    size_sp=round(size_pt*65536)
+    if size_sp>=2**23:raise ValueError('Large font scaling needs alpha/beta reduction')
+    return math.floor(value*size_sp)*72/72.27/65536
 
 
 def tex_kerning(raw):

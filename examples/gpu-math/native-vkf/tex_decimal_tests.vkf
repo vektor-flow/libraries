@@ -1,0 +1,13 @@
+tex_decimal:.tex_decimal
+resource_numbers:.resource_numbers
+tex_text:.tex_text
+renderer_tests()->bit:
+    (tex_decimal.plain(0)="0" /\ tex_decimal.plain(10)="10" /\ tex_decimal.plain(-100)="-100")?! "Generated integer TeX lengths contain no exponent"
+    values:[43.10143374860924,4.9813352515955795,-0.125,0.000001,100000000000000000000.0]
+    index:0
+    index<values.length()?>
+        formatted:tex_decimal.plain(values.(index))
+        (tex_text.find(formatted,"e")<0 /\ resource_numbers.parse(formatted)=values.(index))?! "Plain TeX decimal retains the original binary64 value"
+        .index:index+1
+    @:true
+::renderer_tests()

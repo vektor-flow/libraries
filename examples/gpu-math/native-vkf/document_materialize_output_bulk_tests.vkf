@@ -1,0 +1,117 @@
+# Compare direct output columns against the independent former Leaf-map path.
+output:.document_materialize_output_typed
+scene:.document_scene
+scene_json:.document_scene_json
+placement:.document_scene_pages
+pages:.document_pages
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,extra:str,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int)
+same(a:Leaf,b:Leaf)->bit:
+    (a.kind=b.kind)?! "bulk output kind"
+    (a.key=b.key)?! "bulk output key"
+    (a.x=b.x)?! "bulk output x"
+    (a.y=b.y)?! "bulk output y"
+    (a.sx=b.sx)?! "bulk output sx"
+    (a.sy=b.sy)?! "bulk output sy"
+    (a.width=b.width)?! "bulk output width"
+    (a.height=b.height)?! "bulk output height"
+    (a.line=b.line)?! "bulk output line"
+    (a.equation_tag=b.equation_tag)?! "bulk output equation_tag"
+    (a.tag_width=b.tag_width)?! "bulk output tag_width"
+    (a.draw=b.draw)?! "bulk output draw"
+    (a.extra=b.extra)?! "bulk output extra"
+    (a.flow_x=b.flow_x)?! "bulk output flow_x"
+    (a.flow_width=b.flow_width)?! "bulk output flow_width"
+    (a.has_flow=b.has_flow)?! "bulk output has_flow"
+    (a.vertical_shrink=b.vertical_shrink)?! "bulk output vertical_shrink"
+    (a.vertical_stretch=b.vertical_stretch)?! "bulk output vertical_stretch"
+    (a.has_paint=b.has_paint)?! "bulk output has_paint"
+    (a.has_payload=b.has_payload)?! "bulk output has_payload"
+    (a.has_fill_paint=b.has_fill_paint)?! "bulk output has_fill_paint"
+    (a.has_stroke_paint=b.has_stroke_paint)?! "bulk output has_stroke_paint"
+    (a.footnote_number=b.footnote_number)?! "bulk output footnote_number"
+    (a.paint.red=b.paint.red)?! "bulk output paint.red"
+    (a.paint.green=b.paint.green)?! "bulk output paint.green"
+    (a.paint.blue=b.paint.blue)?! "bulk output paint.blue"
+    (a.paint.alpha=b.paint.alpha)?! "bulk output paint.alpha"
+    (a.fill_paint.red=b.fill_paint.red)?! "bulk output fill_paint.red"
+    (a.fill_paint.green=b.fill_paint.green)?! "bulk output fill_paint.green"
+    (a.fill_paint.blue=b.fill_paint.blue)?! "bulk output fill_paint.blue"
+    (a.fill_paint.alpha=b.fill_paint.alpha)?! "bulk output fill_paint.alpha"
+    (a.stroke_paint.red=b.stroke_paint.red)?! "bulk output stroke_paint.red"
+    (a.stroke_paint.green=b.stroke_paint.green)?! "bulk output stroke_paint.green"
+    (a.stroke_paint.blue=b.stroke_paint.blue)?! "bulk output stroke_paint.blue"
+    (a.stroke_paint.alpha=b.stroke_paint.alpha)?! "bulk output stroke_paint.alpha"
+    (a.payload.crop_x=b.payload.crop_x)?! "bulk output payload.crop_x"
+    (a.payload.crop_y=b.payload.crop_y)?! "bulk output payload.crop_y"
+    (a.payload.crop_left=b.payload.crop_left)?! "bulk output payload.crop_left"
+    (a.payload.crop_right=b.payload.crop_right)?! "bulk output payload.crop_right"
+    (a.payload.crop_top=b.payload.crop_top)?! "bulk output payload.crop_top"
+    (a.payload.crop_bottom=b.payload.crop_bottom)?! "bulk output payload.crop_bottom"
+    (a.payload.left=b.payload.left)?! "bulk output payload.left"
+    (a.payload.right=b.payload.right)?! "bulk output payload.right"
+    (a.payload.top=b.payload.top)?! "bulk output payload.top"
+    (a.payload.bottom=b.payload.bottom)?! "bulk output payload.bottom"
+    (a.payload.dx=b.payload.dx)?! "bulk output payload.dx"
+    (a.payload.dy=b.payload.dy)?! "bulk output payload.dy"
+    (a.payload.c1x=b.payload.c1x)?! "bulk output payload.c1x"
+    (a.payload.c1y=b.payload.c1y)?! "bulk output payload.c1y"
+    (a.payload.c2x=b.payload.c2x)?! "bulk output payload.c2x"
+    (a.payload.c2y=b.payload.c2y)?! "bulk output payload.c2y"
+    (a.payload.line_width=b.payload.line_width)?! "bulk output payload.line_width"
+    (a.payload.fill=b.payload.fill)?! "bulk output payload.fill"
+    (a.payload.fill_paint=b.payload.fill_paint)?! "bulk output payload.fill_paint"
+    (a.payload.stroke_paint=b.payload.stroke_paint)?! "bulk output payload.stroke_paint"
+    (a.payload.dash=b.payload.dash)?! "bulk output payload.dash"
+    (a.payload.target_type=b.payload.target_type)?! "bulk output payload.target_type"
+    (a.payload.target=b.payload.target)?! "bulk output payload.target"
+    (a.payload.border_width=b.payload.border_width)?! "bulk output payload.border_width"
+    (a.payload.asset=b.payload.asset)?! "bulk output payload.asset"
+    (a.destination_ids.length()=b.destination_ids.length())?! "bulk destination count"
+    i:0
+    i<a.destination_ids.length()?>
+        (a.destination_ids.(i)=b.destination_ids.(i))?! "bulk destination order"
+        .i:i+1
+    @:true
+renderer_tests()->bit:
+    source:scene_json.decode("{\"items\":[{\"kind\":\"glyph\",\"key\":\"g0\",\"x\":0.25,\"y\":-0.5,\"sx\":1.5,\"sy\":0.75,\"width\":4,\"height\":2,\"flowLine\":0,\"equationTag\":true,\"tagWidth\":9,\"draw\":true,\"flowX\":3,\"flowWidth\":8,\"verticalShrink\":0.2,\"verticalStretch\":0.3,\"color\":[0.2,0.4,0.6,0.8],\"fillColor\":[0.7,0.1,0.3,0.9],\"strokeColor\":[0.1,0.8,0.2,0.6],\"cropX\":[-2,7],\"lineWidth\":0.4,\"fill\":true,\"dash\":\"dashed\",\"targetType\":\"uri\",\"target\":{\"type\":\"uri\",\"value\":\"https://example.invalid/å\"},\"borderWidth\":0.5,\"asset\":\"vector-å\",\"destinationIds\":[\"a0\",\"shared\"],\"footnoteNumber\":2,\"custom\":\"kept\",\"crop\":[-3,8],\"delta\":[2,3],\"controls\":[{\"x\":4,\"y\":5},{\"x\":6,\"y\":7}]},{\"kind\":\"field\",\"key\":\"g1\",\"x\":1.25,\"y\":0.5,\"sx\":1.5,\"sy\":0.75,\"width\":4,\"height\":2,\"flowLine\":0,\"equationTag\":false,\"tagWidth\":9,\"draw\":false,\"flowX\":3,\"flowWidth\":8,\"verticalShrink\":0.2,\"verticalStretch\":0.3,\"color\":[0.2,0.4,0.6,0.8],\"fillColor\":[0.7,0.1,0.3,0.9],\"strokeColor\":[0.1,0.8,0.2,0.6],\"cropX\":[-2,7],\"lineWidth\":0.4,\"fill\":true,\"dash\":\"dashed\",\"targetType\":\"uri\",\"target\":{\"type\":\"uri\",\"value\":\"https://example.invalid/å\"},\"borderWidth\":0.5,\"asset\":\"vector-å\",\"destinationIds\":[\"a1\",\"shared\"],\"footnoteNumber\":2,\"custom\":\"kept\",\"crop\":[-3,8],\"delta\":[2,3],\"controls\":[{\"x\":4,\"y\":5},{\"x\":6,\"y\":7}]},{\"kind\":\"rule\",\"key\":\"g2\",\"x\":2.25,\"y\":1.5,\"sx\":1.5,\"sy\":0.75,\"width\":4,\"height\":2,\"flowLine\":0,\"equationTag\":false,\"tagWidth\":9,\"draw\":true,\"flowX\":3,\"flowWidth\":8,\"verticalShrink\":0.2,\"verticalStretch\":0.3,\"color\":[0.2,0.4,0.6,0.8],\"fillColor\":[0.7,0.1,0.3,0.9],\"strokeColor\":[0.1,0.8,0.2,0.6],\"cropX\":[-2,7],\"lineWidth\":0.4,\"fill\":true,\"dash\":\"dashed\",\"targetType\":\"uri\",\"target\":{\"type\":\"uri\",\"value\":\"https://example.invalid/å\"},\"borderWidth\":0.5,\"asset\":\"vector-å\",\"destinationIds\":[\"a2\",\"shared\"],\"footnoteNumber\":2,\"custom\":\"kept\",\"crop\":[-3,8],\"delta\":[2,3],\"controls\":[{\"x\":4,\"y\":5},{\"x\":6,\"y\":7}]},{\"kind\":\"link\",\"key\":\"g3\",\"x\":3.25,\"y\":2.5,\"sx\":1.5,\"sy\":0.75,\"width\":4,\"height\":2,\"flowLine\":0,\"equationTag\":false,\"tagWidth\":9,\"draw\":false,\"flowX\":3,\"flowWidth\":8,\"verticalShrink\":0.2,\"verticalStretch\":0.3,\"color\":[0.2,0.4,0.6,0.8],\"fillColor\":[0.7,0.1,0.3,0.9],\"strokeColor\":[0.1,0.8,0.2,0.6],\"cropX\":[-2,7],\"lineWidth\":0.4,\"fill\":true,\"dash\":\"dashed\",\"targetType\":\"uri\",\"target\":{\"type\":\"uri\",\"value\":\"https://example.invalid/å\"},\"borderWidth\":0.5,\"asset\":\"vector-å\",\"destinationIds\":[\"a3\",\"shared\"],\"footnoteNumber\":2,\"custom\":\"kept\",\"crop\":[-3,8],\"delta\":[2,3],\"controls\":[{\"x\":4,\"y\":5},{\"x\":6,\"y\":7}]},{\"kind\":\"image\",\"key\":\"g4\",\"x\":4.25,\"y\":3.5,\"sx\":1.5,\"sy\":0.75,\"width\":4,\"height\":2,\"flowLine\":0,\"equationTag\":false,\"tagWidth\":9,\"draw\":true,\"flowX\":3,\"flowWidth\":8,\"verticalShrink\":0.2,\"verticalStretch\":0.3,\"color\":[0.2,0.4,0.6,0.8],\"fillColor\":[0.7,0.1,0.3,0.9],\"strokeColor\":[0.1,0.8,0.2,0.6],\"cropX\":[-2,7],\"lineWidth\":0.4,\"fill\":true,\"dash\":\"dashed\",\"targetType\":\"uri\",\"target\":{\"type\":\"uri\",\"value\":\"https://example.invalid/å\"},\"borderWidth\":0.5,\"asset\":\"vector-å\",\"destinationIds\":[\"a4\",\"shared\"],\"footnoteNumber\":2,\"custom\":\"kept\",\"crop\":[-3,8],\"delta\":[2,3],\"controls\":[{\"x\":4,\"y\":5},{\"x\":6,\"y\":7}]},{\"kind\":\"segment\",\"key\":\"g5\",\"x\":5.25,\"y\":4.5,\"sx\":1.5,\"sy\":0.75,\"width\":4,\"height\":2,\"flowLine\":0,\"equationTag\":false,\"tagWidth\":9,\"draw\":false,\"flowX\":3,\"flowWidth\":8,\"verticalShrink\":0.2,\"verticalStretch\":0.3,\"color\":[0.2,0.4,0.6,0.8],\"fillColor\":[0.7,0.1,0.3,0.9],\"strokeColor\":[0.1,0.8,0.2,0.6],\"cropX\":[-2,7],\"lineWidth\":0.4,\"fill\":true,\"dash\":\"dashed\",\"targetType\":\"uri\",\"target\":{\"type\":\"uri\",\"value\":\"https://example.invalid/å\"},\"borderWidth\":0.5,\"asset\":\"vector-å\",\"destinationIds\":[\"a5\",\"shared\"],\"footnoteNumber\":2,\"custom\":\"kept\",\"crop\":[-3,8],\"delta\":[2,3],\"controls\":[{\"x\":4,\"y\":5},{\"x\":6,\"y\":7}]},{\"kind\":\"bezier\",\"key\":\"g6\",\"x\":6.25,\"y\":5.5,\"sx\":1.5,\"sy\":0.75,\"width\":4,\"height\":2,\"flowLine\":0,\"equationTag\":false,\"tagWidth\":9,\"draw\":true,\"flowX\":3,\"flowWidth\":8,\"verticalShrink\":0.2,\"verticalStretch\":0.3,\"color\":[0.2,0.4,0.6,0.8],\"fillColor\":[0.7,0.1,0.3,0.9],\"strokeColor\":[0.1,0.8,0.2,0.6],\"cropX\":[-2,7],\"lineWidth\":0.4,\"fill\":true,\"dash\":\"dashed\",\"targetType\":\"uri\",\"target\":{\"type\":\"uri\",\"value\":\"https://example.invalid/å\"},\"borderWidth\":0.5,\"asset\":\"vector-å\",\"destinationIds\":[\"a6\",\"shared\"],\"footnoteNumber\":2,\"custom\":\"kept\",\"crop\":[-3,8],\"delta\":[2,3],\"controls\":[{\"x\":4,\"y\":5},{\"x\":6,\"y\":7}]},{\"kind\":\"circle\",\"key\":\"g7\",\"x\":7.25,\"y\":6.5,\"sx\":1.5,\"sy\":0.75,\"width\":4,\"height\":2,\"flowLine\":0,\"equationTag\":false,\"tagWidth\":9,\"draw\":false,\"flowX\":3,\"flowWidth\":8,\"verticalShrink\":0.2,\"verticalStretch\":0.3,\"color\":[0.2,0.4,0.6,0.8],\"fillColor\":[0.7,0.1,0.3,0.9],\"strokeColor\":[0.1,0.8,0.2,0.6],\"cropX\":[-2,7],\"lineWidth\":0.4,\"fill\":true,\"dash\":\"dashed\",\"targetType\":\"uri\",\"target\":{\"type\":\"uri\",\"value\":\"https://example.invalid/å\"},\"borderWidth\":0.5,\"asset\":\"vector-å\",\"destinationIds\":[\"a7\",\"shared\"],\"footnoteNumber\":2,\"custom\":\"kept\",\"crop\":[-3,8],\"delta\":[2,3],\"controls\":[{\"x\":4,\"y\":5},{\"x\":6,\"y\":7}]},{\"kind\":\"vectorrect\",\"key\":\"g8\",\"x\":8.25,\"y\":7.5,\"sx\":1.5,\"sy\":0.75,\"width\":4,\"height\":2,\"flowLine\":0,\"equationTag\":false,\"tagWidth\":9,\"draw\":true,\"flowX\":3,\"flowWidth\":8,\"verticalShrink\":0.2,\"verticalStretch\":0.3,\"color\":[0.2,0.4,0.6,0.8],\"fillColor\":[0.7,0.1,0.3,0.9],\"strokeColor\":[0.1,0.8,0.2,0.6],\"cropX\":[-2,7],\"lineWidth\":0.4,\"fill\":true,\"dash\":\"dashed\",\"targetType\":\"uri\",\"target\":{\"type\":\"uri\",\"value\":\"https://example.invalid/å\"},\"borderWidth\":0.5,\"asset\":\"vector-å\",\"destinationIds\":[\"a8\",\"shared\"],\"footnoteNumber\":2,\"custom\":\"kept\",\"crop\":[-3,8],\"delta\":[2,3],\"controls\":[{\"x\":4,\"y\":5},{\"x\":6,\"y\":7}]},{\"kind\":\"placeholder\",\"key\":\"g9\",\"x\":9.25,\"y\":8.5,\"sx\":1.5,\"sy\":0.75,\"width\":4,\"height\":2,\"flowLine\":0,\"equationTag\":false,\"tagWidth\":9,\"draw\":false,\"flowX\":3,\"flowWidth\":8,\"verticalShrink\":0.2,\"verticalStretch\":0.3,\"color\":[0.2,0.4,0.6,0.8],\"fillColor\":[0.7,0.1,0.3,0.9],\"strokeColor\":[0.1,0.8,0.2,0.6],\"cropX\":[-2,7],\"lineWidth\":0.4,\"fill\":true,\"dash\":\"dashed\",\"targetType\":\"uri\",\"target\":{\"type\":\"uri\",\"value\":\"https://example.invalid/å\"},\"borderWidth\":0.5,\"asset\":\"vector-å\",\"destinationIds\":[\"a9\",\"shared\"],\"footnoteNumber\":2,\"custom\":\"kept\",\"crop\":[-3,8],\"delta\":[2,3],\"controls\":[{\"x\":4,\"y\":5},{\"x\":6,\"y\":7}]}]}")
+    arena:source.arena
+    count:arena.count*4
+    placed:pages.empty_placements(1)
+    .placed:pages.append(placed,0,0,0,0,0,0,10,20,2,100,7,3,0.2,0.3)
+    body:placement.index_flat(arena,[0],[arena.count],placed,[0],[0],1,1)
+    [int] kinds:[0:count]
+    [int] sources:[0:count]
+    [int] leaves:[0:count]
+    [int] placement_ids:[0:count]
+    contexts:scene.strings(count)
+    [num] label_ys:[0.0:count]
+    [int] ordered:[0:count]
+    [int] modes:[0:count]
+    [bit] has_lines:[false:count]
+    i:0
+    i<count?>
+        kinds.(i):i%4
+        sources.(i):0
+        i%4=0? sources.(i):i//4
+        leaves.(i):i//4
+        contexts.(i):"context"
+        label_ys.(i):5
+        ordered.(i):count-1-i
+        .i:i+1
+    refs:(kinds:kinds,source_ids:sources,leaf_ids:leaves,placement_ids:placement_ids,context_ids:contexts,label_ys:label_ys,ordered:ordered,firsts:[0],counts:[count],modes:modes,has_lines:has_lines,count:count)
+    rules:(pages:[0],xs:[1.0],ys:[2.0],widths:[3.0],heights:[0.5],count:1)
+    [int] indices:[0:count]
+    expected_leaves:indices >> output.output_leaf(arena,arena,arena,[4.0],placed,rules,body,[0.0],refs,20,[5.0],[2.0],$0)
+    expected:scene.from_leaves(expected_leaves,count)
+    actual:output.output_arena(arena,arena,arena,[4.0],placed,rules,body,[0.0],refs,20,[5.0],[2.0],count)
+    (actual.count=expected.count /\ actual.paint_count=expected.paint_count /\ actual.payload_count=expected.payload_count)?! "bulk table counts"
+    .i:0
+    i<count?>
+        a:scene.leaf_at(actual,i)
+        b:scene.leaf_at(expected,i)
+        same(a,b)?! "all placed leaf metadata and ownership"
+        .i:i+1
+    @:true
+renderer_tests()

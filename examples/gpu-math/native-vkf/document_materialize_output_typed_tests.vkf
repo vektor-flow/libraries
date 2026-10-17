@@ -1,0 +1,242 @@
+output:.document_materialize_output_typed
+scene:.document_scene
+scene_json:.document_scene_json
+exporter:.document_scene_export
+pages:.document_pages
+maps:.document_present_maps
+catalog:.font_catalog
+data:.test_font_data
+j:.resource_json
+text:.tex_text
+
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,extra:str,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num)
+PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Map:(keys:Pool,values:[str])
+
+nums(n:int)->[num]:[0.0:n]
+ints(n:int)->[int]:[0:n]
+bits(n:int)->[bit]:[false:n]
+configuration():
+    math:(restricted:false,amsmath:false,amsthm:false,bbm:false,latexsym:false,faktor:false,qed_symbol:"")
+    @:(config:"{\"paperWidth\":210,\"paperHeight\":297,\"left\":20}",pages:(values:nums(0),flags:bits(0),penalties:ints(0)),packages:scene.strings(0),math:math,overrides:scene.strings(0),class_name:"article",optical:false,hyperref:true,diagnostics:"")
+font_data():
+    @:catalog.load(data.pack(["tile/A"],["{\"plane\":[0,-3,5,6]}"]))
+page_data(count:int):
+    @:(last_baselines:nums(count),last_depths:nums(count),limits:nums(count),shrink_ratios:nums(count),stretch_ratios:nums(count),note_stretch:nums(count),note_flex:bits(count),forced:bits(count),count:count)
+line_data():
+    sources:ints(5)
+    sources.(2):1
+    sources.(3):2
+    sources.(4):3
+    source_lines:ints(5)
+    source_lines.(1):1
+    baselines:nums(5)
+    baselines.(1):12
+    @:(scenes:sources,source_lines:source_lines,heights:nums(5),depths:nums(5),natural_depths:nums(5),widths:nums(5),indents:nums(5),baselines:baselines,flagged:bits(5),marker_firsts:ints(5),marker_counts:ints(5),count:5)
+rule_data():
+    page_ids:ints(2)
+    xs:nums(2)
+    ys:nums(2)
+    widths:nums(2)
+    heights:nums(2)
+    page_ids.(1):1
+    xs.(0):1
+    xs.(1):2
+    ys.(0):2
+    ys.(1):3
+    widths.(0):3
+    widths.(1):4
+    heights.(0):0.5
+    heights.(1):0.6
+    @:(pages:page_ids,xs:xs,ys:ys,widths:widths,heights:heights,count:2)
+source(index:int):
+    index=0? @:scene_json.decode("{\"items\":[{\"kind\":\"link\",\"x\":0,\"y\":0,\"width\":8,\"height\":2,\"flowLine\":0},{\"kind\":\"glyph\",\"key\":\"A\",\"x\":1,\"y\":2,\"flowLine\":0,\"destinationIds\":[\"existing\",\"shared\"]},{\"kind\":\"glyph\",\"key\":\"B\",\"x\":3,\"y\":12,\"flowLine\":1,\"destinationIds\":[\"shared\"]}],\"width\":12}")
+    index=1? @:scene_json.decode("{\"items\":[{\"kind\":\"glyph\",\"key\":\"N\",\"x\":2,\"y\":3,\"flowLine\":0,\"destinationIds\":[\"footnote:1\"]}]}")
+    index=2? @:scene_json.decode("{\"items\":[],\"destinations\":[{\"id\":\"shared\",\"x\":7,\"y\":9}]}")
+    @:scene_json.decode("{\"items\":[{\"kind\":\"rule\",\"x\":4,\"y\":5,\"width\":6,\"height\":1,\"flowLine\":7}]}")
+label(index:int):
+    @:scene_json.decode("{\"items\":[{\"kind\":\"glyph\",\"key\":\"L\",\"x\":2,\"y\":3}],\"width\":4}")
+decoration(index:int):
+    index=0? @:scene_json.decode("{\"items\":[{\"kind\":\"glyph\",\"key\":\"F\",\"x\":1,\"y\":2,\"destinationIds\":[\"footer\"]}]}")
+    @:scene_json.decode("{\"items\":[]}")
+fixture(block_kind:str="paragraph")->(document:PageDocument,page_values:Map,debug_modes:[int],debug_has_lines:[bit]):
+    kinds:scene.strings(1)
+    contexts:scene.strings(1)
+    kinds.(0):block_kind
+    contexts.(0):"{\"left\":5,\"labelSep\":2,\"destination\":\"context\"}"
+    plan:(kinds:kinds,sources:scene.strings(1),contexts:contexts,attrs:scene.strings(1),origins:ints(1),scenes:scene.strings(1),count:1,references:maps.empty(),reference_destinations:maps.put(maps.empty(),"x","shared"),footnotes:"",diagnostics:"",unresolved:"")
+    [int] ids:[0:4]
+    sources:ids >> source($0)
+    [int] label_ids:[0:1]
+    labels:label_ids >> label($0)
+    [int] decoration_ids:[0:2]
+    decorations:decoration_ids >> decoration($0)
+    placements:pages.empty_placements(5)
+    .placements:pages.append(placements,0,0,0,0,0,0,10,20,2,0,8,2,3,4)
+    .placements:pages.append(placements,1,0,0,1,0,1,30,40,99,0,0,0,0,0)
+    .placements:pages.append(placements,0,1,1,0,1,0,11,50,2,0,8,2,3,4)
+    .placements:pages.append(placements,2,0,1,2,0,0,60,70,2,0,0,0,0,0)
+    .placements:pages.append(placements,3,0,1,3,0,4,80,90,99,0,0,0,0,0)
+    rules:rule_data()
+    built:output.build(plan,pages.empty_blocks(0),line_data(),sources,labels,placements,page_data(2),configuration(),font_data(),decorations,rules)
+    @:built
+synthetic_leaf(index:int):
+    @:scene.leaf("g"&text.integer(index),index,index)
+synthetic_scene(count:int,index:int):
+    [int] ids:[0:count]
+    leaves:ids >> synthetic_leaf($0)
+    arena:scene.from_leaves(leaves,count)
+    @:(arena:arena,anchor_ids:scene.strings(0),anchor_xs:nums(0),anchor_ys:nums(0),anchor_lines:ints(0),anchor_count:0,width:0.0,height:0.0,depth:0.0,tag_width:0.0)
+empty_scene(index:int):@:synthetic_scene(0,index)
+variable_count(count:int):
+    kinds:scene.strings(1)
+    contexts:scene.strings(1)
+    kinds.(0):"paragraph"
+    contexts.(0):"{}"
+    plan:(kinds:kinds,sources:scene.strings(1),contexts:contexts,attrs:scene.strings(1),origins:ints(1),scenes:scene.strings(1),count:1,references:maps.empty(),reference_destinations:maps.empty(),footnotes:"",diagnostics:"",unresolved:"")
+    [int] ids:[0:1]
+    sources:ids >> synthetic_scene(count,$0)
+    labels:ids >> empty_scene($0)
+    decorations:ids >> empty_scene($0)
+    placements:pages.empty_placements(1)
+    .placements:pages.append(placements,0,0,0,0,0,0,10,20,1,0,0,0,0,0)
+    lines:(scenes:ints(1),source_lines:ints(1),heights:nums(1),depths:nums(1),natural_depths:nums(1),widths:nums(1),indents:nums(1),baselines:nums(1),flagged:bits(1),marker_firsts:ints(1),marker_counts:ints(1),count:1)
+    rules:(pages:ints(0),xs:nums(0),ys:nums(0),widths:nums(0),heights:nums(0),count:0)
+    q:output.build(plan,pages.empty_blocks(0),lines,sources,labels,placements,page_data(1),configuration(),font_data(),decorations,rules)
+    (q.document.arena.count=count /\ q.document.counts.(0)=count /\ q.debug_modes.length()=count)?! "runtime mapped group Scene counts reach bulk arena"
+    count>0?
+        (q.document.arena.xs.(count-1)=9+count /\ q.document.arena.ys.(count-1)=19+count /\ q.document.arena.keys.(count-1)="g"&text.integer(count-1))?! "runtime mapped leaf positions and identity"
+actual_js_destinations()->bit:
+    q:fixture()
+    d:q.document
+    (d.destination_count=9)?! "actual JS destination count"
+    found0:false
+    i0:0
+    i0<d.destination_count?>
+        d.destination_names.(i0)="document"?
+            .found0:true
+            (d.destination_pages.(i0)=0 /\ d.destination_xs.(i0)=0 /\ d.destination_ys.(i0)=0)?! "actual JS destination document"
+        .i0:i0+1
+    found0?! "actual JS destination name document"
+    found1:false
+    i1:0
+    i1<d.destination_count?>
+        d.destination_names.(i1)="page:1"?
+            .found1:true
+            (d.destination_pages.(i1)=0 /\ d.destination_xs.(i1)=0 /\ d.destination_ys.(i1)=0)?! "actual JS destination page:1"
+        .i1:i1+1
+    found1?! "actual JS destination name page:1"
+    found2:false
+    i2:0
+    i2<d.destination_count?>
+        d.destination_names.(i2)="existing"?
+            .found2:true
+            (d.destination_pages.(i2)=0 /\ d.destination_xs.(i2)=12 /\ d.destination_ys.(i2)=18)?! "actual JS destination existing"
+        .i2:i2+1
+    found2?! "actual JS destination name existing"
+    found3:false
+    i3:0
+    i3<d.destination_count?>
+        d.destination_names.(i3)="shared"?
+            .found3:true
+            (d.destination_pages.(i3)=1 /\ d.destination_xs.(i3)=74 /\ d.destination_ys.(i3)=88)?! "actual JS destination shared"
+        .i3:i3+1
+    found3?! "actual JS destination name shared"
+    found4:false
+    i4:0
+    i4<d.destination_count?>
+        d.destination_names.(i4)="context"?
+            .found4:true
+            (d.destination_pages.(i4)=0 /\ d.destination_xs.(i4)=12 /\ d.destination_ys.(i4)=18)?! "actual JS destination context"
+        .i4:i4+1
+    found4?! "actual JS destination name context"
+    found5:false
+    i5:0
+    i5<d.destination_count?>
+        d.destination_names.(i5)="footnote:1"?
+            .found5:true
+            (d.destination_pages.(i5)=0 /\ d.destination_xs.(i5)=32 /\ d.destination_ys.(i5)=43)?! "actual JS destination footnote:1"
+        .i5:i5+1
+    found5?! "actual JS destination name footnote:1"
+    found6:false
+    i6:0
+    i6<d.destination_count?>
+        d.destination_names.(i6)="footer"?
+            .found6:true
+            (d.destination_pages.(i6)=0 /\ d.destination_xs.(i6)=1 /\ d.destination_ys.(i6)=2)?! "actual JS destination footer"
+        .i6:i6+1
+    found6?! "actual JS destination name footer"
+    found7:false
+    i7:0
+    i7<d.destination_count?>
+        d.destination_names.(i7)="page:2"?
+            .found7:true
+            (d.destination_pages.(i7)=1 /\ d.destination_xs.(i7)=0 /\ d.destination_ys.(i7)=0)?! "actual JS destination page:2"
+        .i7:i7+1
+    found7?! "actual JS destination name page:2"
+    found8:false
+    i8:0
+    i8<d.destination_count?>
+        d.destination_names.(i8)="label:x"?
+            .found8:true
+            (d.destination_pages.(i8)=1 /\ d.destination_xs.(i8)=74 /\ d.destination_ys.(i8)=88)?! "actual JS destination label:x"
+        .i8:i8+1
+    found8?! "actual JS destination name label:x"
+    @:true
+proof_ending_native_box()->bit:
+    q:fixture("proofend")
+    document:q.document
+    arena:document.arena
+    found:false
+    i:0
+    i<arena.count?>
+        arena.keys.(i)="A"?
+            .found:true
+            (q.debug_modes.(i)=9 /\ ~q.debug_has_lines.(i))?! "proof-ending source mode is distinct from paragraph scaling"
+            (arena.xs.(i)=11 /\ arena.ys.(i)=22 /\ arena.sxs.(i)=1 /\ arena.sys.(i)=1)?! "proof ending translates native box even with nonunit paragraph placement"
+        .i:i+1
+    found?! "proof-ending glyph retained"
+    @:true
+renderer_tests()->bit:
+    proof_ending_native_box()?! "proof-ending native placement"
+    actual_js_destinations()
+    variable_count(0)
+    variable_count(1)
+    variable_count(17)
+    variable_count(129)
+    q:fixture()
+    d:q.document
+    (d.page_count=2 /\ d.arena.count=9 /\ d.counts.(0)=6 /\ d.counts.(1)=3)?! "typed page body labels notes rules decorations order"
+    (d.arena.keys.(0)="L" /\ d.arena.kinds.(1)=3 /\ d.arena.keys.(2)="A" /\ d.arena.kinds.(3)=2 /\ d.arena.keys.(4)="N" /\ d.arena.keys.(5)="F" /\ d.arena.keys.(6)="B" /\ d.arena.kinds.(7)=2)?! "source placements preserve page-local order"
+    (d.arena.xs.(0)=21 /\ d.arena.ys.(0)=23 /\ d.arena.vertical_shrinks.(0)=3 /\ d.arena.vertical_stretches.(0)=4)?! "label translation has native scale and page flex"
+    (d.arena.xs.(2)=12 /\ d.arena.ys.(2)=24 /\ d.arena.sys.(2)=2 /\ d.arena.xs.(4)=32 /\ d.arena.ys.(4)=43)?! "ordinary body scales once while notes translate only"
+    (q.debug_modes.(0)=2 /\ q.debug_modes.(1)=1 /\ q.debug_modes.(3)=7 /\ q.debug_modes.(4)=3 /\ q.debug_modes.(5)=8 /\ q.debug_has_lines.(0) /\ q.debug_has_lines.(2))?! "debug modes and presence align final arena"
+    a:output.find_name(d.destination_names,[-1:1],"missing")
+    (a= -1)?! "missing destination lookup"
+    existing: -1
+    shared: -1
+    context: -1
+    alias: -1
+    i:0
+    i<d.destination_count?>
+        name:d.destination_names.(i)
+        name="existing"? .existing:i
+        name="shared"? .shared:i
+        name="context"? .context:i
+        name="label:x"? .alias:i
+        .i:i+1
+    (existing>=0 /\ shared>=0 /\ context>=0 /\ alias>=0)?! "context destination merges existing IDs and aliases"
+    (d.destination_pages.(existing)=0 /\ d.destination_xs.(existing)=12 /\ d.destination_ys.(existing)=18)?! "glyph destination accounts for tile plane and glyph scale"
+    (d.destination_pages.(shared)=1 /\ d.destination_xs.(shared)=74 /\ d.destination_ys.(shared)=88)?! "standalone page point overwrites earlier glyph destination"
+    page_value:maps.get(q.page_values,"x")
+    (d.destination_pages.(alias)=1 /\ d.destination_xs.(alias)=74 /\ page_value.value="2")?! "pageref follows actual aliased destination page"
+    serialized:exporter.encode(d,q.debug_modes,q.debug_has_lines)
+    parsed:j.parse(serialized)
+    (parsed.valid /\ text.find(serialized,"\"label:x\"")>=0)?! "typed complete page document exports at optional boundary"
+    @:true
+renderer_tests()

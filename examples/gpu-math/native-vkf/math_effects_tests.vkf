@@ -1,0 +1,31 @@
+e:.math_effects
+p:.math_parser
+r:.math_references
+c:.font_catalog
+data:.test_font_data
+
+check(source:str,number:int,refs:str):
+    fonts:c.load(data.math_catalog())
+    arena:p.parse(source,fonts)
+    prior:r.put(r.empty(),"existing","value")
+    result:e.replay(arena,0,1,prior)
+    (result.complete /\ result.next_number=number /\ r.json(result.refs)=refs)?! "counter and reference event order"
+    r.json(prior)="{\"existing\":\"value\"}"?! "reference input remains a snapshot"
+
+renderer_tests()->bit:
+    check("\\widehat{\\begin{equation}x\\label{eq:x}\\end{equation}}+\\begin{equation}y\\end{equation}",4,"{\"existing\":\"value\",\"eq:x\":\"2\"}")
+    check("\\widehat{\\widetilde{\\begin{equation}x\\label{eq:x}\\end{equation}}}+\\begin{equation}y\\end{equation}",6,"{\"existing\":\"value\",\"eq:x\":\"4\"}")
+    check("\\widehat{\\begin{equation*}x\\label{eq:x}\\end{equation*}}+\\begin{equation}y\\end{equation}",2,"{\"existing\":\"value\",\"eq:x\":\"1\"}")
+    check("\\widehat{\\begin{equation}x\\tag{a}\\label{eq:x}\\end{equation}}+\\begin{equation}y\\end{equation}",2,"{\"existing\":\"value\",\"eq:x\":\"1\"}")
+    check("\\widehat{\\begin{equation}x\\notag\\label{eq:x}\\end{equation}}+\\begin{equation}y\\end{equation}",2,"{\"existing\":\"value\",\"eq:x\":\"1\"}")
+    check("\\widehat{\\begin{align}x&=y\\label{eq:x}\\\\y&=x\\label{eq:y}\\end{align}}+\\begin{equation}x\\end{equation}",6,"{\"existing\":\"value\",\"eq:x\":\"3\",\"eq:y\":\"4\"}")
+    check("\\begin{equation}x\\label{base}\\end{equation}^{\\begin{equation}y\\label{sup}\\end{equation}}_{\\begin{equation}a\\label{sub}\\end{equation}}",4,"{\"existing\":\"value\",\"base\":\"1\",\"sup\":\"2\",\"sub\":\"3\"}")
+    fonts:c.load(data.math_catalog())
+    qed:p.parse("a",fonts)
+    kinds:qed.kinds
+    kinds.(1):"qedhere"
+    qed.kinds:kinds
+    guarded:e.replay(qed,0,1,r.empty())
+    ~guarded.complete?! "QED state requires caller fallback"
+    @:true
+renderer_tests()

@@ -1,0 +1,22 @@
+text_tikz_dump_io:.io
+text_tikz_dump_front:.tex_frontend
+text_tikz_dump_catalog:.font_catalog
+text_tikz_dump_parser:.text_parser
+text_tikz_dump_language:.hyphenation
+text_tikz_dump_asset:.hyphenation_test_asset
+text_tikz_dump_packages:.math_packages
+text_tikz_dump_bridge:.text_tikz_boxes
+text_tikz_dump_json:.resource_json
+run()->int:
+    source:text_tikz_dump_io.read_text(text_tikz_dump_io.read_line())
+    files:text_tikz_dump_io.read_text(text_tikz_dump_io.read_line())
+    fonts:text_tikz_dump_catalog.load(text_tikz_dump_io.read_text(text_tikz_dump_io.read_line()))
+    target:text_tikz_dump_io.read_line()
+    expanded:text_tikz_dump_front.prepare(source,files,"main","main.tex")
+    context:text_tikz_dump_parser.context("roman",["roman","bold","italic","footnote","mathtext"],true,true)
+    scenes:text_tikz_dump_bridge.prepare(expanded.source,fonts,context,text_tikz_dump_packages.from_names(["amsmath","amsthm","bbm","faktor","latexsym"],"amsart"),text_tikz_dump_language.load(text_tikz_dump_asset.source()),text_tikz_dump_language.strings(0),12*72.0/72.27,11.705980502801992)
+    complete:"false"
+    scenes.complete? .complete:"true"
+    text_tikz_dump_io.write_text(target,"{\"source\":"&text_tikz_dump_json.quote(scenes.source)&",\"boxes\":"&text_tikz_dump_bridge.directory(scenes)&",\"complete\":"&complete&",\"diagnostics\":["&scenes.diagnostics&"]}")
+    @:0
+run()

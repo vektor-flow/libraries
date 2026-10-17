@@ -1,0 +1,38 @@
+a:.math_qed_actions
+q:.math_qed
+p:.math_parser
+packages:.math_packages
+catalog:.font_catalog
+data:.test_font_data
+
+renderer_tests()->bit:
+    initial:q.empty()
+    pushed:a.enter(initial,"qedpush",10,0,false,"","null",true)
+    (pushed.operation=a.empty_operation() /\ pushed.space /\ ~pushed.needs_finish /\ pushed.stack.count=1 /\ pushed.stack.depth=0)?! "push captures source without scheduling or increasing symbol depth"
+    here:a.enter(pushed.stack,"qedhere", -1,2,true,"mathbf","[1,0,0,1]",false)
+    (here.operation=a.evaluate_operation() /\ here.root=10 /\ here.stack.count=1 /\ here.stack.depth=1 /\ here.tag /\ here.qed_tag /\ here.fresh /\ here.style=2 /\ here.cramped /\ here.font="mathbf")?! "here uses current execution context and enters symbol depth before children"
+    bare:a.enter(here.stack,"qed", -1,2,true,"mathbf","null",true)
+    (bare.operation=a.symbol_operation() /\ ~bare.tag /\ ~bare.needs_finish)?! "bare QED within a captured execution stays inline"
+    child_push:a.enter(here.stack,"qedpush",20,0,false,"","null",true)
+    finished:a.finish(child_push.stack,here.entry_depth)
+    (finished.count=2 /\ finished.depth=0)?! "finish decrements only depth and preserves captured child push side effects"
+    popped:a.enter(finished,"qedpop", -1,1,false,"","null",false)
+    (popped.root=20 /\ popped.stack.count=1 /\ popped.stack.depth=1 /\ popped.tag)?! "unused pop removes pending entry before evaluating children even outside display"
+    after_pop:a.finish(popped.stack,popped.entry_depth)
+    used:a.enter(after_pop,"qedpop", -1,0,false,"","null",true)
+    (used.operation=a.empty_operation() /\ used.stack.count=0 /\ used.stack.depth=0)?! "here-used pending entry pops silently after child side effects"
+    first:a.enter(q.push(initial,30),"qedhere", -1,0,false,"","null",true)
+    repeated:a.enter(a.finish(first.stack,first.entry_depth),"qedhere", -1,3,false,"","null",true)
+    (repeated.operation=a.evaluate_operation() /\ repeated.root=30 /\ repeated.style=3 /\ repeated.fresh)?! "repeated here reevaluates under its later style without reusing first output"
+    missing:a.enter(initial,"qedhere", -1,0,false,"","null",true)
+    (missing.operation=a.hole_operation() /\ ~missing.tag /\ ~missing.space /\ missing.diagnostic="qedhere has no pending QED symbol")?! "missing here schedules a normal hole, not a tag or empty space"
+    fonts:catalog.load(data.math_catalog())
+    arena:p.parse_with_context("\\pushQED{a_b}\\qedhere",fonts,packages.from_names(["amsthm"]))
+    roots:arena.first
+    arguments:arena.a
+    action:a.enter(q.push(initial,arguments.(roots.(0))),"qedhere", -1,0,false,"","null",true)
+    one:a.instantiate(arena,action)
+    two:a.instantiate(one.arena,action)
+    (one.root=arena.count /\ two.root=one.arena.count /\ one.root~=two.root /\ p.list_json(one.arena,one.root)=p.list_json(two.arena,two.root))?! "each capture execution clones equivalent source into fresh independent retained owners"
+    @:true
+renderer_tests()

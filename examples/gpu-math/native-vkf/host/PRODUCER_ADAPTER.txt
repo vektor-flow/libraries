@@ -1,0 +1,66 @@
+E315 source integration candidate — adoption blocked by consumer mismatch
+
+Run node examples/gpu-math/native-vkf/verify_document_host.mjs from the repository.
+The registry preserves 73 host groups, adds the 31 E314 structural checks and
+five earlier rejection checks, and four independent leaf mapping checks.
+Every executable import and fixture read is repository-relative. Provenance JSON
+contains historical evidence paths only; tests do not read those paths.
+
+The adapter and exact A269 operation/source/metadata binder closure are unchanged
+from authenticated E314 bytes. The fixture provenance file records exact hashes.
+Owner beginProvenance must precede layout; missing ownership is rejected, never
+inferred. Resource IDs/versions/bytes retain existing immutable admission rules.
+
+Mapping independently traced through sceneColumns, retained bridge and consumer:
+0 glyph -> draw tag 0, explicit tile/font resource -> mock encode succeeds.
+1 field -> draw tag 0, explicit tile/font resource -> mock encode succeeds.
+2 rule -> draw tag 1, resource-free owner -> projection/commit/upload succeed,
+  but encodePage throws Missing explicit draw resource.
+3 link -> draw tag 1, explicit link target and border -> projection/commit/upload
+  succeed, but resource-free encodePage throws Missing explicit draw resource.
+Consumer document_texture_consumer.mjs:119-120 requires a texture even for tag 1.
+E314 rule fixture has no resources and tests update only; it cannot encode a draw.
+No fallback atlas is inferred or inserted. Fixing this cross-owner consumer
+contract is outside this source packaging grant. Root must resolve it before
+claiming all advertised glyph/field/rule/link leaves are drawable. The mapping
+regressions assert the current rejection explicitly; green tests are NOT full
+producer acceptance. First failing experiment and logs remain preserved.
+
+Single page only, no destination/display-without-provenance/image/vector support.
+Synthetic source-schema boundary evidence only: no compiled producer output,
+compiler/native/WASM/PDF/actual GPU/full document/performance qualification.
+Canonical original419 remains 293/419. This patch is private for Root review;
+shared repository sources and all historical exclusions remain untouched.
+
+E317 selected-page successor
+prepareProducerDocument(result, owner, {page, previous, tiles, resources}) binds
+the complete document before projection. page is zero-based and required for
+multipage input; omitted page retains one-page compatibility. Return .bound is
+always the full-document provenance for the next revision. For same-revision
+switching use selectProducerPage(prepared, page), which authenticates its input
+and retains the full bound value. Explicit .page width/height and update
+width/height describe the selected page; caller sizes its render view explicitly.
+Cross-page semantic groups are unsupported and rejected, including off-page
+crossings. Complete dependency groups remain with empty local off-page ranges;
+IDs, versions and dependency edges remain owner-authored. Only local indices
+and ranges change. Resources and tiles are selected exactly by leaf dependencies;
+full-document inputs must supply every resource and glyph tile before projection.
+All projected arrays/tables/payloads are independently copied. No destination
+or anchor provenance, image/vector extension, GPU algorithm change or performance
+claim. Existing implicit-multipage rejection remains valid and unchanged; explicit
+page selection is its named successor, covered in producer-pages.mjs.
+Projection scans all groups/resources plus selected leaves and copies full paint
+and payload tables. Initial preparation binds/validates all leaves and resources.
+Full binding is NOT guaranteed linear: existing operation/leaf find, source
+lookups, UTF offset scans and previous dependency closure can be superlinear.
+This change does not optimize those source-owner algorithms. Tests use synthetic
+exact-schema source-only ABI fixtures, not compiled producer output, PDFs or GPU.
+
+Prepared page indexing (E318): after full-document authentication and validation,
+private lifetime-bound page selectors map groups, links and resource table IDs
+once. Repeated selection uses these selectors without repeated membership scans.
+producerPageWork(prepared) returns detached adapter operation counters; binding
+and scene validation are outside those counters. Full group/dependency and paint/
+payload table copies, selected leaf arrays, resources and scene validation remain
+per-output work. This is not O(selected leaves) overall, a renderer latency result,
+or a real 40-page PDF benchmark. Mutable outputs never expose cached storage.

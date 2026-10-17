@@ -1,0 +1,98 @@
+# Destinations belong to the first visible leaf, never a link annotation.
+metadata:.frozen285_math_metadata
+pages:.frozen285_math_command_pages
+chunks:.frozen285_text_chunks
+j:.frozen285_resource_json
+text:.frozen285_tex_text
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Buffer:(heads:[[int]],tails:[[int]],boxes:int,nexts:[[int]],children:[[int]],pool:Pool,payload_ids:[[int]],xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int)
+
+ints(size:int)->[int]:[0:size]
+
+# All IDs are decoded strings. This preserves Set's order and deduplicates old
+# IDs as well as additions; JSON spelling is not used as string identity.
+merged(value:str,ids:[str],count:int)->str:
+    source:"{"&value&"}"
+    tape:j.parse(source)
+    previous:j.member(tape,0,"destinationIds")
+    union:chunks.empty(tape.count+count)
+    unique:0
+    old_index:0
+    old_count:0
+    previous>=0?
+        kinds:tape.kinds
+        kinds.(previous)=2?
+            true?>
+                item:j.element(tape,previous,old_count)
+                item<0? @|
+                .old_count:old_count+1
+    index:0
+    index<old_count+count?>
+        id:""
+        index<old_count? .id:j.string(tape,j.element(tape,previous,index))
+        index>=old_count? .id:ids.(index-old_count)
+        found:false
+        candidate:0
+        candidate<unique?>
+            union.(candidate)=id? .found:true
+            .candidate:candidate+1
+        ~found?
+            union.(unique):id
+            .unique:unique+1
+        .index:index+1
+    array:"["
+    serial:0
+    serial<unique?>
+        serial>0? .array:array&","
+        .array:array&j.quote(union.(serial))
+        .serial:serial+1
+    .array:array&"]"
+    previous<0? @:value&",\"destinationIds\":"&array
+    starts:tape.starts
+    stops:tape.stops
+    @:text.span(source,1,starts.(previous))&array&text.span(source,stops.(previous),text.byte_length(source)-1)
+
+mark_range(buffer:Buffer,first_command:int,stop_command:int,ids:[str],count:int)->Buffer:
+    (count>=0 /\ count<=ids.length())?! "Invalid destination ID count"
+    (count=0 \/ first_command<0 \/ first_command=stop_command)? @:buffer
+    (first_command<buffer.count)?! "Invalid destination command range"
+    heads:buffer.heads
+    nexts:buffer.nexts
+    children:buffer.children
+    payload_ids:buffer.payload_ids
+    pool:buffer.pool
+    values:pool.values
+    stack:ints(buffer.boxes+1)
+    stack.(0):first_command
+    top:0
+    top>=0?>
+        command:stack.(top)
+        (command<0 \/ top=0 /\ command=stop_command)?
+            .top:top-1
+            @>
+        (command<buffer.count)?! "Invalid destination command"
+        stack.(top):pages.integer(nexts,command)
+        child:pages.integer(children,command)
+        child>=0?
+            (child<buffer.boxes /\ top+1<=buffer.boxes)?! "Invalid or cyclic destination box"
+            .top:top+1
+            stack.(top):pages.integer(heads,child)
+            @>
+        id:pages.integer(payload_ids,command)
+        (id>=0 /\ id<pool.count)?! "Invalid destination metadata ID"
+        value:values.(id)
+        tape:j.parse("{"&value&"}")
+        kind:j.member(tape,0,"kind")
+        kind>=0?
+            j.string(tape,kind)="link"? @>
+        entry:metadata.intern(pool,merged(value,ids,count))
+        payload_ids.(command//pages.width(),command%pages.width()):entry.id
+        out:buffer
+        out.pool:entry.pool
+        out.payload_ids:payload_ids
+        @:out
+    @:buffer
+
+mark_owner(buffer:Buffer,owner:int,ids:[str],count:int)->Buffer:
+    (owner>=0 /\ owner<buffer.boxes)?! "Invalid destination owner"
+    @:mark_range(buffer,pages.integer(buffer.heads,owner), -1,ids,count)

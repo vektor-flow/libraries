@@ -1,0 +1,32 @@
+q:.math_quotient
+c:.math_commands
+p:.math_command_pages
+data:.test_font_data
+catalog:.font_catalog
+f:.test_layout_fonts
+j:.resource_json
+
+renderer_tests()->bit:
+    num:(width:5.0,height:7.0,depth:1.0)
+    den:(width:6.0,height:8.0,depth:2.0)
+    geometry:q.placement(num,den,(width:11.0,height:9.0,depth:2.0),1)
+    (geometry.width=13 /\ geometry.height=10.5 /\ geometry.depth=6 /\ geometry.numerator_y= -3.5 /\ geometry.denominator_y=4 /\ geometry.slash_x=0 /\ geometry.denominator_x=7)?! "quotient exact half-height offsets and independent mu kerns"
+    fonts:catalog.load(data.pack(["math/script/\\diagup"],["{\"width\":11,\"height\":9,\"depth\":2,\"class\":\"ord\",\"italic\":5}"]))
+    buffer:c.empty(3)
+    result:q.layout(buffer,0,1,2,fonts,num,den,2,1,"","[1,0,0,1]")
+    commands:result.buffer
+    pool:commands.pool
+    values:pool.values
+    slash:j.parse("{"&values.(p.integer(commands.payload_ids,1))&"}")
+    (result.width=13 /\ result.height=10.5 /\ result.depth=6 /\ result.diagnostic="" /\ commands.count=3 /\ buffer.count=0)?! "retained quotient preserves geometry and previous command snapshot"
+    (p.integer(commands.children,0)=1 /\ p.integer(commands.children,2)=2 /\ p.number(commands.ys,0)= -3.5 /\ p.number(commands.xs,2)=7 /\ p.number(commands.ys,2)=4)?! "numerator slash denominator draw order and retained child coordinates"
+    (j.string(slash,j.member(slash,0,"key"))="script/\\diagup" /\ j.element(slash,j.member(slash,0,"color"),0)>=0)?! "slash uses surrounding installed style and color"
+    missing:q.layout(c.empty(3),0,1,2,f.fonts(),num,den,0,1)
+    missingPool:missing.buffer.pool
+    missingValues:missingPool.values
+    placeholder:j.parse("{"&missingValues.(p.integer(missing.buffer.payload_ids,1))&"}")
+    (missing.diagnostic="Missing native glyph: \\diagup (display)" /\ j.string(placeholder,j.member(placeholder,0,"kind"))="placeholder" /\ p.number(missing.buffer.ys,1)= -3.2)?! "missing installed slash retains placeholder diagnostic and top edge"
+    negative:q.placement((width:0.0,height:0.0,depth:0.0),(width:0.0,height:0.0,depth:0.0),(width:1.0,height:0.0,depth:0.0),1)
+    (negative.slash_x= -5 /\ negative.denominator_x= -8 /\ negative.width= -8)?! "short operands preserve exact native negative kern geometry without clamping"
+    @:true
+renderer_tests()

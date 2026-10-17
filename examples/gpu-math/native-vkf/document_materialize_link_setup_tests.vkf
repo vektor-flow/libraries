@@ -1,0 +1,20 @@
+document_materialize_link_setup:.document_materialize_link_setup
+document_materialize_config:.document_materialize_config
+resource_json:.resource_json
+renderer_tests()->bit:
+    imports:"[{\"names\":\"hyperref\",\"options\":\"colorlinks,linkcolor=blue\"}]"
+    prepared:document_materialize_link_setup.prepare("\\hypersetup{urlcolor=red,pdfborder={0 0 0}}\\begin{document}\\hypersetup{allcolors=black}","article",imports,true)
+    tape:resource_json.parse(prepared.appearance)
+    (prepared.diagnostics="" /\ document_materialize_config.raw_member(tape,0,"enabled")="true" /\ document_materialize_config.raw_member(tape,0,"colorlinks")="true")?! "loaded package options configure document link style"
+    ref:resource_json.member(tape,0,"ref")
+    url:resource_json.member(tape,0,"url")
+    cite:resource_json.member(tape,0,"cite")
+    (resource_json.number(tape,resource_json.element(tape,ref,2))=1 /\ resource_json.number(tape,resource_json.element(tape,url,0))=1 /\ resource_json.number(tape,resource_json.element(tape,cite,1))=1)?! "preamble overrides one link category while later body setup stays deferred"
+    (document_materialize_config.number(tape,0,"borderWidth")=0)?! "braced PDF border options remain one setup argument"
+    plain:document_materialize_link_setup.prepare("\\begin{document}","article","[]",false)
+    plain_tape:resource_json.parse(plain.appearance)
+    (document_materialize_config.raw_member(plain_tape,0,"enabled")="false" /\ document_materialize_config.raw_member(plain_tape,0,"url")="[0,1,1,1]")?! "default URI color is cyan even with disabled document hyperlinks"
+    replaced:resource_json.parse(document_materialize_config.replace_raw("{\"other\":2}","linkAppearance",prepared.appearance))
+    (document_materialize_config.number(replaced,0,"other")=2 /\ resource_json.member(replaced,0,"linkAppearance")>=0)?! "document config retains fields while attaching normalized link policy"
+    @:true
+renderer_tests()

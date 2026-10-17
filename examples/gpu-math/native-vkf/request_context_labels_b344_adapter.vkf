@@ -1,0 +1,89 @@
+safe:.context_safe_adapter
+legacy_present:.frozen285_document_present
+# SOURCE ONLY F324: compile/runtime qualification pending; B342 API.
+# Caller context generations are test-owned; B342 has no generation-token API.
+fonts:.font_catalog
+data:.test_font_data
+h:.hyphenation
+io:.io
+present:.document_present
+config:.document_materialize_config
+prep:.text_prepared_runs
+request:.document_shaping_request
+run()->bit:
+    language:h.load(io.read_text(io.read_line()))
+    roles:["roman","italic","bold"]
+    base:fonts.load(data.pack(["font/roman","font/italic","text/roman/97","text/roman/98","text/italic/97","text/italic/98"],["{\"size\": 10, \"spaces\": {\"space\": 3.3333333333333335, \"quad\": 10}, \"ligatures\": {}}","{\"size\": 10, \"spaces\": {\"space\": 3.3333333333333335, \"quad\": 10}, \"ligatures\": {}}","{\"key\": \"base-roman-a\", \"advance\": 5, \"width\": 5, \"height\": 7.0, \"depth\": 0}","{\"key\": \"base-roman-b\", \"advance\": 5, \"width\": 5, \"height\": 7.0, \"depth\": 0}","{\"key\": \"base-italic-a\", \"advance\": 7, \"width\": 5, \"height\": 7.0, \"depth\": 0}","{\"key\": \"base-italic-b\", \"advance\": 7, \"width\": 5, \"height\": 7.0, \"depth\": 0}"]))
+    sized:fonts.load(data.pack(["font/roman","font/italic","text/roman/97","text/roman/98","text/italic/97","text/italic/98"],["{\"size\": 20, \"spaces\": {\"space\": 6.666666666666667, \"quad\": 20}, \"ligatures\": {}}","{\"size\": 20, \"spaces\": {\"space\": 6.666666666666667, \"quad\": 20}, \"ligatures\": {}}","{\"key\": \"sized-roman-a\", \"advance\": 10, \"width\": 10, \"height\": 14.0, \"depth\": 0}","{\"key\": \"sized-roman-b\", \"advance\": 10, \"width\": 10, \"height\": 14.0, \"depth\": 0}","{\"key\": \"sized-italic-a\", \"advance\": 12, \"width\": 10, \"height\": 14.0, \"depth\": 0}","{\"key\": \"sized-italic-b\", \"advance\": 12, \"width\": 10, \"height\": 14.0, \"depth\": 0}"]))
+    catalog:fonts.load(data.pack(["font/roman","font/italic","text/roman/97","text/roman/98","text/italic/97","text/italic/98"],["{\"size\": 10, \"spaces\": {\"space\": 3.3333333333333335, \"quad\": 10}, \"ligatures\": {}}","{\"size\": 10, \"spaces\": {\"space\": 3.3333333333333335, \"quad\": 10}, \"ligatures\": {}}","{\"key\": \"catalog-roman-a\", \"advance\": 7, \"width\": 7, \"height\": 7.0, \"depth\": 0}","{\"key\": \"catalog-roman-b\", \"advance\": 7, \"width\": 7, \"height\": 7.0, \"depth\": 0}","{\"key\": \"catalog-italic-a\", \"advance\": 9, \"width\": 7, \"height\": 7.0, \"depth\": 0}","{\"key\": \"catalog-italic-b\", \"advance\": 9, \"width\": 7, \"height\": 7.0, \"depth\": 0}"]))
+    c:config.configure("article","","[]",base)
+    source:"aa"
+    old_collection:present.collect_label_width(prep.empty_collection(),source,"roman",base,roles,language,c)
+    old:request.extend(prep.seal(base,prep.empty_collection()),base,old_collection)
+    old_id:prep.lookup(old,source,0,2,"roman")
+    old_width:old.run_widths.(old_id)
+    old_glyph:old.run_keys.(old.run_offsets.(old_id))
+    old_count:old.run_count
+    old_legacy:legacy_present.measure(source,"roman",base,roles,language,c)
+    # Unchanged full context may extend the same generation.
+    unchanged:safe.prepare(old,source,"roman",base,roles,language,c,reuse_fixed_context:true)
+    control:present.fulfill_label_width(unchanged,source,"roman",base,roles,language,c)
+    (control.width=old_legacy.width /\ control.diagnostics=old_legacy.diagnostics /\ prep.lookup(unchanged,source,0,2,"roman")=old_id)?! "Unchanged context preserves width diagnostics and run identity"
+    # Changed size: invalidate by constructing a new empty font/run seed.
+    size_context_generation:2
+    size_c:config.configure("article","","[]",sized)
+    size_collection:present.collect_label_width(prep.empty_collection(),source,"roman",sized,roles,language,size_c)
+    size_new:safe.prepare(old,source,"roman",sized,roles,language,size_c)
+    size_actual:present.fulfill_label_width(size_new,source,"roman",sized,roles,language,size_c)
+    size_expected:legacy_present.measure(source,"roman",sized,roles,language,size_c)
+    size_fresh:prep.seal(sized,present.collect_label_width(prep.empty_collection(),source,"roman",sized,roles,language,size_c))
+    size_id:prep.lookup(size_new,source,0,2,"roman")
+    size_fresh_id:prep.lookup(size_fresh,source,0,2,"roman")
+    (size_actual.width=size_expected.width /\ size_actual.diagnostics=size_expected.diagnostics /\ size_actual.complete=size_expected.complete)?! "size: new context matches independent legacy provider"
+    (size_expected.width~=old_legacy.width)?! "size: fixture must distinguish the changed context"
+    (size_new.texts.(size_id)=size_fresh.texts.(size_fresh_id) /\ size_new.roles.(size_id)=size_fresh.roles.(size_fresh_id) /\ size_new.run_widths.(size_id)=size_fresh.run_widths.(size_fresh_id))?! "size: lookup identity compared by content and resolved role, not ordinal"
+    # Changed catalog: invalidate by constructing a new empty font/run seed.
+    catalog_context_generation:3
+    catalog_c:config.configure("article","","[]",catalog)
+    catalog_collection:present.collect_label_width(prep.empty_collection(),source,"roman",catalog,roles,language,catalog_c)
+    catalog_new:safe.prepare(old,source,"roman",catalog,roles,language,catalog_c)
+    catalog_actual:present.fulfill_label_width(catalog_new,source,"roman",catalog,roles,language,catalog_c)
+    catalog_expected:legacy_present.measure(source,"roman",catalog,roles,language,catalog_c)
+    catalog_fresh:prep.seal(catalog,present.collect_label_width(prep.empty_collection(),source,"roman",catalog,roles,language,catalog_c))
+    catalog_id:prep.lookup(catalog_new,source,0,2,"roman")
+    catalog_fresh_id:prep.lookup(catalog_fresh,source,0,2,"roman")
+    (catalog_actual.width=catalog_expected.width /\ catalog_actual.diagnostics=catalog_expected.diagnostics /\ catalog_actual.complete=catalog_expected.complete)?! "catalog: new context matches independent legacy provider"
+    (catalog_expected.width~=old_legacy.width)?! "catalog: fixture must distinguish the changed context"
+    (catalog_new.texts.(catalog_id)=catalog_fresh.texts.(catalog_fresh_id) /\ catalog_new.roles.(catalog_id)=catalog_fresh.roles.(catalog_fresh_id) /\ catalog_new.run_widths.(catalog_id)=catalog_fresh.run_widths.(catalog_fresh_id))?! "catalog: lookup identity compared by content and resolved role, not ordinal"
+    # Changed role: invalidate by constructing a new empty font/run seed.
+    role_context_generation:4
+    role_c:config.configure("article","","[]",base)
+    role_collection:present.collect_label_width(prep.empty_collection(),source,"italic",base,roles,language,role_c)
+    role_new:safe.prepare(old,source,"italic",base,roles,language,role_c)
+    role_actual:present.fulfill_label_width(role_new,source,"italic",base,roles,language,role_c)
+    role_expected:legacy_present.measure(source,"italic",base,roles,language,role_c)
+    role_fresh:prep.seal(base,present.collect_label_width(prep.empty_collection(),source,"italic",base,roles,language,role_c))
+    role_id:prep.lookup(role_new,source,0,2,"italic")
+    role_fresh_id:prep.lookup(role_fresh,source,0,2,"italic")
+    (role_actual.width=role_expected.width /\ role_actual.diagnostics=role_expected.diagnostics /\ role_actual.complete=role_expected.complete)?! "role: new context matches independent legacy provider"
+    (role_expected.width~=old_legacy.width)?! "role: fixture must distinguish the changed context"
+    (role_new.texts.(role_id)=role_fresh.texts.(role_fresh_id) /\ role_new.roles.(role_id)=role_fresh.roles.(role_fresh_id) /\ role_new.run_widths.(role_id)=role_fresh.run_widths.(role_fresh_id))?! "role: lookup identity compared by content and resolved role, not ordinal"
+    # Historical stale-use witness is preserved only in the original F324 source.
+    # Reordered logical plan demands: rebuild mapping, never carry demand ordinals.
+    forward:present.collect_label_width(old_collection,"bb","italic",base,roles,language,c)
+    first:request.extend(old,base,forward)
+    reverse:present.collect_label_width(prep.empty_collection(),"bb","italic",base,roles,language,c)
+    .reverse:present.collect_label_width(reverse,source,"roman",base,roles,language,c)
+    reordered:request.extend(first,base,reverse)
+    reverse_fresh:prep.seal(base,reverse)
+    a_id:prep.lookup(reordered,source,0,2,"roman")
+    b_id:prep.lookup(reordered,"bb",0,2,"italic")
+    b_fresh_id:prep.lookup(reverse_fresh,"bb",0,2,"italic")
+    b_actual:present.fulfill_label_width(reordered,"bb","italic",base,roles,language,c)
+    b_expected:legacy_present.measure("bb","italic",base,roles,language,c)
+    (a_id=old_id /\ reordered.texts.(b_id)="bb" /\ reordered.roles.(b_id)="italic" /\ reordered.run_widths.(b_id)=reverse_fresh.run_widths.(b_fresh_id))?! "Reordered plan demand lookup uses content and role"
+    (b_actual.width=b_expected.width /\ b_actual.diagnostics=b_expected.diagnostics)?! "Reordered label matches independent legacy measurement"
+    old_after:present.fulfill_label_width(old,source,"roman",base,roles,language,c)
+    (old.run_count=old_count /\ old.run_widths.(old_id)=old_width /\ old.run_keys.(old.run_offsets.(old_id))=old_glyph /\ old_after.width=old_legacy.width /\ old_after.diagnostics=old_legacy.diagnostics)?! "All new generations leave retained old generation unchanged"
+    @:true
+(run())?! "F324 context invalidation labels"

@@ -1,0 +1,25 @@
+text_link_spans:.text_link_spans
+resource_json:.resource_json
+renderer_tests()->bit:
+    spans:text_link_spans.empty()
+    .spans:text_link_spans.append(spans,2,5,12)
+    .spans:text_link_spans.append(spans,2,12,16)
+    .spans:text_link_spans.append(spans,-1,16,21)
+    .spans:text_link_spans.append(spans,3,21,25)
+    .spans:text_link_spans.append(spans,3,25,24)
+    .spans:text_link_spans.append(spans,4,24,24)
+    .spans:text_link_spans.append(spans,5,24,23)
+    (spans.count=4)?! "Unlinked nodes add no span; equal targets retain distinct scope identity"
+    directory:"{\"2\":{\"color\":[1,0,0,1],\"borderWidth\":1,\"target\":{\"type\":\"uri\",\"value\":\"https://example.test\"}},\"3\":{\"color\":[0,1,0,1],\"borderWidth\":0,\"target\":null}}"
+    scene:resource_json.parse(text_link_spans.scene(spans,directory,9,2))
+    items:resource_json.member(scene,0,"items")
+    first:resource_json.element(scene,items,0)
+    second:resource_json.element(scene,items,1)
+    (resource_json.number(scene,resource_json.member(scene,first,"width"))=11 /\ resource_json.number(scene,resource_json.member(scene,second,"width"))=3)?! "Span width follows solver glue and negative kern advances"
+    (resource_json.number(scene,resource_json.member(scene,first,"y"))= -9 /\ resource_json.number(scene,resource_json.member(scene,first,"height"))=11)?! "Each link rectangle spans final line height and depth"
+    (resource_json.element(scene,items,2)<0)?! "Zero and negative width spans never emit annotations"
+    next_line:text_link_spans.empty()
+    .next_line:text_link_spans.append(next_line,2,0,4)
+    (next_line.count=1)?! "A new selected line has independent hyperlink extents"
+    @:true
+renderer_tests()

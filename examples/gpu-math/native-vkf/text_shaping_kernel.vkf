@@ -1,0 +1,11 @@
+catalog:.font_catalog
+s:.text_shaping
+output:.text_shaping_output
+
+text_packet(font_source:str,source:str,role:str,start:int,stop:int)->str:
+    fonts:catalog.load(font_source)
+    ctx:s.context(fonts,role)
+    @:output.json(s.range(source,start,stop,fonts,ctx))
+
+noop()->int:0
+noop()

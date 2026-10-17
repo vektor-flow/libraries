@@ -1,0 +1,13 @@
+# Reads fresh source after compilation; no font/source result cache.
+io:.io
+catalog:.font_catalog
+parser:.math_parser
+
+run()->int:
+    font_path:io.read_line()
+    source_path:io.read_line()
+    output_path:io.read_line()
+    source:io.read_text(source_path)
+    io.write_text(output_path,parser.diagnose(source,catalog.load(io.read_text(font_path)),true,source_path))
+    @:0
+run()

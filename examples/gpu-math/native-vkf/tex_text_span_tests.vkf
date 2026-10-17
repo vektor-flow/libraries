@@ -1,0 +1,19 @@
+text:.tex_text
+long_value(depth:int)->str:
+    depth=0? @:"abå漢🙂 z"
+    half:long_value(depth-1)
+    @:half&half
+renderer_tests()->bit:
+    source:"abå漢🙂z"
+    size:text.byte_length(source)
+    (text.span(source,0,size)=source)?! "whole UTF8 span"
+    (text.span(source,2,4)="å" /\ text.span(source,4,7)="漢" /\ text.span(source,7,11)="🙂")?! "scalar UTF8 byte boundaries"
+    (text.span(source,0,0)="" /\ text.span(source,size,size)="")?! "empty boundary spans"
+    (text.trim(" \t\r\nå漢🙂 z \t\r\n")="å漢🙂 z")?! "trim preserves Unicode and internal spacing"
+    (text.trim("å漢🙂z")="å漢🙂z" /\ text.trim("")="" /\ text.trim(" \t\r\n")="")?! "unchanged and empty trim"
+    long:long_value(10)
+    wrapped:" \t\n"&long&"\r\n "
+    (text.trim(wrapped)=long /\ text.trim(long)=long)?! "long trim avoids growing substring copies"
+    (text.span(long,0,text.byte_length(long))=long)?! "large full span preserves value"
+    @:true
+renderer_tests()

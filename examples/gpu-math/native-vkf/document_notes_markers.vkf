@@ -1,0 +1,71 @@
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+# Typed body note markers, preserving per-line encounter order and deduplication.
+document_pages:.document_pages
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Lines:(scenes:[int],source_lines:[int],heights:[num],depths:[num],natural_depths:[num],widths:[num],indents:[num],baselines:[num],flagged:[bit],marker_firsts:[int],marker_counts:[int],count:int)
+index(input:Lines,body_count:int,body_scenes:[Scene],note_count:int):
+    lines:input
+    # Body markers use the note's unique global number, not its visible counter.
+    # Collect once per line in encounter order, matching the reference Set.
+    marker_ids:document_pages.nil(32)
+    marker_nexts:document_pages.nil(32)
+    marker_count:0
+    heads:document_pages.nil(body_count)
+    tails:document_pages.nil(body_count)
+    scene_firsts:document_pages.nil(body_scenes.length())
+    body_scene_ids:lines.scenes
+    body_source_lines:lines.source_lines
+    line_index:0
+    line_index<body_count?>
+        scene_id:body_scene_ids.(line_index)
+        scene_id>=0 /\ scene_id<body_scenes.length() /\ body_source_lines.(line_index)=0? scene_firsts.(scene_id):line_index
+        .line_index:line_index+1
+    scene_index:0
+    scene_index<body_scenes.length()?>
+        arena:body_scenes.(scene_index).arena
+        footnote_numbers:arena.footnote_numbers
+        flow_lines:arena.lines
+        item:0
+        scene_firsts.(scene_index)>=0?
+            item<arena.count?>
+                id:footnote_numbers.(item)-1
+                id>=0 /\ id<note_count?
+                    global:scene_firsts.(scene_index)+flow_lines.(item)
+                    global>=0 /\ global<body_count?
+                        duplicate:false
+                        prior:heads.(global)
+                        prior>=0?>
+                            marker_ids.(prior)=id? .duplicate:true
+                            .prior:marker_nexts.(prior)
+                        ~duplicate?
+                            marker_count>=marker_ids.length()?
+                                .marker_ids:marker_ids&document_pages.nil(marker_ids.length())
+                                .marker_nexts:marker_nexts&document_pages.nil(marker_nexts.length())
+                            marker_ids.(marker_count):id
+                            tail:tails.(global)
+                            tail<0? heads.(global):marker_count
+                            tail>=0? marker_nexts.(tail):marker_count
+                            tails.(global):marker_count
+                            .marker_count:marker_count+1
+                .item:item+1
+        .scene_index:scene_index+1
+    ordered:document_pages.nil(marker_count)
+    ordered_count:0
+    line_firsts:lines.marker_firsts
+    line_counts:lines.marker_counts
+    .line_index:0
+    line_index<body_count?>
+        line_firsts.(line_index):ordered_count
+        prior:heads.(line_index)
+        prior>=0?>
+            ordered.(ordered_count):marker_ids.(prior)
+            .ordered_count:ordered_count+1
+            .prior:marker_nexts.(prior)
+        line_counts.(line_index):ordered_count-line_firsts.(line_index)
+        .line_index:line_index+1
+    lines.marker_firsts:line_firsts
+    lines.marker_counts:line_counts
+    @:(lines:lines,markers:(ids:ordered,count:ordered_count))

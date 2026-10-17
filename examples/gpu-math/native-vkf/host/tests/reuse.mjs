@@ -1,0 +1,75 @@
+import assert from 'node:assert/strict';
+import {readFile,writeFile} from 'node:fs/promises';
+import {createDocumentRenderSession} from '../document_render_session.mjs';
+globalThis.GPUTextureUsage={TEXTURE_BINDING:4,COPY_DST:2};globalThis.GPUBufferUsage={VERTEX:32,COPY_DST:8,UNIFORM:64};
+function backend(){
+ const resources=[],gates=[],commands=[];let uploads=0;let lossResolve;
+ const d={auto:true,validation:null,throwWrite:false,lost:new Promise(r=>lossResolve=r),lose(){lossResolve({reason:'synthetic'});},limits:{maxTextureDimension2D:8192},
+  pushErrorScope(){},async popErrorScope(){return d.validation;},
+  createTexture(desc){const r={desc,kind:'texture',destroyed:0,destroy(){this.destroyed++;},createView(){return {texture:this};}};resources.push(r);return r;},
+  createBuffer(desc){const r={desc,kind:'buffer',destroyed:0,destroy(){this.destroyed++;}};resources.push(r);return r;},
+  createSampler:x=>x,createBindGroup:x=>x,
+  createCommandEncoder(){if(d.encodeError)throw d.encodeError;const c={draws:[],beginRenderPass(){return {setPipeline(){},setVertexBuffer(i,b){c.buffer=b;},setBindGroup(i,b){c.bind=b;},draw(...args){c.draws.push({args,bind:c.bind});},end(){}};},finish(){if(d.finishError)throw d.finishError;return c;}};commands.push(c);return c;},
+  queue:{writeTexture({texture},bytes,layout,size){if(d.throwWrite)throw Error('synthetic write failure');uploads++;texture.bytes=bytes.slice();texture.layout=layout;texture.size=size;},writeBuffer(buffer,offset,bytes){buffer.bytes=bytes.slice();if(d.writeError)throw d.writeError;},submit(c){if(d.submitError)throw d.submitError;d.submitted=c;},onSubmittedWorkDone(){if(d.fenceError)throw d.fenceError;return d.auto?Promise.resolve():new Promise((resolve,reject)=>gates.push({resolve,reject}));}},
+  flush(){for(const x of gates.splice(0))x.resolve();},resources,commands,gates,get uploads(){return uploads;}};return d;
+}
+import {rgba} from './rgba-fixture.mjs';
+const image={format:'rgba8unorm',width:1,height:2,bytesPerRow:4,alphaMode:'straight'};
+const a={count:1,keys:['glyph'],kinds:new Int32Array([0]),draws:new Uint8Array([1]),paints:new Int32Array([-1]),payloads:new Int32Array([-1]),paint_table:[],payload_table:[]};
+for(const [k,v] of Object.entries({xs:0,ys:0,sxs:1,sys:1,widths:20,heights:20}))a[k]=new Float64Array([v]);
+const tiles=new Map([['glyph',{resourceId:'pixels',plane:new Float64Array([0,0,1,2]),uv:new Float64Array([0,0,1,1])}]]);
+
+const view={canvas:{width:100,height:100},context:{getCurrentTexture(){return {createView(){return {};}};}},scale:1,defaultResourceId:'other'};
+const pipeline={getBindGroupLayout(){return {};}};
+const tick=()=>new Promise(r=>setImmediate(r));
+function fixture(v,multi=false){
+ const ids=multi?['pixels','other']:['pixels'];
+ return {complete:true,diagnostics:[],unresolved:[],scene:{arena:a},metadata:{documentId:'D296',revision:v,leafIds:['glyph'],groups:[{id:'glyph',first:0,count:1,contentVersion:0,layoutVersion:0,dependencies:[]}],resources:ids.map(id=>({id,version:v})),leafResources:[ids],links:[],images:[]},tiles:new Map(tiles),resources:ids.map(id=>({id,version:v,bytes:rgba.slice(),image:{...image}}))};
+}
+
+const checks=[];
+const stable=(revision)=>{const x=fixture(0,true);x.metadata.revision=revision;return x;};
+const textureCount=d=>d.resources.filter(r=>r.kind==='texture').length;
+{
+ const d=backend(),s=createDocumentRenderSession({device:d,pipeline});
+ await s.update(stable(0));const ts=d.resources.filter(r=>r.kind==='texture');
+ await s.update(stable(1));assert.equal(textureCount(d),2);assert.equal(d.uploads,2);assert.ok(ts.every(t=>t.destroyed===0));
+ checks.push('unchanged generation creates/uploads zero extra textures');
+ for(const mutate of [x=>x.resources[0].bytes[0]^=255,x=>{x.resources[0].image.width=2;x.resources[0].image.height=1;x.resources[0].image.bytesPerRow=8;}]){
+  const x=stable(2);mutate(x);assert.throws(()=>s.update(x),/Immutable resource version changed/);assert.equal(d.uploads,2);
+ }
+ checks.push('same ID/version conflicting bytes and valid changed descriptor rejected before writes');
+ d.auto=false;const old=await s.render(view),oldGate=d.gates.shift();
+ const x=stable(3);x.metadata.resources[0].version=1;x.resources[0].version=1;x.resources[0].bytes[0]^=255;
+ const pending=s.update(x);await tick();assert.equal(textureCount(d),3);assert.equal(d.uploads,3);
+ assert.equal(ts[0].bytes[0],rgba[0]);assert.equal(ts[0].destroyed,0);
+ d.flush();await pending;assert.equal(ts[0].destroyed,0);assert.equal(ts[1].destroyed,0);
+ const newer=await s.render(view);assert.notEqual(d.commands.at(-1).draws[0].bind.entries[1].resource.texture,ts[0]);
+ d.flush();await newer.completion;assert.equal(ts[0].destroyed,0);oldGate.resolve();await old.completion;
+ assert.equal(ts[0].destroyed,1);assert.equal(ts[1].destroyed,0);
+ checks.push('mixed update uploads one changed version; pending old frame retains old pixels through newer completion');
+ d.auto=true;await s.dispose();assert.ok(d.resources.every(r=>r.destroyed===1));assert.equal(s.metrics.liveSnapshots,0);
+ checks.push('shared and changed entries destroyed exactly once at final live owner retirement');
+}
+for(const mode of ['supersede','cancel','dispose','loss','reject']){
+ const d=backend(),s=createDocumentRenderSession({device:d,pipeline});await s.update(stable(0));
+ const ts=d.resources.filter(r=>r.kind==='texture');d.auto=false;
+ const frame=await s.render(view),gate=d.gates.shift();
+ const candidate=s.update(stable(1));const rejected=assert.rejects(candidate,/Cancelled|Superseded|Device|validation/);await tick();
+ let latest,end;
+ if(mode==='supersede')latest=s.update(stable(2));
+ if(mode==='cancel')s.cancel();
+ if(mode==='dispose')end=s.dispose();
+ if(mode==='loss')d.lose();
+ if(mode==='reject'){// Scope has already resolved: supersede with a separately scope-rejected successor.
+  d.validation=Error('validation');latest=s.update(stable(2));latest=assert.rejects(latest,/validation/);
+ }
+ d.flush();await rejected;await tick();assert.ok(ts.every(t=>t.destroyed===0));
+ d.flush();if(latest)await latest;
+ assert.equal(textureCount(d),2);assert.equal(d.uploads,2);
+ gate.resolve();await frame.completion.catch(e=>{if(mode!=='loss')throw e;});d.auto=true;d.flush();await (end??s.dispose());await tick();
+ assert.equal(s.metrics.liveSnapshots,0);
+ assert.ok(d.resources.every(r=>r.destroyed===(mode==='loss'?0:1)));
+ checks.push(mode+': shared references survive pending old frame; leases drained and exact-once retirement (loss CPU-only)');
+}
+const result={passed:true,checks,synthetic_only:true};await writeFile(new URL('reuse-results.json',process.env.VKF_HOST_RESULT_DIR),JSON.stringify(result,null,2));console.log(JSON.stringify(result));

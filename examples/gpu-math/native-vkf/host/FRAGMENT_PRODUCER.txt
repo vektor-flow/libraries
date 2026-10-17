@@ -1,0 +1,22 @@
+prepareProducerFragment in fragment_producer_adapter.mjs accepts decoded latex_library.Fragment text_owned/math_owned results with authentic beginProvenance ownership. No native invocation or qualification. Schema fixture is extracted from sealed A283 source (included as reference text). Supports explicit glyph/field/rule/link provenance only; anchors/destinations, unknown leaves and invalid extents reject. All Fragment fields are preserved in bound; previous must be an exact bound returned by this adapter. Extent is baseline-relative, update.height = height + depth; no page or semantic identity is synthesized. Mutable outputs are detached from retained private observations. Source/version/dependency checks use existing bindOperationFragment. Final rows use canonical sceneColumns; immutable bytes/descriptors use existing retained resource bridge, including predecessor replay. No performance claim. Existing Document API remains unchanged; registered tests are host-synthetic ABI fixtures only. Root adopted E353 and the A319 fragment composition on the 255-group baseline.
+
+
+Session usage (owner inputs and decoded Fragment are supplied by the producer):
+  const owner = beginProvenance(ownerInput);
+  const first = prepareProducerFragment(fragment, owner, {tiles, resources});
+  const session = createDocumentRenderSession({device, pipeline});
+  await session.update(first.update);
+  const receipt = await session.render(view);
+  await receipt.completion; // queue completion, not PDF save
+  const revised = reviseProvenance(owner, delta);
+  const next = prepareProducerFragment(editedFragment, revised,
+    {tiles, resources, previous: first.bound});
+  await session.update(next.update);
+  await (await session.render(view)).completion;
+  await session.dispose();
+The delta advances source version, source/scope text and affected content/layout
+versions for a genuine source edit, preserving topology and explicit identities.
+Fragment height and depth remain separate in extent; update.height is their sum.
+See tests/fragment-session-incremental.mjs for an executable synthetic example,
+frozen geometry, fresh-preparation comparison, resource reuse, mutation isolation,
+stale-layout rejection and completion-fenced cancellation/disposal.

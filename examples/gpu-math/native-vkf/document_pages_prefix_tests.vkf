@@ -1,0 +1,38 @@
+# Exact-length line-column transport, compared to the existing public trim contract.
+pages:.document_pages
+metrics:.document_paragraph_metrics
+case_of(count:int)->bit:
+    [num] source_numbers:[0.0:count+3]
+    [int] source_ints:[0:count+3]
+    [bit] source_flags:[false:count+3]
+    i:0
+    i<count+3?>
+        source_numbers.(i):i*0.25-4.5
+        source_ints.(i):7-i*3
+        source_flags.(i):i%2=0
+        .i:i+1
+    old_numbers:metrics.trim_numbers(source_numbers,count)
+    old_ints:metrics.trim_ints(source_ints,count)
+    old_flags:metrics.trim_flags(source_flags,count)
+    numbers:pages.prefix_numbers(source_numbers,count)
+    integers:pages.prefix_ints(source_ints,count)
+    flags:pages.prefix_flags(source_flags,count)
+    (numbers.length()=count /\ integers.length()=count /\ flags.length()=count)?! "prefix columns have exact requested lengths"
+    .i:0
+    i<count?>
+        (numbers.(i)=old_numbers.(i) /\ integers.(i)=old_ints.(i) /\ flags.(i)=old_flags.(i))?! "prefix values preserve numeric int and boolean trim contract"
+        .i:i+1
+    count>0?
+        numbers.(0):123
+        integers.(0):456
+        flags.(0):false
+    (source_numbers.length()=count+3 /\ source_ints.length()=count+3 /\ source_flags.length()=count+3 /\ source_numbers.(0)= -4.5 /\ source_ints.(0)=7 /\ source_flags.(0))?! "owned prefixes preserve original column snapshots"
+    @:true
+renderer_tests()->bit:
+    case_of(0)
+    case_of(1)
+    case_of(2)
+    case_of(17)
+    case_of(257)
+    @:true
+renderer_tests()

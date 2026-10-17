@@ -1,0 +1,40 @@
+# Independent reference transport, preserving JS JSON null for nonfinite nums.
+j:.resource_json
+n:.json_numbers
+t:.tex_text
+chunks:.text_chunks
+Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
+number(value:num)->str:
+    value~=value \/ |value|>10.0^300? @:"null"
+    @:n.roundtrip(value)
+json(q:Packet,items_json:str="")->str:
+    keys:q.keys
+    xs:q.xs
+    ys:q.ys
+    flow:q.flow_lines
+    items:chunks.empty(q.glyph_count)
+    i:0
+    i<q.glyph_count?>
+        prefix:""
+        i>0? .prefix:","
+        items.(i):prefix&"{\"key\":"&j.quote(keys.(i))&",\"x\":"&number(xs.(i))&",\"y\":"&number(ys.(i))&",\"flowLine\":"&t.integer(flow.(i))&"}"
+        .i:i+1
+    encoded_items:"["&chunks.join(items,0,q.glyph_count)&"]"
+    items_json~=""? .encoded_items:items_json
+    heights:q.line_heights
+    depths:q.line_depths
+    widths:q.line_widths
+    baselines:q.line_baselines
+    ratios:q.line_ratios
+    indents:q.line_indents
+    flags:q.line_flagged
+    lines:chunks.empty(q.line_count)
+    .i:0
+    i<q.line_count?>
+        prefix:""
+        i>0? .prefix:","
+        flag:"false"
+        flags.(i)? .flag:"true"
+        lines.(i):prefix&"{\"flagged\":"&flag&",\"height\":"&number(heights.(i))&",\"depth\":"&number(depths.(i))&",\"naturalHeight\":"&number(heights.(i))&",\"naturalDepth\":"&number(depths.(i))&",\"baseline\":"&number(baselines.(i))&",\"ratio\":"&number(ratios.(i))&",\"indent\":"&number(indents.(i))&",\"width\":"&number(widths.(i))&"}"
+        .i:i+1
+    @:"{\"width\":"&number(q.width)&",\"height\":"&number(q.height)&",\"depth\":"&number(q.depth)&",\"diagnostics\":["&q.diagnostics&"],\"items\":"&encoded_items&",\"lines\":["&chunks.join(lines,0,q.line_count)&"]}"

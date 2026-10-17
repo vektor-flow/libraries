@@ -1,0 +1,114 @@
+document_pdf_typed:.document_pdf_typed
+legacy:.document_pdf_tests
+old_pdf:.document_pdf
+document_scene:.document_scene
+adapter:.document_scene_json
+text:.tex_text
+text_chunks:.text_chunks
+payload(index:int):
+    out:(crop_x:false,crop_y:false,crop_left:false,crop_right:false,crop_top:false,crop_bottom:false,left:0.0,right:0.0,top:0.0,bottom:0.0,dx:0.0,dy:0.0,c1x:0.0,c1y:0.0,c2x:0.0,c2y:0.0,line_width:0.0,fill:false,fill_paint: -1,stroke_paint: -1,dash:0,target_type:0,target:"",border_width:1.0,asset:"")
+    index=0?
+        out.crop_x:true
+        out.crop_y:true
+        out.crop_left:true
+        out.crop_right:true
+        out.crop_top:true
+        out.crop_bottom:true
+        out.left: -1
+        out.right:7
+        out.top:2
+        out.bottom:8
+    index=1?
+        out.target_type:1
+        out.target:"https://example.test/å b"
+    index=2?
+        out.target_type:2
+        out.target:"named:other"
+    @:out
+leaf(index:int):
+    item:document_scene.leaf()
+    index=0?
+        item.key:"glyph/a"
+        item.x:20
+        item.y:30
+        item.sx:2
+        item.sy:3
+        item.payload:payload(0)
+        item.has_payload:true
+    index=1?
+        item.kind:2
+        item.x:10
+        item.y:50
+        item.width:40
+        item.height:0.2
+        item.paint:document_scene.paint(1,0,0,0.4)
+        item.has_paint:true
+    index=2 \/ index=3?
+        item.kind:3
+        item.x:10
+        item.y:60
+        item.width:20
+        item.height:10
+        item.payload:payload(index-1)
+        item.has_payload:true
+    index=3?
+        item.y:80
+        item.draw:false
+    index=4?
+        item.kind:1
+        item.key:"glyph/alias"
+        item.x:10
+        item.y:20
+    @:item
+fixture():
+    [int] indices:[0:5]
+    leaves:indices >> leaf($0)
+    arena:document_scene.from_leaves(leaves,5)
+    [num] widths:[200.0,200]
+    [num] heights:[300.0,300]
+    [int] firsts:[0,4]
+    [int] counts:[4,1]
+    destination_names:text_chunks.empty(1)
+    destination_names.(0):"named:other"
+    [int] destination_pages:[1]
+    [num] destination_xs:[12.0]
+    [num] destination_ys:[34.0]
+    @:(widths:widths,heights:heights,firsts:firsts,counts:counts,arena:arena,destination_names:destination_names,destination_pages:destination_pages,destination_xs:destination_xs,destination_ys:destination_ys,page_count:2,destination_count:1)
+single_page(source:str):
+    decoded:adapter.decode(source)
+    [num] widths:[decoded.width]
+    [num] heights:[decoded.height]
+    [int] firsts:[0]
+    [int] counts:[decoded.arena.count]
+    destination_names:text_chunks.empty(0)
+    [int] destination_pages:[]
+    [num] destination_xs:[]
+    [num] destination_ys:[]
+    @:(widths:widths,heights:heights,firsts:firsts,counts:counts,arena:decoded.arena,destination_names:destination_names,destination_pages:destination_pages,destination_xs:destination_xs,destination_ys:destination_ys,page_count:1,destination_count:0)
+primitive_source()->str:
+    @:"{\"width\":200,\"height\":300,\"items\":[{\"kind\":\"segment\",\"x\":10,\"y\":20,\"delta\":[50,-5],\"lineWidth\":0.5,\"dash\":\"dashed\"},{\"kind\":\"bezier\",\"x\":10,\"y\":50,\"delta\":[50,0],\"controls\":[{\"x\":10,\"y\":-20},{\"x\":40,\"y\":-20}],\"lineWidth\":0.7,\"color\":[0.2,0.3,0.4,0.8]},{\"kind\":\"circle\",\"x\":10,\"y\":90,\"width\":30,\"height\":20,\"fill\":true,\"fillColor\":[1,0,0],\"strokeColor\":[0,0,1,0.4],\"lineWidth\":1},{\"kind\":\"circle\",\"x\":80,\"y\":90,\"width\":20,\"height\":20,\"fill\":true,\"fillColor\":[0.2,0.4,0.6,0.5],\"lineWidth\":0},{\"kind\":\"vectorrect\",\"x\":10,\"y\":130,\"width\":30,\"height\":20,\"lineWidth\":1,\"dash\":\"dotted\"},{\"kind\":\"vectorrect\",\"x\":60,\"y\":130,\"width\":30,\"height\":20,\"lineWidth\":0.4,\"dash\":\"densely dotted\"},{\"kind\":\"vectorrect\",\"x\":110,\"y\":130,\"width\":30,\"height\":20,\"lineWidth\":2,\"dash\":\"loosely dotted\",\"sx\":0.5,\"sy\":2}]}"
+renderer_tests()->bit:
+    names:text_chunks.empty(4)
+    names.(0):"first"
+    names.(1):"other"
+    names.(2):"first"
+    names.(3):"last"
+    slots:document_pdf_typed.destination_index(names,4)
+    (document_pdf_typed.destination_find("first",names,slots)=2)?! "Destination index preserves last matching destination"
+    (document_pdf_typed.destination_find("other",names,slots)=1 /\ document_pdf_typed.destination_find("last",names,slots)=3 /\ document_pdf_typed.destination_find("missing",names,slots)= -1)?! "Destination lookup preserves distinct targets and misses"
+    fonts:legacy.fixture_fonts()
+    result:document_pdf_typed.encode_detail(fixture(),fonts.fonts,fonts.operators)
+    expected:old_pdf.encode_detail(legacy.fixture_layout(),fonts.fonts,fonts.operators)
+    (result.pdf=expected.pdf)?! "Direct typed glyphs, crop, rule, paints and both link modes preserve exact PDF bytes"
+    (result.page_count=2 /\ result.form_count=1 /\ result.alpha_count=2 /\ result.object_count=12)?! "Typed PDF keeps request-local resources and aliases"
+    again:document_pdf_typed.encode_detail(fixture(),fonts.fonts,fonts.operators)
+    (again.pdf=result.pdf)?! "Typed PDF is deterministic without output cache"
+    primitives:primitive_source()
+    typed_primitives:document_pdf_typed.encode(single_page(primitives),fonts.fonts,fonts.operators)
+    old_primitives:old_pdf.encode("{\"pages\":["&primitives&"]}",fonts.fonts,fonts.operators)
+    (typed_primitives=old_primitives)?! "Typed primitive geometry, stroke, fill and all dash styles preserve vector PDF bytes"
+    empty_page:"{\"width\":10,\"height\":20,\"items\":[]}"
+    empty:document_pdf_typed.encode_detail(single_page(empty_page),fonts.fonts,fonts.operators)
+    (empty.form_count=0 /\ empty.alpha_count=0 /\ empty.object_count=5)?! "Empty typed page creates no unused glyph or paint resources"
+    @:true
+renderer_tests()

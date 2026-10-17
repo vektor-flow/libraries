@@ -1,0 +1,27 @@
+link_test_policy:.document_link_policy
+link_test_uri:.document_uri
+link_test_json:.resource_json
+link_test_text:.tex_text
+renderer_tests()->bit:
+    configured:link_test_policy.configure(["colorlinks","urlcolor={purple}","pdfborder={0 0 2}","allcolors=#123","unknown=x","urlcolor=missing"])
+    appearance:link_test_json.parse(configured.appearance)
+    (link_test_json.number(appearance,link_test_json.member(appearance,0,"borderWidth"))=2 /\ link_test_text.find(configured.appearance,"\"colorlinks\":true")>=0)?! "Explicit PDF border can override hidden border without changing colorlinks"
+    (configured.diagnostics="\"Unsupported hyperref setup: unknown\",\"Unsupported hyperref color: missing\"")?! "Unknown setup and invalid color diagnostics preserve input order"
+    initial:link_test_policy.configure(["hidelinks=false","colorlinks=false"],"{\"enabled\":false,\"borderWidth\":4,\"opaque\":\"preserved\"}")
+    (link_test_text.find(initial.appearance,"\"enabled\":false")>=0 /\ link_test_text.find(initial.appearance,"\"opaque\":\"preserved\"")>=0 /\ link_test_text.find(initial.appearance,"\"borderWidth\":1")>=0)?! "Initial unknown members survive explicit option mutation"
+    border:link_test_policy.configure(["pdfborder={0x1 -2 .5}"])
+    (border.diagnostics="" /\ link_test_text.find(border.appearance,"5e-1")>=0)?! "PDF border follows finite JavaScript Number grammar"
+    trailing:link_test_policy.configure(["pdfborder={0 0 }"])
+    (trailing.diagnostics="" /\ link_test_text.find(trailing.appearance,"\"borderWidth\":0")>=0)?! "Regex split preserves the trailing empty numeric component after brace removal"
+    encoded:link_test_uri.encode_destination("label:Å 😀 /#?%")
+    (encoded="label%3A%C3%85%20%F0%9F%98%80%20%2F%23%3F%25")?! "Destination encoding uses full Unicode UTF-8 and exact URI component escaping"
+    decoded:link_test_uri.decode_destination(encoded)
+    (decoded.valid /\ decoded.value="label:Å 😀 /#?%")?! "Destination decoding preserves Unicode identity"
+    invalid:link_test_uri.decode_destination("%ED%A0%80")
+    truncated:link_test_uri.decode_destination("%F0%9F%98")
+    overlong:link_test_uri.decode_destination("%C0%AF")
+    (invalid.diagnostic="URI malformed" /\ ~invalid.valid /\ ~truncated.valid /\ ~overlong.valid)?! "Malformed surrogate, truncated and overlong URI sequences explicitly reject"
+    uri:link_test_uri.uri_value("https://x.test/a\\_b?x=1\\&y=\\#\\%\\{\\}\\$\\q")
+    (uri="https://x.test/a_b?x=1&y=#%{}\$\\q")?! "Only specified TeX escape characters are removed from URI values"
+    @:true
+renderer_tests()

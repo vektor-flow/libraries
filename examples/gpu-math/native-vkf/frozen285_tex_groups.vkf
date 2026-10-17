@@ -1,0 +1,44 @@
+text:.frozen285_tex_text
+Group:(value:str,stop:int,present:bit,closed:bit)
+Control:(name:str,spelling:str,stop:int,word:bit)
+
+skip_space(source:str,begin:int)->int:text.scan_run(source,begin,2)
+
+read(source:str,begin:int,open:str="{",close:str="}")->Group:
+    position:skip_space(source,begin)
+    vkf_string_eof(source,position)? @:(value:"",stop:position,present:false,closed:false)
+    text.at(source,position)~=open? @:(value:"",stop:position,present:false,closed:false)
+    .position:text.next(source,position)
+    start:position
+    depth:1
+    true?>
+        vkf_string_eof(source,position)? @:(value:text.span(source,start,position),stop:position,present:true,closed:false)
+        c:text.at(source,position)
+        .position:text.next(source,position)
+        c="\\" /\ ~vkf_string_eof(source,position)?
+            .position:text.next(source,position)
+            @>
+        c=open? .depth:depth+1
+        c=close? .depth:depth-1
+        depth=0? @:(value:text.span(source,start,position-text.byte_length(close)),stop:position,present:true,closed:true)
+    @:(value:"",stop:position,present:true,closed:false)
+
+control(source:str,begin:int)->Control:
+    vkf_string_eof(source,begin)? @:(name:"",spelling:"",stop:begin,word:false)
+    text.at(source,begin)~="\\"? @:(name:"",spelling:"",stop:begin,word:false)
+    start:text.next(source,begin)
+    vkf_string_eof(source,start)? @:(name:"",spelling:"\\",stop:start,word:false)
+    stop:text.next(source,start)
+    word:text.letter(text.at(source,start))
+    word? .stop:text.scan_run(source,start,1)
+    @:(name:text.span(source,start,stop),spelling:text.span(source,begin,stop),stop:stop,word:word)
+
+argument(source:str,begin:int)->Group:
+    position:skip_space(source,begin)
+    vkf_string_eof(source,position)? @:(value:"",stop:position,present:false,closed:false)
+    text.at(source,position)="{"? @:read(source,position)
+    text.at(source,position)="\\"?
+        command:control(source,position)
+        @:(value:command.spelling,stop:command.stop,present:true,closed:true)
+    stop:text.next(source,position)
+    @:(value:text.span(source,position,stop),stop:stop,present:true,closed:true)

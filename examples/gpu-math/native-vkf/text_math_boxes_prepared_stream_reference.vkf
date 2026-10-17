@@ -1,0 +1,64 @@
+current:.text_math_boxes_prepared
+# Request-owned prepared math profiles; no retained cross-request state.
+# A box retains all its leaves (glyphs/rules/links), while glue/kern/penalty
+# nodes stay visible to paragraph breaking instead of becoming an opaque hbox.
+layout:.math_layout
+parser:.math_parser
+profiles:.math_profiles
+boxes:.text_inline_boxes
+ops:.text_parser_stream
+catalog:.font_catalog
+inline_index:.text_inline_arguments
+j:.resource_json
+text:.tex_text
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+Context:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+
+number(tape:Tape,node:int,key:str)->num:
+    value:j.member(tape,node,key)
+    value<0? @:0.0
+    @:j.number(tape,value)
+
+raw(tape:Tape,node:int)->str:
+    starts:tape.starts
+    stops:tape.stops
+    @:text.span(tape.source,starts.(node),stops.(node))
+
+provide_core(stream:Stream,fonts:Catalog,context:Context,tables:Tables,prepared:bit,equation_start:int=1,document_boxes_json:str="{}")->Provider:
+    out:boxes.empty()
+    active_tables:tables
+    ready:prepared
+    directory:inline_index.build(stream)
+    hidden:directory.hidden
+    index:0
+    index<stream.count?>
+        entry:j.parse(ops.raw(stream,index))
+        kind:j.string(entry,j.member(entry,0,"kind"))
+        kind="math" /\ ~hidden.(index)?
+            role:j.string(entry,j.member(entry,0,"role"))
+            font_source:catalog.raw(fonts,"font/"&role)
+            font_source~=""?
+                font:j.parse(font_source)
+                spacing_node:j.member(font,0,"spaces")
+                spacing:""
+                spacing_node>=0? .spacing:raw(font,spacing_node)
+                source:j.string(entry,j.member(entry,0,"value"))
+                ~ready?
+                    .active_tables:profiles.load(fonts)
+                    .ready:true
+                rendered:current.evaluate_prepared(index,source,fonts,context,active_tables,spacing,equation_start,document_boxes_json)
+                .out:current.append_provider(out,rendered.provider)
+        .index:index+1
+    @:out
+
+provide_prepared(stream:Stream,fonts:Catalog,context:Context,tables:Tables,equation_start:int=1,document_boxes_json:str="{}")->Provider:
+    @:provide_core(stream,fonts,context,tables,true,equation_start,document_boxes_json)
+
+provide(stream:Stream,fonts:Catalog,context:Context,equation_start:int=1,document_boxes_json:str="{}")->Provider:
+    empty_tables:(values:profiles.zeros(0),ems:profiles.zeros(0),delim1:profiles.zeros(0),delim2:profiles.zeros(0),mus:profiles.zeros(0))
+    @:provide_core(stream,fonts,context,empty_tables,false,equation_start,document_boxes_json)

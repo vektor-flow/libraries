@@ -1,0 +1,44 @@
+# Generated TeX dimensions use decimal notation: TeX's number grammar does not
+# accept the exponent notation used by JSON. Preserve all round-trip digits.
+tex_decimal_numbers:.json_numbers
+tex_decimal_text:.tex_text
+zeros(count:int)->str:
+    value:""
+    index:0
+    index<count?>
+        .value:value&"0"
+        .index:index+1
+    @:value
+plain(value:num)->str:
+    source:tex_decimal_numbers.roundtrip(value)
+    marker:tex_decimal_text.find(source,"e")
+    marker<0? @:source
+    sign:""
+    start:0
+    tex_decimal_text.at(source,0)="-"?
+        .sign:"-"
+        .start:1
+    exponent:0
+    exponent_at:marker+1
+    negative_exponent:tex_decimal_text.at(source,exponent_at)="-"
+    negative_exponent \/ tex_decimal_text.at(source,exponent_at)="+"? .exponent_at:exponent_at+1
+    ~vkf_string_eof(source,exponent_at)?>
+        .exponent:10*exponent+int(vkf_decimal_parse(tex_decimal_text.at(source,exponent_at)))
+        .exponent_at:exponent_at+1
+    negative_exponent? .exponent: -exponent
+    digits:""
+    point:0
+    decimal:false
+    at:start
+    at<marker?>
+        character:tex_decimal_text.at(source,at)
+        character="."? .decimal:true
+        character~="."?
+            .digits:digits&character
+            ~decimal? .point:point+1
+        .at:at+1
+    .point:point+exponent
+    size:tex_decimal_text.byte_length(digits)
+    point<=0? @:sign&"0."&zeros(-point)&digits
+    point>=size? @:sign&digits&zeros(point-size)
+    @:sign&tex_decimal_text.span(digits,0,point)&"."&tex_decimal_text.span(digits,point,size)

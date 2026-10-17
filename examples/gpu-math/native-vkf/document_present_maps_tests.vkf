@@ -1,0 +1,21 @@
+document_present_maps:.document_present_maps
+renderer_tests()->bit:
+    empty:document_present_maps.empty()
+    (document_present_maps.equal(empty,empty))?! "Empty request maps compare equal"
+    left:document_present_maps.put(empty,"section:a","3")
+    .left:document_present_maps.put(left,"section:b","")
+    right:document_present_maps.put(empty,"section:b","")
+    .right:document_present_maps.put(right,"section:a","3")
+    (document_present_maps.equal(left,right))?! "Reference convergence depends on values rather than insertion order"
+    hit:document_present_maps.get(left,"section:b")
+    missing:document_present_maps.get(left,"section:missing")
+    (hit.found /\ hit.value="" /\ ~missing.found)?! "Indexed reads distinguish empty values from missing references"
+    changed:document_present_maps.put(right,"section:a","4")
+    (~document_present_maps.equal(left,changed))?! "Changed page reference requires another layout pass"
+    other:document_present_maps.put(empty,"section:c","3")
+    .other:document_present_maps.put(other,"section:b","")
+    (~document_present_maps.equal(left,other) /\ ~document_present_maps.equal(left,empty))?! "Different reference keys and counts cannot converge"
+    prior:document_present_maps.get(right,"section:a")
+    (prior.value="3")?! "Reference updates preserve earlier value records"
+    @:true
+renderer_tests()

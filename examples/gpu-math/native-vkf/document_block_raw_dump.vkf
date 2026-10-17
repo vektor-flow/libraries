@@ -1,0 +1,11 @@
+block_io:.io
+block_parser:.document_blocks
+block_output:.document_block_output
+
+run()->int:
+    source:block_io.read_text(block_io.read_line())
+    declarations:block_io.read_text(block_io.read_line())
+    path:block_io.read_line()
+    block_io.write_text(path,block_output.json(block_parser.parse(source,"",declarations)))
+    @:0
+run()

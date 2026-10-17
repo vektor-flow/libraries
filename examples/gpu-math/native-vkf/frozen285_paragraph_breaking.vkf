@@ -1,0 +1,292 @@
+# Request-local optimal paragraph breaking, ported from document-text.mjs.
+# kinds: 0 box, 1 glue, 2 kern, 3 discretionary penalty, 4 forced.
+# widths are layout widths (prefix-shaped word differences for split words).
+# corrections carry exact partial-word reshaping deltas from the shaping layer.
+numeric:.frozen285_tex_numeric
+Nodes:(kinds:[int],widths:[num],stretches:[num],shrinks:[num],breakable:[bit],penalties:[int],flagged:[bit],automatic:[bit],hyphens:[num],count:int)
+Corrections:(starts:[int],ends:[int],deltas:[num],count:int)
+Options:(width:num,first_indent:num,forced_indent:num,justify:bit,hyphens:bit,tolerance:int,emergency:num,preserve_trailing:bit)
+Plan:(starts:[int],ends:[int],ratios:[num],naturals:[num],indents:[num],costs:[num],fitness:[int],flagged:[bit],count:int,solved:bit,pass:int)
+ints(size:int)->[int]:[0:size]
+nums(size:int)->[num]:[0.0:size]
+bits(size:int)->[bit]:[false:size]
+from_arrays(kinds:[int],widths:[num],stretches:[num],shrinks:[num],breakable:[bit],penalties:[int],flagged:[bit],automatic:[bit],hyphens:[num],count:int)->Nodes:
+    @:(kinds:kinds,widths:widths,stretches:stretches,shrinks:shrinks,breakable:breakable,penalties:penalties,flagged:flagged,automatic:automatic,hyphens:hyphens,count:count)
+empty_nodes(size:int)->Nodes:
+    @:(kinds:ints(size),widths:nums(size),stretches:nums(size),shrinks:nums(size),breakable:bits(size),penalties:ints(size),flagged:bits(size),automatic:bits(size),hyphens:nums(size),count:size)
+corrections(starts:[int],ends:[int],deltas:[num],count:int)->Corrections:
+    @:(starts:starts,ends:ends,deltas:deltas,count:count)
+no_corrections()->Corrections:@:(starts:ints(0),ends:ints(0),deltas:nums(0),count:0)
+options(width:num)->Options:@:(width:width,first_indent:0,forced_indent:0,justify:true,hyphens:true,tolerance:200,emergency:0,preserve_trailing:false)
+blank(size:int)->Plan:
+    @:(starts:ints(size),ends:ints(size),ratios:nums(size),naturals:nums(size),indents:nums(size),costs:nums(size),fitness:ints(size),flagged:bits(size),count:0,solved:false,pass:0)
+
+correction(c:Corrections,start:int,end:int)->num:
+    starts:c.starts
+    ends:c.ends
+    deltas:c.deltas
+    fallback:0.0
+    i:0
+    i<c.count?>
+        starts.(i)=start /\ ends.(i)=end? @:deltas.(i)
+        starts.(i)=start /\ ends.(i)= -1? .fallback:deltas.(i)
+        .i:i+1
+    @:fallback
+
+solve(nodes:Nodes,c:Corrections,o:Options,threshold:int,allow_hyphens:bit,emergency:num,final_pass:bit)->Plan:
+    node_kinds:nodes.kinds
+    node_widths:nodes.widths
+    node_stretches:nodes.stretches
+    node_shrinks:nodes.shrinks
+    node_breakable:nodes.breakable
+    node_penalties:nodes.penalties
+    node_flagged:nodes.flagged
+    node_automatic:nodes.automatic
+    node_hyphens:nodes.hyphens
+    n:nodes.count
+    ~o.preserve_trailing?>
+        n=0? @|
+        node_kinds.(n-1)~=1? @|
+        .n:n-1
+    capacity:n+2
+    positions:ints(capacity)
+    following:ints(capacity)
+    penalties:ints(capacity)
+    flags:bits(capacity)
+    automatic:bits(capacity)
+    hyphens:nums(capacity)
+    positions.(0): -1
+    bcount:1
+    w:nums(n+1)
+    s:nums(n+1)
+    h:nums(n+1)
+    i:0
+    i<n?>
+        kind:node_kinds.(i)
+        add:0.0
+        (kind=0 \/ kind=1 \/ kind=2)? .add:node_widths.(i)
+        w.(i+1):w.(i)+add
+        s.(i+1):s.(i)
+        h.(i+1):h.(i)
+        kind=1 \/ kind=2?
+            s.(i+1):s.(i)+node_stretches.(i)
+            h.(i+1):h.(i)+node_shrinks.(i)
+        eligible:kind=3 \/ kind=4
+        kind=2 /\ ~node_breakable.(i) /\ i+1<n?
+            node_kinds.(i+1)=1 /\ node_breakable.(i+1)? .eligible:true
+        kind=1 /\ node_breakable.(i) /\ i>0?
+            previous:node_kinds.(i-1)
+            previous=0 \/ (previous=2 /\ node_breakable.(i-1))? .eligible:true
+        eligible?
+            positions.(bcount):i
+            following.(bcount):i+1
+            penalties.(bcount):node_penalties.(i)
+            kind=4? penalties.(bcount): -10000
+            flags.(bcount):node_flagged.(i)
+            automatic.(bcount):node_automatic.(i)
+            hyphens.(bcount):node_hyphens.(i)
+            .bcount:bcount+1
+        .i:i+1
+    positions.(bcount):n
+    following.(bcount):n
+    penalties.(bcount): -10000
+    .bcount:bcount+1
+    state_capacity:4*bcount+1
+    state_break:ints(state_capacity)
+    state_prev:ints(state_capacity)
+    state_line:ints(state_capacity)
+    state_fitness:ints(state_capacity)
+    state_cost:nums(state_capacity)
+    state_ratio:nums(state_capacity)
+    state_start:ints(state_capacity)
+    state_natural:nums(state_capacity)
+    state_indent:nums(state_capacity)
+    state_fitness.(0):1
+    state_prev.(0): -1
+    states:1
+    active:ints(state_capacity)
+    active_count:1
+    best_final: -1
+    j:1
+    j<bcount?>
+        automatic.(j) /\ ~allow_hyphens?
+            .j:j+1
+            @>
+        candidate:ints(4)
+        candidate_order:ints(4)
+        candidate_count:0
+        f:0
+        f<4?>
+            candidate.(f): -1
+            .f:f+1
+        next_active:ints(state_capacity)
+        next_count:0
+        aindex:0
+        aindex<active_count?>
+            a:active.(aindex)
+            ab:state_break.(a)
+            start:following.(ab)
+            positions.(ab)>=0?>
+                start>=n? @|
+                node_kinds.(start)~=1? @|
+                .start:start+1
+            end:positions.(j)
+            natural:w.(end)-w.(start)+correction(c,start,end)+hyphens.(j)
+            indent:0.0
+            state_line.(a)=0? .indent:o.first_indent
+            state_line.(a)>0 /\ penalties.(ab)= -10000? .indent:o.forced_indent
+            difference:o.width-indent-natural
+            stretch:s.(end)-s.(start)
+            shrink:h.(end)-h.(start)
+            elastic:shrink
+            difference>=0? .elastic:stretch+emergency
+            ratio:difference/elastic
+            badness:numeric.badness(difference,elastic)
+            last:j=bcount-1
+            ((last \/ ~o.justify) /\ difference>=0) \/ difference=0?
+                .ratio:0
+                .badness:0
+            ratio>= -1?
+                next_active.(next_count):a
+                .next_count:next_count+1
+            artificial:final_pass /\ active_count=1 /\ candidate_count=0 /\ (ratio< -1 \/ (last /\ badness>threshold))
+            rejected:(ratio< -1 \/ (badness>threshold /\ penalties.(j)> -10000)) /\ ~artificial
+            ~rejected?
+                artificial?
+                    .ratio:numeric.maximum(-1,ratio)
+                    .badness:0
+                penalties.(j)<= -10000 /\ badness>threshold /\ ~last /\ ratio>=0?
+                    .ratio:0
+                    .badness:0
+                fitness:numeric.fitness(ratio,badness)
+                cost:numeric.line_demerits(state_cost.(a),badness,penalties.(j),state_fitness.(a),fitness,flags.(ab),flags.(j),last)
+                prior:candidate.(fitness)
+                replace:prior<0
+                prior>=0?
+                    state_cost.(prior)>=cost? .replace:true
+                replace?
+                    id:prior
+                    prior<0?
+                        .id:states
+                        .states:states+1
+                        candidate.(fitness):id
+                        candidate_order.(candidate_count):fitness
+                        .candidate_count:candidate_count+1
+                    state_break.(id):j
+                    state_prev.(id):a
+                    state_line.(id):state_line.(a)+1
+                    state_fitness.(id):fitness
+                    state_cost.(id):cost
+                    emitted_ratio:ratio
+                    difference>=0 /\ emergency~=0?
+                        .emitted_ratio:difference/stretch
+                        last? .emitted_ratio:0
+                    state_ratio.(id):emitted_ratio
+                    state_start.(id):start
+                    state_natural.(id):natural
+                    state_indent.(id):indent
+            .aindex:aindex+1
+        penalties.(j)<= -10000? .next_count:0
+        ci:0
+        ci<candidate_count?>
+            fit:candidate_order.(ci)
+            chosen:candidate.(fit)
+            next_active.(next_count):chosen
+            .next_count:next_count+1
+            j=bcount-1?
+                better:best_final<0
+                best_final>=0?
+                    state_cost.(chosen)<state_cost.(best_final)? .better:true
+                better? .best_final:chosen
+            .ci:ci+1
+        .active:next_active
+        .active_count:next_count
+        .j:j+1
+    out:blank(n+1)
+    best_final<0? @:out
+    out_starts:out.starts
+    out_ends:out.ends
+    out_ratios:out.ratios
+    out_naturals:out.naturals
+    out_indents:out.indents
+    out_costs:out.costs
+    out_fitness:out.fitness
+    out_flagged:out.flagged
+    count:state_line.(best_final)
+    out.count:count
+    out.solved:true
+    cursor:best_final
+    line:count-1
+    line>=0?>
+        b:state_break.(cursor)
+        out_starts.(line):state_start.(cursor)
+        out_ends.(line):positions.(b)
+        out_ratios.(line):state_ratio.(cursor)
+        out_naturals.(line):state_natural.(cursor)
+        out_indents.(line):state_indent.(cursor)
+        out_costs.(line):state_cost.(cursor)
+        out_fitness.(line):state_fitness.(cursor)
+        out_flagged.(line):flags.(b)
+        .cursor:state_prev.(cursor)
+        .line:line-1
+    @:(starts:out_starts,ends:out_ends,ratios:out_ratios,naturals:out_naturals,indents:out_indents,costs:out_costs,fitness:out_fitness,flagged:out_flagged,count:count,solved:true,pass:0)
+
+# The shaping layer supplies discretionary nodes before calling plan. The first
+# pass ignores automatic breaks; prefix widths/corrections preserve whole words.
+plan(nodes:Nodes,c:Corrections,o:Options)->Plan:
+    result:solve(nodes,c,o,100,false,0,false)
+    result.solved?
+        result.pass:1
+        @:result
+    o.hyphens?
+        .result:solve(nodes,c,o,o.tolerance,true,0,o.emergency=0)
+        result.solved?
+            result.pass:2
+            @:result
+    o.emergency~=0?
+        .result:solve(nodes,c,o,o.tolerance,true,o.emergency,true)
+        result.solved?
+            result.pass:3
+            @:result
+    ~o.hyphens?
+        .result:solve(nodes,c,o,o.tolerance,true,0,true)
+        result.solved?
+            result.pass:4
+            @:result
+    # Preserve the reference's explicit forced/final fallback and failure flag.
+    .result:blank(nodes.count+1)
+    result.pass:5
+    kinds:nodes.kinds
+    node_penalties:nodes.penalties
+    node_widths:nodes.widths
+    result_starts:result.starts
+    result_ends:result.ends
+    result_naturals:result.naturals
+    n:nodes.count
+    ~o.preserve_trailing?>
+        n=0? @|
+        kinds.(n-1)~=1? @|
+        .n:n-1
+    i:0
+    start:0
+    natural:0.0
+    i<=n?>
+        forced:i=n
+        i<n?
+            kinds.(i)=4 \/ (kinds.(i)=3 /\ node_penalties.(i)= -10000)? .forced:true
+        forced?
+            at:result.count
+            result_starts.(at):start
+            result_ends.(at):i
+            result_naturals.(at):natural
+            result.count:at+1
+            .start:i+1
+            .natural:0
+        ~forced /\ i<n?
+            kind:kinds.(i)
+            kind=0 \/ kind=1 \/ kind=2? .natural:natural+node_widths.(i)
+        .i:i+1
+    result.starts:result_starts
+    result.ends:result_ends
+    result.naturals:result_naturals
+    @:result

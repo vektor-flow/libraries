@@ -1,0 +1,10 @@
+docblock_front:.tex_frontend
+docblock_blocks:.document_blocks
+docblock_output:.document_block_output
+
+block_packet(source:str,files:str="{}",job:str="document",entry:str="")->str:
+    prepared:docblock_front.prepare(source,files,job,entry)
+    @:docblock_output.json(docblock_blocks.parse(prepared.source,"",prepared.declarations))
+
+noop()->int:0
+noop()

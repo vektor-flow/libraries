@@ -1,0 +1,83 @@
+import assert from 'node:assert/strict';
+import {writeFile} from 'node:fs/promises';
+import {createDocumentRenderSession} from '../document_render_session.mjs';
+globalThis.GPUTextureUsage={TEXTURE_BINDING:4,COPY_DST:2};globalThis.GPUBufferUsage={VERTEX:32,COPY_DST:8,UNIFORM:64};
+function backend(){
+ const resources=[],gates=[],commands=[];let lossResolve;
+ const d={auto:true,validation:null,throwWrite:false,lost:new Promise(r=>lossResolve=r),lose(){lossResolve({reason:'synthetic'});},limits:{maxTextureDimension2D:8192},
+  pushErrorScope(){},async popErrorScope(){return d.validation;},
+  createTexture(desc){const r={desc,kind:'texture',destroyed:0,destroy(){this.destroyed++;},createView(){return {texture:this};}};resources.push(r);return r;},
+  createBuffer(desc){const r={desc,kind:'buffer',destroyed:0,destroy(){this.destroyed++;}};resources.push(r);return r;},
+  createSampler:x=>x,createBindGroup:x=>x,
+  createCommandEncoder(){if(d.encodeError)throw d.encodeError;const c={draws:[],beginRenderPass(){return {setPipeline(){},setVertexBuffer(i,b){c.buffer=b;},setBindGroup(i,b){c.bind=b;},draw(...args){c.draws.push({args,bind:c.bind});},end(){}};},finish(){if(d.finishError)throw d.finishError;return c;}};commands.push(c);return c;},
+  queue:{writeTexture({texture},bytes,layout,size){if(d.throwWrite)throw Error('synthetic write failure');texture.bytes=bytes.slice();texture.layout=layout;texture.size=size;},writeBuffer(buffer,offset,bytes){buffer.bytes=bytes.slice();if(d.writeError)throw d.writeError;},submit(c){if(d.submitError)throw d.submitError;d.submitted=c;},onSubmittedWorkDone(){if(d.fenceError)throw d.fenceError;return d.auto?Promise.resolve():new Promise((resolve,reject)=>gates.push({resolve,reject}));}},
+  flush(){for(const x of gates.splice(0))x.resolve();},resources,commands,gates};return d;
+}
+function fixture(){
+ const a={count:1,keys:[''],kinds:new Int32Array([4]),draws:new Uint8Array([1]),paints:new Int32Array([-1]),payloads:new Int32Array([0]),paint_table:[],payload_table:[{asset:'same.png'}]};
+ for(const [k,v]of Object.entries({xs:0,ys:0,sxs:1,sys:1,widths:20,heights:20}))a[k]=new Float64Array([v]);
+ const metadata={documentId:'E302-explicit-test-owner',revision:0,leafIds:['image'],groups:[{id:'image',first:0,count:1,contentVersion:0,layoutVersion:0,dependencies:[]}],resources:[{id:'pixels',version:0}],leafResources:[['pixels']],links:[],images:[{leaf:0,asset:'same.png',resourceId:'pixels'}]};
+ return v=>({complete:true,diagnostics:[],unresolved:[],scene:{arena:{...a,xs:new Float64Array([v])}},metadata:{...metadata,revision:v,resources:[{id:'pixels',version:v}]},tiles:new Map(),resources:[{id:'pixels',version:v,bytes:new Uint8Array([v,0,0,255]),image:{format:'rgba8unorm',alphaMode:'straight',width:1,height:1,bytesPerRow:4}}]});
+}
+const view={canvas:{width:100,height:100},context:{getCurrentTexture(){return {createView(){return {};}};}},scale:1};
+const pipeline={getBindGroupLayout(){return {};}};
+
+const tick=()=>new Promise(r=>setImmediate(r));
+const checks=[];
+const mode=process.argv[2];
+if(mode==='baseline'){
+ const d=backend(),s=createDocumentRenderSession({device:d,pipeline});
+ const error=new Error('upload acquisition');d.fenceError=error;
+ await assert.rejects(s.update(fixture()(0)),e=>e===error);
+ assert.equal(d.resources.length,2);assert.ok(d.resources.every(r=>r.destroyed===1));
+ d.fenceError=null;await s.update(fixture()(1));
+ await s.dispose();assert.equal(s.metrics.liveSnapshots,0);
+ checks.push('E305 reproduced: queued upload destroyed after synchronous fence acquisition throw; subsequent update succeeds');
+}else{
+ for(const fault of ['sync','reject','write-sync'])for(const action of ['none','cancel','dispose']){
+  const d=backend(),s=createDocumentRenderSession({device:d,pipeline});
+  await s.update(fixture()(0));const old=d.resources.slice();
+  const error=new Error('original '+fault),fenceError=new Error('secondary acquisition');
+  let scopeResolve;d.popErrorScope=()=>new Promise(r=>scopeResolve=r);
+  if(fault==='sync')d.fenceError=error;
+  if(fault==='reject')d.queue.onSubmittedWorkDone=()=>Promise.reject(error);
+  if(fault==='write-sync'){d.writeError=error;d.fenceError=fenceError;}
+  const update=s.update(fixture()(1)),rejected=assert.rejects(update,e=>e===error);
+  await tick();assert.equal(d.resources.length,4);
+  const candidate=d.resources.slice(2);assert.ok(candidate.every(r=>r.destroyed===0));
+  let ending;if(action==='cancel')s.cancel();if(action==='dispose')ending=s.dispose();
+  scopeResolve(null);await rejected;
+  assert.ok(candidate.every(r=>r.destroyed===0));
+  if(action==='none')assert.ok(old.every(r=>r.destroyed===0));
+  if(action!=='dispose'){
+   assert.throws(()=>s.render(view),/No active snapshot|No completed update/);
+   await assert.rejects(s.update(fixture()(2)),/Cancelled/);
+  }
+  ending??=s.dispose();await ending;await s.dispose();
+  assert.equal(s.metrics.liveSnapshots,0);assert.equal(s.metrics.submissions,0);
+  assert.ok(candidate.every(r=>r.destroyed===0));
+  checks.push(fault+'/'+action+': original error retained; terminal, CPU drained, no candidate GPU destroy');
+ }
+ for(const action of ['complete','cancel','dispose','write-error']){
+  const d=backend(),s=createDocumentRenderSession({device:d,pipeline});d.auto=false;
+  const error=new Error('queued write failure');if(action==='write-error')d.writeError=error;
+  const update=s.update(fixture()(0));
+  const rejected=action==='complete'?null:assert.rejects(update,action==='write-error'?e=>e===error:/Cancelled|Superseded/);
+  await tick();assert.equal(d.gates.length,1);assert.ok(d.resources.every(r=>r.destroyed===0));
+  let ending,ended=false;if(action==='cancel')s.cancel();if(action==='dispose'){ending=s.dispose();ending.then(()=>ended=true);}
+  await tick();assert.equal(ended,false);assert.ok(d.resources.every(r=>r.destroyed===0));
+  d.flush();if(rejected)await rejected;else {await update;assert.notEqual(s.generation,null);assert.ok(d.resources.every(r=>r.destroyed===0));}
+  ending??=s.dispose();await ending;assert.equal(s.metrics.liveSnapshots,0);assert.ok(d.resources.every(r=>r.destroyed===1));
+  checks.push(action+': observed completion gates ownership; exactly-once normal destruction');
+ }
+ {
+  const d=backend(),s=createDocumentRenderSession({device:d,pipeline});const error=new Error('pre-write allocation');
+  const create=d.createTexture;d.createTexture=()=>{throw error;};d.fenceError=new Error('must not acquire');
+  await assert.rejects(s.update(fixture()(0)),e=>e===error);assert.equal(d.resources.length,0);
+  d.createTexture=create;d.fenceError=null;await s.update(fixture()(1));await s.dispose();
+  assert.ok(d.resources.every(r=>r.destroyed===1));assert.equal(s.metrics.liveSnapshots,0);
+  checks.push('pre-write error: original preserved, consumer remains usable');
+ }
+}
+const result={passed:true,mode,checks,synthetic_only:true,canonical_credit:0};
+await writeFile(new URL(mode+'-results.json',process.env.VKF_HOST_RESULT_DIR),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));

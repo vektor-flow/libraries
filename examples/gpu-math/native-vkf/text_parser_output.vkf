@@ -1,0 +1,63 @@
+# Diagnostic CST and exact production parser-action reference transport.
+ops:.text_parser_stream
+pages:.math_command_pages
+j:.resource_json
+text:.tex_text
+chunks:.text_chunks
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+json(s:Stream)->str:
+    operations:chunks.empty(s.count)
+    trace:chunks.empty(s.count*3)
+    trace_count:0
+    i:0
+    i<s.count?>
+        raw:ops.raw(s,i)
+        kind:ops.value(s,i,"kind")
+        role:ops.value(s,i,"role")
+        value:ops.value(s,i,"value")
+        prefix:""
+        i>0? .prefix:","
+        operations.(i):prefix&"{\"payload\":"&raw&",\"start\":"&text.integer(pages.integer(s.starts,i))&",\"stop\":"&text.integer(pages.integer(s.stops,i))&",\"parent\":"&text.integer(pages.integer(s.parents,i))&"}"
+        hidden:false
+        ancestor:pages.integer(s.parents,i)
+        ancestor>=0?>
+            ops.value(s,ancestor,"kind")="box_content"? .hidden:true
+            .ancestor:pages.integer(s.parents,ancestor)
+        event:""
+        kind="command"?
+            .event:"{\"event\":\"command\",\"name\":"&j.quote(value)&",\"role\":"&j.quote(role)&"}"
+        kind="word" \/ kind="math" \/ kind="literal" \/ kind="accent_base"?
+            .event:"{\"event\":"&j.quote(kind)&",\"role\":"&j.quote(role)&",\"value\":"&j.quote(value)&"}"
+        kind="argument"?
+            raw_value:"null"
+            ops.flag(s,i,"found")? .raw_value:j.quote(value)
+            .event:"{\"event\":\"argument\",\"value\":"&raw_value&"}"
+        kind="forced"? .event:"{\"event\":\"forced\"}"
+        kind="glue"?
+            conditional:ops.flag(s,i,"conditional")
+            conditional? .event:"{\"event\":\"space\",\"role\":"&j.quote(role)&"}"
+            ~conditional?
+                nonbreak:"false"
+                explicit:"false"
+                ops.flag(s,i,"nonbreak")? .nonbreak:"true"
+                ops.flag(s,i,"explicit")? .explicit:"true"
+                .event:"{\"event\":\"glue\",\"role\":"&j.quote(role)&",\"nonbreak\":"&nonbreak&",\"explicit\":"&explicit&"}"
+        event~="" /\ ~hidden?
+            trace.(trace_count):event
+            .trace_count:trace_count+1
+        kind="command" /\ ~hidden?
+            action:ops.attribute(s,i,"action")
+            action="link"?
+                trace.(trace_count):"{\"event\":\"target\",\"value\":"&j.quote(ops.attribute(s,i,"rawTarget"))&"}"
+                .trace_count:trace_count+1
+            value="char" /\ action="char"?
+                trace.(trace_count):"{\"event\":\"char\",\"code\":"&j.quote(ops.attribute(s,i,"code"))&"}"
+                .trace_count:trace_count+1
+        .i:i+1
+    # Joined trace elements receive commas without mutating their semantic JSON.
+    .i:1
+    i<trace_count?>
+        trace.(i):","&trace.(i)
+        .i:i+1
+    @:"{\"operations\":["&chunks.join(operations,0,s.count)&"],\"trace\":["&chunks.join(trace,0,trace_count)&"],\"diagnostics\":["&s.diagnostics&"]}"

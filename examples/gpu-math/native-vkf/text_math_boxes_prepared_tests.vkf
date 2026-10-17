@@ -1,0 +1,67 @@
+font_catalog:.font_catalog
+test_font_data:.test_font_data
+text_chunks:.text_chunks
+tex_text:.tex_text
+text_math_boxes_reference:.text_math_boxes_reference
+text_math_boxes_prepared:.text_math_boxes_prepared
+math_profiles:.math_profiles
+math_packages:.math_packages
+test_layout_fonts:.test_layout_fonts
+text_parser_stream:.text_parser_stream
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+Context:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+Result:(provider:Provider,next_equation_number:int,equation_references:str,complete:bit)
+text_math_boxes_prepared_compare:.text_math_boxes_prepared_compare
+fonts_with_role()->Catalog:
+    original:test_layout_fonts.fonts()
+    keys:text_chunks.empty(original.count+1)
+    values:text_chunks.empty(original.count+1)
+    at:0
+    i:0
+    i<original.capacity?>
+        entry:font_catalog.slot(original,i)
+        entry.found?
+            key_size:font_catalog.fixed(original.source,font_catalog.header_size()+i*font_catalog.slot_size()+12)
+            keys.(at):tex_text.span(original.source,entry.start,entry.start+key_size)
+            values.(at):tex_text.span(original.source,entry.start+key_size,entry.stop)
+            .at:at+1
+        .i:i+1
+    keys.(at):"font/roman"
+    values.(at):"{\"spaces\":{\"space\":3.3,\"stretch\":1.6,\"shrink\":1.1,\"extra\":1.1}}"
+    @:font_catalog.load(test_font_data.pack(keys,values))
+renderer_tests()->bit:
+    fonts:fonts_with_role()
+    tables:math_profiles.load(fonts)
+    context:math_packages.defaults()
+    sources:["a+b","\\frac ab","a_b^2","\\sum_a^b x","\\left(a+b\\right)","\\mathrel{b}a","","\\unknownVKFCommand"]
+    i:0
+    i<sources.length()?>
+        text_math_boxes_prepared_compare.check(sources.(i),fonts,tables,context)?! "prepared evaluator noad controls"
+        .i:i+1
+    styles:["\\displaystyle ","\\textstyle ","\\scriptstyle ","\\scriptscriptstyle "]
+    .i:0
+    i<styles.length()?>
+        text_math_boxes_prepared_compare.check(styles.(i)&"a+b",fonts,tables,context)?! "all ordinary math styles"
+        text_math_boxes_prepared_compare.check(styles.(i)&"\\boldsymbol{a+b}",fonts,tables,context)?! "all bold math styles"
+        .i:i+1
+    text_math_boxes_prepared_compare.check("a+\\vkftikzbox{0}+b",fonts,tables,context,boxes:"{\"0\":{\"items\":[{\"kind\":\"rule\",\"x\":1,\"y\":-2,\"width\":4,\"height\":0.5}],\"width\":6,\"height\":3,\"depth\":2}}")?! "retained TikZ/native box directory"
+    operations:text_parser_stream.empty()
+    .operations:text_parser_stream.append(operations,"math","roman","a+b",text_parser_stream.attributes(),0,3,-1).stream
+    .operations:text_parser_stream.append(operations,"math","roman","a_b^2",text_parser_stream.attributes(),4,9,-1).stream
+    .operations:text_parser_stream.append(operations,"math","roman","\\unknownVKFCommand",text_parser_stream.attributes(),10,30,-1).stream
+    previous:text_math_boxes_reference.provide(operations,fonts,context,7)
+    prepared:text_math_boxes_prepared.provide_prepared(operations,fonts,context,tables,7)
+    requested:text_math_boxes_prepared.provide(operations,fonts,context,7)
+    (previous.count>0)?! "real math operations exercised"
+    text_math_boxes_prepared_compare.same_provider(previous,prepared)?! "provided tables across operations"
+    text_math_boxes_prepared_compare.same_provider(previous,requested)?! "lazy request preparation across operations"
+    stream:text_parser_stream.empty()
+    invalid:(source:"",capacity:0,count:0,payload:0,size:0,valid:false)
+    empty:text_math_boxes_prepared.provide(stream,invalid,context)
+    (empty.count=0)?! "ordinary-only request does not load font profiles"
+    @:true
+renderer_tests()

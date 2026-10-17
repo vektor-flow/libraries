@@ -1,0 +1,62 @@
+q:.text_paragraph
+inline_parser:.text_parser
+boxes:.text_inline_boxes
+b:.paragraph_nodes
+builder:.paragraph_inline_nodes
+p:.paragraph_breaking
+h:.hyphenation
+a:.hyphenation_test_asset
+f:.font_catalog
+d:.test_font_data
+fonts():
+    keys:["font/roman","font/italic","text/roman/65","text/roman/86","text/italic/65","text/italic/86"]
+    values:["{\"size\":10,\"spaces\":{\"space\":3,\"slant\":0}}","{\"size\":10,\"spaces\":{\"space\":4,\"slant\":0.25}}","{\"key\":\"A\",\"advance\":7,\"height\":8,\"depth\":0,\"italic\":1}","{\"key\":\"V\",\"advance\":8,\"height\":9,\"depth\":1,\"italic\":2}","{\"key\":\"italicA\",\"advance\":8,\"height\":9,\"depth\":0,\"italic\":2}","{\"key\":\"italicV\",\"advance\":9,\"height\":10,\"depth\":1,\"italic\":3}"]
+    @:f.load(d.pack(keys,values))
+renderer_tests()->bit:
+    fonts:fonts()
+    language:h.load(a.source())
+    c:inline_parser.context("roman",["roman","italic"])
+    o:p.options(100)
+    o.justify:false
+    o.hyphens:false
+    t:b.text_options()
+    styled:q.typeset("A \\textit{V} A",fonts,c,language,h.strings(0),o,t,boxes.empty())
+    keys:styled.keys
+    xs:styled.xs
+    (styled.complete /\ styled.glyph_count=3 /\ keys.(1)="italicV" /\ xs.(1)=10 /\ xs.(2)=25 /\ styled.width=32)?! "parsed style role and closing italic correction reach positioned glyphs"
+    before:q.typeset("V \\textrm{A}",fonts,c,language,h.strings(0),o,t,boxes.empty())
+    before_x:before.xs
+    (before.complete /\ before_x.(1)=13 /\ before.width=21)?! "upright style inserts prior italic correction before existing glue"
+    comma:q.typeset("\\textit{V},A",fonts,c,language,h.strings(0),o,t,boxes.empty())
+    # Unsupported comma glyph is diagnosed but correction remains suppressed.
+    (comma.lowering_complete /\ ~comma.complete /\ comma.width=16)?! "following comma suppresses closing italic correction"
+    explicit:q.typeset("A\\  V",fonts,c,language,h.strings(0),o,t,boxes.empty())
+    explicit_x:explicit.xs
+    (explicit.complete /\ explicit.width=18 /\ explicit_x.(1)=10)?! "explicit control space suppresses following normal whitespace"
+    parsed:inline_parser.parse("\$x\$ V",fonts,c)
+    provider:boxes.append(boxes.empty(),0,0,5,12,2,0,"{\"retained\":true}")
+    with_scene:q.position("\$x\$ V",parsed.stream,fonts,language,h.strings(0),o,t,provider)
+    scenes:with_scene.scenes
+    scene_x:with_scene.scene_xs
+    scene_ops:with_scene.scene_operations
+    (with_scene.complete /\ with_scene.scene_count=1 /\ with_scene.width=16 /\ scenes.(0)="{\"retained\":true}" /\ scene_x.(0)=0 /\ scene_ops.(0)=0)?! "math/native provider scene stays retained with source operation and placement"
+    pending:q.typeset("A \$x\$ V",fonts,c,language,h.strings(0),o,t,boxes.empty())
+    missing:pending.pending
+    (~pending.complete /\ pending.pending_count=1 /\ missing.(0)=2)?! "unresolved math remains explicit and cannot claim complete geometry"
+    resolved:boxes.append(boxes.empty(),0,5)
+    empty:q.position("\$x\$ V",parsed.stream,fonts,language,h.strings(0),o,t,resolved)
+    (empty.complete /\ empty.scene_count=0)?! "explicit empty provider is distinct from missing provider"
+    diagnostic_empty:boxes.append(boxes.empty(),0,5,diagnostics:"\"Empty math diagnostic\"")
+    diagnosed:q.position("\$x\$ V",parsed.stream,fonts,language,h.strings(0),o,t,diagnostic_empty)
+    (diagnosed.lowering_complete /\ ~diagnosed.complete /\ diagnosed.scene_count=0 /\ diagnosed.diagnostics="\"Empty math diagnostic\"")?! "resolved-empty provider preserves diagnostics without inventing a box"
+    comma_parsed:inline_parser.parse("A\\, V",fonts,c)
+    comma_nodes:builder.build("A\\, V",comma_parsed.stream,fonts,language,h.strings(0),false,t,boxes.empty())
+    comma_kinds:comma_nodes.nodes.kinds
+    comma_breaks:comma_nodes.nodes.breakable
+    (comma_kinds.(1)=2 /\ comma_breaks.(1))?! "ordinary comma kern retains production omitted-breakable semantics"
+    ordered:q.typeset("☃ \\unknown V",fonts,c,language,h.strings(0),o,t,boxes.empty())
+    (ordered.lowering_complete /\ ordered.diagnostics="\"Unsupported document text character: ☃\",\"Unsupported document text command: \\\\unknown\"")?! "parser warnings merge after earlier shaping diagnostics in source order"
+    reversed:q.typeset("\\unknown ☃ V",fonts,c,language,h.strings(0),o,t,boxes.empty())
+    (reversed.lowering_complete /\ reversed.diagnostics="\"Unsupported document text command: \\\\unknown\",\"Unsupported document text character: ☃\"")?! "reversed parser and shaping warnings preserve reversed source order"
+    @:true
+renderer_tests()

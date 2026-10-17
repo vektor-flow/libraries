@@ -1,0 +1,127 @@
+fixture_keys()->[str]:@:["text/a","text/b"]
+fixture_xs()->[num]:@:[1.0,20.0]
+fixture_ys()->[num]:@:[0.0,12.0]
+fixture_flow_lines()->[int]:@:[0,1]
+fixture_glyph_operations()->[int]:@:[1,5]
+fixture_scenes()->[str]:@:["{\"items\":[{\"kind\":\"rule\",\"x\":2,\"y\":3,\"width\":4,\"height\":0.5}]}","{\"items\":[],\"inlineDestinations\":true,\"destinations\":[{\"id\":\"anchor\",\"x\":0,\"y\":0}]}"]
+fixture_scene_xs()->[num]:@:[5.0,7.0]
+fixture_scene_ys()->[num]:@:[0.0,12.0]
+fixture_scene_lines()->[int]:@:[0,1]
+fixture_scene_operations()->[int]:@:[2,4]
+fixture_line_heights()->[num]:@:[7.0,7.0]
+fixture_line_depths()->[num]:@:[2.0,2.0]
+fixture_line_widths()->[num]:@:[10.0,10.0]
+fixture_line_baselines()->[num]:@:[0.0,12.0]
+fixture_line_ratios()->[num]:@:[0.0,0.0]
+fixture_line_indents()->[num]:@:[0.0,0.0]
+fixture_line_flagged()->[bit]:@:[false,false]
+ints(size:int)->[int]:[0:size]
+document_scene_paragraph:.document_scene_paragraph
+document_scene_paragraph_linear:.document_scene_paragraph_linear
+document_scene_export:.document_scene_export
+document_scene:.document_scene
+Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num)
+fixture(case:int):
+    q:(keys:fixture_keys(),xs:fixture_xs(),ys:fixture_ys(),flow_lines:fixture_flow_lines(),glyph_operations:fixture_glyph_operations(),scenes:fixture_scenes(),scene_xs:fixture_scene_xs(),scene_ys:fixture_scene_ys(),scene_lines:fixture_scene_lines(),scene_operations:fixture_scene_operations(),scene_count:2,pending:ints(0),pending_count:0,complete:true,lowering_complete:true,glyph_count:2,line_heights:fixture_line_heights(),line_depths:fixture_line_depths(),line_widths:fixture_line_widths(),line_baselines:fixture_line_baselines(),line_ratios:fixture_line_ratios(),line_indents:fixture_line_indents(),line_flagged:fixture_line_flagged(),line_count:2,width:30.0,height:7.0,depth:14.0,measurement_work:0,diagnostics:"",solved:true,pass:0)
+    case=1?
+        values:document_scene.strings(2)
+        values.(0):"{\"items\":[{\"kind\":\"glyph\",\"key\":\"math/A\",\"x\":2,\"y\":-3,\"sx\":1.25,\"sy\":0.8,\"cropX\":[null,4],\"crop\":[-2,null],\"glyphParts\":[\"alpha\",\"beta\"],\"equationTag\":true,\"tagWidth\":9,\"flowLine\":17,\"color\":[0.2,0.3,0.4,0.5],\"destinationIds\":[\"math-origin\"],\"footnoteNumber\":3},{\"kind\":\"field\",\"key\":\"field/b\",\"x\":3,\"y\":1},{\"kind\":\"rule\",\"x\":1,\"y\":2,\"width\":3,\"height\":0.4},{\"kind\":\"link\",\"x\":0,\"y\":1,\"width\":10,\"height\":5,\"target\":{\"type\":\"uri\",\"value\":\"https://example.test/a\"},\"borderWidth\":0.5,\"color\":[1,0,0],\"flowX\":-2,\"flowWidth\":20},{\"kind\":\"image\",\"x\":1,\"y\":2,\"width\":3,\"height\":4,\"asset\":\"asset\"},{\"kind\":\"segment\",\"x\":1,\"y\":2,\"delta\":[3,4],\"lineWidth\":0.6,\"strokeColor\":[0,1,0],\"dash\":\"dotted\"},{\"kind\":\"bezier\",\"x\":1,\"y\":2,\"delta\":[3,4],\"controls\":[{\"x\":0.5,\"y\":-0.5},{\"x\":2,\"y\":3}],\"fill\":true,\"fillColor\":[0,0,1,0.25]},{\"kind\":\"circle\",\"x\":1,\"y\":2,\"width\":3,\"height\":3},{\"kind\":\"vectorrect\",\"x\":1,\"y\":2,\"width\":3,\"height\":4},{\"kind\":\"placeholder\",\"x\":1,\"y\":2,\"width\":3,\"height\":4}],\"destinations\":[{\"id\":\"one\",\"x\":1,\"y\":2,\"flowLine\":99},{\"id\":\"two\",\"x\":3,\"y\":4}],\"width\":22}"
+        values.(1):"{\"items\":[{\"kind\":\"glyph\",\"key\":\"tail\",\"x\":4,\"y\":5,\"destinationIds\":[]},{\"kind\":\"link\",\"x\":1,\"y\":2,\"target\":{\"type\":\"destination\",\"value\":\"one\"}}],\"destinations\":[{\"id\":\"last\",\"x\":3,\"y\":5}]}"
+        q.scenes:values
+    case=2?
+        q.scene_count:0
+        q.scenes:document_scene.strings(0)
+    case=3?
+        q.glyph_count:0
+    @:q
+compare(q:Packet)->bit:
+    before:document_scene_paragraph.from_paragraph(q)
+    after:document_scene_paragraph_linear.from_paragraph(q)
+    (before.width=after.width /\ before.height=after.height /\ before.depth=after.depth /\ before.tag_width=after.tag_width /\ before.anchor_count=after.anchor_count)?! "scene metrics exact"
+    a:before.arena
+    b:after.arena
+    (a.count=b.count /\ a.paint_count=b.paint_count /\ a.payload_count=b.payload_count /\ a.destination_ids.length()=b.destination_ids.length())?! "typed column sizes exact"
+    i:0
+    i<a.count?>
+        (a.kinds.(i)=b.kinds.(i))?! "column kinds exact"
+        (a.keys.(i)=b.keys.(i))?! "column keys exact"
+        (a.xs.(i)=b.xs.(i))?! "column xs exact"
+        (a.ys.(i)=b.ys.(i))?! "column ys exact"
+        (a.sxs.(i)=b.sxs.(i))?! "column sxs exact"
+        (a.sys.(i)=b.sys.(i))?! "column sys exact"
+        (a.widths.(i)=b.widths.(i))?! "column widths exact"
+        (a.heights.(i)=b.heights.(i))?! "column heights exact"
+        (a.lines.(i)=b.lines.(i))?! "column lines exact"
+        (a.equation_tags.(i)=b.equation_tags.(i))?! "column equation_tags exact"
+        (a.tag_widths.(i)=b.tag_widths.(i))?! "column tag_widths exact"
+        (a.draws.(i)=b.draws.(i))?! "column draws exact"
+        (a.extras.(i)=b.extras.(i))?! "column extras exact"
+        (a.flow_xs.(i)=b.flow_xs.(i))?! "column flow_xs exact"
+        (a.flow_widths.(i)=b.flow_widths.(i))?! "column flow_widths exact"
+        (a.has_flows.(i)=b.has_flows.(i))?! "column has_flows exact"
+        (a.vertical_shrinks.(i)=b.vertical_shrinks.(i))?! "column vertical_shrinks exact"
+        (a.vertical_stretches.(i)=b.vertical_stretches.(i))?! "column vertical_stretches exact"
+        (a.paints.(i)=b.paints.(i))?! "column paints exact"
+        (a.payloads.(i)=b.payloads.(i))?! "column payloads exact"
+        (a.destination_firsts.(i)=b.destination_firsts.(i))?! "column destination_firsts exact"
+        (a.destination_counts.(i)=b.destination_counts.(i))?! "column destination_counts exact"
+        (a.footnote_numbers.(i)=b.footnote_numbers.(i))?! "column footnote_numbers exact"
+        old_json:document_scene_export.leaf(a,i,1,1)
+        new_json:document_scene_export.leaf(b,i,1,1)
+        (old_json=new_json)?! "debug leaf export exact"
+        .i:i+1
+    .i:0
+    i<a.destination_ids.length()?>
+        (a.destination_ids.(i)=b.destination_ids.(i))?! "leaf destinations exact"
+        .i:i+1
+    .i:0
+    i<a.paint_count?>
+        (a.paint_table.(i).red=b.paint_table.(i).red)?! "paint red exact"
+        (a.paint_table.(i).green=b.paint_table.(i).green)?! "paint green exact"
+        (a.paint_table.(i).blue=b.paint_table.(i).blue)?! "paint blue exact"
+        (a.paint_table.(i).alpha=b.paint_table.(i).alpha)?! "paint alpha exact"
+        .i:i+1
+    .i:0
+    i<a.payload_count?>
+        (a.payload_table.(i).crop_x=b.payload_table.(i).crop_x)?! "payload crop_x exact"
+        (a.payload_table.(i).crop_y=b.payload_table.(i).crop_y)?! "payload crop_y exact"
+        (a.payload_table.(i).crop_left=b.payload_table.(i).crop_left)?! "payload crop_left exact"
+        (a.payload_table.(i).crop_right=b.payload_table.(i).crop_right)?! "payload crop_right exact"
+        (a.payload_table.(i).crop_top=b.payload_table.(i).crop_top)?! "payload crop_top exact"
+        (a.payload_table.(i).crop_bottom=b.payload_table.(i).crop_bottom)?! "payload crop_bottom exact"
+        (a.payload_table.(i).left=b.payload_table.(i).left)?! "payload left exact"
+        (a.payload_table.(i).right=b.payload_table.(i).right)?! "payload right exact"
+        (a.payload_table.(i).top=b.payload_table.(i).top)?! "payload top exact"
+        (a.payload_table.(i).bottom=b.payload_table.(i).bottom)?! "payload bottom exact"
+        (a.payload_table.(i).dx=b.payload_table.(i).dx)?! "payload dx exact"
+        (a.payload_table.(i).dy=b.payload_table.(i).dy)?! "payload dy exact"
+        (a.payload_table.(i).c1x=b.payload_table.(i).c1x)?! "payload c1x exact"
+        (a.payload_table.(i).c1y=b.payload_table.(i).c1y)?! "payload c1y exact"
+        (a.payload_table.(i).c2x=b.payload_table.(i).c2x)?! "payload c2x exact"
+        (a.payload_table.(i).c2y=b.payload_table.(i).c2y)?! "payload c2y exact"
+        (a.payload_table.(i).line_width=b.payload_table.(i).line_width)?! "payload line_width exact"
+        (a.payload_table.(i).fill=b.payload_table.(i).fill)?! "payload fill exact"
+        (a.payload_table.(i).fill_paint=b.payload_table.(i).fill_paint)?! "payload fill_paint exact"
+        (a.payload_table.(i).stroke_paint=b.payload_table.(i).stroke_paint)?! "payload stroke_paint exact"
+        (a.payload_table.(i).dash=b.payload_table.(i).dash)?! "payload dash exact"
+        (a.payload_table.(i).target_type=b.payload_table.(i).target_type)?! "payload target_type exact"
+        (a.payload_table.(i).target=b.payload_table.(i).target)?! "payload target exact"
+        (a.payload_table.(i).border_width=b.payload_table.(i).border_width)?! "payload border_width exact"
+        (a.payload_table.(i).asset=b.payload_table.(i).asset)?! "payload asset exact"
+        .i:i+1
+    .i:0
+    i<before.anchor_count?>
+        (before.anchor_ids.(i)=after.anchor_ids.(i) /\ before.anchor_xs.(i)=after.anchor_xs.(i) /\ before.anchor_ys.(i)=after.anchor_ys.(i) /\ before.anchor_lines.(i)=after.anchor_lines.(i))?! "point anchors exact"
+        .i:i+1
+    @:true
+renderer_tests()->bit:
+    compare(fixture(0))?! "mixed ordinary/retained ordering"
+    compare(fixture(1))?! "all primitive payloads, math crop, links and anchors"
+    compare(fixture(2))?! "ordinary-only empty retained list"
+    compare(fixture(3))?! "retained-only empty ordinary list"
+    @:true
+renderer_tests()

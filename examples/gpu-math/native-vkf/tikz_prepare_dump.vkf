@@ -1,0 +1,13 @@
+tikz_dump_io:.io
+tikz_dump_frontend:.tex_frontend
+tikz_dump_prepare:.tikz_prepare
+tikz_dump_output:.tikz_prepare_output
+run()->int:
+    source:tikz_dump_io.read_text(tikz_dump_io.read_line())
+    files:tikz_dump_io.read_text(tikz_dump_io.read_line())
+    target:tikz_dump_io.read_line()
+    expanded:tikz_dump_frontend.prepare(source,files,"main","main.tex")
+    result:tikz_dump_prepare.prepare(expanded.source,12*72.0/72.27,12*72.0/72.27)
+    tikz_dump_io.write_text(target,tikz_dump_output.json(result))
+    @:0
+run()

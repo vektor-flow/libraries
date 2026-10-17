@@ -1,0 +1,21 @@
+graphics_dump_io:.io
+graphics_dump_kernel:.document_graphics_kernel
+run()->int:
+    fonts_unused:graphics_dump_io.read_line()
+    count:int(vkf_decimal_parse(fonts_unused))
+    i:0
+    i<count?>
+        asset:graphics_dump_io.read_line()
+        options:graphics_dump_io.read_line()
+        config:graphics_dump_io.read_line()
+        expected:graphics_dump_io.read_line()
+        output:graphics_dump_io.read_line()
+        request_native:graphics_dump_io.read_line()
+        x:num(vkf_decimal_parse(graphics_dump_io.read_line()))
+        y:num(vkf_decimal_parse(graphics_dump_io.read_line()))
+        result:graphics_dump_kernel.json(graphics_dump_io.read_text(asset),graphics_dump_io.read_text(options),graphics_dump_io.read_text(config),request_native="true",x,y)
+        graphics_dump_kernel.check(graphics_dump_io.read_text(asset),graphics_dump_io.read_text(options),graphics_dump_io.read_text(config),request_native="true",x,y,graphics_dump_io.read_text(expected))?! "Graphic dimensions and retained items match actual JS"
+        graphics_dump_io.write_text(output,result)
+        .i:i+1
+    @:0
+run()

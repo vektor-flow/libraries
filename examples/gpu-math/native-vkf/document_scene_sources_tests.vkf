@@ -1,0 +1,49 @@
+document_scene_sources:.document_scene_sources
+document_scene_json:.document_scene_json
+text_chunks:.text_chunks
+tex_text:.tex_text
+body(index:int):
+    @:document_scene_json.decode("{\"items\":[{\"kind\":\"glyph\",\"key\":\"body/a\",\"x\":1,\"y\":2}]}")
+runtime_join(count:int)->bit:
+    [int] body_ids:[0:3]
+    scenes:body_ids >> body($0)
+    tail:text_chunks.empty(count)
+    marks:text_chunks.empty(count)
+    i:0
+    i<count?>
+        item:"{\"kind\":\"glyph\",\"key\":\"tail/"&tex_text.integer(i)&"\",\"x\":"&tex_text.integer(i)&",\"y\":2}"
+        tail.(i):"{\"items\":["&item&"]}"
+        marks.(i):"["&item&"]"
+        .i:i+1
+    result:document_scene_sources.combine(scenes,tail)
+    (result.length()=3+count)?! "dynamic join exact extent"
+    unchanged:document_scene_sources.combine(scenes,text_chunks.empty(0))
+    (unchanged.length()=3 /\ scenes.(0).arena.keys.(0)="body/a")?! "empty tail and source preservation"
+    decorated:document_scene_sources.decorations(marks)
+    (decorated.length()=count)?! "dynamic decoration exact extent"
+    .i:0
+    i<count?>
+        expected:"tail/"&tex_text.integer(i)
+        (result.(i+3).arena.keys.(0)=expected /\ decorated.(i).arena.keys.(0)=expected)?! "join and page decoration preserve order"
+        (result.(i+3).arena.xs.(0)=i /\ decorated.(i).arena.xs.(0)=i)?! "join retains positioned geometry"
+        .i:i+1
+    @:true
+renderer_tests()->bit:
+    runtime_join(0)?! "empty source merge"
+    runtime_join(1)?! "singleton source merge"
+    runtime_join(17)?! "odd source merge"
+    [int] indices:[0:1]
+    scenes:indices >> body($0)
+    tail:text_chunks.empty(1)
+    tail.(0):"{\"items\":[{\"kind\":\"rule\",\"x\":5,\"y\":6,\"width\":7,\"height\":1}]}"
+    result:document_scene_sources.combine(scenes,tail)
+    (result.length()=2 /\ result.(0).arena.keys.(0)="body/a" /\ result.(1).arena.widths.(0)=7)?! "Typed body plus decoded appended providers preserves source indices"
+    (scenes.(0).arena.keys.(0)="body/a")?! "Joining does not mutate the input body"
+    marks:text_chunks.empty(1)
+    marks.(0):"[{\"kind\":\"glyph\",\"key\":\"header/b\",\"x\":9,\"y\":10}]"
+    decorated:document_scene_sources.decorations(marks)
+    (decorated.length()=1 /\ decorated.(0).arena.keys.(0)="header/b" /\ decorated.(0).arena.ys.(0)=10)?! "Already positioned decorations remain in page coordinates"
+    empty:document_scene_sources.empty_document()
+    (empty.page_count=0 /\ empty.arena.count=0 /\ empty.destination_count=0)?! "Empty typed request has no fake content"
+    @:true
+renderer_tests()

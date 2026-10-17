@@ -1,0 +1,8 @@
+link_dump_io:.io
+link_dump_output:.document_link_policy_output
+run()->int:
+    cases:link_dump_io.read_text(link_dump_io.read_line())
+    output:link_dump_io.read_line()
+    link_dump_io.write_text(output,link_dump_output.batch(cases))
+    @:0
+run()

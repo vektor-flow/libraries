@@ -1,0 +1,31 @@
+tikz_test_prepare:.tikz_prepare
+tikz_test_labels:.tikz_labels
+tikz_test_options:.tikz_options
+tikz_test_numbers:.tikz_numbers
+tikz_test_text:.tex_text
+
+renderer_tests()->bit:
+    styles:tikz_test_options.set(tikz_test_options.empty(),"v","draw,fill,circle,minimum size=1.5mm,inner sep=0")
+    context:tikz_test_numbers.context(tikz_test_numbers.empty(),12,5)
+    option:tikz_test_options.resolve("v,scale=2,red!25!blue,baseline=-2pt",tikz_test_options.defaults(12),styles,context)
+    (option.diagnostic="" /\ option.style.draw /\ option.style.fill /\ option.style.shape="circle" /\ option.style.scale=2 /\ option.style.has_baseline)?! "Actual picture style declarations resolve recursively"
+    (tikz_test_text.find(option.style.color,"2.5e-1")>=0 /\ option.style.inner_sep=0)?! "Color mixes and inner separation preserved"
+    recursive:tikz_test_options.set(styles,"loop","loop")
+    bad:tikz_test_options.resolve("loop",tikz_test_options.defaults(12),recursive,context)
+    (bad.diagnostic="Recursive TikZ style: loop")?! "Recursive style activation is bounded and diagnosed"
+    source:"\\newlength{\\h}\\setlength{\\h}{-.5cm}\\tikzset{v/.style={draw,circle}}before\\begin{tikzpicture}[baseline=0]\\draw (0,0)--(1,\\h);\\end{tikzpicture}after"
+    prepared:tikz_test_prepare.prepare(source,12,12)
+    (prepared.diagnostic="" /\ prepared.count=1 /\ prepared.source="before\\vkftikzbox{0}after")?! "Preparation consumes only supported global declarations and replaces each picture"
+    contents:prepared.contents
+    snapshots:prepared.style_snapshots
+    dimensions:prepared.dimension_snapshots
+    (tikz_test_text.matches(contents.(0),0,"[baseline=0]") /\ snapshots.(0)="{\"v\":\"draw,circle\"}" /\ tikz_test_text.find(dimensions.(0),"\"h\":-")>=0)?! "Requests preserve source and point-in-source style/dimension snapshots"
+    literal:tikz_test_prepare.prepare("\\verb|\\begin{tikzpicture}| \\url{https://a/\\begin{tikzpicture}} \\begin{verbatim}\\begin{tikzpicture}\\end{verbatim}")
+    (literal.count=0 /\ literal.diagnostic="")?! "Literal targets and verbatim do not open executable pictures"
+    unknown:tikz_test_prepare.prepare("\\setlength{\\unknown}{3pt}\\begin{tikzpicture}\\end{tikzpicture}")
+    (unknown.count=1 /\ tikz_test_text.matches(unknown.source,0,"\\setlength"))?! "Unowned dimensions remain in document source"
+    labels:tikz_test_labels.collect("[x={2cm}]\\node at (0,{1+2}) {a_{b}};\\node (x) {};\\fill (2,3) circle(1) node {\$r_1\$};")
+    label_sources:labels.sources
+    (labels.diagnostic="" /\ labels.count=2 /\ label_sources.(0)="a_{b}" /\ label_sources.(1)="\$r_1\$")?! "Only nonempty top-level node bodies request real text geometry"
+    @:true
+renderer_tests()

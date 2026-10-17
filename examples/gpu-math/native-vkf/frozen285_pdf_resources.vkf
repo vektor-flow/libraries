@@ -1,0 +1,83 @@
+p:.frozen285_pdf_syntax
+text:.frozen285_tex_text
+
+numeric_token(token:str)->bit:
+    size:text.byte_length(token)
+    size=0? @:false
+    index:0
+    first:text.at(token,0)
+    first="+" \/ first="-"? .index:1
+    digits:0
+    point:false
+    index<size?>
+        c:text.at(token,index)
+        (c<"0" \/ c>"9") /\ c~="."? @:false
+        c="."?
+            point? @:false
+            .point:true
+        c>="0" /\ c<="9"? .digits:digits+1
+        .index:index+1
+    @:digits>0
+
+path_token(token:str)->bit:
+    token="m" \/ token="l" \/ token="c" \/ token="h" \/ token="re"? @:true
+    @:numeric_token(token)
+
+valid_path(operators:str)->bit:
+    size:text.byte_length(operators)
+    begin:0
+    index:0
+    index<=size?>
+        separator:index=size
+        index<size? .separator:text.space(text.at(operators,index))
+        separator?
+            index>begin?
+                ~path_token(text.span(operators,begin,index))? @:false
+            .begin:index+1
+        .index:index+1
+    @:true
+
+form(left:num,top:num,right:num,bottom:num,operators:str)->str:
+    (right>=left /\ bottom>=top)?! "Invalid PDF form bounds"
+    valid_path(operators)?! "Invalid PDF font path operators"
+    bounds:p.number(left)&" "&p.number(top)&" "&p.number(right)&" "&p.number(bottom)
+    @:p.stream("/Type /XObject /Subtype /Form /BBox ["&bounds&"] /Resources << >>",operators&"\nf")
+
+alpha(value:num)->str:
+    (value>=0 /\ value<=1)?! "Invalid PDF opacity"
+    @:"<< /Type /ExtGState /ca "&p.number(value)&" /CA "&p.number(value)&" >>"
+
+reference_list(identifiers:[int])->str:
+    result:""
+    index:0
+    index<identifiers.length()?>
+        index>0? .result:result&" "
+        .result:result&p.reference(identifiers.(index))
+        .index:index+1
+    @:result
+
+resources(forms:[int],alphas:[int])->str:
+    result:"<< /XObject <<"
+    index:0
+    index<forms.length()?>
+        .result:result&" /G"&p.integer(index)&" "&p.reference(forms.(index))
+        .index:index+1
+    .result:result&" >> /ExtGState <<"
+    .index:0
+    index<alphas.length()?>
+        .result:result&" /A"&p.integer(index)&" "&p.reference(alphas.(index))
+        .index:index+1
+    @:result&" >> >>"
+
+catalog(pages:int)->str:"<< /Type /Catalog /Pages "&p.reference(pages)&" >>"
+
+pages(identifiers:[int])->str:
+    count:identifiers.length()
+    (count>0 /\ count<=100)?! "PDF requires 1-100 pages"
+    @:"<< /Type /Pages /Count "&p.integer(count)&" /Kids ["&reference_list(identifiers)&"] >>"
+
+page(parent:int,resources:int,contents:int,width:num,height:num,annotations:[int])->str:
+    (width>0 /\ height>0)?! "Invalid PDF page dimensions"
+    links:""
+    annotations.length()>0? .links:" /Annots ["&reference_list(annotations)&"]"
+    @:"<< /Type /Page /Parent "&p.reference(parent)&" /MediaBox [0 0 "&p.number(width)&" "&p.number(height)&"] /Resources "&p.reference(resources)&" /Contents "&p.reference(contents)&links&" >>"

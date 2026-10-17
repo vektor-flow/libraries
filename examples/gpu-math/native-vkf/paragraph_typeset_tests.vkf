@@ -1,0 +1,54 @@
+q:.paragraph_typeset
+b:.paragraph_nodes
+p:.paragraph_breaking
+h:.hyphenation
+a:.hyphenation_test_asset
+f:.font_catalog
+d:.test_font_data
+j:.resource_json
+tex:.tex_numeric
+shaper:.text_shaping
+fonts():
+    keys:["font/roman","text/roman/65","text/roman/86","text/roman/102","text/roman/105","text/roman/12","text/roman/11","text/roman/14","text/roman/96","text/roman/39","text/roman/16","text/roman/17","math/text/@text:å"]
+    values:["{\"size\":10,\"spaces\":{\"space\":3},\"ligatures\":{\"102\":{\"105\":[\"LIG\",12],\"102\":[\"LIG\",11]},\"11\":{\"105\":[\"LIG\",14]}}}","{\"key\":\"A\",\"advance\":7,\"height\":8,\"depth\":0,\"italic\":1,\"kerns\":{\"86\":-2}}","{\"key\":\"V\",\"advance\":8,\"height\":9,\"depth\":1,\"italic\":2}","{\"key\":\"f\",\"advance\":4,\"height\":7,\"depth\":0}","{\"key\":\"i\",\"advance\":3,\"height\":6,\"depth\":0}","{\"key\":\"fi\",\"advance\":6,\"height\":7,\"depth\":0}","{\"key\":\"ff\",\"advance\":7,\"height\":7,\"depth\":0}","{\"key\":\"ffi\",\"advance\":9,\"height\":7,\"depth\":0}","{\"key\":\"lq\",\"advance\":2,\"height\":7,\"depth\":0}","{\"key\":\"rq\",\"advance\":2,\"height\":7,\"depth\":0}","{\"key\":\"dotlessi\",\"advance\":3,\"height\":4,\"depth\":0}","{\"key\":\"dotlessj\",\"advance\":3,\"height\":4,\"depth\":2}","{\"width\":5,\"height\":8,\"depth\":1}"]
+    @:f.load(d.pack(keys,values))
+
+renderer_tests()->bit:
+    catalog:fonts()
+    language:h.load(a.source())
+    options:p.options(20)
+    options.justify:false
+    options.hyphens:false
+    out:q.words("AV V",catalog,"roman",language,h.strings(0),options,b.text_options())
+    keys:out.keys
+    xs:out.xs
+    ys:out.ys
+    (out.glyph_count=3 /\ out.line_count=2 /\ keys.(0)="A" /\ keys.(1)="V" /\ keys.(2)="V")?! "source words shape then break into two lines"
+    (xs.(0)=0 /\ xs.(1)=5 /\ xs.(2)=0 /\ |ys.(2)-12*tex.pt()|<0.000000001)?! "pair kern and baseline survive paragraph placement"
+    wide:p.options(100)
+    wide.justify:false
+    leading:q.words("  AV  ",catalog,"roman",language,h.strings(0),wide,b.text_options())
+    leading_x:leading.xs
+    (leading.glyph_count=2 /\ leading.line_count=1 /\ leading_x.(0)=3 /\ leading_x.(1)=8 /\ leading.width=16)?! "leading whitespace collapses and trailing glue disappears"
+    ctx:shaper.context(catalog,"roman")
+    built:b.build("ffiab",catalog,ctx,language,["f-fiab"],true,b.text_options())
+    nodes:built.nodes
+    widths:nodes.widths
+    (nodes.count=3 /\ widths.(0)=4 /\ widths.(2)=5 /\ p.correction(built.corrections,2,3)=1)?! "discretionary width uses prefixes and exact suffix reshaping correction"
+    narrow:p.options(6)
+    narrow.tolerance:10000
+    split:q.words("ffiab",catalog,"roman",language,["f-fiab"],narrow,b.text_options())
+    split_keys:split.keys
+    split_x:split.xs
+    (split.glyph_count=2 /\ split.line_count=2 /\ split_keys.(0)="f" /\ split_keys.(1)="fi" /\ split_x.(1)=0 /\ split.width=6)?! "chosen partial word re-shapes ligature on next line"
+    split_ratios:split.line_ratios
+    (split_ratios.(0)>10.0^300)?! "zero-stretch ratio preserves positive infinity"
+    fallback_nodes:p.from_arrays([0,4,1,0,1],[8.0,0.0,3.0,5.0,9.0],[0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0],[false,false,true,false,true],[0, -10000,0,0,0],[false,true,false,false,false],[false,false,false,false,false],[0.0,0.0,0.0,0.0,0.0],5)
+    fallback:q.fallback(fallback_nodes,false)
+    fallback_starts:fallback.starts
+    fallback_ends:fallback.ends
+    fallback_widths:fallback.naturals
+    fallback_flags:fallback.flagged
+    (~fallback.solved /\ fallback.pass=5 /\ fallback.count=2 /\ fallback_starts.(1)=2 /\ fallback_ends.(0)=1 /\ fallback_ends.(1)=4 /\ fallback_widths.(0)=8 /\ fallback_widths.(1)=8 /\ fallback_flags.(0))?! "terminal fallback retains forced breaks, prefix widths, flags and trims trailing glue without rerunning passes"
+    @:true
+renderer_tests()

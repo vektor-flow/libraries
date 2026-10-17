@@ -1,0 +1,25 @@
+f:.math_package_fragments
+p:.math_packages
+text:.tex_text
+
+renderer_tests()->bit:
+    source:"\\faktor{α+\\unknown}{b}"
+    body:f.capture(source,7,true)
+    unknown:text.find(body.source,"\\unknown")
+    positions:body.positions
+    (positions.(unknown)=11 /\ positions.(unknown+8)=19 /\ positions.(text.byte_length(body.source))=20)?! "captured UTF8 token range excludes original closing brace while EOF follows it"
+    modified:"\\faktor[\\unknown]{a}{b}"
+    option:p.option(modified,7)
+    numerator:f.capture(modified,option.stop,true,option.value,option.start+1)
+    denominator:f.capture(modified,numerator.stop,true,option.value,option.start+1)
+    first:numerator.positions
+    second:denominator.positions
+    (first.(0)=8 /\ first.(8)=16 /\ first.(9)=18 /\ second.(0)=8 /\ second.(8)=16 /\ second.(9)=21)?! "both copied modifier ranges retain option bytes rather than their later operand positions"
+    direct:f.capture("\\pushQED{α+\\unknown}",8)
+    direct_positions:direct.positions
+    direct_at:text.find(direct.source,"\\unknown")
+    (direct_positions.(direct_at)=12 /\ direct_positions.(direct_at+8)=20 /\ ~direct.appendable)?! "QED capture maps unwrapped exact body bytes and remains closed"
+    open:f.capture("{a",0)
+    (open.appendable /\ open.diagnostic="Inferred a closing brace")?! "unfinished raw group remains appendable within source"
+    @:true
+renderer_tests()

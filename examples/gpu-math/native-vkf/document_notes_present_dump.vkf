@@ -1,0 +1,46 @@
+# Native reference adapter for source title notes, author gaps and end matter.
+io:.io
+resource_numbers:.resource_numbers
+notes_present_front:.tex_frontend
+notes_present_blocks:.document_blocks
+notes_present_config:.document_materialize_config
+notes_present_flow:.document_present
+notes_present_context:.document_present_context
+notes_present_link_setup:.document_materialize_link_setup
+notes_present_fonts:.font_catalog
+notes_present_language:.hyphenation
+notes_present_roles:.text_parser_kernel
+notes_present_json:.resource_json
+notes_present_text:.tex_text
+run()->int:
+    fonts:notes_present_fonts.load(io.read_text(io.read_line()))
+    language:notes_present_language.load(io.read_text(io.read_line()))
+    roles:notes_present_roles.roles(io.read_line())
+    count:int(resource_numbers.parse(io.read_line()))
+    index:0
+    index<count?>
+        source:io.read_text(io.read_line())
+        output:io.read_line()
+        front:notes_present_front.prepare(source)
+        document:notes_present_blocks.parse(front.source,"",front.declarations)
+        config:notes_present_config.configure(document.class_name,document.class_options,document.imports,fonts)
+        setup:notes_present_link_setup.prepare(front.source,document.class_name,document.imports,config.hyperref)
+        config.config:notes_present_config.replace_raw(config.config,"linkAppearance",setup.appearance)
+        config.diagnostics:notes_present_config.merge(config.diagnostics,setup.diagnostics)
+        plan:notes_present_flow.prepare(document,front.source,fonts,roles,language,config)
+        kinds:plan.kinds
+        sources:plan.sources
+        contexts:plan.contexts
+        blocks:""
+        block:0
+        block<plan.count?>
+            block>0? .blocks:blocks&","
+            context:notes_present_context.parse(contexts.(block))
+            .blocks:blocks&"{\"kind\":"&notes_present_json.quote(kinds.(block))&",\"source\":"&notes_present_json.quote(sources.(block))&",\"linkAppearance\":"&context.link_appearance
+            context.next_link_appearance~=""? .blocks:blocks&",\"nextLinkAppearance\":"&context.next_link_appearance
+            .blocks:blocks&"}"
+            .block:block+1
+        io.write_text(output,"{\"blocks\":["&blocks&"],\"footnotes\":"&plan.footnotes&",\"unresolved\":["&plan.unresolved&"]}")
+        .index:index+1
+    @:0
+run()

@@ -1,0 +1,246 @@
+# Direct typed page/leaf columns -> vector PDF. JSON adapters are outside this
+# module. Numeric geometry follows document_pdf/vector-pdf arithmetic order.
+document_pdf:.document_pdf
+math_metadata:.math_metadata
+pdf_syntax:.pdf_syntax
+pdf_paths:.pdf_paths
+pdf_links:.pdf_links
+pdf_resources:.pdf_resources
+pdf_objects:.pdf_objects
+text_chunks:.text_chunks
+tex_text:.tex_text
+json_numbers:.json_numbers
+tex_numeric:.tex_numeric
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
+PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+State:(objects:[str],object_count:int,keys:Pool,key_forms:[int],forms:Pool,form_ids:[int],lefts:[num],tops:[num],rights:[num],bottoms:[num],paints:Pool,paint_commands:[str],alphas:Pool,alpha_ids:[int])
+
+paint_key(red:num,green:num,blue:num,alpha:num)->str:
+    @:json_numbers.roundtrip(red)&","&json_numbers.roundtrip(green)&","&json_numbers.roundtrip(blue)&","&json_numbers.roundtrip(alpha)
+
+paint_request(arena:Arena,state:State,id:int,default_color:[num:4]):
+    red:default_color.0
+    green:default_color.1
+    blue:default_color.2
+    alpha:default_color.3
+    id>=0?
+        color:arena.paint_table.(id)
+        .red:color.red
+        .green:color.green
+        .blue:color.blue
+        .alpha:color.alpha
+    key:paint_key(red,green,blue,alpha)
+    @:(index:math_metadata.find(state.paints,key),red:red,green:green,blue:blue,alpha:alpha,key:key)
+
+destination_index(names:[str],count:int)->[int]:
+    [int] slots:[-1:2*count+16]
+    index:0
+    index<count?>
+        at:math_metadata.hash(names.(index))%slots.length()
+        slots.(at)>=0?>
+            prior:slots.(at)
+            names.(prior)=names.(index)? @|
+            .at:(at+1)%slots.length()
+        slots.(at):index
+        .index:index+1
+    @:slots
+destination_find(key:str,names:[str],slots:[int])->int:
+    at:math_metadata.hash(key)%slots.length()
+    slots.(at)>=0?>
+        index:slots.(at)
+        names.(index)=key? @:index
+        .at:(at+1)%slots.length()
+    @: -1
+
+# Explicit shared records avoid generic reflection of the complete page graph.
+annotation(doc:PageDocument,arena:Arena,item:int,page:int,page_ids:[int],destination_slots:[int])->str:
+    payload_id:arena.payloads.(item)
+    payload_id<0? @:""
+    payload:arena.payload_table.(payload_id)
+    payload.target_type=0? @:""
+    width:arena.widths.(item)
+    height:arena.heights.(item)
+    page_width:doc.widths.(page)
+    page_height:doc.heights.(page)
+    x:arena.xs.(item)
+    y:arena.ys.(item)
+    page_id:page_ids.(page)
+    payload.target_type=1? @:pdf_links.external(page_id,page_width,page_height,x,y,width,height,payload.target)
+    (payload.target_type=2)?! "Unsupported PDF link target"
+    # Keep this probe local: passing an owned target string alongside vectors
+    # makes the published backend snapshot both vectors at the call boundary.
+    target:payload.target
+    bucket:math_metadata.hash(target)%destination_slots.length()
+    destination: -1
+    destination_slots.(bucket)>=0?>
+        candidate:destination_slots.(bucket)
+        doc.destination_names.(candidate)=target?
+            .destination:candidate
+            @|
+        .bucket:(bucket+1)%destination_slots.length()
+    destination>=0?! "Missing PDF link destination"
+    target_page:doc.destination_pages.(destination)
+    (target_page>=0 /\ target_page<doc.page_count)?! "Missing PDF link destination page"
+    target_id:page_ids.(target_page)
+    target_height:doc.heights.(target_page)
+    target_x:doc.destination_xs.(destination)
+    target_y:doc.destination_ys.(destination)
+    @:pdf_links.internal(page_id,page_width,page_height,x,y,width,height,target_id,target_height,target_x,target_y)
+
+primitive(payload:Payload,kind:int,width:num,height:num)->str:
+    kind=8? @:pdf_paths.rectangle(0,0,width,height)
+    kind=7? @:pdf_paths.ellipse(width,height)
+    kind=5? @:pdf_paths.segment(payload.dx,payload.dy)
+    kind=6?! "Unsupported PDF primitive"
+    @:pdf_paths.bezier(payload.c1x,payload.c1y,payload.c2x,payload.c2y,payload.dx,payload.dy)
+
+encode_detail(doc:PageDocument,fonts:Catalog,operators:str,default_color:[num:4]=[0,0,0,1]):
+    arena:doc.arena
+    page_count:doc.page_count
+    (page_count>0 /\ page_count<=100)?! "PDF requires 1-100 layout pages"
+    # Prepare a paint once on first demand. Integer IDs avoid per-leaf JSON,
+    # dictionary calls and resource copies; unused colors create no pdf_objects.
+    state:document_pdf.empty(3+page_count)
+    destination_slots:destination_index(doc.destination_names,doc.destination_count)
+    palette:text_chunks.empty(arena.paint_count+1)
+    page_ids:document_pdf.ints(page_count)
+    index:0
+    index<page_count?>
+        page_ids.(index):4+index
+        .index:index+1
+    .index:0
+    index<page_count?>
+        page_width:doc.widths.(index)
+        page_height:doc.heights.(index)
+        (page_width>0 /\ page_height>0)?! "Invalid PDF page dimensions"
+        first:doc.firsts.(index)
+        count:doc.counts.(index)
+        (first>=0 /\ count>=0 /\ count<=50000 /\ first+count<=arena.count)?! "Invalid PDF layout item count"
+        annotations:document_pdf.ints(count)
+        annotation_count:0
+        commands:text_chunks.empty(2*count+2)
+        commands.(0):"q 1 0 0 -1 0 "&pdf_syntax.number(page_height)&" cm"
+        command_count:1
+        current_paint:""
+        item:first
+        item<first+count?>
+            kind:arena.kinds.(item)
+            x:arena.xs.(item)
+            y:arena.ys.(item)
+            (|x|<=1000000000 /\ |y|<=1000000000)?! "Invalid PDF coordinate"
+            command:""
+            draw:arena.draws.(item)
+            paint_id:arena.paints.(item)
+            (paint_id>= -1 /\ paint_id<arena.paint_count)?! "Invalid PDF paint ID"
+            draw?
+                palette.(paint_id+1)=""?
+                    request:paint_request(arena,state,paint_id,default_color)
+                    request.index>=0? palette.(paint_id+1):state.paint_commands.(request.index)
+                    request.index<0?
+                        prepared:document_pdf.paint_rgba(state,request.red,request.green,request.blue,request.alpha,request.key)
+                        .state:prepared.state
+                        palette.(paint_id+1):prepared.command
+                painted:palette.(paint_id+1)
+                painted~=current_paint?
+                    commands.(command_count):"\n"&painted
+                    .command_count:command_count+1
+                    .current_paint:painted
+            draw /\ (kind=0 \/ kind=1)?
+                key:arena.keys.(item)
+                key_id:math_metadata.find(state.keys,key)
+                outline_index: -1
+                key_id>=0? .outline_index:state.key_forms.(key_id)
+                key_id<0?
+                    outline:document_pdf.form(state,fonts,operators,key)
+                    .state:outline.state
+                    .outline_index:outline.index
+                sx:arena.sxs.(item)
+                sy:arena.sys.(item)
+                sx~=0 /\ sy~=0?
+                    payload_id:arena.payloads.(item)
+                    clipped:false
+                    payload_id>=0?
+                        payload:arena.payload_table.(payload_id)
+                        .clipped:payload.crop_x \/ payload.crop_y
+                        clipped?
+                            left:state.lefts.(outline_index)
+                            top:state.tops.(outline_index)
+                            right:state.rights.(outline_index)
+                            bottom:state.bottoms.(outline_index)
+                            payload.crop_left? .left:tex_numeric.maximum(left,payload.left)
+                            payload.crop_right? .right:tex_numeric.minimum(right,payload.right)
+                            payload.crop_top? .top:tex_numeric.maximum(top,payload.top)
+                            payload.crop_bottom? .bottom:tex_numeric.minimum(bottom,payload.bottom)
+                            .command:pdf_paths.clipped_glyph(outline_index,x,y,sx,sy,left,top,right,bottom)
+                    ~clipped? .command:pdf_paths.glyph(outline_index,x,y,sx,sy)
+            draw /\ kind=2? .command:pdf_paths.rule(x,y,arena.widths.(item),arena.heights.(item))
+            kind=3?
+                payload_id:arena.payloads.(item)
+                payload_id>=0?! "Missing PDF link payload"
+                payload:arena.payload_table.(payload_id)
+                draw? .command:pdf_links.border(x,y,arena.widths.(item),arena.heights.(item),payload.border_width)
+                body:annotation(doc,arena,item,index,page_ids,destination_slots)
+                body~=""?
+                    object:document_pdf.add(state,body)
+                    .state:object.state
+                    annotations.(annotation_count):object.id
+                    .annotation_count:annotation_count+1
+            draw /\ (kind=5 \/ kind=6 \/ kind=7 \/ kind=8)?
+                payload_id:arena.payloads.(item)
+                payload_id>=0?! "Missing PDF primitive payload"
+                payload:arena.payload_table.(payload_id)
+                width:payload.line_width
+                width>=0?! "Invalid PDF stroke width"
+                fill_paint:""
+                stroke_paint:""
+                payload.fill?
+                    fill_id:payload.fill_paint
+                    fill_id<0? .fill_id:paint_id
+                    (fill_id>= -1 /\ fill_id<arena.paint_count)?! "Invalid PDF fill paint ID"
+                    palette.(fill_id+1)=""?
+                        request:paint_request(arena,state,fill_id,default_color)
+                        request.index>=0? palette.(fill_id+1):state.paint_commands.(request.index)
+                        request.index<0?
+                            prepared:document_pdf.paint_rgba(state,request.red,request.green,request.blue,request.alpha,request.key)
+                            .state:prepared.state
+                            palette.(fill_id+1):prepared.command
+                    .fill_paint:palette.(fill_id+1)
+                width>0?
+                    stroke_id:payload.stroke_paint
+                    stroke_id<0? .stroke_id:paint_id
+                    (stroke_id>= -1 /\ stroke_id<arena.paint_count)?! "Invalid PDF stroke paint ID"
+                    palette.(stroke_id+1)=""?
+                        request:paint_request(arena,state,stroke_id,default_color)
+                        request.index>=0? palette.(stroke_id+1):state.paint_commands.(request.index)
+                        request.index<0?
+                            prepared:document_pdf.paint_rgba(state,request.red,request.green,request.blue,request.alpha,request.key)
+                            .state:prepared.state
+                            palette.(stroke_id+1):prepared.command
+                    .stroke_paint:palette.(stroke_id+1)
+                style:0
+                width>0? .style:payload.dash
+                .command:pdf_paths.paint(primitive(payload,kind,arena.widths.(item),arena.heights.(item)),x,y,arena.sxs.(item),arena.sys.(item),width,style,payload.fill,fill_paint,stroke_paint)
+            kind=4? false?! "PDF illustration byte provider is not connected"
+            (kind=0 \/ kind=1 \/ kind=2 \/ kind=3 \/ kind=5 \/ kind=6 \/ kind=7 \/ kind=8)?! "Unsupported PDF layout item"
+            command~=""?
+                commands.(command_count):"\n"&command
+                .command_count:command_count+1
+            .item:item+1
+        commands.(command_count):"\nQ"
+        .command_count:command_count+1
+        content:document_pdf.add(state,pdf_syntax.stream("",text_chunks.join(commands,0,command_count)))
+        .state:content.state
+        .state:document_pdf.set(state,page_ids.(index),pdf_resources.page(2,3,content.id,page_width,page_height,document_pdf.copy_ints(annotations,annotation_count)))
+        .index:index+1
+    .state:document_pdf.set(state,3,pdf_resources.resources(document_pdf.copy_ints(state.form_ids,state.forms.count),document_pdf.copy_ints(state.alpha_ids,state.alphas.count)))
+    .state:document_pdf.set(state,2,pdf_resources.pages(page_ids))
+    .state:document_pdf.set(state,1,pdf_resources.catalog(2))
+    encoded:pdf_objects.serialize(pdf_objects.pack(document_pdf.copy_strings(state.objects,state.object_count)),1)
+    @:(pdf:encoded,page_count:page_count,form_count:state.forms.count,alpha_count:state.alphas.count,object_count:state.object_count)
+
+encode(doc:PageDocument,fonts:Catalog,operators:str,default_color:[num:4]=[0,0,0,1])->str:
+    @:encode_detail(doc,fonts,operators,default_color).pdf

@@ -1,0 +1,68 @@
+# Math-mode lexical tokens. Offsets are UTF-8 bytes on both execution targets.
+# Unlike document control words, the math grammar's command names exclude @.
+text:.tex_text
+Token:(value:str,raw:str,stop:int)
+
+letter(c:str)->bit:(c>="A" /\ c<="Z") \/ (c>="a" /\ c<="z")
+
+space(c:str)->bit:
+    text.space(c)? @:true
+    (c=str(chr(11)) \/ c=str(chr(12)))? @:true
+    c<="~"? @:false
+    @:one_of(c,[" "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," ","　","﻿"])
+
+skip_space(source:str,begin:int)->int:
+    position:begin
+    ~vkf_string_eof(source,position)?>
+        ~space(text.at(source,position))? @:position
+        .position:text.next(source,position)
+    @:position
+
+normalize(raw:str)->str:
+    raw="\\{"? @:"\\lbrace"
+    raw="\\}"? @:"\\rbrace"
+    raw="\\lparen"? @:"("
+    raw="\\rparen"? @:")"
+    raw="\\lbrack"? @:"["
+    raw="\\rbrack"? @:"]"
+    (raw="\\vert" \/ raw="\\lvert" \/ raw="\\rvert")? @:"|"
+    (raw="\\|" \/ raw="\\lVert" \/ raw="\\rVert")? @:"\\Vert"
+    raw="\\le"? @:"\\leq"
+    raw="\\ge"? @:"\\geq"
+    raw="\\ne"? @:"\\neq"
+    raw="\\land"? @:"\\wedge"
+    raw="\\lor"? @:"\\vee"
+    # ASCII math is overwhelmingly common; do not allocate a Unicode table then.
+    raw<="~"? @:raw
+    unicode:["α","β","γ","δ","ε","ζ","η","θ","ι","κ","λ","μ","ν","ξ","ο","π","ρ","σ","τ","υ","φ","χ","ψ","ω","Α","Β","Γ","Δ","Ε","Ζ","Η","Θ","Ι","Κ","Λ","Μ","Ν","Ξ","Ο","Π","Ρ","Σ","Τ","Υ","Φ","Χ","Ψ","Ω","ς","ϕ","ϑ","ϖ","ϱ","ϵ","∑","∏","∫","∬","∭","∮","∯","∞","≤","≥","≠","×","·","→","⟨","⟩"]
+    commands:["alpha","beta","gamma","delta","epsilon","zeta","eta","theta","iota","kappa","lambda","mu","nu","xi","omicron","pi","rho","sigma","tau","upsilon","phi","chi","psi","omega","Alpha","Beta","Gamma","Delta","Epsilon","Zeta","Eta","Theta","Iota","Kappa","Lambda","Mu","Nu","Xi","Omicron","Pi","Rho","Sigma","Tau","Upsilon","Phi","Chi","Psi","Omega","varsigma","phi","vartheta","varpi","varrho","epsilon","sum","prod","int","iint","iiint","oint","oiint","infty","leq","geq","neq","times","cdot","to","langle","rangle"]
+    index:0
+    index<unicode.length()?>
+        raw=unicode.(index)? @:"\\"&commands.(index)
+        .index:index+1
+    @:raw
+
+peek(source:str,begin:int)->Token:
+    vkf_string_eof(source,begin)? @:(value:"",raw:"",stop:begin)
+    stop:text.next(source,begin)
+    c:text.at(source,begin)
+    c="\\" /\ ~vkf_string_eof(source,stop)?
+        following:text.at(source,stop)
+        letter(following)?
+            true?>
+                vkf_string_eof(source,stop)? @|
+                ~letter(text.at(source,stop))? @|
+                .stop:text.next(source,stop)
+        ~letter(following)? .stop:text.next(source,stop)
+    raw:text.span(source,begin,stop)
+    @:(value:normalize(raw),raw:raw,stop:stop)
+
+script(token:str)->bit:token="^" \/ token="_" \/ token="'" \/ token="\\limits" \/ token="\\nolimits"
+boundary(token:str)->bit:token="" \/ token="}" \/ token="&" \/ token="\\right" \/ token="\\end" \/ token="\\\\"
+
+one_of(value:str,choices:[str])->bit:
+    index:0
+    index<choices.length()?>
+        value=choices.(index)? @:true
+        .index:index+1
+    @:false

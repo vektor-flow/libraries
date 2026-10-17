@@ -1,0 +1,149 @@
+a261_routes:.latex_document_routes
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+text_chunks:.text_chunks
+text_prepared_runs:.text_prepared_runs
+math_retained_directory:.math_retained_directory
+Directory:(source:str,boxes:[str],count:int,prepared:bit)
+# Independent expanded TeX source -> retained paragraph scenes -> pages -> PDF.
+# Unconnected source providers are carried explicitly, and never mark complete.
+tex_frontend:.tex_frontend
+document_materialize_output_typed:.document_materialize_output_typed
+document_scene_sources:.document_scene_sources
+document_scene_export:.document_scene_export
+document_notes_markers:.document_notes_markers
+document_pdf_bulk:.document_pdf_bulk
+
+document_blocks:.document_blocks
+document_materialize_config:.document_materialize_config
+document_present:.document_present
+document_present_maps:.document_present_maps
+document_materialize_metrics:.document_materialize_metrics
+document_materialize_marks:.document_materialize_marks
+document_materialize_bibliography:.document_materialize_bibliography
+document_materialize_link_setup:.document_materialize_link_setup
+document_pages:.document_pages
+document_notes:.document_notes
+document_citations:.document_citations
+text_tikz_boxes:.text_tikz_boxes
+text_parser:.text_parser
+math_profiles:.math_profiles
+resource_json:.resource_json
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
+Result:(layout_json:str,diagnostics:str,unresolved_json:str,complete:bit,block_count:int,page_count:int,document:PageDocument)
+add_pending(input:str,reason:str,source:str="")->str:
+    prefix:""
+    input~=""? .prefix:","
+    @:input&prefix&"{\"reason\":"&resource_json.quote(reason)&",\"source\":"&resource_json.quote(source)&"}"
+layout(source:str,fonts:Catalog,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true,a261_blocks:[int]=[],a261_scopes:[str]=[],a261_texts:[str]=[],a263_kinds:[str]=[],a267_notes:[int]=[],a267_scopes:[str]=[],a267_texts:[str]=[],a267_kinds:[str]=[]):
+    front:tex_frontend.prepare(source,files_json,job,entry)
+    document:document_blocks.parse(front.source,"",front.declarations)
+    config:document_materialize_config.configure(document.class_name,document.class_options,document.imports,fonts)
+    link_setup:document_materialize_link_setup.prepare(front.source,document.class_name,document.imports,config.hyperref)
+    config.config:document_materialize_config.replace_raw(config.config,"linkAppearance",link_setup.appearance)
+    diagnostics:document_materialize_config.merge(front.diagnostics,config.diagnostics)
+    .diagnostics:document_materialize_config.merge(diagnostics,link_setup.diagnostics)
+    text_context:text_parser.context("roman",ordered_roles,config.optical,config.hyperref)
+    settings:resource_json.parse(config.config)
+    prepared_source:front.source
+    directory:"{}"
+    retained:math_retained_directory.unprepared()
+    citation_labels_json:"{}"
+    citation_separator:",~"
+    document_materialize_config.has(config.packages,"biblatex")?
+        prepared_bibliography:document_materialize_bibliography.prepare(prepared_source,files_json,entry,document.imports,fonts,ordered_roles,language,config)
+        .prepared_source:prepared_bibliography.source
+        .citation_labels_json:prepared_bibliography.labels_json
+        .citation_separator:prepared_bibliography.separator
+        config.config:document_materialize_config.replace_raw(config.config,"bibliographyStyle",resource_json.quote(prepared_bibliography.style))
+        bibliography_diagnostics:resource_json.parse(prepared_bibliography.diagnostics_json)
+        bibliography_ends:bibliography_diagnostics.ends
+        bibliography_at:1
+        bibliography_at<bibliography_diagnostics.count?>
+            .diagnostics:document_materialize_config.merge(diagnostics,document_materialize_config.raw(bibliography_diagnostics,bibliography_at))
+            .bibliography_at:bibliography_ends.(bibliography_at)
+        .document:document_blocks.parse(prepared_source,"",front.declarations)
+    document_materialize_config.has(config.packages,"tikz")?
+        pictures:text_tikz_boxes.prepare(prepared_source,fonts,text_context,config.math,language,config.overrides,document_materialize_config.number(settings,0,"fontSize"),document_present.quad(fonts,"roman"),link_setup.appearance)
+        .prepared_source:pictures.source
+        .directory:text_tikz_boxes.directory(pictures)
+        .retained:math_retained_directory.from_boxes(directory,pictures.boxes,pictures.count)
+        .diagnostics:document_materialize_config.merge(diagnostics,pictures.diagnostics)
+        .document:document_blocks.parse(prepared_source,"",front.declarations)
+    .citation_labels_json:document_citations.collect(prepared_source,citation_labels_json)
+    initial_request:text_prepared_runs.seal(fonts,text_prepared_runs.empty_collection())
+    presentation:document_present.prepare_staged_retained(initial_request,document,prepared_source,fonts,ordered_roles,language,config,retained,front.declarations)
+    plan:presentation.plan
+    text_request:presentation.request
+    previous_text_sources:text_chunks.empty(0)
+    a267_index:0
+    a267_index<a267_scopes.length()?>
+        a267_body:0
+        a267_body<a261_scopes.length()?>
+            (a267_scopes.(a267_index)~=a261_scopes.(a267_body))?! "Body/note scope alias"
+            .a267_body:a267_body+1
+        .a267_index:a267_index+1
+    a261_routes.validate(plan.count,a261_blocks,a261_scopes,a261_texts,a263_kinds)
+    .diagnostics:document_materialize_config.merge(diagnostics,plan.diagnostics)
+    unresolved:plan.unresolved
+    title_attrs:plan.attrs
+    has_title:false
+    title_index:0
+    title_index<plan.count?>
+        title_properties:resource_json.parse("{"&title_attrs.(title_index)&"}")
+        document_materialize_config.string(title_properties,0,"titlePart")~=""? .has_title:true
+        .title_index:title_index+1
+    # Immutable profile tables are request-local and shared across primary
+    # paragraphs/labels and all reference passes. Other provider wrappers stay lazy.
+    math_tables:math_profiles.load(fonts)
+    # Page references must converge by source re-shaping, just as production.
+    page_values:document_present_maps.empty()
+    layout_json:""
+    page_document:document_scene_sources.empty_document()
+    debug_modes:document_pages.ints(0)
+    debug_has_lines:document_pages.bits(0)
+    page_count:0
+    pass:0
+    converged:false
+    pass<5?>
+        # Only page/citation resolution changes in this loop; all shaping context is fixed.
+        generation:document_materialize_metrics.prepare_main_request(text_request,previous_text_sources,plan,fonts,ordered_roles,language,config,page_values,citation_labels_json,citation_separator,reuse_fixed_context:true)
+        .text_request:generation.request
+        .previous_text_sources:generation.sources
+        measured:document_materialize_metrics.shape_request_core(text_request,plan,fonts,ordered_roles,language,config,page_values,math_tables,true,retained,citation_labels_json,citation_separator,false,a261_blocks,a261_scopes,a261_texts,a263_kinds)
+        .diagnostics:document_materialize_config.merge(diagnostics,measured.diagnostics)
+        measured.unresolved~="" /\ measured.unresolved~=plan.unresolved? .unresolved:add_pending(unresolved,"Unresolved paragraph provider records",measured.unresolved)
+        notes:document_notes.prepare_core(plan.footnotes,fonts,ordered_roles,language,config,measured.lines,measured.typed_scenes.length(),directory,link_setup.appearance,a267_notes,a267_scopes,a267_texts,a267_kinds)
+        .diagnostics:document_materialize_config.merge(diagnostics,notes.diagnostics)
+        notes.unresolved~=""? .unresolved:add_pending(unresolved,"Unresolved source note provider",notes.unresolved)
+        markers:document_notes_markers.index(notes.lines,measured.lines.count,measured.typed_scenes,notes.notes.count)
+        typed_scenes:document_scene_sources.a267_combine_notes(measured.typed_scenes,notes.scenes,notes.a267_provenance)
+        page_result:document_pages.layout(config.pages,measured.blocks,markers.lines,notes.notes,markers.markers)
+        .diagnostics:document_materialize_config.merge(diagnostics,page_result.diagnostics)
+        marks:document_materialize_marks.prepare(page_result.pages.count,prepared_source,document.metadata,has_title,fonts,ordered_roles,language,config)
+        .diagnostics:document_materialize_config.merge(diagnostics,marks.diagnostics)
+        marks.unresolved~=""? .unresolved:add_pending(unresolved,"Unresolved page decoration provider",marks.unresolved)
+        decorations:document_scene_sources.decorations(marks.pages)
+        built:document_materialize_output_typed.build(plan,measured.blocks,markers.lines,typed_scenes,measured.typed_labels,page_result.placements,page_result.pages,config,fonts,decorations,page_result.rules)
+        .page_document:built.document
+        .debug_modes:built.debug_modes
+        .debug_has_lines:built.debug_has_lines
+        .page_count:page_result.pages.count
+        ~measured.pending_pages \/ document_present_maps.equal(page_values,built.page_values)?
+            .converged:true
+            @|
+        .page_values:built.page_values
+        .pass:pass+1
+    ~converged? .diagnostics:document_materialize_config.merge(diagnostics,resource_json.quote("Page references did not converge after five layout passes"))
+    include_layout? .layout_json:document_scene_export.encode(page_document,debug_modes,debug_has_lines)
+    complete:diagnostics="" /\ unresolved=""
+    @:(layout_json:layout_json,diagnostics:diagnostics,unresolved_json:"["&unresolved&"]",complete:complete,block_count:plan.count,page_count:page_count,document:page_document)
+render(source:str,fonts:Catalog,operators:str,ordered_roles:[str],language:Language,files_json:str="{}",job:str="main",entry:str="main.tex",include_layout:bit=true):
+    result:layout(source,fonts,ordered_roles,language,files_json,job,entry,include_layout)
+    pdf:""
+    result.complete? .pdf:document_pdf_bulk.encode(result.document,fonts,operators)
+    @:(pdf:pdf,layout_json:result.layout_json,diagnostics:result.diagnostics,unresolved_json:result.unresolved_json,complete:result.complete,block_count:result.block_count,page_count:result.page_count)

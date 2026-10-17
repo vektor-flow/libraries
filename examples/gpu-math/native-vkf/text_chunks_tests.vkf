@@ -1,0 +1,33 @@
+text_chunks:.text_chunks
+
+check(count:int)->bit:
+    chunks:text_chunks.empty(count)
+    chunks.length()=count?! "Dynamic chunk constructor preserves requested length"
+    index:0
+    index<count?>
+        chunks.(index)=""?! "New chunk slots start empty"
+        .index:index+1
+    count>0?
+        chunks.(0):"first"
+        chunks.(count-1):"last"
+        .index:1
+        index<count-1?>
+            chunks.(index)=""?! "Writing endpoints preserves unused slots"
+            .index:index+1
+        copy:chunks
+        copy.(0):"copy"
+        chunks.(0)~="copy"?! "Copied columns own independent writable slots"
+        count=1? text_chunks.join(chunks,0,count)="last"?! "One slot joins its last write"
+        count>1? text_chunks.join(chunks,0,count)="firstlast"?! "Empty intervening chunks retain exact join bytes"
+    count=0? text_chunks.join(chunks,0,0)=""?! "Empty join remains empty"
+    @:true
+renderer_tests()->bit:
+    check(0)?!
+    check(1)?!
+    check(2)?!
+    check(3)?!
+    check(17)?!
+    check(129)?!
+    check(512)?!
+    @:true
+renderer_tests()

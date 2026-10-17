@@ -1,0 +1,66 @@
+io:.io
+font_catalog:.font_catalog
+hyphenation:.hyphenation
+text_parser_kernel:.text_parser_kernel
+document_blocks:.document_blocks
+document_present:.document_present
+document_present_context:.document_present_context
+document_present_maps:.document_present_maps
+document_materialize_config:.document_materialize_config
+document_materialize_metrics:.document_materialize_metrics
+resource_json:.resource_json
+text_chunks:.text_chunks
+json_numbers:.json_numbers
+tex_text:.tex_text
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num)
+scene_json(q:Scene)->str:
+    arena:q.arena
+    chunks:text_chunks.empty(arena.count)
+    i:0
+    i<arena.count?>
+        prefix:""
+        i>0? .prefix:","
+        chunks.(i):prefix&"{\"kind\":"&tex_text.integer(arena.kinds.(i))&",\"key\":"&resource_json.quote(arena.keys.(i))&",\"x\":"&json_numbers.roundtrip(arena.xs.(i))&",\"y\":"&json_numbers.roundtrip(arena.ys.(i))&",\"line\":"&tex_text.integer(arena.lines.(i))&",\"width\":"&json_numbers.roundtrip(arena.widths.(i))&",\"height\":"&json_numbers.roundtrip(arena.heights.(i))&",\"sx\":"&json_numbers.roundtrip(arena.sxs.(i))&",\"sy\":"&json_numbers.roundtrip(arena.sys.(i))&"}"
+        .i:i+1
+    @:"{\"width\":"&json_numbers.roundtrip(q.width)&",\"height\":"&json_numbers.roundtrip(q.height)&",\"depth\":"&json_numbers.roundtrip(q.depth)&",\"items\":["&text_chunks.join(chunks,0,arena.count)&"]}"
+run()->int:
+    fonts:font_catalog.load(io.read_text(io.read_line()))
+    language:hyphenation.load(io.read_text(io.read_line()))
+    roles:text_parser_kernel.roles(io.read_line())
+    cases:resource_json.parse(io.read_text(io.read_line()))
+    output:io.read_line()
+    count:0
+    at:1
+    at<cases.ends.(0)?>
+        .count:count+1
+        .at:cases.ends.(at)
+    results:text_chunks.empty(count)
+    .at:1
+    case:0
+    case<count?>
+        source:resource_json.string(cases,at)
+        document:document_blocks.parse(source)
+        config:document_materialize_config.configure(document.class_name,document.class_options,document.imports,fonts)
+        plan:document_present.prepare(document,source,fonts,roles,language,config)
+        (plan.diagnostics="" /\ plan.unresolved="")?! "Nested list presentation diagnostics"
+        measured:document_materialize_metrics.shape(plan,fonts,roles,language,config,document_present_maps.empty())
+        (measured.diagnostics="" /\ measured.unresolved="")?! "Nested list shaping diagnostics"
+        parts:text_chunks.empty(plan.count)
+        i:0
+        i<plan.count?>
+            context:document_present_context.parse(plan.contexts.(i))
+            prefix:""
+            i>0? .prefix:","
+            parts.(i):prefix&"{\"kind\":"&resource_json.quote(plan.kinds.(i))&",\"source\":"&resource_json.quote(plan.sources.(i))&",\"label\":"&resource_json.quote(context.label)&",\"pendingOuterLabels\":"&context.pending_outer_labels&",\"scene\":"&scene_json(measured.typed_labels.(i))&"}"
+            .i:i+1
+        prefix:""
+        case>0? .prefix:","
+        results.(case):prefix&"["&text_chunks.join(parts,0,plan.count)&"]"
+        .at:cases.ends.(at)
+        .case:case+1
+    io.write_text(output,"["&text_chunks.join(results,0,count)&"]")
+    @:0
+run()

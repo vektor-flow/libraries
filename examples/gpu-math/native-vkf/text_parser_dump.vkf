@@ -1,0 +1,22 @@
+io:.io
+p:.text_parser_kernel
+numbers:.resource_numbers
+run()->int:
+    fonts:io.read_text(io.read_line())
+    roles:io.read_line()
+    optical:io.read_line()="true"
+    count:int(numbers.parse(io.read_line()))
+    i:0
+    i<count?>
+        source:io.read_text(io.read_line())
+        font:io.read_line()
+        hyperref:io.read_line()="true"
+        literal:io.read_line()="true"
+        literal_input:io.read_line()="true"
+        legacy:io.read_line()="true"
+        bib_url:io.read_line()="true"
+        path:io.read_line()
+        io.write_text(path,p.text_parse(fonts,source,font,roles,optical,hyperref,literal,literal_input,legacy,bib_url))
+        .i:i+1
+    @:0
+run()

@@ -1,0 +1,35 @@
+document_scene:.document_scene
+storage_preserves_typed_leaves():
+    a:document_scene.leaf("text/roman65",1,2,3)
+    b:document_scene.leaf("",4,5,6)
+    b.kind:6
+    b.has_paint:true
+    b.paint:document_scene.paint(1,0,0.5,0.7)
+    b.has_payload:true
+    payload:document_scene.payload()
+    payload.dx:7
+    payload.dy:8
+    payload.crop_y:true
+    payload.crop_bottom:true
+    payload.bottom:9
+    payload.fill:true
+    b.payload:payload
+    b.fill_paint:document_scene.paint(0,1,0)
+    b.has_fill_paint:true
+    [str] ids:["label:a","label:b"]
+    b.destination_ids:ids
+    arena:document_scene.from_leaves([a,b],2)
+    (arena.count=2 /\ arena.paint_count=2 /\ arena.payload_count=1)?! "sparse typed tables"
+    (arena.keys.(0)="text/roman65" /\ arena.kinds.(1)=6)?! "glyph keys and primitive kind"
+    (arena.paint_table.(1).green=1 /\ arena.payload_table.(0).fill_paint=1)?! "payload paint reference"
+    (arena.payload_table.(0).crop_y /\ ~arena.payload_table.(0).crop_top /\ arena.payload_table.(0).crop_bottom)?! "crop endpoint presence"
+    back:document_scene.leaf_at(arena,1)
+    (back.payload.dx=7 /\ back.paint.alpha=0.7 /\ back.destination_ids.(0)="label:a" /\ back.destination_ids.(1)="label:b")?! "leaf roundtrip"
+empty_storage():
+    arena:document_scene.empty()
+    (arena.count=0 /\ arena.paint_count=0 /\ arena.payload_count=0)?! "empty typed scene"
+renderer_tests()->bit:
+    storage_preserves_typed_leaves()
+    empty_storage()
+    @:true
+renderer_tests()

@@ -1,0 +1,38 @@
+f:.tex_frontend
+text:.tex_text
+j:.resource_json
+
+included_definitions():
+    files:"{\"macros.tex\":\"\\\\newcommand{\\\\pair}[2]{(#1,#2)}\"}"
+    result:f.prepare("\\input{macros} A \\pair{x}{y}% removed\nB",files)
+    (result.valid /\ result.input_count=1)?! "project front end succeeds"
+    (result.expansions=1 /\ result.definition_count=1)?! "included definitions expand"
+    (text.find(result.source,"A (x,y)B")>=0)?! "resolved source flows into macro preprocessing"
+
+defaults_and_literals():
+    result:f.prepare("\\newcommand{\\tag}[2][x]{#1:#2} \\tag{α} \\url{https://a.test/%20} % hidden\nend")
+    (result.valid /\ result.expansions=1)?! "default argument in shared front end"
+    (text.find(result.source,"x:α")>=0)?! "Unicode macro argument"
+    (text.find(result.source,"https://a.test/%20")>=0 /\ text.find(result.source,"hidden")<0)?! "URL percent and ordinary comment"
+
+unresolved_inputs():
+    result:f.prepare("\\input{absent} \\newcommand{\\x}{value} \\x")
+    (~result.valid /\ result.diagnostic_count=1)?! "incomplete project is explicit"
+    (result.expansions=0 /\ text.find(result.source,"newcommand")>=0)?! "stop before expanding unresolved input"
+    fresh:f.prepare("\\newcommand{\\x}{other} \\x")
+    (fresh.valid /\ text.find(fresh.source,"other")>=0)?! "fresh front-end state"
+
+theorem_metadata():
+    result:f.prepare("\\newcommand{\\title}{Lemma}\\iffalse\\newtheorem{hidden}{Hidden}\\fi\\newtheorem{lemma}{\\title}[section]body")
+    (result.valid /\ result.declaration_count=1 /\ result.source="body")?! "conditional theorem declarations"
+    tape:j.parse(result.declarations)
+    first:j.element(tape,0,0)
+    (j.string(tape,j.member(tape,first,"title"))="Lemma")?! "expanded theorem title"
+
+renderer_tests()->bit:
+    included_definitions()
+    defaults_and_literals()
+    unresolved_inputs()
+    theorem_metadata()
+    @:true
+renderer_tests()

@@ -1,0 +1,33 @@
+tikz_box_chunks:.text_chunks
+tikz_box_json:.resource_json
+tikz_box_text:.tex_text
+tikz_box_decimal:.json_numbers
+tikz_box_geometry:.tikz_picture
+Nodes:(names:[str],xs:[num],ys:[num],widths:[num],heights:[num],outers:[num],shapes:[str],count:int)
+Box:(items:str,width:num,height:num,depth:num,nodes:Nodes,diagnostic:str,missing_label:str)
+json(box:Box)->str:
+    @:"{\"items\":"&box.items&",\"width\":"&tikz_box_decimal.roundtrip(box.width)&",\"height\":"&tikz_box_decimal.roundtrip(box.height)&",\"depth\":"&tikz_box_decimal.roundtrip(box.depth)&",\"diagnostic\":"&tikz_box_json.quote(box.diagnostic)&",\"missingLabel\":"&tikz_box_json.quote(box.missing_label)&"}"
+raw(tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit),node:int)->str:
+    starts:tape.starts
+    stops:tape.stops
+    @:tikz_box_text.span(tape.source,starts.(node),stops.(node))
+batch(requests:str,labels:str,font_size:num,font_quad:num)->str:
+    tape:tikz_box_json.parse(requests)
+    pictures:tikz_box_json.member(tape,0,"pictures")
+    registry:tikz_box_geometry.nodes()
+    outputs:tikz_box_chunks.empty(64)
+    i:0
+    true?>
+        item:tikz_box_json.element(tape,pictures,i)
+        item<0? @|
+        content:tikz_box_json.string(tape,tikz_box_json.member(tape,item,"content"))
+        styles:tikz_box_geometry.decode_styles(raw(tape,tikz_box_json.member(tape,item,"styles")))
+        dimensions:tikz_box_geometry.decode_dimensions(raw(tape,tikz_box_json.member(tape,item,"dimensions")))
+        box:tikz_box_geometry.compile(content,styles,dimensions,font_size,font_quad,registry,labels)
+        box.diagnostic=""? .registry:box.nodes
+        i>=outputs.length()? .outputs:outputs&tikz_box_chunks.empty(outputs.length())
+        prefix:""
+        i>0? .prefix:","
+        outputs.(i):prefix&json(box)
+        .i:i+1
+    @:"["&tikz_box_chunks.join(outputs,0,i)&"]"

@@ -1,0 +1,61 @@
+Typed text-font/shaping checkpoint, 2026-10-16
+
+Source authority read: /home/viktor/Projects/Vektor Flow/spec/language/00-foundations.md,
+precedence.md, and the complete benchmarks-old/docs/language-guide.md. Native and
+WASM features were qualified against published 0.7.3 revision 2, not inferred from
+newer compiler documentation.
+
+Owned implementation:
+- math_glyphs.numeric reads tape.kinds.(index) directly, removing a whole-vector
+  copy from every numeric metric lookup.
+- text_font_metrics.vkf owns typed scalar columns for glyph dimensions, keys,
+  pair kerns, role spacing, and chained-ligature triples. Glyph lookup is hash
+  indexed; columns and slots grow from current font data. JSON is decoded only
+  when a glyph/role first enters the current paragraph's explicit State.
+- text_shaping.shape_prepared/range_prepared accept and return explicit State.
+  Existing shape/range/Context/Run public behavior remains available. Raw metric
+  strings remain in Run.metrics for compatibility, but shaping never reparses
+  a previous glyph to obtain kerning.
+- paragraph_inline_nodes and paragraph_nodes keep exact measured Run columns in
+  a typed flat Store. find_measure returns scalar IDs without copying Cache;
+  state-returning measure is used only on misses. Placement restores the exact
+  stored range, including independently shaped partial-word ligatures.
+- text_paragraph and paragraph_typeset reuse those measured ranges; mixed-role
+  operation construction also reuses typed role spacing and measured h/d/italic.
+  qPacket output fields and semantics are unchanged.
+
+State is currently scoped to one paragraph build. No global result cache,
+precomputed document output, font-asset shortcut, or persistent decoded state was
+added. A caller may explicitly thread State across a wider current request later;
+that document-level integration is not part of this checkpoint.
+
+Public helpers:
+text_font_metrics.empty, find -> int, lookup -> (state,index,found),
+context -> (state,context,stretch,shrink,extra,slant,size,quad),
+role_index/context_index -> int, context_value -> Context, kern -> num.
+text_shaping.shape_prepared/range_prepared -> (run,state),
+empty_store, retain -> Store, restore -> Run.
+paragraph_* find_measure -> int; measure adds run_index; shaped -> Run.
+
+Native lowering eagerly clones array fields in an unchanged record return.
+Consequently hot hits use scalar index helpers and direct indexed reads instead
+of returning unchanged State/Cache. Some copies remain at insertion and word
+preparation boundaries; a renderer speedup has not yet been measured.
+Compiler evidence and the two minimal reproducers are in:
+/mnt/development/CuvamiLaTeX/typed-fonts-073-01/compiler-evidence/HANDOVER.txt
+This distinguishes a copy optimization opportunity from the unsupported native
+record-vector indexed-write feature. No incorrect-output compiler bug is claimed.
+
+Qualification artifacts:
+/mnt/development/CuvamiLaTeX/typed-fonts-073-01/
+- final-source plus final-source-hashes.json: immutable VKF closure.
+- owned-source-hashes.json: eight owned production/assertion sources.
+- paragraph-readonly-pass.json: native mixed-role text_paragraph_tests PASS.
+- final-gates.json: native text_font_metrics_tests + paragraph_typeset_tests PASS,
+  plus published-browser feature assertions PASS three times in one WASM instance.
+- readonly-index-ir.json: zero clone instructions in numeric/find/kern/find_measure.
+- reference-base: first typed implementation, actual JS 380 native + 380 WASM cases
+  PASS with maximum geometry error zero.
+- reference-final and paragraph-reference-final: final reference runs; check their
+  verification.json and references-final.json for terminal status.
+No full renderer benchmark, cold/warm timing, or complete document claim is made.

@@ -1,0 +1,27 @@
+queue_under_test:.document_float_queue
+renderer_tests()->bit:
+    pt:72/72.27
+    empty:queue_under_test.empty(8)
+    top:queue_under_test.encounter(empty,0,40,"tbp",100,false,10,400)
+    top.queue.top_count=1?! "Top float count"
+    (top.shift=40+20*pt /\ top.shrink=4*pt /\ top.stretch=2*pt)?! "First top float exact text glue"
+    tops:top.actions.tops
+    kinds:top.actions.kinds
+    (top.actions.count=1 /\ tops.(0)=10 /\ kinds.(0)=3)?! "Top float scene placement"
+    bottom:queue_under_test.encounter(top.queue,1,50,"b",100,false,10,400)
+    (bottom.queue.bottom_count=1 /\ bottom.queue.bottom_reserve=50+20*pt /\ bottom.shift=0)?! "Bottom float reserves body space without shifting text"
+    deferred:queue_under_test.encounter(empty,2,250,"p",100,false,10,400)
+    (deferred.actions.count=0 /\ queue_under_test.pending(deferred.queue))?! "Deferred float stays in source order"
+    page:queue_under_test.new_page(deferred.queue,[40,50,250,500],["tbp","b","p","p"],10,400)
+    page.full?! "Eligible half-page float creates a float page"
+    positions:page.actions.tops
+    (page.actions.count=1 /\ positions.(0)=85 /\ ~queue_under_test.pending(page.queue))?! "Float page centers retained scene"
+    large:queue_under_test.encounter(empty,3,500,"p",100,false,10,400)
+    overflow:queue_under_test.new_page(large.queue,[40,50,250,500],["tbp","b","p","p"],10,400)
+    (overflow.full /\ overflow.diagnostics~="")?! "Over-height float is placed with its diagnostic"
+    first:queue_under_test.encounter(empty,0,40,"t",390,false,10,400)
+    second:queue_under_test.encounter(first.queue,1,50,"t",390,false,10,400)
+    following:queue_under_test.new_page(second.queue,[40,50],["t","t"],10,400)
+    (following.queue.top_count=2 /\ following.actions.count=2 /\ following.y=10+90+32*pt)?! "Deferred top queue places two floats and interfloat glue"
+    @:true
+renderer_tests()

@@ -1,0 +1,40 @@
+p:.pdf_paths
+text:.tex_text
+
+glyph_transforms():
+    (p.glyph(2,10,20)="q 1 0 0 1 10 20 cm /G2 Do Q")?! "glyph transform"
+    (p.glyph(2,10,20,0,1)="")?! "zero glyph scale"
+    (p.clipped_glyph(2,10,20,2,3,0,-4,5,1)="q 2 0 0 3 10 20 cm 0 -4 5 5 re W n /G2 Do Q")?! "glyph clipping"
+
+primitive_paths():
+    (p.rule(1,2,3,4)="q 1 2 3 4 re f Q")?! "rule path"
+    (p.segment(3,4)="0 0 m 3 4 l")?! "relative line"
+    (p.bezier(1,2,3,4,5,6)="0 0 m 1 2 3 4 5 6 c")?! "cubic curve"
+
+ellipse_paths():
+    path:p.ellipse(20,10)
+    (text.slice(path,0,6)="20 5 m")?! "ellipse start point"
+    (text.slice(path,text.byte_length(path)-1,text.byte_length(path))="h")?! "closed ellipse"
+    index:0
+    count:0
+    true?>
+        found:text.find(path," c",index)
+        found<0? @|
+        .count:count+1
+        .index:found+2
+    (count=8)?! "eight Bezier ellipse arcs"
+
+paint_states():
+    (p.rgb(1,0,0,0)="1 0 0 rg 1 0 0 RG /A0 gs")?! "paint colour and opacity resource"
+    (p.dash(0,1)="[] 0 d 0 J")?! "solid stroke"
+    (p.dash(2,1)~="[] 0 d 0 J")?! "dotted stroke"
+    command:p.paint(p.segment(3,4),10,20,1,1,2,0,false,"","0 0 0 RG")
+    (text.find(command,"2 w [] 0 d 0 J 0 0 m 3 4 l S")>=0)?! "stroke path"
+
+renderer_tests()->bit:
+    glyph_transforms()
+    primitive_paths()
+    ellipse_paths()
+    paint_states()
+    @:true
+renderer_tests()

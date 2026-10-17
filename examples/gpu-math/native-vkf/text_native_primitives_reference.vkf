@@ -1,0 +1,401 @@
+# Independent pre-request-tables provider for qualification only.
+# Native document-text commands, evaluated per request against installed metrics.
+# Deliberately does not resolve groups/links/lowercase/TikZ operations.
+font_catalog:.font_catalog
+resource_json:.resource_json
+resource_numbers:.resource_numbers
+json_numbers:.json_numbers
+text_parser_numbers:.text_parser_numbers
+tex_text:.tex_text
+tex_numeric:.tex_numeric
+text_shaping:.text_shaping
+text_inline_boxes:.text_inline_boxes
+text_inline_arguments:.text_inline_arguments
+text_parser_stream:.text_parser_stream
+math_command_pages:.math_command_pages
+math_parser:.math_parser
+math_layout:.math_layout
+math_profiles:.math_profiles
+math_draw:.math_draw
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+Box:(width:num,height:num,depth:num,italic:num,items:str,diagnostics:str)
+
+record_or_empty(fonts:Catalog,key:str)->Tape:
+    source:font_catalog.raw(fonts,key)
+    source=""? @:resource_json.parse("{}")
+    @:resource_json.parse(source)
+text_symbol(fonts:Catalog,role:str,code:int)->Tape:record_or_empty(fonts,"text/"&role&"/"&tex_text.integer(code))
+math_symbol(fonts:Catalog,style:str,token:str)->Tape:record_or_empty(fonts,"math/"&style&"/"&token)
+numeric(record:Tape,node:int,key:str,fallback:num=0)->num:
+    found:resource_json.member(record,node,key)
+    found<0? @:fallback
+    @:resource_json.number(record,found)
+string(record:Tape,node:int,key:str)->str:
+    found:resource_json.member(record,node,key)
+    found<0? @:""
+    @:resource_json.string(record,found)
+raw(record:Tape,node:int)->str:
+    node<0? @:""
+    starts:record.starts
+    stops:record.stops
+    @:tex_text.span(record.source,starts.(node),stops.(node))
+field(key:str,value:num)->str:resource_json.quote(key)&":"&json_numbers.roundtrip(value)
+empty_box(diagnostic:str="")->Box:@:(width:0.0,height:0.0,depth:0.0,italic:0.0,items:"",diagnostics:diagnostic)
+leaf(key:str,x:num=0,y:num=0,extra:str="")->str:
+    @:"{\"kind\":\"glyph\",\"key\":"&resource_json.quote(key)&","&field("x",x)&","&field("y",y)&extra&"}"
+join(first:str,second:str)->str:
+    first=""? @:second
+    second=""? @:first
+    @:first&","&second
+scene(box:Box)->str:
+    @:"{"&field("width",box.width)&","&field("height",box.height)&","&field("depth",box.depth)&","&field("italic",box.italic)&",\"items\":["&box.items&"]}"
+box_provider(operation:int,box:Box,resolved_empty:bit=false)->Provider:
+    kind:0
+    resolved_empty? .kind:5
+    @:text_inline_boxes.append(text_inline_boxes.empty(),operation,kind,box.width,box.height,box.depth,box.italic,scene(box),box.diagnostics)
+shape(value:str,fonts:Catalog,role:str)->Box:
+    run:text_shaping.shape(value,fonts,text_shaping.context(fonts,role))
+    keys:run.keys
+    xs:run.xs
+    items:""
+    index:0
+    index<run.count?>
+        .items:join(items,leaf(keys.(index),xs.(index)))
+        .index:index+1
+    @:(width:run.width,height:run.height,depth:run.depth,italic:run.italic,items:items,diagnostics:run.diagnostics)
+symbol(record:Tape,key_override:str="")->Box:
+    (~record.valid \/ record.count<2)? @:empty_box()
+    key:string(record,0,"key")
+    key_override~=""? .key:key_override
+    @:(width:numeric(record,0,"advance",numeric(record,0,"width")),height:numeric(record,0,"height"),depth:numeric(record,0,"depth"),italic:0.0,items:leaf(key),diagnostics:"")
+shift_items(items:str,x:num,y:num,extra:str="")->str:
+    tape:resource_json.parse("["&items&"]")
+    ends:tape.ends
+    cursor:1
+    out:""
+    cursor<tape.count?>
+        item:cursor
+        .cursor:ends.(item)
+        starts:tape.starts
+        stops:tape.stops
+        xn:resource_json.member(tape,item,"x")
+        yn:resource_json.member(tape,item,"y")
+        begin:starts.(item)
+        end:stops.(item)-1
+        (xn>=0 /\ yn>=0)?! "Retained native leaf requires x/y"
+        translated:""
+        starts.(xn)<starts.(yn)? .translated:tex_text.span(tape.source,begin,starts.(xn))&json_numbers.roundtrip(numeric(tape,item,"x")+x)&tex_text.span(tape.source,stops.(xn),starts.(yn))&json_numbers.roundtrip(numeric(tape,item,"y")+y)&tex_text.span(tape.source,stops.(yn),end)
+        starts.(yn)<starts.(xn)? .translated:tex_text.span(tape.source,begin,starts.(yn))&json_numbers.roundtrip(numeric(tape,item,"y")+y)&tex_text.span(tape.source,stops.(yn),starts.(xn))&json_numbers.roundtrip(numeric(tape,item,"x")+x)&tex_text.span(tape.source,stops.(xn),end)
+        .out:join(out,translated&extra&"}")
+    @:out
+argument(stream:Stream,operation:int)->str:
+    index:operation+1
+    index<stream.count?>
+        parent:math_command_pages.integer(stream.parents,index)
+        parent=operation /\ text_parser_stream.value(stream,index,"kind")="argument"? @:text_parser_stream.value(stream,index,"value")
+        .index:index+1
+    @:""
+space(c:str)->bit:
+    code:0
+    c >>
+        .code:int($)
+        $
+    @:code=32 \/ code=10 \/ code=13 \/ code=9 \/ code=12 \/ code=11 \/ code=160 \/ code=5760 \/ (code>=8192 /\ code<=8202) \/ code=8232 \/ code=8233 \/ code=8239 \/ code=8287 \/ code=12288 \/ code=65279
+skip_space(source:str,start:int)->int:
+    at:start
+    at<tex_text.byte_length(source)?>
+        ~space(tex_text.at(source,at))? @|
+        .at:tex_text.next(source,at)
+    @:at
+# Exact signed fixed-point grammar used by document-text's hspace regexp.
+component(source:str,start:int,quad:num,xheight:num):
+    at:skip_space(source,start)
+    begin:at
+    at<tex_text.byte_length(source)?
+        c:tex_text.at(source,at)
+        (c="+" \/ c="-")? .at:at+1
+    digits:0
+    at<tex_text.byte_length(source)?>
+        c:tex_text.at(source,at)
+        (c<"0" \/ c>"9")? @|
+        .digits:digits+1
+        .at:at+1
+    at<tex_text.byte_length(source)?
+        tex_text.at(source,at)="."?
+            .at:at+1
+            at<tex_text.byte_length(source)?>
+                c:tex_text.at(source,at)
+                (c<"0" \/ c>"9")? @|
+                .digits:digits+1
+                .at:at+1
+    digits=0? @:(valid:false,stop:at,value:0.0)
+    token:tex_text.span(source,begin,at)
+    tex_text.matches(token,0,"+")? .token:tex_text.span(token,1,tex_text.byte_length(token))
+    negative:false
+    tex_text.matches(token,0,"-")?
+        .negative:true
+        .token:tex_text.span(token,1,tex_text.byte_length(token))
+    tex_text.matches(token,0,".")? .token:"0"&token
+    tex_text.at(token,tex_text.byte_length(token)-1)="."? .token:token&"0"
+    # Leading zeros are legal in TeX dimensions but not JSON decimals.
+    position:0
+    position+1<tex_text.byte_length(token)?>
+        (tex_text.at(token,position)~="0" \/ tex_text.at(token,position+1)=".")? @|
+        .position:position+1
+    .token:tex_text.span(token,position,tex_text.byte_length(token))
+    negative? .token:"-"&token
+    value:resource_numbers.parse(token)
+    .at:skip_space(source,at)
+    stop:at+2
+    stop>tex_text.byte_length(source)? @:(valid:false,stop:at,value:0.0)
+    unit:tex_text.span(source,at,stop)
+    scale:0.0
+    unit="bp"? .scale:1
+    unit="pt"? .scale:tex_numeric.pt()
+    unit="em"? .scale:quad
+    unit="ex"? .scale:xheight
+    unit="cm"? .scale:72/2.54
+    unit="mm"? .scale:72/25.4
+    unit="in"? .scale:72
+    unit="pc"? .scale:12*tex_numeric.pt()
+    supported:unit="bp" \/ unit="pt" \/ unit="em" \/ unit="ex" \/ unit="cm" \/ unit="mm" \/ unit="in" \/ unit="pc"
+    @:(valid:supported,stop:stop,value:value*scale)
+hspace(value:str,quad:num,xheight:num):
+    first:component(value,0,quad,xheight)
+    ~first.valid? @:(valid:false,width:0.0,stretch:0.0,shrink:0.0)
+    at:first.stop
+    stretch:0.0
+    shrink:0.0
+    before:at
+    .at:skip_space(value,at)
+    at>before /\ tex_text.matches(value,at,"plus")?
+        term:component(value,at+4,quad,xheight)
+        ~term.valid? @:(valid:false,width:0.0,stretch:0.0,shrink:0.0)
+        .stretch:term.value
+        .at:term.stop
+        .before:at
+        .at:skip_space(value,at)
+    at>before /\ tex_text.matches(value,at,"minus")?
+        term:component(value,at+5,quad,xheight)
+        ~term.valid? @:(valid:false,width:0.0,stretch:0.0,shrink:0.0)
+        .shrink:term.value
+        .at:skip_space(value,term.stop)
+    @:(valid:at=tex_text.byte_length(value),width:first.value,stretch:stretch,shrink:shrink)
+
+logo(name:str,fonts:Catalog,role:str,size:num)->Box:
+    E:shape("E",fonts,role)
+    T:shape("T",fonts,role)
+    X:shape("X",fonts,role)
+    ex:T.width-0.1667*size
+    xx:ex+E.width-0.125*size
+    items:join(T.items,shift_items(E.items,ex,0.2155*size))
+    .items:join(items,shift_items(X.items,xx,0))
+    width:xx+X.width
+    name="LaTeX"?
+        L:shape("L",fonts,role)
+        A:symbol(math_symbol(fonts,"script","@roman:A"),"script/@roman:A")
+        aX:L.width-0.36*size
+        shift:aX+A.width-0.15*size
+        .items:join(join(L.items,shift_items(A.items,aX, -(T.height-A.height))),shift_items(items,shift,0))
+        .width:width+shift
+    @:(width:width,height:tex_numeric.maximum(T.height,X.height),depth:E.depth+0.2155*size,italic:0.0,items:items,diagnostics:join(join(E.diagnostics,T.diagnostics),X.diagnostics))
+
+# Number(group()) semantics for marker inputs; nonnumeric text remains NaN in
+# the math source and null in JSON metadata, exactly as JSON.stringify in JS.
+coerced_number(source:str):
+    start:skip_space(source,0)
+    at:start
+    stop:start
+    at<tex_text.byte_length(source)?>
+        following:tex_text.next(source,at)
+        ~space(tex_text.at(source,at))? .stop:following
+        .at:following
+    token:tex_text.span(source,start,stop)
+    token=""? @:(value:0.0,display:"0",metadata:"0",valid:true)
+    (token="Infinity" \/ token="+Infinity")? @:(value:0.0,display:"Infinity",metadata:"null",valid:false)
+    token="-Infinity"? @:(value:0.0,display:"-Infinity",metadata:"null",valid:false)
+    base:0
+    tex_text.matches(token,0,"0x") \/ tex_text.matches(token,0,"0X")? .base:16
+    tex_text.matches(token,0,"0o") \/ tex_text.matches(token,0,"0O")? .base:8
+    tex_text.matches(token,0,"0b") \/ tex_text.matches(token,0,"0B")? .base:2
+    base>0?
+        value:0.0
+        index:2
+        valid:index<tex_text.byte_length(token)
+        index<tex_text.byte_length(token)?>
+            char:tex_text.at(token,index)
+            digit:tex_text.find("0123456789abcdef",char)
+            digit<0? .digit:tex_text.find("0123456789ABCDEF",char)
+            (digit<0 \/ digit>=base)? .valid:false
+            .value:value*base+num(digit)
+            .index:index+1
+        valid /\ |value|<=10.0^300? @:(value:value,display:text_parser_numbers.shortest(value),metadata:json_numbers.roundtrip(value),valid:true)
+        @:(value:0.0,display:"NaN",metadata:"null",valid:false)
+    negative:false
+    tex_text.matches(token,0,"+")? .token:tex_text.span(token,1,tex_text.byte_length(token))
+    tex_text.matches(token,0,"-")?
+        .negative:true
+        .token:tex_text.span(token,1,tex_text.byte_length(token))
+    tex_text.matches(token,0,".")? .token:"0"&token
+    index:0
+    index+1<tex_text.byte_length(token)?>
+        (tex_text.at(token,index)~="0" \/ tex_text.at(token,index+1)="." \/ tex_text.at(token,index+1)="e" \/ tex_text.at(token,index+1)="E")? @|
+        .index:index+1
+    .token:tex_text.span(token,index,tex_text.byte_length(token))
+    tex_text.byte_length(token)>0?
+        tex_text.at(token,tex_text.byte_length(token)-1)="."? .token:token&"0"
+    negative? .token:"-"&token
+    checked:resource_numbers.boundary(token)
+    (~checked.valid \/ checked.stop~=tex_text.byte_length(token))? @:(value:0.0,display:"NaN",metadata:"null",valid:false)
+    value:vkf_decimal_parse(token)
+    (value=value /\ |value|<=10.0^300)? @:(value:value,display:text_parser_numbers.shortest(value),metadata:json_numbers.roundtrip(value),valid:true)
+    @:(value:0.0,display:"NaN",metadata:"null",valid:false)
+number_value(source:str)->num:coerced_number(source).value
+
+evaluate_with_argument(stream:Stream,operation:int,fonts:Catalog,math_context:MathContext,argument_value:str,legacy_symbols:bit=false)->Provider:
+    entry:resource_json.parse(text_parser_stream.raw(stream,operation))
+    kind:string(entry,0,"kind")
+    kind~="command"? @:text_inline_boxes.empty()
+    name:string(entry,0,"value")
+    role:string(entry,0,"role")
+    font:record_or_empty(fonts,"font/"&role)
+    (~font.valid \/ font.count<2)? @:text_inline_boxes.empty()
+    spacing:resource_json.member(font,0,"spaces")
+    size:numeric(font,0,"size")
+    quad:numeric(font,spacing,"quad",size)
+    xheight:numeric(font,spacing,"xheight")
+    aux:resource_json.member(entry,0,"aux")
+    action:string(entry,aux,"action")
+    action="char"?
+        resource_json.member(entry,aux,"code")<0? @:box_provider(operation,empty_box(),true)
+        code:int(number_value(string(entry,aux,"code")))
+        record:text_symbol(fonts,role,code)
+        record.count<2? @:box_provider(operation,empty_box(),true)
+        @:box_provider(operation,symbol(record))
+    action="accent"?
+        value:string(entry,aux,"base")
+        value=""? @:box_provider(operation,empty_box(),true)
+        base:shape(value,fonts,role)
+        code:int(numeric(entry,aux,"code"))
+        mark:text_symbol(fonts,role,code)
+        mark.count<2? @:box_provider(operation,empty_box(resource_json.quote("Missing native text accent: "&name)),true)
+        delta:(base.width-numeric(mark,0,"advance"))/2+(base.height-xheight)*numeric(font,spacing,"slant")
+        raise:base.height-xheight
+        items:join(leaf(string(mark,0,"key"),delta, -raise),base.items)
+        @:box_provider(operation,(width:base.width,height:tex_numeric.maximum(base.height,numeric(mark,0,"height")+raise),depth:tex_numeric.maximum(base.depth,numeric(mark,0,"depth")-raise),italic:base.italic,items:items,diagnostics:base.diagnostics))
+    action="escaped"?
+        record:math_symbol(fonts,"text","@text:"&name)
+        record.count>1? @:box_provider(operation,symbol(record,"text/@text:"&name))
+        @:box_provider(operation,shape(name,fonts,role))
+    name="textbullet"?
+        token:"@text:bullet"
+        key:"text/@text:bullet"
+        legacy_symbols?
+            .token:"\\bullet"
+            .key:"text/\\bullet"
+        record:math_symbol(fonts,"text",token)
+        diagnostics:""
+        legacy_symbols?
+            roman:font_catalog.text_font(fonts,"roman")
+            |size-numeric(roman,0,"size")|>0.000001? .diagnostics:resource_json.quote("Legacy text bullet optical font size is unavailable")
+        record.count<2?
+            message:"Native text bullet mapping is unavailable"
+            legacy_symbols? .message:"Legacy text bullet mapping is unavailable"
+            .diagnostics:join(diagnostics,resource_json.quote(message))
+            @:box_provider(operation,empty_box(diagnostics),~legacy_symbols)
+        box:symbol(record,key)
+        @:box_provider(operation,(width:box.width,height:box.height,depth:box.depth,italic:0.0,items:box.items,diagnostics:diagnostics))
+    action="dots"?
+        dot:shape(".",fonts,role)
+        step:dot.width+numeric(font,spacing,"stretch")
+        items:join(join(dot.items,shift_items(dot.items,step,0)),shift_items(dot.items,2*step,0))
+        @:box_provider(operation,(width:3*step,height:dot.height,depth:dot.depth,italic:0.0,items:items,diagnostics:dot.diagnostics))
+    action="logo"? @:box_provider(operation,logo(name,fonts,role,size))
+    action="spacing"?
+        name=","? @:text_inline_boxes.append(text_inline_boxes.empty(),operation,2,size/6,breakable:true)
+        (name="quad" \/ name="qquad")?
+            width:quad
+            name="qquad"? .width:2*quad
+            @:text_inline_boxes.append(text_inline_boxes.empty(),operation,1,width,breakable:true)
+        name="newblock"? @:text_inline_boxes.append(text_inline_boxes.empty(),operation,1,0.11*quad,stretch:0.33*quad,shrink:0.07*quad,breakable:true)
+        name="hspace"?
+            source:argument_value
+            result:hspace(source,quad,xheight)
+            ~result.valid? @:box_provider(operation,empty_box(resource_json.quote("Unsupported text hspace: "&source)),true)
+            @:text_inline_boxes.append(text_inline_boxes.empty(),operation,1,result.width,stretch:result.stretch,shrink:result.shrink,breakable:true)
+    action="footnote"?
+        source:argument_value
+        name="symbolfootnotemark"?
+            numberRecord:coerced_number(source)
+            number:numberRecord.value
+            code: -1
+            numberRecord.valid /\ number=1? .code:3
+            numberRecord.valid /\ number=2? .code:121
+            numberRecord.valid /\ number=3? .code:122
+            numberRecord.valid /\ number=4? .code:120
+            numberRecord.valid /\ number=5? .code:123
+            numberRecord.valid /\ number=6? .code:107
+            mark:text_symbol(fonts,"titlemark",code)
+            mark.count<2? @:box_provider(operation,empty_box(resource_json.quote("Missing title footnote symbol: "&numberRecord.display)),true)
+            author:font_catalog.text_font(fonts,"author")
+            mathstyle:font_catalog.style(fonts,"text")
+            parameters:resource_json.member(mathstyle,0,"parameters")
+            raise:numeric(mathstyle,parameters,"SUP2")*numeric(author,0,"size")/numeric(mathstyle,0,"em")
+            @:box_provider(operation,(width:0.0,height:numeric(mark,0,"height")+raise,depth:tex_numeric.maximum(0,numeric(mark,0,"depth")-raise),italic:0.0,items:leaf(string(mark,0,"key"),0, -raise,","&field("footnoteNumber",number)),diagnostics:""))
+        name="footnotemark"?
+            colon:tex_text.find(source,":")
+            numberSource:source
+            markerSource:source
+            colon>=0?
+                .numberSource:tex_text.span(source,0,colon)
+                .markerSource:tex_text.span(source,colon+1,tex_text.byte_length(source))
+                nextColon:tex_text.find(markerSource,":")
+                nextColon>=0? .markerSource:tex_text.span(markerSource,0,nextColon)
+            numberRecord:coerced_number(numberSource)
+            markerRecord:coerced_number(markerSource)
+            mathSource:"{}^{\\mathrm{"&markerRecord.display&"}}"
+            arena:math_parser.parse_with_context(mathSource,fonts,math_context,true)
+            rendered:math_layout.layout_with_profiles(arena,fonts,math_profiles.load(fonts),true,true,qed_symbol:math_context.qed_symbol)
+            items:math_draw.items(rendered)
+            content:tex_text.span(items,1,tex_text.byte_length(items)-1)
+            retained:shift_items(content,0,0,",\"footnoteNumber\":"&numberRecord.metadata)
+            @:box_provider(operation,(width:rendered.width,height:rendered.height,depth:rendered.depth,italic:0.0,items:retained,diagnostics:rendered.diagnostics))
+    @:text_inline_boxes.empty()
+
+evaluate(stream:Stream,operation:int,fonts:Catalog,math_context:MathContext,legacy_symbols:bit=false)->Provider:
+    @:evaluate_with_argument(stream,operation,fonts,math_context,argument(stream,operation),legacy_symbols)
+
+provide(stream:Stream,fonts:Catalog,math_context:MathContext,legacy_symbols:bit=false)->Provider:
+    out:text_inline_boxes.empty()
+    indexed:text_inline_arguments.build(stream)
+    first:indexed.first
+    hidden:indexed.hidden
+    operation:0
+    operation<stream.count?>
+        hidden.(operation)?
+            .operation:operation+1
+            @>
+        argument_value:""
+        first.(operation)>=0? .argument_value:text_parser_stream.value(stream,first.(operation),"value")
+        result:evaluate_with_argument(stream,operation,fonts,math_context,argument_value,legacy_symbols)
+        result.count>0?
+            kinds:result.kinds
+            widths:result.widths
+            heights:result.heights
+            depths:result.depths
+            italics:result.italics
+            scenes:result.scenes
+            messages:result.diagnostics
+            stretches:result.stretches
+            shrinks:result.shrinks
+            breaks:result.breakable
+            penalties:result.penalties
+            flags:result.flagged
+            .out:text_inline_boxes.append(out,operation,kinds.(0),widths.(0),heights.(0),depths.(0),italics.(0),scenes.(0),messages.(0),stretches.(0),shrinks.(0),breaks.(0),penalties.(0),flags.(0))
+        .operation:operation+1
+    @:out

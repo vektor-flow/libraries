@@ -1,0 +1,87 @@
+# Streaming import of JSON emitted by our VKF unit producers. Do not construct
+# a whole-library JSON node tape just to copy a unit subtree into the AST.
+# Keys/types are producer-owned ASCII; string values remain quoted source spans.
+text:.frozen285_tex_text
+tokens:.frozen285_math_tokens
+Meta:(kind:str,attrs:str,limits:int,starts:[int],stops:[int])
+nil(size:int)->[int]:[-1:size]
+
+value_stop(source:str,begin:int)->int:
+    position:begin
+    first:text.at(source,position)
+    depth:0
+    quoted:false
+    escaped:false
+    composite:first="{" \/ first="["
+    string:first="\""
+    ~vkf_string_eof(source,position)?>
+        c:text.at(source,position)
+        .position:text.next(source,position)
+        quoted?
+            escaped?
+                .escaped:false
+                @>
+            c="\\"?
+                .escaped:true
+                @>
+            c="\""?
+                .quoted:false
+                string /\ depth=0? @:position
+            .depth:depth
+            @>
+        c="\""?
+            .quoted:true
+            @>
+        (c="{" \/ c="[")? .depth:depth+1
+        (c="}" \/ c="]")?
+            .depth:depth-1
+            composite /\ depth=0? @:position
+        ~composite /\ (c="," \/ c="}" \/ c="]" \/ tokens.space(c))? @:position-text.byte_length(c)
+    (~composite /\ ~string)? @:position
+    (false)?! "Incomplete VKF unit JSON"
+    @:position
+
+role(key:str)->int:
+    (key="children" \/ key="num")? @:0
+    (key="den" \/ key="index")? @:1
+    key="sup"? @:2
+    key="sub"? @:3
+    @: -1
+
+metadata(source:str,begin:int)->Meta:
+    (text.at(source,begin)="{")?! "Unit AST object required"
+    position:tokens.skip_space(source,begin+1)
+    kind:""
+    attrs:""
+    limits: -1
+    starts:nil(4)
+    stops:nil(4)
+    true?>
+        (text.at(source,position)="\"")?! "Unit AST key required"
+        key_stop:value_stop(source,position)
+        key:text.span(source,position+1,key_stop-1)
+        colon:tokens.skip_space(source,key_stop)
+        (text.at(source,colon)=":")?! "Unit AST colon required"
+        start:tokens.skip_space(source,colon+1)
+        stop:value_stop(source,start)
+        slot:role(key)
+        slot>=0?
+            text.at(source,start)="["?
+                starts.(slot):start+1
+                stops.(slot):stop-1
+            text.at(source,start)~="["?
+                (text.matches(source,start,"null"))?! "Unit AST child array required"
+        slot<0 /\ key~="limits"?
+            attrs~=""? .attrs:attrs&","
+            .attrs:attrs&text.span(source,position,key_stop)&":"&text.span(source,start,stop)
+        key="type"?
+            (text.at(source,start)="\"" /\ text.at(source,stop-1)="\"")?! "Unit AST type string required"
+            .kind:text.span(source,start+1,stop-1)
+        key="limits"?
+            .limits:0
+            text.matches(source,start,"true")? .limits:1
+        .position:tokens.skip_space(source,stop)
+        text.at(source,position)="}"? @:(kind:kind,attrs:attrs,limits:limits,starts:starts,stops:stops)
+        (text.at(source,position)=",")?! "Unit AST comma required"
+        .position:tokens.skip_space(source,position+1)
+    @:(kind:kind,attrs:attrs,limits:limits,starts:starts,stops:stops)

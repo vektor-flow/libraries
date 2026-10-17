@@ -1,0 +1,36 @@
+f:.font_catalog
+h:.hyphenation
+source_paragraph:.text_source_paragraph
+options:.text_paragraph_kernel
+inline_parser:.text_parser
+roles:.text_parser_kernel
+packages:.math_packages
+source_output:.text_source_paragraph_output
+packet_json:.resource_json
+packet_text:.tex_text
+
+paragraph_packet(font_source:str,language_source:str,source:str,role:str,ordered_roles:str,optical:bit,width:num,indent:num,justify:bit,hyphens:bit,tolerance:int,emergency:num,preserve:bit,sentence:bit,french:bit,scale:num)->str:
+    role_values:ordered_roles
+    link_style:"{}"
+    hyperref:false
+    bib_url:false
+    envelope:packet_json.parse(ordered_roles)
+    envelope_kinds:envelope.kinds
+    envelope_kinds.(0)=1?
+        starts:envelope.starts
+        stops:envelope.stops
+        roles_node:packet_json.member(envelope,0,"roles")
+        .role_values:packet_text.span(ordered_roles,starts.(roles_node),stops.(roles_node))
+        style_node:packet_json.member(envelope,0,"documentLinks")
+        style_node>=0? .link_style:packet_text.span(ordered_roles,starts.(style_node),stops.(style_node))
+        hyperref_node:packet_json.member(envelope,0,"hyperref")
+        hyperref_node>=0? .hyperref:envelope_kinds.(hyperref_node)=5
+        bib_node:packet_json.member(envelope,0,"bibUrl")
+        bib_node>=0? .bib_url:envelope_kinds.(bib_node)=5
+    context:inline_parser.context(role,roles.roles(role_values),optical)
+    context.hyperref:hyperref
+    context.bib_url:bib_url
+    result:source_paragraph.typeset(source,f.load(font_source),context,packages.defaults(),h.load(language_source),h.strings(0),options.make_options(width,indent,justify,hyphens,tolerance,emergency,preserve),options.make_text_options(sentence,french,scale),document_links_json:link_style)
+    @:source_output.json(result)
+noop()->int:0
+noop()

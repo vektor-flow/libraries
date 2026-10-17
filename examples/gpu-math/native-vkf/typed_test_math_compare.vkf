@@ -1,0 +1,39 @@
+text_math_boxes_reference:.frozen285_typed_test_math_reference
+result_adapter:.typed_test_math_result_adapter
+text_math_boxes_prepared:.text_math_boxes_prepared
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+Context:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+Result:(provider:Provider,next_equation_number:int,equation_references:str,complete:bit)
+same_provider(a:Provider,b:Provider)->bit:
+    (a.count=b.count)?! "prepared provider count"
+    i:0
+    i<a.count?>
+        (a.operation_ids.(i)=b.operation_ids.(i))?! "prepared provider operation_ids"
+        (a.kinds.(i)=b.kinds.(i))?! "prepared provider kinds"
+        (a.widths.(i)=b.widths.(i))?! "prepared provider widths"
+        (a.stretches.(i)=b.stretches.(i))?! "prepared provider stretches"
+        (a.shrinks.(i)=b.shrinks.(i))?! "prepared provider shrinks"
+        (a.heights.(i)=b.heights.(i))?! "prepared provider heights"
+        (a.depths.(i)=b.depths.(i))?! "prepared provider depths"
+        (a.italics.(i)=b.italics.(i))?! "prepared provider italics"
+        (a.breakable.(i)=b.breakable.(i))?! "prepared provider breakable"
+        (a.flagged.(i)=b.flagged.(i))?! "prepared provider flagged"
+        (a.penalties.(i)=b.penalties.(i))?! "prepared provider penalties"
+        (a.scenes.(i)=b.scenes.(i))?! "prepared provider scenes"
+        (a.diagnostics.(i)=b.diagnostics.(i))?! "prepared provider diagnostics"
+        .i:i+1
+    @:true
+same_result(a:Result,b:Result)->bit:
+    (a.next_equation_number=b.next_equation_number /\ a.equation_references=b.equation_references /\ a.complete=b.complete)?! "prepared equation state and diagnostics"
+    @:same_provider(a.provider,b.provider)
+check(source:str,fonts:Catalog,tables:Tables,context:Context,spacing:str="",equation:int=7,boxes:str="{}")->bit:
+    before:text_math_boxes_reference.evaluate(17,source,fonts,context,spacing,equation,boxes)
+    after:result_adapter.to_legacy(text_math_boxes_prepared.evaluate_prepared(17,source,fonts,context,tables,spacing,equation,boxes))
+    same_result(before,after)?! "explicit prepared evaluator"
+    wrapped:result_adapter.to_legacy(text_math_boxes_prepared.evaluate(17,source,fonts,context,spacing,equation,boxes))
+    same_result(before,wrapped)?! "request-owned evaluator wrapper"
+    @:true

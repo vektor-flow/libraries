@@ -1,0 +1,191 @@
+text:.frozen285_tex_text
+s:.frozen285_unit_syntax
+symbols:.frozen285_unit_symbols
+tokens:.frozen285_math_tokens
+chunks:.frozen285_text_chunks
+Options:(mode:str,group:bit,decimal:str,diagnostics:str)
+Nodes:(nodes:str,diagnostics:str)
+
+zeros(size:int)->[int]:[0:size]
+bits(size:int)->[bit]:[false:size]
+
+alphanumeric(value:str)->bit:
+    position:0
+    vkf_string_eof(value,0)? @:false
+    ~vkf_string_eof(value,position)?>
+        c:text.at(value,position)
+        ~(tokens.letter(c) \/ s.digit(c))? @:false
+        .position:text.next(value,position)
+    @:true
+
+# Selection: 0=all, 1=nonnegative (including null), 2=negative.
+join(nodes:[str],powers:[int],nulls:[bit],slashes:[bit],count:int,selection:int=0,positive:bit=false)->(nodes:str,count:int):
+    parts:chunks.empty(count*2+1)
+    emitted:0
+    index:0
+    previous_slash:false
+    index<count?>
+        negative:~nulls.(index) /\ powers.(index)<0
+        include:selection=0 \/ (selection=1 /\ ~negative) \/ (selection=2 /\ negative)
+        ~include?
+            .index:index+1
+            @>
+        emitted>0 /\ ~slashes.(index) /\ ~previous_slash?
+            parts.(emitted):symbols.space()
+            .emitted:emitted+1
+        p:powers.(index)
+        positive /\ p<0? .p: -p
+        node:"{\"type\":\"group\",\"unit\":true,\"children\":["&nodes.(index)&"]"
+        (p~=1 \/ nulls.(index))?
+            script:symbols.roman(text.integer(p))
+            nulls.(index)? .script:symbols.hole()
+            .node:node&",\"sup\":["&script&"]"
+        parts.(emitted):node&"}"
+        .emitted:emitted+1
+        .previous_slash:slashes.(index)
+        .index:index+1
+    # Join node chunks with commas separately so item count includes glue.
+    .index:1
+    index<emitted?>
+        parts.(index):","&parts.(index)
+        .index:index+1
+    @:(nodes:chunks.join(parts,0,emitted),count:emitted)
+
+parse(raw:str,options:Options)->Nodes:
+    tape:s.lex(raw)
+    values:tape.values
+    position:0
+    steps:0
+    capacity:64
+    nodes:chunks.empty(capacity)
+    powers:zeros(capacity)
+    nulls:bits(capacity)
+    slashes:bits(capacity)
+    count:0
+    prefix_parts:chunks.empty(64)
+    prefix_count:0
+    prefix_capacity:64
+    inverse:false
+    next_power:1
+    next_null:false
+    messages:""
+    position<tape.count /\ steps<3000?>
+        raw_token:values.(position)
+        name:raw_token
+        text.matches(raw_token,0,"\\")? .name:text.span(raw_token,1,text.byte_length(raw_token))
+        .position:position+1
+        .steps:steps+1
+        count=capacity?
+            .nodes:nodes&chunks.empty(capacity)
+            .powers:powers&zeros(capacity)
+            .nulls:nulls&bits(capacity)
+            .slashes:slashes&bits(capacity)
+            .capacity:capacity*2
+        name="per"?
+            .inverse:true
+            @>
+        raw_token="/"?
+            nodes.(count):symbols.glyph("/")
+            powers.(count):1
+            slashes.(count):true
+            .count:count+1
+            @>
+        postfix:tokens.one_of(name,["squared","cubed","tothe"]) \/ raw_token="^"
+        prefix_power:tokens.one_of(name,["square","cubic","raiseto"])
+        postfix \/ prefix_power?
+            exponent:2
+            valid:true
+            (name="cubed" \/ name="cubic")? .exponent:3
+            tokens.one_of(name,["tothe","raiseto"]) \/ raw_token="^"?
+                parsed:s.power(values,position,tape.count)
+                .position:parsed.stop
+                .exponent:parsed.value
+                .valid:parsed.valid
+                .messages:s.merge(messages,parsed.diagnostics)
+            prefix_power?
+                .next_power:exponent
+                .next_null:~valid
+            postfix?
+                count>0?
+                    factor:count-1
+                    polarity:1
+                    ~nulls.(factor) /\ powers.(factor)<0? .polarity: -1
+                    powers.(factor):polarity*exponent
+                    nulls.(factor):~valid
+                count=0?
+                    .messages:s.repair(messages,"Missing unit before power")
+                    nodes.(count):symbols.hole()
+                    powers.(count):exponent
+                    nulls.(count):~valid
+                    .count:count+1
+            .steps:steps
+            @>
+        prefix_value:symbols.prefix(name)
+        prefix_value~=""?
+            prefix_count=prefix_capacity?
+                .prefix_parts:prefix_parts&chunks.empty(prefix_capacity)
+                .prefix_capacity:prefix_capacity*2
+            prefix_parts.(prefix_count):symbols.letters(prefix_value)
+            .prefix_count:prefix_count+1
+            @>
+        tokens.one_of(raw_token,[".","*","\\,","\\;","~"])? @>
+        unit_value:symbols.unit(name)
+        content:""
+        unit_value~=""? .content:symbols.letters(unit_value)
+        unit_value=""?
+            alphanumeric(raw_token)? .content:symbols.roman(raw_token)
+            (raw_token="µ" \/ raw_token="μ")? .content:symbols.letters("@micro")
+            raw_token="Ω"? .content:symbols.letters("@ohm")
+            raw_token="°"? .content:symbols.letters("@degree")
+            content=""?
+                .messages:s.repair(messages,"Unfinished or unsupported unit: "&raw_token)
+                .content:symbols.hole()
+        prefix_count>0?
+            .content:chunks.join(prefix_parts,0,prefix_count)&","&content
+        nodes.(count):content
+        powers.(count):next_power
+        inverse? powers.(count): -next_power
+        nulls.(count):next_null
+        .count:count+1
+        .prefix_count:0
+        .inverse:false
+        .next_power:1
+        .next_null:false
+    (prefix_count>0 \/ inverse \/ next_power~=1 \/ next_null)?
+        .messages:s.repair(messages,"Empty unit operand placeholder")
+        count=capacity?
+            .nodes:nodes&chunks.empty(capacity)
+            .powers:powers&zeros(capacity)
+            .nulls:nulls&bits(capacity)
+            .slashes:slashes&bits(capacity)
+            .capacity:capacity*2
+        content:symbols.hole()
+        prefix_count>0? .content:chunks.join(prefix_parts,0,prefix_count)&","&content
+        nodes.(count):content
+        powers.(count):next_power
+        nulls.(count):next_null
+        inverse?
+            powers.(count): -1
+            nulls.(count):false
+        .count:count+1
+    count=0?
+        @:(nodes:symbols.hole(),diagnostics:s.repair(messages,"Empty unit placeholder"))
+    has_negative:false
+    index:0
+    index<count?>
+        ~nulls.(index) /\ powers.(index)<0? .has_negative:true
+        .index:index+1
+    options.mode~="power" /\ has_negative?
+        numerator:join(nodes,powers,nulls,slashes,count,1)
+        denominator:join(nodes,powers,nulls,slashes,count,2,true)
+        options.mode="fraction"?
+            top:numerator.nodes
+            top=""? .top:symbols.roman("1")
+            @:(nodes:"{\"type\":\"frac\",\"num\":["&top&"],\"den\":["&denominator.nodes&"],\"style\":null}",diagnostics:messages)
+        result:""
+        numerator.count>0? .result:numerator.nodes&","
+        .result:result&symbols.glyph("/")&","
+        denominator.count>1? @:(nodes:result&"{\"type\":\"delimited\",\"left\":\"(\",\"right\":\")\",\"children\":["&denominator.nodes&"],\"scalable\":false}",diagnostics:messages)
+        @:(nodes:result&denominator.nodes,diagnostics:messages)
+    joined:join(nodes,powers,nulls,slashes,count)
+    @:(nodes:joined.nodes,diagnostics:messages)

@@ -1,0 +1,43 @@
+b:.document_blocks
+f:.tex_frontend
+j:.resource_json
+text:.tex_text
+
+renderer_tests()->bit:
+    source:"\\documentclass[12pt]{amsart}\\usepackage{amsmath,amsthm}\\title{A title}\\author{A}\\begin{document}\\begin{abstract}Summary.\\end{abstract}\\maketitle\\section{First}A paragraph \$a+b\$.\n\nNext.\\[x+y\\]\\begin{proof}Proof words.\\end{proof}\\end{document}ignored"
+    doc:b.parse(source)
+    kinds:doc.kinds
+    values:doc.sources
+    parents:doc.parents
+    (doc.class_name="amsart" /\ doc.class_options="12pt" /\ doc.diagnostics="")?! "document class declarations and valid environment extraction"
+    (doc.count=11 /\ kinds.(0)="title" /\ kinds.(1)="author" /\ kinds.(2)="abstract" /\ kinds.(3)="section" /\ kinds.(4)="paragraph" /\ kinds.(5)="paragraph" /\ kinds.(6)="math")?! "frontmatter paragraphs headings and display retain real source order"
+    (values.(4)="A paragraph \$a+b\$." /\ values.(5)="Next." /\ values.(6)="x+y")?! "inline math stays inside paragraph and display source is separate"
+    (kinds.(7)="environment_start" /\ kinds.(8)="paragraph" /\ kinds.(9)="proofend" /\ parents.(8)=7)?! "proof begins preserve child ownership and emit proofend before environment close"
+    metadata:j.parse(doc.metadata)
+    (j.string(metadata,j.member(metadata,0,"title"))="A title" /\ j.string(metadata,j.member(metadata,0,"abstract"))="Summary.")?! "class frontmatter metadata remains available for assembly"
+    ordinary:b.parse("\\begin{document}before\\begin{math}a+b\\end{math}after\\newpage end\\end{document}")
+    ordinary_values:ordinary.sources
+    ordinary_kinds:ordinary.kinds
+    (ordinary.count=3 /\ ordinary_values.(0)="before\$a+b\$after" /\ ordinary_kinds.(1)="pagebreak" /\ ordinary_values.(2)="end")?! "inline math environment and forced page boundary connect to paragraph source"
+    note:b.parse("\\begin{document}A\\footnote{note \$x\$}B\\end{document}")
+    note_values:note.sources
+    (note_values.(0)="A\\footnotemark{1:1}B" /\ text.find(note.footnotes,"note \$x\$")>=0)?! "footnote source is retained separately while paragraph marker preserves identity"
+    declaration:"[{\"name\":\"lemma\",\"title\":\"Lemma\",\"style\":\"plain\",\"star\":false}]"
+    theorem:b.parse("\\begin{document}\\begin{lemma}[Note]Claim.\\end{lemma}\\end{document}","",declaration)
+    theorem_attrs:theorem.attrs
+    (theorem.diagnostics="" /\ text.find(theorem_attrs.(0),"Lemma")>=0 /\ text.find(theorem_attrs.(0),"Note")>=0)?! "preprocessed arbitrary theorem declarations attach to environment boundaries"
+    links:b.parse("\\usepackage{hyperref}\\begin{document}\\href{https://x.test/#a}{label} \\url|a\\section{x}|.\\end{document}")
+    link_values:links.sources
+    (links.count=1 /\ links.diagnostics="" /\ text.find(link_values.(0),"\\section{x}")>=0)?! "literal URL and link contents never become document blocks"
+    biblinks:b.parse("\\usepackage{biblatex}\\begin{document}\\url{https://x.test}\\end{document}")
+    (biblinks.diagnostics="")?! "Biblatex activates its actual URL dependency"
+    literal:b.parse("\\begin{document}a\\verb|\$\\section{x}|b\\end{document}")
+    literal_values:literal.sources
+    (literal.diagnostics="" /\ text.find(literal_values.(0),"\\mbox{\\ttfamily ")>=0)?! "inline verbatim is transformed into literal font character commands"
+    missing:b.parse("text\\unknown")
+    (text.find(missing.diagnostics,"Missing document environment")>=0 /\ text.find(missing.diagnostics,"Unsupported document command: ")>=0)?! "missing document and unsupported commands keep explicit diagnostics"
+    prepared:f.prepare("\\documentclass{article}\\newcommand{\\body}{Hello.}\\newtheorem{lemma}{Lemma}\\begin{document}\\body\\begin{lemma}Claim.\\end{lemma}\\end{document}")
+    connected:b.parse(prepared.source,"",prepared.declarations)
+    (connected.diagnostics="" /\ connected.count=4)?! "existing VKF project macro theorem frontend feeds real block parser directly"
+    @:true
+renderer_tests()

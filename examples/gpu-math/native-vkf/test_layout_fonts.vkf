@@ -1,0 +1,35 @@
+# Synthetic installed-font producer for VKF assertions only. Production uses
+# the real generic catalog prepared from font files, not these test values.
+data:.test_font_data
+catalog:.font_catalog
+chunks:.text_chunks
+numbers:.json_numbers
+glyphs:.math_glyphs
+
+fonts():
+    keys:chunks.empty(56)
+    values:chunks.empty(56)
+    index:0
+    style:0
+    style<4?>
+        name:glyphs.style_name(style)
+        scale:1.0
+        style=2? .scale:0.7
+        style=3? .scale:0.5
+        keys.(index):"style/"&name
+        values.(index):"{\"em\":"&numbers.roundtrip(10*scale)&",\"parameters\":{\"QUAD\":"&numbers.roundtrip(18*scale)&",\"XHEIGHT\":4,\"RULE\":0.4,\"AXISHEIGHT\":2.5,\"NUM1\":7,\"NUM2\":4,\"NUM3\":4.5,\"DENOM1\":7,\"DENOM2\":3.5,\"SUP1\":4,\"SUP2\":3.5,\"SUP3\":2.8,\"SUB1\":1.5,\"SUB2\":2.5,\"SUPDROP\":3,\"SUBDROP\":0.5,\"BIGOPSPACING1\":1,\"BIGOPSPACING2\":1.6,\"BIGOPSPACING3\":2,\"BIGOPSPACING4\":6,\"BIGOPSPACING5\":1}}"
+        .index:index+1
+        tokens:["a","b","+","x","y","2","\\sum","@text:a","@text:b","@text:ffi","-","\\leftarrow","\\rightarrow"]
+        widths:[5.0,6.0,4.0,5.0,6.0,4.0,10.0,5.0,6.0,8.0,8.0,10.0,10.0]
+        item:0
+        item<13?>
+            klass:"ord"
+            item=2? .klass:"bin"
+            item=6? .klass:"op"
+            item>=11? .klass:"rel"
+            keys.(index):"math/"&name&"/"&tokens.(item)
+            values.(index):"{\"width\":"&numbers.roundtrip(widths.(item)*scale)&",\"height\":"&numbers.roundtrip(7*scale)&",\"depth\":"&numbers.roundtrip(scale)&",\"class\":\""&klass&"\",\"italic\":0,\"inkBounds\":[0,-3,8,-2.6]}"
+            .index:index+1
+            .item:item+1
+        .style:style+1
+    @:catalog.load(data.pack(keys,values))

@@ -1,0 +1,27 @@
+document_materialize:.document_materialize
+font_catalog:.font_catalog
+hyphenation:.hyphenation
+resource_json:.resource_json
+text_chunks:.text_chunks
+tex_text:.tex_text
+materialize(source:str,font_source:str,language_source:str,roles_json:str,files_json:str="{}",job:str="main",entry:str="main.tex")->str:
+    roles_tape:resource_json.parse(roles_json)
+    roles:text_chunks.empty(roles_tape.count)
+    ends:roles_tape.ends
+    at:1
+    count:0
+    at<roles_tape.count?>
+        roles.(count):resource_json.string(roles_tape,at)
+        .count:count+1
+        .at:ends.(at)
+    actual_roles:text_chunks.empty(count)
+    .at:0
+    at<count?>
+        actual_roles.(at):roles.(at)
+        .at:at+1
+    result:document_materialize.layout(source,font_catalog.load(font_source),actual_roles,hyphenation.load(language_source),files_json,job,entry)
+    complete:"false"
+    result.complete? .complete:"true"
+    @:"{\"layout\":"&result.layout_json&",\"diagnostics\":["&result.diagnostics&"],\"unresolved\":"&result.unresolved_json&",\"complete\":"&complete&",\"blockCount\":"&tex_text.integer(result.block_count)&",\"pageCount\":"&tex_text.integer(result.page_count)&"}"
+noop()->int:0
+noop()

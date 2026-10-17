@@ -1,0 +1,35 @@
+text_chunks:.text_chunks
+text_chunks_linear:.text_chunks_linear
+
+check(count:int)->bit:
+    baseline:text_chunks.empty(count)
+    proposed:text_chunks_linear.empty(count)
+    (baseline.length()=count /\ proposed.length()=count)?! "Factories preserve dynamic string-column length"
+    index:0
+    index<count?>
+        (baseline.(index)="" /\ proposed.(index)="")?! "Every new slot is an empty string"
+        .index:index+1
+    count>0?
+        baseline.(0):"first"
+        proposed.(0):"first"
+        baseline.(count-1):"last"
+        proposed.(count-1):"last"
+        .index:0
+        index<count?>
+            (baseline.(index)=proposed.(index))?! "Independent writes to first and last slots preserve column semantics"
+            index>0 /\ index<count-1? (proposed.(index)="")?! "Writing one slot leaves other empty slots unchanged"
+            .index:index+1
+        copied:proposed
+        copied.(0):"copied slot"
+        (proposed.(0)~="copied slot")?! "Mutating a copied column preserves the original column"
+    @:true
+renderer_tests()->bit:
+    check(0)?! "zero capacity"
+    check(1)?! "one capacity"
+    check(2)?! "even doubling"
+    check(3)?! "odd doubling"
+    check(17)?! "dynamic capacity seventeen"
+    check(129)?! "dynamic capacity beyond initial column size"
+    check(512)?! "parser stack capacity"
+    @:true
+renderer_tests()

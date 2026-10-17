@@ -1,0 +1,83 @@
+parser:.math_parser
+catalog:.font_catalog
+fixtures:.test_font_data
+j:.resource_json
+text:.tex_text
+
+status(source:str)->str:
+    tape:j.parse(parser.diagnose(source,catalog.load(fixtures.math_catalog())))
+    (tape.valid)?! "diagnostics must be JSON"
+    @:j.string(tape,j.member(tape,0,"status"))
+
+issue(source:str,index:int=0)->str:
+    tape:j.parse(parser.diagnose(source,catalog.load(fixtures.math_catalog())))
+    node:j.element(tape,j.member(tape,0,"issues"),index)
+    (node>=0)?! "expected a diagnostic"
+    @:text.span(tape.source,tape.starts.(node),tape.stops.(node))
+
+renderer_tests()->bit:
+    (status("x+\\frac{a}{b}")="valid")?! "valid math"
+    (status("\\frac{a}")="incomplete")?! "missing denominator can be appended"
+    (status("{a")="incomplete")?! "closing brace can be appended"
+    (status("x^")="incomplete")?! "script operand can be appended"
+    (status("x} ")="edit-required")?! "extra closing brace needs an edit"
+    (status("^2")="edit-required")?! "base cannot be appended after script"
+    (status("x^a^b")="edit-required")?! "repeated script cannot be fixed by appending"
+    (status("{x^}y")="edit-required")?! "interior missing operand needs an edit"
+    (status("\\unknown")="edit-required")?! "unknown command at EOF is not automatically unfinished"
+    (status("\\fra")="incomplete")?! "supported parser command prefix"
+    (status("\\fra ")="edit-required")?! "space terminates the command name"
+    (status("\\al")="incomplete")?! "installed glyph command prefix"
+    (status("\\left(x")="incomplete")?! "right delimiter can be appended"
+    (status("\\right)x")="edit-required")?! "unmatched right delimiter"
+    (status("\\frac{a")="incomplete")?! "multiple missing arguments"
+    (status("\\unknown+{a")="edit-required")?! "hard error wins over incomplete issue"
+    before:parser.diagnose("x^a^b",catalog.load(fixtures.math_catalog()))
+    after:parser.diagnose("x^{a+b}",catalog.load(fixtures.math_catalog()))
+    (text.find(before,"VKF-LATEX-REPEATED-SCRIPT")>=0 /\ text.find(after,"\"issues\":[]")>=0)?! "fresh diagnostics after edits"
+    repeated:issue("x^a^b")
+    (text.find(repeated,"\"byte\":3,\"line\":1,\"column\":4")>=0)?! "second script exact byte position"
+    unicode:issue("α\n x}")
+    (text.find(unicode,"\"byte\":5,\"line\":2,\"column\":3")>=0)?! "UTF8 bytes and Unicode line/column"
+    same_line:issue("α}")
+    (text.find(same_line,"\"byte\":2,\"line\":1,\"column\":2")>=0)?! "Unicode scalar column"
+    occurrences:parser.diagnose("}x}",catalog.load(fixtures.math_catalog()))
+    tape:j.parse(occurrences)
+    (j.element(tape,j.member(tape,0,"issues"),1)>=0)?! "same error at different positions is preserved"
+    (status("\\text{unfinished")="incomplete")?! "raw text closing brace"
+    (status("\\text x")="edit-required")?! "raw argument missing before existing text"
+    nested:parser.diagnose("{a+{b",catalog.load(fixtures.math_catalog()))
+    nested_tape:j.parse(nested)
+    nested_issues:j.member(nested_tape,0,"issues")
+    (j.element(nested_tape,nested_issues,1)>=0)?! "each missing nested brace keeps its opening context"
+    (text.find(nested,"relatedStart")>=0)?! "missing closer points back to opener"
+    raw_range:issue("\\text{unfinished")
+    (text.find(raw_range,"\"byte\":5,\"line\":1,\"column\":6")>=0)?! "raw argument starts at its own brace"
+    (status("\\begin{mat")="incomplete")?! "unfinished matrix environment name"
+    (status("\\begin{mat}")="edit-required")?! "abbreviated closed environment needs an edit"
+    braces:""
+    index:0
+    index<40?>
+        .braces:braces&"}"
+        .index:index+1
+    bounded:parser.diagnose(braces,catalog.load(fixtures.math_catalog()))
+    (text.find(bounded,"\"truncated\":true")>=0 /\ text.find(bounded,"\"status\":\"edit-required\"")>=0)?! "bounded diagnostics cannot claim valid or append-only"
+    deep:"a"
+    .index:0
+    index<34?>
+        .deep:"{"&deep&"}"
+        .index:index+1
+    (text.find(parser.diagnose(deep,catalog.load(fixtures.math_catalog())),"VKF-LATEX-LIMIT")>=0)?! "diagnostic endpoint reports limits without assertion failure"
+    too_long:""
+    .index:0
+    index<12001?>
+        .too_long:too_long&" "
+        .index:index+1
+    (text.find(parser.diagnose(too_long,catalog.load(fixtures.math_catalog())),"VKF-LATEX-LIMIT")>=0)?! "source length limit is a diagnostic"
+    # Legacy compatibility is independent of the new validation endpoint.
+    fonts:catalog.load(fixtures.math_catalog())
+    legacy:parser.json(parser.parse("\\frac{a}",fonts))
+    detailed:parser.analyze("\\frac{a}",fonts)
+    (legacy=parser.json(detailed.arena))?! "diagnostics do not alter AST or preview messages"
+    @:true
+renderer_tests()

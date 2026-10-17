@@ -1,0 +1,89 @@
+Bibliography and citation VKF helpers, checkpoint 2026-10-16
+
+Production APIs:
+ bibliography.prepare(source, files_json="{}", entry="", options=[],
+                      label_widths_json="{}")
+   -> source, labels_json, entries_json, inputs_json, diagnostics_json,
+      separator, style, complete.
+ All JSON-suffixed fields are complete JSON values. Resource files are raw .bib
+ strings or objects containing text. Uses generic database parsing, string
+ definitions, concatenation, cross-reference inheritance, author names, supported
+ entry formatting, numeric/alphabetic labels and sorted bibliography selection.
+ Caller passes actual biblatex requestedOptions array without normalizing spaces.
+ Unsupported styles/options/entry types/unknown collation weights stay explicit.
+
+ bibliography.set_widest(prepared_source, widest_label, original_source="") -> source
+ Pass the exact input source supplied to prepare as original_source to preserve
+ manual environments while changing generated printbibliography environments.
+ Omitting the third argument preserves the original API behavior (all widths).
+ Caller measures label glyph advances using actual class fonts, matching JS
+ prepareBiblatex measureLabel, without parsing the database twice.
+
+ document_citations.collect(source, initial_labels_json="{}") -> labels_json
+ Call after macro expansion to merge manual bibitem labels; default numbering
+ uses current map size + 1, preserving the JS duplicate-key behavior.
+
+ document_citations.resolve(source, labels_json="{}", separator=",~",
+                            biblatex=false, links=false, legacy=false)
+   -> source, diagnostics
+ diagnostics is a quoted JSON member list WITHOUT surrounding brackets.
+ Includes both optional citation notes, missing key diagnostics, explicit
+ unimplemented textual author citation warning, literal protection and native
+ documentlinkspan/legacy documentlink wrappers. URI destinations use document_uri.
+ For biblatex use prepare.separator ("; "); manual bibliographies use ",~".
+
+Qualified published native compiler:
+ /home/viktor/.local/share/cuvami-vkf/0.7.3-revision2/native/vkf-linux-x86_64-0.7.3/bin/vkf
+ SHA256 180d8266817cc31381557cb31675513fba084fee6bb6f30b1976d4b387300111
+
+Evidence under /mnt/development/CuvamiLaTeX:
+ bib-resume-073-reference-04: 91 native actual-JS bibliography cases, PASS.
+ Includes complete exact original 140814-byte source preparation and raw database;
+ does NOT prove its page layout, glyph geometry or PDF output.
+ bib-resume-073-browser-01: predecessor 82 bibliography cases WASM PASS, one instance.
+ bib-resume-073-browser-02: 83-case WASM gate PASS (UTF16 width regression).
+ bib-resume-073-browser-03: current91-case WASM gate PASS, one retained instance.
+ Includes8selective width cases with manual/multiple/literal/nested environments.
+ bib-resume-073-citations-02: 86 native actual-JS citation/manual-label cases PASS.
+ bib-resume-073-citations-browser-01: same 86 WASM cases PASS, one instance.
+ bib-resume-073-assertions-02: three VKF suites native PASS (bibliography, citations,
+ JSON quote). JSON quote VKF assertions WASMx3 PASS at
+ bib-resume-073-json-unit-wasm-01. Current bibliography VKF assertion gates are
+ bib-resume-073-bib-unit-native-01 and bib-resume-073-bib-unit-wasm-01; both PASS
+ (WASM invokes VKF assertions three times).
+ bib-resume-073-json-quote-01: generic quote before/after source + hashes and native
+ 15-case result; first browser observer incorrectly pruned dead entry, discarded.
+ bib-resume-073-json-quote-02: corrected generic quote native/WASM observer, before
+ and after both pass 15 cases with published browser compiler, up to 200k ASCII,
+ 130k mixed UTF8, controls/supplementary and exact original source.
+ bib-resume-073-wasm-isolation-01: retained old 0.7.2 artifact's quote helper alone
+ traps at 50k+ ASCII in fresh instances. No compiler-level root cause proved.
+ New balanced resource_json.quote avoids unbounded incremental map concatenation;
+ current focused before/after both pass, so do not attribute the old trap solely
+ to this source change or claim that all compiler issues are fixed.
+
+Portable browser build adapter:
+ compile_browser_kernel.mjs exports compileBrowserKernel and has a CLI with
+ --package, --source, --entry, --entry-call, --output. It supplies local import
+ closure via compiler.FS, uses real published canonical compiler.wasm/data, emits
+ kernel.wasm + manifest.json + source/package hashes, and verifies entry presence.
+ Browser compilation retains main's call graph, so entry-call must keep the public
+ kernel reachable. It compiles but does not execute that call.
+ verify_bibliography_browser.mjs compares emitted packet entry to actual-JS
+ expected JSON produced by the native reference drivers, in one retained instance.
+
+Known unfinished generic scope:
+ English collation includes exact ICU ASCII order, ignored punctuation and 1866
+ generic ICU Unicode17 folds with 349 ignored ranges. Unknown non-Latin primary
+ weights (e.g. CJK) explicitly diagnose and mark bibliography incomplete; this is
+ not a full Unicode Collation Algorithm implementation. No document-specific data
+ or precomputed bibliography results are embedded. Supplementary-character label
+ slicing and unusually malformed database forms need broader conformance coverage.
+ No end-to-end performance or full renderer completion claim is established here.
+
+Alias normalization experiment deferred for benchmark priority:
+ /mnt/development/CuvamiLaTeX/aliases-073-01 contains lexical-only derivative of
+ frozen root-resume-073-02/source. 334/343 files changed, 10152 qualified calls,
+ four ambiguous aliases left untouched. NO compilation/correctness/performance
+ evidence exists for that derivative. Production aliases were not changed.
+ No background jobs remain owned by the bibliography agent at this checkpoint.

@@ -1,0 +1,31 @@
+p:.pdf_links
+text:.tex_text
+
+uri_bytes():
+    (p.uri("https://example.test/a b?x=é")="https://example.test/a%20b?x=%C3%A9")?! "UTF-8 URI normalization"
+    (p.uri("mailto:a@example.test")="mailto:a@example.test")?! "literal URI"
+
+link_coordinates():
+    (p.rectangle(100,200,10,20,30,5)="[9 174 41 181]")?! "PDF y-axis rectangle conversion"
+    (p.rectangle(100,200,-20,10,1,1)="")?! "fully clipped link"
+    (p.rectangle(100,200,-1,10,10,5)="[0 184 10 191]")?! "clipped link bounds"
+
+external_actions():
+    link:p.external(3,100,200,10,20,30,5,"https://a.test")
+    (text.find(link,"/Subtype /Link /P 3 0 R /Rect [9 174 41 181]")>=0)?! "URI annotation object"
+    (text.find(link,"/A << /S /URI /URI <68747470733A2F2F612E74657374> >>")>=0)?! "URI remains PDF string data"
+
+internal_actions():
+    link:p.internal(3,100,200,10,20,30,5,8,300,11,22)
+    (text.find(link,"/Dest [8 0 R /XYZ 11 278 null]")>=0)?! "forward destination page reference"
+    (text.find(link,"/Border [0 0 0]")>=0)?! "annotation border is separate"
+    (p.border(10,20,30,5,0)="")?! "hidden link border"
+    (p.border(10,20,30,5,1)="q 1 w 9 19 32 7 re S Q")?! "visible link border"
+
+renderer_tests()->bit:
+    uri_bytes()
+    link_coordinates()
+    external_actions()
+    internal_actions()
+    @:true
+renderer_tests()

@@ -1,0 +1,21 @@
+layout:.math_layout
+packages:.math_packages
+data:.test_layout_fonts
+j:.resource_json
+glyphs:.math_glyphs
+
+renderer_tests()->bit:
+    fonts:data.fonts()
+    context:packages.from_names(["faktor","amsmath"])
+    rendered:j.parse(layout.typeset_with_context("\\faktor ab",fonts,context))
+    items:j.member(rendered,0,"items")
+    numerator:j.element(rendered,items,0)
+    denominator:j.element(rendered,items,2)
+    (j.string(rendered,j.member(rendered,numerator,"key"))="display/a")?! "quotient numerator uses the current style"
+    (j.string(rendered,j.member(rendered,denominator,"key"))="display/b")?! "quotient denominator is drawn once after the slash"
+    (j.element(rendered,items,3)<0 /\ glyphs.numeric(rendered,numerator,"y")<0 /\ glyphs.numeric(rendered,denominator,"y")>0)?! "quotient retains exactly three draws in source order"
+    (j.string(rendered,j.element(rendered,j.member(rendered,0,"diagnostics"),0))="Missing native glyph: \\diagup (display)")?! "missing quotient slash preserves its glyph diagnostic"
+    disabled:j.parse(layout.typeset("\\faktor ab",fonts))
+    (j.string(disabled,j.element(disabled,j.member(disabled,0,"diagnostics"),0))="Unfinished or unsupported command: \\faktor")?! "default API does not enable package extensions"
+    @:true
+renderer_tests()

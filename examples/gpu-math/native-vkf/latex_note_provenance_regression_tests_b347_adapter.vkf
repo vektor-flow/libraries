@@ -1,0 +1,20 @@
+notes:.latex_note_provenance
+scene:.document_scene
+routes:.latex_document_routes
+main():
+    body:(scopes:["body","body"],texts:["fi","fi"],operations:[0,0],starts:[0,0],stops:[2,2],parts:[0,1],count:2)
+    marker:(scopes:["marker"],texts:["1"],operations:[0],starts:[0],stops:[1],parts:[0],count:1)
+    joined:notes.append(body,marker)
+    notes.valid(joined,3)?! "split body plus marker cardinality"
+    ~notes.valid(joined,2)?! "missing marker rejects"
+    a:scene.leaf("same",4,5)
+    arena:scene.from_leaves([a,a,a],3)
+    result:notes.attach(arena,joined)
+    (result.a260_scopes.(2)="marker" /\ result.a260_parts.(1)=1 /\ result.a260_parts.(2)=0)?! "scope separates local part zero"
+    (result.xs.(2)=4 /\ result.ys.(2)=5 /\ arena.a260_scopes.(2)="")?! "geometry and prior value preserved"
+    routes.select(4,"1",[4,4],["body","marker"],["fi","1"],["body","label"],"label")="marker"?! "explicit note marker route"
+    routes.select(0,"fi",[1,0],["other","body"],["x","fi"],["body","body"],"body")="body"?! "note reorder uses explicit owner"
+    unknown:(scopes:[""],texts:[""],operations:[-1],starts:[-1],stops:[-1],parts:[-1],count:1)
+    missing:notes.attach(scene.from_leaves([a],1),unknown)
+    missing.a260_operations.(0)= -1?! "generated remains unknown"
+    @:0

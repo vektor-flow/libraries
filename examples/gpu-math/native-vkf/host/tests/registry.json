@@ -1,0 +1,1553 @@
+[
+  {
+    "file": "instances.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-host-01-01",
+        "description": "equal full canonical content skips packing and vertex allocation/write"
+      },
+      {
+        "id": "w-latex074-host-01-02",
+        "description": "equal geometry with new resource ID/version binds new texture; old encoded draw keeps old binding"
+      },
+      {
+        "id": "w-latex074-host-01-03",
+        "description": "changed geometry allocates distinct immutable buffer; old encoded bytes unchanged"
+      },
+      {
+        "id": "w-latex074-host-01-04",
+        "description": "mutable caller canonical bytes are snapshotted; invalid replacement rejected"
+      },
+      {
+        "id": "w-latex074-host-01-05",
+        "description": "each generation reference and GPU buffer retires exactly once after encoded/submitted owners"
+      },
+      {
+        "id": "w-latex074-host-01-06",
+        "description": "zero extent reuses minimum buffer without writes; clear removes history so new owner allocates"
+      },
+      {
+        "id": "w-latex074-host-01-07",
+        "description": "full extent/count/tags/nonfinite bytes cannot alias validated instance"
+      },
+      {
+        "id": "w-latex074-host-01-08",
+        "description": "full extent/count/tags/nonfinite bytes cannot alias validated instance"
+      },
+      {
+        "id": "w-latex074-host-01-09",
+        "description": "full extent/count/tags/nonfinite bytes cannot alias validated instance"
+      }
+    ]
+  },
+  {
+    "file": "bindings.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-host-02-01",
+        "description": "production metadata reads, Map/Set operations and descriptor/resource calls scale linearly at 64/256/1024 leaves"
+      },
+      {
+        "id": "w-latex074-host-02-02",
+        "description": "three simultaneous uniforms: two consumer samplers, four bind groups per draw, exact order/firstInstance/filter/resource"
+      },
+      {
+        "id": "w-latex074-host-02-03",
+        "description": "duplicate image/glyph metadata keeps first match; one texture has separate nearest/linear groups"
+      },
+      {
+        "id": "w-latex074-host-02-04",
+        "description": "absent-glyph preserves resolution/rejection before writes"
+      },
+      {
+        "id": "w-latex074-host-02-05",
+        "description": "absent-image preserves resolution/rejection before writes"
+      },
+      {
+        "id": "w-latex074-host-02-06",
+        "description": "unknown preserves resolution/rejection before writes"
+      },
+      {
+        "id": "w-latex074-host-02-07",
+        "description": "invalid-descriptor preserves resolution/rejection before writes"
+      },
+      {
+        "id": "w-latex074-host-02-08",
+        "description": "invalid-bytes preserves resolution/rejection before writes"
+      },
+      {
+        "id": "w-latex074-host-02-09",
+        "description": "invalid-first-duplicate preserves resolution/rejection before writes"
+      },
+      {
+        "id": "w-latex074-host-02-10",
+        "description": "replacement retains old frame texture/uniform until its own fence; samplers reused across generations"
+      }
+    ]
+  },
+  {
+    "file": "reuse.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-host-03-01",
+        "description": "unchanged generation creates/uploads zero extra textures"
+      },
+      {
+        "id": "w-latex074-host-03-02",
+        "description": "same ID/version conflicting bytes and valid changed descriptor rejected before writes"
+      },
+      {
+        "id": "w-latex074-host-03-03",
+        "description": "mixed update uploads one changed version; pending old frame retains old pixels through newer completion"
+      },
+      {
+        "id": "w-latex074-host-03-04",
+        "description": "shared and changed entries destroyed exactly once at final live owner retirement"
+      },
+      {
+        "id": "w-latex074-host-03-05",
+        "description": "supersede: shared references survive pending old frame; leases drained and exact-once retirement (loss CPU-only)"
+      },
+      {
+        "id": "w-latex074-host-03-06",
+        "description": "cancel: shared references survive pending old frame; leases drained and exact-once retirement (loss CPU-only)"
+      },
+      {
+        "id": "w-latex074-host-03-07",
+        "description": "dispose: shared references survive pending old frame; leases drained and exact-once retirement (loss CPU-only)"
+      },
+      {
+        "id": "w-latex074-host-03-08",
+        "description": "loss: shared references survive pending old frame; leases drained and exact-once retirement (loss CPU-only)"
+      },
+      {
+        "id": "w-latex074-host-03-09",
+        "description": "reject: shared references survive pending old frame; leases drained and exact-once retirement (loss CPU-only)"
+      }
+    ]
+  },
+  {
+    "file": "causal-test.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-host-04-01",
+        "description": "missing map, wrong identity/type, missing resource, descriptor and version rejected before mutations; D295 foreign payload untouched"
+      },
+      {
+        "id": "w-latex074-host-04-02",
+        "description": "explicit tile identity survives multi-dependency typed admission and encoding despite conflicting default atlas"
+      },
+      {
+        "id": "w-latex074-host-04-03",
+        "description": "failed upload preserves drawable and CPU lease without reconstruction"
+      },
+      {
+        "id": "w-latex074-host-04-04",
+        "description": "failed submission preserves committed resources"
+      },
+      {
+        "id": "w-latex074-host-04-05",
+        "description": "pending candidate retains prior display; old submitted frame and CPU snapshot survive upload and newer completion; old completion cleans exactly once"
+      },
+      {
+        "id": "w-latex074-host-04-06",
+        "description": "draw completed before replacement: active drawable retained while upload pending, then shared texture retained by unchanged replacement until final owner retirement"
+      },
+      {
+        "id": "w-latex074-host-04-07",
+        "description": "superseded candidate releases after fence without replacing committed drawable"
+      },
+      {
+        "id": "w-latex074-host-04-08",
+        "description": "dispose joins all work; every synthetic resource destroyed exactly once"
+      }
+    ]
+  },
+  {
+    "file": "d298-test.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-host-05-01",
+        "description": "public render submits while unrelated prior fence unresolved; own completion and disposal retain all resources"
+      },
+      {
+        "id": "w-latex074-host-05-02",
+        "description": "encodeError: original exception preserved; attempted uniform write retained through cleanup fence/dispose"
+      },
+      {
+        "id": "w-latex074-host-05-03",
+        "description": "finishError: original exception preserved; attempted uniform write retained through cleanup fence/dispose"
+      },
+      {
+        "id": "w-latex074-host-05-04",
+        "description": "submitError: original exception preserved; attempted uniform write retained through cleanup fence/dispose"
+      },
+      {
+        "id": "w-latex074-host-05-05",
+        "description": "writeError: original exception preserved; attempted uniform write retained through cleanup fence/dispose"
+      },
+      {
+        "id": "w-latex074-host-05-06",
+        "description": "aborted: unsent draw revoked; queued uniform/scene survive until drained, exactly once"
+      },
+      {
+        "id": "w-latex074-host-05-07",
+        "description": "cancel: unsent draw revoked; queued uniform/scene survive until drained, exactly once"
+      },
+      {
+        "id": "w-latex074-host-05-08",
+        "description": "dispose: unsent draw revoked; queued uniform/scene survive until drained, exactly once"
+      },
+      {
+        "id": "w-latex074-host-05-09",
+        "description": "loss: terminal release skips GPU destruction, rejects receipt, drains CPU leases"
+      },
+      {
+        "id": "w-latex074-host-05-10",
+        "description": "reject: terminal release skips GPU destruction, rejects receipt, drains CPU leases"
+      },
+      {
+        "id": "w-latex074-host-05-11",
+        "description": "syncFence: terminal release skips GPU destruction, rejects receipt, drains CPU leases"
+      },
+      {
+        "id": "w-latex074-host-05-12",
+        "description": "failed encoding + loss: original failure preserved under terminal cleanup"
+      },
+      {
+        "id": "w-latex074-host-05-13",
+        "description": "failed encoding + reject: original failure preserved under terminal cleanup"
+      },
+      {
+        "id": "w-latex074-host-05-14",
+        "description": "failed encoding + syncFence: original failure preserved under terminal cleanup"
+      }
+    ]
+  },
+  {
+    "file": "interaction.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-host-06-01",
+        "description": "invalid: pending old frame plus candidate interaction; exact-once resources and CPU leases drained"
+      },
+      {
+        "id": "w-latex074-host-06-02",
+        "description": "failed: pending old frame plus candidate interaction; exact-once resources and CPU leases drained"
+      },
+      {
+        "id": "w-latex074-host-06-03",
+        "description": "cancel: pending old frame plus candidate interaction; exact-once resources and CPU leases drained"
+      },
+      {
+        "id": "w-latex074-host-06-04",
+        "description": "encode: pending old frame plus candidate interaction; exact-once resources and CPU leases drained"
+      },
+      {
+        "id": "w-latex074-host-06-05",
+        "description": "submit: pending old frame plus candidate interaction; exact-once resources and CPU leases drained"
+      }
+    ]
+  },
+  {
+    "file": "d300-changed-geometry-successor.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-host-07-01",
+        "description": "sync/none: original error retained; terminal, CPU drained, no candidate GPU destroy"
+      },
+      {
+        "id": "w-latex074-host-07-02",
+        "description": "sync/cancel: original error retained; terminal, CPU drained, no candidate GPU destroy"
+      },
+      {
+        "id": "w-latex074-host-07-03",
+        "description": "sync/dispose: original error retained; terminal, CPU drained, no candidate GPU destroy"
+      },
+      {
+        "id": "w-latex074-host-07-04",
+        "description": "reject/none: original error retained; terminal, CPU drained, no candidate GPU destroy"
+      },
+      {
+        "id": "w-latex074-host-07-05",
+        "description": "reject/cancel: original error retained; terminal, CPU drained, no candidate GPU destroy"
+      },
+      {
+        "id": "w-latex074-host-07-06",
+        "description": "reject/dispose: original error retained; terminal, CPU drained, no candidate GPU destroy"
+      },
+      {
+        "id": "w-latex074-host-07-07",
+        "description": "write-sync/none: original error retained; terminal, CPU drained, no candidate GPU destroy"
+      },
+      {
+        "id": "w-latex074-host-07-08",
+        "description": "write-sync/cancel: original error retained; terminal, CPU drained, no candidate GPU destroy"
+      },
+      {
+        "id": "w-latex074-host-07-09",
+        "description": "write-sync/dispose: original error retained; terminal, CPU drained, no candidate GPU destroy"
+      },
+      {
+        "id": "w-latex074-host-07-10",
+        "description": "complete: observed completion gates ownership; exactly-once normal destruction"
+      },
+      {
+        "id": "w-latex074-host-07-11",
+        "description": "cancel: observed completion gates ownership; exactly-once normal destruction"
+      },
+      {
+        "id": "w-latex074-host-07-12",
+        "description": "dispose: observed completion gates ownership; exactly-once normal destruction"
+      },
+      {
+        "id": "w-latex074-host-07-13",
+        "description": "write-error: observed completion gates ownership; exactly-once normal destruction"
+      },
+      {
+        "id": "w-latex074-host-07-14",
+        "description": "pre-write error: original preserved, consumer remains usable"
+      }
+    ]
+  },
+  {
+    "file": "raw-resource-admission.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-host-raw-resource-admission-01",
+        "description": "identical direct raw lease reuses texture and instance"
+      },
+      {
+        "id": "w-latex074-host-raw-resource-admission-02",
+        "description": "byte and descriptor equality conflicts reject before writes; active drawable and cache survive; subsequent reuse; exact-once disposal"
+      },
+      {
+        "id": "w-latex074-host-raw-resource-admission-03",
+        "description": "identical duplicate: rejected empty/live before allocations; recovery reuses correct entry"
+      },
+      {
+        "id": "w-latex074-host-raw-resource-admission-04",
+        "description": "conflicting duplicate: rejected empty/live before allocations; recovery reuses correct entry"
+      }
+    ]
+  },
+  {
+    "file": "producer-adapter-neutral-successor.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-E314-producer-adapter-01",
+        "description": "accepted source-bound rule subset projects to installed typed scene"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-02",
+        "description": "a260_scopes extent rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-03",
+        "description": "a260_scopes type rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-04",
+        "description": "a260_texts extent rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-05",
+        "description": "a260_texts type rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-06",
+        "description": "a260_operations extent rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-07",
+        "description": "a260_operations type rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-08",
+        "description": "a260_starts extent rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-09",
+        "description": "a260_starts type rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-10",
+        "description": "a260_stops extent rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-11",
+        "description": "a260_stops type rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-12",
+        "description": "a260_parts extent rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-13",
+        "description": "a260_parts type rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-14",
+        "description": "a260_scopes owner mismatch rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-15",
+        "description": "a260_texts owner mismatch rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-16",
+        "description": "a260_operations owner mismatch rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-17",
+        "description": "a260_starts owner mismatch rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-18",
+        "description": "a260_stops owner mismatch rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-19",
+        "description": "a260_parts owner mismatch rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-20",
+        "description": "reject complete"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-21",
+        "description": "reject diagnostics"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-22",
+        "description": "reject unresolved_json"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-23",
+        "description": "missing display provenance rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-24",
+        "description": "anchor destination provenance unsupported"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-25",
+        "description": "multipage subset explicitly unsupported"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-26",
+        "description": "unconsumed mapping rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-27",
+        "description": "unchanged revision guard preserved"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-28",
+        "description": "advanced revision keeps source-owned identity"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-29",
+        "description": "input geometry snapshot"
+      },
+      {
+        "id": "w-latex074-E314-producer-adapter-30",
+        "description": "immutable versioned glyph transport and rejection retain committed snapshot"
+      },
+      {
+        "id": "w-latex074-producer-adapter-E316-neutral-session",
+        "description": "E316 successor session accepts prepared packet and uploads owned neutral binding"
+      }
+    ]
+  },
+  {
+    "file": "producer-rejections.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-E314-producer-rejections-01",
+        "description": "B346 Arena lacks A operation provenance, even empty document"
+      },
+      {
+        "id": "w-latex074-E314-producer-rejections-02",
+        "description": "Same sealed Arena cannot silently become an A Fragment"
+      },
+      {
+        "id": "w-latex074-E314-producer-rejections-03",
+        "description": "Incomplete producer stays rejected"
+      },
+      {
+        "id": "w-latex074-E314-producer-rejections-04",
+        "description": "Native diagnostic strings are not host arrays"
+      },
+      {
+        "id": "w-latex074-E314-producer-rejections-05",
+        "description": "Missing unresolved array cannot be assumed clean"
+      }
+    ]
+  },
+  {
+    "file": "neutral-rule-successor.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-neutral-E316-01",
+        "description": "rule zero producer resources encodes submits completes and cleans once"
+      },
+      {
+        "id": "w-latex074-neutral-E316-02",
+        "description": "link zero producer resources encodes submits completes and cleans once"
+      },
+      {
+        "id": "w-latex074-neutral-E316-03",
+        "description": "mixed glyph and rule keep order explicit pixels linear filters and per-draw uniform"
+      },
+      {
+        "id": "w-latex074-neutral-E316-04",
+        "description": "replacement shares neutral and pending old frame retains it through disposal"
+      },
+      {
+        "id": "w-latex074-neutral-E316-05",
+        "description": "neutral upload cancel observes fence and retires exactly once or terminal CPU-only"
+      },
+      {
+        "id": "w-latex074-neutral-E316-06",
+        "description": "neutral upload dispose observes fence and retires exactly once or terminal CPU-only"
+      },
+      {
+        "id": "w-latex074-neutral-E316-07",
+        "description": "neutral upload write-error observes fence and retires exactly once or terminal CPU-only"
+      },
+      {
+        "id": "w-latex074-neutral-E316-08",
+        "description": "neutral upload loss observes fence and retires exactly once or terminal CPU-only"
+      },
+      {
+        "id": "w-latex074-neutral-E316-09",
+        "description": "neutral upload sync-fence observes fence and retires exactly once or terminal CPU-only"
+      },
+      {
+        "id": "w-latex074-neutral-E316-10",
+        "description": "neutral upload reject-fence observes fence and retires exactly once or terminal CPU-only"
+      }
+    ]
+  },
+  {
+    "file": "producer-pages.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-E317-pages-01",
+        "description": "exact schema three pages select first empty and last with unequal explicit dimensions"
+      },
+      {
+        "id": "w-latex074-E317-pages-02",
+        "description": "projection retains dependency identities and versions with empty off-page ranges"
+      },
+      {
+        "id": "w-latex074-E317-pages-03",
+        "description": "page outputs and input arrays never share mutable projection storage"
+      },
+      {
+        "id": "w-latex074-E317-pages-04",
+        "description": "explicit selection is required and invalid selectors rejected"
+      },
+      {
+        "id": "w-latex074-E317-pages-05",
+        "description": "all page directories extents overlaps gaps ranges and dimensions validated"
+      },
+      {
+        "id": "w-latex074-E317-pages-06",
+        "description": "semantic groups crossing any page boundary explicitly rejected"
+      },
+      {
+        "id": "w-latex074-E317-pages-07",
+        "description": "off-page ownership and geometry validated before projection"
+      },
+      {
+        "id": "w-latex074-E317-pages-08",
+        "description": "page switches retain full previous provenance and source edits keep owner leaf IDs"
+      },
+      {
+        "id": "w-latex074-E317-pages-09",
+        "description": "glyph tiles and resource payloads are exactly selected missing differs from empty"
+      },
+      {
+        "id": "w-latex074-E317-pages-10",
+        "description": "link local index rebased without changing explicit target"
+      },
+      {
+        "id": "w-latex074-E317-pages-11",
+        "description": "two pending different page draws retain geometry and retire only after their fences"
+      }
+    ]
+  },
+  {
+    "file": "producer-page-index.mjs",
+    "groups": [
+      {
+        "id": "E318-index-1",
+        "description": "indexed 1 pages preserve E317 outputs and remove repeated mapping"
+      },
+      {
+        "id": "E318-index-2",
+        "description": "indexed 10 pages preserve E317 outputs and remove repeated mapping"
+      },
+      {
+        "id": "E318-index-3",
+        "description": "indexed 40 pages preserve E317 outputs and remove repeated mapping"
+      },
+      {
+        "id": "E318-index-4",
+        "description": "all empty pages retain exact boundary and empty outputs"
+      },
+      {
+        "id": "E318-index-5",
+        "description": "malformed off-page and cross-page input reject identically to E317"
+      }
+    ]
+  },
+  {
+    "file": "producer-columns.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-host-producer-columns-01",
+        "description": "Array and typed numeric columns preserve exact output"
+      },
+      {
+        "id": "w-latex074-host-producer-columns-02",
+        "description": "original invalid values reject without coercion with matching diagnostics"
+      },
+      {
+        "id": "w-latex074-host-producer-columns-03",
+        "description": "shared buffers DataView missing extents and sparse columns rejected"
+      },
+      {
+        "id": "w-latex074-host-producer-columns-04",
+        "description": "caller mutation and output mutation cannot alter retained snapshot"
+      },
+      {
+        "id": "w-latex074-host-producer-columns-05",
+        "description": "genuine owner and previous binding remain mandatory"
+      }
+    ]
+  },
+  {
+    "file": "producer-tile-snapshots.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-host-tile-snapshots-01",
+        "description": "repeated glyph occurrences snapshot each unique key once per selected page"
+      },
+      {
+        "id": "w-latex074-host-tile-snapshots-02",
+        "description": "distinct tile keys preserve exact tile and resource identities"
+      },
+      {
+        "id": "w-latex074-host-tile-snapshots-03",
+        "description": "missing repeated or distinct explicit glyph keys reject"
+      },
+      {
+        "id": "w-latex074-host-tile-snapshots-04",
+        "description": "mutated returned tiles and input tiles cannot alter retained selection"
+      },
+      {
+        "id": "w-latex074-host-tile-snapshots-05",
+        "description": "two page outputs with shared keys remain independently mutable"
+      }
+    ]
+  },
+  {
+    "file": "unicode-offset.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-unicode-offset-01",
+        "description": "exact valid invalid and reordered UTF8 boundaries including lone surrogates"
+      },
+      {
+        "id": "w-latex074-unicode-offset-02",
+        "description": "negative fractional unsafe nonnumeric and enormous offsets allocate only actual source prefix"
+      },
+      {
+        "id": "w-latex074-unicode-offset-03",
+        "description": "source changes isolation repeated offsets and exhaustive mixed scalar combinations"
+      },
+      {
+        "id": "w-latex074-unicode-offset-04",
+        "description": "full binding Unicode baseByte repeated offsets reordered leaves and explicit origins"
+      },
+      {
+        "id": "w-latex074-unicode-offset-05",
+        "description": "full binding authentication span boundaries and source isolation retain rejection"
+      },
+      {
+        "id": "w-latex074-unicode-offset-06",
+        "description": "full binding source revisions and previous ownership guards survive conversion cache"
+      },
+      {
+        "id": "w-latex074-unicode-offset-07",
+        "description": "deterministic codepoint work falls for repeated and reordered requests"
+      }
+    ]
+  },
+  {
+    "file": "provenance-entry.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-provenance-entry-01",
+        "description": "entry accepts sparse reordered operations repeated origins and Unicode scopes"
+      },
+      {
+        "id": "w-latex074-provenance-entry-02",
+        "description": "entry preserves exact errors for every offset and malformed surrogate source"
+      },
+      {
+        "id": "w-latex074-provenance-entry-03",
+        "description": "entry preserves duplicate validation and competing error ordering"
+      },
+      {
+        "id": "w-latex074-provenance-entry-04",
+        "description": "entry clones freezes authenticates only successful sessions and isolates source revisions"
+      },
+      {
+        "id": "w-latex074-provenance-entry-05",
+        "description": "entry request local reuse reduces deterministic repeated source scan work"
+      }
+    ]
+  },
+  {
+    "file": "source-index.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-source-index-01",
+        "description": "source index exact document and fragment outputs with sparse reordered sources repeated explicit origins and multibyte text"
+      },
+      {
+        "id": "w-latex074-source-index-02",
+        "description": "source index preserves duplicate missing reference authentication and precondition errors"
+      },
+      {
+        "id": "w-latex074-source-index-03",
+        "description": "source index retains caller output isolation and source revision guards"
+      },
+      {
+        "id": "w-latex074-source-index-04",
+        "description": "source index removes per leaf linear source search comparisons"
+      }
+    ]
+  },
+  {
+    "file": "provenance-revision.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-revision-01",
+        "description": "valid Unicode base revision equals frozen full-entry oracle; authentic retained chain"
+      },
+      {
+        "id": "w-latex074-revision-02",
+        "description": "fabricated or cloned sessions rejected"
+      },
+      {
+        "id": "w-latex074-revision-03",
+        "description": "all supplied nested aliases cloned and frozen, previous isolated"
+      },
+      {
+        "id": "w-latex074-revision-04",
+        "description": "missing source-dependent scope rejected"
+      },
+      {
+        "id": "w-latex074-revision-05",
+        "description": "missing affected group rejected"
+      },
+      {
+        "id": "w-latex074-revision-06",
+        "description": "unknown duplicate and reordered record IDs rejected"
+      },
+      {
+        "id": "w-latex074-revision-07",
+        "description": "stale document source content layout versions rejected"
+      },
+      {
+        "id": "w-latex074-revision-08",
+        "description": "insert delete reorder and identity topology changes rejected"
+      },
+      {
+        "id": "w-latex074-revision-09",
+        "description": "resources unknown delta keys and exotic containers rejected"
+      },
+      {
+        "id": "w-latex074-revision-10",
+        "description": "Unicode scalar base byte range and source text checks retained"
+      },
+      {
+        "id": "w-latex074-revision-11",
+        "description": "scope-only edit requires affected group versions"
+      },
+      {
+        "id": "w-latex074-revision-12",
+        "description": "explicit external origins require dependent scope and group replacements"
+      },
+      {
+        "id": "w-latex074-revision-13",
+        "description": "dependency closure includes group without replaced source"
+      },
+      {
+        "id": "w-latex074-revision-14",
+        "description": "legacy authentic session still undergoes global uniqueness and resource checks"
+      },
+      {
+        "id": "w-latex074-revision-15",
+        "description": "record insertion order is immaterial including nested extensions"
+      },
+      {
+        "id": "w-latex074-revision-16",
+        "description": "undefined property differs from missing in both directions"
+      },
+      {
+        "id": "w-latex074-revision-17",
+        "description": "nonfinite and signed zero scalar distinctions preserved"
+      },
+      {
+        "id": "w-latex074-revision-18",
+        "description": "BigInt and undefined scalar extensions retain ordinary value semantics"
+      },
+      {
+        "id": "w-latex074-revision-19",
+        "description": "array holes order length and custom properties are structural"
+      },
+      {
+        "id": "w-latex074-revision-20",
+        "description": "resource order and dependency extension mutation rejected"
+      },
+      {
+        "id": "w-latex074-revision-21",
+        "description": "cycles reject deterministically before clone or recursive freeze"
+      },
+      {
+        "id": "w-latex074-revision-22",
+        "description": "excessive depth and unsupported extensions reject with scope errors"
+      },
+      {
+        "id": "w-latex074-revision-23",
+        "description": "acyclic shared subrecords remain compatible"
+      }
+    ]
+  },
+  {
+    "file": "plain-certification.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-plain-certification-01",
+        "description": "first legacy walk then certified output and independent branches skip only previous traversal"
+      },
+      {
+        "id": "w-latex074-plain-certification-02",
+        "description": "certification does not authenticate clones fakes or caller mutations"
+      },
+      {
+        "id": "w-latex074-plain-certification-03",
+        "description": "legacy frozen exotic wrappers never certify after rejection"
+      },
+      {
+        "id": "w-latex074-plain-certification-04",
+        "description": "certified parents still reject delta cycles depth accessors symbols and exotics without issuing output"
+      },
+      {
+        "id": "w-latex074-plain-certification-05",
+        "description": "certified sessions retain semantic validation on every failed branch"
+      }
+    ]
+  },
+  {
+    "file": "producer-final-observation.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-final-observation-01",
+        "description": "tileUV: stale final change rejected; advanced dependency closure accepted"
+      },
+      {
+        "id": "w-latex074-final-observation-02",
+        "description": "plane: stale final change rejected; advanced dependency closure accepted"
+      },
+      {
+        "id": "w-latex074-final-observation-03",
+        "description": "paint: stale final change rejected; advanced dependency closure accepted"
+      },
+      {
+        "id": "w-latex074-final-observation-04",
+        "description": "crop: stale final change rejected; advanced dependency closure accepted"
+      },
+      {
+        "id": "w-latex074-final-observation-05",
+        "description": "unchanged final bytes preserve identities across glyph lookup alias"
+      },
+      {
+        "id": "w-latex074-final-observation-06",
+        "description": "caller and output mutations cannot rewrite previous observations or retained page"
+      },
+      {
+        "id": "w-latex074-final-observation-07",
+        "description": "off-page final changes validated against full document bound"
+      },
+      {
+        "id": "w-latex074-final-observation-08",
+        "description": "copied and unobserved previous bounds cannot bypass guard; authentic owner required"
+      },
+      {
+        "id": "w-latex074-final-observation-09",
+        "description": "fragment producer adapter is absent; no synthetic entry substituted"
+      }
+    ]
+  },
+  {
+    "file": "final-observation-revision.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-final-revision-01",
+        "description": "certified second edit through guarded adapter equals full fresh and advances dependencies"
+      },
+      {
+        "id": "w-latex074-final-revision-02",
+        "description": "certified retained chain rejects stale tileUV plane paint crop and incomplete dependency advancement"
+      }
+    ]
+  },
+  {
+    "file": "direct-scene-columns.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-direct-columns-01",
+        "description": "single kind 0"
+      },
+      {
+        "id": "w-latex074-direct-columns-02",
+        "description": "single kind 1"
+      },
+      {
+        "id": "w-latex074-direct-columns-03",
+        "description": "single kind 2"
+      },
+      {
+        "id": "w-latex074-direct-columns-04",
+        "description": "single kind 3"
+      },
+      {
+        "id": "w-latex074-direct-columns-05",
+        "description": "empty"
+      },
+      {
+        "id": "w-latex074-direct-columns-06",
+        "description": "mixed fixed"
+      },
+      {
+        "id": "w-latex074-direct-columns-07",
+        "description": "fallback kind 4"
+      },
+      {
+        "id": "w-latex074-direct-columns-08",
+        "description": "fallback kind 5"
+      },
+      {
+        "id": "w-latex074-direct-columns-09",
+        "description": "fallback kind 6"
+      },
+      {
+        "id": "w-latex074-direct-columns-10",
+        "description": "fallback kind 7"
+      },
+      {
+        "id": "w-latex074-direct-columns-11",
+        "description": "fallback kind 8"
+      },
+      {
+        "id": "w-latex074-direct-columns-12",
+        "description": "mixed variable mapping"
+      },
+      {
+        "id": "w-latex074-direct-columns-13",
+        "description": "crop endpoint presence"
+      },
+      {
+        "id": "w-latex074-direct-columns-14",
+        "description": "zero link border"
+      },
+      {
+        "id": "w-latex074-direct-columns-15",
+        "description": "signed zero bytes"
+      },
+      {
+        "id": "w-latex074-direct-columns-16",
+        "description": "geometry NaN"
+      },
+      {
+        "id": "w-latex074-direct-columns-17",
+        "description": "geometry overflow"
+      },
+      {
+        "id": "w-latex074-direct-columns-18",
+        "description": "invalid kind"
+      },
+      {
+        "id": "w-latex074-direct-columns-19",
+        "description": "negative kind"
+      },
+      {
+        "id": "w-latex074-direct-columns-20",
+        "description": "paint reference"
+      },
+      {
+        "id": "w-latex074-direct-columns-21",
+        "description": "payload reference"
+      },
+      {
+        "id": "w-latex074-direct-columns-22",
+        "description": "draw flag"
+      },
+      {
+        "id": "w-latex074-direct-columns-23",
+        "description": "resource"
+      },
+      {
+        "id": "w-latex074-direct-columns-24",
+        "description": "tile extent"
+      },
+      {
+        "id": "w-latex074-direct-columns-25",
+        "description": "tile uv"
+      },
+      {
+        "id": "w-latex074-direct-columns-26",
+        "description": "paint value"
+      },
+      {
+        "id": "w-latex074-direct-columns-27",
+        "description": "crop malformed"
+      },
+      {
+        "id": "w-latex074-direct-columns-28",
+        "description": "crop empty"
+      },
+      {
+        "id": "w-latex074-direct-columns-29",
+        "description": "mapping"
+      },
+      {
+        "id": "w-latex074-direct-columns-30",
+        "description": "metadata extent"
+      },
+      {
+        "id": "w-latex074-direct-columns-31",
+        "description": "validation order"
+      },
+      {
+        "id": "w-latex074-direct-columns-32",
+        "description": "independent output and caller lifetime"
+      }
+    ]
+  },
+  {
+    "file": "direct-glyph-emission.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-direct-glyph-01",
+        "description": "fixed glyph 0"
+      },
+      {
+        "id": "w-latex074-direct-glyph-02",
+        "description": "mixed glyph 0"
+      },
+      {
+        "id": "w-latex074-direct-glyph-03",
+        "description": "malformed crop 0"
+      },
+      {
+        "id": "w-latex074-direct-glyph-04",
+        "description": "malformed crop 0,5"
+      },
+      {
+        "id": "w-latex074-direct-glyph-05",
+        "description": "fixed glyph 1"
+      },
+      {
+        "id": "w-latex074-direct-glyph-06",
+        "description": "mixed glyph 1"
+      },
+      {
+        "id": "w-latex074-direct-glyph-07",
+        "description": "malformed crop 1"
+      },
+      {
+        "id": "w-latex074-direct-glyph-08",
+        "description": "malformed crop 1,5"
+      },
+      {
+        "id": "w-latex074-direct-glyph-09",
+        "description": "observable property evaluation order"
+      }
+    ]
+  },
+  {
+    "file": "fragment-producer.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-fragment-A318-01",
+        "description": "fragment exact schema and independent typed row transport"
+      },
+      {
+        "id": "w-latex074-fragment-A318-02",
+        "description": "repeated fragment revisions retain full authentic identity and source binding"
+      },
+      {
+        "id": "w-latex074-fragment-A318-03",
+        "description": "tileUV stale fragment output rejected with dependency advancement"
+      },
+      {
+        "id": "w-latex074-fragment-A318-04",
+        "description": "plane stale fragment output rejected with dependency advancement"
+      },
+      {
+        "id": "w-latex074-fragment-A318-05",
+        "description": "paint stale fragment output rejected with dependency advancement"
+      },
+      {
+        "id": "w-latex074-fragment-A318-06",
+        "description": "crop stale fragment output rejected with dependency advancement"
+      },
+      {
+        "id": "w-latex074-fragment-A318-07",
+        "description": "source text changes require source content layout and dependency revisions"
+      },
+      {
+        "id": "w-latex074-fragment-A318-08",
+        "description": "extent observations require layout advance and unsupported dimensions reject"
+      },
+      {
+        "id": "w-latex074-fragment-A318-09",
+        "description": "resource bytes descriptors versions and missing payloads remain guarded"
+      },
+      {
+        "id": "w-latex074-fragment-A318-10",
+        "description": "owner sessions spans and all provenance columns are mandatory"
+      },
+      {
+        "id": "w-latex074-fragment-A318-11",
+        "description": "unsupported incomplete anchor destination and leaf state rejected"
+      },
+      {
+        "id": "w-latex074-fragment-A318-12",
+        "description": "caller output and bound scene mutation cannot rewrite retained observations"
+      },
+      {
+        "id": "w-latex074-fragment-A318-13",
+        "description": "copied raw and foreign predecessors rejected without poisoning authentic branch"
+      },
+      {
+        "id": "w-latex074-fragment-A318-14",
+        "description": "reordered explicit owner leaves preserve source to row mapping"
+      }
+    ]
+  },
+  {
+    "file": "group-contiguity.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-e356-01",
+        "description": "one many adjacent sparse reordered and empty groups preserve complete fragment and document outputs"
+      },
+      {
+        "id": "w-latex074-e356-02",
+        "description": "noncontiguous reappearance rejects with exact error and ownership checks retain precedence"
+      },
+      {
+        "id": "w-latex074-e356-03",
+        "description": "legacy nonstring IDs including NaN retain downstream rejection and competing-error order"
+      },
+      {
+        "id": "w-latex074-e356-04",
+        "description": "previous revision source versions group versions and snapshot isolation remain exact"
+      },
+      {
+        "id": "w-latex074-e356-05",
+        "description": "actual binding membership work is quadratic before and one Set lookup per transition after"
+      }
+    ]
+  },
+  {
+    "file": "fragment-session-incremental.mjs",
+    "groups": [
+      {
+        "id": "A320-fragment-session-01",
+        "description": "fragment glyph field rule link reaches session receipt and completion with explicit extent"
+      },
+      {
+        "id": "A320-fragment-session-02",
+        "description": "real source edit via reviseProvenance and exact bound matches fresh geometry metadata and reuses resource"
+      },
+      {
+        "id": "A320-fragment-session-03",
+        "description": "caller mutation after update cannot change drawable or immutable resource"
+      },
+      {
+        "id": "A320-fragment-session-04",
+        "description": "stale layoutVersion rejection preserves previously committed drawable"
+      },
+      {
+        "id": "A320-fragment-session-05",
+        "description": "cancel and idempotent dispose await submission completion and destroy every lifetime exactly once"
+      }
+    ]
+  },
+  {
+    "file": "fragment-validation-allocation.mjs",
+    "groups": [
+      {
+        "id": "A322-validation-01",
+        "description": "finite numeric columns preserve signed extents errors and independent values"
+      },
+      {
+        "id": "A322-validation-02",
+        "description": "numeric accessors keep double reads sparse arrays typed views and error precedence"
+      },
+      {
+        "id": "A322-validation-03",
+        "description": "destination fallback preserves custom iterator full consumption and exception precedence"
+      },
+      {
+        "id": "A322-validation-04",
+        "description": "destination sparse typed and invalid views retain exact independent rejection"
+      },
+      {
+        "id": "A322-validation-05",
+        "description": "snapshot ownership stays independent of caller mutation"
+      }
+    ]
+  },
+  {
+    "file": "owner-lookup.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-e358-01",
+        "description": "dense sparse reversed and empty authentic Fragment and Document outputs match frozen binder"
+      },
+      {
+        "id": "w-latex074-e358-02",
+        "description": "missing invalid duplicate signed zero and competing failures preserve exact error order"
+      },
+      {
+        "id": "w-latex074-e358-03",
+        "description": "authentic revised sessions preserve previous values and reject copied foreign owners"
+      },
+      {
+        "id": "w-latex074-e358-04",
+        "description": "actual dense binding scan counts change from quadratic to linear in owner records"
+      },
+      {
+        "id": "w-latex074-e358-05",
+        "description": "progressive lookup preserves first strict match and avoids scanning unused suffixes"
+      },
+      {
+        "id": "w-latex074-e359-01",
+        "description": "shared operation and leaf arrays retain separate field lookup state through public entry and bind"
+      }
+    ]
+  },
+  {
+    "file": "multipage-session-incremental.mjs",
+    "groups": [
+      {
+        "id": "A323-multipage-01",
+        "description": "three explicit pages match fresh preparation and literal geometry while one session shares texture"
+      },
+      {
+        "id": "A323-multipage-02",
+        "description": "Unicode source edit with explicit dependent closure and exact full prior bound matches fresh pages and preserves unaffected page"
+      },
+      {
+        "id": "A323-multipage-03",
+        "description": "stale dependency and off-page layout reject without changing last drawable"
+      },
+      {
+        "id": "A323-multipage-04",
+        "description": "changed resource version replaces texture once and shares replacement across pages"
+      },
+      {
+        "id": "A323-multipage-05",
+        "description": "selected output mutation cannot alter prepared pages or committed session snapshot"
+      },
+      {
+        "id": "A323-multipage-06",
+        "description": "cancel and idempotent disposal retain final page submission until completion then destroy once"
+      }
+    ]
+  },
+  {
+    "file": "certificate-invalidation.mjs",
+    "groups": [
+      {
+        "id": "w-a325-certificate-01",
+        "description": "external source edit invalidates retained macro scope after certification"
+      },
+      {
+        "id": "w-a325-certificate-02",
+        "description": "transitive old dependency edges require both dependent replacements"
+      },
+      {
+        "id": "w-a325-certificate-03",
+        "description": "new removed and retargeted edges require unsupported topology fallback"
+      },
+      {
+        "id": "w-a325-certificate-04",
+        "description": "external origin range shortening and byte scalar splits cannot use stale validation"
+      },
+      {
+        "id": "w-a325-certificate-05",
+        "description": "changed group ranges reject uncovered origins and split UTF16 scalar"
+      },
+      {
+        "id": "w-a325-certificate-06",
+        "description": "local operation byte ranges validate replacement even with unchanged source"
+      },
+      {
+        "id": "w-a325-certificate-07",
+        "description": "duplicate ownership entry and missing replacement ownership reject explicitly"
+      },
+      {
+        "id": "w-a325-certificate-08",
+        "description": "immutable resource and leaf reference changes use exact unsupported fallback"
+      },
+      {
+        "id": "w-a325-certificate-09",
+        "description": "legacy accepted malformed resources origins and dependencies never acquire certificates"
+      },
+      {
+        "id": "w-a325-certificate-10",
+        "description": "aliased replacement records clone freeze and isolate caller mutations"
+      },
+      {
+        "id": "w-a325-certificate-11",
+        "description": "failed revision does not poison valid branches or snapshot identities"
+      },
+      {
+        "id": "w-a325-certificate-12",
+        "description": "unrelated source and no-op revisions preserve valid retained ownership"
+      }
+    ]
+  },
+  {
+    "file": "source-group-slices.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-source-slices-01",
+        "description": "Fragment exact frozen oracle: Unicode multiple overlapping origins and empty group/page"
+      },
+      {
+        "id": "w-latex074-source-slices-02",
+        "description": "Fragment exact overlap Unicode containment rejection precedence"
+      },
+      {
+        "id": "w-latex074-source-slices-03",
+        "description": "Fragment source and leaf version rejection with successful real text revision"
+      },
+      {
+        "id": "w-latex074-source-slices-04",
+        "description": "Fragment failed revisions and sibling branches preserve old source binding"
+      },
+      {
+        "id": "w-latex074-source-slices-05",
+        "description": "Fragment unusual getter stored range retains original slice clamping"
+      },
+      {
+        "id": "w-latex074-source-slices-06",
+        "description": "Document exact frozen oracle: Unicode multiple overlapping origins and empty group/page"
+      },
+      {
+        "id": "w-latex074-source-slices-07",
+        "description": "Document exact overlap Unicode containment rejection precedence"
+      },
+      {
+        "id": "w-latex074-source-slices-08",
+        "description": "Document source and leaf version rejection with successful real text revision"
+      },
+      {
+        "id": "w-latex074-source-slices-09",
+        "description": "Document failed revisions and sibling branches preserve old source binding"
+      },
+      {
+        "id": "w-latex074-source-slices-10",
+        "description": "Document unusual getter stored range retains original slice clamping"
+      }
+    ]
+  },
+  {
+    "file": "semantic-certificate.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-e362-01",
+        "description": "legacy full qualification and unchanged certified scopes skip semantic work"
+      },
+      {
+        "id": "w-latex074-e362-02",
+        "description": "changed scope fully checked while retained scopes skipped; baseline and previous isolation"
+      },
+      {
+        "id": "w-latex074-e362-03",
+        "description": "changed group span invalidates an otherwise identical scope"
+      },
+      {
+        "id": "w-latex074-e362-04",
+        "description": "external origin source changes require scope replacement and retain Unicode checks"
+      },
+      {
+        "id": "w-latex074-e362-05",
+        "description": "competing invalid changed scope and earlier retained-scope containment preserve error precedence"
+      },
+      {
+        "id": "w-latex074-e362-06",
+        "description": "legacy structural certification never substitutes for semantic resource qualification"
+      }
+    ]
+  },
+  {
+    "file": "snapshot-boundary.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-e363-01",
+        "description": "certified previous observes Proxy delta once and preserves clone rejection"
+      },
+      {
+        "id": "w-latex074-e363-02",
+        "description": "invalid accessor descriptor rejects without getter callbacks or clone retry"
+      },
+      {
+        "id": "w-latex074-e363-03",
+        "description": "nested Proxy structuredClone rejection has identical trace and one clone"
+      },
+      {
+        "id": "w-latex074-e363-04",
+        "description": "authentication rejects before observing caller delta"
+      },
+      {
+        "id": "w-latex074-e363-05",
+        "description": "semantic failure after detached snapshot falls back without recloning and preserves next revision"
+      },
+      {
+        "id": "w-latex074-e363-06",
+        "description": "invalid delta and revision ordering preserve baseline errors without retry"
+      }
+    ]
+  },
+  {
+    "file": "session-lifecycle.mjs",
+    "groups": [
+      {
+        "id": "A327-lifecycle-1",
+        "description": "24 lifecycle forks preserve retained sibling geometry and Unicode provenance after real edits and page switches"
+      },
+      {
+        "id": "A327-lifecycle-2",
+        "description": "24 rejected replacements recover through valid successors with exact texture and instance upload reuse"
+      },
+      {
+        "id": "A327-lifecycle-3",
+        "description": "24 cancellation and disposal cycles settle all operations with six delayed completion fences and zero live snapshots or mock resources"
+      }
+    ]
+  },
+  {
+    "file": "warm-branch-lifecycle.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-warm-branch-01",
+        "description": "Second and third Unicode revisions and two warm sibling branches equal fresh public preparation"
+      },
+      {
+        "id": "w-latex074-warm-branch-02",
+        "description": "Rejected warm semantic revisions publish no usable owner or render generation and preserve retained branches"
+      },
+      {
+        "id": "w-latex074-warm-branch-03",
+        "description": "Warm branch sessions release exact mock resources and snapshots after delayed completion fences"
+      }
+    ]
+  },
+  {
+    "file": "metadata-indexes.mjs",
+    "groups": [
+      {
+        "id": "w-latex074-e366-01",
+        "description": "trusted metadata eager signatures preserve links order duplicates resources and empty groups"
+      },
+      {
+        "id": "w-latex074-e366-02",
+        "description": "untrusted previous preserves first resource match sparse malformed and missing resource errors"
+      },
+      {
+        "id": "w-latex074-e366-03",
+        "description": "getter traces and signature short circuit retain exact legacy observations"
+      },
+      {
+        "id": "w-latex074-e366-04",
+        "description": "binding graph revision and group failure precedence matches frozen metadata oracle"
+      },
+      {
+        "id": "w-latex074-e366-05",
+        "description": "issued sparse links and unusual normalized owner keys keep oracle behavior"
+      }
+    ]
+  },
+  {
+    "file": "origin-lookup.mjs",
+    "groups": [
+      {
+        "id": "w-a330-origin-lookup-1",
+        "description": "Fragment exact oracle containment for small/indexed unsorted duplicate overlapping adjacent zero-length and multiple-source spans"
+      },
+      {
+        "id": "w-a330-origin-lookup-2",
+        "description": "Fragment original invalid input and Unicode validation precede containment with exact error preservation"
+      },
+      {
+        "id": "w-a330-origin-lookup-3",
+        "description": "Fragment 250 deterministic interval matrices equal independent frozen existential oracle"
+      },
+      {
+        "id": "w-a330-origin-lookup-4",
+        "description": "Fragment real edit version guards and retained frozen previous values unchanged"
+      },
+      {
+        "id": "w-a330-origin-lookup-5",
+        "description": "Document exact oracle containment for small/indexed unsorted duplicate overlapping adjacent zero-length and multiple-source spans"
+      },
+      {
+        "id": "w-a330-origin-lookup-6",
+        "description": "Document original invalid input and Unicode validation precede containment with exact error preservation"
+      },
+      {
+        "id": "w-a330-origin-lookup-7",
+        "description": "Document 250 deterministic interval matrices equal independent frozen existential oracle"
+      },
+      {
+        "id": "w-a330-origin-lookup-8",
+        "description": "Document real edit version guards and retained frozen previous values unchanged"
+      }
+    ]
+  },
+  {
+    "file": "origin-eligibility.mjs",
+    "groups": [
+      {
+        "id": "w-a331-origin-eligibility-1",
+        "description": "Fragment public getter endpoints and source IDs preserve exact oracle getter coercion and error traces"
+      },
+      {
+        "id": "w-a331-origin-eligibility-2",
+        "description": "Fragment lazy empty first-failure invalid-order and sparse coverage preserve oracle behavior"
+      },
+      {
+        "id": "w-a331-origin-eligibility-3",
+        "description": "Document public getter endpoints and source IDs preserve exact oracle getter coercion and error traces"
+      },
+      {
+        "id": "w-a331-origin-eligibility-4",
+        "description": "Document lazy empty first-failure invalid-order and sparse coverage preserve oracle behavior"
+      }
+    ]
+  }
+]

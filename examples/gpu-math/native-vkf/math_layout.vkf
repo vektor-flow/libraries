@@ -1,0 +1,1492 @@
+commands:.math_commands
+math_display_width:.math_display_width
+math_arena_import:.math_arena_import
+math_middle:.math_middle
+math_enclosures:.math_enclosures
+math_qed:.math_qed
+math_qed_actions:.math_qed_actions
+math_qed_tag_leaves:.math_qed_tag_leaves
+math_command_pages:.math_command_pages
+# One owner computes the math box tree with explicit postorder tasks. Child
+# drawings remain references; math_draw flattens them only at the output edge.
+parser:.math_parser
+tokens:.math_tokens
+glyphs:.math_glyphs
+geometry:.math_geometry
+profiles:.math_profiles
+dimensions:.math_dimensions
+math_text:.math_text_layout
+assembly:.math_assembly
+arrows:.math_arrows
+modulo:.math_modulo
+matrices:.math_matrices
+decorations:.math_decorations
+measurements:.math_measurements
+tags:.math_tags
+references:.math_references
+destinations:.math_destinations
+equations:.math_equations
+effects:.math_effects
+quotients:.math_quotient
+paragraphs:.math_paragraph_nodes
+draw:.math_draw
+catalog:.font_catalog
+j:.resource_json
+text:.tex_text
+tex:.tex_numeric
+chunks:.text_chunks
+numbers:.json_numbers
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Arena:(kinds:[str],attrs:[str],first:[int],last:[int],nexts:[int],a:[int],b:[int],sup:[int],sub:[int],limits:[int],count:int,diagnostics:str,atoms:int)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+ParagraphNodes:(kinds:[int],owners:[int],widths:[num],heights:[num],depths:[num],stretches:[num],shrinks:[num],penalties:[int],count:int)
+Scene:(width:num,height:num,depth:num,heads:[[int]],box_count:int,nexts:[[int]],children:[[int]],payload:[str],payload_ids:[[int]],payload_count:int,xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int,diagnostics:str,atoms:int,next_equation_number:int,equation_references:str,has_last_row:bit,last_row_baseline:num,last_row_depth:num,paragraph:ParagraphNodes,has_paragraph:bit)
+PackageContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+
+raw(tape:Tape,key:str,fallback:str="null")->str:
+    node:j.member(tape,0,key)
+    node<0? @:fallback
+    starts:tape.starts
+    stops:tape.stops
+    @:text.span(tape.source,starts.(node),stops.(node))
+
+flag(tape:Tape,key:str)->bit:
+    node:j.member(tape,0,key)
+    node<0? @:false
+    kinds:tape.kinds
+    @:kinds.(node)=5
+
+nucleus(metric:str,klass:int):
+    italic:0.0
+    metric~=""? .italic:glyphs.numeric(j.parse(metric),0,"italic")
+    @:(token:"",key:"",width:0.0,height:0.0,depth:0.0,class_id:klass,italic:italic,character:true,metric:metric,diagnostic:"",placeholder:metric="")
+
+limit_operator(token:str)->bit:
+    @:tokens.one_of(token,["\\sum","\\prod","\\coprod","\\bigcup","\\bigcap","\\bigvee","\\bigwedge","\\bigsqcup","\\bigoplus","\\bigotimes","\\bigodot","\\lim","\\max","\\min","\\sup","\\inf"])
+
+matrix_base(name:str)->str:
+    length:text.byte_length(name)
+    length>0?
+        text.at(name,length-1)="*"? @:text.span(name,0,length-1)
+    @:name
+
+row_labels(arena:Arena,first_row:int,all_rows:bit=false):
+    firsts:arena.first
+    nexts:arena.nexts
+    kinds:arena.kinds
+    attrs:arena.attrs
+    ids:chunks.empty(8)
+    count:0
+    row:first_row
+    row>=0?>
+        cell:firsts.(row)
+        cell>=0?>
+            node:firsts.(cell)
+            node>=0?>
+                kinds.(node)="label"?
+                    count>=ids.length()? .ids:ids&chunks.empty(ids.length())
+                    properties:j.parse("{"&attrs.(node)&"}")
+                    ids.(count):"label:"&glyphs.string(properties,"key")
+                    .count:count+1
+                .node:nexts.(node)
+            .cell:nexts.(cell)
+        ~all_rows? .row: -1
+        all_rows? .row:nexts.(row)
+    @:(ids:ids,count:count)
+
+# Stable draw namespaces remain valid when future execution nodes are appended.
+# AST IDs continue to index metric/parser columns; only command IDs use this map.
+draw_owner(node:int,kind:int=0)->int:
+    node<0? @: -1
+    (kind>=0 /\ kind<4)?! "Invalid draw owner kind"
+    @:node*4+kind
+
+layout_with_profiles(input_arena:Arena,fonts:Catalog,constants:Tables,inline:bit=false,native:bit=true,display_environment:bit=false,equation_start:int=1,paragraph_mode:bit=false,text_spacing:str="",math_metrics:str="",display_width:num= -1,legacy_equation_anchor:bit=false,qed_symbol:str="")->Scene:
+    (display_width= -1 \/ (display_width>0 /\ display_width<=10.0^300))?! "Invalid display width"
+    retain_paragraph:paragraph_mode \/ display_width>0
+    native_metrics:math_metrics~=""
+    metric_baseline:12*tex.pt()
+    metric_jot:3*tex.pt()
+    metric_skip:tex.pt()
+    metric_skip_limit:0.0
+    native_metrics?
+        metric_data:j.parse(math_metrics)
+        metric_data.valid?! "Invalid math metrics"
+        .metric_baseline:glyphs.numeric(metric_data,0,"baseline",metric_baseline)
+        .metric_jot:glyphs.numeric(metric_data,0,"jot",metric_jot)
+        .metric_skip:glyphs.numeric(metric_data,0,"lineSkip",metric_skip)
+        .metric_skip_limit:glyphs.numeric(metric_data,0,"lineSkipLimit",metric_skip_limit)
+    arena:equations.prepare(input_arena)
+    measurement_roots:parser.nil(arena.count)
+    kinds:arena.kinds
+    attrs:arena.attrs
+    firsts:arena.first
+    nexts:arena.nexts
+    arguments:arena.a
+    denominators:arena.b
+    supers:arena.sup
+    subs:arena.sub
+    limits:arena.limits
+    size:arena.count
+    capacity:size
+    paragraph_capacity:0
+    retain_paragraph? .paragraph_capacity:size*4+1
+    paragraph_data:paragraphs.empty(paragraph_capacity)
+    spacing:j.parse(text_spacing)
+    widths:draw.zeros(size)
+    heights:draw.zeros(size)
+    depths:draw.zeros(size)
+    italics:draw.zeros(size)
+    classes:draw.ints(size)
+    end_classes:parser.nil(size)
+    spaces:draw.bits(size)
+    characters:draw.bits(size)
+    skipped:draw.bits(size)
+    leading_anchor:draw.bits(size)
+    trailing_anchor:draw.bits(size)
+    incomplete_cell:draw.bits(size)
+    ready:draw.bits(size)
+    tag_nodes:draw.bits(size)
+    table_cells:draw.bits(size)
+    has_last_row:draw.bits(size)
+    last_row_baselines:draw.zeros(size)
+    last_row_depths:draw.zeros(size)
+    qed_stack:math_qed.empty()
+    middle_required:0.0
+    middle_previous:draw.zeros(size)
+    middle_first:parser.nil(size)
+    qed_roots:parser.nil(size)
+    qed_entry_depth:draw.ints(size)
+    qed_tag_nodes:draw.bits(size)
+    arrow_measured:draw.bits(size)
+    arrow_first_sup:parser.nil(size)
+    arrow_first_sub:parser.nil(size)
+    equation_number:equation_start
+    equation_refs:references.empty()
+    nuclei:chunks.empty(size)
+    styles:draw.ints(size)
+    cramped:draw.bits(size)
+    active_fonts:chunks.empty(size)
+    colors:chunks.empty(size)
+    colors.(0):"null"
+    inline? styles.(0):1
+    buffer:commands.empty(size*4)
+    # Decode each distinct scoped glyph record once within this request. The
+    # table starts empty on every layout; no prior source or result is reused.
+    glyph_capacity:8
+    glyph_capacity<size*2?> .glyph_capacity:glyph_capacity*2
+    glyph_slots:parser.nil(glyph_capacity)
+    glyph_cache_keys:chunks.empty(size)
+    glyph_cache_tokens:chunks.empty(size)
+    glyph_cache_keys_out:chunks.empty(size)
+    glyph_cache_metrics:chunks.empty(size)
+    glyph_cache_diagnostics:chunks.empty(size)
+    glyph_cache_widths:draw.zeros(size)
+    glyph_cache_heights:draw.zeros(size)
+    glyph_cache_depths:draw.zeros(size)
+    glyph_cache_italics:draw.zeros(size)
+    glyph_cache_classes:draw.ints(size)
+    glyph_cache_characters:draw.bits(size)
+    glyph_cache_placeholders:draw.bits(size)
+    glyph_count:0
+    stack:draw.ints(size*2+8)
+    phases:draw.ints(size*2+8)
+    pending_styles:draw.ints(size*2+8)
+    pending_fonts:chunks.empty(size*2+8)
+    pending_colors:chunks.empty(size*2+8)
+    pending_cramped:draw.bits(size*2+8)
+    top:0
+    diagnostics:arena.diagnostics
+    empty_data:j.parse("{}")
+    empty_shape:assembly.empty(0)
+    kern_prior:""
+    kern_current:""
+    kern_prior_class: -1
+    kern_current_class: -1
+    kern_value:0.0
+    top>=0?>
+        arena.count>size?
+            .size:arena.count
+            .kinds:arena.kinds
+            .attrs:arena.attrs
+            .firsts:arena.first
+            .nexts:arena.nexts
+            .arguments:arena.a
+            .denominators:arena.b
+            .supers:arena.sup
+            .subs:arena.sub
+            .limits:arena.limits
+            old_capacity:capacity
+            capacity<size?> .capacity:capacity*2
+            additional:capacity-old_capacity
+            additional>0?
+                .widths:widths&draw.zeros(additional)
+                .heights:heights&draw.zeros(additional)
+                .depths:depths&draw.zeros(additional)
+                .italics:italics&draw.zeros(additional)
+                .last_row_baselines:last_row_baselines&draw.zeros(additional)
+                .last_row_depths:last_row_depths&draw.zeros(additional)
+                .middle_previous:middle_previous&draw.zeros(additional)
+                .glyph_cache_widths:glyph_cache_widths&draw.zeros(additional)
+                .glyph_cache_heights:glyph_cache_heights&draw.zeros(additional)
+                .glyph_cache_depths:glyph_cache_depths&draw.zeros(additional)
+                .glyph_cache_italics:glyph_cache_italics&draw.zeros(additional)
+                .classes:classes&draw.ints(additional)
+                .styles:styles&draw.ints(additional)
+                .qed_entry_depth:qed_entry_depth&draw.ints(additional)
+                .glyph_cache_classes:glyph_cache_classes&draw.ints(additional)
+                .end_classes:end_classes&parser.nil(additional)
+                .measurement_roots:measurement_roots&parser.nil(additional)
+                .middle_first:middle_first&parser.nil(additional)
+                .qed_roots:qed_roots&parser.nil(additional)
+                .arrow_first_sup:arrow_first_sup&parser.nil(additional)
+                .arrow_first_sub:arrow_first_sub&parser.nil(additional)
+                .spaces:spaces&draw.bits(additional)
+                .characters:characters&draw.bits(additional)
+                .skipped:skipped&draw.bits(additional)
+                .leading_anchor:leading_anchor&draw.bits(additional)
+                .trailing_anchor:trailing_anchor&draw.bits(additional)
+                .incomplete_cell:incomplete_cell&draw.bits(additional)
+                .ready:ready&draw.bits(additional)
+                .tag_nodes:tag_nodes&draw.bits(additional)
+                .table_cells:table_cells&draw.bits(additional)
+                .has_last_row:has_last_row&draw.bits(additional)
+                .cramped:cramped&draw.bits(additional)
+                .qed_tag_nodes:qed_tag_nodes&draw.bits(additional)
+                .arrow_measured:arrow_measured&draw.bits(additional)
+                .glyph_cache_characters:glyph_cache_characters&draw.bits(additional)
+                .glyph_cache_placeholders:glyph_cache_placeholders&draw.bits(additional)
+                .nuclei:nuclei&chunks.empty(additional)
+                .active_fonts:active_fonts&chunks.empty(additional)
+                .colors:colors&chunks.empty(additional)
+                .glyph_cache_keys:glyph_cache_keys&chunks.empty(additional)
+                .glyph_cache_tokens:glyph_cache_tokens&chunks.empty(additional)
+                .glyph_cache_keys_out:glyph_cache_keys_out&chunks.empty(additional)
+                .glyph_cache_metrics:glyph_cache_metrics&chunks.empty(additional)
+                .glyph_cache_diagnostics:glyph_cache_diagnostics&chunks.empty(additional)
+                task_additional:2*additional
+                .stack:stack&draw.ints(task_additional)
+                .phases:phases&draw.ints(task_additional)
+                .pending_styles:pending_styles&draw.ints(task_additional)
+                .pending_fonts:pending_fonts&chunks.empty(task_additional)
+                .pending_colors:pending_colors&chunks.empty(task_additional)
+                .pending_cramped:pending_cramped&draw.bits(task_additional)
+                .glyph_capacity:glyph_capacity*2
+                glyph_capacity<capacity*2?> .glyph_capacity:glyph_capacity*2
+                .glyph_slots:parser.nil(glyph_capacity)
+                rehash:0
+                rehash<glyph_count?>
+                    slot:catalog.hash(glyph_cache_keys.(rehash))%glyph_capacity
+                    glyph_slots.(slot)>=0?> .slot:(slot+1)%glyph_capacity
+                    glyph_slots.(slot):rehash
+                    .rehash:rehash+1
+                owner_rows:(capacity*4+math_command_pages.width()-1)//math_command_pages.width()
+                owner_heads:buffer.heads
+                owner_tails:buffer.tails
+                owner_heads.length()<owner_rows?>
+                    .owner_heads:math_command_pages.grow_integers(owner_heads)
+                    .owner_tails:math_command_pages.grow_integers(owner_tails)
+                buffer.heads:owner_heads
+                buffer.tails:owner_tails
+                buffer.boxes:capacity*4
+        node:stack.(top)
+        phase:phases.(top)
+        .top:top-1
+        phase= -1?
+            styles.(node):pending_styles.(top+1)
+            active_fonts.(node):pending_fonts.(top+1)
+            colors.(node):pending_colors.(top+1)
+            cramped.(node):pending_cramped.(top+1)
+            .phase:0
+        (node>=0 /\ node<kinds.length() /\ node<styles.length() /\ node<widths.length())?! "Execution task metric capacity"
+        kind:kinds.(node)
+        style:styles.(node)
+        font:active_fonts.(node)
+        color:colors.(node)
+        data:empty_data
+        (phase=1 /\ kind~="list" /\ kind~="glyph") \/ tokens.one_of(kind,["font","paint","frac","box","decoration","matrix","delimited"])? .data:j.parse("{"&attrs.(node)&"}")
+        phase=2?
+            copied_measurement:math_arena_import.import_into(arena,arena,arguments.(node))
+            .arena:copied_measurement.arena
+            measurement_roots.(node):copied_measurement.root
+            .top:top+1
+            stack.(top):copied_measurement.root
+            phases.(top): -1
+            pending_styles.(top):1
+            pending_fonts.(top):font
+            pending_colors.(top):color
+            pending_cramped.(top):true
+            @>
+        phase=4?
+            sizing_root:middle_first.(node)
+            middle_p:profiles.parameters(constants,style,font)
+            .middle_required:math_middle.required(heights.(sizing_root),depths.(sizing_root),middle_p.axis)
+            child:arguments.(node)
+            styles.(child):style
+            active_fonts.(child):font
+            colors.(child):color
+            cramped.(child):cramped.(node)
+            .top:top+1
+            stack.(top):child
+            phases.(top):0
+            @>
+        phase=5?
+            real_body:arguments.(node)
+            enclosure_p:profiles.parameters(constants,style,font)
+            enclosure_required:geometry.delimiter_required((width:widths.(real_body),height:heights.(real_body),depth:depths.(real_body)),enclosure_p,flag(data,"scalable"))
+            enclosed:math_enclosures.layout(buffer,draw_owner(node,1),draw_owner(real_body),fonts,(width:widths.(real_body),height:heights.(real_body),depth:depths.(real_body)),glyphs.string(data,"left"),glyphs.string(data,"right"),style,enclosure_required,flag(data,"scalable"),font,color)
+            .buffer:enclosed.buffer
+            widths.(node):enclosed.width
+            heights.(node):enclosed.height
+            depths.(node):enclosed.depth
+            classes.(node):enclosed.class_id
+            end_classes.(node):enclosed.end_class
+            characters.(node):enclosed.character
+            enclosed.left_diagnostic~=""? .diagnostics:parser.repair(diagnostics,enclosed.left_diagnostic)
+            enclosed.right_diagnostic~=""? .diagnostics:parser.repair(diagnostics,enclosed.right_diagnostic)
+            .middle_required:middle_previous.(node)
+            @>
+        phase=6?
+            captured_root:qed_roots.(node)
+            .qed_stack:math_qed_actions.finish(qed_stack,qed_entry_depth.(node))
+            widths.(node):widths.(captured_root)
+            heights.(node):heights.(captured_root)
+            depths.(node):depths.(captured_root)
+            italics.(node):italics.(captured_root)
+            nuclei.(node):nuclei.(captured_root)
+            has_last_row.(node):has_last_row.(captured_root)
+            last_row_baselines.(node):last_row_baselines.(captured_root)
+            last_row_depths.(node):last_row_depths.(captured_root)
+            .buffer:commands.append(buffer,draw_owner(node),draw_owner(captured_root))
+            ready.(node):true
+            @>
+        phase=0?
+            ready.(node)? @>
+            tokens.one_of(kind,["qedpush","qedpop","qedhere","qed"])?
+                action:math_qed_actions.enter(qed_stack,kind,arguments.(node),style,cramped.(node),font,color,display_environment)
+                .qed_stack:action.stack
+                tag_nodes.(node):action.tag
+                qed_tag_nodes.(node):action.qed_tag
+                spaces.(node):action.space
+                action.diagnostic~=""?
+                    diagnostics~=""? .diagnostics:diagnostics&","
+                    .diagnostics:diagnostics&j.quote(action.diagnostic)
+                action.operation=math_qed_actions.evaluate_operation()?
+                    capture:math_qed_actions.instantiate(arena,action)
+                    .arena:capture.arena
+                    qed_roots.(node):capture.root
+                    qed_entry_depth.(node):action.entry_depth
+                    .top:top+1
+                    stack.(top):node
+                    phases.(top):6
+                    .top:top+1
+                    stack.(top):capture.root
+                    phases.(top): -1
+                    pending_styles.(top):action.style
+                    pending_fonts.(top):action.font
+                    pending_colors.(top):action.color
+                    pending_cramped.(top):action.cramped
+                    @>
+                action.operation=math_qed_actions.symbol_operation()?
+                    quad_override: -1.0
+                    spacing_quad: -1
+                    spacing.valid? .spacing_quad:j.member(spacing,0,"quad")
+                    spacing_quad>=0? .quad_override:j.number(spacing,spacing_quad)
+                    symbol:math_qed.symbol(buffer,draw_owner(node),fonts,quad_override,font,color,qed_symbol)
+                    .buffer:symbol.buffer
+                    widths.(node):symbol.width
+                    heights.(node):symbol.height
+                    depths.(node):symbol.depth
+                    italics.(node):symbol.italic
+                    classes.(node):symbol.class_id
+                    characters.(node):symbol.character
+                    nuclei.(node):symbol.nucleus
+                    symbol.diagnostic~=""? .diagnostics:parser.repair(diagnostics,symbol.diagnostic)
+                action.operation=math_qed_actions.hole_operation()?
+                    missing_qed:glyphs.hole(fonts,style)
+                    widths.(node):missing_qed.width
+                    heights.(node):missing_qed.height
+                    depths.(node):missing_qed.depth
+                    classes.(node):missing_qed.class_id
+                    hole_value:"\"kind\":\"placeholder\",\"color\":"&color&",\"width\":"&numbers.roundtrip(missing_qed.width)&",\"height\":"&numbers.roundtrip(missing_qed.height)
+                    .buffer:commands.append(buffer,draw_owner(node), -1,hole_value,0, -missing_qed.height)
+                ready.(node):true
+                @>
+            kind="arrow" /\ ~arrow_measured.(node)?
+                arrow_measured.(node):true
+                arrow_sup:supers.(node)
+                arrow_sub:subs.(node)
+                arrow_style:3
+                style<2? .arrow_style:2
+                arrow_sup>=0?
+                    copied_sup:math_arena_import.import_into(arena,arena,arrow_sup)
+                    .arena:copied_sup.arena
+                    arrow_first_sup.(node):copied_sup.root
+                arrow_sub>=0?
+                    copied_sub:math_arena_import.import_into(arena,arena,arrow_sub)
+                    .arena:copied_sub.arena
+                    arrow_first_sub.(node):copied_sub.root
+                .top:top+1
+                stack.(top):node
+                phases.(top):0
+                arrow_pass:0
+                arrow_pass<2?>
+                    first_label:arrow_first_sub.(node)
+                    arrow_pass=1? .first_label:arrow_first_sup.(node)
+                    first_label>=0?
+                        .top:top+1
+                        stack.(top):first_label
+                        phases.(top): -1
+                        pending_styles.(top):arrow_style
+                        pending_fonts.(top):font
+                        pending_colors.(top):color
+                        pending_cramped.(top):false
+                    .arrow_pass:arrow_pass+1
+                .phase:0
+                @>
+            .top:top+1
+            stack.(top):node
+            phases.(top):1
+            kind="list"?
+                child_start:top+1
+                child:firsts.(node)
+                current_style:style
+                current_color:color
+                child>=0?>
+                    child_kind:kinds.(child)
+                    child_kind="tag"? tag_nodes.(child):true
+                    table_cells.(node) /\ child_kind="tag"? skipped.(child):true
+                    (child_kind="style" \/ child_kind="color")?
+                        child_data:j.parse("{"&attrs.(child)&"}")
+                        child_kind="style"? .current_style:int(glyphs.numeric(child_data,0,"style"))
+                        child_kind="color"? .current_color:raw(child_data,"color")
+                    (child_kind="style" \/ child_kind="color" \/ child_kind="label")? skipped.(child):true
+                    ~skipped.(child)?
+                        styles.(child):current_style
+                        colors.(child):current_color
+                        active_fonts.(child):font
+                        cramped.(child):cramped.(node)
+                        .top:top+1
+                        stack.(top):child
+                        phases.(top):0
+                    .child:nexts.(child)
+                left_index:child_start
+                right_index:top
+                left_index<right_index?>
+                    saved:stack.(left_index)
+                    stack.(left_index):stack.(right_index)
+                    stack.(right_index):saved
+                    .left_index:left_index+1
+                    .right_index:right_index-1
+                .phase:1
+                @>
+            kind="matrix"?
+                matrix_name:glyphs.string(data,"name")
+                .matrix_name:matrix_base(matrix_name)
+                matrix_style:style
+                style<1? .matrix_style:1
+                tokens.one_of(matrix_name,["eqnarray","align","split","equation","multline","gather","gathered"])? .matrix_style:0
+                tokens.one_of(matrix_name,["smallmatrix","substack","subarray"])? .matrix_style:2
+                matrix_name="equation"?
+                    label_row:firsts.(arguments.(node))
+                    label_row>=0?>
+                        label_cell:firsts.(label_row)
+                        label_cell>=0?>
+                            label_atom:firsts.(label_cell)
+                            label_atom>=0?>
+                                kinds.(label_atom)="label"?
+                                    label_properties:j.parse("{"&attrs.(label_atom)&"}")
+                                    .equation_refs:references.put(equation_refs,glyphs.string(label_properties,"key"),text.integer(equation_number))
+                                .label_atom:nexts.(label_atom)
+                            .label_cell:nexts.(label_cell)
+                        .label_row:nexts.(label_row)
+                matrix_start:top+1
+                matrix_root:arguments.(node)
+                matrix_row:firsts.(matrix_root)
+                matrix_row>=0?>
+                    matrix_column:0
+                    matrix_cell:firsts.(matrix_row)
+                    matrix_cell>=0?>
+                        table_cells.(matrix_cell):matrix_name~="equation"
+                        styles.(matrix_cell):matrix_style
+                        colors.(matrix_cell):color
+                        active_fonts.(matrix_cell):font
+                        cramped.(matrix_cell):false
+                        leading_anchor.(matrix_cell):tokens.one_of(matrix_name,["aligned","align","alignat","split"]) /\ matrix_column%2=1 /\ firsts.(matrix_cell)>=0
+                        legacy_equation_anchor /\ matrix_name="equation" /\ glyphs.string(data,"name")="equation"? leading_anchor.(matrix_cell):true
+                        trailing_anchor.(matrix_cell):matrix_name="eqnarray" /\ nexts.(matrix_row)>=0 /\ nexts.(matrix_cell)<0 /\ firsts.(matrix_cell)>=0
+                        incomplete_cell.(matrix_cell):flag(data,"incomplete") /\ nexts.(matrix_row)<0 /\ nexts.(matrix_cell)<0 /\ firsts.(matrix_cell)<0
+                        .top:top+1
+                        stack.(top):matrix_cell
+                        phases.(top):0
+                        .matrix_column:matrix_column+1
+                        .matrix_cell:nexts.(matrix_cell)
+                    .matrix_row:nexts.(matrix_row)
+                matrix_left:matrix_start
+                matrix_right:top
+                matrix_left<matrix_right?>
+                    saved_matrix:stack.(matrix_left)
+                    stack.(matrix_left):stack.(matrix_right)
+                    stack.(matrix_right):saved_matrix
+                    .matrix_left:matrix_left+1
+                    .matrix_right:matrix_right-1
+                .phase:1
+                @>
+            child_start:top+1
+            child_style:style
+            child_font:font
+            child_color:color
+            child_cramped:cramped.(node)
+            kind="font"? .child_font:glyphs.string(data,"name")
+            kind="paint"? .child_color:raw(data,"color")
+            kind="frac"?
+                fraction_style:int(glyphs.numeric(data,0,"style",num(style)))
+                .child_style:fraction_style+1
+                fraction_style=0? .child_style:1
+                child_style>3? .child_style:3
+            kind="radical"? .child_cramped:true
+            kind="box" /\ glyphs.string(data,"name")="boxed"? .child_style:0
+            kind="decoration"?
+                name:glyphs.string(data,"name")
+                (name="overline" \/ ~tokens.one_of(name,["underline","overbrace","underbrace","overrightarrow","overleftarrow","overleftrightarrow","underrightarrow","underleftarrow","underleftrightarrow"]))? .child_cramped:true
+                (name="overbrace" \/ name="underbrace")? .child_style:0
+            kind="delimited"?
+                middle_previous.(node):middle_required
+                direct_middle:math_middle.has_middle(arena,node)
+                direct_middle?
+                    copied_middle:math_arena_import.import_into(arena,arena,arguments.(node))
+                    .arena:copied_middle.arena
+                    middle_first.(node):copied_middle.root
+                    .top:top+1
+                    stack.(top):copied_middle.root
+                    phases.(top): -1
+                    pending_styles.(top):child_style
+                    pending_fonts.(top):child_font
+                    pending_colors.(top):child_color
+                    pending_cramped.(top):child_cramped
+                    .top:top+1
+                    stack.(top):node
+                    phases.(top):4
+                ~direct_middle /\ arguments.(node)>=0?
+                    child:arguments.(node)
+                    styles.(child):child_style
+                    active_fonts.(child):child_font
+                    colors.(child):child_color
+                    cramped.(child):child_cramped
+                    .top:top+1
+                    stack.(top):child
+                    phases.(top):0
+                .top:top+1
+                stack.(top):node
+                phases.(top):5
+            (kind="group" \/ kind="stack" \/ kind="font" \/ kind="paint" \/ kind="class" \/ kind="frac" \/ kind="quotient" \/ kind="radical" \/ kind="box" \/ kind="decoration" \/ kind="mod") /\ arguments.(node)>=0?
+                child:arguments.(node)
+                styles.(child):child_style
+                active_fonts.(child):child_font
+                colors.(child):child_color
+                cramped.(child):child_cramped
+                .top:top+1
+                stack.(top):child
+                phases.(top):0
+            kind="decoration"?
+                wide_name:glyphs.string(data,"name")
+                (wide_name="widehat" \/ wide_name="widetilde") /\ arguments.(node)>=0?
+                    .top:top+1
+                    stack.(top):node
+                    phases.(top):2
+            (kind="frac" \/ kind="radical" \/ kind="quotient") /\ denominators.(node)>=0?
+                child:denominators.(node)
+                styles.(child):child_style
+                cramped.(child):true
+                kind="quotient"? cramped.(child):cramped.(node)
+                kind="radical"?
+                    styles.(child):3
+                    cramped.(child):false
+                active_fonts.(child):font
+                colors.(child):color
+                .top:top+1
+                stack.(top):child
+                phases.(top):0
+            script_style:3
+            style<2? .script_style:2
+            script:0
+            script<2?>
+                child:supers.(node)
+                script=1? .child:subs.(node)
+                child>=0?
+                    styles.(child):script_style
+                    active_fonts.(child):font
+                    colors.(child):color
+                    cramped.(child):cramped.(node) \/ script=1
+                    .top:top+1
+                    stack.(top):child
+                    phases.(top):0
+                .script:script+1
+            left_index:child_start
+            right_index:top
+            left_index<right_index?>
+                saved:stack.(left_index)
+                stack.(left_index):stack.(right_index)
+                stack.(right_index):saved
+                saved_child_phase:phases.(left_index)
+                phases.(left_index):phases.(right_index)
+                phases.(right_index):saved_child_phase
+                saved_pending_style:pending_styles.(left_index)
+                pending_styles.(left_index):pending_styles.(right_index)
+                pending_styles.(right_index):saved_pending_style
+                saved_pending_font:pending_fonts.(left_index)
+                pending_fonts.(left_index):pending_fonts.(right_index)
+                pending_fonts.(right_index):saved_pending_font
+                saved_pending_color:pending_colors.(left_index)
+                pending_colors.(left_index):pending_colors.(right_index)
+                pending_colors.(right_index):saved_pending_color
+                saved_pending_cramp:pending_cramped.(left_index)
+                pending_cramped.(left_index):pending_cramped.(right_index)
+                pending_cramped.(right_index):saved_pending_cramp
+                .left_index:left_index+1
+                .right_index:right_index-1
+            .phase:1
+            @>
+        # Arrays grow at one owner boundary, never inside a returned parent box.
+        kind="list"?
+            last_box: -1
+            # TeX binary noads become ordinary at forbidden boundaries.
+            prior: -1
+            child:firsts.(node)
+            child>=0?>
+                ~skipped.(child) /\ ~tag_nodes.(child)? .last_box:child
+                ~skipped.(child) /\ ~tag_nodes.(child) /\ ~spaces.(child)?
+                    classes.(child)=2?
+                        forbidden:prior<0 /\ ~leading_anchor.(node)
+                        prior>=0?
+                            previous_class:classes.(prior)
+                            end_classes.(prior)>=0? .previous_class:end_classes.(prior)
+                            .forbidden:previous_class=1 \/ previous_class=2 \/ previous_class=3 \/ previous_class=4 \/ previous_class=6
+                        forbidden? classes.(child):0
+                    (classes.(child)=3 \/ classes.(child)=5 \/ classes.(child)=6) /\ prior>=0?
+                        classes.(prior)=2? classes.(prior):0
+                    .prior:child
+                .child:nexts.(child)
+            prior>=0 /\ ~trailing_anchor.(node)?
+                classes.(prior)=2? classes.(prior):0
+            .prior: -1
+            adjacent: -1
+            box_count:0
+            only: -1
+            .child:firsts.(node)
+            child>=0?>
+                (skipped.(child) \/ tag_nodes.(child))?
+                    .child:nexts.(child)
+                    @>
+                .box_count:box_count+1
+                .only:child
+                ~spaces.(child) /\ prior<0 /\ leading_anchor.(node)?
+                    widths.(node):widths.(node)+num(tex.math_space(0,classes.(child),styles.(child)))*profiles.mu(constants,styles.(child),font)
+                ~spaces.(child) /\ prior>=0?
+                    previous_class:classes.(prior)
+                    end_classes.(prior)>=0? .previous_class:end_classes.(prior)
+                    paragraph_mu:tex.math_space(previous_class,classes.(child),styles.(child))
+                    paragraph_unit:profiles.mu(constants,styles.(child),font)
+                    widths.(node):widths.(node)+num(paragraph_mu)*paragraph_unit
+                    retain_paragraph /\ node=0 /\ paragraph_mu>0?
+                        paragraph_stretch:0.0
+                        paragraph_shrink:0.0
+                        paragraph_mu=4?
+                            .paragraph_stretch:2*paragraph_unit
+                            .paragraph_shrink:4*paragraph_unit
+                        paragraph_mu=5? .paragraph_stretch:5*paragraph_unit
+                        .paragraph_data:paragraphs.append(paragraph_data,1,num(paragraph_mu)*paragraph_unit,stretch:paragraph_stretch,shrink:paragraph_shrink)
+                adjacent=prior /\ prior>=0 /\ nuclei.(prior)~="" /\ nuclei.(child)~=""?
+                    (kern_prior~=nuclei.(prior) \/ kern_current~=nuclei.(child) \/ kern_prior_class~=classes.(prior) \/ kern_current_class~=classes.(child))?
+                        .kern_prior:nuclei.(prior)
+                        .kern_current:nuclei.(child)
+                        .kern_prior_class:classes.(prior)
+                        .kern_current_class:classes.(child)
+                        .kern_value:glyphs.kern(nucleus(kern_prior,kern_prior_class),nucleus(kern_current,kern_current_class))
+                    widths.(node):widths.(node)+kern_value
+                    retain_paragraph /\ node=0 /\ kern_value~=0? .paragraph_data:paragraphs.append(paragraph_data,2,kern_value)
+                retain_paragraph /\ node=0?
+                    .paragraph_data:paragraphs.append(paragraph_data,0,widths.(child),draw_owner(child),heights.(child),depths.(child))
+                    child~=last_box /\ (classes.(child)=2 \/ classes.(child)=3)?
+                        paragraph_penalty:500
+                        classes.(child)=2? .paragraph_penalty:700
+                        .paragraph_data:paragraphs.append(paragraph_data,3,penalty:paragraph_penalty)
+                .buffer:commands.append(buffer,draw_owner(node),draw_owner(child),"",widths.(node),0,true,widths.(node),widths.(child))
+                widths.(node):widths.(node)+widths.(child)
+                heights.(node):tex.maximum(heights.(node),heights.(child))
+                depths.(node):tex.maximum(depths.(node),depths.(child))
+                ~spaces.(child)? .prior:child
+                .adjacent:child
+                .child:nexts.(child)
+            .child:firsts.(node)
+            child>=0?>
+                tag_nodes.(child) /\ ~skipped.(child)?
+                    qed_tag_nodes.(child)? .buffer:math_qed_tag_leaves.mark_owner(buffer,draw_owner(child),widths.(child))
+                    .buffer:commands.append(buffer,draw_owner(node),draw_owner(child),"",widths.(node)+10*tex.pt(),0)
+                    ~qed_tag_nodes.(child)? widths.(node):widths.(node)+10*tex.pt()+widths.(child)
+                    heights.(node):tex.maximum(heights.(node),heights.(child))
+                    depths.(node):tex.maximum(depths.(node),depths.(child))
+                .child:nexts.(child)
+            trailing_anchor.(node) /\ prior>=0?
+                widths.(node):widths.(node)+num(tex.math_space(classes.(prior),0,style))*profiles.mu(constants,style,font)
+            box_count=1?
+                has_last_row.(node):has_last_row.(only)
+                last_row_baselines.(node):last_row_baselines.(only)
+                last_row_depths.(node):last_row_depths.(only)
+            box_count=1 /\ ~leading_anchor.(node) /\ ~trailing_anchor.(node)? nuclei.(node):nuclei.(only)
+            incomplete_cell.(node)?
+                cell_hole:glyphs.hole(fonts,style)
+                widths.(node):cell_hole.width
+                heights.(node):cell_hole.height
+                depths.(node):cell_hole.depth
+                hole_value:"\"kind\":\"placeholder\",\"color\":"&color&",\"width\":"&numbers.roundtrip(cell_hole.width)&",\"height\":"&numbers.roundtrip(cell_hole.height)
+                .buffer:commands.append(buffer,draw_owner(node), -1,hole_value,0, -cell_hole.height)
+            ready.(node):true
+            .phase:1
+            @>
+        body:draw_owner(node,1)
+        target_a: -1
+        retained_a: -1
+        target_b: -1
+        target_c: -1
+        ax:0.0
+        ay:0.0
+        bx:0.0
+        by:0.0
+        cx:0.0
+        cy:0.0
+        left:empty_shape
+        right:empty_shape
+        lx:0.0
+        ly:0.0
+        rx:0.0
+        ry:0.0
+        leaf:""
+        leaf_y:0.0
+        rule:""
+        rule_x:0.0
+        rule_y:0.0
+        borders:false
+        handled:false
+        node_token:""
+        (kind="glyph" \/ kind="hole")?
+            glyph:(token:"",key:"",width:0.0,height:0.0,depth:0.0,class_id:0,italic:0.0,character:false,metric:"",diagnostic:"",placeholder:false)
+            kind="hole"? .glyph:glyphs.hole(fonts,style)
+            entry: -1
+            kind="glyph"?
+                cache_key:glyphs.style_name(style)&"/"&font&"/"&attrs.(node)
+                slot:catalog.hash(cache_key)%glyph_capacity
+                .entry:glyph_slots.(slot)
+                entry>=0?>
+                    glyph_cache_keys.(entry)=cache_key? @|
+                    .slot:(slot+1)%glyph_capacity
+                    .entry:glyph_slots.(slot)
+                entry<0?
+                    .data:j.parse("{"&attrs.(node)&"}")
+                    .node_token:glyphs.string(data,"token")
+                    .glyph:glyphs.glyph(fonts,node_token,style,font)
+                    .entry:glyph_count
+                    entry<glyph_cache_keys.length()?! "Execution glyph cache capacity"
+                    glyph_slots.(slot):entry
+                    glyph_cache_keys.(entry):cache_key
+                    glyph_cache_tokens.(entry):node_token
+                    glyph_cache_keys_out.(entry):glyph.key
+                    glyph_cache_metrics.(entry):glyph.metric
+                    glyph_cache_diagnostics.(entry):glyph.diagnostic
+                    glyph_cache_widths.(entry):glyph.width
+                    glyph_cache_heights.(entry):glyph.height
+                    glyph_cache_depths.(entry):glyph.depth
+                    glyph_cache_italics.(entry):glyph.italic
+                    glyph_cache_classes.(entry):glyph.class_id
+                    glyph_cache_characters.(entry):glyph.character
+                    glyph_cache_placeholders.(entry):glyph.placeholder
+                    class_name:glyphs.string(data,"class")
+                    class_name~=""? glyph_cache_classes.(entry):glyphs.class_id(class_name)
+                    j.member(data,0,"ellipsisExtra")>=0 /\ glyph.metric~=""?
+                        metric:j.parse(glyph.metric)
+                        parts:j.member(metric,0,"glyphParts")
+                        parts>=0?
+                            maximum:0.0
+                            part:0
+                            child:j.element(metric,parts,part)
+                            child>=0?>
+                                .maximum:tex.maximum(maximum,glyphs.numeric(metric,child,"x")+glyphs.numeric(metric,child,"advance"))
+                                .part:part+1
+                                .child:j.element(metric,parts,part)
+                            part>0?
+                                glyph_cache_widths.(entry):maximum
+                                flag(data,"ellipsisExtra")? glyph_cache_widths.(entry):glyph_cache_widths.(entry)+3*profiles.mu(constants,style,font)
+                    .glyph_count:glyph_count+1
+                .node_token:glyph_cache_tokens.(entry)
+                .glyph:(token:node_token,key:glyph_cache_keys_out.(entry),width:glyph_cache_widths.(entry),height:glyph_cache_heights.(entry),depth:glyph_cache_depths.(entry),class_id:glyph_cache_classes.(entry),italic:glyph_cache_italics.(entry),character:glyph_cache_characters.(entry),metric:glyph_cache_metrics.(entry),diagnostic:glyph_cache_diagnostics.(entry),placeholder:glyph_cache_placeholders.(entry))
+            widths.(node):glyph.width
+            heights.(node):glyph.height
+            depths.(node):glyph.depth
+            classes.(node):glyph.class_id
+            italics.(node):glyph.italic
+            characters.(node):glyph.character
+            nuclei.(node):glyph.metric
+            .leaf:"\"kind\":\"glyph\",\"color\":"&color&",\"key\":"&j.quote(glyph.key)
+            glyph.placeholder?
+                .leaf:"\"kind\":\"placeholder\",\"color\":"&color&",\"width\":"&numbers.roundtrip(glyph.width)&",\"height\":"&numbers.roundtrip(glyph.height)
+                .leaf_y: -glyph.height
+            glyph.diagnostic~=""? .diagnostics:parser.repair(diagnostics,glyph.diagnostic)
+            .handled:true
+        (kind="group" \/ kind="stack" \/ kind="font" \/ kind="class" \/ kind="paint")?
+            .target_a:arguments.(node)
+            target_a>=0?
+                widths.(node):widths.(target_a)
+                heights.(node):heights.(target_a)
+                depths.(node):depths.(target_a)
+                has_last_row.(node):has_last_row.(target_a)
+                last_row_baselines.(node):last_row_baselines.(target_a)
+                last_row_depths.(node):last_row_depths.(target_a)
+                nuclei.(node):nuclei.(target_a)
+            kind="font"?
+                characters.(node):nuclei.(node)~=""
+                nuclei.(node)~=""? italics.(node):glyphs.numeric(j.parse(nuclei.(node)),0,"italic")
+            kind="class"? classes.(node):glyphs.class_id(glyphs.string(data,"class"))
+            kind="stack" /\ target_a>=0?
+                base_child:firsts.(target_a)
+                base_child>=0 /\ kinds.(base_child)="glyph" /\ nexts.(base_child)<0?
+                    base_data:j.parse("{"&attrs.(base_child)&"}")
+                    base_glyph:glyphs.glyph(fonts,glyphs.string(base_data,"token"),style)
+                    classes.(node):base_glyph.class_id
+            kind="group" /\ flag(data,"unit")? characters.(node):true
+            .handled:true
+        kind="arrow"?
+            label_style:3
+            style<2? .label_style:2
+            label_width:0.0
+            arrow_first_sup.(node)>=0? .label_width:widths.(arrow_first_sup.(node))
+            arrow_first_sub.(node)>=0? .label_width:tex.maximum(label_width,widths.(arrow_first_sub.(node)))
+            required:label_width+14*profiles.mu(constants,label_style,font)
+            mark:arrows.layout(buffer,body,fonts,required,profiles.mu(constants,0,font),glyphs.string(data,"name")="xleftarrow",native,0,font,color)
+            .buffer:mark.buffer
+            widths.(node):mark.width
+            heights.(node):mark.height
+            depths.(node):mark.depth
+            classes.(node):3
+            .diagnostics:parser.merge_diagnostics(diagnostics,mark.diagnostic)
+            .handled:true
+        (kind="textflow" \/ kind="text")?
+            run:math_text.from_node(arena,node,fonts,style,font,color)
+            widths.(node):run.width
+            heights.(node):run.height
+            depths.(node):run.depth
+            classes.(node):glyphs.class_id(glyphs.string(data,"class"))
+            .diagnostics:parser.merge_diagnostics(diagnostics,run.diagnostics)
+            run_payload:run.payload
+            run_xs:run.xs
+            run_ys:run.ys
+            item:0
+            item<run.count?>
+                .buffer:commands.append(buffer,body, -1,run_payload.(item),run_xs.(item),run_ys.(item))
+                .item:item+1
+            .handled:true
+        kind="tag"?
+            tag_run:tags.from_node(arena,node,fonts,style,font,color)
+            .buffer:tags.emit(buffer,body,tag_run)
+            widths.(node):tag_run.width
+            heights.(node):tag_run.height
+            depths.(node):tag_run.depth
+            ~flag(data,"star")?
+                classes.(node):4
+                end_classes.(node):5
+                characters.(node):true
+            .diagnostics:parser.merge_diagnostics(diagnostics,tag_run.diagnostics)
+            .handled:true
+        kind="matrix"?
+            matrix_raw_name:glyphs.string(data,"name")
+            matrix_kind:matrix_base(matrix_raw_name)
+            table_root:arguments.(node)
+            table_rows:0
+            table_columns:1
+            table_row:firsts.(table_root)
+            table_cell: -1
+            table_column:0
+            table_row>=0?>
+                .table_cell:firsts.(table_row)
+                .table_column:0
+                table_cell>=0?>
+                    .table_column:table_column+1
+                    .table_cell:nexts.(table_cell)
+                table_column>table_columns? .table_columns:table_column
+                .table_rows:table_rows+1
+                .table_row:nexts.(table_row)
+            table_align:glyphs.string(data,"align")
+            matrix_kind="array"?
+                align_count:0
+                align_position:0
+                ~vkf_string_eof(table_align,align_position)?>
+                    tokens.one_of(text.at(table_align,align_position),["c","l","r"])? .align_count:align_count+1
+                    .align_position:text.next(table_align,align_position)
+                align_count>table_columns? .table_columns:align_count
+            ids:parser.nil(table_rows*table_columns)
+            draw_ids:parser.nil(table_rows*table_columns)
+            table_widths:draw.zeros(table_rows*table_columns)
+            table_heights:draw.zeros(table_rows*table_columns)
+            table_depths:draw.zeros(table_rows*table_columns)
+            table_gaps:draw.zeros(table_rows)
+            table_no_number:draw.bits(table_rows)
+            table_custom:parser.nil(table_rows)
+            table_extras:parser.nil(table_rows)
+            table_index:0
+            .table_row:firsts.(table_root)
+            table_p:profiles.parameters(constants,style,font)
+            table_row>=0?>
+                .table_cell:firsts.(table_row)
+                .table_column:0
+                table_cell>=0?>
+                    flat_index:table_index*table_columns+table_column
+                    ids.(flat_index):table_cell
+                    draw_ids.(flat_index):draw_owner(table_cell)
+                    table_widths.(flat_index):widths.(table_cell)
+                    table_heights.(flat_index):heights.(table_cell)
+                    table_depths.(flat_index):depths.(table_cell)
+                    row_atom:firsts.(table_cell)
+                    row_atom>=0?>
+                        atom_data:j.parse("{"&attrs.(row_atom)&"}")
+                        flag(atom_data,"noNumber")? table_no_number.(table_index):true
+                        kinds.(row_atom)="tag" /\ table_custom.(table_index)<0? table_custom.(table_index):row_atom
+                        .row_atom:nexts.(row_atom)
+                    .table_column:table_column+1
+                    .table_cell:nexts.(table_cell)
+                limits.(table_row)=1 /\ matrix_kind~="equation"?
+                    gap_text:j.string(j.parse(attrs.(table_row)),0)
+                    gap_text~=""?
+                        gap_value:dimensions.parse(gap_text,profiles.em(constants,style,font),table_p.xheight,table_p.quad)
+                        table_gaps.(table_index):gap_value.value
+                        ~gap_value.valid? .diagnostics:parser.repair(diagnostics,"Unfinished or unsupported dimension: "&gap_text)
+                .table_index:table_index+1
+                .table_row:nexts.(table_row)
+            rule_count:0
+            table_rule:arguments.(table_root)
+            table_rule>=0?>
+                .rule_count:rule_count+1
+                .table_rule:nexts.(table_rule)
+            matrix_kind="equation"? .rule_count:0
+            rule_rows:draw.ints(rule_count)
+            rule_columns:chunks.empty(rule_count)
+            rule_index:0
+            .table_rule:arguments.(table_root)
+            matrix_kind="equation"? .table_rule: -1
+            table_rule>=0?>
+                rule_data:j.parse(attrs.(table_rule))
+                rule_rows.(rule_index):int(glyphs.numeric(rule_data,0,"row"))
+                columns_node:j.member(rule_data,0,"columns")
+                rule_kinds:rule_data.kinds
+                columns_node>=0?
+                    rule_kinds.(columns_node)=3? rule_columns.(rule_index):j.string(rule_data,columns_node)
+                .rule_index:rule_index+1
+                .table_rule:nexts.(table_rule)
+            # Match the reference: all cells are laid out before row numbering.
+            numbered_table:tokens.one_of(matrix_kind,["eqnarray","equation","align","alignat","gather","multline"]) /\ matrix_raw_name=matrix_kind
+            .table_index:0
+            .table_row:firsts.(table_root)
+            table_row>=0?>
+                show_number:matrix_kind~="multline" \/ table_index=table_rows-1
+                custom_tag:table_custom.(table_index)
+                make_number:numbered_table /\ ~table_no_number.(table_index) /\ show_number
+                (custom_tag>=0 \/ make_number) /\ matrix_kind~="equation"?
+                    row_reference:text.integer(equation_number)
+                    custom_tag>=0? .row_reference:tags.reference(arena,custom_tag)
+                    reference_cell:firsts.(table_row)
+                    reference_cell>=0?>
+                        reference_atom:firsts.(reference_cell)
+                        reference_atom>=0?>
+                            kinds.(reference_atom)="label"?
+                                reference_data:j.parse("{"&attrs.(reference_atom)&"}")
+                                .equation_refs:references.put(equation_refs,glyphs.string(reference_data,"key"),row_reference)
+                            .reference_atom:nexts.(reference_atom)
+                        .reference_cell:nexts.(reference_cell)
+                    row_tag:tags.generated(equation_number,fonts,style,font,color)
+                    custom_tag>=0? .row_tag:tags.from_node(arena,custom_tag,fonts,style,font,color)
+                    custom_tag<0? .equation_number:equation_number+1
+                    row_owner:draw_owner(table_row,3)
+                    table_extras.(table_index):row_owner
+                    .buffer:tags.emit(buffer,row_owner,row_tag,0,0,true)
+                    .diagnostics:parser.merge_diagnostics(diagnostics,row_tag.diagnostics)
+                .table_index:table_index+1
+                .table_row:nexts.(table_row)
+            table_owner:draw_owner(node,2)
+            table:matrices.layout_with_extras(buffer,table_owner,matrix_raw_name,table_align,(ids:draw_ids,widths:table_widths,heights:table_heights,depths:table_depths,rows:table_rows,columns:table_columns,no_number:table_no_number,gaps:table_gaps),(rows:rule_rows,columns:rule_columns,count:rule_count),table_extras,table_p.rule,table_p.axis,color,native_metrics,metric_baseline,metric_jot,metric_skip,metric_skip_limit,display_environment)
+            .buffer:table.buffer
+            table.diagnostic~=""?
+                diagnostics~=""? .diagnostics:diagnostics&","
+                .diagnostics:diagnostics&table.diagnostic
+            row_first_commands:table.row_first_commands
+            row_stop_commands:table.row_stop_commands
+            .table_index:0
+            .table_row:firsts.(table_root)
+            matrix_kind~="equation"?
+                table_row>=0?>
+                    row_destinations:row_labels(arena,table_row)
+                    .buffer:destinations.mark_range(buffer,row_first_commands.(table_index),row_stop_commands.(table_index),row_destinations.ids,row_destinations.count)
+                    .table_index:table_index+1
+                    .table_row:nexts.(table_row)
+            .retained_a:table_owner
+            widths.(node):table.width
+            heights.(node):table.height
+            depths.(node):table.depth
+            has_last_row.(node):table.row_display
+            last_row_baselines.(node):table.last_baseline
+            last_row_depths.(node):table.last_depth
+            classes.(node):7
+            matrix_kind="equation"?
+                .retained_a: -1
+                .target_a:ids.(0)
+                widths.(node):table_widths.(0)
+                heights.(node):table_heights.(0)
+                depths.(node):table_depths.(0)
+                target_a>=0?
+                    has_last_row.(node):has_last_row.(target_a)
+                    last_row_baselines.(node):last_row_baselines.(target_a)
+                    last_row_depths.(node):last_row_depths.(target_a)
+                    nuclei.(node):nuclei.(target_a)
+                classes.(node):0
+                (numbered_table /\ ~table_no_number.(0) /\ table_custom.(0)<0)?
+                    equation_tag:tags.generated(equation_number,fonts,style,font,color)
+                    .equation_number:equation_number+1
+                    target_a>=0? .buffer:commands.append(buffer,body,draw_owner(target_a),"",0,0)
+                    .buffer:tags.emit(buffer,body,equation_tag,widths.(node)+10*tex.pt(),0,true)
+                    heights.(node):tex.maximum(heights.(node),equation_tag.height)
+                    depths.(node):tex.maximum(depths.(node),equation_tag.depth)
+                    .diagnostics:parser.merge_diagnostics(diagnostics,equation_tag.diagnostics)
+                    .target_a: -1
+            pair:matrices.pair(matrix_kind)
+            pair.left~=""?
+                table_required:geometry.delimiter_required((width:table.width,height:table.height,depth:table.depth),table_p,true)
+                .left:assembly.delimiter(fonts,pair.left,style,table_required,font)
+                .right:assembly.delimiter(fonts,pair.right,style,table_required,font)
+                .ax:left.width
+                .rx:left.width+table.width
+                widths.(node):left.width+table.width+right.width
+                heights.(node):tex.maximum(left.height,tex.maximum(table.height,right.height))
+                depths.(node):tex.maximum(left.depth,tex.maximum(table.depth,right.depth))
+            .handled:true
+        kind="mod"?
+            mod_child:arguments.(node)
+            mod_size:(width:widths.(mod_child),height:heights.(mod_child),depth:depths.(mod_child))
+            mod_box:modulo.layout(buffer,body,draw_owner(mod_child),fonts,mod_size,glyphs.string(data,"name"),style,display_environment,profiles.mu(constants,style,font),font,color)
+            .buffer:mod_box.buffer
+            widths.(node):mod_box.width
+            heights.(node):mod_box.height
+            depths.(node):mod_box.depth
+            spaces.(node):glyphs.string(data,"name")~="bmod"
+            glyphs.string(data,"name")="bmod"? classes.(node):2
+            .diagnostics:parser.merge_diagnostics(diagnostics,mod_box.diagnostic)
+            .handled:true
+        kind="nativebox"?
+            native_node:j.member(data,0,"box")
+            native_json:text.span(data.source,data.starts.(native_node),data.stops.(native_node))
+            native_box:j.parse(native_json)
+            widths.(node):glyphs.numeric(native_box,0,"width")
+            heights.(node):glyphs.numeric(native_box,0,"height")
+            depths.(node):glyphs.numeric(native_box,0,"depth")
+            italics.(node):glyphs.numeric(native_box,0,"italic")
+            classes.(node):glyphs.class_id(glyphs.string(native_box,"class"))
+            native_items:j.member(native_box,0,"items")
+            native_cursor:native_items+1
+            native_cursor<native_box.ends.(native_items)?>
+                native_payload:""
+                native_member:native_cursor+1
+                native_member<native_box.ends.(native_cursor)?>
+                    native_name:j.string(native_box,native_member)
+                    (native_name~="x" /\ native_name~="y")?
+                        native_payload~=""? .native_payload:native_payload&","
+                        .native_payload:native_payload&text.span(native_box.source,native_box.starts.(native_member),native_box.stops.(native_member))&":"&text.span(native_box.source,native_box.starts.(native_member+1),native_box.stops.(native_member+1))
+                    .native_member:native_box.ends.(native_member+1)
+                native_x:0.0
+                native_y:0.0
+                native_x_node:j.member(native_box,native_cursor,"x")
+                native_y_node:j.member(native_box,native_cursor,"y")
+                native_x_node>=0? .native_x:j.number(native_box,native_x_node)
+                native_y_node>=0? .native_y:j.number(native_box,native_y_node)
+                .buffer:commands.append(buffer,body,-1,native_payload,native_x,native_y)
+                .native_cursor:native_box.ends.(native_cursor)
+            .handled:true
+        kind="box"?
+            .target_a:arguments.(node)
+            widths.(node):widths.(target_a)
+            heights.(node):heights.(target_a)
+            depths.(node):depths.(target_a)
+            has_last_row.(node):has_last_row.(target_a)
+            last_row_baselines.(node):last_row_baselines.(target_a)
+            last_row_depths.(node):last_row_depths.(target_a)
+            name:glyphs.string(data,"name")
+            tokens.one_of(name,["phantom","hphantom","vphantom","mathstrut"])?
+                .target_a: -1
+                (name="vphantom" \/ name="mathstrut")? widths.(node):0
+                name="hphantom"?
+                    heights.(node):0
+                    depths.(node):0
+            name="smash"?
+                option:glyphs.string(data,"option")
+                option~="b"? heights.(node):0
+                option~="t"? depths.(node):0
+            (name="boxed" \/ name="fbox")?
+                line:0.4*tex.pt()
+                pad:3*tex.pt()+line
+                widths.(node):widths.(node)+2*pad
+                heights.(node):heights.(node)+pad
+                depths.(node):depths.(node)+pad
+                .ax:pad
+                .borders:true
+            .handled:true
+        kind="decoration"?
+            name:glyphs.string(data,"name")
+            .target_a:arguments.(node)
+            widths.(node):widths.(target_a)
+            heights.(node):heights.(target_a)
+            depths.(node):depths.(target_a)
+            has_last_row.(node):has_last_row.(target_a)
+            last_row_baselines.(node):last_row_baselines.(target_a)
+            last_row_depths.(node):last_row_depths.(target_a)
+            p:profiles.parameters(constants,style,font)
+            (name="overline" \/ name="underline")?
+                .rule_x:0
+                .rule_y: -heights.(target_a)-4*p.rule
+                name="underline"? .rule_y:depths.(target_a)+3*p.rule
+                .rule:"\"kind\":\"rule\",\"color\":"&color&",\"width\":"&numbers.roundtrip(widths.(node))&",\"height\":"&numbers.roundtrip(p.rule)
+                name="overline"? heights.(node):heights.(node)+5*p.rule
+                name="underline"? depths.(node):depths.(node)+5*p.rule
+                .handled:true
+            (name="overbrace" \/ name="underbrace")?
+                brace:decorations.brace(buffer,body,draw_owner(target_a),fonts,widths.(target_a),heights.(target_a),depths.(target_a),name="underbrace",font,color)
+                .buffer:brace.buffer
+                widths.(node):brace.width
+                heights.(node):brace.height
+                depths.(node):brace.depth
+                classes.(node):1
+                has_last_row.(node):false
+                .diagnostics:parser.merge_diagnostics(diagnostics,brace.diagnostic)
+                .target_a: -1
+                .handled:true
+            tokens.one_of(name,["overrightarrow","overleftarrow","overleftrightarrow","underrightarrow","underleftarrow","underleftrightarrow"])?
+                direction:"right"
+                (name="overleftarrow" \/ name="underleftarrow")? .direction:"left"
+                (name="overleftrightarrow" \/ name="underleftrightarrow")? .direction:"both"
+                first_mark:glyphs.glyph(fonts,"\\leftarrow",style,font)
+                last_mark:glyphs.glyph(fonts,"\\rightarrow",style,font)
+                arrow_height:tex.maximum(first_mark.height,last_mark.height)
+                arrow_depth:tex.maximum(first_mark.depth,last_mark.depth)
+                direction="right"?
+                    .arrow_height:tex.maximum(0,last_mark.height)
+                    .arrow_depth:tex.maximum(0,last_mark.depth)
+                direction="left"?
+                    .arrow_height:tex.maximum(0,first_mark.height)
+                    .arrow_depth:tex.maximum(0,first_mark.depth)
+                first_width:first_mark.width
+                last_width:last_mark.width
+                direction="right"? .first_width:glyphs.glyph(fonts,"-",style,font).width
+                direction="left"? .last_width:glyphs.glyph(fonts,"-",style,font).width
+                arrow_width:tex.maximum(widths.(target_a),first_width+last_width-14*profiles.mu(constants,style,font))
+                arrow_y: -heights.(target_a)-arrow_depth
+                text.matches(name,0,"under")? .arrow_y:depths.(target_a)+1.3*tex.pt()+arrow_height
+                .buffer:commands.append(buffer,body,draw_owner(target_a),"",(arrow_width-widths.(target_a))/2,0)
+                arrow_mark:decorations.arrow(buffer,body,fonts,widths.(target_a),profiles.mu(constants,style,font),direction,native,style,font,color,arrow_y)
+                .buffer:arrow_mark.buffer
+                widths.(node):arrow_width
+                heights.(node):tex.maximum(heights.(target_a),arrow_mark.height-arrow_y)
+                depths.(node):tex.maximum(depths.(target_a),arrow_y+arrow_mark.depth)
+                .diagnostics:parser.merge_diagnostics(diagnostics,arrow_mark.diagnostic)
+                .target_a: -1
+                .handled:true
+            tokens.one_of(name,["hat","tilde","bar","vec","dot","ddot","dddot","ddddot","acute","grave","breve","check","mathring","widehat","widetilde"])?
+                wide_mark:name="widehat" \/ name="widetilde"
+                ~wide_mark? .right:assembly.single(glyphs.glyph(fonts,"@accent:"&name,style,font))
+                wide_mark? (measurement_roots.(node)>=0 /\ measurement_roots.(node)<widths.length())?! "Execution wide measurement is ready"
+                wide_mark? .right:decorations.wide(fonts,name,style,widths.(target_a),widths.(measurement_roots.(node)),profiles.em(constants,1,font),font)
+                (name="dddot" \/ name="ddddot")?
+                    dots:3
+                    name="ddddot"? .dots:4
+                    .right:assembly.repeat_horizontal(fonts,"@accent:dot",style,dots,profiles.em(constants,style,font)*0.2,font)
+                skew:0.0
+                nuclei.(target_a)~=""? .skew:glyphs.numeric(j.parse(nuclei.(target_a)),0,"skew")
+                xheight:p.xheight
+                right.nucleus~=""? .xheight:glyphs.numeric(j.parse(right.nucleus),0,"fontXHeight",p.xheight)
+                .rx:(widths.(target_a)-right.width)/2+skew
+                .ry: -heights.(target_a)+tex.minimum(heights.(target_a),xheight)
+                heights.(node):tex.maximum(heights.(target_a),right.height-ry)
+                depths.(node):tex.maximum(depths.(target_a),right.depth+ry)
+                characters.(node):nuclei.(target_a)~=""
+                nuclei.(node):nuclei.(target_a)
+                .handled:true
+        kind="space"?
+            p:profiles.parameters(constants,style,font)
+            widths.(node):glyphs.numeric(data,0,"mu")*tex.mu_unit(p.quad)
+            spacing_unit:glyphs.string(data,"textUnit")
+            text_spacing~="" /\ spacing_unit~=""? widths.(node):glyphs.numeric(spacing,0,spacing_unit)*glyphs.numeric(data,0,"factor",1)
+            spaces.(node):true
+            .handled:true
+        kind="dimension"?
+            p:profiles.parameters(constants,style,font)
+            dimension:glyphs.string(data,"dimension")
+            measured:dimensions.parse(dimension,profiles.em(constants,style,font),p.xheight,p.quad)
+            widths.(node):measured.value
+            spaces.(node):true
+            ~measured.valid? .diagnostics:parser.repair(diagnostics,"Unfinished or unsupported dimension: "&dimension)
+            .handled:true
+        kind="frac"?
+            fraction_style:int(glyphs.numeric(data,0,"style",num(style)))
+            p:profiles.parameters(constants,fraction_style,font)
+            thickness:glyphs.string(data,"thickness")
+            line:p.rule
+            thickness~=""?
+                measured:dimensions.parse(thickness,profiles.em(constants,fraction_style,font),p.xheight,p.quad)
+                .line:tex.maximum(0,measured.value)
+                ~measured.valid? .diagnostics:parser.repair(diagnostics,"Unfinished or unsupported dimension: "&thickness)
+            .target_a:arguments.(node)
+            .target_b:denominators.(node)
+            left_token:glyphs.string(data,"left")
+            right_token:glyphs.string(data,"right")
+            delimited:left_token~="" \/ right_token~=""
+            f:geometry.fraction((width:widths.(target_a),height:heights.(target_a),depth:depths.(target_a)),(width:widths.(target_b),height:heights.(target_b),depth:depths.(target_b)),p,fraction_style,line,delimited)
+            widths.(node):f.width
+            heights.(node):f.height
+            depths.(node):f.depth
+            .ax:f.numerator_x
+            .ay:f.numerator_y
+            .bx:f.denominator_x
+            .by:f.denominator_y
+            line>0?
+                .rule:"\"kind\":\"rule\",\"color\":"&color&",\"width\":"&numbers.roundtrip(f.rule_width)&",\"height\":"&numbers.roundtrip(f.rule_height)
+                .rule_x:f.rule_x
+                .rule_y:f.rule_y
+            delimited?
+                left_token=""? .left_token:"."
+                right_token=""? .right_token:"."
+                required:profiles.delim(constants,fraction_style,font)
+                .left:assembly.delimiter(fonts,left_token,fraction_style,required,font)
+                .right:assembly.delimiter(fonts,right_token,fraction_style,required,font)
+                .rx:left.width+f.width
+                .ax:ax+left.width
+                .bx:bx+left.width
+                .rule_x:rule_x+left.width
+                widths.(node):left.width+f.width+right.width
+                heights.(node):tex.maximum(left.height,tex.maximum(f.height,right.height))
+                depths.(node):tex.maximum(left.depth,tex.maximum(f.depth,right.depth))
+                classes.(node):7
+            .handled:true
+        kind="quotient"?
+            quotient_num:arguments.(node)
+            quotient_den:denominators.(node)
+            quotient_box:quotients.layout(buffer,body,draw_owner(quotient_num),draw_owner(quotient_den),fonts,(width:widths.(quotient_num),height:heights.(quotient_num),depth:depths.(quotient_num)),(width:widths.(quotient_den),height:heights.(quotient_den),depth:depths.(quotient_den)),style,profiles.mu(constants,style,font),font,color)
+            .buffer:quotient_box.buffer
+            widths.(node):quotient_box.width
+            heights.(node):quotient_box.height
+            depths.(node):quotient_box.depth
+            quotient_box.diagnostic~=""? .diagnostics:parser.repair(diagnostics,quotient_box.diagnostic)
+            .target_a: -1
+            .target_b: -1
+            .handled:true
+        kind="middle"?
+            .left:math_middle.middle(fonts,glyphs.string(data,"token"),style,middle_required,font)
+            widths.(node):left.width
+            heights.(node):left.height
+            depths.(node):left.depth
+            italics.(node):left.italic
+            nuclei.(node):left.nucleus
+            classes.(node):0
+            .handled:true
+        kind="delimited"? .handled:true
+        kind="radical"?
+            .target_a:arguments.(node)
+            .target_c:denominators.(node)
+            p:profiles.parameters(constants,style,font)
+            clear:p.rule+(|p.xheight|/4)
+            style~=0? .clear:p.rule+p.rule/4
+            required:heights.(target_a)+depths.(target_a)+clear+p.rule
+            .left:assembly.single(glyphs.glyph(fonts,"@sqrt",style,font))
+            larger:2
+            style=2? .larger:1
+            style<2? .larger:0
+            larger>=1 /\ left.height+left.depth<required?>
+                .left:assembly.single(glyphs.glyph(fonts,"@sqrt",larger,font))
+                .larger:larger-1
+            left.height+left.depth<required? .left:assembly.assemble(fonts,"@ext:112",style,required,font)
+            index_size:(width:0.0,height:0.0,depth:0.0)
+            target_c>=0? .index_size:(width:widths.(target_c),height:heights.(target_c),depth:depths.(target_c))
+            root:geometry.radical((width:widths.(target_a),height:heights.(target_a),depth:depths.(target_a)),(width:left.width,height:left.height,depth:left.depth),index_size,p,style,target_c>=0)
+            widths.(node):root.width
+            heights.(node):root.height
+            depths.(node):root.depth
+            .lx:root.mark_x
+            .ly:root.mark_y
+            .ax:root.body_x
+            .cx:root.index_x
+            .cy:root.index_y
+            .rule_x:root.rule_x
+            .rule_y:root.rule_y
+            .rule:"\"kind\":\"rule\",\"color\":"&color&",\"width\":"&numbers.roundtrip(root.rule_width)&",\"height\":"&numbers.roundtrip(root.rule_height)
+            .handled:true
+        left.diagnostic~=""? .diagnostics:parser.repair(diagnostics,left.diagnostic)
+        right.diagnostic~=""? .diagnostics:parser.repair(diagnostics,right.diagnostic)
+        ~handled?
+            .target_a: -1
+            .target_b: -1
+            .target_c: -1
+            .left:empty_shape
+            .right:empty_shape
+            hole:glyphs.hole(fonts,style)
+            widths.(node):hole.width
+            heights.(node):hole.height
+            .leaf:"\"kind\":\"placeholder\",\"color\":"&color&",\"width\":"&numbers.roundtrip(hole.width)&",\"height\":"&numbers.roundtrip(hole.height)
+            .leaf_y: -hole.height
+            .diagnostics:parser.repair(diagnostics,"VKF math layout: unsupported node "&kind)
+        # Preserve source draw order: left mark, arguments, rule, right mark,
+        # root index, then a leaf. Empty phases add no commands.
+        emit_phase:0
+        emit_phase<7?>
+            emit_phase=3 /\ borders?
+                border:0
+                line:0.4*tex.pt()
+                border<4?>
+                    x:0.0
+                    y: -heights.(node)
+                    width:widths.(node)
+                    height:line
+                    border=1? .y:depths.(node)-line
+                    border>=2?
+                        .y: -heights.(node)+line
+                        .width:line
+                        .height:heights.(node)+depths.(node)-2*line
+                    border=3? .x:widths.(node)-line
+                    border_value:"\"kind\":\"rule\",\"color\":"&color&",\"width\":"&numbers.roundtrip(width)&",\"height\":"&numbers.roundtrip(height)
+                    .buffer:commands.append(buffer,body, -1,border_value,x,y)
+                    .border:border+1
+            (emit_phase=0 \/ emit_phase=4)?
+                shape:left
+                shape_x:lx
+                shape_y:ly
+                emit_phase=4?
+                    .shape:right
+                    .shape_x:rx
+                    .shape_y:ry
+                shape_keys:shape.keys
+                shape_xs:shape.xs
+                shape_ys:shape.ys
+                part:0
+                part<shape.count?>
+                    value:"\"kind\":\"glyph\",\"color\":"&color&",\"key\":"&j.quote(shape_keys.(part))
+                    shape.placeholder? .value:"\"kind\":\"placeholder\",\"color\":"&color&",\"width\":"&numbers.roundtrip(shape.width)&",\"height\":"&numbers.roundtrip(shape.height)
+                    .buffer:commands.append(buffer,body, -1,value,shape_x+shape_xs.(part),shape_y+shape_ys.(part))
+                    .part:part+1
+            child: -1
+            value:""
+            x:0.0
+            y:0.0
+            emit_phase=1?
+                .child:draw_owner(target_a)
+                retained_a>=0? .child:retained_a
+                .x:ax
+                .y:ay
+            emit_phase=2?
+                .child:draw_owner(target_b)
+                .x:bx
+                .y:by
+            emit_phase=3?
+                .value:rule
+                .x:rule_x
+                .y:rule_y
+            emit_phase=5?
+                .child:draw_owner(target_c)
+                .x:cx
+                .y:cy
+            emit_phase=6?
+                .value:leaf
+                .y:leaf_y
+            child>=0 \/ value~=""?
+                .buffer:commands.append(buffer,body,child,value,x,y)
+            .emit_phase:emit_phase+1
+        kind="matrix" /\ matrix_base(glyphs.string(data,"name"))="equation"?
+            equation_destinations:row_labels(arena,firsts.(arguments.(node)),true)
+            .buffer:destinations.mark_owner(buffer,body,equation_destinations.ids,equation_destinations.count)
+        # The body is a separate retained box so centering operator limits does
+        # not also translate their scripts. No body item array is copied.
+        sup:supers.(node)
+        sub:subs.(node)
+        placement:(width:widths.(node),height:heights.(node),depth:depths.(node),body_x:0.0,sup_x:0.0,sup_y:0.0,sub_x:0.0,sub_y:0.0)
+        (sup>=0 \/ sub>=0)?
+            p:profiles.parameters(constants,style,font)
+            script_style:3
+            style<2? .script_style:2
+            q:profiles.parameters(constants,script_style,font)
+            sup_size:(width:0.0,height:0.0,depth:0.0)
+            sub_size:(width:0.0,height:0.0,depth:0.0)
+            sup>=0? .sup_size:(width:widths.(sup),height:heights.(sup),depth:depths.(sup))
+            sub>=0? .sub_size:(width:widths.(sub),height:heights.(sub),depth:depths.(sub))
+            use_limits:style=0 /\ (limit_operator(node_token) \/ flag(data,"operatorLimits"))
+            limits.(node)>=0? .use_limits:limits.(node)=1
+            .use_limits:use_limits /\ (classes.(node)=1 \/ kind="stack" \/ kind="arrow")
+            .placement:geometry.scripts((width:widths.(node),height:heights.(node),depth:depths.(node),italic:italics.(node),character:characters.(node)),sup_size,sub_size,p,q,style,cramped.(node),sup>=0,sub>=0,use_limits,kind="arrow",glyphs.string(data,"name")="xleftarrow")
+        role:0
+        role<3?>
+            child:body
+            x:placement.body_x
+            y:0.0
+            role=1?
+                .child:draw_owner(sup)
+                .x:placement.sup_x
+                .y:placement.sup_y
+            role=2?
+                .child:draw_owner(sub)
+                .x:placement.sub_x
+                .y:placement.sub_y
+            child>=0?
+                .buffer:commands.append(buffer,draw_owner(node),child,"",x,y)
+            .role:role+1
+        (sup>=0 \/ sub>=0)?
+            widths.(node):placement.width
+            heights.(node):placement.height
+            depths.(node):placement.depth
+            nuclei.(node):""
+    display_width>0 /\ widths.(0)>display_width?
+        constrained:math_display_width.apply(buffer,draw_owner(0),paragraph_data,widths.(0),display_width)
+        .buffer:constrained.buffer
+        widths.(0):constrained.width
+    metadata:buffer.pool
+    # Normalize a bit-vector load at the scalar ABI boundary. VKF 0.7.2 WASM
+    # exposes these loads as numeric 0/1, so equality with true is incorrect.
+    last_row_present:false
+    has_last_row.(0)? .last_row_present:true
+    scene:(width:widths.(0),height:heights.(0),depth:depths.(0),heads:buffer.heads,box_count:buffer.boxes,nexts:buffer.nexts,children:buffer.children,payload:metadata.values,payload_ids:buffer.payload_ids,payload_count:metadata.count,xs:buffer.xs,ys:buffer.ys,flow:buffer.flow,flow_x:buffer.flow_x,flow_width:buffer.flow_width,count:buffer.count,diagnostics:diagnostics,atoms:arena.atoms,next_equation_number:equation_number,equation_references:references.json(equation_refs),has_last_row:last_row_present,last_row_baseline:last_row_baselines.(0),last_row_depth:last_row_depths.(0),paragraph:paragraph_data,has_paragraph:retain_paragraph)
+    @:scene
+
+layout(arena:Arena,fonts:Catalog,inline:bit=false,native:bit=true,display_environment:bit=false,equation_start:int=1,paragraph_mode:bit=false,text_spacing:str="",math_metrics:str="",display_width:num= -1,legacy_equation_anchor:bit=false,qed_symbol:str="")->Scene:
+    @:layout_with_profiles(arena,fonts,profiles.load(fonts),inline,native,display_environment,equation_start,paragraph_mode,text_spacing,math_metrics,display_width,legacy_equation_anchor,qed_symbol)
+
+# Explicit diagnostic/export boundary; runtime providers consume typed columns.
+paragraph_json(scene:Scene)->str:
+    ~scene.has_paragraph? @:""
+    @:paragraphs.json(scene.paragraph,scene)
+
+packet(scene:Scene):
+    @:(width:scene.width,height:scene.height,depth:scene.depth,items:draw.flatten(scene),diagnostics:scene.diagnostics,atoms:scene.atoms,complete:scene.diagnostics="",nextEquationNumber:scene.next_equation_number,equationReferences:scene.equation_references,hasLastRow:scene.has_last_row,lastRow:(baseline:scene.last_row_baseline,depth:scene.last_row_depth),paragraphNodes:paragraph_json(scene))
+
+json(scene:Scene)->str:
+    complete:"false"
+    scene.diagnostics=""? .complete:"true"
+    row_metadata:""
+    scene.has_last_row? .row_metadata:",\"lastRow\":{\"baseline\":"&numbers.roundtrip(scene.last_row_baseline)&",\"depth\":"&numbers.roundtrip(scene.last_row_depth)&"}"
+    paragraph_metadata:""
+    scene.has_paragraph? .paragraph_metadata:",\"paragraphNodes\":"&paragraph_json(scene)
+    @:"{\"width\":"&numbers.roundtrip(scene.width)&",\"height\":"&numbers.roundtrip(scene.height)&",\"depth\":"&numbers.roundtrip(scene.depth)&",\"items\":"&draw.items(scene)&",\"diagnostics\":["&scene.diagnostics&"],\"atoms\":"&text.integer(scene.atoms)&",\"complete\":"&complete&",\"nextEquationNumber\":"&text.integer(scene.next_equation_number)&",\"equationReferences\":"&scene.equation_references&row_metadata&paragraph_metadata&"}"
+
+display_context(source:str,explicit:bit=false)->bit:
+    explicit? @:true
+    names:["eqnarray","align","equation","gather","multline"]
+    index:0
+    index<5?>
+        prefix:"\\begin{"&names.(index)
+        (text.find(source,prefix&"}")>=0 \/ text.find(source,prefix&"*}")>=0)? @:true
+        .index:index+1
+    @:false
+
+typeset(source:str,fonts:Catalog,inline:bit=false,native:bit=true,display_environment:bit=false,equation_start:int=1,math_metrics:str="",display_width:num= -1,legacy_equation_anchor:bit=false)->str:
+    @:json(layout(parser.parse(source,fonts,native),fonts,inline,native,display_context(source,display_environment),equation_start,false,"",math_metrics,display_width,legacy_equation_anchor))
+
+typeset_with_context(source:str,fonts:Catalog,context:PackageContext,inline:bit=false,native:bit=true,display_environment:bit=false,equation_start:int=1,math_metrics:str="",display_width:num= -1,legacy_equation_anchor:bit=false)->str:
+    @:json(layout(parser.parse_with_context(source,fonts,context,native),fonts,inline,native,display_context(source,display_environment),equation_start,false,"",math_metrics,display_width,legacy_equation_anchor,context.qed_symbol))

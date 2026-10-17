@@ -1,0 +1,1394 @@
+# Page flow over real provider-owned line/scene metrics. No source-specific
+# coordinates or cached documents enter this module. Units are bp.
+document_float_queue:.frozen285_document_float_queue
+tex_numeric:.frozen285_tex_numeric
+text_chunks:.frozen285_text_chunks
+resource_json:.frozen285_resource_json
+Config:(values:[num],flags:[bit],penalties:[int])
+Blocks:(texts:[str],indices:[int],numbers:[num],booleans:[bit],count:int)
+Lines:(scenes:[int],source_lines:[int],heights:[num],depths:[num],natural_depths:[num],widths:[num],indents:[num],baselines:[num],flagged:[bit],marker_firsts:[int],marker_counts:[int],count:int)
+Notes:(firsts:[int],counts:[int],first_heights:[num],depths:[num],reserves:[num],indents:[num],admin:[bit],count:int)
+Markers:(ids:[int],count:int)
+Placements:(scenes:[int],source_lines:[int],pages:[int],blocks:[int],lines:[int],kinds:[int],xs:[num],ys:[num],units:[num],tag_bases:[num],line_heights:[num],line_depths:[num],shrink:[num],stretch:[num],count:int)
+Assignments:(notes:[int],pages:[int],count:int)
+Pages:(last_baselines:[num],last_depths:[num],limits:[num],shrink_ratios:[num],stretch_ratios:[num],note_stretch:[num],note_flex:[bit],forced:[bit],count:int)
+BreakState:(last_baseline:num,last_depth:num,last_used_shrink:num,last_used_stretch:num,ragged:bit,shrink:num,stretch:num,has_notes:bit)
+State:(pages:Pages,notes:Assignments,page:int,y:num,last_baseline:num,last_depth:num,pending_after:num,last_line_right:num,first_paragraph:bit,ragged:bit,shrink:num,stretch:num,last_used_shrink:num,last_used_stretch:num,footnote_stretch:num,footnote_flex:bit,limit:num,forced:bit,diagnostics:str)
+
+FloatQueue:(ids:[int],head:int,count:int,top_count:int,bottom_count:int,top_height:num,bottom_reserve:num)
+FloatStart:(state:State,queue:FloatQueue,placements:Placements,float_pages:[bit])
+
+zeros(size:int)->[num]:[0.0:size]
+ones(size:int)->[num]:[1.0:size]
+ints(size:int)->[int]:[0:size]
+nil(size:int)->[int]:[-1:size]
+bits(size:int)->[bit]:[false:size]
+
+settings(paper_width:num,paper_height:num,left:num,top:num,text_width:num,text_height:num,line_height:num,font_size:num,ams:bit=false)->Config:
+    values:zeros(15)
+    flags:bits(3)
+    penalties:ints(5)
+    values.(0):paper_width
+    values.(1):paper_height
+    values.(2):left
+    values.(3):top
+    values.(4):text_width
+    values.(5):text_height
+    values.(6):line_height
+    values.(7):font_size
+    values.(8):5*tex_numeric.pt()
+    values.(9):0
+    values.(10):10*tex_numeric.pt()
+    values.(11):6*tex_numeric.pt()
+    values.(12):9*tex_numeric.pt()
+    values.(13):9.5*tex_numeric.pt()
+    values.(14):6.65*tex_numeric.pt()
+    flags.(0):ams
+    flags.(1):true
+    penalties.(1):150
+    penalties.(2):150
+    penalties.(4):100
+    @:(values:values,flags:flags,penalties:penalties)
+
+number_at(config:Config,index:int)->num:
+    @:config.values.(index)
+flag_at(config:Config,index:int)->bit:
+    config.flags.(index)? @:true
+    @:false
+integer_at(config:Config,index:int)->int:
+    @:config.penalties.(index)
+
+with_number(config:Config,key:str,value:num)->Config:
+    names:["paper_width","paper_height","left","top","text_width","text_height","line_height","font_size","max_depth","line_skip_limit","display_skip","short_display_skip","footnote_skip","footnote_leading","footnote_native_sep"]
+    index:0
+    index<names.length()?>
+        names.(index)=key? @|
+        .index:index+1
+    index<names.length()?! "Unknown page numeric setting"
+    values:config.values
+    values.(index):value
+    @:(values:values,flags:config.flags,penalties:config.penalties)
+
+with_flag(config:Config,key:str,value:bit)->Config:
+    names:["ams","native_text","ragged_bottom"]
+    index:0
+    index<names.length()?>
+        names.(index)=key? @|
+        .index:index+1
+    index<names.length()?! "Unknown page flag setting"
+    values:config.flags
+    values.(index):value
+    @:(values:config.values,flags:values,penalties:config.penalties)
+
+with_penalty(config:Config,key:str,value:int)->Config:
+    names:["interline","club","widow","broken","max_pages"]
+    index:0
+    index<names.length()?>
+        names.(index)=key? @|
+        .index:index+1
+    index<names.length()?! "Unknown page penalty setting"
+    values:config.penalties
+    values.(index):value
+    @:(values:config.values,flags:config.flags,penalties:values)
+
+# Exact-length owned prefixes avoid singleton-concat maps in final line columns.
+prefix_numbers(values:[num],count:int)->[num]:
+    [num] result:[0.0:count]
+    i:0
+    i<count?>
+        result.(i):values.(i)
+        .i:i+1
+    @:result
+prefix_ints(values:[int],count:int)->[int]:
+    [int] result:[0:count]
+    i:0
+    i<count?>
+        result.(i):values.(i)
+        .i:i+1
+    @:result
+prefix_flags(values:[bit],count:int)->[bit]:
+    [bit] result:[false:count]
+    i:0
+    i<count?>
+        result.(i):values.(i)
+        .i:i+1
+    @:result
+
+empty_blocks(count:int)->Blocks:
+    values:zeros(count*25)
+    i:0
+    i<count?>
+        values.(count+i):1
+        .i:i+1
+    @:(texts:text_chunks.empty(count*2),indices:ints(count*3),numbers:values,booleans:bits(count*10),count:count)
+# Assemble four owned block columns once after local indexed writes.
+blocks_from_columns(texts:[str],indices:[int],numbers:[num],booleans:[bit],count:int)->Blocks:
+    @:(texts:texts,indices:indices,numbers:numbers,booleans:booleans,count:count)
+block_kinds(blocks:Blocks,index:int)->str:
+    @:blocks.texts.(0*blocks.count+index)
+with_block_kinds(blocks:Blocks,index:int,value:str)->Blocks:
+    values:blocks.texts
+    values.(0*blocks.count+index):value
+    result:blocks
+    result.texts:values
+    @:result
+block_contexts(blocks:Blocks,index:int)->str:
+    @:blocks.texts.(1*blocks.count+index)
+with_block_contexts(blocks:Blocks,index:int,value:str)->Blocks:
+    values:blocks.texts
+    values.(1*blocks.count+index):value
+    result:blocks
+    result.texts:values
+    @:result
+block_firsts(blocks:Blocks,index:int)->int:
+    @:blocks.indices.(0*blocks.count+index)
+with_block_firsts(blocks:Blocks,index:int,value:int)->Blocks:
+    values:blocks.indices
+    values.(0*blocks.count+index):value
+    result:blocks
+    result.indices:values
+    @:result
+block_counts(blocks:Blocks,index:int)->int:
+    @:blocks.indices.(1*blocks.count+index)
+with_block_counts(blocks:Blocks,index:int,value:int)->Blocks:
+    values:blocks.indices
+    values.(1*blocks.count+index):value
+    result:blocks
+    result.indices:values
+    @:result
+block_baseline_modes(blocks:Blocks,index:int)->int:
+    @:blocks.indices.(2*blocks.count+index)
+with_block_baseline_modes(blocks:Blocks,index:int,value:int)->Blocks:
+    values:blocks.indices
+    values.(2*blocks.count+index):value
+    result:blocks
+    result.indices:values
+    @:result
+block_widths(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(0*blocks.count+index)
+with_block_widths(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(0*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_units(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(1*blocks.count+index)
+with_block_units(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(1*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_lefts(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(2*blocks.count+index)
+with_block_lefts(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(2*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_rights(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(3*blocks.count+index)
+with_block_rights(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(3*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_indents(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(4*blocks.count+index)
+with_block_indents(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(4*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_before(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(5*blocks.count+index)
+with_block_before(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(5*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_before_shrink(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(6*blocks.count+index)
+with_block_before_shrink(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(6*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_before_stretch(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(7*blocks.count+index)
+with_block_before_stretch(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(7*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_after(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(8*blocks.count+index)
+with_block_after(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(8*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_after_shrink(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(9*blocks.count+index)
+with_block_after_shrink(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(9*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_after_stretch(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(10*blocks.count+index)
+with_block_after_stretch(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(10*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_leading(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(11*blocks.count+index)
+with_block_leading(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(11*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_tag_widths(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(12*blocks.count+index)
+with_block_tag_widths(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(12*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_last_row_baselines(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(13*blocks.count+index)
+with_block_last_row_baselines(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(13*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_last_row_depths(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(14*blocks.count+index)
+with_block_last_row_depths(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(14*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_baseline_offsets(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(15*blocks.count+index)
+with_block_baseline_offsets(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(15*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_keep_after(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(16*blocks.count+index)
+with_block_keep_after(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(16*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_keep_display(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(17*blocks.count+index)
+with_block_keep_display(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(17*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_centered(blocks:Blocks,index:int)->bit:
+    blocks.booleans.(0*blocks.count+index)? @:true
+    @:false
+with_block_centered(blocks:Blocks,index:int,value:bit)->Blocks:
+    values:blocks.booleans
+    values.(0*blocks.count+index):value
+    result:blocks
+    result.booleans:values
+    @:result
+block_single_display(blocks:Blocks,index:int)->bit:
+    blocks.booleans.(1*blocks.count+index)? @:true
+    @:false
+with_block_single_display(blocks:Blocks,index:int,value:bit)->Blocks:
+    values:blocks.booleans
+    values.(1*blocks.count+index):value
+    result:blocks
+    result.booleans:values
+    @:result
+block_from_paragraph(blocks:Blocks,index:int)->bit:
+    blocks.booleans.(2*blocks.count+index)? @:true
+    @:false
+with_block_from_paragraph(blocks:Blocks,index:int,value:bit)->Blocks:
+    values:blocks.booleans
+    values.(2*blocks.count+index):value
+    result:blocks
+    result.booleans:values
+    @:result
+block_paragraph_after_display(blocks:Blocks,index:int)->bit:
+    blocks.booleans.(3*blocks.count+index)? @:true
+    @:false
+with_block_paragraph_after_display(blocks:Blocks,index:int,value:bit)->Blocks:
+    values:blocks.booleans
+    values.(3*blocks.count+index):value
+    result:blocks
+    result.booleans:values
+    @:result
+block_no_indent_after_list(blocks:Blocks,index:int)->bit:
+    blocks.booleans.(4*blocks.count+index)? @:true
+    @:false
+with_block_no_indent_after_list(blocks:Blocks,index:int,value:bit)->Blocks:
+    values:blocks.booleans
+    values.(4*blocks.count+index):value
+    result:blocks
+    result.booleans:values
+    @:result
+block_vertical_bracket(blocks:Blocks,index:int)->bit:
+    blocks.booleans.(5*blocks.count+index)? @:true
+    @:false
+with_block_vertical_bracket(blocks:Blocks,index:int,value:bit)->Blocks:
+    values:blocks.booleans
+    values.(5*blocks.count+index):value
+    result:blocks
+    result.booleans:values
+    @:result
+block_has_last_row(blocks:Blocks,index:int)->bit:
+    blocks.booleans.(6*blocks.count+index)? @:true
+    @:false
+with_block_has_last_row(blocks:Blocks,index:int,value:bit)->Blocks:
+    values:blocks.booleans
+    values.(6*blocks.count+index):value
+    result:blocks
+    result.booleans:values
+    @:result
+block_baseline_leading(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(18*blocks.count+index)
+with_block_baseline_leading(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(18*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_list_parsep(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(19*blocks.count+index)
+with_block_list_parsep(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(19*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_list_top(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(20*blocks.count+index)
+with_block_list_top(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(20*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_list_parsep_shrink(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(21*blocks.count+index)
+with_block_list_parsep_shrink(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(21*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_list_parsep_stretch(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(22*blocks.count+index)
+with_block_list_parsep_stretch(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(22*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_list_top_shrink(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(23*blocks.count+index)
+with_block_list_top_shrink(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(23*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_list_top_stretch(blocks:Blocks,index:int)->num:
+    @:blocks.numbers.(24*blocks.count+index)
+with_block_list_top_stretch(blocks:Blocks,index:int,value:num)->Blocks:
+    values:blocks.numbers
+    values.(24*blocks.count+index):value
+    result:blocks
+    result.numbers:values
+    @:result
+block_after_display(blocks:Blocks,index:int)->bit:
+    blocks.booleans.(7*blocks.count+index)? @:true
+    @:false
+with_block_after_display(blocks:Blocks,index:int,value:bit)->Blocks:
+    values:blocks.booleans
+    values.(7*blocks.count+index):value
+    result:blocks
+    result.booleans:values
+    @:result
+block_center_awaiting(blocks:Blocks,index:int)->bit:
+    blocks.booleans.(8*blocks.count+index)? @:true
+    @:false
+with_block_center_awaiting(blocks:Blocks,index:int,value:bit)->Blocks:
+    values:blocks.booleans
+    values.(8*blocks.count+index):value
+    result:blocks
+    result.booleans:values
+    @:result
+block_list_end_display(blocks:Blocks,index:int)->bit:
+    blocks.booleans.(9*blocks.count+index)? @:true
+    @:false
+with_block_list_end_display(blocks:Blocks,index:int,value:bit)->Blocks:
+    values:blocks.booleans
+    values.(9*blocks.count+index):value
+    result:blocks
+    result.booleans:values
+    @:result
+empty_lines(count:int)->Lines:
+    @:(scenes:nil(count),source_lines:ints(count),heights:zeros(count),depths:zeros(count),natural_depths:zeros(count),widths:zeros(count),indents:zeros(count),baselines:zeros(count),flagged:bits(count),marker_firsts:ints(count),marker_counts:ints(count),count:count)
+empty_notes(count:int)->Notes:
+    @:(firsts:ints(count),counts:ints(count),first_heights:zeros(count),depths:zeros(count),reserves:zeros(count),indents:zeros(count),admin:bits(count),count:count)
+empty_markers(count:int)->Markers:@:(ids:nil(count),count:count)
+empty_placements(size:int=64)->Placements:
+    @:(scenes:nil(size),source_lines:ints(size),pages:ints(size),blocks:nil(size),lines:ints(size),kinds:ints(size),xs:zeros(size),ys:zeros(size),units:ones(size),tag_bases:zeros(size),line_heights:zeros(size),line_depths:zeros(size),shrink:zeros(size),stretch:zeros(size),count:0)
+empty_assignments(size:int=16)->Assignments:@:(notes:nil(size),pages:nil(size),count:0)
+empty_pages(size:int=8)->Pages:
+    @:(last_baselines:zeros(size),last_depths:zeros(size),limits:zeros(size),shrink_ratios:zeros(size),stretch_ratios:zeros(size),note_stretch:zeros(size),note_flex:bits(size),forced:bits(size),count:0)
+
+append(table:Placements,scene:int,source_line:int,page:int,block:int,line:int,kind:int,x:num,y:num,unit:num,tag_base:num,height:num,depth:num,shrink:num,stretch:num)->Placements:
+    out:table
+    capacity:table.scenes.length()
+    table.count>=capacity?
+        out.scenes:table.scenes&nil(capacity)
+        out.source_lines:table.source_lines&ints(capacity)
+        out.pages:table.pages&ints(capacity)
+        out.blocks:table.blocks&nil(capacity)
+        out.lines:table.lines&ints(capacity)
+        out.kinds:table.kinds&ints(capacity)
+        out.xs:table.xs&zeros(capacity)
+        out.ys:table.ys&zeros(capacity)
+        out.units:table.units&ones(capacity)
+        out.tag_bases:table.tag_bases&zeros(capacity)
+        out.line_heights:table.line_heights&zeros(capacity)
+        out.line_depths:table.line_depths&zeros(capacity)
+        out.shrink:table.shrink&zeros(capacity)
+        out.stretch:table.stretch&zeros(capacity)
+    n:table.count
+    scenes:out.scenes
+    source_lines:out.source_lines
+    pages:out.pages
+    blocks:out.blocks
+    lines:out.lines
+    kinds:out.kinds
+    xs:out.xs
+    ys:out.ys
+    units:out.units
+    tag_bases:out.tag_bases
+    heights:out.line_heights
+    depths:out.line_depths
+    shrinks:out.shrink
+    stretches:out.stretch
+    scenes.(n):scene
+    source_lines.(n):source_line
+    pages.(n):page
+    blocks.(n):block
+    lines.(n):line
+    kinds.(n):kind
+    xs.(n):x
+    ys.(n):y
+    units.(n):unit
+    tag_bases.(n):tag_base
+    heights.(n):height
+    depths.(n):depth
+    shrinks.(n):shrink
+    stretches.(n):stretch
+    @:(scenes:scenes,source_lines:source_lines,pages:pages,blocks:blocks,lines:lines,kinds:kinds,xs:xs,ys:ys,units:units,tag_bases:tag_bases,line_heights:heights,line_depths:depths,shrink:shrinks,stretch:stretches,count:n+1)
+
+set_notes(state:State,notes:Assignments)->State:
+    out:state
+    out.notes:notes
+    @:out
+
+assigned(assignments:Assignments,page:int,note:int)->bit:
+    pages:assignments.pages
+    notes:assignments.notes
+    i:0
+    i<assignments.count?>
+        pages.(i)=page /\ notes.(i)=note? @:true
+        .i:i+1
+    @:false
+assign(assignments:Assignments,page:int,note:int)->Assignments:
+    assigned(assignments,page,note)? @:assignments
+    pages:assignments.pages
+    notes:assignments.notes
+    assignments.count>=pages.length()?
+        .pages:pages&nil(pages.length())
+        .notes:notes&nil(notes.length())
+    pages.(assignments.count):page
+    notes.(assignments.count):note
+    @:(notes:notes,pages:pages,count:assignments.count+1)
+
+reserve(config:Config,notes:Notes,assignments:Assignments,page:int)->num:
+    ids:assignments.notes
+    pages:assignments.pages
+    reserves:notes.reserves
+    depths:notes.depths
+    total:0.0
+    last: -1
+    i:0
+    i<assignments.count?>
+        pages.(i)=page?
+            .last:ids.(i)
+            .total:total+reserves.(last)
+        .i:i+1
+    last<0? @:0
+    .total:total+number_at(config,12)-depths.(last)
+    flag_at(config,0)? .total:total+11*tex_numeric.pt()-number_at(config,14)
+    @:total
+
+has_notes(assignments:Assignments,page:int)->bit:
+    pages:assignments.pages
+    i:0
+    i<assignments.count?>
+        pages.(i)=page? @:true
+        .i:i+1
+    @:false
+
+finish(config:Config,state:State,completed:bit)->State:
+    state.page<0? @:state
+    out:state
+    baseline:state.last_baseline
+    bottom:baseline+tex_numeric.maximum(0,state.last_depth-number_at(config,8))
+    has_notes(state.notes,state.page)? .bottom:baseline+state.last_depth
+    shrink_ratio:0.0
+    stretch_ratio:0.0
+    flag_at(config,0) /\ ~state.ragged /\ ~state.forced /\ completed /\ baseline>0 /\ state.last_used_stretch>0 /\ bottom<state.limit?
+        .stretch_ratio:(state.limit-bottom)/state.last_used_stretch
+        .baseline:baseline+stretch_ratio*(state.last_used_stretch-state.footnote_stretch)
+        .bottom:state.limit
+    bottom>state.limit /\ state.last_used_shrink>0?
+        .shrink_ratio:tex_numeric.minimum(1,(bottom-state.limit)/state.last_used_shrink)
+        flex:0.0
+        state.footnote_flex? .flex:2*tex_numeric.pt()
+        .baseline:baseline-shrink_ratio*(state.last_used_shrink-flex)
+    pages:state.pages
+    baselines:pages.last_baselines
+    depths:pages.last_depths
+    limits:pages.limits
+    shrinks:pages.shrink_ratios
+    stretches:pages.stretch_ratios
+    notes:pages.note_stretch
+    flexes:pages.note_flex
+    forced:pages.forced
+    baselines.(state.page):baseline
+    depths.(state.page):state.last_depth
+    limits.(state.page):state.limit
+    shrinks.(state.page):shrink_ratio
+    stretches.(state.page):stretch_ratio
+    notes.(state.page):state.footnote_stretch
+    flexes.(state.page):state.footnote_flex
+    forced.(state.page):state.forced
+    out.pages:(last_baselines:baselines,last_depths:depths,limits:limits,shrink_ratios:shrinks,stretch_ratios:stretches,note_stretch:notes,note_flex:flexes,forced:forced,count:pages.count)
+    @:out
+
+new_page(config:Config,state:State,notes:Notes)->State:
+    out:finish(config,state,true)
+    page:state.pages.count
+    page<integer_at(config,4)?! "Document page limit exceeded"
+    pages:out.pages
+    page>=pages.limits.length()?
+        capacity:pages.limits.length()
+        pages.last_baselines:pages.last_baselines&zeros(capacity)
+        pages.last_depths:pages.last_depths&zeros(capacity)
+        pages.limits:pages.limits&zeros(capacity)
+        pages.shrink_ratios:pages.shrink_ratios&zeros(capacity)
+        pages.stretch_ratios:pages.stretch_ratios&zeros(capacity)
+        pages.note_stretch:pages.note_stretch&zeros(capacity)
+        pages.note_flex:pages.note_flex&bits(capacity)
+        pages.forced:pages.forced&bits(capacity)
+    pages.count:page+1
+    out.pages:pages
+    out.page:page
+    out.y:number_at(config,3)
+    out.last_baseline:0
+    out.last_depth:0
+    out.pending_after:0
+    out.last_line_right:0
+    out.shrink:0
+    out.stretch:0
+    out.last_used_shrink:0
+    out.last_used_stretch:0
+    out.footnote_stretch:0
+    out.footnote_flex:false
+    out.forced:false
+    page=0?
+        admin:notes.admin
+        i:0
+        i<notes.count?>
+            admin.(i)? .out:set_notes(out,assign(out.notes,page,i))
+            .i:i+1
+        flag_at(config,0) /\ has_notes(out.notes,page)?
+            out.footnote_stretch:11*tex_numeric.pt()
+            out.stretch:11*tex_numeric.pt()
+    out.limit:number_at(config,3)+number_at(config,5)-reserve(config,notes,out.notes,page)
+    @:out
+
+cost(goal:num,bottom:num,shrink:num,stretch:num,ragged:bit)->num:
+    bottom>goal+shrink+tex_numeric.sp()? @:10^300
+    ragged /\ bottom<=goal? @:0
+    bottom>goal? @:num(tex_numeric.badness(bottom-goal,shrink))
+    @:num(tex_numeric.badness(goal-bottom,stretch))
+
+# Returns -2 when no bounded break plan applies; -1 means break before paragraph.
+paragraph_break(config:Config,state:BreakState,lines:Lines,first:int,count:int,baseline:num,unit:num,leading:num,goal:num,next_kind:str,keep_display:num)->int:
+    heights:lines.heights
+    depths:lines.depths
+    flagged:lines.flagged
+    positions:zeros(count)
+    positions.(0):baseline
+    i:1
+    i<count?>
+        extent:(depths.(first+i-1)+heights.(first+i))*unit
+        step:leading
+        leading-extent<number_at(config,9)? .step:extent+tex_numeric.pt()
+        positions.(i):positions.(i-1)+step
+        .i:i+1
+    allowance:0.0
+    keep_display>0? .allowance:state.shrink
+    positions.(count-1)+tex_numeric.maximum(keep_display,tex_numeric.maximum(0,depths.(first+count-1)*unit-number_at(config,8)))<=goal+allowance+tex_numeric.sp()? @: -2
+    prior:state.last_baseline+tex_numeric.maximum(0,state.last_depth-number_at(config,8))
+    state.has_notes? .prior:state.last_baseline+state.last_depth
+    best:cost(goal,prior,state.last_used_shrink,state.last_used_stretch,state.ragged)
+    after: -1
+    .i:0
+    i<count?>
+        last:i=count-1
+        penalty:integer_at(config,0)
+        state.ragged? .penalty:5000
+        i=0? .penalty:penalty+integer_at(config,1)
+        i=count-2?
+            widow:integer_at(config,2)
+            next_kind="math"? .widow:50
+            .penalty:penalty+widow
+        flagged.(first+i)? .penalty:penalty+integer_at(config,3)
+        last?
+            .penalty:0
+            next_kind="list"? .penalty: -51
+            next_kind="math"? .penalty:10000
+        bottom:positions.(i)+tex_numeric.maximum(0,depths.(first+i)*unit-number_at(config,8))
+        value:cost(goal,bottom,state.shrink,state.stretch,state.ragged)+num(penalty)
+        penalty<10000 /\ value<=best?
+            .best:value
+            .after:i
+        .i:i+1
+    best>=10^300? @: -2
+    @:after
+
+empty_state(config:Config)->State:
+    @:(pages:empty_pages(),notes:empty_assignments(),page: -1,y:number_at(config,3),last_baseline:0.0,last_depth:0.0,pending_after:0.0,last_line_right:0.0,first_paragraph:false,ragged:flag_at(config,2),shrink:0.0,stretch:0.0,last_used_shrink:0.0,last_used_stretch:0.0,footnote_stretch:0.0,footnote_flex:false,limit:number_at(config,3)+number_at(config,5),forced:false,diagnostics:"")
+
+snapshot(pageTable:Pages,assignedNotes:Assignments,values:[num],flags:[bit],page:int,diagnostics:str)->State:
+    @:(pages:pageTable,notes:assignedNotes,page:page,y:values.(0),last_baseline:values.(1),last_depth:values.(2),pending_after:values.(3),last_line_right:values.(4),first_paragraph:flags.(0),ragged:flags.(1),shrink:values.(5),stretch:values.(6),last_used_shrink:values.(7),last_used_stretch:values.(8),footnote_stretch:values.(9),footnote_flex:flags.(2),limit:values.(10),forced:flags.(3),diagnostics:diagnostics)
+
+issue(messages:str,message:str)->str:
+    messages=""? @:resource_json.quote(message)
+    @:messages&","&resource_json.quote(message)
+
+
+rotate_int(values:[int],first:int,last:int)->[int]:
+    out:values
+    value:values.(last)
+    at:last
+    at>first?>
+        out.(at):values.(at-1)
+        .at:at-1
+    out.(first):value
+    @:out
+rotate_num(values:[num],first:int,last:int)->[num]:
+    out:values
+    value:values.(last)
+    at:last
+    at>first?>
+        out.(at):values.(at-1)
+        .at:at-1
+    out.(first):value
+    @:out
+float_place(config:Config,blocks:Blocks,lines:Lines,placements:Placements,page:int,block:int,top:num,kind:int)->Placements:
+    first:block_firsts(blocks,block)
+    (first>=0 /\ first<lines.count)?! "Float has no measured scene"
+    scenes:lines.scenes
+    source_lines:lines.source_lines
+    heights:lines.heights
+    depths:lines.depths
+    out:append(placements,scenes.(first),source_lines.(first),page,block,0,kind,number_at(config,2),top,block_units(blocks,block),0,heights.(first),depths.(first),0,0)
+    kind=3?
+        pages:placements.pages
+        kinds:placements.kinds
+        insertion:0
+        insertion<placements.count?>
+            pages.(insertion)=page /\ kinds.(insertion)<3? @|
+            .insertion:insertion+1
+        insertion<placements.count?
+            out.scenes:rotate_int(out.scenes,insertion,placements.count)
+            out.source_lines:rotate_int(out.source_lines,insertion,placements.count)
+            out.pages:rotate_int(out.pages,insertion,placements.count)
+            out.blocks:rotate_int(out.blocks,insertion,placements.count)
+            out.lines:rotate_int(out.lines,insertion,placements.count)
+            out.kinds:rotate_int(out.kinds,insertion,placements.count)
+            out.xs:rotate_num(out.xs,insertion,placements.count)
+            out.ys:rotate_num(out.ys,insertion,placements.count)
+            out.units:rotate_num(out.units,insertion,placements.count)
+            out.tag_bases:rotate_num(out.tag_bases,insertion,placements.count)
+            out.line_heights:rotate_num(out.line_heights,insertion,placements.count)
+            out.line_depths:rotate_num(out.line_depths,insertion,placements.count)
+            out.shrink:rotate_num(out.shrink,insertion,placements.count)
+            out.stretch:rotate_num(out.stretch,insertion,placements.count)
+    @:out
+float_start(config:Config,state:State,notes:Notes,queue:FloatQueue,placements:Placements,blocks:Blocks,lines:Lines,heights:[num],placements_allowed:[str],float_pages:[bit],for_text:bit=true)->FloatStart:
+    current:state
+    pending:queue
+    table:placements
+    flags:float_pages
+    true?>
+        .current:new_page(config,current,notes)
+        planned:document_float_queue.new_page(pending,heights,placements_allowed,number_at(config,3),number_at(config,5),for_text)
+        .pending:planned.queue
+        current.y:planned.y
+        current.shrink:planned.shrink
+        current.stretch:planned.stretch+current.footnote_stretch
+        ids:planned.actions.ids
+        tops:planned.actions.tops
+        kinds:planned.actions.kinds
+        at:0
+        at<planned.actions.count?>
+            .table:float_place(config,blocks,lines,table,current.page,ids.(at),tops.(at),kinds.(at))
+            .at:at+1
+        flags.(current.page):planned.float_page
+        planned.diagnostics~=""?
+            current.diagnostics:issue(current.diagnostics,"Float exceeds text height")
+        ~(planned.full /\ for_text)? @|
+    @:(state:current,queue:pending,placements:table,float_pages:flags)
+
+layout(config:Config,blocks:Blocks,lines:Lines,notes:Notes,markers:Markers):
+    (number_at(config,0)>0 /\ number_at(config,1)>0 /\ number_at(config,4)>0 /\ number_at(config,5)>0 /\ number_at(config,6)>0 /\ integer_at(config,4)>0)?! "Invalid document page configuration"
+    initialState:new_page(config,empty_state(config),notes)
+    pageTable:initialState.pages
+    placements:empty_placements()
+    assignedNotes:initialState.notes
+    page:initialState.page
+    y:initialState.y
+    lastBaseline:initialState.last_baseline
+    lastDepth:initialState.last_depth
+    pendingAfter:initialState.pending_after
+    lastLineRight:initialState.last_line_right
+    firstParagraph:initialState.first_paragraph
+    ragged:initialState.ragged
+    pageShrink:initialState.shrink
+    pageStretch:initialState.stretch
+    lastUsedShrink:initialState.last_used_shrink
+    lastUsedStretch:initialState.last_used_stretch
+    footnoteStretch:initialState.footnote_stretch
+    footnoteFlex:initialState.footnote_flex
+    limit:initialState.limit
+    forced:initialState.forced
+    diagnostics:initialState.diagnostics
+    scene_ids:lines.scenes
+    source_lines:lines.source_lines
+    heights:lines.heights
+    depths:lines.depths
+    natural_depths:lines.natural_depths
+    line_widths:lines.widths
+    line_indents:lines.indents
+    source_baselines:lines.baselines
+    marker_firsts:lines.marker_firsts
+    marker_counts:lines.marker_counts
+    marker_ids:markers.ids
+    floatQueue:document_float_queue.empty(blocks.count)
+    floatPages:bits(integer_at(config,4))
+    floatHeights:zeros(blocks.count)
+    floatAllowed:text_chunks.empty(blocks.count)
+    hasTitle:false
+    float_inspect:0
+    hasFigures:false
+    float_inspect<blocks.count?>
+        float_inspected_kind:block_kinds(blocks,float_inspect)
+        (float_inspected_kind="title" \/ float_inspected_kind="author")? .hasTitle:true
+        float_context:block_contexts(blocks,float_inspect)
+        float_placement:"tbp"
+        float_context~="" /\ vkf_string_peek_scalar(float_context,0)="{"?
+            context_json:resource_json.parse(float_context)
+            title_part:resource_json.member(context_json,0,"titlePart")
+            title_part>=0? .hasTitle:true
+            placement_node:resource_json.member(context_json,0,"placement")
+            placement_node>=0? .float_placement:resource_json.string(context_json,placement_node)
+        float_inspected_kind="figure"?
+            .hasFigures:true
+            first_float:block_firsts(blocks,float_inspect)
+            (first_float>=0 /\ first_float<lines.count)?! "Figure requires one measured full scene"
+            floatHeights.(float_inspect):(heights.(first_float)+depths.(first_float))*block_units(blocks,float_inspect)
+            floatAllowed.(float_inspect):float_placement
+        .float_inspect:float_inspect+1
+    hasFigures? .diagnostics:issue(diagnostics,"Experimental float pagination: global TeX page-break optimization remains incomplete")
+    block:0
+    block<blocks.count?>
+        kind:block_kinds(blocks,block)
+        kind="bibliographysetup"?
+            .ragged:true
+            .block:block+1
+            @>
+        kind="pagebreak"?
+            .forced:true
+            float_transition1:float_start(config,snapshot(pageTable,assignedNotes,[y,lastBaseline,lastDepth,pendingAfter,lastLineRight,pageShrink,pageStretch,lastUsedShrink,lastUsedStretch,footnoteStretch,limit],[firstParagraph,ragged,footnoteFlex,forced],page,diagnostics),notes,floatQueue,placements,blocks,lines,floatHeights,floatAllowed,floatPages)
+            transition1:float_transition1.state
+            .floatQueue:float_transition1.queue
+            .placements:float_transition1.placements
+            .floatPages:float_transition1.float_pages
+            .pageTable:transition1.pages
+
+            .assignedNotes:transition1.notes
+            .page:transition1.page
+            .y:transition1.y
+            .lastBaseline:transition1.last_baseline
+            .lastDepth:transition1.last_depth
+            .pendingAfter:transition1.pending_after
+            .lastLineRight:transition1.last_line_right
+            .firstParagraph:transition1.first_paragraph
+            .ragged:transition1.ragged
+            .pageShrink:transition1.shrink
+            .pageStretch:transition1.stretch
+            .lastUsedShrink:transition1.last_used_shrink
+            .lastUsedStretch:transition1.last_used_stretch
+            .footnoteStretch:transition1.footnote_stretch
+            .footnoteFlex:transition1.footnote_flex
+            .limit:transition1.limit
+            .forced:transition1.forced
+            .diagnostics:transition1.diagnostics
+            .firstParagraph:false
+            .block:block+1
+            @>
+        kind="vspace"?
+            .y:y+block_before(blocks,block)
+            .pendingAfter:pendingAfter+block_before(blocks,block)
+            .block:block+1
+            @>
+        kind="figure"?
+            previous_reserve:floatQueue.bottom_reserve
+            encounter:document_float_queue.encounter(floatQueue,block,floatHeights.(block),floatAllowed.(block),y,page=0 /\ hasTitle,number_at(config,3),number_at(config,5))
+            .floatQueue:encounter.queue
+            encounter.shift>0?
+                px_pages:placements.pages
+                px_kinds:placements.kinds
+                px_ys:placements.ys
+                px_shrink:placements.shrink
+                at:0
+                at<placements.count?>
+                    px_pages.(at)=page /\ px_kinds.(at)<3?
+                        px_ys.(at):px_ys.(at)+encounter.shift
+                        px_shrink.(at):px_shrink.(at)+encounter.shrink
+                    .at:at+1
+                placements.ys:px_ys
+                placements.shrink:px_shrink
+                .y:y+encounter.shift
+                lastBaseline>0? .lastBaseline:lastBaseline+encounter.shift
+                .pageShrink:pageShrink+encounter.shrink
+                .pageStretch:pageStretch+encounter.stretch
+                .lastUsedShrink:lastUsedShrink+encounter.shrink
+                .lastUsedStretch:lastUsedStretch+encounter.stretch
+            .limit:limit-(floatQueue.bottom_reserve-previous_reserve)
+            float_ids:encounter.actions.ids
+            float_tops:encounter.actions.tops
+            float_kinds:encounter.actions.kinds
+            action:0
+            action<encounter.actions.count?>
+                .placements:float_place(config,blocks,lines,placements,page,float_ids.(action),float_tops.(action),float_kinds.(action))
+                .action:action+1
+            .block:block+1
+            @>
+        count:block_counts(blocks,block)
+        first:block_firsts(blocks,block)
+        count=0?
+            .block:block+1
+            @>
+        (first>=0 /\ first+count<=lines.count /\ block_units(blocks,block)>0)?! "Invalid laid-out block line range"
+        unit:block_units(blocks,block)
+        flow_width:number_at(config,4)-block_lefts(blocks,block)-block_rights(blocks,block)
+        heading:kind="section" \/ kind="subsection" \/ kind="title" \/ kind="author"
+        paragraph:kind="paragraph"
+        caption:kind="caption"
+        verbatim:kind="verbatim"
+        (paragraph \/ heading \/ caption \/ verbatim \/ kind="subsubsection" \/ kind="math" \/ kind="image" \/ kind="proofend" \/ kind="destination")?! "Unsupported laid-out document block kind"
+        (kind="proofend" \/ kind="destination")?
+            x:number_at(config,2)+block_lefts(blocks,block)
+            proofY:y
+            kind="proofend"?
+                .x:number_at(config,2)+number_at(config,4)-block_widths(blocks,block)*unit
+                .proofY:lastBaseline
+            .placements:append(placements,scene_ids.(first),source_lines.(first),page,block,0,0,x,proofY,unit,0,heights.(first)*unit,depths.(first)*unit,lastUsedShrink,lastUsedStretch-footnoteStretch)
+            .block:block+1
+            @>
+        kind="image"?
+            height:(heights.(first)+depths.(first))*unit
+            y+height>number_at(config,3)+number_at(config,5)-floatQueue.bottom_reserve+pageShrink?
+                float_transition2:float_start(config,snapshot(pageTable,assignedNotes,[y,lastBaseline,lastDepth,pendingAfter,lastLineRight,pageShrink,pageStretch,lastUsedShrink,lastUsedStretch,footnoteStretch,limit],[firstParagraph,ragged,footnoteFlex,forced],page,diagnostics),notes,floatQueue,placements,blocks,lines,floatHeights,floatAllowed,floatPages)
+                transition2:float_transition2.state
+                .floatQueue:float_transition2.queue
+                .placements:float_transition2.placements
+                .floatPages:float_transition2.float_pages
+                .pageTable:transition2.pages
+
+                .assignedNotes:transition2.notes
+                .page:transition2.page
+                .y:transition2.y
+                .lastBaseline:transition2.last_baseline
+                .lastDepth:transition2.last_depth
+                .pendingAfter:transition2.pending_after
+                .lastLineRight:transition2.last_line_right
+                .firstParagraph:transition2.first_paragraph
+                .ragged:transition2.ragged
+                .pageShrink:transition2.shrink
+                .pageStretch:transition2.stretch
+                .lastUsedShrink:transition2.last_used_shrink
+                .lastUsedStretch:transition2.last_used_stretch
+                .footnoteStretch:transition2.footnote_stretch
+                .footnoteFlex:transition2.footnote_flex
+                .limit:transition2.limit
+                .forced:transition2.forced
+                .diagnostics:transition2.diagnostics
+            x:number_at(config,2)+(number_at(config,4)-block_widths(blocks,block)*unit)/2
+            .placements:append(placements,scene_ids.(first),source_lines.(first),page,block,0,2,x,y,unit,0,height,0,0,0)
+            .y:y+height+block_after(blocks,block)
+            .block:block+1
+            @>
+        before:block_before(blocks,block)
+        before_shrink:block_before_shrink(blocks,block)
+        before_stretch:block_before_stretch(blocks,block)
+        after:block_after(blocks,block)
+        after_shrink:block_after_shrink(blocks,block)
+        after_stretch:block_after_stretch(blocks,block)
+        (kind="section" \/ kind="subsection") /\ block_after_display(blocks,block) /\ pendingAfter>0?
+            oldAfter:pendingAfter
+            .before:tex_numeric.maximum(0,before-oldAfter)
+            block_before(blocks,block)>oldAfter?
+                oldAfter=6*tex_numeric.pt()?
+                    .pageShrink:pageShrink-3*tex_numeric.pt()
+                    .pageStretch:pageStretch-3*tex_numeric.pt()
+                oldAfter~=6*tex_numeric.pt()?
+                    .pageShrink:pageShrink-5*tex_numeric.pt()
+                    .pageStretch:pageStretch-2*tex_numeric.pt()
+        paragraph /\ block_list_end_display(blocks,block)?
+            .before:tex_numeric.maximum(block_list_parsep(blocks,block),block_list_top(blocks,block)-pendingAfter)
+            .before_shrink:block_list_parsep_shrink(blocks,block)
+            .before_stretch:block_list_parsep_stretch(blocks,block)
+            flag_at(config,0) /\ block_list_top(blocks,block)>pendingAfter?
+                .before_shrink:block_list_top_shrink(blocks,block)
+                .before_stretch:block_list_top_stretch(blocks,block)-number_at(config,10)
+        (kind="section" \/ kind="subsection")?
+            .before_shrink:0
+            .before_stretch:number_at(config,6)
+            ~flag_at(config,0)?
+                .before_shrink:0.2*4.30554*tex_numeric.pt()
+                .before_stretch:4.30554*tex_numeric.pt()
+        heading /\ ~flag_at(config,0)? .after_stretch:0.2*4.30554*tex_numeric.pt()
+        verbatim?
+            .after:8*tex_numeric.pt()
+            .after_shrink:4*tex_numeric.pt()
+            .after_stretch:2*tex_numeric.pt()
+        caption? .after:12*tex_numeric.pt()
+        display_shift:tex_numeric.maximum(0,(flow_width-block_widths(blocks,block)*unit)/2)
+        kind="math" /\ block_single_display(blocks,block) /\ block_tag_widths(blocks,block)>0 /\ display_shift<2*block_tag_widths(blocks,block)*unit? .display_shift:tex_numeric.maximum(0,(flow_width-block_widths(blocks,block)*unit-block_tag_widths(blocks,block)*unit)/2)
+        flag_at(config,0) /\ paragraph /\ block_center_awaiting(blocks,block) /\ block+1<blocks.count /\ lastBaseline>0?
+            block_kinds(blocks,block+1)="math" /\ block_counts(blocks,block+1)>0?
+                nextFirst:block_firsts(blocks,block+1)
+                emptyBaseline:lastBaseline+pendingAfter+before+tex_numeric.maximum(number_at(config,6),lastDepth)
+                displayBaseline:emptyBaseline+number_at(config,10)+tex_numeric.maximum(number_at(config,6),heights.(nextFirst)*unit+tex_numeric.pt())
+                displayBottom:displayBaseline+tex_numeric.maximum(0,depths.(nextFirst)*unit-number_at(config,8))
+                displayBottom>limit+pageShrink?
+                    float_transitionCenter:float_start(config,snapshot(pageTable,assignedNotes,[y,lastBaseline,lastDepth,pendingAfter,lastLineRight,pageShrink,pageStretch,lastUsedShrink,lastUsedStretch,footnoteStretch,limit],[firstParagraph,ragged,footnoteFlex,forced],page,diagnostics),notes,floatQueue,placements,blocks,lines,floatHeights,floatAllowed,floatPages)
+                    transitionCenter:float_transitionCenter.state
+                    .floatQueue:float_transitionCenter.queue
+                    .placements:float_transitionCenter.placements
+                    .floatPages:float_transitionCenter.float_pages
+                    .pageTable:transitionCenter.pages
+        
+                    .assignedNotes:transitionCenter.notes
+                    .page:transitionCenter.page
+                    .y:transitionCenter.y
+                    .lastBaseline:transitionCenter.last_baseline
+                    .lastDepth:transitionCenter.last_depth
+                    .pendingAfter:transitionCenter.pending_after
+                    .lastLineRight:transitionCenter.last_line_right
+                    .firstParagraph:transitionCenter.first_paragraph
+                    .ragged:transitionCenter.ragged
+                    .pageShrink:transitionCenter.shrink
+                    .pageStretch:transitionCenter.stretch
+                    .lastUsedShrink:transitionCenter.last_used_shrink
+                    .lastUsedStretch:transitionCenter.last_used_stretch
+                    .footnoteStretch:transitionCenter.footnote_stretch
+                    .footnoteFlex:transitionCenter.footnote_flex
+                    .limit:transitionCenter.limit
+                    .forced:transitionCenter.forced
+                    .diagnostics:transitionCenter.diagnostics
+                    .before:0
+                    .before_shrink:0
+                    .before_stretch:0
+        short:false
+        kind="math" /\ block_single_display(blocks,block)?
+            flag_at(config,0) /\ block>0?
+                block_kinds(blocks,block-1)="math"? .short:true
+            block_from_paragraph(blocks,block) /\ block_lefts(blocks,block)+display_shift>lastLineRight+2*number_at(config,7)? .short:true
+        kind="math"?
+            .before:number_at(config,10)
+            .after:number_at(config,10)
+            short?
+                .before:0
+                .after:number_at(config,11)
+            .before_shrink:0
+            .after_shrink:0
+            .before_stretch:number_at(config,10)
+            .after_stretch:number_at(config,10)
+            ~flag_at(config,0)?
+                .before_shrink:5*tex_numeric.pt()
+                .after_shrink:5*tex_numeric.pt()
+                .before_stretch:2*tex_numeric.pt()
+                .after_stretch:2*tex_numeric.pt()
+                short?
+                    .before_shrink:0
+                    .after_shrink:3*tex_numeric.pt()
+                    .before_stretch:3*tex_numeric.pt()
+                    .after_stretch:3*tex_numeric.pt()
+        y>number_at(config,3)+0.01?
+            .y:y+before
+            .pageShrink:pageShrink+before_shrink
+            .pageStretch:pageStretch+before_stretch
+        keep_after:block_keep_after(blocks,block)
+        (kind="section" \/ kind="subsection")? .keep_after:tex_numeric.maximum(keep_after,after+2*number_at(config,6))
+        total_height:(heights.(first)+depths.(first))*unit
+        y+total_height+keep_after>number_at(config,3)+number_at(config,5)-floatQueue.bottom_reserve+pageShrink /\ y>number_at(config,3) /\ ~paragraph /\ ~verbatim?
+            float_transition3:float_start(config,snapshot(pageTable,assignedNotes,[y,lastBaseline,lastDepth,pendingAfter,lastLineRight,pageShrink,pageStretch,lastUsedShrink,lastUsedStretch,footnoteStretch,limit],[firstParagraph,ragged,footnoteFlex,forced],page,diagnostics),notes,floatQueue,placements,blocks,lines,floatHeights,floatAllowed,floatPages)
+            transition3:float_transition3.state
+            .floatQueue:float_transition3.queue
+            .placements:float_transition3.placements
+            .floatPages:float_transition3.float_pages
+            .pageTable:transition3.pages
+
+            .assignedNotes:transition3.notes
+            .page:transition3.page
+            .y:transition3.y
+            .lastBaseline:transition3.last_baseline
+            .lastDepth:transition3.last_depth
+            .pendingAfter:transition3.pending_after
+            .lastLineRight:transition3.last_line_right
+            .firstParagraph:transition3.first_paragraph
+            .ragged:transition3.ragged
+            .pageShrink:transition3.shrink
+            .pageStretch:transition3.stretch
+            .lastUsedShrink:transition3.last_used_shrink
+            .lastUsedStretch:transition3.last_used_stretch
+            .footnoteStretch:transition3.footnote_stretch
+            .footnoteFlex:transition3.footnote_flex
+            .limit:transition3.limit
+            .forced:transition3.forced
+            .diagnostics:transition3.diagnostics
+        leading:block_leading(blocks,block)
+        leading<=0? .leading:number_at(config,6)
+        baseline:y+heights.(first)*unit
+        y=number_at(config,3)? .baseline:y+10*tex_numeric.pt()
+        caption /\ y~=number_at(config,3)? .baseline:y+12*tex_numeric.pt()
+        baselineLeading:leading
+        verbatim? .baselineLeading:12*tex_numeric.pt()
+        kind="section"? .baselineLeading:18*tex_numeric.pt()
+        kind="subsection"? .baselineLeading:14*tex_numeric.pt()
+        kind="title"? .baselineLeading:22*tex_numeric.pt()
+        kind="author"? .baselineLeading:14*tex_numeric.pt()
+        block_baseline_leading(blocks,block)>0? .baselineLeading:block_baseline_leading(blocks,block)
+        flag_at(config,1) /\ ~caption?
+            h:heights.(first)*unit
+            prev_depth:lastDepth
+            anchor:lastBaseline
+            block_vertical_bracket(blocks,block)?
+                .prev_depth:0
+                .anchor:anchor+lastDepth
+            skip:0.0
+            baselineLeading-prev_depth-h<number_at(config,9)? .skip:tex_numeric.pt()
+            .baseline:y+tex_numeric.maximum(10*tex_numeric.pt(),h)
+            lastBaseline>0? .baseline:anchor+pendingAfter+before+tex_numeric.maximum(baselineLeading,prev_depth+h+skip)
+        block_baseline_modes(blocks,block)=1? .baseline:y+block_baseline_offsets(blocks,block)
+        block_baseline_modes(blocks,block)=2? .baseline:lastBaseline+block_baseline_offsets(blocks,block)+heights.(first)*unit
+        keep_display:block_keep_display(blocks,block)
+        next_kind:""
+        block+1<blocks.count?
+            .next_kind:block_kinds(blocks,block+1)
+            (block_contexts(blocks,block+1)="list" \/ block_contexts(blocks,block+1)="description" \/ block_contexts(blocks,block+1)="bibliography")? .next_kind:"list"
+        flag_at(config,0) /\ paragraph /\ block+1<blocks.count?
+            block_kinds(blocks,block+1)="math" /\ block_counts(blocks,block+1)>0?
+                last:first+count-1
+                indent:line_indents.(last)*unit
+                count=1 /\ (~firstParagraph \/ block_paragraph_after_display(blocks,block)) /\ ~block_no_indent_after_list(blocks,block)? .indent:block_indents(blocks,block)
+                last_right:block_lefts(blocks,block)+indent+line_widths.(last)*unit
+                next_shift:tex_numeric.maximum(0,(flow_width-block_widths(blocks,block+1)*unit)/2)
+                short_next:block_single_display(blocks,block+1) /\ block_lefts(blocks,block)+next_shift>last_right+2*number_at(config,7)
+                skip:number_at(config,10)
+                short_next? .skip:0
+                next_first:block_firsts(blocks,block+1)
+                next_height:heights.(next_first)
+                next_depth:depths.(next_first)
+                .keep_display:skip+tex_numeric.maximum(number_at(config,6),(depths.(last)+next_height)*unit+tex_numeric.pt())+tex_numeric.maximum(0,next_depth*unit-number_at(config,8))
+        block_has_notes:false
+        inspect:first
+        inspect<first+count?>
+            marker_counts.(inspect)>0? .block_has_notes:true
+            .inspect:inspect+1
+        break_plan: -2
+        line:0
+        line<count?>
+            index:first+line
+            next_height:heights.(index)
+            line+1<count? .next_height:heights.(index+1)
+            extent:(depths.(index)+next_height)*unit
+            line_height:leading
+            leading-extent<number_at(config,9)? .line_height:extent+tex_numeric.pt()
+            prospective:assignedNotes
+            marker:marker_firsts.(index)
+            stop:marker+marker_counts.(index)
+            marker<stop?>
+                (marker>=0 /\ marker<markers.count)?! "Invalid line footnote marker range"
+                id:marker_ids.(marker)
+                (id>=0 /\ id<notes.count)?! "Invalid line footnote ID"
+                .prospective:assign(prospective,page,id)
+                .marker:marker+1
+            marker_counts.(index)>0 /\ ~has_notes(assignedNotes,page) /\ ~footnoteFlex?
+                .pageShrink:pageShrink+2*tex_numeric.pt()
+                .pageStretch:pageStretch+4*tex_numeric.pt()
+                .footnoteFlex:true
+            goal:number_at(config,3)+number_at(config,5)-floatQueue.bottom_reserve-reserve(config,notes,prospective,page)
+            paragraph /\ line=0 /\ lastBaseline>0 /\ ~block_has_notes? .break_plan:paragraph_break(config,(last_baseline:lastBaseline,last_depth:lastDepth,last_used_shrink:lastUsedShrink,last_used_stretch:lastUsedStretch,ragged:ragged,shrink:pageShrink,stretch:pageStretch,has_notes:has_notes(assignedNotes,page)),lines,first,count,baseline,unit,number_at(config,6),goal,next_kind,keep_display)
+            next_baseline:baseline+tex_numeric.maximum(number_at(config,6),extent+tex_numeric.pt())
+            previous_bottom:lastBaseline+tex_numeric.maximum(0,lastDepth-number_at(config,8))
+            has_notes(assignedNotes,page)? .previous_bottom:lastBaseline+lastDepth
+            prior_cost:cost(goal,previous_bottom,lastUsedShrink,lastUsedStretch,ragged)
+            avoid_club:paragraph /\ line=0 /\ count>1 /\ next_baseline>goal /\ prior_cost<150+cost(goal,baseline,pageShrink,pageStretch,ragged)
+            avoid_widow:paragraph /\ line>0 /\ count-line=2 /\ next_baseline>goal /\ num(tex_numeric.badness(next_baseline-goal,pageShrink))>prior_cost
+            bottom:baseline+tex_numeric.maximum(0,depths.(index)*unit-number_at(config,8))
+            has_notes(prospective,page)? .bottom:baseline+depths.(index)*unit
+            worse:bottom>goal /\ lastBaseline>0 /\ num(tex_numeric.badness(bottom-goal,pageShrink))>prior_cost
+            break_now:bottom>goal+pageShrink+0.00001
+            break_plan~= -2?
+                line>break_plan? .break_now:true
+            break_plan= -2?
+                (~(kind="math" /\ block_from_paragraph(blocks,block)) /\ worse \/ avoid_club \/ avoid_widow)? .break_now:true
+            break_now?
+                float_transition4:float_start(config,snapshot(pageTable,assignedNotes,[y,lastBaseline,lastDepth,pendingAfter,lastLineRight,pageShrink,pageStretch,lastUsedShrink,lastUsedStretch,footnoteStretch,limit],[firstParagraph,ragged,footnoteFlex,forced],page,diagnostics),notes,floatQueue,placements,blocks,lines,floatHeights,floatAllowed,floatPages)
+                transition4:float_transition4.state
+                .floatQueue:float_transition4.queue
+                .placements:float_transition4.placements
+                .floatPages:float_transition4.float_pages
+                .pageTable:transition4.pages
+
+                .assignedNotes:transition4.notes
+                .page:transition4.page
+                .y:transition4.y
+                .lastBaseline:transition4.last_baseline
+                .lastDepth:transition4.last_depth
+                .pendingAfter:transition4.pending_after
+                .lastLineRight:transition4.last_line_right
+                .firstParagraph:transition4.first_paragraph
+                .ragged:transition4.ragged
+                .pageShrink:transition4.shrink
+                .pageStretch:transition4.stretch
+                .lastUsedShrink:transition4.last_used_shrink
+                .lastUsedStretch:transition4.last_used_stretch
+                .footnoteStretch:transition4.footnote_stretch
+                .footnoteFlex:transition4.footnote_flex
+                .limit:transition4.limit
+                .forced:transition4.forced
+                .diagnostics:transition4.diagnostics
+                .break_plan: -2
+                .baseline:y+tex_numeric.maximum(10*tex_numeric.pt(),heights.(index)*unit)
+                .prospective:assignedNotes
+                .marker:marker_firsts.(index)
+                marker<stop?>
+                    .prospective:assign(prospective,page,marker_ids.(marker))
+                    .marker:marker+1
+            .assignedNotes:prospective
+            shift:0.0
+            (block_centered(blocks,block) \/ kind="math" \/ kind="title" \/ kind="author" \/ caption)?
+                .shift:tex_numeric.maximum(0,(flow_width-block_widths(blocks,block)*unit)/2)
+                (block_centered(blocks,block) \/ kind="title" \/ kind="author")? .shift:tex_numeric.maximum(0,(flow_width-line_widths.(index)*unit)/2)
+                kind="math"? .shift:display_shift
+            paragraph /\ ~block_centered(blocks,block)?
+                line=0?
+                    (~firstParagraph \/ block_paragraph_after_display(blocks,block)) /\ ~block_no_indent_after_list(blocks,block)? .shift:block_indents(blocks,block)
+                line>0? .shift:line_indents.(index)*unit
+            text_shrink:pageShrink
+            footnoteFlex? .text_shrink:text_shrink-2*tex_numeric.pt()
+            .placements:append(placements,scene_ids.(index),source_lines.(index),page,block,line,0,number_at(config,2)+block_lefts(blocks,block)+shift,baseline-source_baselines.(index)*unit,unit,number_at(config,2)+number_at(config,4)-(block_widths(blocks,block)+10*tex_numeric.pt())*unit,heights.(index)*unit,depths.(index)*unit,text_shrink,pageStretch-footnoteStretch)
+            .lastLineRight:block_lefts(blocks,block)+shift+line_widths.(index)*unit
+            .lastBaseline:baseline
+            .lastDepth:natural_depths.(index)*unit
+            .lastUsedShrink:pageShrink
+            .lastUsedStretch:pageStretch
+            .limit:number_at(config,3)+number_at(config,5)-floatQueue.bottom_reserve-reserve(config,notes,assignedNotes,page)
+            depth:depths.(index)*unit
+            heading? .depth:3.6*tex_numeric.pt()
+            caption? .depth:lastDepth
+            .y:baseline+depth
+            .baseline:baseline+line_height
+            .line:line+1
+        kind="math" /\ block_has_last_row(blocks,block)?
+            .lastBaseline:lastBaseline+block_last_row_baselines(blocks,block)*unit
+            .lastDepth:block_last_row_depths(blocks,block)*unit
+        .pendingAfter:after
+        .y:y+after
+        .pageShrink:pageShrink+after_shrink
+        .pageStretch:pageStretch+after_stretch
+        .firstParagraph:false
+        kind="math"? .firstParagraph:true
+        ~flag_at(config,0) /\ (kind="section" \/ kind="subsection")? .firstParagraph:true
+        .block:block+1
+    document_float_queue.pending(floatQueue)?>
+        drained:float_start(config,snapshot(pageTable,assignedNotes,[y,lastBaseline,lastDepth,pendingAfter,lastLineRight,pageShrink,pageStretch,lastUsedShrink,lastUsedStretch,footnoteStretch,limit],[firstParagraph,ragged,footnoteFlex,forced],page,diagnostics),notes,floatQueue,placements,blocks,lines,floatHeights,floatAllowed,floatPages,false)
+        transitionDrain:drained.state
+        .floatQueue:drained.queue
+        .placements:drained.placements
+        .floatPages:drained.float_pages
+        .pageTable:transitionDrain.pages
+        .assignedNotes:transitionDrain.notes
+        .page:transitionDrain.page
+        .y:transitionDrain.y
+        .lastBaseline:transitionDrain.last_baseline
+        .lastDepth:transitionDrain.last_depth
+        .pendingAfter:transitionDrain.pending_after
+        .lastLineRight:transitionDrain.last_line_right
+        .firstParagraph:transitionDrain.first_paragraph
+        .ragged:transitionDrain.ragged
+        .pageShrink:transitionDrain.shrink
+        .pageStretch:transitionDrain.stretch
+        .lastUsedShrink:transitionDrain.last_used_shrink
+        .lastUsedStretch:transitionDrain.last_used_stretch
+        .footnoteStretch:transitionDrain.footnote_stretch
+        .footnoteFlex:transitionDrain.footnote_flex
+        .limit:transitionDrain.limit
+        .forced:transitionDrain.forced
+        .diagnostics:transitionDrain.diagnostics
+    finished:finish(config,snapshot(pageTable,assignedNotes,[y,lastBaseline,lastDepth,pendingAfter,lastLineRight,pageShrink,pageStretch,lastUsedShrink,lastUsedStretch,footnoteStretch,limit],[firstParagraph,ragged,footnoteFlex,forced],page,diagnostics),false)
+    .pageTable:finished.pages
+    # Apply page glue to reference transforms, retaining source scenes intact.
+    footnote_result:footnote_layout(config,pageTable,assignedNotes,lines,notes)
+    notePlacements:footnote_result.placements
+    noteScenes:notePlacements.scenes
+    noteSources:notePlacements.source_lines
+    notePages:notePlacements.pages
+    noteLines:notePlacements.lines
+    noteXs:notePlacements.xs
+    noteYs:notePlacements.ys
+    noteHeights:notePlacements.line_heights
+    noteDepths:notePlacements.line_depths
+    noteIndex:0
+    noteIndex<notePlacements.count?>
+        .placements:append(placements,noteScenes.(noteIndex),noteSources.(noteIndex),notePages.(noteIndex), -1,noteLines.(noteIndex),1,noteXs.(noteIndex),noteYs.(noteIndex),1,0,noteHeights.(noteIndex),noteDepths.(noteIndex),0,0)
+        .noteIndex:noteIndex+1
+    py:placements.ys
+    placement_pages:placements.pages
+    placement_kinds:placements.kinds
+    placement_shrink:placements.shrink
+    placement_stretch:placements.stretch
+    pages:pageTable
+    shrink_ratios:pages.shrink_ratios
+    stretch_ratios:pages.stretch_ratios
+    adjustment:0
+    adjustment<placements.count?>
+        placement_kinds.(adjustment)=0?
+            adjustmentPage:placement_pages.(adjustment)
+            py.(adjustment):py.(adjustment)-shrink_ratios.(adjustmentPage)*placement_shrink.(adjustment)+stretch_ratios.(adjustmentPage)*placement_stretch.(adjustment)
+        .adjustment:adjustment+1
+    placements.ys:py
+    .placements:placements
+    @:(pages:pageTable,placements:placements,footnotes:assignedNotes,rules:footnote_result.rules,diagnostics:diagnostics,complete:diagnostics="",float_pages:floatPages)
+
+footnote_layout(config:Config,pages:Pages,assignments:Assignments,lines:Lines,notes:Notes):
+    placements:empty_placements()
+    page_count:pages.count
+    rule_pages:nil(page_count)
+    rule_xs:zeros(page_count)
+    rule_ys:zeros(page_count)
+    rule_widths:zeros(page_count)
+    rule_heights:zeros(page_count)
+    rule_count:0
+    last:pages.last_baselines
+    depths:pages.last_depths
+    shrinks:pages.shrink_ratios
+    stretches:pages.stretch_ratios
+    stretch:pages.note_stretch
+    assigned_pages:assignments.pages
+    assigned_ids:assignments.notes
+    firsts:notes.firsts
+    counts:notes.counts
+    first_heights:notes.first_heights
+    note_depths:notes.depths
+    indents:notes.indents
+    scenes:lines.scenes
+    source_lines:lines.source_lines
+    baselines:lines.baselines
+    heights:lines.heights
+    line_depths:lines.depths
+    page:0
+    page<page_count?>
+        has_notes(assignments,page)?
+            bottom:last.(page)+depths.(page)+number_at(config,12)-2*tex_numeric.pt()*shrinks.(page)+stretch.(page)*stretches.(page)
+            rule_pages.(rule_count):page
+            rule_xs.(rule_count):number_at(config,2)
+            rule_ys.(rule_count):bottom-3*tex_numeric.pt()
+            rule_widths.(rule_count):0.4*number_at(config,4)
+            rule_heights.(rule_count):0.4*tex_numeric.pt()
+            flag_at(config,0)?
+                rule_ys.(rule_count):bottom-0.4*tex_numeric.pt()
+                rule_widths.(rule_count):60*tex_numeric.pt()
+                .bottom:bottom+11*tex_numeric.pt()-number_at(config,14)
+            .rule_count:rule_count+1
+            assignment:0
+            assignment<assignments.count?>
+                assigned_pages.(assignment)=page?
+                    note:assigned_ids.(assignment)
+                    first:firsts.(note)
+                    count:counts.(note)
+                    (first>=0 /\ first+count<=lines.count)?! "Invalid laid-out footnote line range"
+                    baseline:bottom+first_heights.(note)
+                    line:0
+                    line<count?>
+                        index:first+line
+                        indent:0.0
+                        line=0? .indent:indents.(note)
+                        .placements:append(placements,scenes.(index),source_lines.(index),page, -1,line,1,number_at(config,2)+indent,baseline-baselines.(index),1,0,heights.(index),line_depths.(index),0,0)
+                        .baseline:baseline+number_at(config,13)
+                        .line:line+1
+                    .bottom:baseline-number_at(config,13)+note_depths.(note)
+                .assignment:assignment+1
+        .page:page+1
+    @:(placements:placements,rules:(pages:rule_pages,xs:rule_xs,ys:rule_ys,widths:rule_widths,heights:rule_heights,count:rule_count))
+
+# Convert one retained source leaf to page coordinates. Source metadata remains
+# with the scene; glyph sx/sy multiply the returned unit. Link rectangles and
+# equation-number alignment follow the original document placement rules.
+position(placements:Placements,index:int,x:num,y:num,width:num,height:num,kind:str,equation_tag:bit=false,tag_width:num=0,source_baseline:num=0):
+    unit:placements.units.(index)
+    px:placements.xs.(index)+x*unit
+    py:placements.ys.(index)+y*unit
+    w:width*unit
+    h:height*unit
+    equation_tag? .px:placements.tag_bases.(index)+(x-tag_width)*unit
+    kind="link"?
+        .px:placements.xs.(index)+x*unit-tex_numeric.pt()
+        .py:placements.ys.(index)+source_baseline*unit-placements.line_heights.(index)-tex_numeric.pt()
+        .w:w+2*tex_numeric.pt()
+        .h:placements.line_heights.(index)+placements.line_depths.(index)+2*tex_numeric.pt()
+    @:(x:px,y:py,width:w,height:h,unit:unit)

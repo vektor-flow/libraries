@@ -1,0 +1,176 @@
+# Knuth/Liang English patterns, matching document-text.mjs opportunity decisions.
+# Installed assets contain only language trie/exception data, never word results.
+text:.frozen285_tex_text
+text_chunks:.frozen285_text_chunks
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+Positions:(values:[int],count:int)
+ints(size:int)->[int]:[0:size]
+strings(size:int)->[str]:text_chunks.empty(size)
+empty()->Positions:@:(values:ints(32),count:0)
+append(out:Positions,value:int)->Positions:
+    values:out.values
+    count:out.count
+    count>=values.length()? .values:values&ints(values.length()+1)
+    values.(count):value
+    @:(values:values,count:count+1)
+
+magic()->str:"VKF-HYPHENATION/1               "
+fixed(source:str,at:int,width:int)->int:
+    result:0
+    i:0
+    i<width?>
+        c:text.at(source,at+i)
+        (c>="0" /\ c<="9")?! "Invalid hyphenation asset integer"
+        .result:result*10+int(vkf_decimal_parse(c))
+        .i:i+1
+    @:result
+load(source:str)->Language:
+    size:text.byte_length(source)
+    (size>=72 /\ text.matches(source,0,magic()))?! "Invalid hyphenation asset header"
+    nodes:fixed(source,32,8)
+    edges:fixed(source,40,8)
+    weights:fixed(source,48,8)
+    exceptions:fixed(source,56,8)
+    exception_bytes:fixed(source,64,8)
+    (nodes>0 /\ nodes<=1000000 /\ edges>=0 /\ edges<=1000000 /\ weights>=0 /\ weights<=10000000 /\ exceptions>=0 /\ exceptions<=1000000)?! "Invalid hyphenation asset counts"
+    edge_start:72+20*nodes
+    weight_start:edge_start+9*edges
+    exception_start:weight_start+weights
+    (exception_start<=size /\ exception_bytes=size-exception_start)?! "Invalid hyphenation asset size"
+    @:(source:source,nodes:nodes,edges:edges,weights:weights,exceptions:exceptions,node_start:72,edge_start:edge_start,weight_start:weight_start,exception_start:exception_start,size:size)
+
+child(language:Language,node:int,letter:str)->int:
+    (node>=0 /\ node<language.nodes)?! "Invalid hyphenation trie node"
+    at:language.node_start+20*node
+    first:fixed(language.source,at,8)
+    count:fixed(language.source,at+8,2)
+    (first>=0 /\ count>=0 /\ count<=27 /\ first+count<=language.edges)?! "Invalid hyphenation trie edges"
+    i:0
+    i<count?>
+        edge:language.edge_start+9*(first+i)
+        text.at(language.source,edge)=letter?
+            result:fixed(language.source,edge+1,8)
+            (result>=0 /\ result<language.nodes)?! "Invalid hyphenation trie child"
+            @:result
+        .i:i+1
+    @: -1
+
+lower_scalar(c:int)->str:
+    c>=65 /\ c<=90? @:str(chr(c+32))
+    c=8490? @:"k"
+    @:str(chr(c))
+lower(value:str)->str:value >> lower_scalar(int($))
+ascii(c:str)->bit:(c>="a" /\ c<="z") \/ (c>="A" /\ c<="Z")
+
+# Configuration overrides use lowercase keys with all ASCII hyphens removed.
+# Only ASCII keys can match a lowercase ASCII run; Kelvin sign lowercases to k.
+exception_matches(raw:str,word:str)->bit:
+    value:lower(raw)
+    i:0
+    j:0
+    ~vkf_string_eof(value,i)?>
+        c:text.at(value,i)
+        .i:text.next(value,i)
+        c="-"? @>
+        vkf_string_eof(word,j)? @:false
+        c~=text.at(word,j)? @:false
+        .j:text.next(word,j)
+    @:vkf_string_eof(word,j)
+
+exception_for(language:Language,word:str,overrides:[str])->str:
+    i:overrides.length()-1
+    i>=0?>
+        raw:overrides.(i)
+        exception_matches(raw,word)? @:raw
+        .i:i-1
+    cursor:language.exception_start
+    index:0
+    index<language.exceptions?>
+        end:cursor
+        end<language.size?>
+            text.at(language.source,end)="\n"? @|
+            .end:text.next(language.source,end)
+        (end<language.size)?! "Unterminated hyphenation exception"
+        raw:text.span(language.source,cursor,end)
+        exception_matches(raw,word)? @:raw
+        .cursor:end+1
+        .index:index+1
+    @:""
+
+word_positions(language:Language,word:str,overrides:[str])->Positions:
+    size:text.byte_length(word)
+    out:empty()
+    size<5? @:out
+    exception:exception_for(language,word,overrides)
+    ~vkf_string_eof(exception,0)?
+        at:0
+        offset:0
+        ~vkf_string_eof(exception,at)?>
+            c:text.at(exception,at)
+            c="-"? .out:append(out,offset)
+            c~="-"? .offset:offset+1
+            .at:text.next(exception,at)
+        @:out
+    value:"."&word&"."
+    length:size+2
+    weights:ints(length+1)
+    start:0
+    start<length?>
+        node:0
+        end:start
+        end<length?>
+            .node:child(language,node,text.at(value,end))
+            node<0? @|
+            entry:language.node_start+20*node
+            first:fixed(language.source,entry+10,8)
+            count:fixed(language.source,entry+18,2)
+            (first>=0 /\ count>=0 /\ first+count<=language.weights /\ start+count<=length+1)?! "Invalid hyphenation trie weights"
+            k:0
+            k<count?>
+                weight:fixed(language.source,language.weight_start+first+k,1)
+                weight>weights.(start+k)? weights.(start+k):weight
+                .k:k+1
+            .end:end+1
+        .start:start+1
+    i:2
+    i<=size-3?>
+        weights.(i+1)%2=1? .out:append(out,i)
+        .i:i+1
+    @:out
+
+# JS RegExp indices and returned positions count UTF-16 units, whereas VKF's
+# cursor counts UTF-8 bytes. Non-ASCII scalars delimit ASCII letter runs.
+opportunities(word:str,language:Language,overrides:[str])->Positions:
+    out:empty()
+    at:0
+    ~vkf_string_eof(word,at)?>
+        c:text.at(word,at)
+        c="-" \/ c="—" \/ c="–"? @:out
+        .at:text.next(word,at)
+    .at:0
+    utf16:0
+    ~vkf_string_eof(word,at)?>
+        c:text.at(word,at)
+        ascii(c)?
+            begin:at
+            offset:utf16
+            length:0
+            ~vkf_string_eof(word,at)?>
+                ~ascii(text.at(word,at))? @|
+                .length:length+1
+                .at:at+1
+                .utf16:utf16+1
+            length>=5?
+                part:word_positions(language,lower(text.span(word,begin,at)),overrides)
+                values:part.values
+                i:0
+                i<part.count?>
+                    .out:append(out,offset+values.(i))
+                    .i:i+1
+            .at:at
+            @>
+        next:text.next(word,at)
+        .utf16:utf16+1
+        next-at>=4? .utf16:utf16+1
+        .at:next
+    @:out

@@ -21,3 +21,15 @@ class SpatialAccuracyTests(unittest.TestCase):
   r=self.page();a=r.copy();a[10:22,5:13]=255;a[10:22,9:17]=0
   report=spatial_accuracy(r,a);self.assertFalse(report['localPixelsPassed']);self.assertTrue(report['regions']);self.assertEqual(len(report['regions']),2)
 if __name__=='__main__':unittest.main()
+
+class GlyphNeighborhoodTests(unittest.TestCase):
+ def test_error_is_ink_normalized_without_blank_page_dilution(self):
+  from document_accuracy import glyph_neighborhood_accuracy
+  r=np.full((1000,1000,3),255,np.uint8);r[10:20,10:20]=0;a=r.copy();a[10,10]=255
+  glyph={'reference':[10,20],'gpu':[10,20],'referenceBBox':[10,10,20,20],'referenceSize':10,'gpuSize':10}
+  result=glyph_neighborhood_accuracy(r,a,[glyph],scale=1)
+  self.assertAlmostEqual(result['maximumError'],.01);self.assertTrue(result['passed'])
+  a[10,11]=255;self.assertFalse(glyph_neighborhood_accuracy(r,a,[glyph],scale=1)['passed'])
+ def test_missing_character_boxes_never_pass(self):
+  from document_accuracy import glyph_neighborhood_accuracy
+  page=np.full((20,20,3),255,np.uint8);result=glyph_neighborhood_accuracy(page,page,[{}]);self.assertFalse(result['passed']);self.assertEqual(result['unmeasuredGlyphs'],1)

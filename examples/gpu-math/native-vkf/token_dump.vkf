@@ -1,0 +1,15 @@
+io:.io
+lexer:.tex_tokens
+run()->int:
+    path:io.read_line()
+    source:io.read_text(path)
+    tape:lexer.tokenize(source)
+    ::tape.count
+    index:0
+    true?>
+        index>=tape.count? @:0
+        ::tape.kinds.(index)
+        ::tape.starts.(index)
+        ::tape.stops.(index)
+        .index:index+1
+run()

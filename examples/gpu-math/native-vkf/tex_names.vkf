@@ -1,0 +1,75 @@
+# Per-document name-to-integer table. Source text and results are never retained
+# between documents; this is ordinary parser state, shared by native and WASM.
+text:.tex_text
+Names:(keys:str,starts:[int],stops:[int],hashes:[int],values:[int],count:int,capacity:int)
+
+hash(key:str)->int:
+    value:0
+    key >>
+        .value:(value*131+int($))%2147483647
+        $
+    @:value
+
+create(capacity:int=32)->Names:
+    (capacity>=2 /\ capacity<=1048576)?! "Invalid name-table capacity"
+    [int] starts:[0:capacity]
+    [int] stops:[0:capacity]
+    [int] hashes:[0:capacity]
+    [int] values:[0:capacity]
+    @:(keys:"",starts:starts,stops:stops,hashes:hashes,values:values,count:0,capacity:capacity)
+
+slot(table:Names,key:str,key_hash:int)->int:
+    index:key_hash%table.capacity
+    visited:0
+    true?>
+        table.values.(index)=0? @:index
+        table.hashes.(index)=key_hash?
+            text.span(table.keys,table.starts.(index),table.stops.(index))=key? @:index
+        .index:(index+1)%table.capacity
+        .visited:visited+1
+        (visited<table.capacity)?! "Name table has no free slot"
+    @:index
+
+get(table:Names,key:str)->int:
+    index:slot(table,key,hash(key))
+    @:table.values.(index)-1
+
+grow(table:Names)->Names:
+    capacity:table.capacity*2
+    (capacity<=1048576)?! "Name-table size limit"
+    [int] starts:[0:capacity]
+    [int] stops:[0:capacity]
+    [int] hashes:[0:capacity]
+    [int] values:[0:capacity]
+    old:0
+    old<table.capacity?>
+        table.values.(old)>0?
+            index:table.hashes.(old)%capacity
+            values.(index)>0?> .index:(index+1)%capacity
+            starts.(index):table.starts.(old)
+            stops.(index):table.stops.(old)
+            hashes.(index):table.hashes.(old)
+            values.(index):table.values.(old)
+        .old:old+1
+    @:(keys:table.keys,starts:starts,stops:stops,hashes:hashes,values:values,count:table.count,capacity:capacity)
+
+put(table:Names,key:str,value:int)->Names:
+    (value>=0)?! "Name-table values are nonnegative identifiers"
+    current:table
+    (table.count+1)*10>=table.capacity*7? .current:grow(table)
+    key_hash:hash(key)
+    index:slot(current,key,key_hash)
+    starts:current.starts
+    stops:current.stops
+    hashes:current.hashes
+    values:current.values
+    keys:current.keys
+    count:current.count
+    values.(index)=0?
+        starts.(index):text.byte_length(keys)
+        .keys:keys&key
+        stops.(index):text.byte_length(keys)
+        hashes.(index):key_hash
+        .count:count+1
+    values.(index):value+1
+    @:(keys:keys,starts:starts,stops:stops,hashes:hashes,values:values,count:count,capacity:current.capacity)

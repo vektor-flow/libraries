@@ -1,0 +1,66 @@
+url_test_boxes:.text_url_boxes
+url_test_parser:.text_parser
+url_test_fonts:.font_catalog
+url_test_data:.test_font_data
+url_test_chunks:.text_chunks
+url_test_text:.tex_text
+url_test_json:.resource_json
+fonts():
+    keys:url_test_chunks.empty(10)
+    values:url_test_chunks.empty(10)
+    keys.(0):"font/roman"
+    keys.(1):"font/mono"
+    values.(0):"{\"name\":\"cmr10\",\"size\":10,\"spaces\":{\"slant\":0,\"space\":3,\"quad\":12}}"
+    values.(1):"{\"name\":\"cmtt10\",\"size\":10,\"spaces\":{\"slant\":0,\"space\":3,\"xheight\":4,\"quad\":10}}"
+    chars:[97,98,99,58,47,45,126,46]
+    i:0
+    i<8?>
+        code:url_test_text.integer(chars.(i))
+        keys.(i+2):"text/mono/"&code
+        values.(i+2):"{\"key\":\"text/@document:mono:"&code&"\",\"advance\":1,\"height\":2,\"depth\":0,\"italic\":0}"
+        .i:i+1
+    @:url_test_fonts.load(url_test_data.pack(keys,values))
+renderer_tests()->bit:
+    fonts:fonts()
+    context:url_test_parser.context("roman",["roman","mono"],false,true)
+    parsed:url_test_parser.parse("\\url{a/b:c}",fonts,context)
+    provider:url_test_boxes.provide(parsed.stream,fonts,1.5)
+    ids:provider.operation_ids
+    kinds:provider.kinds
+    penalties:provider.penalties
+    diagnostics:provider.diagnostics
+    (provider.count=8 /\ kinds.(0)=0 /\ kinds.(2)=3 /\ penalties.(2)=700 /\ penalties.(5)=500 /\ kinds.(7)=5 /\ ids.(0)=1 /\ ids.(7)=1)?! "Scalar character boxes keep actual URL operation with native bin/rel penalties"
+    (diagnostics.(7)="\"URL line breaking: unbreakable component exceeds line width\"")?! "Maximum component width warning follows character shaping"
+    bib:url_test_parser.parse("\\url{a-b}",fonts,context)
+    bibliography:url_test_boxes.provide(bib.stream,fonts,100,true)
+    bib_kinds:bibliography.kinds
+    bib_stretches:bibliography.stretches
+    bib_penalties:bibliography.penalties
+    (bibliography.count=7 /\ bib_kinds.(1)=1 /\ bib_kinds.(4)=1 /\ bib_stretches.(1)=2 /\ bib_penalties.(3)=100)?! "Bibliographic hyphen relation inserts exact nonbreaking zero-width glue"
+    tilde:url_test_parser.parse("\\url{~}",fonts,context)
+    raised:url_test_boxes.provide(tilde.stream,fonts,100)
+    raised_scenes:raised.scenes
+    scene:url_test_json.parse(raised_scenes.(0))
+    item:url_test_json.element(scene,url_test_json.member(scene,0,"items"),0)
+    (|url_test_json.number(scene,url_test_json.member(scene,item,"y"))-1.8|<0.000000000001)?! "Only actual mono tilde leaf receives font-xheight y adjustment"
+    unfinished:url_test_parser.parse("\\url{abc",fonts,context)
+    incomplete:url_test_boxes.provide(unfinished.stream,fonts,1)
+    unfinished_messages:incomplete.diagnostics
+    (unfinished_messages.(incomplete.count-1)="\"URL line breaking: unbreakable component exceeds line width\",\"Unfinished URL\"")?! "Unfinished URL is the last provider warning"
+    empty:url_test_parser.parse("\\url{}",fonts,context)
+    resolved:url_test_boxes.provide(empty.stream,fonts,100)
+    empty_kinds:resolved.kinds
+    (resolved.count=1 /\ empty_kinds.(0)=5)?! "Empty URL still resolves and resets source sentence factor"
+    unicode:url_test_boxes.characters("😀:",false)
+    classes:unicode.classes
+    (unicode.count=2 /\ unicode.units=3 /\ classes.(1)=2)?! "URL class iteration uses scalars while final penalty test retains UTF16 length"
+    fallback_keys:["font/roman","text/roman/97"]
+    fallback_values:["{\"size\":10,\"spaces\":{\"space\":3,\"quad\":12}}","{\"key\":\"fallback-a\",\"advance\":3,\"height\":2,\"depth\":0,\"italic\":0}"]
+    fallback_fonts:url_test_fonts.load(url_test_data.pack(fallback_keys,fallback_values))
+    fallback_source:url_test_parser.parse("\\url{a}",fallback_fonts,context)
+    fallback:url_test_boxes.provide(fallback_source.stream,fallback_fonts,100)
+    fallback_widths:fallback.widths
+    fallback_scenes:fallback.scenes
+    (fallback_widths.(0)=3 /\ url_test_text.find(fallback_scenes.(0),"fallback-a")>=0)?! "Missing mono role uses actual roman asset without scaled metrics"
+    @:true
+renderer_tests()

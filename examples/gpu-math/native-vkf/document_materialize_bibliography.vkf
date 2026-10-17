@@ -1,0 +1,39 @@
+# Raw bibliography preparation and font-measured label width selection.
+bibliography:.bibliography
+document_present:.document_present
+document_materialize_config:.document_materialize_config
+resource_json:.resource_json
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+PageConfig:(values:[num],flags:[bit],penalties:[int])
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Configuration:(config:str,pages:PageConfig,packages:[str],math:MathContext,overrides:[str],class_name:str,optical:bit,hyperref:bit,diagnostics:str)
+prepare(source:str,files:str,entry:str,imports:str,fonts:Catalog,roles:[str],language:Language,c:Configuration):
+    options:document_materialize_config.requested_options(c.class_name,imports,"biblatex")
+    prepared:bibliography.prepare(source,files,entry,options)
+    labels:resource_json.parse(prepared.labels_json)
+    ends:labels.ends
+    at:1
+    widest:"9"
+    width: -1.0
+    diagnostics:""
+    at<labels.count?>
+        label:resource_json.string(labels,at+1)
+        measured:document_present.measure("["&label&"]","roman",fonts,roles,language,c)
+        .diagnostics:document_materialize_config.merge(diagnostics,measured.diagnostics)
+        measured.width>width?
+            .width:measured.width
+            .widest:label
+        .at:ends.(at+1)
+    out:prepared
+    out.source:bibliography.set_widest(prepared.source,widest,source)
+    # Keep diagnostic transport public JSON; paragraph warnings remain separate.
+    output_diagnostics:resource_json.parse(prepared.diagnostics_json)
+    output_ends:output_diagnostics.ends
+    .at:1
+    at<output_diagnostics.count?>
+        .diagnostics:document_materialize_config.merge(diagnostics,document_materialize_config.raw(output_diagnostics,at))
+        .at:output_ends.(at)
+    out.diagnostics_json:"["&diagnostics&"]"
+    out.complete:prepared.complete /\ diagnostics=""
+    @:out

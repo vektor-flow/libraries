@@ -1,0 +1,73 @@
+# Whole full-scene float/page bridge tests, separate from queue planner tests.
+float_pages_test:.document_pages
+float_pages_text:.resource_json
+close(a:num,b:num)->bit:|a-b|<0.000000001
+flow(placement:str,height:num,figure:bit=true,forced:bit=false):
+    config:float_pages_test.settings(600,600,20,10,100,400,12,10)
+    blocks:float_pages_test.empty_blocks(3)
+    at:0
+    at<3?>
+        .blocks:float_pages_test.with_block_kinds(blocks,at,"paragraph")
+        .blocks:float_pages_test.with_block_firsts(blocks,at,at)
+        .blocks:float_pages_test.with_block_counts(blocks,at,1)
+        .blocks:float_pages_test.with_block_widths(blocks,at,20)
+        .at:at+1
+    figure?
+        .blocks:float_pages_test.with_block_kinds(blocks,1,"figure")
+        .blocks:float_pages_test.with_block_contexts(blocks,1,"{\"placement\":"&float_pages_text.quote(placement)&"}")
+    ~figure? .blocks:float_pages_test.with_block_counts(blocks,1,0)
+    forced? .blocks:float_pages_test.with_block_kinds(blocks,2,"pagebreak")
+    lines:float_pages_test.empty_lines(3)
+    scenes:lines.scenes
+    heights:lines.heights
+    depths:lines.depths
+    natural:lines.natural_depths
+    widths:lines.widths
+    .at:0
+    at<3?>
+        scenes.(at):at
+        heights.(at):8
+        depths.(at):2
+        natural.(at):2
+        widths.(at):20
+        .at:at+1
+    heights.(1):height
+    depths.(1):0
+    natural.(1):0
+    lines.scenes:scenes
+    lines.heights:heights
+    lines.depths:depths
+    lines.natural_depths:natural
+    lines.widths:widths
+    @:float_pages_test.layout(config,blocks,lines,float_pages_test.empty_notes(0),float_pages_test.empty_markers(0))
+renderer_tests()->bit:
+    pt:72/72.27
+    plain:flow("",40,false)
+    top:flow("t",40)
+    (top.pages.count=1 /\ top.placements.count=3 /\ ~top.complete)?! "Top float retains source text and reports existing experimental diagnostic"
+    top_kinds:top.placements.kinds
+    top_scenes:top.placements.scenes
+    top_ys:top.placements.ys
+    plain_ys:plain.placements.ys
+    (top_kinds.(0)=3 /\ top_scenes.(0)=1 /\ close(top_ys.(0),10))?! "Late top float inserts before text in page drawing order"
+    (close(top_ys.(1),plain_ys.(0)+40+20*pt) /\ close(top_ys.(2),plain_ys.(1)+40+20*pt))?! "Top float shifts existing and subsequent paragraph geometry consistently"
+    bottom:flow("b",50)
+    bottom_kinds:bottom.placements.kinds
+    bottom_ys:bottom.placements.ys
+    (bottom_kinds.(1)=4 /\ close(bottom_ys.(1),360) /\ close(bottom_ys.(0),plain_ys.(0)))?! "Bottom float retains text origin and uses physical text bottom"
+    deferred:flow("p",250)
+    deferred_pages:deferred.placements.pages
+    deferred_kinds:deferred.placements.kinds
+    deferred_ys:deferred.placements.ys
+    deferred_flags:deferred.float_pages
+    (deferred.pages.count=2 /\ deferred_pages.(2)=1 /\ deferred_kinds.(2)=5 /\ deferred_flags.(1))?! "Deferred floats drain into a separate float page"
+    close(deferred_ys.(2),85)?! "Float page centers actual measured scene"
+    fallback:flow("t",350,true,true)
+    fallback_pages:fallback.placements.pages
+    fallback_kinds:fallback.placements.kinds
+    fallback_ys:fallback.placements.ys
+    fallback_flags:fallback.float_pages
+    (fallback.pages.count=3 /\ fallback_pages.(1)=1 /\ fallback_kinds.(1)=5 /\ ~fallback_flags.(1))?! "Oversized deferred top float occupies fallback page without asserting floatPage metadata"
+    close(fallback_ys.(1),35)?! "Fallback float is centered before next text page"
+    @:true
+renderer_tests()

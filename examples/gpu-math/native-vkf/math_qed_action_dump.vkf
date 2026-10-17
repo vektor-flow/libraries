@@ -1,0 +1,17 @@
+io:.io
+t:.math_qed_action_trace
+catalog:.font_catalog
+
+run()->int:
+    fonts:catalog.load(io.read_text(io.read_line()))
+    count:int(vkf_decimal_parse(io.read_line()))
+    i:0
+    i<count?>
+        source:io.read_text(io.read_line())
+        output:io.read_line()
+        inline:io.read_line()="inline"
+        display:io.read_line()="display"
+        io.write_text(output,t.trace(source,fonts,inline,display))
+        .i:i+1
+    @:0
+run()

@@ -1,0 +1,90 @@
+[
+  {
+    "name": "named-circles",
+    "source": "[x=9mm,y=-7mm,baseline=2pt]\\node[draw,circle,inner sep=0pt,minimum size=4pt](alpha) at (-2,3){};\\node[draw,circle,inner sep=0pt,minimum size=4pt](beta) at (5,-1){};\\draw[red,thick](alpha) to[out=20,in=145](beta);",
+    "reference": "pdfTeX 1.40.28 / TikZ 3.1.11a; native box dimensions and independent PDF curve vectors",
+    "width": 182.96614441450032,
+    "height": 62.61408937675125,
+    "depth": 63.711825284090914,
+    "curves": [
+      {
+        "delta": [
+          174.72988891601562,
+          -79.87855529785156
+        ],
+        "controls": [
+          {
+            "x": 70.6259765625,
+            "y": -25.705978393554688
+          },
+          {
+            "x": 113.16378784179688,
+            "y": -122.98760986328125
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "mixed-dimensions",
+    "source": "[x=8mm,y=-11mm,baseline=-4pt]\\draw[thick](2pt,3mm) -- (1.7,-2.4);",
+    "reference": "pdfTeX 1.40.28 / TikZ 3.1.11a; native box dimensions and independent PDF curve vectors",
+    "width": 37.355552663838736,
+    "height": 79.21797774945517,
+    "depth": 0.0,
+    "curves": []
+  },
+  {
+    "name": "oblique-cubic",
+    "source": "[x=1.3cm,y=9mm]\\draw[thick](0,0) to[out=20,in=145](2.3,-1.2);",
+    "reference": "pdfTeX 1.40.28 / TikZ 3.1.11a; native box dimensions and independent PDF curve vectors",
+    "width": 85.5531989414695,
+    "height": 43.466365144380454,
+    "depth": 0.0,
+    "curves": [
+      {
+        "delta": [
+          84.75727844238281,
+          30.614471435546875
+        ],
+        "controls": [
+          {
+            "x": 33.1217041015625,
+            "y": -12.055442810058594
+          },
+          {
+            "x": 55.88444519042969,
+            "y": 10.397445678710938
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "dotted-box",
+    "source": "\\draw[red,dotted,line width=.7pt](-2mm,1cm) rectangle(23mm,-1cm);",
+    "reference": "pdfTeX 1.40.28 / TikZ 3.1.11a; native box dimensions and independent PDF curve vectors",
+    "width": 71.56348507549814,
+    "height": 57.39025529265256,
+    "depth": 0.0,
+    "curves": []
+  },
+  {
+    "name": "polygon-inner-sep",
+    "source": "\\node[draw,regular polygon,regular polygon sides=4,inner sep=.7mm,minimum size=1mm]{};",
+    "reference": "pdfTeX 1.40.28 / TikZ 3.1.11a; independent native box dimensions",
+    "width": 6.011088788138232,
+    "height": 6.011088788138232,
+    "depth": 0.0,
+    "curves": []
+  },
+  {
+    "name": "polygon-minimum",
+    "source": "\\node[draw,regular polygon,regular polygon sides=4,inner sep=0pt,minimum size=7mm]{};",
+    "reference": "pdfTeX 1.40.28 / TikZ 3.1.11a; independent native box dimensions",
+    "width": 14.429258201665629,
+    "height": 14.429258201665629,
+    "depth": 0.0,
+    "curves": []
+  }
+]

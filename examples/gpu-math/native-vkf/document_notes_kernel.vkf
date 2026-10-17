@@ -1,0 +1,44 @@
+document_notes:.document_notes
+document_materialize_config:.document_materialize_config
+document_pages:.document_pages
+font_catalog:.font_catalog
+hyphenation:.hyphenation
+text_parser_kernel:.text_parser_kernel
+resource_json:.resource_json
+json_numbers:.json_numbers
+tex_text:.tex_text
+text_chunks:.text_chunks
+numbers(values:[num],count:int)->str:
+    chunks:text_chunks.empty(count)
+    i:0
+    i<count?>
+        prefix:""
+        i>0? .prefix:","
+        chunks.(i):prefix&json_numbers.roundtrip(values.(i))
+        .i:i+1
+    @:"["&text_chunks.join(chunks,0,count)&"]"
+integers(values:[int],count:int)->str:
+    chunks:text_chunks.empty(count)
+    i:0
+    i<count?>
+        prefix:""
+        i>0? .prefix:","
+        chunks.(i):prefix&tex_text.integer(values.(i))
+        .i:i+1
+    @:"["&text_chunks.join(chunks,0,count)&"]"
+note_packet(catalog:str,language_source:str,roles_json:str,class_name:str,class_options:str,definitions:str,hyperref:bit=false)->str:
+    fonts:font_catalog.load(catalog)
+    imports:"[]"
+    hyperref? .imports:"[{\"names\":\"hyperref\",\"options\":\"\"}]"
+    config:document_materialize_config.configure(class_name,class_options,imports,fonts)
+    result:document_notes.prepare(definitions,fonts,text_parser_kernel.roles(roles_json),hyphenation.load(language_source),config,document_pages.empty_lines(0),text_chunks.empty(0))
+    scenes:result.scenes
+    chunks:text_chunks.empty(scenes.length())
+    index:0
+    index<scenes.length()?>
+        prefix:""
+        index>0? .prefix:","
+        chunks.(index):prefix&scenes.(index)
+        .index:index+1
+    notes:result.notes
+    @:"{\"scenes\":["&text_chunks.join(chunks,0,scenes.length())&"],\"firstHeights\":"&numbers(notes.first_heights,notes.count)&",\"depths\":"&numbers(notes.depths,notes.count)&",\"reserves\":"&numbers(notes.reserves,notes.count)&",\"indents\":"&numbers(notes.indents,notes.count)&",\"firsts\":"&integers(notes.firsts,notes.count)&",\"counts\":"&integers(notes.counts,notes.count)&",\"diagnostics\":["&result.diagnostics&"],\"unresolved\":["&result.unresolved&"]}"

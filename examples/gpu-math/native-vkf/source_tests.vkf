@@ -1,0 +1,26 @@
+p:.tex_source
+
+ordinary_comments():
+    (p.strip_comments("a% hidden\nb")="ab")?! "comment consumes newline"
+    (p.strip_comments("a% trailing")="a")?! "trailing comment"
+    (p.strip_comments("plain é🙂")="plain é🙂")?! "Unicode source unchanged"
+
+literal_commands():
+    (p.strip_comments("a\\%b% hidden\nc")="a\\%bc")?! "escaped percent survives"
+    (p.strip_comments("\\url{a%20#b}% hidden\nx")="\\url{a%20#b}x")?! "braced URL"
+    (p.strip_comments("\\url|a%20#b|% hidden\nx")="\\url|a%20#b|x")?! "delimited URL"
+    (p.strip_comments("\\href{a%20}{text}% hidden\nx")="\\href{a%20}{text}x")?! "literal href target"
+    (p.strip_comments("\\verb*|a%b|% hidden\nx")="\\verb*|a%b|x")?! "literal verbatim"
+
+literal_environments():
+    source:"before\\begin{verbatim}\n% literal\n\\end{verbatim}% hidden\nafter"
+    expected:"before\\begin{verbatim}\n% literal\n\\end{verbatim}after"
+    (p.strip_comments(source)=expected)?! "verbatim environment"
+    (p.strip_comments("\\begin{verbatim}a%b")="\\begin{verbatim}a%b")?! "unfinished literal retained"
+
+renderer_tests()->bit:
+    ordinary_comments()
+    literal_commands()
+    literal_environments()
+    @:true
+renderer_tests()

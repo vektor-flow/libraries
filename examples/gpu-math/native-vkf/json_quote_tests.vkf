@@ -1,0 +1,17 @@
+json_quote_tests_json:.resource_json
+json_quote_tests_chunks:.text_chunks
+renderer_tests()->bit:
+    json_quote_tests_json.quote("")="\"\""?! "Empty JSON string"
+    json_quote_tests_json.quote("a\"b\\c\n\t")="\"a\\\"b\\\\c\\u000a\\u0009\""?! "Quote controls and slash"
+    json_quote_tests_json.quote("é中😀")="\"é中😀\""?! "Unicode scalars remain literal"
+    chunks:json_quote_tests_chunks.empty(4096)
+    i:0
+    i<4096?>
+        chunks.(i):"abcé中😀\n\"\\"
+        .i:i+1
+    source:json_quote_tests_chunks.join(chunks,0,4096)
+    encoded:json_quote_tests_json.quote(source)
+    decoded:json_quote_tests_json.string(json_quote_tests_json.parse(encoded),0)
+    decoded=source?! "Large UTF8 string roundtrips across chunk boundaries"
+    @:true
+::renderer_tests()

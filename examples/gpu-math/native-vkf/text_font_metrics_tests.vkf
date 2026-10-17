@@ -1,0 +1,60 @@
+font_metrics:.text_font_metrics
+shaping:.text_shaping
+fixtures:.text_shaping_tests
+font_catalog:.font_catalog
+json:.resource_json
+chunks:.text_chunks
+test_data:.test_font_data
+text:.tex_text
+
+renderer_tests()->bit:
+    fonts:fixtures.fonts()
+    initial:font_metrics.empty()
+    first:font_metrics.context(initial,fonts,"roman")
+    (first.state.role_count=1 /\ initial.role_count=0)?! "decoded role belongs to current immutable request state"
+    again:font_metrics.context(first.state,fonts,"roman")
+    (again.state.role_count=1 /\ again.context.space=3)?! "typed role reuse preserves installed spaces"
+    a:font_metrics.lookup(again.state,fonts,"text/roman/65")
+    (a.found /\ a.index=0 /\ a.state.count=1 /\ again.state.count=0)?! "glyph decoding leaves incoming state unchanged"
+    repeated:font_metrics.lookup(a.state,fonts,"text/roman/65")
+    (repeated.index=0 /\ repeated.state.count=1 /\ font_metrics.kern(repeated.state,0,86)= -2)?! "typed glyph hit and kern columns"
+    missing:font_metrics.lookup(repeated.state,fonts,"text/roman/999")
+    (~missing.found /\ missing.state.count=1)?! "missing glyph does not create a decoded symbol"
+    run:shaping.shape_prepared("AV ffi",fonts,first.context,repeated.state)
+    (run.run.width=25 /\ run.state.count=3 /\ run.run.atoms=3)?! "prepared shaping decodes only distinct installed symbols"
+    retained:shaping.retain(shaping.empty_store(),run.run)
+    restored:shaping.restore(retained,0)
+    (restored.keys.(0)="A" /\ restored.keys.(1)="V" /\ restored.keys.(2)="ffi" /\ restored.xs.(1)=5 /\ restored.width=25 /\ restored.metrics.(0)=font_catalog.raw(fonts,"text/roman/65"))?! "typed measured range retains exact placement and raw metric adapter"
+    partial:shaping.range_prepared("office",2,5,fonts,first.context,run.state)
+    (partial.run.starts.(0)=2 /\ partial.run.stops.(0)=4)?! "prepared partial shaping keeps original UTF16 indices"
+    only_ligatures:font_metrics.role(initial,"roman",first.context.ligatures)
+    hydrated:font_metrics.context(only_ligatures.state,fonts,"roman")
+    (hydrated.context.space=3 /\ hydrated.state.role_count=1)?! "partial role decoding is completed from the current font asset"
+    many_keys:chunks.empty(71)
+    many_values:chunks.empty(71)
+    many_keys.(0):"font/roman"
+    many_values.(0):"{\"spaces\":{\"space\":3},\"ligatures\":{}}"
+    i:0
+    i<70?>
+        many_keys.(i+1):"text/roman/"&text.integer(i)
+        many_values.(i+1):"{\"key\":"&json.quote("g"&text.integer(i))&",\"advance\":"&text.integer(i)&"}"
+        .i:i+1
+    many_fonts:font_catalog.load(test_data.pack(many_keys,many_values))
+    grown:font_metrics.empty()
+    .i:0
+    i<70?>
+        loaded:font_metrics.lookup(grown,many_fonts,"text/roman/"&text.integer(i))
+        .grown:loaded.state
+        (loaded.index=i /\ grown.advances.(i)=i)?! "typed font columns survive growth and hash collisions"
+        .i:i+1
+    (grown.count=70 /\ grown.slots.length()>64 /\ grown.keys.length()>32)?! "glyph and hash storage grow from runtime font contents"
+    .i:69
+    i>=0?>
+        found:font_metrics.lookup(grown,many_fonts,"text/roman/"&text.integer(i))
+        (found.index=i /\ found.state.count=70 /\ found.state.names.(i)="g"&text.integer(i))?! "rehash keeps every font glyph index stable"
+        .i:i-1
+    values:[1.0,2.0,3.0]
+    shifted:values_i+[4.0,5.0,6.0]_i
+    (shifted.(0)=5 /\ shifted.(1)=7 /\ shifted.(2)=9)?! "published compiler aligns typed columns by named index"
+    @:true
+renderer_tests()

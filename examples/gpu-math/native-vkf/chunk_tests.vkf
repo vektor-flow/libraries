@@ -1,0 +1,18 @@
+c:.text_chunks
+
+owned_strings_and_balanced_join():
+    values:c.empty(4)
+    values.(0):"α"
+    values.(1):"🙂"
+    values.(2):"changed"
+    (c.join(values,0,0)="")?! "empty chunk join"
+    (c.join(values,0,1)="α")?! "one chunk"
+    (c.join(values,0,3)="α🙂changed")?! "balanced owned-string join"
+    .values:values&c.empty(4)
+    values.(7):"tail"
+    (c.join(values,0,8)="α🙂changedtail")?! "grown string vector"
+
+renderer_tests()->bit:
+    owned_strings_and_balanced_join()
+    @:true
+renderer_tests()

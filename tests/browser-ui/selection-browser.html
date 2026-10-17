@@ -1,0 +1,35 @@
+<!doctype html><meta charset="utf-8"><canvas id="layer"></canvas><pre id="result">PENDING</pre><script type="module">
+import {createSelectionController,bindSelectionInput} from '../../browser-ui/vf-selection-controller.mjs';
+import {textSelectionObjects,imageSelectionObject} from '../../browser-ui/vf-selection-adapters.mjs';
+const out=document.querySelector('#result'),canvas=document.querySelector('canvas'),checks=[];
+const check=(name,ok)=>{checks.push({name,pass:!!ok});if(!ok)throw Error(name)};
+const box=(x,y,w,h)=>[[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
+try {
+ for(const zoom of [1,1.5])for(const dpr of [1,2]){
+ const coords={worldToScreen:p=>p.map(v=>v*zoom)},source={id:'source',text:'abc',offsetUnit:'utf16',start:0,end:1};
+ const text=textSelectionObjects({elementId:'text',coordinates:coords,groups:[{id:'word',kind:'word'}],clusters:[
+ {id:'overlap',groupId:'word',source,rings:[box(50,20,40,50)]},
+ {id:'hole',groupId:'word',source,rings:[box(110,20,60,60),box(125,35,30,30)]},
+ {id:'island',groupId:'word',source,rings:[box(190,20,15,25)]}]});
+ const image=imageSelectionObject({imageId:'image',boundary:box(20,20,50,50),coordinates:coords});
+ const c=createSelectionController();c.replace('document',[image,...text]);
+ for(const [clicks,id]of [[1,'overlap'],[2,'word'],[3,'text']]){c.selectAt([55*zoom,25*zoom],{clicks});check(`hierarchy ${zoom}/${dpr}/${clicks}`,c.selection()[0]===id)}
+ c.selectAt([25*zoom,25*zoom],{additive:true});check('cross-type selected',c.selection().join(',')==='text,image');
+ canvas.width=350*dpr;canvas.height=160*dpr;const ctx=canvas.getContext('2d',{willReadFrequently:true});
+ c.renderLayer(ctx,{pixelRatio:dpr});
+ const alpha=(x,y)=>ctx.getImageData(Math.floor(x*dpr),Math.floor(y*dpr),1,1).data[3];
+ const mid=4;check(`exterior ring ${zoom}/${dpr}`,alpha(20*zoom-mid,40*zoom)>200);
+ check('merged overlap seam absent',alpha(50*zoom,40*zoom)===0);
+ check('hole rim visible',alpha(125*zoom+mid,50*zoom)>200);
+ check('hole center transparent',alpha(140*zoom,50*zoom)===0);
+ check('disconnected rim visible',alpha(190*zoom-mid,30*zoom)>200);
+ check('gap transparent',alpha(180*zoom,40*zoom)===0);
+ check('identity unchanged by projection',c.selection().join(',')==='text,image');
+ c.clearSelection();ctx.clearRect(0,0,canvas.width,canvas.height);c.renderLayer(ctx,{pixelRatio:dpr});check('cleared layer',!ctx.getImageData(0,0,canvas.width,canvas.height).data.some((v,i)=>i%4===3&&v));
+ let updates=0;const unbind=bindSelectionInput(canvas,c,{onChange:()=>updates++,local:e=>[e.clientX,e.clientY]});
+ for(const clicks of [1,2,3]){canvas.dispatchEvent(new PointerEvent('pointerdown',{button:0,pointerId:1,clientX:55*zoom,clientY:25*zoom}));canvas.dispatchEvent(new PointerEvent('pointerup',{button:0,pointerId:1,clientX:55*zoom,clientY:25*zoom}));canvas.dispatchEvent(new MouseEvent('click',{button:0,detail:clicks,clientX:55*zoom,clientY:25*zoom}));check('DOM click hierarchy',c.selection()[0]===['overlap','word','text'][clicks-1])}
+ canvas.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));check('Escape clears',c.selection().length===0);unbind();canvas.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));check('unbind listener cleanup',updates===4);c.setEnabled(false);c.selectAt([55*zoom,25*zoom]);check('disabled',c.selection().length===0);c.dispose();let disposed=false;try{c.outlines()}catch{disposed=true}check('disposed',disposed);
+ }
+ out.textContent=JSON.stringify({pass:true,checks,userAgent:navigator.userAgent,scope:'real Canvas2D software browser pixels; synthetic issued text, no native producer claim'});
+}catch(e){out.textContent=JSON.stringify({pass:false,error:String(e),checks})}
+</script>

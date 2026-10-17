@@ -1,0 +1,47 @@
+document_present:.document_present
+document_present_links:.document_present_links
+document_present_context:.document_present_context
+document_materialize_config:.document_materialize_config
+document_blocks:.document_blocks
+document_present_maps:.document_present_maps
+font_catalog:.font_catalog
+test_font_data:.test_font_data
+resource_json:.resource_json
+tex_text:.tex_text
+renderer_tests()->bit:
+    blank:document_present_context.empty(10,12)
+    (tex_text.find(document_present_context.json(blank),"linkAppearance")<0)?! "Absent link state keeps the original context transport unchanged"
+    blank.link_appearance:"{\"ref\":[1,0,0,1]}"
+    blank.next_link_appearance:"{\"ref\":[0,0,1,1]}"
+    roundtrip:document_present_context.parse(document_present_context.json(blank))
+    promoted:document_present_context.promote(roundtrip)
+    (promoted.link_appearance=blank.next_link_appearance /\ promoted.next_link_appearance="" /\ blank.link_appearance="{\"ref\":[1,0,0,1]}")?! "Block emission promotes pending style without changing a saved outer context"
+    order:document_blocks.parse("\\documentclass{article}\\begin{document}\\hypersetup{badFirst}\\url{x}\\hypersetup{badSecond}\\end{document}")
+    (order.diagnostics="\"Unsupported hyperref setup: badFirst\",\"Command requires url: url\",\"Unsupported hyperref setup: badSecond\"")?! "Setup diagnostics retain source encounter order among other parser warnings"
+    fonts:font_catalog.load(test_font_data.pack(["metrics","style/text","font/roman","font/footnote"],["{}","{\"em\":9.962640099626402}","{\"spaces\":{\"quad\":10}}","{\"nativeFootnoteSep\":6.25}"]))
+    source:"\\documentclass{article}\\usepackage{hyperref}\\begin{document}First \\hypersetup{colorlinks,linkcolor=blue}\\footnote{Blue} rest.\n\nSecond.\n\n\\begin{quote}\\hypersetup{linkcolor=green}Inside\\footnote{Green}.\\end{quote}After\\footnote{Blue again}.\\end{document}"
+    document:document_blocks.parse(source)
+    config:document_materialize_config.configure(document.class_name,document.class_options,document.imports,fonts)
+    language:(source:"",nodes:0,edges:0,weights:0,exceptions:0,node_start:0,edge_start:0,weight_start:0,exception_start:0,size:0)
+    plan:document_present.prepare(document,source,fonts,["roman"],language,config)
+    (plan.count=4 /\ plan.unresolved="")?! "Setup events remain invisible and preserve all actual paragraphs"
+    contexts:plan.contexts
+    first:document_present_context.parse(contexts.(0))
+    second:document_present_context.parse(contexts.(1))
+    inside:document_present_context.parse(contexts.(2))
+    after:document_present_context.parse(contexts.(3))
+    first_style:resource_json.parse(first.link_appearance)
+    second_style:resource_json.parse(second.link_appearance)
+    inside_style:resource_json.parse(inside.link_appearance)
+    after_style:resource_json.parse(after.link_appearance)
+    (document_present_links.raw(first_style,resource_json.member(first_style,0,"ref"))="[1,0,0,1]" /\ document_present_links.raw(second_style,resource_json.member(second_style,0,"ref"))="[0,0,1,1]" /\ document_present_links.raw(inside_style,resource_json.member(inside_style,0,"ref"))="[0,1,0,1]" /\ document_present_links.raw(after_style,resource_json.member(after_style,0,"ref"))="[0,0,1,1]")?! "Inline setup affects following paragraphs and environment settings restore on exit"
+    notes:resource_json.parse(plan.footnotes)
+    note0:resource_json.element(notes,0,0)
+    note1:resource_json.element(notes,0,1)
+    note2:resource_json.element(notes,0,2)
+    style0:resource_json.member(notes,note0,"linkAppearance")
+    style1:resource_json.member(notes,note1,"linkAppearance")
+    style2:resource_json.member(notes,note2,"linkAppearance")
+    (document_present_links.raw(notes,resource_json.member(notes,style0,"ref"))="[0,0,1,1]" /\ document_present_links.raw(notes,resource_json.member(notes,style1,"ref"))="[0,1,0,1]" /\ document_present_links.raw(notes,resource_json.member(notes,style2,"ref"))="[0,0,1,1]")?! "Footnotes snapshot effective source style independently of their later page placement"
+    @:true
+::renderer_tests()

@@ -1,0 +1,117 @@
+output:.document_materialize_output_typed
+scene:.document_scene
+scene_json:.document_scene_json
+exporter:.document_scene_export
+test_pages:.document_pages
+maps:.document_present_maps
+catalog:.font_catalog
+data:.test_font_data
+j:.resource_json
+text:.tex_text
+
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,extra:str,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num)
+PageDocument:(widths:[num],heights:[num],firsts:[int],counts:[int],arena:Arena,destination_names:[str],destination_pages:[int],destination_xs:[num],destination_ys:[num],page_count:int,destination_count:int)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Map:(keys:Pool,values:[str])
+
+nums(n:int)->[num]:[0.0:n]
+ints(n:int)->[int]:[0:n]
+bits(n:int)->[bit]:[false:n]
+configuration(class_name:str,style:str):
+    math:(restricted:false,amsmath:false,amsthm:false,bbm:false,latexsym:false,faktor:false,qed_symbol:"")
+    settings_json:"{\"paperWidth\":210,\"paperHeight\":297,\"left\":20,\"bibliographyStyle\":"&j.quote(style)&"}"
+    @:(config:settings_json,pages:(values:nums(0),flags:bits(0),penalties:ints(0)),packages:scene.strings(0),math:math,overrides:scene.strings(0),class_name:class_name,optical:false,hyperref:true,diagnostics:"")
+font_data():
+    @:catalog.load(data.pack(["tile/A"],["{\"plane\":[0,-3,5,6]}"]))
+page_data(count:int):
+    @:(last_baselines:nums(count),last_depths:nums(count),limits:nums(count),shrink_ratios:nums(count),stretch_ratios:nums(count),note_stretch:nums(count),note_flex:bits(count),forced:bits(count),count:count)
+line_data():
+    sources:ints(5)
+    sources.(2):1
+    sources.(3):2
+    sources.(4):3
+    source_lines:ints(5)
+    source_lines.(1):1
+    baselines:nums(5)
+    baselines.(1):12
+    @:(scenes:sources,source_lines:source_lines,heights:nums(5),depths:nums(5),natural_depths:nums(5),widths:nums(5),indents:nums(5),baselines:baselines,flagged:bits(5),marker_firsts:ints(5),marker_counts:ints(5),count:5)
+rule_data():
+    page_ids:ints(2)
+    xs:nums(2)
+    ys:nums(2)
+    widths:nums(2)
+    heights:nums(2)
+    page_ids.(1):1
+    xs.(0):1
+    xs.(1):2
+    ys.(0):2
+    ys.(1):3
+    widths.(0):3
+    widths.(1):4
+    heights.(0):0.5
+    heights.(1):0.6
+    @:(pages:page_ids,xs:xs,ys:ys,widths:widths,heights:heights,count:2)
+source(index:int):
+    index=0? @:scene_json.decode("{\"items\":[{\"kind\":\"link\",\"x\":0,\"y\":0,\"width\":8,\"height\":2,\"flowLine\":0},{\"kind\":\"glyph\",\"key\":\"A\",\"x\":1,\"y\":2,\"flowLine\":0,\"destinationIds\":[\"existing\",\"shared\"]},{\"kind\":\"glyph\",\"key\":\"B\",\"x\":3,\"y\":12,\"flowLine\":1,\"destinationIds\":[\"shared\"]}],\"width\":12}")
+    index=1? @:scene_json.decode("{\"items\":[{\"kind\":\"glyph\",\"key\":\"N\",\"x\":2,\"y\":3,\"flowLine\":0,\"destinationIds\":[\"footnote:1\"]}]}")
+    index=2? @:scene_json.decode("{\"items\":[],\"destinations\":[{\"id\":\"shared\",\"x\":7,\"y\":9}]}")
+    @:scene_json.decode("{\"items\":[{\"kind\":\"rule\",\"x\":4,\"y\":5,\"width\":6,\"height\":1,\"flowLine\":7}]}")
+label(index:int):
+    @:scene_json.decode("{\"items\":[{\"kind\":\"glyph\",\"key\":\"L\",\"x\":2,\"y\":3}],\"width\":4}")
+decoration(index:int):
+    index=0? @:scene_json.decode("{\"items\":[{\"kind\":\"glyph\",\"key\":\"F\",\"x\":1,\"y\":2,\"destinationIds\":[\"footer\"]}]}")
+    @:scene_json.decode("{\"items\":[]}")
+fixture(class_name:str,style:str,kind:str):
+    kinds:scene.strings(1)
+    contexts:scene.strings(1)
+    kinds.(0):"paragraph"
+    contexts.(0):"{\"left\":5,\"labelSep\":2,\"destination\":\"context\",\"kind\":"&j.quote(kind)&"}"
+    plan:(kinds:kinds,sources:scene.strings(1),contexts:contexts,attrs:scene.strings(1),origins:ints(1),scenes:scene.strings(1),count:1,references:maps.empty(),reference_destinations:maps.put(maps.empty(),"x","shared"),footnotes:"",diagnostics:"",unresolved:"")
+    [int] ids:[0:4]
+    sources:ids >> source($0)
+    [int] label_ids:[0:1]
+    labels:label_ids >> label($0)
+    [int] decoration_ids:[0:2]
+    decorations:decoration_ids >> decoration($0)
+    placements:test_pages.empty_placements(5)
+    .placements:test_pages.append(placements,0,0,0,0,0,0,10,20,2,0,8,2,3,4)
+    .placements:test_pages.append(placements,1,0,0,1,0,1,30,40,99,0,0,0,0,0)
+    .placements:test_pages.append(placements,0,1,1,0,1,0,11,50,2,0,8,2,3,4)
+    .placements:test_pages.append(placements,2,0,1,2,0,0,60,70,2,0,0,0,0,0)
+    .placements:test_pages.append(placements,3,0,1,3,0,4,80,90,99,0,0,0,0,0)
+    rules:rule_data()
+    built:output.build(plan,test_pages.empty_blocks(0),line_data(),sources,labels,placements,page_data(2),configuration(class_name,style),font_data(),decorations,rules)
+    @:built
+
+renderer_tests()->bit:
+    result0:fixture("article","","list")
+    label_x0:result0.document.arena.xs.(0)
+    label_x0=21?! "actualJS bibliography label placement case0"
+    result1:fixture("article","","bibliography")
+    label_x1:result1.document.arena.xs.(0)
+    label_x1=21?! "actualJS bibliography label placement case1"
+    result2:fixture("article","alphabetic","list")
+    label_x2:result2.document.arena.xs.(0)
+    label_x2=21?! "actualJS bibliography label placement case2"
+    result3:fixture("article","alphabetic","bibliography")
+    label_x3:result3.document.arena.xs.(0)
+    label_x3=21?! "actualJS bibliography label placement case3"
+    result4:fixture("amsart","","list")
+    label_x4:result4.document.arena.xs.(0)
+    label_x4=21?! "actualJS bibliography label placement case4"
+    result5:fixture("amsart","","bibliography")
+    label_x5:result5.document.arena.xs.(0)
+    label_x5=21?! "actualJS bibliography label placement case5"
+    result6:fixture("amsart","alphabetic","list")
+    label_x6:result6.document.arena.xs.(0)
+    label_x6=21?! "actualJS bibliography label placement case6"
+    result7:fixture("amsart","alphabetic","bibliography")
+    label_x7:result7.document.arena.xs.(0)
+    label_x7=22?! "actualJS bibliography label placement case7"
+    @:true
+
+renderer_tests()

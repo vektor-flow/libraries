@@ -1,0 +1,35 @@
+d:.math_destinations
+c:.math_commands
+p:.math_command_pages
+j:.resource_json
+
+value(buffer:(heads:[[int]],tails:[[int]],boxes:int,nexts:[[int]],children:[[int]],pool:(values:[str],slots:[int],hashes:[int],count:int),payload_ids:[[int]],xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int),command:int)->str:
+    pool:buffer.pool
+    values:pool.values
+    @:values.(p.integer(buffer.payload_ids,command))
+
+renderer_tests()->bit:
+    buffer:c.empty(4)
+    .buffer:c.append(buffer,0, -1,"\"kind\":\"link\"")
+    .buffer:c.append(buffer,1, -1,"\"kind\":\"glyph\",\"key\":\"a\"")
+    .buffer:c.append(buffer,1, -1,"\"kind\":\"glyph\",\"key\":\"a\"")
+    .buffer:c.append(buffer,0,1)
+    .buffer:c.append(buffer,0, -1,"\"kind\":\"rule\"")
+    original:buffer
+    tagged:d.mark_owner(buffer,0,["label:b","label:a","label:b"],3)
+    parsed:j.parse("{"&value(tagged,1)&"}")
+    ids:j.member(parsed,0,"destinationIds")
+    (j.string(parsed,j.element(parsed,ids,0))="label:b" /\ j.string(parsed,j.element(parsed,ids,1))="label:a" /\ j.element(parsed,ids,2)<0)?! "first nested non-link leaf gets ordered unique IDs"
+    (value(tagged,0)=value(original,0) /\ value(tagged,2)=value(original,2) /\ value(tagged,4)=value(original,4))?! "link and siblings sharing metadata are isolated"
+    (p.integer(original.payload_ids,1)=p.integer(original.payload_ids,2) /\ p.integer(tagged.payload_ids,1)~=p.integer(tagged.payload_ids,2))?! "only one command changes dictionary reference"
+    twice:d.mark_owner(tagged,0,["label:a","label:c"],2)
+    merged:j.parse("{"&value(twice,1)&"}")
+    merged_ids:j.member(merged,0,"destinationIds")
+    (j.string(merged,j.element(merged,merged_ids,0))="label:b" /\ j.string(merged,j.element(merged,merged_ids,1))="label:a" /\ j.string(merged,j.element(merged,merged_ids,2))="label:c" /\ j.element(merged,merged_ids,3)<0)?! "nested labels merge without changing earlier order"
+    (d.mark_range(buffer,0,3,["label:x"],1).pool.count=buffer.pool.count /\ d.mark_owner(buffer,3,["label:x"],1).pool.count=buffer.pool.count /\ d.mark_owner(buffer,0,["label:x"],0).pool.count=buffer.pool.count)?! "empty ranges owners and additions preserve buffer"
+    bounded:d.mark_range(buffer,4, -1,["label:rule"],1)
+    j.member(j.parse("{"&value(bounded,4)&"}"),0,"destinationIds")>=0?! "bounded range begins at requested sibling"
+    escaped:d.merged("\"kind\":\"glyph\",\"destinationIds\":[\"a\",\"\\u0061\",\"b\"],\"key\":\"x\"",["b","c"],2)
+    escaped="\"kind\":\"glyph\",\"destinationIds\":[\"a\",\"b\",\"c\"],\"key\":\"x\""?! "replacement preserves surrounding payload and compares decoded strings"
+    @:true
+renderer_tests()

@@ -1,0 +1,20 @@
+text_native_primitives:.text_native_primitives
+resource_json:.resource_json
+tex_numeric:.tex_numeric
+close(a:num,b:num)->bit:|a-b|<0.000000001
+renderer_tests()->bit:
+    spacing:text_native_primitives.hspace(" -01.5em plus+.2ex minus 3.pt ",10,4)
+    (spacing.valid /\ close(spacing.width, -15) /\ close(spacing.stretch,0.8) /\ close(spacing.shrink,3*tex_numeric.pt()))?! "signed native glue dimensions preserve exact font units"
+    ~text_native_primitives.hspace("1ptplus 2pt",10,4).valid?! "glue plus requires whitespace"
+    ~text_native_primitives.hspace("1e2pt",10,4).valid?! "hspace excludes exponent syntax"
+    ~text_native_primitives.hspace("1pt minus2pt plus3pt",10,4).valid?! "hspace follows ordered plus-minus grammar"
+    number:text_native_primitives.coerced_number(" 0x02 ")
+    (number.valid /\ number.value=2 /\ number.display="2")?! "footnote Number coercion accepts prefixed integers"
+    invalid:text_native_primitives.coerced_number("not a number")
+    (~invalid.valid /\ invalid.display="NaN" /\ invalid.metadata="null")?! "nonnumeric marker text preserves JS source and JSON metadata semantics"
+    source:"{\"kind\":\"glyph\",\"key\":\"a\",\"x\":1,\"y\":2,\"equationTag\":true,\"tagWidth\":4}"
+    shifted:text_native_primitives.shift_items(source,3, -5,",\"footnoteNumber\":7")
+    parsed:resource_json.parse(shifted)
+    (text_native_primitives.numeric(parsed,0,"x")=4 /\ text_native_primitives.numeric(parsed,0,"y")= -3 /\ text_native_primitives.numeric(parsed,0,"tagWidth")=4 /\ text_native_primitives.numeric(parsed,0,"footnoteNumber")=7)?! "retained leaf transforms preserve all metadata without duplicate coordinates"
+    @:true
+renderer_tests()

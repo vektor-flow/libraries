@@ -1,0 +1,301 @@
+# Parsed TeX inline operations to positioned mixed-role paragraphs.
+# Pending native operations are exposed explicitly; retained provider scenes survive.
+builder:.frozen285_paragraph_inline_nodes
+inline_parser:.frozen285_text_parser
+ops:.frozen285_text_parser_stream
+providers:.frozen285_text_inline_boxes
+p:.frozen285_paragraph_breaking
+shape:.frozen285_text_shaping
+text:.frozen285_tex_text
+tex:.frozen285_tex_numeric
+chunks:.frozen285_text_chunks
+text_link_spans:.frozen285_text_link_spans
+text_link_render:.frozen285_text_link_render
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+Options:(width:num,first_indent:num,forced_indent:num,justify:bit,hyphens:bit,tolerance:int,emergency:num,preserve_trailing:bit)
+TextOptions:(sentence_spacing:bit,french_spacing:bit,space_scale:num)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Context:(font:str,roles:[str],optical:bit,hyperref:bit,literal:bit,literal_input:bit,legacy_symbols:bit,bib_url:bit)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+
+Nodes:(kinds:[int],widths:[num],stretches:[num],shrinks:[num],breakable:[bit],penalties:[int],flagged:[bit],automatic:[bit],hyphens:[num],count:int)
+# Terminal fallback is constructed directly. Earlier passes must never rerun on
+# a different (already segmented) word stream after all legal passes failed.
+fallback(nodes:Nodes,preserve:bit):
+    kinds:nodes.kinds
+    widths:nodes.widths
+    penalties:nodes.penalties
+    flags:nodes.flagged
+    n:nodes.count
+    ~preserve?>
+        n=0? @|
+        kinds.(n-1)~=1? @|
+        .n:n-1
+    prefixes:p.nums(n+1)
+    i:0
+    i<n?>
+        add:0.0
+        kinds.(i)=0 \/ kinds.(i)=1 \/ kinds.(i)=2? .add:widths.(i)
+        prefixes.(i+1):prefixes.(i)+add
+        .i:i+1
+    out:p.blank(n+1)
+    starts:out.starts
+    ends:out.ends
+    naturals:out.naturals
+    output_flags:out.flagged
+    start:0
+    count:0
+    .i:0
+    i<=n?>
+        forced:i=n
+        i<n?
+            kinds.(i)=4 \/ (kinds.(i)=3 /\ penalties.(i)= -10000)? .forced:true
+        forced?
+            starts.(count):start
+            ends.(count):i
+            naturals.(count):prefixes.(i)-prefixes.(start)
+            i<n? output_flags.(count):flags.(i)
+            .count:count+1
+            .start:i+1
+        .i:i+1
+    out.starts:starts
+    out.ends:ends
+    out.naturals:naturals
+    out.flagged:output_flags
+    out.count:count
+    out.pass:5
+    @:out
+
+maximum(a:num,b:num)->num:
+    a~=a? @:a
+    b~=b? @:b
+    @:tex.maximum(a,b)
+
+position_with_link_events(source:str,stream:Stream,fonts:Catalog,language:Language,overrides:[str],o:Options,t:TextOptions,provided:Provider,operation_scopes:[int],scope_directory:str,anchor_operations:[int],anchor_ids:[str],close_operations:[int],close_first:[int],close_last:[int]):
+    built:builder.build_with_link_events(source,stream,fonts,language,overrides,false,t,provided,operation_scopes,close_operations,close_first,close_last)
+    selected:p.solve(built.nodes,built.corrections,o,100,false,0,false)
+    pass:1
+    ~selected.solved /\ o.hyphens?
+        .built:builder.build_with_link_events(source,stream,fonts,language,overrides,true,t,provided,operation_scopes,close_operations,close_first,close_last)
+        .selected:p.solve(built.nodes,built.corrections,o,o.tolerance,true,0,o.emergency=0)
+        .pass:2
+    ~selected.solved /\ o.emergency~=0?
+        .selected:p.solve(built.nodes,built.corrections,o,o.tolerance,true,o.emergency,true)
+        .pass:3
+    ~selected.solved /\ ~o.hyphens?
+        .selected:p.solve(built.nodes,built.corrections,o,o.tolerance,true,0,true)
+        .pass:4
+    ~selected.solved?
+        .selected:fallback(built.nodes,o.preserve_trailing)
+        .pass:selected.pass
+    nodes:built.nodes
+    kinds:nodes.kinds
+    node_widths:nodes.widths
+    stretches:nodes.stretches
+    shrinks:nodes.shrinks
+    node_hyphens:nodes.hyphens
+    node_autos:nodes.automatic
+    word_ids:built.word_ids
+    word_starts:built.word_starts
+    word_ends:built.word_ends
+    text_words:built.words
+    roles:built.roles
+    operation_ids:built.operation_ids
+    node_scenes:built.scenes
+    box_heights:built.box_heights
+    box_depths:built.box_depths
+    cache:built.cache
+    starts:selected.starts
+    ends:selected.ends
+    ratios:selected.ratios
+    indents:selected.indents
+    flags:selected.flagged
+    capacity:2*text.byte_length(source)+4*stream.count+provided.count+16
+    keys:chunks.empty(capacity)
+    xs:p.nums(capacity)
+    ys:p.nums(capacity)
+    flow_lines:p.ints(capacity)
+    glyph_operations:p.ints(capacity)
+    scenes:chunks.empty(capacity)
+    scene_xs:p.nums(capacity)
+    scene_ys:p.nums(capacity)
+    scene_lines:p.ints(capacity)
+    scene_operations:p.ints(capacity)
+    scene_count:0
+    link_colors:text_link_render.colors(operation_scopes,scope_directory)
+    nonbox_scopes:text_link_render.nonbox_scopes(stream,operation_scopes)
+    next_anchor:0
+    last_visible_scene: -1
+    heights:p.nums(selected.count)
+    depths:p.nums(selected.count)
+    widths:p.nums(selected.count)
+    baselines:p.nums(selected.count)
+    glyph_count:0
+    width:0.0
+    height:0.0
+    depth:0.0
+    baseline:0.0
+    line:0
+    line<selected.count?>
+        x:0.0
+        line_height:0.0
+        line_depth:0.0
+        ratio:ratios.(line)
+        ~o.justify? .ratio:0
+        n:starts.(line)
+        stop:ends.(line)
+        line_spans:text_link_spans.empty()
+        n<stop?>
+            begin_x:x
+            operation:operation_ids.(n)
+            link_scope: -1
+            color:"null"
+            operation>=0 /\ operation<operation_scopes.length()?
+                .link_scope:operation_scopes.(operation)
+                .color:link_colors.(operation)
+            kind:kinds.(n)
+            kind~=0 /\ operation>=0 /\ operation<nonbox_scopes.length()? .link_scope:nonbox_scopes.(operation)
+            kind=0?
+                id:word_ids.(n)
+                id<0?
+                    retained:node_scenes.(n)
+                    visible:false
+                    anchor_operations.length()>0? .visible:text_link_render.visible(retained)
+                    anchor_ids_json:"[]"
+                    visible?
+                        marked:text_link_render.anchor_range(anchor_operations,anchor_ids,next_anchor,operation)
+                        .next_anchor:marked.next
+                        .anchor_ids_json:marked.ids
+                        .last_visible_scene:scene_count
+                    scenes.(scene_count):text_link_render.edit(retained,color,anchor_ids_json)
+                    scene_xs.(scene_count):x
+                    scene_ys.(scene_count):baseline
+                    scene_lines.(scene_count):line
+                    scene_operations.(scene_count):operation_ids.(n)
+                    .scene_count:scene_count+1
+                    .x:x+node_widths.(n)
+                    .line_height:tex.maximum(line_height,box_heights.(n))
+                    .line_depth:tex.maximum(line_depth,box_depths.(n))
+                    .line_spans:text_link_spans.append(line_spans,link_scope,begin_x,x)
+                    .n:n+1
+                    @>
+                ctx:builder.context(cache,fonts,roles.(id))
+                first:word_starts.(n)
+                last:word_ends.(n)
+                n+1<stop?>
+                    next:n+1
+                    word_ids.(next)~=id? @|
+                    next_kind:kinds.(next)
+                    next_kind=3?
+                        .n:next
+                        @>
+                    next_kind~=0? @|
+                    .last:word_ends.(next)
+                    .n:next
+                word:text_words.(id)
+                measured_index:builder.find_measure(cache,id,first,last)
+                measured_index<0?
+                    measured:builder.measure(cache,id,word,first,last,fonts,ctx)
+                    .cache:measured.cache
+                    .measured_index:measured.run_index
+                run:builder.shaped(cache,measured_index)
+                run_keys:run.keys
+                run_xs:run.xs
+                retained_run:color~="null" \/ anchor_operations.length()>0
+                retained_run /\ run.count>0?
+                    marked:text_link_render.anchor_range(anchor_operations,anchor_ids,next_anchor,operation_ids.(n))
+                    .next_anchor:marked.next
+                    run_scene:text_link_render.glyph_run(run_keys,run_xs,run.count,run.width,run.height,run.depth)
+                    scenes.(scene_count):text_link_render.edit(run_scene,color,marked.ids)
+                    scene_xs.(scene_count):x
+                    scene_ys.(scene_count):baseline
+                    scene_lines.(scene_count):line
+                    scene_operations.(scene_count):operation_ids.(n)
+                    .last_visible_scene:scene_count
+                    .scene_count:scene_count+1
+                ~retained_run?
+                    k:0
+                    k<run.count?>
+                        keys.(glyph_count):run_keys.(k)
+                        xs.(glyph_count):run_xs.(k)+x
+                        ys.(glyph_count):baseline
+                        flow_lines.(glyph_count):line
+                        glyph_operations.(glyph_count):operation_ids.(n)
+                        .glyph_count:glyph_count+1
+                        .k:k+1
+                .x:x+run.width
+                .line_height:tex.maximum(line_height,run.height)
+                .line_depth:tex.maximum(line_depth,run.depth)
+            kind=2? .x:x+node_widths.(n)
+            kind=1?
+                elastic:stretches.(n)
+                ratio<0? .elastic:shrinks.(n)
+                .x:x+node_widths.(n)+ratio*elastic
+            .line_spans:text_link_spans.append(line_spans,link_scope,begin_x,x)
+            .n:n+1
+        stop<nodes.count?
+            node_autos.(stop)?
+                id:word_ids.(stop)
+                ctx:builder.context(cache,fonts,roles.(id))
+                prepared_hyphen:shape.shape_prepared("-",fonts,ctx,cache.fonts)
+                .cache:builder.with_fonts(cache,prepared_hyphen.state)
+                hyphen:prepared_hyphen.run
+                hyphen_keys:hyphen.keys
+                hyphen_xs:hyphen.xs
+                k:0
+                k<hyphen.count?>
+                    keys.(glyph_count):hyphen_keys.(k)
+                    xs.(glyph_count):hyphen_xs.(k)+x
+                    ys.(glyph_count):baseline
+                    flow_lines.(glyph_count):line
+                    glyph_operations.(glyph_count):operation_ids.(stop)
+                    .glyph_count:glyph_count+1
+                    .k:k+1
+                span_rights:line_spans.rights
+                line_spans.count>0?
+                    span_rights.(line_spans.count-1)=x? span_rights.(line_spans.count-1):x+hyphen.width
+                    line_spans.rights:span_rights
+                .x:x+hyphen.width
+        line_spans.count>0?
+            scenes.(scene_count):text_link_spans.scene(line_spans,scope_directory,line_height,line_depth)
+            scene_xs.(scene_count):0
+            scene_ys.(scene_count):baseline
+            scene_lines.(scene_count):line
+            scene_operations.(scene_count):stream.count
+            .scene_count:scene_count+1
+        heights.(line):line_height
+        depths.(line):line_depth
+        widths.(line):x
+        baselines.(line):baseline
+        .width:maximum(width,x)
+        line=0? .height:line_height
+        .depth:baseline+line_depth
+        .baseline:baseline+12*tex.pt()
+        .line:line+1
+    next_anchor<anchor_operations.length()?
+        last_visible_scene>=0?
+            remaining:text_link_render.anchor_range(anchor_operations,anchor_ids,next_anchor,stream.count)
+            scenes.(last_visible_scene):text_link_render.edit(scenes.(last_visible_scene),"null",remaining.ids)
+        last_visible_scene<0?
+            scenes.(scene_count):text_link_render.point_scene(anchor_ids,next_anchor)
+            scene_xs.(scene_count):0
+            scene_ys.(scene_count):0
+            scene_lines.(scene_count):0
+            scene_operations.(scene_count):stream.count
+            .scene_count:scene_count+1
+    diagnostics:cache.diagnostics
+    ~selected.solved? .diagnostics:builder.merge_diagnostics(diagnostics,"\"Paragraph exceeds supported line-break bounds\"")
+    @:(keys:keys,xs:xs,ys:ys,flow_lines:flow_lines,glyph_operations:glyph_operations,scenes:scenes,scene_xs:scene_xs,scene_ys:scene_ys,scene_lines:scene_lines,scene_operations:scene_operations,scene_count:scene_count,pending:built.pending,pending_count:built.pending_count,complete:built.pending_count=0 /\ diagnostics="",lowering_complete:built.pending_count=0,glyph_count:glyph_count,line_heights:heights,line_depths:depths,line_widths:widths,line_baselines:baselines,line_ratios:ratios,line_indents:indents,line_flagged:flags,line_count:selected.count,width:width,height:height,depth:depth,measurement_work:cache.atoms,diagnostics:diagnostics,solved:selected.solved,pass:pass)
+
+position_with_links(source:str,stream:Stream,fonts:Catalog,language:Language,overrides:[str],o:Options,t:TextOptions,provided:Provider,operation_scopes:[int],scope_directory:str,anchor_operations:[int],anchor_ids:[str]):
+    @:position_with_link_events(source,stream,fonts,language,overrides,o,t,provided,operation_scopes,scope_directory,anchor_operations,anchor_ids,p.ints(0),p.ints(0),p.ints(0))
+
+position(source:str,stream:Stream,fonts:Catalog,language:Language,overrides:[str],o:Options,t:TextOptions,provided:Provider):
+    @:position_with_links(source,stream,fonts,language,overrides,o,t,provided,p.ints(0),"{}",p.ints(0),chunks.empty(0))
+
+# Parsing and providers stay separable so root math evaluation can carry state.
+typeset(source:str,fonts:Catalog,c:Context,language:Language,overrides:[str],o:Options,t:TextOptions,provided:Provider):
+    parsed:inline_parser.parse(source,fonts,c)
+    @:position(source,parsed.stream,fonts,language,overrides,o,t,provided)

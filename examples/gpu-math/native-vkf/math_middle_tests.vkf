@@ -1,0 +1,64 @@
+m:.math_middle
+p:.math_parser
+c:.font_catalog
+f:.test_font_data
+text:.tex_text
+
+renderer_tests()->bit:
+    fonts:c.load(f.math_catalog())
+    original:p.parse("\\left(a\\middle|\\left(b\\middle|x\\right)\\right)+y",fonts)
+    snapshot:p.json(original)
+    prepared:m.prepare(original)
+    (prepared.arena.count=original.count /\ prepared.count=2)?! "planning detects direct middle without expanding nested passes"
+    firsts:original.first
+    outerNode:firsts.(0)
+    originalArgs:original.a
+    firstPass:m.first_pass(original,outerNode)
+    firstArena:firstPass.arena
+    kinds:firstArena.kinds
+    args:firstArena.a
+    cloneDelimiter: -1
+    originalInner: -1
+    node:0
+    node<firstArena.count?>
+        m.has_middle(firstArena,node)?
+            node>=original.count? .cloneDelimiter:node
+            node<original.count /\ node~=outerNode? .originalInner:node
+        .node:node+1
+    (cloneDelimiter>=original.count /\ originalInner>=0 /\ p.list_json(firstArena,firstPass.root)=p.list_json(original,originalArgs.(outerNode)))?! "one requested first pass retains exact body and nested source"
+    nestedFirst:m.first_pass(firstArena,cloneDelimiter)
+    nestedSecond:m.first_pass(nestedFirst.arena,originalInner)
+    (nestedFirst.root~=nestedSecond.root /\ p.list_json(nestedFirst.arena,nestedFirst.root)=p.list_json(nestedSecond.arena,nestedSecond.root))?! "executed nested contexts receive independent first-pass owners"
+    (p.json(original)=snapshot /\ firstArena.atoms=original.atoms /\ firstArena.diagnostics=original.diagnostics)?! "on-demand allocation preserves source snapshot and metadata"
+    unrelated:p.parse("\\left(a{\\middle|b}\\right)",fonts)
+    untouched:m.prepare(unrelated)
+    (untouched.arena.count=unrelated.count /\ untouched.count=0)?! "grouped middle is not a direct child and causes no extra pass"
+    deepSource:"x"
+    nesting:0
+    nesting<12?>
+        .deepSource:"\\left(a\\middle|"&deepSource&"\\right)"
+        .nesting:nesting+1
+    deepArena:p.parse(deepSource,fonts)
+    deepPlan:m.prepare(deepArena)
+    (deepPlan.count=12 /\ deepPlan.arena.count=deepArena.count)?! "deep planning is linear and never pre-expands exponential body evaluations"
+    context:m.empty()
+    outer:m.enter(context)
+    outerReady:m.after_first(outer,22,5,2)
+    (|outerReady.required-36.04|<0.000000001)?! "delimiter requirement exactly applies factor and shortfall"
+    inner:m.enter(outerReady)
+    inner.required=outerReady.required?! "nested first pass inherits previous middleRequired"
+    innerReady:m.after_first(inner,10,15,2)
+    restored:m.leave(innerReady)
+    (restored.required=outerReady.required /\ restored.depth=1 /\ m.leave(restored).required=0 /\ context.depth=0 /\ context.required=0)?! "nested delimiter restores parent requirement and input snapshots"
+    deep:m.empty(7)
+    level:0
+    level<40?>
+        .deep:m.enter(deep)
+        .deep:m.after_first(deep,num(level+1),0,0)
+        .level:level+1
+    level>0?>
+        .deep:m.leave(deep)
+        .level:level-1
+    (deep.required=7 /\ deep.depth=0)?! "middle context grows past initial capacity and restores all scopes"
+    @:true
+renderer_tests()

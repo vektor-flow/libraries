@@ -1,0 +1,6 @@
+# Explicit diagnostic text encoding; no runtime JSON reader.
+j:.frozen285_resource_json
+quote(value:str)->str:j.quote(value)
+boolean(value:bit)->str:
+    value? @:"true"
+    @:"false"

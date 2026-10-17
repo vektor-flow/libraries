@@ -1,0 +1,53 @@
+# graphicx package option policy, independent of assets and source documents.
+graphic_options_text:.frozen285_tex_text
+graphic_options_json:.frozen285_resource_json
+graphic_options_chunks:.frozen285_text_chunks
+graphic_options_numbers:.frozen285_document_graphics
+Result:(json:str,diagnostics:str)
+parse(source:str)->Result:
+    keys:graphic_options_chunks.empty(16)
+    values:graphic_options_chunks.empty(16)
+    count:0
+    diagnostics:""
+    start:0
+    at:0
+    size:graphic_options_text.byte_length(source)
+    at<=size?>
+        separator:at=size
+        at<size? graphic_options_text.at(source,at)=","? .separator:true
+        separator?
+            part:graphic_options_text.trim(graphic_options_text.span(source,start,at))
+            part~=""?
+                equal:graphic_options_text.find(part,"=",0)
+                key:part
+                value:""
+                equal>=0?
+                    .key:graphic_options_text.trim(graphic_options_text.span(part,0,equal))
+                    .value:graphic_options_text.trim(graphic_options_text.span(part,equal+1,graphic_options_text.byte_length(part)))
+                accepted:key="width" \/ key="height" \/ key="scale" \/ key="keepaspectratio"
+                ignored:key="angle" /\ graphic_options_numbers.numeric(value,1)=0
+                accepted?
+                    found:0
+                    found<count?>
+                        keys.(found)=key? @|
+                        .found:found+1
+                    found=count?
+                        found>=keys.length()?
+                            .keys:keys&graphic_options_chunks.empty(keys.length())
+                            .values:values&graphic_options_chunks.empty(values.length())
+                        keys.(found):key
+                        .count:count+1
+                    values.(found):graphic_options_json.quote(value)
+                    value=""? values.(found):"true"
+                ~accepted /\ ~ignored?
+                    diagnostics~=""? .diagnostics:diagnostics&","
+                    .diagnostics:diagnostics&graphic_options_json.quote("Unsupported graphicx option: "&key)
+            .start:at+1
+        .at:at+1
+    output:""
+    .at:0
+    at<count?>
+        at>0? .output:output&","
+        .output:output&graphic_options_json.quote(keys.(at))&":"&values.(at)
+        .at:at+1
+    @:(json:"{"&output&"}",diagnostics:diagnostics)

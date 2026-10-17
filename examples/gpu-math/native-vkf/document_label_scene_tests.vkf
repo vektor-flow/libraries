@@ -1,0 +1,20 @@
+document_scene_json:.document_scene_json
+document_label_scene:.document_label_scene
+tex_numeric:.tex_numeric
+fixture(index:int):
+    value:"{\"items\":[{\"kind\":\"glyph\",\"key\":\"outer-a\",\"x\":1,\"y\":0}],\"width\":4,\"height\":30,\"depth\":20}"
+    index=1? .value:"{\"items\":[{\"kind\":\"glyph\",\"key\":\"outer-b\",\"x\":2,\"y\":0}],\"width\":5}"
+    @:document_scene_json.decode(value)
+renderer_tests()->bit:
+    primary:document_scene_json.decode("{\"items\":[{\"kind\":\"glyph\",\"key\":\"inner\",\"x\":3,\"y\":0}],\"width\":10,\"height\":7,\"depth\":2}")
+    [int] indices:[0:2]
+    outers:indices >> fixture($0)
+    combined:document_label_scene.compose(primary,outers,[25.0,40.0],50,5*tex_numeric.pt())
+    (combined.arena.count=3 /\ combined.arena.keys.(0)="inner" /\ combined.arena.keys.(1)="outer-a" /\ combined.arena.keys.(2)="outer-b")?! "child label paints before pending ancestors"
+    (combined.arena.xs.(0)=3 /\ |combined.arena.xs.(1)+18|<0.000000001 /\ |combined.arena.xs.(2)+3|<0.000000001)?! "ancestor offsets use each original margin and measured width"
+    (combined.width=10 /\ combined.height=7 /\ combined.depth=2)?! "outer labels do not change primary line metrics"
+    empty:document_scene_json.empty()
+    outer_only:document_label_scene.compose(empty,outers,[25.0,40.0],50,5*tex_numeric.pt())
+    (outer_only.width=0 /\ outer_only.height=0 /\ outer_only.depth=0 /\ outer_only.arena.count=2)?! "outer-only label has content and zero primary metrics"
+    @:true
+renderer_tests()

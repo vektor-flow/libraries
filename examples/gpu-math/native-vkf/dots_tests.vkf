@@ -1,0 +1,34 @@
+m:.math_parser
+c:.font_catalog
+f:.test_font_data
+j:.resource_json
+text:.tex_text
+
+font_data()->str:
+    keys:["math/display/a","math/display/+","math/display/=","math/display/\\int","math/display/\\ldots","math/display/\\cdots","math/display/\\ddots"]
+    values:["{\"class\":\"ord\"}","{\"class\":\"bin\"}","{\"class\":\"rel\"}","{\"class\":\"op\",\"dotsFollow\":\"integral\"}","{\"class\":\"inner\"}","{\"class\":\"inner\"}","{\"class\":\"inner\"}"]
+    @:f.pack(keys,values)
+
+contextual_dots():
+    fonts:c.load(font_data())
+    centered:m.parse("\\dots+a",fonts)
+    centered_tree:m.json(centered)
+    baseline:m.parse("\\dots a",fonts)
+    (text.find(centered_tree,"\\\\cdots")>=0 /\ text.find(m.json(baseline),"\\\\ldots")>=0)?! "following noad controls ellipsis height"
+    integral:m.parse("\\dots\\int a",fonts)
+    tree:m.json(integral)
+    (integral.diagnostics="" /\ text.find(tree,"\"mu\":-3")>=0 /\ text.find(tree,"\"ellipsisExtra\":false")>=0)?! "integral correction and explicit metadata"
+    ending:m.parse("a\\cdots",fonts)
+    (text.find(m.json(ending),"\"ellipsisExtra\":true")>=0)?! "AMS trailing punctuation correction"
+
+capital_accents():
+    fonts:c.load(font_data())
+    arena:m.parse("\\Hat{a}\\Ddot a\\Vec a",fonts)
+    tree:m.json(arena)
+    (arena.diagnostics="" /\ text.find(tree,"\"name\":\"hat\"")>=0 /\ text.find(tree,"\"name\":\"ddot\"")>=0 /\ text.find(tree,"\"name\":\"vec\"")>=0)?! "capital accent aliases"
+
+renderer_tests()->bit:
+    contextual_dots()
+    capital_accents()
+    @:true
+renderer_tests()

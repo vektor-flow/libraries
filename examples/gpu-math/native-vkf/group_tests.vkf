@@ -1,0 +1,43 @@
+g:.tex_groups
+
+nested_groups():
+    value:g.read("  {a{b}c} tail",0)
+    (value.value="a{b}c")?! "nested group value"
+    (value.stop=9 /\ value.present /\ value.closed)?! "group source span"
+    escaped:g.read("{a\\{b\\}c} tail",0)
+    (escaped.value="a\\{b\\}c" /\ escaped.stop=9 /\ escaped.closed)?! "escaped braces"
+
+optional_groups():
+    value:g.read(" [a[b]c] end",0,"[","]")
+    (value.value="a[b]c" /\ value.closed)?! "nested optional argument"
+
+missing_groups():
+    missing:g.read(" text",0)
+    (~missing.present /\ missing.stop=1)?! "missing brace is explicit"
+    unfinished:g.read("{unfinished",0)
+    (unfinished.present /\ ~unfinished.closed /\ unfinished.value="unfinished")?! "unfinished group retains input"
+
+control_words():
+    word:g.control("\\alpha + x",0)
+    (word.name="alpha" /\ word.spelling="\\alpha" /\ word.stop=6 /\ word.word)?! "control word"
+    symbol:g.control("\\%next",0)
+    (symbol.name="%" /\ symbol.stop=2 /\ ~symbol.word)?! "escaped control symbol"
+    unicode:g.control("\\é",0)
+    (unicode.name="é" /\ unicode.stop=3)?! "Unicode control symbol bytes"
+
+undelimited_arguments():
+    command:g.argument(" \\alpha rest",0)
+    (command.value="\\alpha" /\ command.stop=7)?! "one control sequence argument"
+    character:g.argument(" é rest",0)
+    (character.value="é" /\ character.stop=3)?! "one scalar argument"
+    grouped:g.argument(" {ab} rest",0)
+    (grouped.value="ab" /\ grouped.stop=5)?! "braced argument"
+
+renderer_tests()->bit:
+    nested_groups()
+    optional_groups()
+    missing_groups()
+    control_words()
+    undelimited_arguments()
+    @:true
+renderer_tests()

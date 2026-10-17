@@ -1,0 +1,114 @@
+paragraphs:.frozen285_math_paragraph_nodes
+# Request-owned prepared math profiles; no retained cross-request state.
+# A box retains all its leaves (glyphs/rules/links), while glue/kern/penalty
+# nodes stay visible to paragraph breaking instead of becoming an opaque hbox.
+layout:.frozen285_math_layout
+parser:.frozen285_math_parser
+profiles:.frozen285_math_profiles
+boxes:.frozen285_text_inline_boxes
+ops:.frozen285_text_parser_stream
+catalog:.frozen285_font_catalog
+inline_index:.frozen285_text_inline_arguments
+j:.frozen285_resource_json
+text:.frozen285_tex_text
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+Context:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+
+number(tape:Tape,node:int,key:str)->num:
+    value:j.member(tape,node,key)
+    value<0? @:0.0
+    @:j.number(tape,value)
+
+raw(tape:Tape,node:int)->str:
+    starts:tape.starts
+    stops:tape.stops
+    @:text.span(tape.source,starts.(node),stops.(node))
+
+evaluate_prepared(operation:int,source:str,fonts:Catalog,context:Context,tables:Tables,text_spacing:str="",equation_start:int=1,document_boxes_json:str="{}"):
+    arena:parser.parse_with_context(source,fonts,context,true,document_boxes_json)
+    scene:layout.layout_with_profiles(arena,fonts,tables,true,true,layout.display_context(source),equation_start,text.trim(source)~="",text_spacing,qed_symbol:context.qed_symbol)
+    out:boxes.empty()
+    ~scene.has_paragraph?
+        .out:boxes.append(out,operation,5,diagnostics:scene.diagnostics)
+        @:(provider:out,next_equation_number:scene.next_equation_number,equation_references:scene.equation_references,complete:scene.diagnostics="")
+    index:0
+    index<paragraphs.count(scene.paragraph)?>
+        kind:paragraphs.kind(scene.paragraph,index)
+        diagnostic:""
+        index=0? .diagnostic:scene.diagnostics
+        kind=0?
+            value:paragraphs.box_json(scene.paragraph,scene,index)
+            .out:boxes.append(out,operation,0,paragraphs.width(scene.paragraph,index),paragraphs.height(scene.paragraph,index),paragraphs.depth(scene.paragraph,index),scene:value,diagnostics:diagnostic)
+        kind=1? .out:boxes.append(out,operation,1,paragraphs.width(scene.paragraph,index),stretch:paragraphs.stretch(scene.paragraph,index),shrink:paragraphs.shrink(scene.paragraph,index),diagnostics:diagnostic)
+        kind=2? .out:boxes.append(out,operation,2,paragraphs.width(scene.paragraph,index),diagnostics:diagnostic,breakable:true)
+        kind=3? .out:boxes.append(out,operation,3,penalty:paragraphs.penalty(scene.paragraph,index),diagnostics:diagnostic)
+        .index:index+1
+    out.count=0? .out:boxes.append(out,operation,5,diagnostics:scene.diagnostics)
+    @:(provider:out,next_equation_number:scene.next_equation_number,equation_references:scene.equation_references,complete:scene.diagnostics="")
+
+append_provider(destination:Provider,source:Provider)->Provider:
+    out:destination
+    ids:source.operation_ids
+    kinds:source.kinds
+    widths:source.widths
+    heights:source.heights
+    depths:source.depths
+    italics:source.italics
+    scenes:source.scenes
+    messages:source.diagnostics
+    stretches:source.stretches
+    shrinks:source.shrinks
+    breaks:source.breakable
+    flags:source.flagged
+    penalties:source.penalties
+    index:0
+    index<source.count?>
+        .out:boxes.append(out,ids.(index),kinds.(index),widths.(index),heights.(index),depths.(index),italics.(index),scenes.(index),messages.(index),stretches.(index),shrinks.(index),breaks.(index),penalties.(index),flags.(index))
+        .index:index+1
+    @:out
+
+field(stream:Stream,index:int,key:str)->str:ops.value(stream,index,key)
+
+# document-text evaluates each inline operation independently. Font spacing is
+# selected from that operation's actual role; no scaled substitute is used.
+provide_core(stream:Stream,fonts:Catalog,context:Context,tables:Tables,prepared:bit,equation_start:int=1,document_boxes_json:str="{}")->Provider:
+    out:boxes.empty()
+    active_tables:tables
+    ready:prepared
+    directory:inline_index.build(stream)
+    hidden:directory.hidden
+    index:0
+    index<stream.count?>
+        kind:field(stream,index,"kind")
+        kind="math" /\ ~hidden.(index)?
+            role:field(stream,index,"role")
+            font_source:catalog.raw(fonts,"font/"&role)
+            font_source~=""?
+                font:j.parse(font_source)
+                spacing_node:j.member(font,0,"spaces")
+                spacing:""
+                spacing_node>=0? .spacing:raw(font,spacing_node)
+                source:field(stream,index,"value")
+                ~ready?
+                    .active_tables:profiles.load(fonts)
+                    .ready:true
+                rendered:evaluate_prepared(index,source,fonts,context,active_tables,spacing,equation_start,document_boxes_json)
+                .out:append_provider(out,rendered.provider)
+        .index:index+1
+    @:out
+
+evaluate(operation:int,source:str,fonts:Catalog,context:Context,text_spacing:str="",equation_start:int=1,document_boxes_json:str="{}"):
+    tables:profiles.load(fonts)
+    @:evaluate_prepared(operation,source,fonts,context,tables,text_spacing,equation_start,document_boxes_json)
+
+provide_prepared(stream:Stream,fonts:Catalog,context:Context,tables:Tables,equation_start:int=1,document_boxes_json:str="{}")->Provider:
+    @:provide_core(stream,fonts,context,tables,true,equation_start,document_boxes_json)
+
+provide(stream:Stream,fonts:Catalog,context:Context,equation_start:int=1,document_boxes_json:str="{}")->Provider:
+    empty_tables:(values:profiles.zeros(0),ems:profiles.zeros(0),delim1:profiles.zeros(0),delim2:profiles.zeros(0),mus:profiles.zeros(0))
+    @:provide_core(stream,fonts,context,empty_tables,false,equation_start,document_boxes_json)

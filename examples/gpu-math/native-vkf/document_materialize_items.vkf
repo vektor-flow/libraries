@@ -1,0 +1,71 @@
+# Preserve retained leaf metadata while applying qualified page placements.
+# The source scene stays in native units; placement already includes page glue.
+document_pages:.document_pages
+resource_json:.resource_json
+json_numbers:.json_numbers
+tex_text:.tex_text
+text_chunks:.text_chunks
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Placements:(scenes:[int],source_lines:[int],pages:[int],blocks:[int],lines:[int],kinds:[int],xs:[num],ys:[num],units:[num],tag_bases:[num],line_heights:[num],line_depths:[num],shrink:[num],stretch:[num],count:int)
+Parts:(values:[str],count:int)
+empty()->Parts:@:(values:text_chunks.empty(16),count:0)
+add(parts:Parts,value:str)->Parts:
+    values:parts.values
+    count:parts.count
+    count>=values.length()? .values:values&text_chunks.empty(values.length())
+    prefix:""
+    count>0? .prefix:","
+    values.(count):prefix&value
+    @:(values:values,count:count+1)
+raw(tape:Tape,node:int)->str:
+    @:tex_text.span(tape.source,tape.starts.(node),tape.stops.(node))
+number(tape:Tape,node:int,key:str,fallback:num=0)->num:
+    at:resource_json.member(tape,node,key)
+    at<0? @:fallback
+    @:resource_json.number(tape,at)
+flag(tape:Tape,node:int,key:str)->bit:
+    at:resource_json.member(tape,node,key)
+    at<0? @:false
+    @:tape.kinds.(at)=5
+field(key:str,value:num)->str:resource_json.quote(key)&":"&json_numbers.roundtrip(value)
+transform(tape:Tape,item:int,placements:Placements,index:int,source_baseline:num=0)->str:
+    placement_kind:placements.kinds.(index)
+    placement_kind=1 \/ placement_kind>=3?
+        member:item+1
+        plain:empty()
+        member<tape.ends.(item)?>
+            key:resource_json.string(tape,member)
+            key~="x" /\ key~="y"? .plain:add(plain,raw(tape,member)&":"&raw(tape,member+1))
+            .member:tape.ends.(member+1)
+        .plain:add(plain,field("x",placements.xs.(index)+number(tape,item,"x")))
+        .plain:add(plain,field("y",placements.ys.(index)+number(tape,item,"y")))
+        placement_kind>=3?
+            placement_name:"top"
+            placement_kind=4? .placement_name:"bottom"
+            placement_kind=5? .placement_name:"page"
+            .plain:add(plain,"\"floatPlacement\":"&resource_json.quote(placement_name))
+        @:"{"&text_chunks.join(plain.values,0,plain.count)&"}"
+    kind:resource_json.string(tape,resource_json.member(tape,item,"kind"))
+    width:number(tape,item,"width")
+    height:number(tape,item,"height")
+    positioned:document_pages.position(placements,index,number(tape,item,"x"),number(tape,item,"y"),width,height,kind,flag(tape,item,"equationTag"),number(tape,item,"tagWidth"),source_baseline)
+    parts:empty()
+    member:item+1
+    member<tape.ends.(item)?>
+        key:resource_json.string(tape,member)
+        keep:key~="x" /\ key~="y" /\ key~="verticalShrink" /\ key~="verticalStretch"
+        kind~="link" /\ (key="sx" \/ key="sy")? .keep:false
+        (kind="rule" \/ kind="placeholder" \/ kind="link") /\ (key="width" \/ key="height")? .keep:false
+        keep? .parts:add(parts,raw(tape,member)&":"&raw(tape,member+1))
+        .member:tape.ends.(member+1)
+    .parts:add(parts,field("verticalShrink",placements.shrink.(index)))
+    .parts:add(parts,field("verticalStretch",placements.stretch.(index)))
+    .parts:add(parts,field("x",positioned.x))
+    .parts:add(parts,field("y",positioned.y))
+    kind~="link"?
+        .parts:add(parts,field("sx",number(tape,item,"sx",1)*positioned.unit))
+        .parts:add(parts,field("sy",number(tape,item,"sy",1)*positioned.unit))
+    kind="rule" \/ kind="placeholder" \/ kind="link"?
+        .parts:add(parts,field("width",positioned.width))
+        .parts:add(parts,field("height",positioned.height))
+    @:"{"&text_chunks.join(parts.values,0,parts.count)&"}"

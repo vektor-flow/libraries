@@ -1,0 +1,472 @@
+text_native_primitives:.text_native_primitives
+text_parser:.text_parser
+math_packages:.math_packages
+reference_fonts:.text_native_primitives_reference_fonts
+resource_json:.resource_json
+close(a:num,b:num)->bit:|a-b|<0.000000001
+case_0()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\char65",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "char resolved exactly once"
+    (messages.(0)="")?! "char diagnostics"
+    (kinds.(0)=0 /\ close(widths.(0),7.47199527650218))?! "char node kind/width"
+    (close(heights.(0),6.80778379903487) /\ close(depths.(0),0.0) /\ close(italics.(0),0.0))?! "char native extents"
+    scene:resource_json.parse(scenes.(0))
+    items:resource_json.member(scene,0,"items")
+    leaf_0:resource_json.element(scene,items,0)
+    (text_native_primitives.string(scene,leaf_0,"kind")="glyph")?! "char leaf kind"
+    (text_native_primitives.string(scene,leaf_0,"key")="text/@document:roman:65")?! "char leaf key"
+    close(text_native_primitives.numeric(scene,leaf_0,"x"),0.0)?! "char leaf x"
+    close(text_native_primitives.numeric(scene,leaf_0,"y"),0.0)?! "char leaf y"
+    @:true
+case_1()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\char9999",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "missing-char resolved exactly once"
+    (messages.(0)="")?! "missing-char diagnostics"
+    (kinds.(0)=5)?! "missing-char resolved empty"
+    @:true
+case_2()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\'{a}",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "accent resolved exactly once"
+    (messages.(0)="")?! "accent diagnostics"
+    (kinds.(0)=0 /\ close(widths.(0),4.9813352515955795))?! "accent node kind/width"
+    (close(heights.(0),6.91849838009807) /\ close(depths.(0),0.0) /\ close(italics.(0),0.0))?! "accent native extents"
+    scene:resource_json.parse(scenes.(0))
+    items:resource_json.member(scene,0,"items")
+    leaf_0:resource_json.element(scene,items,0)
+    (text_native_primitives.string(scene,leaf_0,"kind")="glyph")?! "accent leaf kind"
+    (text_native_primitives.string(scene,leaf_0,"key")="text/@document:roman:19")?! "accent leaf key"
+    close(text_native_primitives.numeric(scene,leaf_0,"x"),0.0)?! "accent leaf x"
+    close(text_native_primitives.numeric(scene,leaf_0,"y"),0.0)?! "accent leaf y"
+    leaf_1:resource_json.element(scene,items,1)
+    (text_native_primitives.string(scene,leaf_1,"kind")="glyph")?! "accent leaf kind"
+    (text_native_primitives.string(scene,leaf_1,"key")="text/@document:roman:97")?! "accent leaf key"
+    close(text_native_primitives.numeric(scene,leaf_1,"x"),0.0)?! "accent leaf x"
+    close(text_native_primitives.numeric(scene,leaf_1,"y"),0.0)?! "accent leaf y"
+    @:true
+case_3()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("italic",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\^{A}",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "accent-italic resolved exactly once"
+    (messages.(0)="")?! "accent-italic diagnostics"
+    (kinds.(0)=0 /\ close(widths.(0),7.405517882160648))?! "accent-italic node kind/width"
+    (close(heights.(0),9.436825648933688) /\ close(depths.(0),0.0) /\ close(italics.(0),0.0))?! "accent-italic native extents"
+    scene:resource_json.parse(scenes.(0))
+    items:resource_json.member(scene,0,"items")
+    leaf_0:resource_json.element(scene,items,0)
+    (text_native_primitives.string(scene,leaf_0,"kind")="glyph")?! "accent-italic leaf kind"
+    (text_native_primitives.string(scene,leaf_0,"key")="text/@document:italic:94")?! "accent-italic leaf key"
+    close(text_native_primitives.numeric(scene,leaf_0,"x"),1.7863462455245955)?! "accent-italic leaf x"
+    close(text_native_primitives.numeric(scene,leaf_0,"y"),-2.518327268835617)?! "accent-italic leaf y"
+    leaf_1:resource_json.element(scene,items,1)
+    (text_native_primitives.string(scene,leaf_1,"kind")="glyph")?! "accent-italic leaf kind"
+    (text_native_primitives.string(scene,leaf_1,"key")="text/@document:italic:65")?! "accent-italic leaf key"
+    close(text_native_primitives.numeric(scene,leaf_1,"x"),0.0)?! "accent-italic leaf x"
+    close(text_native_primitives.numeric(scene,leaf_1,"y"),0.0)?! "accent-italic leaf y"
+    @:true
+case_4()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\%",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "escaped resolved exactly once"
+    (messages.(0)="")?! "escaped diagnostics"
+    (kinds.(0)=0 /\ close(widths.(0),8.302225419325966))?! "escaped node kind/width"
+    (close(heights.(0),7.471980074719801) /\ close(depths.(0),0.5534645080946451) /\ close(italics.(0),0.0))?! "escaped native extents"
+    scene:resource_json.parse(scenes.(0))
+    items:resource_json.member(scene,0,"items")
+    leaf_0:resource_json.element(scene,items,0)
+    (text_native_primitives.string(scene,leaf_0,"kind")="glyph")?! "escaped leaf kind"
+    (text_native_primitives.string(scene,leaf_0,"key")="text/@text:%")?! "escaped leaf key"
+    close(text_native_primitives.numeric(scene,leaf_0,"x"),0.0)?! "escaped leaf x"
+    close(text_native_primitives.numeric(scene,leaf_0,"y"),0.0)?! "escaped leaf y"
+    @:true
+case_5()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\textbullet",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "bullet resolved exactly once"
+    (messages.(0)="")?! "bullet diagnostics"
+    (kinds.(0)=0 /\ close(widths.(0),4.980103907222914))?! "bullet node kind/width"
+    (close(heights.(0),4.35759091882005) /\ close(depths.(0),-0.5533448785803238) /\ close(italics.(0),0.0))?! "bullet native extents"
+    scene:resource_json.parse(scenes.(0))
+    items:resource_json.member(scene,0,"items")
+    leaf_0:resource_json.element(scene,items,0)
+    (text_native_primitives.string(scene,leaf_0,"kind")="glyph")?! "bullet leaf kind"
+    (text_native_primitives.string(scene,leaf_0,"key")="text/@text:bullet")?! "bullet leaf key"
+    close(text_native_primitives.numeric(scene,leaf_0,"x"),0.0)?! "bullet leaf x"
+    close(text_native_primitives.numeric(scene,leaf_0,"y"),0.0)?! "bullet leaf y"
+    @:true
+case_6()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\textbullet",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),true)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "legacy-bullet resolved exactly once"
+    (messages.(0)="")?! "legacy-bullet diagnostics"
+    (kinds.(0)=0 /\ close(widths.(0),4.981339052041174))?! "legacy-bullet node kind/width"
+    (close(heights.(0),4.427851656751051) /\ close(depths.(0),-0.5534683930621498) /\ close(italics.(0),0.0))?! "legacy-bullet native extents"
+    scene:resource_json.parse(scenes.(0))
+    items:resource_json.member(scene,0,"items")
+    leaf_0:resource_json.element(scene,items,0)
+    (text_native_primitives.string(scene,leaf_0,"kind")="glyph")?! "legacy-bullet leaf kind"
+    (text_native_primitives.string(scene,leaf_0,"key")="text/\\bullet")?! "legacy-bullet leaf key"
+    close(text_native_primitives.numeric(scene,leaf_0,"x"),0.0)?! "legacy-bullet leaf x"
+    close(text_native_primitives.numeric(scene,leaf_0,"y"),0.0)?! "legacy-bullet leaf y"
+    @:true
+case_7()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\ldots",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "dots resolved exactly once"
+    (messages.(0)="")?! "dots diagnostics"
+    (kinds.(0)=0 /\ close(widths.(0),13.28351506557441))?! "dots node kind/width"
+    (close(heights.(0),1.0515984978206725) /\ close(depths.(0),0.0) /\ close(italics.(0),0.0))?! "dots native extents"
+    scene:resource_json.parse(scenes.(0))
+    items:resource_json.member(scene,0,"items")
+    leaf_0:resource_json.element(scene,items,0)
+    (text_native_primitives.string(scene,leaf_0,"kind")="glyph")?! "dots leaf kind"
+    (text_native_primitives.string(scene,leaf_0,"key")="text/@document:roman:46")?! "dots leaf key"
+    close(text_native_primitives.numeric(scene,leaf_0,"x"),0.0)?! "dots leaf x"
+    close(text_native_primitives.numeric(scene,leaf_0,"y"),0.0)?! "dots leaf y"
+    leaf_1:resource_json.element(scene,items,1)
+    (text_native_primitives.string(scene,leaf_1,"kind")="glyph")?! "dots leaf kind"
+    (text_native_primitives.string(scene,leaf_1,"key")="text/@document:roman:46")?! "dots leaf key"
+    close(text_native_primitives.numeric(scene,leaf_1,"x"),4.4278383551914695)?! "dots leaf x"
+    close(text_native_primitives.numeric(scene,leaf_1,"y"),0.0)?! "dots leaf y"
+    leaf_2:resource_json.element(scene,items,2)
+    (text_native_primitives.string(scene,leaf_2,"kind")="glyph")?! "dots leaf kind"
+    (text_native_primitives.string(scene,leaf_2,"key")="text/@document:roman:46")?! "dots leaf key"
+    close(text_native_primitives.numeric(scene,leaf_2,"x"),8.855676710382939)?! "dots leaf x"
+    close(text_native_primitives.numeric(scene,leaf_2,"y"),0.0)?! "dots leaf y"
+    @:true
+case_8()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\TeX",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "TeX resolved exactly once"
+    (messages.(0)="")?! "TeX diagnostics"
+    (kinds.(0)=0 /\ close(widths.(0),18.541286946411894))?! "TeX node kind/width"
+    (close(heights.(0),6.80778379903487) /\ close(depths.(0),2.1469489414694896) /\ close(italics.(0),0.0))?! "TeX native extents"
+    scene:resource_json.parse(scenes.(0))
+    items:resource_json.member(scene,0,"items")
+    leaf_0:resource_json.element(scene,items,0)
+    (text_native_primitives.string(scene,leaf_0,"kind")="glyph")?! "TeX leaf kind"
+    (text_native_primitives.string(scene,leaf_0,"key")="text/@document:roman:84")?! "TeX leaf key"
+    close(text_native_primitives.numeric(scene,leaf_0,"x"),0.0)?! "TeX leaf x"
+    close(text_native_primitives.numeric(scene,leaf_0,"y"),0.0)?! "TeX leaf y"
+    leaf_1:resource_json.element(scene,items,1)
+    (text_native_primitives.string(scene,leaf_1,"kind")="glyph")?! "TeX leaf kind"
+    (text_native_primitives.string(scene,leaf_1,"key")="text/@document:roman:69")?! "TeX leaf key"
+    close(text_native_primitives.numeric(scene,leaf_1,"x"),5.534474723692403)?! "TeX leaf x"
+    close(text_native_primitives.numeric(scene,leaf_1,"y"),2.1469489414694896)?! "TeX leaf y"
+    leaf_2:resource_json.element(scene,items,2)
+    (text_native_primitives.string(scene,leaf_2,"kind")="glyph")?! "TeX leaf kind"
+    (text_native_primitives.string(scene,leaf_2,"key")="text/@document:roman:88")?! "TeX leaf key"
+    close(text_native_primitives.numeric(scene,leaf_2,"x"),11.069291669909715)?! "TeX leaf x"
+    close(text_native_primitives.numeric(scene,leaf_2,"y"),0.0)?! "TeX leaf y"
+    @:true
+case_9()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\LaTeX",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "LaTeX resolved exactly once"
+    (messages.(0)="")?! "LaTeX diagnostics"
+    (kinds.(0)=0 /\ close(widths.(0),25.56777156768077))?! "LaTeX node kind/width"
+    (close(heights.(0),6.80778379903487) /\ close(depths.(0),2.1469489414694896) /\ close(italics.(0),0.0))?! "LaTeX native extents"
+    scene:resource_json.parse(scenes.(0))
+    items:resource_json.member(scene,0,"items")
+    leaf_0:resource_json.element(scene,items,0)
+    (text_native_primitives.string(scene,leaf_0,"kind")="glyph")?! "LaTeX leaf kind"
+    (text_native_primitives.string(scene,leaf_0,"key")="text/@document:roman:76")?! "LaTeX leaf key"
+    close(text_native_primitives.numeric(scene,leaf_0,"x"),0.0)?! "LaTeX leaf x"
+    close(text_native_primitives.numeric(scene,leaf_0,"y"),0.0)?! "LaTeX leaf y"
+    leaf_1:resource_json.element(scene,items,1)
+    (text_native_primitives.string(scene,leaf_1,"kind")="glyph")?! "LaTeX leaf kind"
+    (text_native_primitives.string(scene,leaf_1,"key")="script/@roman:A")?! "LaTeX leaf key"
+    close(text_native_primitives.numeric(scene,leaf_1,"x"),2.640114828183375)?! "LaTeX leaf x"
+    close(text_native_primitives.numeric(scene,leaf_1,"y"),-2.042314309620175)?! "LaTeX leaf y"
+    leaf_2:resource_json.element(scene,items,2)
+    (text_native_primitives.string(scene,leaf_2,"kind")="glyph")?! "LaTeX leaf kind"
+    (text_native_primitives.string(scene,leaf_2,"key")="text/@document:roman:84")?! "LaTeX leaf key"
+    close(text_native_primitives.numeric(scene,leaf_2,"x"),7.026484621268875)?! "LaTeX leaf x"
+    close(text_native_primitives.numeric(scene,leaf_2,"y"),0.0)?! "LaTeX leaf y"
+    leaf_3:resource_json.element(scene,items,3)
+    (text_native_primitives.string(scene,leaf_3,"kind")="glyph")?! "LaTeX leaf kind"
+    (text_native_primitives.string(scene,leaf_3,"key")="text/@document:roman:69")?! "LaTeX leaf key"
+    close(text_native_primitives.numeric(scene,leaf_3,"x"),12.56095934496128)?! "LaTeX leaf x"
+    close(text_native_primitives.numeric(scene,leaf_3,"y"),2.1469489414694896)?! "LaTeX leaf y"
+    leaf_4:resource_json.element(scene,items,4)
+    (text_native_primitives.string(scene,leaf_4,"kind")="glyph")?! "LaTeX leaf kind"
+    (text_native_primitives.string(scene,leaf_4,"key")="text/@document:roman:88")?! "LaTeX leaf key"
+    close(text_native_primitives.numeric(scene,leaf_4,"x"),18.09577629117859)?! "LaTeX leaf x"
+    close(text_native_primitives.numeric(scene,leaf_4,"y"),0.0)?! "LaTeX leaf y"
+    @:true
+case_10()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\hspace{-01.5em plus+.2ex minus 3.pt}",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "space resolved exactly once"
+    (messages.(0)="")?! "space diagnostics"
+    (kinds.(0)=1 /\ close(widths.(0),-14.94398295211317))?! "space node kind/width"
+    stretches:provider.stretches
+    shrinks:provider.shrinks
+    breaks:provider.breakable
+    (close(stretches.(0),0.8578913060398506) /\ close(shrinks.(0),2.9887920298879207) /\ breaks.(0))?! "space exact glue components"
+    @:true
+case_11()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\hspace{1ptplus2pt}",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "space-bad resolved exactly once"
+    (messages.(0)="\"Unsupported text hspace: 1ptplus2pt\"")?! "space-bad diagnostics"
+    (kinds.(0)=5)?! "space-bad resolved empty"
+    @:true
+case_12()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\qquad",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "quad resolved exactly once"
+    (messages.(0)="")?! "quad diagnostics"
+    (kinds.(0)=1 /\ close(widths.(0),19.92531060281756))?! "quad node kind/width"
+    stretches:provider.stretches
+    shrinks:provider.shrinks
+    breaks:provider.breakable
+    (close(stretches.(0),0.0) /\ close(shrinks.(0),0.0) /\ breaks.(0))?! "quad exact glue components"
+    @:true
+case_13()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\newblock",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "newblock resolved exactly once"
+    (messages.(0)="")?! "newblock diagnostics"
+    (kinds.(0)=1 /\ close(widths.(0),1.095892083154966))?! "newblock node kind/width"
+    stretches:provider.stretches
+    shrinks:provider.shrinks
+    breaks:provider.breakable
+    (close(stretches.(0),3.287676249464898) /\ close(shrinks.(0),0.6973858710986147) /\ breaks.(0))?! "newblock exact glue components"
+    @:true
+case_14()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\,",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "thin resolved exactly once"
+    (messages.(0)="")?! "thin diagnostics"
+    (kinds.(0)=2 /\ close(widths.(0),1.6604400166044002))?! "thin node kind/width"
+    breaks:provider.breakable
+    breaks.(0)?! "thin ordinary kern remains breakable before following glue"
+    @:true
+case_15()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\footnotemark{7:2}",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "footnote resolved exactly once"
+    (messages.(0)="")?! "footnote diagnostics"
+    (kinds.(0)=0 /\ close(widths.(0),4.469369863013699))?! "footnote node kind/width"
+    (close(heights.(0),8.109620432168432) /\ close(depths.(0),0.0) /\ close(italics.(0),0.0))?! "footnote native extents"
+    scene:resource_json.parse(scenes.(0))
+    items:resource_json.member(scene,0,"items")
+    leaf_0:resource_json.element(scene,items,0)
+    (text_native_primitives.string(scene,leaf_0,"kind")="glyph")?! "footnote leaf kind"
+    (resource_json.member(scene,leaf_0,"color")>=0)?! "footnote retained color"
+    (text_native_primitives.string(scene,leaf_0,"key")="script/@font:mathrm:2")?! "footnote leaf key"
+    close(text_native_primitives.numeric(scene,leaf_0,"x"),0.0)?! "footnote leaf x"
+    close(text_native_primitives.numeric(scene,leaf_0,"y"),-3.6153638941858657)?! "footnote leaf y"
+    close(text_native_primitives.numeric(scene,leaf_0,"flowX"),0.0)?! "footnote leaf flowX"
+    close(text_native_primitives.numeric(scene,leaf_0,"flowWidth"),4.469369863013699)?! "footnote leaf flowWidth"
+    close(text_native_primitives.numeric(scene,leaf_0,"footnoteNumber"),7.0)?! "footnote leaf footnoteNumber"
+    @:true
+case_16()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\symbolfootnotemark{2}",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "symbol-footnote resolved exactly once"
+    (messages.(0)="")?! "symbol-footnote diagnostics"
+    (kinds.(0)=0 /\ close(widths.(0),0.0))?! "symbol-footnote node kind/width"
+    (close(heights.(0),9.873238417457971) /\ close(depths.(0),0.0) /\ close(italics.(0),0.0))?! "symbol-footnote native extents"
+    scene:resource_json.parse(scenes.(0))
+    items:resource_json.member(scene,0,"items")
+    leaf_0:resource_json.element(scene,items,0)
+    (text_native_primitives.string(scene,leaf_0,"kind")="glyph")?! "symbol-footnote leaf kind"
+    (text_native_primitives.string(scene,leaf_0,"key")="text/@document:titlemark:121")?! "symbol-footnote leaf key"
+    close(text_native_primitives.numeric(scene,leaf_0,"x"),0.0)?! "symbol-footnote leaf x"
+    close(text_native_primitives.numeric(scene,leaf_0,"y"),-4.338436673023039)?! "symbol-footnote leaf y"
+    close(text_native_primitives.numeric(scene,leaf_0,"footnoteNumber"),2.0)?! "symbol-footnote leaf footnoteNumber"
+    @:true
+case_17()->bit:
+    fonts:reference_fonts.fonts()
+    context:text_parser.context("roman",["roman","italic","author","titlemark"])
+    parsed:text_parser.parse("\\symbolfootnotemark{8}",fonts,context)
+    provider:text_native_primitives.provide(parsed.stream,fonts,math_packages.defaults(),false)
+    kinds:provider.kinds
+    widths:provider.widths
+    heights:provider.heights
+    depths:provider.depths
+    italics:provider.italics
+    scenes:provider.scenes
+    messages:provider.diagnostics
+    (provider.count=1)?! "missing-symbol resolved exactly once"
+    (messages.(0)="\"Missing title footnote symbol: 8\"")?! "missing-symbol diagnostics"
+    (kinds.(0)=5)?! "missing-symbol resolved empty"
+    @:true
+renderer_tests()->bit:
+    case_0()?! "case 0"
+    case_1()?! "case 1"
+    case_2()?! "case 2"
+    case_3()?! "case 3"
+    case_4()?! "case 4"
+    case_5()?! "case 5"
+    case_6()?! "case 6"
+    case_7()?! "case 7"
+    case_8()?! "case 8"
+    case_9()?! "case 9"
+    case_10()?! "case 10"
+    case_11()?! "case 11"
+    case_12()?! "case 12"
+    case_13()?! "case 13"
+    case_14()?! "case 14"
+    case_15()?! "case 15"
+    case_16()?! "case 16"
+    case_17()?! "case 17"
+    @:true
+renderer_tests()

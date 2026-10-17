@@ -9,6 +9,7 @@ for name,letter in zip('Alpha Beta Epsilon Zeta Eta Iota Kappa Mu Nu Omicron Rho
 TOKENS.update({token:'ord' for token in ALIASES})
 TOKENS.update({t:'ord' for t in r'\infty \nabla \partial \ell \hbar \Re \Im \emptyset \aleph'.split()})
 TOKENS.update({t:'bin' for t in ['+','-',r'\pm',r'\mp',r'\times',r'\cdot',r'\div',r'\cup',r'\cap',r'\wedge',r'\vee',r'\oplus',r'\otimes']})
+TOKENS.update({'*':'bin',r'\ast':'bin',r'\cong':'rel'})
 TOKENS.update({t:'rel' for t in ['=','<','>',r'\leq',r'\geq',r'\neq',r'\approx',r'\equiv',r'\sim',r'\simeq',r'\in',r'\notin',r'\subset',r'\subseteq',r'\supset',r'\supseteq',r'\to',r'\rightarrow',r'\leftarrow',r'\leftrightarrow',r'\Rightarrow',r'\Leftarrow',r'\Leftrightarrow',r'\mapsto',r'\perp',r'\parallel']})
 TOKENS.update({t:'ord' for t in [r'\forall',r'\exists',r'\neg',r'\cdots',r'\ldots',r'\vdots',r'\ddots']})
 DELIMITERS={'(':'open',')':'close','[':'open',']':'close',r'\lbrace':'open',r'\rbrace':'close',r'\langle':'open',r'\rangle':'close','|':'ord',r'\Vert':'ord',r'\lfloor':'open',r'\rfloor':'close',r'\lceil':'open',r'\rceil':'close','/':'ord',r'\backslash':'ord'}

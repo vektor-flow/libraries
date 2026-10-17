@@ -1,0 +1,14 @@
+tikz_number_io:.io
+tikz_number_parser:.tikz_numbers
+tikz_number_json:.json_numbers
+tikz_number_resource:.resource_json
+
+run()->int:
+    source:tikz_number_io.read_line()
+    ctx:tikz_number_parser.context(tikz_number_parser.empty())
+    value:tikz_number_parser.parse(source,ctx)
+    dimensioned:"false"
+    value.dimensioned? .dimensioned:"true"
+    tikz_number_io.print("{\"value\":"&tikz_number_json.roundtrip(value.value)&",\"dimensioned\":"&dimensioned&",\"diagnostic\":"&tikz_number_resource.quote(value.diagnostic)&"}")
+    @:0
+run()

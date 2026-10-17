@@ -1,0 +1,15 @@
+float_measure_dump_io:.io
+float_measure_dump_kernel:.document_float_measure_kernel
+run()->int:
+    count:int(vkf_decimal_parse(float_measure_dump_io.read_line()))
+    i:0
+    i<count?>
+        request:float_measure_dump_io.read_text(float_measure_dump_io.read_line())
+        expected:float_measure_dump_io.read_text(float_measure_dump_io.read_line())
+        output:float_measure_dump_io.read_line()
+        actual:float_measure_dump_kernel.json(request)
+        float_measure_dump_io.write_text(output,actual)
+        float_measure_dump_kernel.check(request,expected)?! "Float scene geometry matches actual JS"
+        .i:i+1
+    @:0
+run()

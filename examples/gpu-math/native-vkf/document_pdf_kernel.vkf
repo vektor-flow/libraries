@@ -1,0 +1,6 @@
+document_pdf:.document_pdf
+font_catalog:.font_catalog
+pdf_encode(font_source:str,operators:str,layout:str,default_color:str="[0,0,0,1]")->str:
+    @:document_pdf.encode(layout,font_catalog.load(font_source),operators,default_color)
+noop()->int:0
+noop()

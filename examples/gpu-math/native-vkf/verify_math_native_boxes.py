@@ -1,0 +1,22 @@
+"""Actual TikZ extension -> native VKF math retained box integration."""
+import argparse,json,subprocess,sys,hashlib
+from pathlib import Path
+if sys.version_info[:2]!=(3,14):raise SystemExit('Python3.14 required')
+p=argparse.ArgumentParser(description=__doc__)
+for k in ['compiler','fonts','metrics','output']:p.add_argument('--'+k,type=Path,required=True)
+a=p.parse_args();a.output.mkdir(parents=True,exist_ok=False);root=Path(__file__).resolve().parent
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+report={'passed':False,'performanceValidated':False,'sourceHashes':{p.name:sha(p)for p in root.glob('*.vkf')},'compilerSha256':sha(a.compiler),'referenceSha256':sha(root.parent/'typing-layout.mjs')}
+def run(command,input=None):
+ r=subprocess.run(list(map(str,command)),input=input,text=True,capture_output=True,timeout=900)
+ if r.returncode:report['failure']={'command':list(map(str,command)),'stdout':r.stdout,'stderr':r.stderr};raise RuntimeError(r.stderr or r.stdout)
+ return r.stdout
+try:
+ oracle=a.output/'reference.mjs';oracle.write_text("import fs from'node:fs';import{pathToFileURL}from'node:url';const{typeset}=await import(pathToFileURL(process.argv[2]));const{prepareTikzPictures}=await import(pathToFileURL(process.argv[3]));const{typesetDocumentText}=await import(pathToFileURL(process.argv[4]));const{typesetDocument}=await import(pathToFileURL(process.argv[5]));const data=JSON.parse(fs.readFileSync(process.argv[6]));const klass=data.fontProfile?'amsart':'article';const config=(await typesetDocument('\\\\documentclass['+(klass==='amsart'?'12':'10')+'pt]{'+klass+'}\\\\usepackage{tikz,amsmath}\\\\begin{document}\\\\end{document}',data)).config;const picture='\\\\begin{tikzpicture}\\\\draw (0,0)--(0.3,0);\\\\node at (0,0) {\\\\textbf{1.}};\\\\node at (.3,0) {1.};\\\\end{tikzpicture}';const sources=['a+PIC+b','\\\\frac{PIC}{x}','a^{PIC}','\\\\begin{matrix}PIC & x\\\\end{matrix}','\\\\left(PIC\\\\right)','\\\\textcolor{red}{PIC}','PIC+PIC','\\\\begin{equation}PIC\\\\end{equation}'];const cases=[],expected=[];for(const inline of [false,true])for(const role of ['roman','bold'])for(const source of sources){const p=prepareTikzPictures(source.replaceAll('PIC',picture),{fontSize:config.fontSize,fontQuad:data.documentFonts.roman.spaces.quad,labelBox:s=>typesetDocumentText(s,data,{font:'roman',justify:false,hyphens:false,width:1000000,packages:['tikz','amsmath']})});const mathMetrics=klass==='amsart'?{baseline:config.lineHeight,jot:config.mathJot,lineSkip:config.lineSkip,lineSkipLimit:config.lineSkipLimit}:null;const c={source:p.source,boxes:Object.fromEntries(p.boxes.map((b,i)=>[String(i),b])),class:klass,role,inline,displayEnvironment:!inline,displayWidth:inline?-1:config.textWidth,mathMetrics};cases.push(c);const q=typeset(p.source,data.maps,{mode:inline?'inline':'display',nativeSemantics:true,displayEnvironment:!inline,displayWidth:inline?undefined:config.textWidth,equationStart:7,textSpacing:data.documentFonts[role].spaces,mathMetrics:mathMetrics??undefined,packages:['tikz','amsmath'],extensions:[p.extension]});expected.push({width:q.width,height:q.height,depth:q.depth,items:q.items,diagnostics:q.diagnostics,nextEquationNumber:q.nextEquationNumber,equationReferences:q.equationReferences,...(q.lastRow?{lastRow:q.lastRow}:{})});}fs.writeFileSync(process.argv[7],JSON.stringify(cases));fs.writeFileSync(process.argv[8],JSON.stringify(expected));")
+ run(['node',oracle,root.parent/'typing-layout.mjs',root.parent/'tikz-layout.mjs',root.parent/'document-text.mjs',root.parent/'document-layout.mjs',a.metrics,a.output/'cases.json',a.output/'reference.json'])
+ cases=json.loads((a.output/'cases.json').read_text());expected=json.loads((a.output/'reference.json').read_text());entries=[str(a.fonts),str(len(cases))]
+ for index,(case,e)in enumerate(zip(cases,expected)):
+  (a.output/f'request-{index}.json').write_text(json.dumps(case));(a.output/f'expected-{index}.json').write_text(json.dumps(e));entries +=[str(a.output/f'{key}-{index}.json')for key in ['request','expected','actual']]
+ native=a.output/'dump';build=run([a.compiler,'-b',root/'math_native_box_dump.vkf','-o',native,'--diagnostics']);(a.output/'native-build.json').write_text(build);run([native],'\n'.join(entries)+'\n');report.update(passed=True,native=True,cases=len(cases))
+finally:(a.output/'verification.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps({k:report.get(k)for k in ['passed','native','cases']}))

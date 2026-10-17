@@ -13,7 +13,11 @@ TOKENS={c:'ord' for c in string.ascii_letters+string.digits}
 TOKENS.update({t:'ord' for t in [r'\alpha',r'\beta',r'\gamma',r'\delta',r'\theta',r'\lambda',r'\mu',r'\pi',r'\sigma',r'\omega',r'\Gamma',r'\Delta',r'\Omega',r'\infty']})
 TOKENS.update({'+':'bin','-':'bin','=':'rel','<':'rel','>':'rel',r'\leq':'rel',r'\geq':'rel','(':'open',')':'close','[':'open',']':'close',',':'punct'})
 
-def build(output,style="display",extended=False,extras=None,reuse=None):
+def build(output,style="display",extended=False,extras=None,reuse=None,point_size=10,alphabet=None,package=None,characters=None):
+    sizes={10:(10,7,5),11:(10.95,8,6),12:(12,8,6)}
+    if point_size not in sizes:raise ValueError("Unsupported native article point size")
+    normal,script,scriptscript=sizes[point_size]
+    size=normal if style in ("display","text") else script if style=="script" else scriptscript
     if output.exists(): raise ValueError('Use a fresh output directory')
     output.mkdir(parents=True)
     symbols={}
@@ -22,6 +26,12 @@ def build(output,style="display",extended=False,extras=None,reuse=None):
         import runpy
         config=runpy.run_path(str(Path(__file__).with_name('extended-symbols.py')))
         catalogue,aliases=config['TOKENS'],config['ALIASES']
+    if alphabet is not None:
+        if not re.fullmatch(r'[A-Za-z]+',alphabet)or not package or not re.fullmatch(r'[A-Za-z][A-Za-z0-9-]*',package):raise ValueError('Invalid math alphabet or package name')
+        characters=string.ascii_letters+string.digits if characters is None else characters
+        if not characters or any(c not in string.ascii_letters+string.digits for c in characters):raise ValueError('Invalid alphabet character set')
+        catalogue={'@font:'+alphabet+':'+c:'ord'for c in characters}
+        aliases={token:'\\'+alphabet+'{'+token.rsplit(':',1)[1]+'}'for token in catalogue}
     import os
     env=dict(os.environ)
     if extras:
@@ -35,8 +45,8 @@ def build(output,style="display",extended=False,extras=None,reuse=None):
         if token in prior:
             symbols[token]=prior[token];folder.symlink_to((reuse/str(prior_indices[token])).resolve(),target_is_directory=True);continue
         folder.mkdir()
-        source=(r'\documentclass{article}\usepackage{amsmath,amssymb,graphicx}'+(r'\usepackage[nointlimits]{esint}' if extras else '')+(r'\usepackage{siunitx}' if extras and (extras/'siunitx.sty').exists() else '')+(r'\usepackage{mathrsfs}\DeclareMathAlphabet{\vkfbb}{U}{bbold}{m}{n}'if extras and (extras/'mathrsfs.sty').exists()else '')+r'\pagestyle{empty}'+'\n'+
-            r'\begin{document}\setbox0=\hbox{$'+style_command+' '+aliases.get(token,token)+r'$}'+ '\n'+
+        source=(r'\documentclass['+str(point_size)+r'pt]{article}\usepackage{amsmath,amssymb,graphicx}'+(r'\usepackage[nointlimits]{esint}' if extras else '')+(r'\usepackage{siunitx}' if extras and (extras/'siunitx.sty').exists() else '')+(r'\usepackage{mathrsfs}\DeclareMathAlphabet{\vkfbb}{U}{bbold}{m}{n}'if extras and (extras/'mathrsfs.sty').exists()else '')+r'\pagestyle{empty}'+'\n'+
+            (r'\usepackage{'+package+'}'if package else '')+r'\begin{document}\setbox0=\hbox{$'+style_command+' '+aliases.get(token,token)+r'$}'+ '\n'+
             r'\typeout{BOXWIDTH:\the\wd0}\typeout{BOXHEIGHT:\the\ht0}\typeout{BOXDEPTH:\the\dp0}'+ '\n'+
             r'\noindent\special{dvisvgm:raw <rect id="box-origin" x="{?x}" y="{?y}" width="0" height="0"/>}\box0\end{document}')
         (folder/'expression.tex').write_text(source)
@@ -66,13 +76,12 @@ def build(output,style="display",extended=False,extras=None,reuse=None):
         pen=RecordingPen();parse_path(d,pen)
         symbols[token]={'class':kind,**metrics,'outline':{'svgPath':d,'commands':pen.value},'outlineHash':hashlib.sha256(d.encode()).hexdigest(),'oracleToken':aliases.get(token,token),'italic':0}
     # Em size for standard 10pt math, in the SVG bp coordinates of our outlines.
-    result={'schema':'vkf.latex-symbol-mapping/1','em':{'display':10,'text':10,'script':7,'scriptscript':5}[style]*72/72.27,'style':style,'symbols':symbols,
-        'oracle':'Real TeX Live latex, standard 10pt Computer Modern/AMS',
+    result={'schema':'vkf.latex-symbol-mapping/1','fontPointSize':point_size,'em':size*72/72.27,'style':style,'symbols':symbols,
+        'oracle':f'Real TeX Live latex, standard {point_size}pt Computer Modern/AMS',
         'limits':['Measured standard glyphs and composite symbols only; expression layout is a separate runtime.',
             'Box metrics include measured italic correction; pair rules need separate validation.']}
     from fontTools.tfmLib import TFM
-    size={'display':10,'text':10,'script':7,'scriptscript':5}[style]
-    tfm=TFM(subprocess.check_output(['kpsewhich',f'cmsy{size}.tfm'],text=True).strip())
+    tfm=TFM(subprocess.check_output(['kpsewhich',f'cmsy{min(10,int(size))}.tfm'],text=True).strip())
     result['parameters']={name:value*size*72/72.27 for name,value in tfm.fontdimens.items()}
     extension=TFM(subprocess.check_output(['kpsewhich','cmex10.tfm'],text=True).strip())
     result['parameters'].update({key:value*size*72/72.27 for key,value in extension.fontdimens.items() if key.startswith('BIGOP')})
@@ -83,5 +92,5 @@ def build(output,style="display",extended=False,extras=None,reuse=None):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--style',choices=['display','text','script','scriptscript'],default='display')
-    parser.add_argument('--extended',action='store_true');parser.add_argument('--oracle-extras',type=Path);parser.add_argument('--reuse',type=Path)
-    args=parser.parse_args();build(args.output,args.style,args.extended,args.oracle_extras,args.reuse)
+    parser.add_argument('--point-size',type=int,choices=[10,11,12],default=10);parser.add_argument('--extended',action='store_true');parser.add_argument('--oracle-extras',type=Path);parser.add_argument('--reuse',type=Path);parser.add_argument('--alphabet');parser.add_argument('--package');parser.add_argument('--characters')
+    args=parser.parse_args();build(args.output,args.style,args.extended,args.oracle_extras,args.reuse,args.point_size,args.alphabet,args.package,args.characters)

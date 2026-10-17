@@ -1,0 +1,34 @@
+p:.pdf_resources
+text:.tex_text
+collections:.collections
+
+path_validation():
+    p.valid_path("0 0 m 1.25 -2 l 3 4 5 6 7 8 c h")?! "font paths"
+    p.valid_path("0 0 10 20 re")?! "bitmap-font vector rectangles"
+    (~p.valid_path("0 0 m BT /Font Tf"))?! "reject injected PDF text commands"
+    (~p.valid_path("0 0 m q"))?! "reject graphics-state operators in a font path"
+    (~p.numeric_token("--1"))?! "invalid coordinate token"
+    (~p.numeric_token("1.2.3"))?! "invalid decimal token"
+    p.numeric_token("-.25")?! "signed PDF decimal"
+
+font_forms():
+    form:p.form(0,-10,8,2,"0 0 m 8 0 l 4 -10 l h")
+    (text.find(form,"/Subtype /Form /BBox [0 -10 8 2]")>=0)?! "font form bounds"
+    (text.find(form,"0 0 m 8 0 l 4 -10 l h\nf\nendstream")>=0)?! "filled reusable outline"
+    (p.alpha(0.5)="<< /Type /ExtGState /ca 0.5 /CA 0.5 >>")?! "fill and stroke opacity"
+
+resource_references():
+    resources:p.resources(collections.list(5,6),collections.list(7))
+    (resources="<< /XObject << /G0 5 0 R /G1 6 0 R >> /ExtGState << /A0 7 0 R >> >>")?! "resource table"
+    (p.catalog(2)="<< /Type /Catalog /Pages 2 0 R >>")?! "catalog"
+    (p.pages(collections.list(4,8))="<< /Type /Pages /Count 2 /Kids [4 0 R 8 0 R] >>")?! "page tree"
+    page:p.page(2,3,5,100,200,collections.list(9))
+    (text.find(page,"/MediaBox [0 0 100 200]")>=0)?! "page dimensions"
+    (text.find(page,"/Annots [9 0 R]")>=0)?! "page annotations"
+
+renderer_tests()->bit:
+    path_validation()
+    font_forms()
+    resource_references()
+    @:true
+renderer_tests()

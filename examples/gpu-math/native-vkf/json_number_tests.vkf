@@ -1,0 +1,13 @@
+n:.json_numbers
+
+finite_decimal_spelling():
+    (n.roundtrip(0)="0" /\ n.roundtrip(-0.0)="0")?! "JSON zero signs"
+    (n.roundtrip(1)="1e0" /\ n.roundtrip(0.5)="5e-1")?! "exact powers of two"
+    (n.roundtrip(0.25)="2.5e-1" /\ n.roundtrip(-2.5)="-2.5e0")?! "sign and finite fraction"
+    (n.roundtrip(0.1)="1.0000000000000001e-1")?! "17-digit rounding of exact binary64"
+    (n.roundtrip(1000)="1e3")?! "trailing decimal zero removal"
+
+renderer_tests()->bit:
+    finite_decimal_spelling()
+    @:true
+renderer_tests()

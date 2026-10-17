@@ -1,0 +1,33 @@
+document_notes_markers:.document_notes_markers
+document_scene_json:.document_scene_json
+document_pages:.document_pages
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num)
+source(i:int):
+    value:"{\"items\":[{\"kind\":\"glyph\",\"footnoteNumber\":2,\"flowLine\":0},{\"kind\":\"glyph\",\"footnoteNumber\":1,\"flowLine\":0},{\"kind\":\"glyph\",\"footnoteNumber\":2,\"flowLine\":0},{\"kind\":\"glyph\",\"footnoteNumber\":2,\"flowLine\":1}]}"
+    i~=0? .value:"{\"items\":[{\"kind\":\"glyph\",\"footnoteNumber\":1,\"flowLine\":0},{\"kind\":\"glyph\",\"footnoteNumber\":3,\"flowLine\":0},{\"kind\":\"glyph\",\"footnoteNumber\":1,\"flowLine\":5}]}"
+    @:document_scene_json.decode(value)
+renderer_tests()->bit:
+    [int] indices:[0:2]
+    scenes:indices >> source($0)
+    body:document_pages.empty_lines(3)
+    body_scenes:body.scenes
+    body_source_lines:body.source_lines
+    body_scenes.0:0
+    body_scenes.1:0
+    body_scenes.2:1
+    body_source_lines.1:1
+    body.scenes:body_scenes
+    body.source_lines:body_source_lines
+    result:document_notes_markers.index(body,3,scenes,2)
+    (result.markers.count=4)?! "Marker cardinality"
+    ids:result.markers.ids
+    (ids.0=1 /\ ids.1=0 /\ ids.2=1 /\ ids.3=0)?! "Per-line encounter order and deduplication"
+    firsts:result.lines.marker_firsts
+    counts:result.lines.marker_counts
+    (firsts.0=0 /\ firsts.1=2 /\ firsts.2=3)?!
+    (counts.0=2 /\ counts.1=1 /\ counts.2=1)?!
+    @:true
+renderer_tests()

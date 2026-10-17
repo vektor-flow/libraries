@@ -1,0 +1,14 @@
+io:.io
+kernel:.math_geometry_kernel
+
+run()->int:
+    fonts:io.read_text(io.read_line())
+    count:int(vkf_decimal_parse(io.read_line()))
+    index:0
+    index<count?>
+        input:io.read_line()
+        output:io.read_line()
+        io.write_text(output,kernel.geometry(io.read_text(input),fonts))
+        .index:index+1
+    @:0
+run()

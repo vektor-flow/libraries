@@ -1,0 +1,63 @@
+context_test_links:.text_link_context
+context_test_parser:.text_parser
+context_test_ops:.text_parser_stream
+context_test_fonts:.font_catalog
+context_test_data:.test_font_data
+context_test_json:.resource_json
+context_test_text:.tex_text
+context_test_policy:.document_link_policy
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+find(stream:Stream,kind:str,value:str,begin:int=0)->int:
+    i:begin
+    i<stream.count?>
+        context_test_ops.value(stream,i,"kind")=kind /\ context_test_ops.value(stream,i,"value")=value? @:i
+        .i:i+1
+    @: -1
+fonts():
+    keys:["font/roman"]
+    values:["{\"name\":\"cmr10\",\"size\":10,\"spaces\":{\"slant\":0}}"]
+    @:context_test_fonts.load(context_test_data.pack(keys,values))
+renderer_tests()->bit:
+    fonts:fonts()
+    parser_context:context_test_parser.context("roman",["roman"],false,true)
+    initial:context_test_policy.configure(["colorlinks","urlcolor=blue"]).appearance
+    parsed:context_test_parser.parse("\\href{https://a}{A\\hypersetup{urlcolor=red}\\href{https://b}{B}} \\href{https://c}{C}",fonts,parser_context)
+    links:context_test_links.build(parsed.stream,initial,true)
+    operations:links.operation_scopes
+    a:find(parsed.stream,"word","A")
+    b:find(parsed.stream,"word","B")
+    c:find(parsed.stream,"word","C")
+    (links.complete /\ links.diagnostics="" /\ operations.length()=parsed.stream.count /\ operations.(a)=0 /\ operations.(b)=1 /\ operations.(c)=2)?! "Each visible operation retains nearest independent link fragment identity"
+    directory:context_test_json.parse(links.scopes_json)
+    outer:context_test_json.member(directory,0,"0")
+    inner:context_test_json.member(directory,0,"1")
+    outer_color:context_test_links.member(directory,outer,"color","")
+    inner_color:context_test_links.member(directory,inner,"color","")
+    (outer_color="[0,0,1,1]" /\ inner_color="[1,0,0,1]")?! "Appearance captures before fragment children mutate later link style"
+    closes:links.close_operations
+    first:links.close_scope_first
+    last:links.close_scope_last
+    (closes.length()=3 /\ first.(0)=2 /\ last.(0)=1 /\ first.(1)=1 /\ last.(1)=1 /\ closes.(0)=closes.(1))?! "Nested close events use inner-first order and descendant-only scope interval"
+    nesting:links.nested_outer_counts
+    (nesting.(a)=0 /\ nesting.(b)=1 /\ nesting.(c)=0)?! "Node lowering can detect actual nested scope nodes without counting empty links"
+    isolated:context_test_parser.parse("\\hypersetup{urlcolor=red}\\mbox{\\hypersetup{urlcolor=green}\\href{x}{A}}\\href{y}{B}",fonts,parser_context)
+    hidden:context_test_links.build(isolated.stream,initial,true)
+    isolated_directory:context_test_json.parse(hidden.scopes_json)
+    last_scope:context_test_json.member(isolated_directory,0,"0")
+    (hidden.close_operations.length()=1 /\ context_test_links.member(isolated_directory,last_scope,"color","")="[1,0,0,1]")?! "Recursive box styles use a separate parser invocation and do not leak into parent setup"
+    anchors:context_test_parser.parse("\\documentanchor{label%3A%C3%85}A\\hypertarget{raw%20}{B}",fonts,parser_context)
+    destinations:context_test_links.build(anchors.stream,"{}",true)
+    ids:destinations.anchor_ids
+    (destinations.anchor_count=2 /\ ids.length()=2 /\ ids.(0)="label:Å" /\ ids.(1)="named:raw%20")?! "Only explicit document destination encoding is decoded, named targets remain raw"
+    invalid:context_test_parser.parse("\\documentanchor{%ED%A0%80}A",fonts,parser_context)
+    malformed:context_test_links.build(invalid.stream)
+    (~malformed.complete /\ malformed.anchor_count=0 /\ malformed.diagnostics="\"URI malformed\"")?! "Invalid percent destination has explicit incomplete status"
+    disabled:context_test_parser.parse("\\url{https://a}\\href{x}{A}",fonts,parser_context)
+    off:context_test_links.build(disabled.stream,"{}",false)
+    off_scopes:off.operation_scopes
+    url:find(disabled.stream,"url","https://a")
+    href_word:find(disabled.stream,"word","A")
+    (off_scopes.(url)= -1 /\ off_scopes.(href_word)=0)?! "Disabled URL annotation and diagnosed-but-retained href follow distinct actual JS behavior"
+    @:true
+renderer_tests()

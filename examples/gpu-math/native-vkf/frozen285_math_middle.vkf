@@ -1,0 +1,72 @@
+# Distinct first-pass owners are needed for every middle-delimiter occurrence:
+# inherited middleRequired and source effects can differ between evaluations.
+subtrees:.frozen285_math_subtrees
+parser:.frozen285_math_parser
+assembly:.frozen285_math_assembly
+tex:.frozen285_tex_numeric
+Arena:(kinds:[str],attrs:[str],first:[int],last:[int],nexts:[int],a:[int],b:[int],sup:[int],sub:[int],limits:[int],count:int,diagnostics:str,atoms:int)
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Context:(required:num,previous:[num],depth:int)
+
+zeros(size:int)->[num]:[0.0:size]
+
+has_middle(arena:Arena,node:int)->bit:
+    kinds:arena.kinds
+    arguments:arena.a
+    firsts:arena.first
+    nexts:arena.nexts
+    kinds.(node)~="delimited"? @:false
+    arguments.(node)<0? @:false
+    child:firsts.(arguments.(node))
+    child>=0?>
+        kinds.(child)="middle"? @:true
+        .child:nexts.(child)
+    @:false
+
+# Planning scans only existing nodes and never expands nested pass trees.
+prepare(arena:Arena):
+    direct:parser.nil(arena.count)
+    count:0
+    node:0
+    node<arena.count?>
+        direct.(node):0
+        has_middle(arena,node)?
+            direct.(node):1
+            .count:count+1
+        .node:node+1
+    @:(arena:arena,direct_middle:direct,count:count,original_count:arena.count)
+
+# Request this only when an execution actually enters its first body pass.
+# It appends one isolated body graph, without recursively expanding any nested
+# first-pass graphs. The caller must supply distinct metric/draw execution
+# owners and grow those columns at an explicit allocation boundary.
+first_pass(arena:Arena,node:int):
+    has_middle(arena,node)?! "First pass requires a direct middle delimiter"
+    arguments:arena.a
+    @:subtrees.append(arena,arguments.(node))
+
+required(height:num,depth:num,axis:num)->num:
+    delta:tex.maximum(height-axis,depth+axis)
+    @:tex.maximum(1.802*delta,2*delta-5*tex.pt())
+
+middle(fonts:Catalog,token:str,style:int,required:num,active_font:str=""):
+    @:assembly.delimiter(fonts,token,style,required,active_font)
+
+empty(required:num=0)->Context:
+    @:(required:required,previous:zeros(16),depth:0)
+
+enter(context:Context)->Context:
+    previous:context.previous
+    depth:context.depth
+    depth>=previous.length()? .previous:previous&zeros(previous.length())
+    previous.(depth):context.required
+    @:(required:context.required,previous:previous,depth:depth+1)
+
+after_first(context:Context,height:num,depth:num,axis:num)->Context:
+    @:(required:required(height,depth,axis),previous:context.previous,depth:context.depth)
+
+leave(context:Context)->Context:
+    context.depth>0?! "Unbalanced middle delimiter context"
+    previous:context.previous
+    depth:context.depth-1
+    @:(required:previous.(depth),previous:previous,depth:depth)

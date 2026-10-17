@@ -1,0 +1,292 @@
+# Generic table geometry. Cell boxes are retained references owned by caller.
+commands:.frozen285_math_commands
+text:.frozen285_tex_text
+text_chunks:.frozen285_text_chunks
+tex:.frozen285_tex_numeric
+numbers:.frozen285_json_numbers
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Buffer:(heads:[[int]],tails:[[int]],boxes:int,nexts:[[int]],children:[[int]],pool:Pool,payload_ids:[[int]],xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int)
+Cells:(ids:[int],widths:[num],heights:[num],depths:[num],rows:int,columns:int,no_number:[bit],gaps:[num])
+Rules:(rows:[int],columns:[str],count:int)
+
+zeros(size:int)->[num]:[0.0:size]
+ints(size:int)->[int]:[0:size]
+nil(size:int)->[int]:[-1:size]
+bits(size:int)->[bit]:[false:size]
+strings(size:int)->[str]:text_chunks.empty(size)
+empty_cells(rows:int,columns:int)->Cells:
+    @:(ids:nil(rows*columns),widths:zeros(rows*columns),heights:zeros(rows*columns),depths:zeros(rows*columns),rows:rows,columns:columns,no_number:bits(rows),gaps:zeros(rows))
+empty_rules(count:int)->Rules:
+    @:(rows:ints(count),columns:strings(count),count:count)
+normalize(name:str)->str:
+    size:text.byte_length(name)
+    size>0 /\ text.at(name,size-1)="*"? @:text.span(name,0,size-1)
+    @:name
+small(name:str)->bit:name="smallmatrix" \/ name="substack" \/ name="subarray"
+aligned(name:str)->bit:name="aligned" \/ name="align" \/ name="alignat" \/ name="split"
+display(name:str)->bit:name="eqnarray" \/ name="align" \/ name="split" \/ name="equation" \/ name="multline" \/ name="gather" \/ name="gathered"
+child_style(raw:str,style:int)->int:
+    name:normalize(raw)
+    small(name)? @:2
+    display(name)? @:0
+    style<1? @:1
+    @:style
+pair(raw:str):
+    name:normalize(raw)
+    left:""
+    right:""
+    name="pmatrix"?
+        .left:"("
+        .right:")"
+    name="bmatrix"?
+        .left:"["
+        .right:"]"
+    name="Bmatrix"?
+        .left:"\\lbrace"
+        .right:"\\rbrace"
+    name="vmatrix"?
+        .left:"|"
+        .right:"|"
+    name="Vmatrix"?
+        .left:"\\Vert"
+        .right:"\\Vert"
+    name="cases"?
+        .left:"\\lbrace"
+        .right:"."
+    @:(left:left,right:right)
+
+# A cline accepts exactly ASCII decimal digits, hyphen, digits as JS does.
+cline(source:str,columns:int):
+    source=""? @:(valid:true,first:1,last:columns)
+    first:0
+    last:0
+    position:0
+    left_digits:0
+    right_digits:0
+    hyphen:false
+    valid:true
+    ~vkf_string_eof(source,position)?>
+        char:text.at(source,position)
+        char="-" /\ ~hyphen?
+            .hyphen:true
+            .position:position+1
+            @>
+        (char<"0" \/ char>"9")?
+            .valid:false
+            @|
+        digit:int(vkf_decimal_parse(char))
+        ~hyphen?
+            .left_digits:left_digits+1
+            .first:int(tex.minimum(num(columns+1),num(first*10+digit)))
+        hyphen?
+            .right_digits:right_digits+1
+            .last:int(tex.minimum(num(columns+1),num(last*10+digit)))
+        .position:position+1
+    @:(valid:valid /\ hyphen /\ left_digits>0 /\ right_digits>0 /\ first>=1 /\ last<=columns,first:first,last:last)
+
+invalid_cline(messages:str)->str:
+    messages=""? @:"\"Unsupported cline range\""
+    @:messages&",\"Unsupported cline range\""
+
+rule_value(color:str,width:num,height:num)->str:
+    @:"\"kind\":\"rule\",\"color\":"&color&",\"width\":"&numbers.roundtrip(width)&",\"height\":"&numbers.roundtrip(height)
+
+# Row gap inputs have already been evaluated in the enclosing math style.
+# Empty/missing cells have id=-1 and zero metrics. no_number controls eqnarray
+# struts independently of subsequent equation-number/label annotation.
+layout(buffer:Buffer,owner:int,raw_name:str,align:str,cells:Cells,rules:Rules,rule:num,axis:num,color:str="null",native_metrics:bit=false,baseline:num=0,jot:num=0,line_skip:num=0,skip_limit:num=0,display_environment:bit=false):
+    @:layout_with_extras(buffer,owner,raw_name,align,cells,rules,nil(cells.rows),rule,axis,color,native_metrics,baseline,jot,line_skip,skip_limit,display_environment)
+
+layout_with_extras(buffer:Buffer,owner:int,raw_name:str,align:str,cells:Cells,rules:Rules,row_extras:[int],rule:num,axis:num,color:str="null",native_metrics:bit=false,baseline:num=0,jot:num=0,line_skip:num=0,skip_limit:num=0,display_environment:bit=false):
+    name:normalize(raw_name)
+    rows:cells.rows
+    columns:cells.columns
+    (rows>=1 /\ rows<=100 /\ columns>=1 /\ columns<=32)?! "Matrix limit: 32 columns and 100 rows"
+    widths:zeros(columns)
+    heights:zeros(rows)
+    depths:zeros(rows)
+    gaps:zeros(rows)
+    column_gaps:zeros(columns)
+    vcount:ints(columns+1)
+    vspace:zeros(columns+1)
+    boundaries:zeros(columns+1)
+    row_baselines:zeros(rows)
+    row_first_commands:ints(rows)
+    row_stop_commands:ints(rows)
+    ids:cells.ids
+    cw:cells.widths
+    ch:cells.heights
+    cd:cells.depths
+    no_number:cells.no_number
+    row_gaps:cells.gaps
+    factor:1.0
+    name="cases"? .factor:1.2
+    small(name)? .factor:0.6
+    is_aligned:aligned(name)
+    ams_strut:native_metrics /\ is_aligned
+    eqnarray:name="eqnarray"
+    numbered:eqnarray /\ raw_name=name
+    row_display:eqnarray \/ native_metrics /\ display_environment /\ (name="align" \/ name="alignat" \/ name="gather" \/ name="multline")
+    metricRow:0
+    metricRow<rows?>
+        h:(8.4*factor)*tex.pt()
+        d:(3.6*factor)*tex.pt()
+        is_aligned?
+            .h:(8.4*factor+1.5)*tex.pt()
+            .d:(3.6*factor+1.5)*tex.pt()
+        eqnarray?
+            .h:0
+            .d:0
+            numbered /\ ~no_number.(metricRow)?
+                .h:7.5*tex.pt()
+                .d:2.5*tex.pt()
+        ams_strut?
+            .h:0.7*baseline-1.5*skip_limit
+            .d:0.3*baseline+0.5*skip_limit
+        metricColumn:0
+        metricColumn<columns?>
+            slot:metricRow*columns+metricColumn
+            widths.(metricColumn):tex.maximum(widths.(metricColumn),cw.(slot))
+            .h:tex.maximum(h,ch.(slot))
+            .d:tex.maximum(d,cd.(slot))
+            .metricColumn:metricColumn+1
+        heights.(metricRow):h
+        depths.(metricRow):d
+        .metricRow:metricRow+1
+    total:0.0
+    spacingRow:0
+    spacingRow<rows?>
+        gap:row_gaps.(spacingRow)
+        spacingRow<rows-1?
+            ams_strut? .gap:gap+tex.maximum(line_skip+jot,baseline+jot-depths.(spacingRow)-heights.(spacingRow+1))
+            eqnarray?
+                extra:12*tex.pt()-depths.(spacingRow)-heights.(spacingRow+1)
+                depths.(spacingRow)+heights.(spacingRow+1)>12*tex.pt()? .extra:tex.pt()
+                .gap:gap+3*tex.pt()+extra
+        gaps.(spacingRow):gap
+        .total:total+heights.(spacingRow)+depths.(spacingRow)
+        spacingRow<rows-1? .total:total+gap
+        .spacingRow:spacingRow+1
+    .total:total+num(rules.count)*rule
+    height:total/2+axis
+    depth:total/2-axis
+    row_display?
+        .height:heights.(0)
+        .depth:total-heights.(0)
+    padding:0.0
+    name="array"? .padding:5*tex.pt()
+    modes:""
+    position:0
+    current_column:0
+    ~vkf_string_eof(align,position)?>
+        char:text.at(align,position)
+        (char="c" \/ char="l" \/ char="r")?
+            .modes:modes&char
+            .current_column:current_column+1
+        char="|" /\ name="array"?
+            boundary:current_column
+            boundary>columns? .boundary:columns
+            vcount.(boundary):vcount.(boundary)+1
+        .position:text.next(align,position)
+    width:2*padding
+    barColumn:0
+    barColumn<=columns?>
+        bars:vcount.(barColumn)
+        vspace.(barColumn):num(bars)*rule+tex.maximum(0,num(bars-1))*2*tex.pt()
+        .width:width+vspace.(barColumn)
+        barColumn<columns?
+            gap:10*tex.pt()
+            small(name)? .gap:3*tex.pt()
+            is_aligned?
+                .gap:0
+                barColumn%2=1 /\ name~="alignat"? .gap:20*tex.pt()
+            barColumn=columns-1? .gap:0
+            column_gaps.(barColumn):gap
+            .width:width+widths.(barColumn)+gap
+        .barColumn:barColumn+1
+    x:padding+vspace.(0)
+    boundaryColumn:0
+    boundaryColumn<columns?>
+        .x:x+widths.(boundaryColumn)
+        boundary:x+column_gaps.(boundaryColumn)/2
+        boundaryColumn=columns-1? .boundary:width-vspace.(columns)
+        boundaries.(boundaryColumn+1):boundary
+        .x:x+column_gaps.(boundaryColumn)+vspace.(boundaryColumn+1)
+        .boundaryColumn:boundaryColumn+1
+    out:buffer
+    diagnostic:""
+    rule_rows:rules.rows
+    rule_columns:rules.columns
+    y: -height
+    drawingRow:0
+    drawingRow<rows?>
+        row_first_commands.(drawingRow):out.count
+        drawingRule:0
+        drawingRule<rules.count?>
+            rule_rows.(drawingRule)=drawingRow?
+                range:cline(rule_columns.(drawingRule),columns)
+                range.valid?
+                    left:boundaries.(range.first-1)
+                    right:boundaries.(range.last)
+                    range.first=1? .left:0
+                    range.last=columns? .right:width
+                    .out:commands.append(out,owner, -1,rule_value(color,right-left,rule),left,y)
+                ~range.valid? .diagnostic:invalid_cline(diagnostic)
+                .y:y+rule
+            .drawingRule:drawingRule+1
+        .y:y+heights.(drawingRow)
+        row_baselines.(drawingRow):y
+        .x:padding+vspace.(0)
+        drawingColumn:0
+        drawingColumn<columns?>
+            slot:drawingRow*columns+drawingColumn
+            mode:"c"
+            drawingColumn<text.byte_length(modes)? .mode:text.at(modes,drawingColumn)
+            name="cases"? .mode:"l"
+            is_aligned?
+                .mode:"r"
+                drawingColumn%2=1? .mode:"l"
+            eqnarray?
+                .mode:"r"
+                drawingColumn%3=1? .mode:"c"
+                drawingColumn%3=2? .mode:"l"
+            name="multline"?
+                .mode:"c"
+                drawingRow=rows-1? .mode:"r"
+                drawingRow=0? .mode:"l"
+            shift:(widths.(drawingColumn)-cw.(slot))/2
+            mode="l"? .shift:0
+            mode="r"? .shift:widths.(drawingColumn)-cw.(slot)
+            ids.(slot)>=0? .out:commands.append(out,owner,ids.(slot),"",x+shift,y)
+            .x:x+widths.(drawingColumn)+column_gaps.(drawingColumn)+vspace.(drawingColumn+1)
+            .drawingColumn:drawingColumn+1
+        row_extras.(drawingRow)>=0? .out:commands.append(out,owner,row_extras.(drawingRow),"",width+10*tex.pt(),y)
+        row_stop_commands.(drawingRow):out.count
+        .y:y+depths.(drawingRow)
+        drawingRow<rows-1? .y:y+gaps.(drawingRow)
+        .drawingRow:drawingRow+1
+    bottomRule:0
+    bottomRule<rules.count?>
+        rule_rows.(bottomRule)>=rows?
+            range:cline(rule_columns.(bottomRule),columns)
+            range.valid?
+                left:boundaries.(range.first-1)
+                right:boundaries.(range.last)
+                range.first=1? .left:0
+                range.last=columns? .right:width
+                .out:commands.append(out,owner, -1,rule_value(color,right-left,rule),left,depth-rule)
+            ~range.valid? .diagnostic:invalid_cline(diagnostic)
+        .bottomRule:bottomRule+1
+    verticalColumn:0
+    verticalColumn<=columns?>
+        k:0
+        k<vcount.(verticalColumn)?>
+            .out:commands.append(out,owner, -1,rule_value(color,rule,height+depth),boundaries.(verticalColumn)+num(k)*(rule+2*tex.pt()), -height)
+            .k:k+1
+        .verticalColumn:verticalColumn+1
+    last_baseline:0.0
+    last_depth:0.0
+    row_display?
+        .last_baseline:total-depths.(rows-1)-heights.(0)
+        .last_depth:depths.(rows-1)
+    @:(buffer:out,width:width,height:height,depth:depth,row_baselines:row_baselines,row_first_commands:row_first_commands,row_stop_commands:row_stop_commands,row_display:row_display,last_baseline:last_baseline,last_depth:last_depth,diagnostic:diagnostic)

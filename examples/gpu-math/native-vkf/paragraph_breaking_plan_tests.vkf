@@ -1,0 +1,34 @@
+p:.paragraph_breaking
+
+renderer_tests()->bit:
+    empty:p.plan(p.empty_nodes(0),p.no_corrections(),p.options(20))
+    (empty.solved /\ empty.pass=1 /\ empty.count=1)?! "empty paragraph uses finite zero-width final line"
+    wide:p.from_arrays([0],[100.0],[0.0],[0.0],[false],[0],[false],[false],[0.0],1)
+    overfull:p.plan(wide,p.no_corrections(),p.options(10))
+    ratios:overfull.ratios
+    naturals:overfull.naturals
+    (overfull.solved /\ overfull.pass=2 /\ overfull.count=1 /\ ratios.(0)= -1 /\ naturals.(0)=100)?! "final artificial demerits retain an overfull word"
+    no_hyphens:p.options(10)
+    no_hyphens.hyphens:false
+    disabled:p.plan(wide,p.no_corrections(),no_hyphens)
+    (disabled.solved /\ disabled.pass=4 /\ disabled.count=1)?! "nonhyphenating final pass"
+    trailing:p.from_arrays([0,1],[10.0,9.0],[0.0,1.0],[0.0,1.0],[false,true],[0,0],[false,false],[false,false],[0.0,0.0],2)
+    trimmed:p.plan(trailing,p.no_corrections(),p.options(20))
+    ends:trimmed.ends
+    widths:trimmed.naturals
+    (trimmed.solved /\ ends.(0)=1 /\ widths.(0)=10)?! "trailing glue removed before breaking"
+    preserved_options:p.options(20)
+    preserved_options.preserve_trailing:true
+    preserved:p.plan(trailing,p.no_corrections(),preserved_options)
+    kept_ends:preserved.ends
+    kept_widths:preserved.naturals
+    (preserved.solved /\ kept_ends.(0)=2 /\ kept_widths.(0)=19)?! "literal trailing space retained"
+    emergency_nodes:p.from_arrays([0,1,0],[10.0,1.0,10.0],[0.0,0.0,0.0],[0.0,1.0,0.0],[false,true,false],[0,0,0],[false,false,false],[false,false,false],[0.0,0.0,0.0],3)
+    emergency_options:p.options(15)
+    emergency_options.emergency:4
+    emergency:p.plan(emergency_nodes,p.no_corrections(),emergency_options)
+    (emergency.solved /\ emergency.pass=3 /\ emergency.count=2)?! "emergency stretch adds a distinct final pass"
+    corrections:p.corrections([2,2],[ -1,5],[3.0,7.0],2)
+    (p.correction(corrections,2,5)=7 /\ p.correction(corrections,2,9)=3 /\ p.correction(corrections,1,5)=0)?! "exact correction overrides per-start fallback"
+    @:true
+renderer_tests()

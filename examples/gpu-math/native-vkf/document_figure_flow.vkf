@@ -1,0 +1,117 @@
+# The built-in [h]/[H] scheduling policy is shared by source presentation.
+figure_flow_json:.resource_json
+figure_flow_text:.tex_text
+figure_flow_chunks:.text_chunks
+figure_flow_context:.document_present_context
+figure_flow_measure:.document_float_measure
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Map:(keys:Pool,values:[str])
+Plan:(kinds:[str],sources:[str],contexts:[str],attrs:[str],origins:[int],scenes:[str],count:int,references:Map,reference_destinations:Map,footnotes:str,diagnostics:str,unresolved:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+ints(size:int)->[int]:[0:size]
+flag(tape:Tape,key:str)->bit:
+    node:figure_flow_json.member(tape,0,key)
+    node<0? @:false
+    @:tape.kinds.(node)=5
+raw(tape:Tape,node:int)->str:figure_flow_text.span(tape.source,tape.starts.(node),tape.stops.(node))
+append(out:Plan,kind:str,source:str,context:str,attrs:str,origin:int,scene:str="")->Plan:
+    result:out
+    n:out.count
+    kinds:out.kinds
+    sources:out.sources
+    contexts:out.contexts
+    properties:out.attrs
+    origins:out.origins
+    scenes:out.scenes
+    kinds.(n):kind
+    sources.(n):source
+    contexts.(n):context
+    properties.(n):attrs
+    origins.(n):origin
+    scenes.(n):scene
+    result.kinds:kinds
+    result.sources:sources
+    result.contexts:contexts
+    result.attrs:properties
+    result.origins:origins
+    result.scenes:scenes
+    result.count:n+1
+    @:result
+children(out:Plan,input:Plan,index:int,indent:num,leading:num,ams:bit)->Plan:
+    block:figure_flow_json.parse("{"&input.attrs.(index)&"}")
+    nodes:figure_flow_measure.array(block,figure_flow_json.member(block,0,"blocks"))
+    result:out
+    at:0
+    at<nodes.length()?>
+        node:nodes.(at)
+        kind:figure_flow_measure.string(block,node,"kind")
+        source:figure_flow_measure.string(block,node,"source")
+        kind="image"? .source:figure_flow_measure.string(block,node,"asset")
+        kind="vspace"?
+            amount:figure_flow_json.member(block,node,"amount")
+            .source:raw(block,amount)&"bp"
+        attrs:raw(block,node)
+        .attrs:figure_flow_text.span(attrs,1,figure_flow_text.byte_length(attrs)-1)
+        context:figure_flow_context.empty(indent,leading,ams)
+        at=0?
+            original_context:figure_flow_context.parse(input.contexts.(index))
+            context.destination:original_context.destination
+        .result:append(result,kind,source,figure_flow_context.json(context),attrs,input.origins.(index))
+        .at:at+1
+    @:result
+expand(input:Plan,indent:num=0,leading:num=12,ams:bit=false)->Plan:
+    needed:false
+    capacity:input.count
+    at:0
+    at<input.count?>
+        input.kinds.(at)="figure"?
+            scan_attrs:figure_flow_json.parse("{"&input.attrs.(at)&"}")
+            flag(scan_attrs,"here") \/ flag(scan_attrs,"immediate")?
+                .needed:true
+                scan_nodes:figure_flow_measure.array(scan_attrs,figure_flow_json.member(scan_attrs,0,"blocks"))
+                .capacity:capacity+scan_nodes.length()
+        .at:at+1
+    ~needed? @:input
+    out:input
+    out.kinds:figure_flow_chunks.empty(capacity)
+    out.sources:figure_flow_chunks.empty(capacity)
+    out.contexts:figure_flow_chunks.empty(capacity)
+    out.attrs:figure_flow_chunks.empty(capacity)
+    out.origins:ints(capacity)
+    out.scenes:figure_flow_chunks.empty(capacity)
+    out.count:0
+    pending:ints(input.count)
+    pending_count:0
+    .at:0
+    at<input.count?>
+        kind:input.kinds.(at)
+        kind="figure"?
+            attrs:figure_flow_json.parse("{"&input.attrs.(at)&"}")
+            flag(attrs,"here")?
+                pending.(pending_count):at
+                .pending_count:pending_count+1
+                .at:at+1
+                @>
+            flag(attrs,"immediate")?
+                .out:children(out,input,at,indent,leading,ams)
+                .at:at+1
+                @>
+        kind="pagebreak"?
+            pending_at:0
+            pending_at<pending_count?>
+                .out:children(out,input,pending.(pending_at),indent,leading,ams)
+                .pending_at:pending_at+1
+            .pending_count:0
+        .out:append(out,kind,input.sources.(at),input.contexts.(at),input.attrs.(at),input.origins.(at),input.scenes.(at))
+        kind="paragraph"?
+            paragraph_at:0
+            paragraph_at<pending_count?>
+                .out:children(out,input,pending.(paragraph_at),indent,leading,ams)
+                .paragraph_at:paragraph_at+1
+            .pending_count:0
+        .at:at+1
+    p:0
+    p<pending_count?>
+        .out:children(out,input,pending.(p),indent,leading,ams)
+        .p:p+1
+    @:out

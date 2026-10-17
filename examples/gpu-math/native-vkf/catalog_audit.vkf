@@ -1,0 +1,30 @@
+# Reference audit: every installed record is independently looked up through
+# the runtime directory. No Python implementation is used inside the executable.
+io:.io
+f:.font_catalog
+j:.resource_json
+text:.tex_text
+
+run()->int:
+    path:io.read_line()
+    catalog:f.load(io.read_text(path))
+    ::catalog.count
+    index:0
+    count:0
+    index<catalog.capacity?>
+        entry:f.slot(catalog,index)
+        entry.found?
+            key_size:f.fixed(catalog.source,f.header_size()+index*f.slot_size()+12)
+            key:text.span(catalog.source,entry.start,entry.start+key_size)
+            found:f.find(catalog,key)
+            (found.found /\ found.start=entry.start+key_size /\ found.stop=entry.stop)?! "Font directory lookup differs from stored slot"
+            value:f.raw(catalog,key)
+            parsed:j.parse(value)
+            (parsed.valid)?! "Invalid installed font record JSON"
+            ::j.quote(key)
+            ::value
+            .count:count+1
+        .index:index+1
+    (count=catalog.count)?! "Font directory record count mismatch"
+    @:0
+run()

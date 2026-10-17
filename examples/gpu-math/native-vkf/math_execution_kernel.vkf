@@ -1,0 +1,34 @@
+# Actual geometry/state qualification entry for executed hidden math contexts.
+math_layout:.math_layout
+math_parser:.math_parser
+math_packages:.math_packages
+font_catalog:.font_catalog
+math_display_metrics_kernel:.math_display_metrics_kernel
+resource_json:.resource_json
+text_chunks:.text_chunks
+tex_text:.tex_text
+execution_json(font_source:str,request:str)->str:
+    fonts:font_catalog.load(font_source)
+    options:resource_json.parse(request)
+    source:math_display_metrics_kernel.text(options,"source")
+    metrics:math_display_metrics_kernel.raw(options,resource_json.member(options,0,"mathMetrics"))
+    package_names:resource_json.member(options,0,"packages")
+    names:text_chunks.empty(0)
+    package_names>=0?
+        ends:options.ends
+        cursor:package_names+1
+        cursor<ends.(package_names)?>
+            .names:names&[resource_json.string(options,cursor)]
+            .cursor:ends.(cursor)
+    class_name:math_display_metrics_kernel.text(options,"class")
+    class_name=""? .class_name:"article"
+    context:math_packages.from_names(names,class_name)
+    symbol:context.qed_symbol
+    resource_json.member(options,0,"qedSymbol")>=0? .symbol:math_display_metrics_kernel.text(options,"qedSymbol")
+    arena:math_parser.parse_with_context(source,fonts,context,true)
+    inline:math_display_metrics_kernel.flag(options,"inline")
+    display:math_layout.display_context(source,math_display_metrics_kernel.flag(options,"displayEnvironment"))
+    scene:math_layout.layout(arena,fonts,inline,true,display,int(math_display_metrics_kernel.number(options,"equationStart",1)),false,"",metrics,math_display_metrics_kernel.number(options,"displayWidth", -1),math_display_metrics_kernel.flag(options,"legacyEquationAnchor"),symbol)
+    @:math_layout.json(scene)
+execution_check(font_source:str,request:str,expected:str)->bit:
+    @:math_display_metrics_kernel.assert_projection(expected,execution_json(font_source,request))

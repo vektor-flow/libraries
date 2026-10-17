@@ -1,0 +1,27 @@
+l:.math_layout
+p:.math_parser
+imports:.math_arena_import
+f:.test_layout_fonts
+d:.math_draw
+pages:.math_command_pages
+
+renderer_tests()->bit:
+    fonts:f.fonts()
+    original:p.parse("\\frac{a_b}{\\sqrt{x}}+\\begin{matrix}a&b\\\\x&y\\end{matrix}",fonts)
+    before:l.layout(original,fonts)
+    unused:p.parse("\\begin{equation}a\\label{unused}\\end{equation}+b",fonts)
+    appended:imports.import_into(original,unused,0)
+    after:l.layout(appended.arena,fonts)
+    (before.width=after.width /\ before.height=after.height /\ before.depth=after.depth /\ d.items(before)=d.items(after))?! "appending unreachable AST nodes preserves exact rendered source"
+    (before.next_equation_number=after.next_equation_number /\ before.equation_references=after.equation_references)?! "unreachable appended nodes do not execute source effects"
+    (before.count=after.count /\ after.box_count>before.box_count)?! "expanded AST reserves owner capacity without adding draw commands"
+    command:0
+    command<before.count?>
+        (pages.integer(before.children,command)=pages.integer(after.children,command) /\ pages.integer(before.nexts,command)=pages.integer(after.nexts,command))?! "draw child owner IDs remain stable across AST append"
+        .command:command+1
+    owner:0
+    owner<before.box_count?>
+        (pages.integer(before.heads,owner)=pages.integer(after.heads,owner))?! "original owner chains keep their identity after AST append"
+        .owner:owner+1
+    @:true
+renderer_tests()

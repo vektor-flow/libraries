@@ -1,0 +1,239 @@
+meta:.scene_metadata
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+# Linear bulk column flattening; no projected nested Arena in per-leaf consumers.
+document_scene:.document_scene
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Flat:(arena:Arena,firsts:[int],counts:[int],scene_widths:[num],scene_count:int,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int)
+build_paint(reds:[num],greens:[num],blues:[num],alphas:[num],index:int)->Paint:
+    @:(red:reds.(index),green:greens.(index),blue:blues.(index),alpha:alphas.(index))
+PayloadColumns:(crop_xs:[bit],crop_ys:[bit],crop_lefts:[bit],crop_rights:[bit],crop_tops:[bit],crop_bottoms:[bit],lefts:[num],rights:[num],tops:[num],bottoms:[num],dxs:[num],dys:[num],c1xs:[num],c1ys:[num],c2xs:[num],c2ys:[num],line_widths:[num],fills:[bit],fill_paints:[int],stroke_paints:[int],dashs:[int],target_types:[int],targets:[str],border_widths:[num],assets:[str])
+# The VM currently reads bit columns as numeric slots. Return actual boolean
+# literals so retained Payload records preserve the shared native/WASM schema.
+payload_bit(value:bit)->bit:
+    value? @:true
+    @:false
+build_payload(columns:PayloadColumns,index:int)->Payload:
+    @:(crop_x:payload_bit(columns.crop_xs.(index)),crop_y:payload_bit(columns.crop_ys.(index)),crop_left:payload_bit(columns.crop_lefts.(index)),crop_right:payload_bit(columns.crop_rights.(index)),crop_top:payload_bit(columns.crop_tops.(index)),crop_bottom:payload_bit(columns.crop_bottoms.(index)),left:columns.lefts.(index),right:columns.rights.(index),top:columns.tops.(index),bottom:columns.bottoms.(index),dx:columns.dxs.(index),dy:columns.dys.(index),c1x:columns.c1xs.(index),c1y:columns.c1ys.(index),c2x:columns.c2xs.(index),c2y:columns.c2ys.(index),line_width:columns.line_widths.(index),fill:payload_bit(columns.fills.(index)),fill_paint:columns.fill_paints.(index),stroke_paint:columns.stroke_paints.(index),dash:columns.dashs.(index),target_type:columns.target_types.(index),target:columns.targets.(index),border_width:columns.border_widths.(index),asset:columns.assets.(index))
+paints_range(reds:[num],greens:[num],blues:[num],alphas:[num],start:int,stop:int)->[Paint]:
+    start=stop? @:[]
+    stop-start=1?
+        value:build_paint(reds,greens,blues,alphas,start)
+        [Paint] one:[value]
+        @:one
+    middle:(start+stop)//2
+    before:paints_range(reds,greens,blues,alphas,start,middle)
+    after:paints_range(reds,greens,blues,alphas,middle,stop)
+    @:before&after
+payloads_range(columns:PayloadColumns,start:int,stop:int)->[Payload]:
+    start=stop? @:[]
+    stop-start=1?
+        value:build_payload(columns,start)
+        [Payload] one:[value]
+        @:one
+    middle:(start+stop)//2
+    before:payloads_range(columns,start,middle)
+    after:payloads_range(columns,middle,stop)
+    @:before&after
+flatten(scenes:[Scene])->Flat:
+    scene_count:scenes.length()
+    [int] firsts:[0:scene_count]
+    [int] counts:[0:scene_count]
+    [num] scene_widths:[0.0:scene_count]
+    count:0
+    paint_count:0
+    payload_count:0
+    destination_count:0
+    anchor_count:0
+    sid:0
+    sid<scene_count?>
+        scene:scenes.(sid)
+        source:scene.arena
+        firsts.(sid):count
+        counts.(sid):source.count
+        scene_widths.(sid):scene.width
+        .count:count+source.count
+        .paint_count:paint_count+source.paint_count
+        .payload_count:payload_count+source.payload_count
+        .destination_count:destination_count+source.destination_ids.length()
+        .anchor_count:anchor_count+scene.anchor_count
+        .sid:sid+1
+    [int] kinds:[0:count]
+    keys:document_scene.strings(count)
+    [num] xs:[0.0:count]
+    [num] ys:[0.0:count]
+    [num] sxs:[0.0:count]
+    [num] sys:[0.0:count]
+    [num] widths:[0.0:count]
+    [num] heights:[0.0:count]
+    [int] lines:[0:count]
+    [bit] equation_tags:[false:count]
+    [num] tag_widths:[0.0:count]
+    [bit] draws:[false:count]
+    metadata:meta.empty()
+    [int] metadata_roots:[-1:count]
+    [int] glyph_parts:[-1:count]
+    [num] flow_xs:[0.0:count]
+    [num] flow_widths:[0.0:count]
+    [bit] has_flows:[false:count]
+    [num] vertical_shrinks:[0.0:count]
+    [num] vertical_stretches:[0.0:count]
+    [int] paints:[-1:count]
+    [int] payloads:[-1:count]
+    [int] destination_firsts:[0:count]
+    [int] destination_counts:[0:count]
+    [int] footnote_numbers:[0:count]
+    a260_scopes:document_scene.strings(count)
+    a260_texts:document_scene.strings(count)
+    [int] a260_operations:[-1:count]
+    [int] a260_starts:[-1:count]
+    [int] a260_stops:[-1:count]
+    [int] a260_parts:[-1:count]
+    destination_ids:document_scene.strings(destination_count)
+    anchor_metadata:meta.empty()
+    [int] anchor_roots:[-1:anchor_count]
+    anchor_ids:document_scene.strings(anchor_count)
+    [num] anchor_xs:[0.0:anchor_count]
+    [num] anchor_ys:[0.0:anchor_count]
+    [int] anchor_lines:[0:anchor_count]
+    [int] anchor_scenes:[0:anchor_count]
+    [num] p_reds:[0.0:paint_count]
+    [num] p_greens:[0.0:paint_count]
+    [num] p_blues:[0.0:paint_count]
+    [num] p_alphas:[0.0:paint_count]
+    [bit] v_crop_xs:[false:payload_count]
+    [bit] v_crop_ys:[false:payload_count]
+    [bit] v_crop_lefts:[false:payload_count]
+    [bit] v_crop_rights:[false:payload_count]
+    [bit] v_crop_tops:[false:payload_count]
+    [bit] v_crop_bottoms:[false:payload_count]
+    [num] v_lefts:[0.0:payload_count]
+    [num] v_rights:[0.0:payload_count]
+    [num] v_tops:[0.0:payload_count]
+    [num] v_bottoms:[0.0:payload_count]
+    [num] v_dxs:[0.0:payload_count]
+    [num] v_dys:[0.0:payload_count]
+    [num] v_c1xs:[0.0:payload_count]
+    [num] v_c1ys:[0.0:payload_count]
+    [num] v_c2xs:[0.0:payload_count]
+    [num] v_c2ys:[0.0:payload_count]
+    [num] v_line_widths:[0.0:payload_count]
+    [bit] v_fills:[false:payload_count]
+    [int] v_fill_paints:[0:payload_count]
+    [int] v_stroke_paints:[0:payload_count]
+    [int] v_dashs:[0:payload_count]
+    [int] v_target_types:[0:payload_count]
+    v_targets:document_scene.strings(payload_count)
+    [num] v_border_widths:[0.0:payload_count]
+    v_assets:document_scene.strings(payload_count)
+    at:0
+    paint_at:0
+    payload_at:0
+    destination_at:0
+    anchor_at:0
+    .sid:0
+    sid<scene_count?>
+        scene:scenes.(sid)
+        anchor_metadata_base:anchor_metadata.count
+        .anchor_metadata:meta.append(anchor_metadata,scene.anchor_metadata)
+        source:scene.arena
+        metadata_base:metadata.count
+        .metadata:meta.append(metadata,source.metadata)
+        i:0
+        i<source.count?>
+            kinds.(at+i):source.kinds.(i)
+            keys.(at+i):source.keys.(i)
+            xs.(at+i):source.xs.(i)
+            ys.(at+i):source.ys.(i)
+            sxs.(at+i):source.sxs.(i)
+            sys.(at+i):source.sys.(i)
+            widths.(at+i):source.widths.(i)
+            heights.(at+i):source.heights.(i)
+            lines.(at+i):source.lines.(i)
+            equation_tags.(at+i):source.equation_tags.(i)
+            tag_widths.(at+i):source.tag_widths.(i)
+            draws.(at+i):source.draws.(i)
+            metadata_roots.(at+i):meta.shift(source.metadata_roots.(i),metadata_base)
+            glyph_parts.(at+i):meta.shift(source.glyph_parts.(i),metadata_base)
+            flow_xs.(at+i):source.flow_xs.(i)
+            flow_widths.(at+i):source.flow_widths.(i)
+            has_flows.(at+i):source.has_flows.(i)
+            vertical_shrinks.(at+i):source.vertical_shrinks.(i)
+            vertical_stretches.(at+i):source.vertical_stretches.(i)
+            source.paints.(i)>=0? paints.(at+i):source.paints.(i)+paint_at
+            source.payloads.(i)>=0? payloads.(at+i):source.payloads.(i)+payload_at
+            destination_firsts.(at+i):source.destination_firsts.(i)+destination_at
+            destination_counts.(at+i):source.destination_counts.(i)
+            footnote_numbers.(at+i):source.footnote_numbers.(i)
+            a260_scopes.(at+i):source.a260_scopes.(i)
+            a260_texts.(at+i):source.a260_texts.(i)
+            a260_operations.(at+i):source.a260_operations.(i)
+            a260_starts.(at+i):source.a260_starts.(i)
+            a260_stops.(at+i):source.a260_stops.(i)
+            a260_parts.(at+i):source.a260_parts.(i)
+            .i:i+1
+        .i:0
+        i<source.paint_count?>
+            paint_value:source.paint_table.(i)
+            p_reds.(paint_at+i):paint_value.red
+            p_greens.(paint_at+i):paint_value.green
+            p_blues.(paint_at+i):paint_value.blue
+            p_alphas.(paint_at+i):paint_value.alpha
+            .i:i+1
+        .i:0
+        i<source.payload_count?>
+            payload_value:source.payload_table.(i)
+            v_crop_xs.(payload_at+i):payload_value.crop_x
+            v_crop_ys.(payload_at+i):payload_value.crop_y
+            v_crop_lefts.(payload_at+i):payload_value.crop_left
+            v_crop_rights.(payload_at+i):payload_value.crop_right
+            v_crop_tops.(payload_at+i):payload_value.crop_top
+            v_crop_bottoms.(payload_at+i):payload_value.crop_bottom
+            v_lefts.(payload_at+i):payload_value.left
+            v_rights.(payload_at+i):payload_value.right
+            v_tops.(payload_at+i):payload_value.top
+            v_bottoms.(payload_at+i):payload_value.bottom
+            v_dxs.(payload_at+i):payload_value.dx
+            v_dys.(payload_at+i):payload_value.dy
+            v_c1xs.(payload_at+i):payload_value.c1x
+            v_c1ys.(payload_at+i):payload_value.c1y
+            v_c2xs.(payload_at+i):payload_value.c2x
+            v_c2ys.(payload_at+i):payload_value.c2y
+            v_line_widths.(payload_at+i):payload_value.line_width
+            v_fills.(payload_at+i):payload_value.fill
+            v_fill_paints.(payload_at+i):payload_value.fill_paint
+            payload_value.fill_paint>=0? v_fill_paints.(payload_at+i):payload_value.fill_paint+paint_at
+            v_stroke_paints.(payload_at+i):payload_value.stroke_paint
+            payload_value.stroke_paint>=0? v_stroke_paints.(payload_at+i):payload_value.stroke_paint+paint_at
+            v_dashs.(payload_at+i):payload_value.dash
+            v_target_types.(payload_at+i):payload_value.target_type
+            v_targets.(payload_at+i):payload_value.target
+            v_border_widths.(payload_at+i):payload_value.border_width
+            v_assets.(payload_at+i):payload_value.asset
+            .i:i+1
+        .i:0
+        i<source.destination_ids.length()?>
+            destination_ids.(destination_at+i):source.destination_ids.(i)
+            .i:i+1
+        .i:0
+        i<scene.anchor_count?>
+            i<scene.anchor_roots.length()? anchor_roots.(anchor_at+i):meta.shift(scene.anchor_roots.(i),anchor_metadata_base)
+            anchor_ids.(anchor_at+i):scene.anchor_ids.(i)
+            anchor_xs.(anchor_at+i):scene.anchor_xs.(i)
+            anchor_ys.(anchor_at+i):scene.anchor_ys.(i)
+            anchor_lines.(anchor_at+i):scene.anchor_lines.(i)
+            anchor_scenes.(anchor_at+i):sid
+            .i:i+1
+        .at:at+source.count
+        .paint_at:paint_at+source.paint_count
+        .payload_at:payload_at+source.payload_count
+        .destination_at:destination_at+source.destination_ids.length()
+        .anchor_at:anchor_at+scene.anchor_count
+        .sid:sid+1
+    paint_table:paints_range(p_reds,p_greens,p_blues,p_alphas,0,paint_count)
+    payload_columns:(crop_xs:v_crop_xs,crop_ys:v_crop_ys,crop_lefts:v_crop_lefts,crop_rights:v_crop_rights,crop_tops:v_crop_tops,crop_bottoms:v_crop_bottoms,lefts:v_lefts,rights:v_rights,tops:v_tops,bottoms:v_bottoms,dxs:v_dxs,dys:v_dys,c1xs:v_c1xs,c1ys:v_c1ys,c2xs:v_c2xs,c2ys:v_c2ys,line_widths:v_line_widths,fills:v_fills,fill_paints:v_fill_paints,stroke_paints:v_stroke_paints,dashs:v_dashs,target_types:v_target_types,targets:v_targets,border_widths:v_border_widths,assets:v_assets)
+    payload_table:payloads_range(payload_columns,0,payload_count)
+    arena:(kinds:kinds,keys:keys,xs:xs,ys:ys,sxs:sxs,sys:sys,widths:widths,heights:heights,lines:lines,equation_tags:equation_tags,tag_widths:tag_widths,draws:draws,metadata:metadata,metadata_roots:metadata_roots,glyph_parts:glyph_parts,flow_xs:flow_xs,flow_widths:flow_widths,has_flows:has_flows,vertical_shrinks:vertical_shrinks,vertical_stretches:vertical_stretches,paints:paints,payloads:payloads,destination_firsts:destination_firsts,destination_counts:destination_counts,destination_ids:destination_ids,count:count,paint_table:paint_table,paint_count:paint_count,payload_table:payload_table,payload_count:payload_count,footnote_numbers:footnote_numbers,a260_scopes:a260_scopes,a260_texts:a260_texts,a260_operations:a260_operations,a260_starts:a260_starts,a260_stops:a260_stops,a260_parts:a260_parts)
+    @:(arena:arena,firsts:firsts,counts:counts,scene_widths:scene_widths,scene_count:scene_count,anchor_ids:anchor_ids,anchor_xs:anchor_xs,anchor_ys:anchor_ys,anchor_lines:anchor_lines,anchor_metadata:anchor_metadata,anchor_roots:anchor_roots,anchor_scenes:anchor_scenes,anchor_count:anchor_count)

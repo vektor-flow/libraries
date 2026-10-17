@@ -1,0 +1,25 @@
+url_dump_io:.io
+url_dump_json:.resource_json
+url_dump_output:.text_url_boxes_output
+url_dump_chunks:.text_chunks
+url_dump_raw:.document_link_policy
+run()->int:
+    fonts:url_dump_io.read_text(url_dump_io.read_line())
+    source:url_dump_io.read_text(url_dump_io.read_line())
+    target:url_dump_io.read_line()
+    tape:url_dump_json.parse(source)
+    parts:url_dump_chunks.empty(tape.count)
+    index:0
+    true?>
+        item:url_dump_json.element(tape,0,index)
+        item<0? @|
+        case_source:url_dump_json.string(tape,url_dump_json.member(tape,item,"source"))
+        width:url_dump_json.number(tape,url_dump_json.member(tape,item,"width"))
+        bib_url:url_dump_raw.raw(tape,url_dump_json.member(tape,item,"bibUrl"))="true"
+        prefix:""
+        index>0? .prefix:","
+        parts.(index):prefix&url_dump_output.packet(case_source,fonts,width,bib_url)
+        .index:index+1
+    url_dump_io.write_text(target,"["&url_dump_chunks.join(parts,0,index)&"]")
+    @:0
+run()

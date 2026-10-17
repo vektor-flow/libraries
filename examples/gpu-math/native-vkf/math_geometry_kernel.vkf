@@ -1,0 +1,74 @@
+# Development ABI for independent geometry qualification. Shared production
+# arithmetic is in math_geometry; this adapter only decodes/encodes requests.
+g:.math_geometry
+assembly:.math_assembly
+glyphs:.math_glyphs
+catalog:.font_catalog
+j:.resource_json
+numbers:.json_numbers
+text:.tex_text
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Shape:(width:num,height:num,depth:num,keys:[str],xs:[num],ys:[num],count:int,diagnostic:str,placeholder:bit,nucleus:str,italic:num,token:str)
+
+flag(tape:Tape,node:int,key:str)->bit:
+    found:j.member(tape,node,key)
+    found<0? @:false
+    kinds:tape.kinds
+    @:kinds.(found)=5
+
+size(tape:Tape,key:str)->(width:num,height:num,depth:num):
+    node:j.member(tape,0,key)
+    (node>=0)?! "Missing geometry size"
+    @:(width:glyphs.numeric(tape,node,"width"),height:glyphs.numeric(tape,node,"height"),depth:glyphs.numeric(tape,node,"depth"))
+
+field(key:str,value:num)->str:j.quote(key)&":"&numbers.roundtrip(value)
+
+shape_json(shape:Shape)->str:
+    result:"{"&field("width",shape.width)&","&field("height",shape.height)&","&field("depth",shape.depth)&",\"items\":["
+    keys:shape.keys
+    xs:shape.xs
+    ys:shape.ys
+    index:0
+    index<shape.count?>
+        index>0? .result:result&","
+        .result:result&"{\"key\":"&j.quote(keys.(index))&","&field("x",xs.(index))&","&field("y",ys.(index))&"}"
+        .index:index+1
+    @:result&"]}"
+
+geometry(request:str,font_source:str)->str:
+    tape:j.parse(request)
+    (tape.valid)?! "Invalid geometry request"
+    fonts:catalog.load(font_source)
+    style:int(glyphs.numeric(tape,0,"style"))
+    p:g.parameters(catalog.style(fonts,glyphs.style_name(style)),flag(tape,0,"bold"))
+    kind:glyphs.string(tape,"kind")
+    kind="glyph"?
+        font_name:glyphs.string(tape,"font")
+        native_glyph:glyphs.glyph(fonts,glyphs.string(tape,"token"),style,font_name)
+        character:"false"
+        native_glyph.character? .character:"true"
+        @:"{"&field("width",native_glyph.width)&","&field("height",native_glyph.height)&","&field("depth",native_glyph.depth)&","&field("classId",num(native_glyph.class_id))&","&field("italic",native_glyph.italic)&",\"character\":"&character&",\"key\":"&j.quote(native_glyph.key)&",\"token\":"&j.quote(native_glyph.token)&",\"diagnostic\":"&j.quote(native_glyph.diagnostic)&"}"
+    (kind="assemble" \/ kind="delimiter")?
+        token:glyphs.string(tape,"token")
+        font:""
+        flag(tape,0,"bold")? .font:"boldsymbol"
+        required:glyphs.numeric(tape,0,"required")
+        kind="assemble"? @:shape_json(assembly.assemble(fonts,token,style,required,font))
+        @:shape_json(assembly.delimiter(fonts,token,style,required,font))
+    kind="fraction"?
+        fraction_box:g.fraction(size(tape,"n"),size(tape,"d"),p,style,glyphs.numeric(tape,0,"rule",p.rule),flag(tape,0,"delimited"))
+        @:"{"&field("width",fraction_box.width)&","&field("height",fraction_box.height)&","&field("depth",fraction_box.depth)&",\"positions\":{\"n\":["&numbers.roundtrip(fraction_box.numerator_x)&","&numbers.roundtrip(fraction_box.numerator_y)&"],\"d\":["&numbers.roundtrip(fraction_box.denominator_x)&","&numbers.roundtrip(fraction_box.denominator_y)&"]},\"rule\":["&numbers.roundtrip(fraction_box.rule_x)&","&numbers.roundtrip(fraction_box.rule_y)&","&numbers.roundtrip(fraction_box.rule_width)&","&numbers.roundtrip(fraction_box.rule_height)&"]}"
+    kind="scripts"?
+        child_style:3
+        style<2? .child_style:2
+        q:g.parameters(catalog.style(fonts,glyphs.style_name(child_style)),flag(tape,0,"bold"))
+        body_node:j.member(tape,0,"body")
+        body_size:size(tape,"body")
+        body:(width:body_size.width,height:body_size.height,depth:body_size.depth,italic:glyphs.numeric(tape,body_node,"italic"),character:flag(tape,body_node,"character"))
+        script_box:g.scripts(body,size(tape,"sup"),size(tape,"sub"),p,q,style,flag(tape,0,"cramped"),flag(tape,0,"hasSup"),flag(tape,0,"hasSub"),flag(tape,0,"limits"),flag(tape,0,"arrow"),flag(tape,0,"leftArrow"))
+        @:"{"&field("width",script_box.width)&","&field("height",script_box.height)&","&field("depth",script_box.depth)&",\"positions\":{\"body\":["&numbers.roundtrip(script_box.body_x)&",0],\"sup\":["&numbers.roundtrip(script_box.sup_x)&","&numbers.roundtrip(script_box.sup_y)&"],\"sub\":["&numbers.roundtrip(script_box.sub_x)&","&numbers.roundtrip(script_box.sub_y)&"]}}"
+    (false)?! "Unknown math geometry request"
+    @:""
+
+noop()->int:0
+noop()

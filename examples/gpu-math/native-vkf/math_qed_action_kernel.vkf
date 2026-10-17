@@ -1,0 +1,8 @@
+t:.math_qed_action_trace
+catalog:.font_catalog
+
+qed_trace(source:str,font_source:str,inline:bit=false,display:bit=true)->str:
+    @:t.trace(source,catalog.load(font_source),inline,display)
+
+noop()->int:0
+noop()

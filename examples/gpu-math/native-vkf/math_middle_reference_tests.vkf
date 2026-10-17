@@ -1,0 +1,429 @@
+# Actual JS middleRequired traces; all assertions execute in VKF.
+m:.math_middle
+e:.math_effects
+p:.math_parser
+r:.math_references
+c:.font_catalog
+f:.test_font_data
+
+close(a:num,b:num)->bit:|a-b|<0.000000001
+
+trace_base_0():
+    context:m.empty()
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+    fonts:c.load(f.math_catalog())
+    arena:p.parse("\\middle|",fonts)
+    replay:e.replay(arena,0,1,r.empty())
+    (replay.complete /\ replay.next_number=1 /\ r.json(replay.refs)="{}")?! "first body then second body source effects match actual JS"
+
+trace_base_1():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,7.4719800747198013,2.49066002490660043,2.49066002490660043)
+    close(context.required,8.97633872976338765)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,8.97633872976338765)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+    fonts:c.load(f.math_catalog())
+    arena:p.parse("\\left(a\\middle|b\\right)",fonts)
+    replay:e.replay(arena,0,1,r.empty())
+    (replay.complete /\ replay.next_number=1 /\ r.json(replay.refs)="{}")?! "first body then second body source effects match actual JS"
+
+trace_base_2():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,11.02925977413799785,8.77106085091064713,2.49066002490660043)
+    close(context.required,20.29362101822268016)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,20.29362101822268016)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+    fonts:c.load(f.math_catalog())
+    arena:p.parse("\\left(\\frac{x}{y}\\middle|\\frac{a}{b}\\right)",fonts)
+    replay:e.replay(arena,0,1,r.empty())
+    (replay.complete /\ replay.next_number=1 /\ r.json(replay.refs)="{}")?! "first body then second body source effects match actual JS"
+
+trace_base_3():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,11.02925977413799785,8.77106085091064713,2.49066002490660043)
+    close(context.required,20.29362101822268016)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,20.29362101822268016)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,14.44594769613947705,9.46462764632627795,2.49066002490660043)
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.enter(context)
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,14.44594769613947705,9.46462764632627795,2.49066002490660043)
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+    fonts:c.load(f.math_catalog())
+    arena:p.parse("\\left(a\\middle\\Vert\\left(\\frac{x}{y}\\middle|b\\right)\\middle\\rbrace\\right)",fonts)
+    replay:e.replay(arena,0,1,r.empty())
+    (replay.complete /\ replay.next_number=1 /\ r.json(replay.refs)="{}")?! "first body then second body source effects match actual JS"
+
+trace_base_4():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,11.02925977413799785,8.77106085091064713,2.49066002490660043)
+    close(context.required,20.29362101822268016)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,20.29362101822268016)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,14.44594769613947705,9.46462764632627795,2.49066002490660043)
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.enter(context)
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,14.44594769613947705,9.46462764632627795,2.49066002490660043)
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,21.54342838356164691)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+    fonts:c.load(f.math_catalog())
+    arena:p.parse("\\left(\\left(\\frac{x}{y}\\middle|b\\right)\\middle|a\\right)",fonts)
+    replay:e.replay(arena,0,1,r.empty())
+    (replay.complete /\ replay.next_number=1 /\ r.json(replay.refs)="{}")?! "first body then second body source effects match actual JS"
+
+trace_base_5():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+    fonts:c.load(f.math_catalog())
+    arena:p.parse("\\left(a{\\middle|b}\\right)",fonts)
+    replay:e.replay(arena,0,1,r.empty())
+    (replay.complete /\ replay.next_number=1 /\ r.json(replay.refs)="{}")?! "first body then second body source effects match actual JS"
+
+trace_base_6():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,5.230386052303861,3.36907703685641735,1.74346201743462026)
+    close(context.required,9.21279537583244945)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,9.21279537583244945)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+    fonts:c.load(f.math_catalog())
+    arena:p.parse("\\scriptstyle\\left(\\frac{x}{y}\\middle|b\\right)",fonts)
+    replay:e.replay(arena,0,1,r.empty())
+    (replay.complete /\ replay.next_number=1 /\ r.json(replay.refs)="{}")?! "first body then second body source effects match actual JS"
+
+trace_base_7():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,15.60214270825225746,10.2694120680261527,2.49066002490660043)
+    close(context.required,23.62689179538887174)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,23.62689179538887174)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+    fonts:c.load(f.math_catalog())
+    arena:p.parse("\\left(\\frac{\\frac{x}{y}}{\\frac{a}{b}}\\middle|x\\right)",fonts)
+    replay:e.replay(arena,0,1,r.empty())
+    (replay.complete /\ replay.next_number=1 /\ r.json(replay.refs)="{}")?! "first body then second body source effects match actual JS"
+
+trace_base_8():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,7.4719800747198013,2.49066002490660043,2.49066002490660043)
+    close(context.required,8.97633872976338765)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,8.97633872976338765)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+    fonts:c.load(f.math_catalog())
+    arena:p.parse("\\left(\\begin{equation}x\\label{eq:x}\\end{equation}\\middle|y\\right)+\\begin{equation}a\\end{equation}",fonts)
+    replay:e.replay(arena,0,1,r.empty())
+    (replay.complete /\ replay.next_number=4 /\ r.json(replay.refs)="{\"eq:x\":\"2\"}")?! "first body then second body source effects match actual JS"
+
+trace_base_9():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,11.02925977413799785,8.77106085091064713,2.49066002490660043)
+    close(context.required,20.29362101822268016)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,20.29362101822268016)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+    fonts:c.load(f.math_catalog())
+    arena:p.parse("\\left(\\frac{x}{y}\\middle|b\\right)^{\\middle|}",fonts)
+    replay:e.replay(arena,0,1,r.empty())
+    (replay.complete /\ replay.next_number=1 /\ r.json(replay.refs)="{}")?! "first body then second body source effects match actual JS"
+
+trace_base_10():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,11.02925977413799785,8.77106085091064713,2.49066002490660043)
+    close(context.required,20.29362101822268016)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,20.29362101822268016)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,17.21337042091911229,9.46462764632627795,2.49066002490660043)
+    close(context.required,26.530324133614549)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,26.530324133614549)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.enter(context)
+    close(context.required,26.530324133614549)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,26.530324133614549)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,17.43476961394769731,12.45344956413449822,2.49066002490660043)
+    close(context.required,26.92928547945205864)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,26.92928547945205864)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,26.530324133614549)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,26.530324133614549)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+    fonts:c.load(f.math_catalog())
+    arena:p.parse("\\left(a\\middle|\\left(\\frac{x}{y}\\middle|b\\right)^{\\middle|}\\right)",fonts)
+    replay:e.replay(arena,0,1,r.empty())
+    (replay.complete /\ replay.next_number=1 /\ r.json(replay.refs)="{}")?! "first body then second body source effects match actual JS"
+
+trace_amsart_12_0():
+    context:m.empty()
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+
+trace_amsart_12_1():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,8.96637608966376121,2.9887920298879207,2.98879202988792025)
+    close(context.required,10.77160647571606589)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,10.77160647571606589)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+
+trace_amsart_12_2():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,13.23513364677381787,10.5252550883406002,2.98879202988792025)
+    close(context.required,24.35231290704779283)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,24.35231290704779283)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+
+trace_amsart_12_3():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,13.23513364677381787,10.5252550883406002,2.98879202988792025)
+    close(context.required,24.35231290704779283)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,24.35231290704779283)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,17.33513325031133334,11.35754919053549017,2.98879202988792025)
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.enter(context)
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,17.33513325031133334,11.35754919053549017,2.98879202988792025)
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+
+trace_amsart_12_4():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,13.23513364677381787,10.5252550883406002,2.98879202988792025)
+    close(context.required,24.35231290704779283)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,24.35231290704779283)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,17.33513325031133334,11.35754919053549017,2.98879202988792025)
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.enter(context)
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,17.33513325031133334,11.35754919053549017,2.98879202988792025)
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,25.85210687920299222)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+
+trace_amsart_12_5():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+
+trace_amsart_12_6():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,5.97758405977584051,4.28791940379825665,1.99252801992528039)
+    close(context.required,11.31736625754981418)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,11.31736625754981418)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+
+trace_amsart_12_7():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,18.47353115027630821,12.32329448163138252,2.98879202988792025)
+    close(context.required,27.90349989493987692)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,27.90349989493987692)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+
+trace_amsart_12_8():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,8.96637608966376121,2.9887920298879207,2.98879202988792025)
+    close(context.required,10.77160647571606589)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,10.77160647571606589)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+
+trace_amsart_12_9():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,13.23513364677381787,10.5252550883406002,2.98879202988792025)
+    close(context.required,24.35231290704779283)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,24.35231290704779283)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+
+trace_amsart_12_10():
+    context:m.empty()
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.enter(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,13.23513364677381787,10.5252550883406002,2.98879202988792025)
+    close(context.required,24.35231290704779283)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,24.35231290704779283)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,20.15787621127801899,11.35754919053549017,2.98879202988792025)
+    close(context.required,30.93868969486495502)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,30.93868969486495502)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.enter(context)
+    close(context.required,30.93868969486495502)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,30.93868969486495502)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.after_first(context,20.92171855541718628,14.94413449564134311,2.98879202988792025)
+    close(context.required,32.31513359900373672)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,32.31513359900373672)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,30.93868969486495502)?! "actual JS inherited computed or restored middleRequired"
+    close(context.required,30.93868969486495502)?! "actual JS inherited computed or restored middleRequired"
+    .context:m.leave(context)
+    close(context.required,0)?! "actual JS inherited computed or restored middleRequired"
+    (context.depth=0 /\ context.required=0)?! "all actual JS delimiter scopes restore root context"
+
+renderer_tests()->bit:
+    trace_base_0()
+    trace_base_1()
+    trace_base_2()
+    trace_base_3()
+    trace_base_4()
+    trace_base_5()
+    trace_base_6()
+    trace_base_7()
+    trace_base_8()
+    trace_base_9()
+    trace_base_10()
+    trace_amsart_12_0()
+    trace_amsart_12_1()
+    trace_amsart_12_2()
+    trace_amsart_12_3()
+    trace_amsart_12_4()
+    trace_amsart_12_5()
+    trace_amsart_12_6()
+    trace_amsart_12_7()
+    trace_amsart_12_8()
+    trace_amsart_12_9()
+    trace_amsart_12_10()
+    @:true
+renderer_tests()

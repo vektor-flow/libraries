@@ -1,0 +1,8 @@
+output:.math_quotient_output
+catalog:.font_catalog
+
+quotient_packet(font_source:str,sizes:str,style:int=0,font:str="",color:str="null")->str:
+    @:output.packet(catalog.load(font_source),sizes,style,font,color)
+
+noop()->int:0
+noop()

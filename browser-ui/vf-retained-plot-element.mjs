@@ -1,3 +1,4 @@
+import {bindSelectionInput} from './vf-selection-controller.mjs';
 import {createAntialiasedScreenSpaceRenderer} from './vf-antialiased-screen-renderer.mjs';
 import {createCoordinateView} from './vf-coordinate-view.mjs';
 import {createCoordinateView3d} from './vf-coordinate-view-3d.mjs';
@@ -61,14 +62,13 @@ export async function mountRetainedPlot(container, packet, {
   };
   const up=event=>{
     if(!active || event.pointerId!==active.id)return;
-    if(!active.dragged){view.selectAt(local(event),{additive:event.shiftKey});render();onSelectionChange(view.selection())}
     interaction?.end();
     if(canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);
     active=null;
   };
   const cancel=()=>{interaction?.cancel();active=null};
   const wheel=event=>{event.preventDefault();coordinates.zoomAt(local(event),event.deltaY);render()};
-  const key=event=>{if(event.key==='Escape'){view.clearSelection();render();onSelectionChange(view.selection())}};
+  let unbindSelection=()=>{};
   let observer;
   try {
     await renderer.initialize();
@@ -78,7 +78,7 @@ export async function mountRetainedPlot(container, packet, {
     canvas.addEventListener('pointerup',up);
     canvas.addEventListener('pointercancel',cancel);
     canvas.addEventListener('wheel',wheel,{passive:false});
-    canvas.addEventListener('keydown',key);
+    unbindSelection=bindSelectionInput(canvas,view.selectionController,{local,onChange:ids=>{render();onSelectionChange(ids)}});
     observer=new container.ownerDocument.defaultView.ResizeObserver(resize);
     observer.observe(container);
     resize();
@@ -90,8 +90,8 @@ export async function mountRetainedPlot(container, packet, {
     dispose(){
       if(disposed)return;
       disposed=true;interaction?.cancel();active=null;observer.disconnect();
-      for(const [name,handler] of [['pointerdown',down],['pointermove',move],['pointerup',up],['pointercancel',cancel],['wheel',wheel],['keydown',key]])canvas.removeEventListener(name,handler);
-      renderer.destroy();canvas.remove();
+      for(const [name,handler] of [['pointerdown',down],['pointermove',move],['pointerup',up],['pointercancel',cancel],['wheel',wheel]])canvas.removeEventListener(name,handler);
+      unbindSelection();view.dispose();renderer.destroy();canvas.remove();
     }
   });
 }

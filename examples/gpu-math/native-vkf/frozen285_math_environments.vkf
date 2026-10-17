@@ -1,0 +1,25 @@
+# Names/order and array column grammar shared by matrix parsing and recovery.
+tokens:.frozen285_math_tokens
+text:.frozen285_tex_text
+
+names()->[str]:
+    @:["eqnarray","eqnarray*","matrix","pmatrix","bmatrix","Bmatrix","vmatrix","Vmatrix","smallmatrix","cases","aligned","align","align*","array","gathered","split","multline","multline*","gather","gather*","equation","equation*","alignat","alignat*","substack","subarray"]
+
+known(name:str)->bit:tokens.one_of(name,names())
+
+resolve(name:str)->(name:str,recovery:int):
+    known(name)? @:(name:name,recovery:0)
+    candidates:names()
+    index:0
+    index<candidates.length()?>
+        text.matches(candidates.(index),0,name)? @:(name:candidates.(index),recovery:1)
+        .index:index+1
+    @:(name:"matrix",recovery:2)
+
+valid_columns(align:str)->bit:
+    position:0
+    ~vkf_string_eof(align,position)?>
+        c:text.at(align,position)
+        ~(c="c" \/ c="l" \/ c="r" \/ c="|" \/ tokens.space(c))? @:false
+        .position:text.next(align,position)
+    @:true

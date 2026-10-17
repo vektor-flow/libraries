@@ -1,0 +1,35 @@
+math:.text_math_boxes
+packages:.math_packages
+data:.test_layout_fonts
+j:.resource_json
+
+renderer_tests()->bit:
+    fonts:data.fonts()
+    result:math.evaluate(7,"a+b\\mathrel{b}a",fonts,packages.defaults())
+    nodes:result.provider
+    kinds:nodes.kinds
+    ids:nodes.operation_ids
+    penalties:nodes.penalties
+    scenes:nodes.scenes
+    boxes:0
+    glue:0
+    binary:false
+    relation:false
+    index:0
+    index<nodes.count?>
+        (ids.(index)=7)?! "math provider retains its source operation ID"
+        kinds.(index)=0?
+            .boxes:boxes+1
+            (j.parse(scenes.(index)).valid)?! "math box retains a valid scene"
+        kinds.(index)=1? .glue:glue+1
+        kinds.(index)=3?
+            penalties.(index)=700? .binary:true
+            penalties.(index)=500? .relation:true
+        .index:index+1
+    (boxes=5 /\ glue=4 /\ binary /\ relation)?! "inline math exports noads, mu glue and both break penalties"
+    empty:math.evaluate(8,"",fonts,packages.defaults())
+    empty_nodes:empty.provider
+    empty_kinds:empty_nodes.kinds
+    (empty_nodes.count=1 /\ empty_kinds.(0)=5)?! "resolved empty math differs from a missing provider"
+    @:true
+renderer_tests()

@@ -1,0 +1,40 @@
+bib_tests_data:.bibtex_data
+bib_tests_names:.bibtex_names
+bib_tests_format:.bibtex_format
+bib_tests_prepare:.bibliography
+bib_tests_collation:.bibliography_collation
+bib_tests_text:.tex_text
+renderer_tests()->bit:
+    bib_tests_data.utf16_length("aé中😀")=5?! "JS UTF16 resource and label length contract"
+    parsed:bib_tests_data.parse("@string{venue=\"Journal \" # {of Tests}} @book{parent, publisher={Press},year=2024} @article(child, AUTHOR=\"Smith, Jo and {A and B Foundation}\",title={A {Nested} Title},journal=VENUE,crossref={parent})",bib_tests_data.empty_map())
+    parsed.valid?! "Balanced bibliography parses"
+    parsed.count=2?! "Two entries retained"
+    child:bib_tests_data.from_json(parsed.fields.(1))
+    bib_tests_data.get(child,"journal")="Journal of Tests"?! "Case insensitive strings and concatenation"
+    bib_tests_data.get(child,"year")="2024"?! "Cross reference inherited"
+    bib_tests_data.get(child,"title")="A {Nested} Title"?! "Protected title remains TeX"
+    names:bib_tests_names.parse(bib_tests_data.get(child,"author"))
+    names.family.(0)="Smith"?! "Comma family"
+    names.given.(0)="Jo"?! "Comma given"
+    names.family.(1)="A and B Foundation"?! "Corporate braces preserve and"
+    bad:bib_tests_data.parse("@book{x,crossref={y}}@book{y,crossref={x}}",bib_tests_data.empty_map())
+    ~bad.valid /\ bad.error="Cyclic bibliography cross-reference"?! "Cross reference cycle explicit"
+    missing:bib_tests_data.parse("@book{x,title={x}",bib_tests_data.empty_map())
+    ~missing.valid?! "Unclosed entry explicit"
+    prepared:bib_tests_prepare.prepare("\\bibliography{r}\\cite{b,a}\\printbibliography","{\"r.bib\":\"@book{a,author={Zed, Ada},title={First},year={2020}}@book{b,author={Able, Bea},title={Last},year={2021}}\"}","",["style=alphabetic","sorting=nyt"])
+    prepared.complete?! "Generic resource prepares"
+    prepared.labels_json="{\"b\":\"Abl21\",\"a\":\"Zed20\"}"?! "Author year labels sorted"
+    bib_tests_text.find(prepared.source,"\\bibitem[Abl21]{b}Bea Able. \\emph{Last}. 2021.")>=0?! "Bibliography is independently formatted TeX"
+    resized:bib_tests_prepare.set_widest(prepared.source,"Zed20")
+    bib_tests_text.find(resized,"\\begin{thebibliography}{Zed20}")>=0?! "Measured width replaces label declaration"
+    mixed_original:"\\begin{thebibliography}{MANUAL}M\\end{thebibliography}\\printbibliography"
+    mixed_prepared:"\\begin{thebibliography}{MANUAL}M\\end{thebibliography}\\begin{thebibliography}{1}G\\end{thebibliography}"
+    mixed:bib_tests_prepare.set_widest(mixed_prepared,"2",mixed_original)
+    mixed="\\begin{thebibliography}{MANUAL}M\\end{thebibliography}\\begin{thebibliography}{2}G\\end{thebibliography}"?! "Only generated bibliography width changes"
+    empty:bib_tests_prepare.prepare("\\bibliography{none}\\cite{x}\\printbibliography")
+    ~empty.complete?! "Missing input not silent"
+    bib_tests_collation.key("A-b C").key=bib_tests_collation.key("abc").key?! "English ignored punctuation and spaces"
+    bib_tests_collation.key("Éæß").key=bib_tests_collation.key("eaess").key?! "Generic ICU Latin primary folds"
+    bib_tests_collation.key("中").unsupported="中"?! "Unported primary weights explicit"
+    @:true
+::renderer_tests()

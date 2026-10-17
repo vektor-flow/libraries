@@ -1,0 +1,16 @@
+io:.io
+document_pdf_kernel:.document_pdf_kernel
+resource_numbers:.resource_numbers
+run()->int:
+    fonts:io.read_text(io.read_line())
+    operators:io.read_text(io.read_line())
+    count:int(resource_numbers.parse(io.read_line()))
+    index:0
+    index<count?>
+        layout:io.read_text(io.read_line())
+        default_color:io.read_line()
+        path:io.read_line()
+        io.write_text(path,document_pdf_kernel.pdf_encode(fonts,operators,layout,default_color))
+        .index:index+1
+    @:0
+run()

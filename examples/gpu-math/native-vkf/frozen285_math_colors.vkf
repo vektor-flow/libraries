@@ -1,0 +1,64 @@
+# The existing xcolor base palette and explicit RGB/HTML grammar.
+text:.frozen285_tex_text
+tokens:.frozen285_math_tokens
+j:.frozen285_resource_json
+numbers:.frozen285_json_numbers
+channels:.frozen285_color_numbers
+
+lower_scalar(c:int)->str:
+    c>=65 /\ c<=90? @:str(chr(c+32))
+    c=8490? @:"k"
+    @:str(chr(c))
+lower(value:str)->str:value >> lower_scalar(int($))
+
+parse(raw:str,model:str="")->str:
+    start:tokens.skip_space(raw,0)
+    position:start
+    stop:start
+    ~vkf_string_eof(raw,position)?>
+        c:text.at(raw,position)
+        .position:text.next(raw,position)
+        ~tokens.space(c)? .stop:position
+    value:text.span(raw,start,stop)
+    model="HTML"? .value:"#"&value
+    name:lower(value)
+    names:["black","white","red","green","blue","cyan","magenta","yellow","gray","grey","darkgray","lightgray","orange","purple","teal","brown","lime","olive","pink","violet"]
+    palettes:["[0,0,0,1]","[1,1,1,1]","[1,0,0,1]","[0,1,0,1]","[0,0,1,1]","[0,1,1,1]","[1,0,1,1]","[1,1,0,1]","[0.5,0.5,0.5,1]","[0.5,0.5,0.5,1]","[0.25,0.25,0.25,1]","[0.75,0.75,0.75,1]","[1,0.5,0,1]","[0.75,0,0.25,1]","[0,0.5,0.5,1]","[0.75,0.5,0.25,1]","[0.75,1,0,1]","[0.5,0.5,0,1]","[1,0.75,0.75,1]","[0.5,0,0.5,1]"]
+    index:0
+    index<names.length()?>
+        name=names.(index)? @:palettes.(index)
+        .index:index+1
+    size:text.byte_length(value)
+    (size=4 \/ size=7) /\ text.matches(value,0,"#")?
+        result:"["
+        .index:0
+        index<3?>
+            high:j.hex(text.at(value,1+index))
+            low:high
+            size=7?
+                .high:j.hex(text.at(value,1+index*2))
+                .low:j.hex(text.at(value,2+index*2))
+            (high<0 \/ low<0)? @:"null"
+            index>0? .result:result&","
+            .result:result&numbers.roundtrip(num(high*16+low)/255)
+            .index:index+1
+        @:result&",1]"
+    (model="rgb" \/ model="RGB")?
+        scale:1
+        model="RGB"? .scale:255
+        result:"["
+        .position:0
+        .index:0
+        index<3?>
+            comma:text.find(value,",",position)
+            index<2 /\ comma<0? @:"null"
+            index=2 /\ comma>=0? @:"null"
+            comma<0? .comma:text.byte_length(value)
+            channel:channels.parse(text.span(value,position,comma),num(scale))
+            ~channel.valid? @:"null"
+            index>0? .result:result&","
+            .result:result&numbers.roundtrip(channel.value/scale)
+            .position:comma+1
+            .index:index+1
+        @:result&",1]"
+    @:"null"

@@ -1,0 +1,162 @@
+m:.document_paragraph_metrics
+Columns:(heights:[num],depths:[num],natural_depths:[num],widths:[num],baselines:[num],indents:[num],flagged:[bit],count:int,width:num,height:num,depth:num,has_last_row:bit,last_row_baseline:num,last_row_depth:num,tag_width:num)
+equal(a:Columns,b:Columns)->bit:
+    (a.count=b.count /\ a.width=b.width /\ a.height=b.height /\ a.depth=b.depth)?!
+    at:0
+    at<a.count?>
+        (a.heights.(at)=b.heights.(at))?! "heights"
+        (a.depths.(at)=b.depths.(at))?! "depths"
+        (a.widths.(at)=b.widths.(at))?! "widths"
+        (a.baselines.(at)=b.baselines.(at))?! "baselines"
+        (a.indents.(at)=b.indents.(at))?! "indents"
+
+        (a.flagged.(at)=b.flagged.(at))?!
+        .at:at+1
+    @:true
+
+
+fresh_reference_0():
+    q:m.paragraph([6.91849838009807],[0],[75.07973334857566],[0],[14.943960149439603],[false],1,75.07973334857566,6.91849838009807,0)
+    expected:m.legacy("{\"width\":75.07973334857566,\"height\":6.91849838009807,\"depth\":0,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":0,\"naturalHeight\":6.91849838009807,\"naturalDepth\":0,\"baseline\":0,\"ratio\":0,\"indent\":14.943960149439603,\"width\":75.07973334857566}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_1():
+    q:m.paragraph([9.47473555222603,9.47473555222603,9.47473555222603,9.47473555222603,9.47473555222603,6.91849838009807],[2.324592777085928,2.324592777085928,2.324592777085928,2.324592777085928,2.324592777085928,1.9371783302848693],[328.7671232876713,343.71108343711103,343.711083437111,343.711083437111,343.711083437111,101.67450673256539],[0,11.955168119551683,23.910336239103366,35.865504358655045,47.82067247820673,59.77584059775842],[14.943960149439603,0,0,0,0,0],[true,false,true,false,false,false],6,343.71108343711103,9.47473555222603,61.71301892804329)
+    expected:m.legacy("{\"width\":343.71108343711103,\"height\":9.47473555222603,\"depth\":61.71301892804329,\"lines\":[{\"flagged\":true,\"height\":9.47473555222603,\"depth\":2.324592777085928,\"naturalHeight\":9.47473555222603,\"naturalDepth\":2.324592777085928,\"baseline\":0,\"ratio\":0.2711291288690866,\"indent\":14.943960149439603,\"width\":328.7671232876713},{\"flagged\":false,\"height\":9.47473555222603,\"depth\":2.324592777085928,\"naturalHeight\":9.47473555222603,\"naturalDepth\":2.324592777085928,\"baseline\":11.955168119551683,\"ratio\":0.19277069691086593,\"indent\":0,\"width\":343.71108343711103},{\"flagged\":true,\"height\":9.47473555222603,\"depth\":2.324592777085928,\"naturalHeight\":9.47473555222603,\"naturalDepth\":2.324592777085928,\"baseline\":23.910336239103366,\"ratio\":0.2660489403482158,\"indent\":0,\"width\":343.711083437111},{\"flagged\":false,\"height\":9.47473555222603,\"depth\":2.324592777085928,\"naturalHeight\":9.47473555222603,\"naturalDepth\":2.324592777085928,\"baseline\":35.865504358655045,\"ratio\":0.3091516538018397,\"indent\":0,\"width\":343.711083437111},{\"flagged\":false,\"height\":9.47473555222603,\"depth\":2.324592777085928,\"naturalHeight\":9.47473555222603,\"naturalDepth\":2.324592777085928,\"baseline\":47.82067247820673,\"ratio\":0.14806289236255057,\"indent\":0,\"width\":343.711083437111},{\"flagged\":false,\"height\":6.91849838009807,\"depth\":1.9371783302848693,\"naturalHeight\":6.91849838009807,\"naturalDepth\":1.9371783302848693,\"baseline\":59.77584059775842,\"ratio\":0,\"indent\":0,\"width\":101.67450673256539}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_2():
+    q:m.paragraph([6.91849838009807],[1.9371783302848693],[105.6884157553705],[0],[14.943960149439603],[false],1,105.6884157553705,6.91849838009807,1.9371783302848693)
+    expected:m.legacy("{\"width\":105.6884157553705,\"height\":6.91849838009807,\"depth\":1.9371783302848693,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":1.9371783302848693,\"naturalHeight\":6.91849838009807,\"naturalDepth\":1.9371783302848693,\"baseline\":0,\"ratio\":0,\"indent\":14.943960149439603,\"width\":105.6884157553705}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_3():
+    q:m.paragraph([6.91849838009807],[1.9371783302848693],[144.69566487731555],[0],[14.943960149439603],[false],1,144.69566487731555,6.91849838009807,1.9371783302848693)
+    expected:m.legacy("{\"width\":144.69566487731555,\"height\":6.91849838009807,\"depth\":1.9371783302848693,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":1.9371783302848693,\"naturalHeight\":6.91849838009807,\"naturalDepth\":1.9371783302848693,\"baseline\":0,\"ratio\":0,\"indent\":14.943960149439603,\"width\":144.69566487731555}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_4():
+    q:m.paragraph([6.91849838009807],[2.324592777085928],[208.5546974918275],[0],[14.943960149439603],[false],1,208.5546974918275,6.91849838009807,2.324592777085928)
+    expected:m.legacy("{\"width\":208.5546974918275,\"height\":6.91849838009807,\"depth\":2.324592777085928,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":2.324592777085928,\"naturalHeight\":6.91849838009807,\"naturalDepth\":2.324592777085928,\"baseline\":0,\"ratio\":0,\"indent\":14.943960149439603,\"width\":208.5546974918275}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_5():
+    q:m.paragraph([0],[0],[0],[0],[14.943960149439603],[false],1,0,0,0)
+    expected:m.legacy("{\"width\":0,\"height\":0,\"depth\":0,\"lines\":[{\"flagged\":false,\"height\":0,\"depth\":0,\"naturalHeight\":0,\"naturalDepth\":0,\"baseline\":0,\"ratio\":0,\"indent\":14.943960149439603,\"width\":0}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_6():
+    q:m.paragraph([6.80778379903487,8.138704708417652],[0,4.122632170376712],[24.297814470150996,105.46400059347758],[0,11.955168119551683],[14.943960149439603,0],[false,false],2,105.46400059347758,6.80778379903487,16.077800289928394)
+    expected:m.legacy("{\"width\":105.46400059347758,\"height\":6.80778379903487,\"depth\":16.077800289928394,\"lines\":[{\"flagged\":false,\"height\":6.80778379903487,\"depth\":0,\"naturalHeight\":6.80778379903487,\"naturalDepth\":0,\"baseline\":0,\"ratio\":0,\"indent\":14.943960149439603,\"width\":24.297814470150996},{\"flagged\":false,\"height\":8.138704708417652,\"depth\":4.122632170376712,\"naturalHeight\":8.138704708417652,\"naturalDepth\":4.122632170376712,\"baseline\":11.955168119551683,\"ratio\":0,\"indent\":0,\"width\":105.46400059347758}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_7():
+    q:m.paragraph([6.91849838009807],[1.9371783302848693],[166.51477552440068],[0],[14.943960149439603],[false],1,166.51477552440068,6.91849838009807,1.9371783302848693)
+    expected:m.legacy("{\"width\":166.51477552440068,\"height\":6.91849838009807,\"depth\":1.9371783302848693,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":1.9371783302848693,\"naturalHeight\":6.91849838009807,\"naturalDepth\":1.9371783302848693,\"baseline\":0,\"ratio\":0,\"indent\":14.943960149439603,\"width\":166.51477552440068}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_8():
+    q:m.paragraph([6.91849838009807],[0],[78.4559428023817],[0],[14.943960149439603],[false],1,78.4559428023817,6.91849838009807,0)
+    expected:m.legacy("{\"width\":78.4559428023817,\"height\":6.91849838009807,\"depth\":0,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":0,\"naturalHeight\":6.91849838009807,\"naturalDepth\":0,\"baseline\":0,\"ratio\":0,\"indent\":14.943960149439603,\"width\":78.4559428023817}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_9():
+    q:m.paragraph([6.91849838009807,6.91849838009807,6.91849838009807],[0,0,0],[328.76712328767127,343.7110834371107,119.13680935262299],[0,11.955168119551683,23.910336239103366],[14.943960149439603,0,0],[false,false,false],3,343.7110834371107,6.91849838009807,23.910336239103366)
+    expected:m.legacy("{\"width\":343.7110834371107,\"height\":6.91849838009807,\"depth\":23.910336239103366,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":0,\"naturalHeight\":6.91849838009807,\"naturalDepth\":0,\"baseline\":0,\"ratio\":0.8051062792882497,\"indent\":14.943960149439603,\"width\":328.76712328767127},{\"flagged\":false,\"height\":6.91849838009807,\"depth\":0,\"naturalHeight\":6.91849838009807,\"naturalDepth\":0,\"baseline\":11.955168119551683,\"ratio\":-0.26489672883079735,\"indent\":0,\"width\":343.7110834371107},{\"flagged\":false,\"height\":6.91849838009807,\"depth\":0,\"naturalHeight\":6.91849838009807,\"naturalDepth\":0,\"baseline\":23.910336239103366,\"ratio\":0,\"indent\":0,\"width\":119.13680935262299}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_10():
+    q:m.paragraph([0],[0],[0],[0],[14.943960149439603],[false],1,0,0,0)
+    expected:m.legacy("{\"width\":0,\"height\":0,\"depth\":0,\"lines\":[{\"flagged\":false,\"height\":0,\"depth\":0,\"naturalHeight\":0,\"naturalDepth\":0,\"baseline\":0,\"ratio\":0,\"indent\":14.943960149439603,\"width\":0}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_11():
+    q:m.paragraph([6.91849838009807],[0],[71.15001179658313],[0],[14.943960149439603],[false],1,71.15001179658313,6.91849838009807,0)
+    expected:m.legacy("{\"width\":71.15001179658313,\"height\":6.91849838009807,\"depth\":0,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":0,\"naturalHeight\":6.91849838009807,\"naturalDepth\":0,\"baseline\":0,\"ratio\":0,\"indent\":14.943960149439603,\"width\":71.15001179658313}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_12():
+    q:m.paragraph([6.91849838009807],[0],[75.07973334857566],[0],[11.955168119551683],[false],1,75.07973334857566,6.91849838009807,0)
+    expected:m.legacy("{\"width\":75.07973334857566,\"height\":6.91849838009807,\"depth\":0,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":0,\"naturalHeight\":6.91849838009807,\"naturalDepth\":0,\"baseline\":0,\"ratio\":0,\"indent\":11.955168119551683,\"width\":75.07973334857566}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_13():
+    q:m.paragraph([9.47473555222603,9.47473555222603,9.47473555222603,9.47473555222603,9.47473555222603],[2.324592777085928,2.324592777085928,2.324592777085928,2.324592777085928,2.324592777085928],[346.6998754669988,358.65504358655056,358.65504358655045,358.6550435865511,353.8351614733325],[0,11.955168119551683,23.910336239103366,35.865504358655045,47.82067247820673],[11.955168119551683,0,0,0,0],[false,false,false,false,false],5,358.6550435865511,9.47473555222603,50.14526525529266)
+    expected:m.legacy("{\"width\":358.6550435865511,\"height\":9.47473555222603,\"depth\":50.14526525529266,\"lines\":[{\"flagged\":false,\"height\":9.47473555222603,\"depth\":2.324592777085928,\"naturalHeight\":9.47473555222603,\"naturalDepth\":2.324592777085928,\"baseline\":0,\"ratio\":-0.5035830925773378,\"indent\":11.955168119551683,\"width\":346.6998754669988},{\"flagged\":false,\"height\":9.47473555222603,\"depth\":2.324592777085928,\"naturalHeight\":9.47473555222603,\"naturalDepth\":2.324592777085928,\"baseline\":11.955168119551683,\"ratio\":0.3023745988815214,\"indent\":0,\"width\":358.65504358655056},{\"flagged\":false,\"height\":9.47473555222603,\"depth\":2.324592777085928,\"naturalHeight\":9.47473555222603,\"naturalDepth\":2.324592777085928,\"baseline\":23.910336239103366,\"ratio\":0.30237459888151763,\"indent\":0,\"width\":358.65504358655045},{\"flagged\":false,\"height\":9.47473555222603,\"depth\":2.324592777085928,\"naturalHeight\":9.47473555222603,\"naturalDepth\":2.324592777085928,\"baseline\":35.865504358655045,\"ratio\":0.3023745988815546,\"indent\":0,\"width\":358.6550435865511},{\"flagged\":false,\"height\":9.47473555222603,\"depth\":2.324592777085928,\"naturalHeight\":9.47473555222603,\"naturalDepth\":2.324592777085928,\"baseline\":47.82067247820673,\"ratio\":0,\"indent\":0,\"width\":353.8351614733325}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_14():
+    q:m.paragraph([6.91849838009807],[1.9371783302848693],[105.6884157553705],[0],[11.955168119551683],[false],1,105.6884157553705,6.91849838009807,1.9371783302848693)
+    expected:m.legacy("{\"width\":105.6884157553705,\"height\":6.91849838009807,\"depth\":1.9371783302848693,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":1.9371783302848693,\"naturalHeight\":6.91849838009807,\"naturalDepth\":1.9371783302848693,\"baseline\":0,\"ratio\":0,\"indent\":11.955168119551683,\"width\":105.6884157553705}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_15():
+    q:m.paragraph([6.91849838009807],[1.9371783302848693],[144.69566487731555],[0],[11.955168119551683],[false],1,144.69566487731555,6.91849838009807,1.9371783302848693)
+    expected:m.legacy("{\"width\":144.69566487731555,\"height\":6.91849838009807,\"depth\":1.9371783302848693,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":1.9371783302848693,\"naturalHeight\":6.91849838009807,\"naturalDepth\":1.9371783302848693,\"baseline\":0,\"ratio\":0,\"indent\":11.955168119551683,\"width\":144.69566487731555}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_16():
+    q:m.paragraph([6.91849838009807],[2.324592777085928],[208.5546974918275],[0],[11.955168119551683],[false],1,208.5546974918275,6.91849838009807,2.324592777085928)
+    expected:m.legacy("{\"width\":208.5546974918275,\"height\":6.91849838009807,\"depth\":2.324592777085928,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":2.324592777085928,\"naturalHeight\":6.91849838009807,\"naturalDepth\":2.324592777085928,\"baseline\":0,\"ratio\":0,\"indent\":11.955168119551683,\"width\":208.5546974918275}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_17():
+    q:m.paragraph([0],[0],[0],[0],[11.955168119551683],[false],1,0,0,0)
+    expected:m.legacy("{\"width\":0,\"height\":0,\"depth\":0,\"lines\":[{\"flagged\":false,\"height\":0,\"depth\":0,\"naturalHeight\":0,\"naturalDepth\":0,\"baseline\":0,\"ratio\":0,\"indent\":11.955168119551683,\"width\":0}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_18():
+    q:m.paragraph([6.80778379903487,8.138704708417652],[0,4.122632170376712],[24.297814470150996,105.46400059347758],[0,11.955168119551683],[11.955168119551683,0],[false,false],2,105.46400059347758,6.80778379903487,16.077800289928394)
+    expected:m.legacy("{\"width\":105.46400059347758,\"height\":6.80778379903487,\"depth\":16.077800289928394,\"lines\":[{\"flagged\":false,\"height\":6.80778379903487,\"depth\":0,\"naturalHeight\":6.80778379903487,\"naturalDepth\":0,\"baseline\":0,\"ratio\":0,\"indent\":11.955168119551683,\"width\":24.297814470150996},{\"flagged\":false,\"height\":8.138704708417652,\"depth\":4.122632170376712,\"naturalHeight\":8.138704708417652,\"naturalDepth\":4.122632170376712,\"baseline\":11.955168119551683,\"ratio\":0,\"indent\":0,\"width\":105.46400059347758}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_19():
+    q:m.paragraph([6.91849838009807],[1.9371783302848693],[166.51477552440068],[0],[11.955168119551683],[false],1,166.51477552440068,6.91849838009807,1.9371783302848693)
+    expected:m.legacy("{\"width\":166.51477552440068,\"height\":6.91849838009807,\"depth\":1.9371783302848693,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":1.9371783302848693,\"naturalHeight\":6.91849838009807,\"naturalDepth\":1.9371783302848693,\"baseline\":0,\"ratio\":0,\"indent\":11.955168119551683,\"width\":166.51477552440068}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_20():
+    q:m.paragraph([6.91849838009807],[0],[78.4559428023817],[0],[11.955168119551683],[false],1,78.4559428023817,6.91849838009807,0)
+    expected:m.legacy("{\"width\":78.4559428023817,\"height\":6.91849838009807,\"depth\":0,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":0,\"naturalHeight\":6.91849838009807,\"naturalDepth\":0,\"baseline\":0,\"ratio\":0,\"indent\":11.955168119551683,\"width\":78.4559428023817}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_21():
+    q:m.paragraph([6.91849838009807,6.91849838009807,6.91849838009807],[0,0,0],[346.69987546699883,358.6550435865502,70.62422774945517],[0,11.955168119551683,23.910336239103366],[11.955168119551683,0,0],[false,false,false],3,358.6550435865502,6.91849838009807,23.910336239103366)
+    expected:m.legacy("{\"width\":358.6550435865502,\"height\":6.91849838009807,\"depth\":23.910336239103366,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":0,\"naturalHeight\":6.91849838009807,\"naturalDepth\":0,\"baseline\":0,\"ratio\":-0.011772501304621853,\"indent\":11.955168119551683,\"width\":346.69987546699883},{\"flagged\":false,\"height\":6.91849838009807,\"depth\":0,\"naturalHeight\":6.91849838009807,\"naturalDepth\":0,\"baseline\":11.955168119551683,\"ratio\":-0.16780842215127872,\"indent\":0,\"width\":358.6550435865502},{\"flagged\":false,\"height\":6.91849838009807,\"depth\":0,\"naturalHeight\":6.91849838009807,\"naturalDepth\":0,\"baseline\":23.910336239103366,\"ratio\":0,\"indent\":0,\"width\":70.62422774945517}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_22():
+    q:m.paragraph([0],[0],[0],[0],[11.955168119551683],[false],1,0,0,0)
+    expected:m.legacy("{\"width\":0,\"height\":0,\"depth\":0,\"lines\":[{\"flagged\":false,\"height\":0,\"depth\":0,\"naturalHeight\":0,\"naturalDepth\":0,\"baseline\":0,\"ratio\":0,\"indent\":11.955168119551683,\"width\":0}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_23():
+    q:m.paragraph([6.91849838009807],[0],[71.15001179658313],[0],[11.955168119551683],[false],1,71.15001179658313,6.91849838009807,0)
+    expected:m.legacy("{\"width\":71.15001179658313,\"height\":6.91849838009807,\"depth\":0,\"lines\":[{\"flagged\":false,\"height\":6.91849838009807,\"depth\":0,\"naturalHeight\":6.91849838009807,\"naturalDepth\":0,\"baseline\":0,\"ratio\":0,\"indent\":11.955168119551683,\"width\":71.15001179658313}],\"items\":[]}")
+    equal(q,expected)?!
+
+fresh_reference_0()
+fresh_reference_1()
+fresh_reference_2()
+fresh_reference_3()
+fresh_reference_4()
+fresh_reference_5()
+fresh_reference_6()
+fresh_reference_7()
+fresh_reference_8()
+fresh_reference_9()
+fresh_reference_10()
+fresh_reference_11()
+fresh_reference_12()
+fresh_reference_13()
+fresh_reference_14()
+fresh_reference_15()
+fresh_reference_16()
+fresh_reference_17()
+fresh_reference_18()
+fresh_reference_19()
+fresh_reference_20()
+fresh_reference_21()
+fresh_reference_22()
+fresh_reference_23()
+::true

@@ -46,3 +46,9 @@ paragraph parsing; short default ASCII URLs use native monospace glyphs and the
 OT1 tilde offset. Custom styles, whitespace/non-ASCII normalization and URL line
 breaking remain unsupported with diagnostics. Package recognition alone is not
 an accuracy result; the complete-paper corpus still fails.
+
+`hyperref` now retains document link targets for vector PDF export: URI links,
+references/page references, citations, named targets and footnotes. It supports
+basic border/colour settings and invisible links. PDF outlines/bookmarks and the
+complete hyperref option/driver surface remain unsupported. No TeX engine runs
+when parsing, laying out or exporting these links.

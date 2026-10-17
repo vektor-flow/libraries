@@ -1,0 +1,26 @@
+m:.math_metadata
+text:.tex_text
+
+renderer_tests()->bit:
+    original:m.empty()
+    first:m.intern(original,"a")
+    saved:first.pool
+    collision:m.intern(saved,"á")
+    pool:collision.pool
+    (first.id=0 /\ collision.id=1 /\ original.count=0 /\ saved.count=1)?! "metadata IDs preserve immutable snapshots"
+    repeated:m.intern(pool,"a")
+    (repeated.id=0 /\ repeated.pool.count=2)?! "hash collision retains both distinct values"
+    i:0
+    i<260?>
+        entry:m.intern(pool,"record/"&text.integer(i))
+        (entry.id=i+2)?! "new metadata IDs are stable"
+        .pool:entry.pool
+        .i:i+1
+    old:m.intern(pool,"á")
+    last:m.intern(pool,"record/259")
+    (pool.count=262 /\ old.id=1 /\ last.id=261)?! "rehashing retains IDs and equality"
+    (m.find(pool,"á")=1 /\ m.find(pool,"record/259")=261 /\ m.find(pool,"absent")= -1)?! "Read-only IDs preserve collision and miss semantics"
+    fresh:m.empty()
+    (fresh.count=0)?! "every request starts with an empty dictionary"
+    @:true
+renderer_tests()

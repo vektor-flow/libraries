@@ -1,0 +1,96 @@
+math_layout:.math_layout
+math_parser:.math_parser
+math_packages:.math_packages
+font_catalog:.font_catalog
+resource_json:.resource_json
+tex_text:.tex_text
+math_draw:.math_draw
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+flag(tape:Tape,key:str)->bit:
+    node:resource_json.member(tape,0,key)
+    node<0? @:false
+    kinds:tape.kinds
+    @:kinds.(node)=5
+number(tape:Tape,key:str,fallback:num)->num:
+    node:resource_json.member(tape,0,key)
+    node<0? @:fallback
+    @:resource_json.number(tape,node)
+text(tape:Tape,key:str)->str:
+    node:resource_json.member(tape,0,key)
+    node<0? @:""
+    @:resource_json.string(tape,node)
+raw(tape:Tape,node:int)->str:
+    node<0? @:""
+    starts:tape.starts
+    stops:tape.stops
+    @:tex_text.span(tape.source,starts.(node),stops.(node))
+display_metrics_json(font_source:str,request:str)->str:
+    fonts:font_catalog.load(font_source)
+    options:resource_json.parse(request)
+    source:text(options,"source")
+    metrics:raw(options,resource_json.member(options,0,"mathMetrics"))
+    context:math_packages.defaults()
+    arena:math_parser.parse_with_context(source,fonts,context,true)
+    scene:math_layout.layout(arena,fonts,flag(options,"inline"),true,flag(options,"displayEnvironment"),int(number(options,"equationStart",1)),false,"",metrics,number(options,"displayWidth", -1),flag(options,"legacyEquationAnchor"))
+    @:math_layout.json(scene)
+
+# Compare the independent reference projection inside VKF. All item metadata
+# and nested array lengths are asserted; extra root telemetry is excluded.
+assert_projection(expected:str,actual:str)->bit:
+    left:resource_json.parse(expected)
+    right:resource_json.parse(actual)
+    (left.valid /\ right.valid)?! "Valid independent display metric JSON"
+    expectedNodes:math_draw.ints(left.count+1)
+    actualNodes:math_draw.ints(left.count+1)
+    expectedNodes.(0):0
+    actualNodes.(0):0
+    leftKinds:left.kinds
+    rightKinds:right.kinds
+    leftEnds:left.ends
+    rightEnds:right.ends
+    top:0
+    top>=0?>
+        a:expectedNodes.(top)
+        b:actualNodes.(top)
+        .top:top-1
+        (b>=0 /\ leftKinds.(a)=rightKinds.(b))?! "Display metric JSON value kind"
+        kind:leftKinds.(a)
+        kind=1?
+            a~=0?
+                ac:a+1
+                bc:b+1
+                leftCount:0
+                rightCount:0
+                ac<leftEnds.(a)?>
+                    .leftCount:leftCount+1
+                    .ac:leftEnds.(ac+1)
+                bc<rightEnds.(b)?>
+                    .rightCount:rightCount+1
+                    .bc:rightEnds.(bc+1)
+                leftCount=rightCount?! "Display metric exact object metadata"
+            cursor:a+1
+            cursor<leftEnds.(a)?>
+                key:resource_json.string(left,cursor)
+                value:cursor+1
+                actualValue:resource_json.member(right,b,key)
+                actualValue>=0?! "Display metric retains reference property"
+                .top:top+1
+                expectedNodes.(top):value
+                actualNodes.(top):actualValue
+                .cursor:leftEnds.(value)
+        kind=2?
+            ac:a+1
+            bc:b+1
+            ac<leftEnds.(a)?>
+                bc<rightEnds.(b)?! "Display metric array source length"
+                .top:top+1
+                expectedNodes.(top):ac
+                actualNodes.(top):bc
+                .ac:leftEnds.(ac)
+                .bc:rightEnds.(bc)
+            bc=rightEnds.(b)?! "Display metric array exact length"
+        kind=3? (resource_json.string(left,a)=resource_json.string(right,b))?! "Display metric JSON string"
+        kind=4? (|resource_json.number(left,a)-resource_json.number(right,b)|<=0.000000001)?! "Display metric exact numeric geometry"
+    @:true
+display_metrics_check(font_source:str,request:str,expected:str)->bit:
+    @:assert_projection(expected,display_metrics_json(font_source,request))

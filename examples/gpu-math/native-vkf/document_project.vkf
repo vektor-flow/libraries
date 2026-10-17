@@ -1,0 +1,188 @@
+# The core resolves supplied project data; filesystem access belongs to the
+# native host. Apparent inputs in comments, URLs and verbatim stay literal.
+text:.tex_text
+groups:.tex_groups
+literals:.tex_source
+paths:.project_paths
+j:.resource_json
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+State:(source:str,input_names:str,input_starts:[int],input_stops:[int],input_count:int,seen:[int],diagnostics:str,diagnostic_count:int,total:int)
+
+append(state:State,value:str)->State:
+    out:state
+    out.source:state.source&value
+    @:out
+
+diagnostic(state:State,message:str)->State:
+    out:state
+    out.diagnostics:state.diagnostics&message&"\n"
+    out.diagnostic_count:state.diagnostic_count+1
+    @:out
+
+remember(state:State,node:int,path:str)->State:
+    state.seen.(node)>0? @:state
+    out:state
+    seen:state.seen
+    starts:state.input_starts
+    stops:state.input_stops
+    seen.(node):1
+    starts.(state.input_count):text.byte_length(state.input_names)
+    out.input_names:state.input_names&path
+    stops.(state.input_count):text.byte_length(out.input_names)
+    out.input_count:state.input_count+1
+    out.seen:seen
+    out.input_starts:starts
+    out.input_stops:stops
+    @:out
+
+input_name(state:State,index:int)->str:
+    (index>=0 /\ index<state.input_count)?! "Project input index"
+    @:text.span(state.input_names,state.input_starts.(index),state.input_stops.(index))
+
+contains_package(packages:str,name:str)->bit:
+    position:0
+    size:text.byte_length(packages)
+    position<size?>
+        comma:text.find(packages,",",position)
+        comma<0? .comma:size
+        text.trim(text.span(packages,position,comma))=name? @:true
+        .position:comma+1
+    @:false
+
+uses_biblatex(source:str)->bit:
+    position:0
+    size:text.byte_length(source)
+    position<size?>
+        c:text.at(source,position)
+        c="%"?
+            newline:text.find(source,"\n",position)
+            newline<0? @:false
+            .position:newline+1
+            @>
+        c~="\\"?
+            .position:text.next(source,position)
+            @>
+        command:groups.control(source,position)
+        .position:command.stop
+        literal:literals.literal_stop(source,command.name,position)
+        literal>position?
+            .position:literal
+            @>
+        (command.name="usepackage" \/ command.name="RequirePackage")?
+            options:groups.read(source,position,"[","]")
+            options.present /\ options.closed? .position:options.stop
+            packages:groups.read(source,position)
+            packages.present /\ packages.closed?
+                contains_package(packages.value,"biblatex")? @:true
+                .position:packages.stop
+    @:false
+
+filename(source:str,begin:int):
+    position:groups.skip_space(source,begin)
+    vkf_string_eof(source,position)? @:(value:"",stop:position,present:false,closed:false)
+    text.at(source,position)="{"? @:groups.read(source,position)
+    start:position
+    size:text.byte_length(source)
+    position<size /\ ~text.space(text.at(source,position))?> .position:text.next(source,position)
+    @:(value:text.span(source,start,position),stop:position,present:true,closed:true)
+
+file_text_node(files:Tape,node:int)->int:
+    node<0? @: -1
+    files.kinds.(node)=3? @:node
+    files.kinds.(node)~=1? @: -1
+    content:j.member(files,node,"text")
+    content<0? @: -1
+    files.kinds.(content)~=3? @: -1
+    @:content
+
+read_input(name:str,from:str,files:Tape,state:State,active:[int],depth:int,biblatex:bit,job:str,bibliography:bit)->State:
+    requested:paths.canonical(name,from)
+    ~requested.valid?
+        message:"Invalid project path: "&name
+        requested.error=2? .message:"Project path escapes root: "&name
+        @:diagnostic(state,message)
+    path:requested.value
+    node:j.member(files,0,path)
+    node<0 /\ ~bibliography /\ ~paths.has_extension(path)?
+        .path:path&".tex"
+        .node:j.member(files,0,path)
+    content:file_text_node(files,node)
+    content<0? @:diagnostic(state,"Missing project input: "&path)
+    index:0
+    index<depth?>
+        active.(index)=node? @:diagnostic(state,"Cyclic project input: "&path)
+        .index:index+1
+    (depth<32)?! "Project input nesting limit: 32"
+    value:j.string(files,content)
+    out:remember(state,node,path)
+    out.total:state.total+text.byte_length(value)
+    (out.total<=1000000)?! "Document project limit: 1000000 UTF-8 bytes"
+    stack:active
+    stack.(depth):node
+    .out:append(out,"\n")
+    .out:expand(value,path,files,out,stack,depth+1,biblatex,job)
+    @:append(out,"\n")
+
+expand(source:str,from:str,files:Tape,state:State,active:[int],depth:int,biblatex:bit,job:str)->State:
+    position:0
+    copied:0
+    size:text.byte_length(source)
+    out:state
+    position<size?>
+        c:text.at(source,position)
+        c="%"?
+            newline:text.find(source,"\n",position)
+            newline<0? @:append(out,text.span(source,copied,size))
+            .position:newline+1
+            @>
+        c~="\\"?
+            .position:text.next(source,position)
+            @>
+        command:groups.control(source,position)
+        begin:position
+        .position:command.stop
+        literal:literals.literal_stop(source,command.name,position)
+        literal>position?
+            .position:literal
+            @>
+        name:command.name
+        (name~="input" /\ name~="include" /\ name~="bibliography" /\ name~="bibliographystyle")? @>
+        argument:filename(source,position)
+        (~argument.present \/ ~argument.closed)? @>
+        .out:append(out,text.span(source,copied,begin))
+        .position:argument.stop
+        .copied:position
+        name="bibliographystyle"? @>
+        name="bibliography" /\ biblatex?
+            .out:append(out,text.span(source,begin,position))
+            @>
+        input:argument.value
+        origin:from
+        name="bibliography"?
+            .input:job&".bbl"
+            .origin:""
+        before:text.byte_length(out.source)
+        .out:read_input(input,origin,files,out,active,depth,biblatex,job,name="bibliography")
+        # Successful reads always add surrounding newlines, even empty files.
+        # Descendant errors are already preserved inside their expanded parent.
+        text.byte_length(out.source)=before? .out:append(out,text.span(source,begin,position))
+    @:append(out,text.span(source,copied,size))
+
+resolve(source:str,files_source:str="{}",job:str="document",entry:str="")->State:
+    files:j.parse(files_source)
+    (files.valid /\ files.kinds.(0)=1)?! "Project file object required"
+    size:text.byte_length(source)
+    (size<=1000000)?! "Document project limit: 1000000 UTF-8 bytes"
+    int capacity:files.count+1
+    [int] starts:[0:capacity]
+    [int] stops:[0:capacity]
+    [int] seen:[0:capacity]
+    [int] active:[-1:32]
+    state:(source:"",input_names:"",input_starts:starts,input_stops:stops,input_count:0,seen:seen,diagnostics:"",diagnostic_count:0,total:size)
+    from:paths.canonical(entry)
+    from.valid?! "Invalid project entry path"
+    depth:0
+    entry~=""?
+        active.(0):j.member(files,0,from.value)
+        .depth:1
+    @:expand(source,from.value,files,state,active,depth,uses_biblatex(source),job)

@@ -1,0 +1,13 @@
+citation_dump_io:.io
+citation_dump_numbers:.resource_numbers
+citation_dump_kernel:.document_citations_kernel
+run()->int:
+    count:int(citation_dump_numbers.parse(citation_dump_io.read_line()))
+    i:0
+    i<count?>
+        request:citation_dump_io.read_line()
+        path:citation_dump_io.read_line()
+        citation_dump_io.write_text(path,citation_dump_kernel.packet(request))
+        .i:i+1
+    @:0
+run()

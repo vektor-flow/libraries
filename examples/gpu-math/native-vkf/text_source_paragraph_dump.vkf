@@ -1,0 +1,32 @@
+io:.io
+numbers:.resource_numbers
+source_kernel:.text_source_paragraph_kernel
+run()->int:
+    fonts:io.read_text(io.read_line())
+    language:io.read_text(io.read_line())
+    ordered_roles:io.read_line()
+    optical:io.read_line()="true"
+    link_style:io.read_line()
+    hyperref:io.read_line()
+    bib_url:io.read_line()
+    role_context:"{\"roles\":"&ordered_roles&",\"documentLinks\":"&link_style&",\"hyperref\":"&hyperref&",\"bibUrl\":"&bib_url&"}"
+    count:int(numbers.parse(io.read_line()))
+    index:0
+    index<count?>
+        source:io.read_text(io.read_line())
+        role:io.read_line()
+        width:numbers.parse(io.read_line())
+        indent:numbers.parse(io.read_line())
+        justify:io.read_line()="true"
+        hyphens:io.read_line()="true"
+        tolerance:int(numbers.parse(io.read_line()))
+        emergency:numbers.parse(io.read_line())
+        preserve:io.read_line()="true"
+        sentence:io.read_line()="true"
+        french:io.read_line()="true"
+        scale:numbers.parse(io.read_line())
+        path:io.read_line()
+        io.write_text(path,source_kernel.paragraph_packet(fonts,language,source,role,role_context,optical,width,indent,justify,hyphens,tolerance,emergency,preserve,sentence,french,scale))
+        .index:index+1
+    @:0
+run()

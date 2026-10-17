@@ -1,0 +1,16 @@
+# Independent reference harness: parser and number conversion are VKF.
+# The Python reference compares every emitted number with Python 3.14 JSON.
+io:.io
+j:.resource_json
+
+run()->int:
+    path:io.read_line()
+    tape:j.parse(io.read_text(path))
+    tape.valid?! "Invalid font resource during independent audit"
+    ::tape.count
+    index:0
+    index<tape.count?>
+        tape.kinds.(index)=4? ::j.number(tape,index)
+        .index:index+1
+    @:0
+run()

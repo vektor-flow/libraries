@@ -1,0 +1,72 @@
+f:.font_catalog
+j:.resource_json
+text:.tex_text
+chunks:.text_chunks
+
+fixed(value:int)->str:
+    digits:text.integer(value)
+    padding:""
+    size:text.byte_length(digits)
+    size<12?>
+        .padding:padding&"0"
+        .size:size+1
+    @:padding&digits
+
+# Small independent producer for assertions only; production packaging is offline.
+fixture(keys:[str],values:[str],count:int)->str:
+    capacity:32
+    table:chunks.empty(capacity)
+    payload:""
+    index:0
+    index<count?>
+        key:keys.(index)
+        value:values.(index)
+        slot:f.hash(key)%capacity
+        table.(slot)~=""?> .slot:(slot+1)%capacity
+        table.(slot):fixed(68+capacity*36+text.byte_length(payload))&fixed(text.byte_length(key))&fixed(text.byte_length(value))
+        .payload:payload&key&value
+        .index:index+1
+    .index:0
+    index<capacity?>
+        table.(index)=""? table.(index):"000000000000000000000000000000000000"
+        .index:index+1
+    @:f.magic()&fixed(capacity)&fixed(count)&fixed(text.byte_length(payload))&chunks.join(table,0,capacity)&payload
+
+collisions_and_unicode():
+    # These scalars occupy the same initial bucket, at capacity32.
+    (f.hash("a")%32=f.hash("á")%32)?! "fixture collides"
+    catalog:f.load(fixture(["a","á","🙂"],["1","{\"width\":5.125}","\"漢字\""],3))
+    (catalog.count=3 /\ catalog.capacity=32)?! "catalog header"
+    (f.raw(catalog,"a")="1")?! "first collision member"
+    glyph:f.record(catalog,"á")
+    (j.number(glyph,j.member(glyph,0,"width"))=5.125)?! "collision lookup preserves metric"
+    emoji:f.record(catalog,"🙂")
+    (j.string(emoji,0)="漢字")?! "Unicode keys and values use UTF-8 offsets"
+    (f.raw(catalog,"missing")="" /\ ~f.find(catalog,"missing").found)?! "missing key"
+
+generic_font_records():
+    keys:["math/text/a","style/text","font/roman","text/roman/65","tile/text/a","vector/text/a","vector/text/alias","path/outline"]
+    values:["{\"width\":5.125,\"kerns\":{\"127\":0.5},\"glyphParts\":[{\"x\":-0.125}]}","{\"em\":10}","{\"name\":\"cmr10\"}","{\"advance\":7.5}","{\"plane\":[0,-4,5,0]}","\"outline\"","\"outline\"","{\"offset\":3,\"length\":20,\"bounds\":[0,-4.3,5.25,0]}"]
+    catalog:f.load(fixture(keys,values,8))
+    math:f.math_symbol(catalog,"text","a")
+    (j.number(math,j.member(math,0,"width"))=5.125)?! "math lookup"
+    kerns:j.member(math,0,"kerns")
+    (j.number(math,j.member(math,kerns,"127"))=0.5)?! "complete optional metrics"
+    style:f.style(catalog,"text")
+    (j.number(style,j.member(style,0,"em"))=10)?! "style constants"
+    font:f.text_font(catalog,"roman")
+    (j.string(font,j.member(font,0,"name"))="cmr10")?! "face metadata"
+    symbol:f.text_symbol(catalog,"roman",65)
+    (j.number(symbol,j.member(symbol,0,"advance"))=7.5)?! "encoded text glyph"
+    tile:f.tile(catalog,"text/a")
+    (j.member(tile,0,"plane")>=0)?! "GPU plane data retained"
+    operators:"pad0 0 m 5 0 l 2 -4 l htail"
+    form:f.vector_form(catalog,operators,"text/a")
+    (form=f.vector_form(catalog,operators,"text/alias"))?! "outline sharing"
+    (text.find(form,"/BBox [0 -4.3 5.25 0]")>=0 /\ text.find(form,"0 0 m 5 0 l 2 -4 l h\nf\nendstream")>=0)?! "exact outline and native bounds"
+
+renderer_tests()->bit:
+    collisions_and_unicode()
+    generic_font_records()
+    @:true
+renderer_tests()

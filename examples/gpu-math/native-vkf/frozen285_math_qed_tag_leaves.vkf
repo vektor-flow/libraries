@@ -1,0 +1,53 @@
+# Captured QED executions own fresh retained leaves. Apply outer tag metadata to
+# that private execution without changing other commands sharing old payloads.
+math_command_pages:.frozen285_math_command_pages
+math_metadata:.frozen285_math_metadata
+math_draw:.frozen285_math_draw
+resource_json:.frozen285_resource_json
+json_numbers:.frozen285_json_numbers
+tex_text:.frozen285_tex_text
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Buffer:(heads:[[int]],tails:[[int]],boxes:int,nexts:[[int]],children:[[int]],pool:Pool,payload_ids:[[int]],xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int)
+annotate(payload:str,width:num)->str:
+    tape:resource_json.parse("{"&payload&"}")
+    starts:tape.starts
+    stops:tape.stops
+    ends:tape.ends
+    cursor:1
+    out:""
+    cursor<tape.count?>
+        key:resource_json.string(tape,cursor)
+        value:cursor+1
+        (key~="equationTag" /\ key~="tagWidth")?
+            out~=""? .out:out&","
+            .out:out&tex_text.span(tape.source,starts.(cursor),stops.(value))
+        .cursor:ends.(value)
+    out~=""? .out:out&","
+    @:out&"\"equationTag\":true,\"tagWidth\":"&json_numbers.roundtrip(width)
+mark_owner(buffer:Buffer,root:int,width:num)->Buffer:
+    stack:math_draw.ints(buffer.count+1)
+    stack.(0):math_command_pages.integer(buffer.heads,root)
+    ids:buffer.payload_ids
+    pool:buffer.pool
+    top:0
+    top>=0?>
+        command:stack.(top)
+        command<0?
+            .top:top-1
+            @>
+        stack.(top):math_command_pages.integer(buffer.nexts,command)
+        child:math_command_pages.integer(buffer.children,command)
+        child>=0?
+            .top:top+1
+            stack.(top):math_command_pages.integer(buffer.heads,child)
+            @>
+        id:math_command_pages.integer(ids,command)
+        id>=0?
+            values:pool.values
+            changed:math_metadata.intern(pool,annotate(values.(id),width))
+            .pool:changed.pool
+            ids.(command//math_command_pages.width(),command%math_command_pages.width()):changed.id
+    out:buffer
+    out.pool:pool
+    out.payload_ids:ids
+    @:out

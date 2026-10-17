@@ -1,0 +1,5 @@
+numbers:.json_numbers
+json_number(value:num):
+    @:numbers.roundtrip(value)
+noop()->int:0
+noop()

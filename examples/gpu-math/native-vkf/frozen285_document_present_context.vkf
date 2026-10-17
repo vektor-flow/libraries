@@ -1,0 +1,139 @@
+# Scoped production document context. Snapshots are per-request source state.
+document_materialize_config:.frozen285_document_materialize_config
+tex_text:.frozen285_tex_text
+resource_json:.frozen285_resource_json
+json_numbers:.frozen285_json_numbers
+tex_numeric:.frozen285_tex_numeric
+text_chunks:.frozen285_text_chunks
+Context:(font:str,kind:str,align:str,label:str,prefix:str,run_in_prefix:str,destination:str,left:num,right:num,indent:num,before:num,before_shrink:num,before_stretch:num,leading:num,paragraph_skip:num,paragraph_shrink:num,paragraph_stretch:num,description_margin:num,proof_top:num,emergency:num,label_sep:num,tolerance:int,sentence:bit,no_indent_after_list:bit,paragraph_after_display:bit,after_display:bit,center_awaiting:bit,explicit_noindent:bit,space_after_float:bit,list_end_display:bit,list_top:num,list_top_shrink:num,list_top_stretch:num,list_parsep:num,list_parsep_shrink:num,list_parsep_stretch:num,link_appearance:str,next_link_appearance:str,pending_outer_labels:str)
+empty(indent:num,leading:num,ams:bit=false)->Context:
+    stretch:tex_numeric.pt()
+    ams? .stretch:0
+    @:(font:"roman",kind:"",align:"",label:"",prefix:"",run_in_prefix:"",destination:"",left:0,right:0,indent:indent,before:0,before_shrink:0,before_stretch:0,leading:leading,paragraph_skip:0,paragraph_shrink:0,paragraph_stretch:stretch,description_margin:0,proof_top:0,emergency:0,label_sep:5*tex_numeric.pt(),tolerance:200,sentence:true,no_indent_after_list:false,paragraph_after_display:false,after_display:false,center_awaiting:false,explicit_noindent:false,space_after_float:false,list_end_display:false,list_top:0,list_top_shrink:0,list_top_stretch:0,list_parsep:0,list_parsep_shrink:0,list_parsep_stretch:0,link_appearance:"",next_link_appearance:"",pending_outer_labels:"[]")
+clone(input:Context)->Context:
+    @:(font:input.font,kind:input.kind,align:input.align,label:input.label,prefix:input.prefix,run_in_prefix:input.run_in_prefix,destination:input.destination,left:input.left,right:input.right,indent:input.indent,before:input.before,before_shrink:input.before_shrink,before_stretch:input.before_stretch,leading:input.leading,paragraph_skip:input.paragraph_skip,paragraph_shrink:input.paragraph_shrink,paragraph_stretch:input.paragraph_stretch,description_margin:input.description_margin,proof_top:input.proof_top,emergency:input.emergency,label_sep:input.label_sep,tolerance:input.tolerance,sentence:input.sentence,no_indent_after_list:input.no_indent_after_list,paragraph_after_display:input.paragraph_after_display,after_display:input.after_display,center_awaiting:input.center_awaiting,explicit_noindent:input.explicit_noindent,space_after_float:input.space_after_float,list_end_display:input.list_end_display,list_top:input.list_top,list_top_shrink:input.list_top_shrink,list_top_stretch:input.list_top_stretch,list_parsep:input.list_parsep,list_parsep_shrink:input.list_parsep_shrink,list_parsep_stretch:input.list_parsep_stretch,link_appearance:input.link_appearance,next_link_appearance:input.next_link_appearance,pending_outer_labels:input.pending_outer_labels)
+json(context:Context)->str:
+    parts:text_chunks.empty(39)
+    parts.(0):""&resource_json.quote("font")&":"&resource_json.quote(context.font)
+    parts.(1):","&resource_json.quote("kind")&":"&resource_json.quote(context.kind)
+    parts.(2):","&resource_json.quote("align")&":"&resource_json.quote(context.align)
+    parts.(3):","&resource_json.quote("label")&":"&resource_json.quote(context.label)
+    parts.(4):","&resource_json.quote("prefix")&":"&resource_json.quote(context.prefix)
+    parts.(5):","&resource_json.quote("runInPrefix")&":"&resource_json.quote(context.run_in_prefix)
+    parts.(6):","&resource_json.quote("destination")&":"&resource_json.quote(context.destination)
+    parts.(7):","&resource_json.quote("left")&":"&json_numbers.roundtrip(context.left)
+    parts.(8):","&resource_json.quote("right")&":"&json_numbers.roundtrip(context.right)
+    parts.(9):","&resource_json.quote("indent")&":"&json_numbers.roundtrip(context.indent)
+    parts.(10):","&resource_json.quote("before")&":"&json_numbers.roundtrip(context.before)
+    parts.(11):","&resource_json.quote("beforeShrink")&":"&json_numbers.roundtrip(context.before_shrink)
+    parts.(12):","&resource_json.quote("beforeStretch")&":"&json_numbers.roundtrip(context.before_stretch)
+    parts.(13):","&resource_json.quote("lineHeight")&":"&json_numbers.roundtrip(context.leading)
+    parts.(14):","&resource_json.quote("paragraphSkip")&":"&json_numbers.roundtrip(context.paragraph_skip)
+    parts.(15):","&resource_json.quote("paragraphShrink")&":"&json_numbers.roundtrip(context.paragraph_shrink)
+    parts.(16):","&resource_json.quote("paragraphStretch")&":"&json_numbers.roundtrip(context.paragraph_stretch)
+    parts.(17):","&resource_json.quote("descriptionMargin")&":"&json_numbers.roundtrip(context.description_margin)
+    parts.(18):","&resource_json.quote("proofTopSep")&":"&json_numbers.roundtrip(context.proof_top)
+    parts.(19):","&resource_json.quote("emergencyStretch")&":"&json_numbers.roundtrip(context.emergency)
+    parts.(20):","&resource_json.quote("labelSep")&":"&json_numbers.roundtrip(context.label_sep)
+    parts.(21):","&resource_json.quote("tolerance")&":"&json_numbers.roundtrip(context.tolerance)
+    sentence:"false"
+    context.sentence? .sentence:"true"
+    parts.(22):","&resource_json.quote("sentenceSpacing")&":"&sentence
+    no_indent_after_list:"false"
+    context.no_indent_after_list? .no_indent_after_list:"true"
+    parts.(23):","&resource_json.quote("noIndentAfterList")&":"&no_indent_after_list
+    paragraph_after_display:"false"
+    context.paragraph_after_display? .paragraph_after_display:"true"
+    parts.(24):","&resource_json.quote("paragraphAfterDisplay")&":"&paragraph_after_display
+    after_display:"false"
+    context.after_display? .after_display:"true"
+    parts.(25):","&resource_json.quote("afterDisplay")&":"&after_display
+    center_awaiting:"false"
+    context.center_awaiting? .center_awaiting:"true"
+    parts.(26):","&resource_json.quote("centerAwaiting")&":"&center_awaiting
+    explicit_noindent:"false"
+    context.explicit_noindent? .explicit_noindent:"true"
+    parts.(27):","&resource_json.quote("explicitNoIndent")&":"&explicit_noindent
+    space_after_float:"false"
+    context.space_after_float? .space_after_float:"true"
+    parts.(28):","&resource_json.quote("spaceAfterFloat")&":"&space_after_float
+    list_end_display:"false"
+    context.list_end_display? .list_end_display:"true"
+    parts.(29):","&resource_json.quote("listEndAfterDisplay")&":"&list_end_display
+    parts.(30):","&resource_json.quote("listTop")&":"&json_numbers.roundtrip(context.list_top)
+    parts.(31):","&resource_json.quote("listTopShrink")&":"&json_numbers.roundtrip(context.list_top_shrink)
+    parts.(32):","&resource_json.quote("listTopStretch")&":"&json_numbers.roundtrip(context.list_top_stretch)
+    parts.(33):","&resource_json.quote("listParsep")&":"&json_numbers.roundtrip(context.list_parsep)
+    parts.(34):","&resource_json.quote("listParsepShrink")&":"&json_numbers.roundtrip(context.list_parsep_shrink)
+    parts.(35):","&resource_json.quote("listParsepStretch")&":"&json_numbers.roundtrip(context.list_parsep_stretch)
+    context.link_appearance~=""? parts.(36):",\"linkAppearance\":"&context.link_appearance
+    context.next_link_appearance~=""? parts.(37):",\"nextLinkAppearance\":"&context.next_link_appearance
+    parts.(38):",\"pendingOuterLabels\":"&context.pending_outer_labels
+    @:"{"&text_chunks.join(parts,0,39)&"}"
+parse(source:str)->Context:
+    tape:resource_json.parse(source)
+    kinds:tape.kinds
+    font:document_materialize_config.string(tape,0,"font")
+    kind:document_materialize_config.string(tape,0,"kind")
+    align:document_materialize_config.string(tape,0,"align")
+    label:document_materialize_config.string(tape,0,"label")
+    prefix:document_materialize_config.string(tape,0,"prefix")
+    run_in_prefix:document_materialize_config.string(tape,0,"runInPrefix")
+    destination:document_materialize_config.string(tape,0,"destination")
+    left:document_materialize_config.number(tape,0,"left")
+    right:document_materialize_config.number(tape,0,"right")
+    indent:document_materialize_config.number(tape,0,"indent")
+    before:document_materialize_config.number(tape,0,"before")
+    before_shrink:document_materialize_config.number(tape,0,"beforeShrink")
+    before_stretch:document_materialize_config.number(tape,0,"beforeStretch")
+    leading:document_materialize_config.number(tape,0,"lineHeight")
+    paragraph_skip:document_materialize_config.number(tape,0,"paragraphSkip")
+    paragraph_shrink:document_materialize_config.number(tape,0,"paragraphShrink")
+    paragraph_stretch:document_materialize_config.number(tape,0,"paragraphStretch")
+    description_margin:document_materialize_config.number(tape,0,"descriptionMargin")
+    proof_top:document_materialize_config.number(tape,0,"proofTopSep")
+    emergency:document_materialize_config.number(tape,0,"emergencyStretch")
+    label_sep:document_materialize_config.number(tape,0,"labelSep")
+    tolerance:int(document_materialize_config.number(tape,0,"tolerance"))
+    sentence:kinds.(resource_json.member(tape,0,"sentenceSpacing"))=5
+    no_indent_after_list:kinds.(resource_json.member(tape,0,"noIndentAfterList"))=5
+    paragraph_after_display:kinds.(resource_json.member(tape,0,"paragraphAfterDisplay"))=5
+    after_display:kinds.(resource_json.member(tape,0,"afterDisplay"))=5
+    center_awaiting:kinds.(resource_json.member(tape,0,"centerAwaiting"))=5
+    explicit_noindent:kinds.(resource_json.member(tape,0,"explicitNoIndent"))=5
+    space_after_float:kinds.(resource_json.member(tape,0,"spaceAfterFloat"))=5
+    list_end_display:kinds.(resource_json.member(tape,0,"listEndAfterDisplay"))=5
+    list_top:document_materialize_config.number(tape,0,"listTop")
+    list_top_shrink:document_materialize_config.number(tape,0,"listTopShrink")
+    list_top_stretch:document_materialize_config.number(tape,0,"listTopStretch")
+    list_parsep:document_materialize_config.number(tape,0,"listParsep")
+    list_parsep_shrink:document_materialize_config.number(tape,0,"listParsepShrink")
+    list_parsep_stretch:document_materialize_config.number(tape,0,"listParsepStretch")
+    link_appearance:""
+    next_link_appearance:""
+    link_member:resource_json.member(tape,0,"linkAppearance")
+    link_member>=0? .link_appearance:document_materialize_config.raw(tape,link_member)
+    next_link_member:resource_json.member(tape,0,"nextLinkAppearance")
+    next_link_member>=0? .next_link_appearance:document_materialize_config.raw(tape,next_link_member)
+    pending_outer_labels:document_materialize_config.raw_member(tape,0,"pendingOuterLabels","[]")
+    @:(font:font,kind:kind,align:align,label:label,prefix:prefix,run_in_prefix:run_in_prefix,destination:destination,left:left,right:right,indent:indent,before:before,before_shrink:before_shrink,before_stretch:before_stretch,leading:leading,paragraph_skip:paragraph_skip,paragraph_shrink:paragraph_shrink,paragraph_stretch:paragraph_stretch,description_margin:description_margin,proof_top:proof_top,emergency:emergency,label_sep:label_sep,tolerance:tolerance,sentence:sentence,no_indent_after_list:no_indent_after_list,paragraph_after_display:paragraph_after_display,after_display:after_display,center_awaiting:center_awaiting,explicit_noindent:explicit_noindent,space_after_float:space_after_float,list_end_display:list_end_display,list_top:list_top,list_top_shrink:list_top_shrink,list_top_stretch:list_top_stretch,list_parsep:list_parsep,list_parsep_shrink:list_parsep_shrink,list_parsep_stretch:list_parsep_stretch,link_appearance:link_appearance,next_link_appearance:next_link_appearance,pending_outer_labels:pending_outer_labels)
+
+# A block captures the old appearance plus pending setup; only after emitting
+# it does document-layout promote pending setup to the surrounding context.
+promote(input:Context)->Context:
+    input.next_link_appearance=""? @:input
+    output:clone(input)
+    output.link_appearance:input.next_link_appearance
+    output.next_link_appearance:""
+    @:output
+
+# A pending list marker belongs on the first child paragraph, not a blank line.
+with_outer_label(input:Context)->Context:
+    output:clone(input)
+    entry:"{\"source\":"&resource_json.quote(input.label)&",\"left\":"&json_numbers.roundtrip(input.left)&",\"font\":"&resource_json.quote(input.font)&"}"
+    prior:input.pending_outer_labels
+    prior="" \/ prior="[]"? output.pending_outer_labels:"["&entry&"]"
+    prior~="" /\ prior~="[]"?
+        output.pending_outer_labels:tex_text.span(prior,0,tex_text.byte_length(prior)-1)&","&entry&"]"
+    output.label:""
+    @:output

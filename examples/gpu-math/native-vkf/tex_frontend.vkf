@@ -1,0 +1,24 @@
+# Project resolution precedes comment stripping and macro expansion. The result
+# is the input to the math/document parsers; valid is only a front-end status.
+project:.document_project
+macros:.tex_macros
+theorems:.tex_theorems
+Frontend:(source:str,input_names:str,input_starts:[int],input_stops:[int],input_count:int,diagnostics:str,diagnostic_count:int,expansions:int,definition_count:int,declarations:str,declaration_count:int,valid:bit)
+
+prepare(source:str,files:str="{}",job:str="document",entry:str="")->Frontend:
+    resolved:project.resolve(source,files,job,entry)
+    expanded_source:resolved.source
+    expansions:0
+    definitions:0
+    declarations:"[]"
+    declaration_count:0
+    resolved.diagnostic_count=0?
+        expanded:macros.expand(resolved.source)
+        .expanded_source:expanded.source
+        .expansions:expanded.expansions
+        .definitions:expanded.definition_count
+        extracted:theorems.extract(expanded_source)
+        .expanded_source:extracted.source
+        .declarations:extracted.declarations
+        .declaration_count:extracted.count
+    @:(source:expanded_source,input_names:resolved.input_names,input_starts:resolved.input_starts,input_stops:resolved.input_stops,input_count:resolved.input_count,diagnostics:resolved.diagnostics,diagnostic_count:resolved.diagnostic_count,expansions:expansions,definition_count:definitions,declarations:declarations,declaration_count:declaration_count,valid:resolved.diagnostic_count=0)

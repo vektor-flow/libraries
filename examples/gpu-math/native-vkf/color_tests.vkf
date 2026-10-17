@@ -1,0 +1,33 @@
+c:.math_colors
+n:.color_numbers
+m:.math_parser
+fonts:.font_catalog
+fixtures:.test_font_data
+j:.resource_json
+text:.tex_text
+
+numeric_channels():
+    (n.parse("0.3").value=0.3 /\ n.parse("0.1").value=0.1)?! "decimal channels are rounded once"
+    (n.parse(" +.5e0 ",1).value=0.5 /\ n.parse("1.").value=1)?! "Number grammar"
+    (n.parse("0xFF").value=255 /\ n.parse("0b11").value=3 /\ n.parse("0o10").value=8)?! "unsigned radix prefixes"
+    (n.parse("-1e-10000",1).valid /\ n.parse("-1e-10000",1).value=0)?! "signed underflow zero"
+    (~n.parse("-0.1",1).valid /\ ~n.parse("1.1",1).valid /\ ~n.parse("+0x1",1).valid /\ ~n.parse("1e",1).valid)?! "invalid and out-of-range channels"
+    (n.parse("").value=0 /\ n.parse("  ").valid)?! "empty Number channel is zero"
+
+palette_and_scopes():
+    (c.parse("ReD")="[1,0,0,1]" /\ c.parse("blacK")="[0,0,0,1]")?! "palette case folding"
+    (c.parse("bad")="null" /\ c.parse("ff0000","HTML")="[1e0,0,0,1]")?! "HTML color model"
+    actual:j.parse(c.parse("0.3, .5, 1","rgb"))
+    (j.number(actual,j.element(actual,0,1))=0.5)?! "RGB components"
+    library:fonts.load(fixtures.math_catalog())
+    arena:m.parse("\\color{red}a+\\textcolor[HTML]{00ff00}{b_1}",library)
+    tree:m.json(arena)
+    (arena.diagnostics="" /\ text.find(tree,"\"type\":\"paint\"")>=0 /\ text.find(tree,"\"children\":[")>=0)?! "color declaration and scoped paint"
+    invalid:m.parse("\\textcolor[rgb]{2,0,0}{a}",library)
+    (text.find(invalid.diagnostics,"Unfinished or unsupported color")>=0 /\ text.find(m.json(invalid),"\"color\":null")>=0)?! "invalid source color is visible recovery"
+
+renderer_tests()->bit:
+    numeric_channels()
+    palette_and_scopes()
+    @:true
+renderer_tests()

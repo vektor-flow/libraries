@@ -1,0 +1,30 @@
+# Pure shared-core browser/WASM entry. Every call owns its document and assets;
+# this module performs no host I/O and uses no persistent output/layout cache.
+font_catalog:.font_catalog
+hyphenation:.hyphenation
+document_materialize:.document_materialize
+resource_json:.resource_json
+text_chunks:.text_chunks
+tex_text:.tex_text
+
+roles(raw:str)->[str]:
+    tape:resource_json.parse(raw)
+    values:text_chunks.empty(tape.count)
+    count:0
+    true?>
+        at:resource_json.element(tape,0,count)
+        at<0? @|
+        values.(count):resource_json.string(tape,at)
+        .count:count+1
+    [int] ids:[0:count]
+    @:ids >> values.($0)
+
+render_document(source:str,font_source:str,operators:str,language_source:str,roles_json:str,files_json:str="{}",job:str="main",entry:str="main.tex")->str:
+    selected_job:job
+    selected_entry:entry
+    selected_job=""? .selected_job:"main"
+    selected_entry=""? .selected_entry:"main.tex"
+    result:document_materialize.render(source,font_catalog.load(font_source),operators,roles(roles_json),hyphenation.load(language_source),files_json,selected_job,selected_entry,false)
+    complete:"false"
+    result.complete? .complete:"true"
+    @:"{\"complete\":"&complete&",\"diagnostics\":["&result.diagnostics&"],\"unresolved\":"&result.unresolved_json&",\"blockCount\":"&tex_text.integer(result.block_count)&",\"pageCount\":"&tex_text.integer(result.page_count)&",\"pdfBytes\":"&tex_text.integer(tex_text.byte_length(result.pdf))&",\"pdf\":"&resource_json.quote(result.pdf)&"}"

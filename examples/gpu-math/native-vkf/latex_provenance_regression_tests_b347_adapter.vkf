@@ -1,0 +1,54 @@
+# SOURCE ONLY: no compiled/native result claimed by A260.
+q:.text_paragraph
+parser:.text_parser
+ops:.text_parser_stream
+pages:.math_command_pages
+boxes:.text_inline_boxes
+nodes:.paragraph_nodes
+breaks:.paragraph_breaking
+hyph:.hyphenation
+asset:.hyphenation_test_asset
+fonts_import:.font_catalog
+font_data:.test_font_data
+scene:.document_scene
+merge:.document_scene_paragraph_linear
+flat:.document_scene_flat
+store:.paragraph_scene_store
+fonts():
+    keys:["font/roman","text/roman/65","text/roman/86"]
+    values:["{\"size\":10,\"spaces\":{\"space\":3,\"slant\":0}}","{\"key\":\"A\",\"advance\":7,\"height\":8,\"depth\":0}","{\"key\":\"V\",\"advance\":8,\"height\":9,\"depth\":1}"]
+    @:fonts_import.load(font_data.pack(keys,values))
+renderer_tests()->bit:
+    f:fonts()
+    context:parser.context("roman",["roman"])
+    language:hyph.load(asset.source())
+    options:breaks.options(100)
+    options.justify:false
+    options.hyphens:false
+    source:"AV"
+    parsed:parser.parse(source,f,context)
+    packet:q.position(source,parsed.stream,f,language,hyph.strings(0),options,nodes.text_options(),boxes.empty())
+    first:merge.from_paragraph_owned(packet,"owner-paragraph-A")
+    (first.arena.count=2 /\ first.arena.a260_operations.(0)=0 /\ first.arena.a260_operations.(1)=0)?! "one parser word has two mapped glyph emissions"
+    (first.arena.a260_starts.(0)=0 /\ first.arena.a260_stops.(0)=2 /\ first.arena.a260_parts.(0)=0 /\ first.arena.a260_parts.(1)=1)?! "actual parser spans and distinct local parts survive emission"
+    (first.arena.a260_texts.(0)=source /\ first.arena.a260_scopes.(0)="owner-paragraph-A")?! "explicit scope and exact parse input"
+    second:merge.from_paragraph_owned(packet,"owner-paragraph-B")
+    reordered:flat.flatten([second,first])
+    (reordered.arena.a260_scopes.(0)="owner-paragraph-B" /\ reordered.arena.a260_scopes.(2)="owner-paragraph-A")?! "reorder transports scope instead of inventing position identity"
+    retained:store.append(store.append(store.empty(),second),first)
+    selected:store.get(retained,1)
+    (selected.arena.a260_scopes.(0)="owner-paragraph-A" /\ selected.arena.a260_parts.(1)=1)?! "store selection retains provenance"
+    leaf:scene.leaf_at(selected.arena,1)
+    again:scene.from_leaves([leaf],1)
+    (again.a260_operations.(0)=0 /\ again.a260_stops.(0)=2 /\ again.a260_parts.(0)=1)?! "Leaf Arena roundtrip"
+    generated:scene.leaf("generated-rule")
+    (generated.a260_operation= -1 /\ generated.a260_start= -1 /\ generated.a260_scope="")?! "generated leaf remains unknown, not reusable"
+    math_source:"\$x\$"
+    math_parsed:parser.parse(math_source,f,context)
+    (pages.integer(math_parsed.stream.starts,0)=1 /\ pages.integer(math_parsed.stream.stops,0)=2)?! "math origin excludes delimiters"
+    provider:boxes.append(boxes.empty(),0,0,7,8,0,0,"{\"leaves\":[{\"type\":\"glyph\",\"key\":\"A\",\"x\":0,\"y\":0},{\"type\":\"glyph\",\"key\":\"V\",\"x\":1,\"y\":0}],\"width\":7,\"height\":8,\"depth\":0}")
+    math_packet:q.position(math_source,math_parsed.stream,f,language,hyph.strings(0),options,nodes.text_options(),provider)
+    math_scene:merge.from_paragraph_owned(math_packet,"owner-math")
+    (math_scene.arena.count=2 /\ math_scene.arena.a260_starts.(0)=1 /\ math_scene.arena.a260_stops.(1)=2 /\ math_scene.arena.a260_parts.(1)=1)?! "multi-leaf inline math provider retains parent operation"
+    @:true
+renderer_tests()

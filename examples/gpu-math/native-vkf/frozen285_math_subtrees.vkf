@@ -1,0 +1,22 @@
+# Isolated request-owned copies allow one AST subtree to be evaluated under a
+# second style without overwriting the original node's metrics or commands.
+# Share AST edge semantics with cross-arena imports, including matrix rowcounts.
+parser:.frozen285_math_parser
+imports:.frozen285_math_arena_import
+Arena:(kinds:[str],attrs:[str],first:[int],last:[int],nexts:[int],a:[int],b:[int],sup:[int],sub:[int],limits:[int],count:int,diagnostics:str,atoms:int)
+
+mapped(mapping:[int],node:int)->int:imports.mapped(mapping,node)
+
+append(arena:Arena,root:int):
+    (root>=0 /\ root<arena.count)?! "Invalid subtree root"
+    imported:imports.import_into(arena,arena,root)
+    expanded:imported.arena
+    mapping:imported.mapping
+    origins:parser.nil(expanded.count)
+    index:0
+    index<arena.count?>
+        origins.(index):index
+        target:mapping.(index)
+        target>=0? origins.(target):index
+        .index:index+1
+    @:(arena:expanded,root:imported.root,mapping:mapping,origins:origins)

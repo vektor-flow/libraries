@@ -1,0 +1,5 @@
+tikz_kernel_output:.tikz_picture_output
+picture_batch(requests:str,labels:str,font_size:num,font_quad:num)->str:
+    @:tikz_kernel_output.batch(requests,labels,font_size,font_quad)
+noop()->int:0
+noop()

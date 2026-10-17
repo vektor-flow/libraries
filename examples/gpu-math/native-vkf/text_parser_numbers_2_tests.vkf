@@ -1,0 +1,12 @@
+n:.text_parser_numbers
+r:.resource_numbers
+renderer_tests()->bit:
+    (n.shortest(r.parse("1e-6"))="0.000001")?! "shortest binary64 spelling 7"
+    (n.shortest(r.parse("1e-7"))="1e-7")?! "shortest binary64 spelling 8"
+    (n.shortest(r.parse("1e20"))="100000000000000000000")?! "shortest binary64 spelling 9"
+    (n.shortest(r.parse("1e21"))="1e+21")?! "shortest binary64 spelling 10"
+    (n.shortest(r.parse("1e22"))="1e+22")?! "shortest binary64 spelling 11"
+    (n.shortest(r.parse("1e300"))="1e+300")?! "shortest binary64 spelling 12"
+    (n.shortest(r.parse("1e-300"))="1e-300")?! "shortest binary64 spelling 13"
+    @:true
+renderer_tests()

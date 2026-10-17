@@ -1,0 +1,9 @@
+tikz_picture_io:.io
+tikz_picture_output:.tikz_picture_output
+run()->int:
+    requests:tikz_picture_io.read_text(tikz_picture_io.read_line())
+    labels:tikz_picture_io.read_text(tikz_picture_io.read_line())
+    target:tikz_picture_io.read_line()
+    tikz_picture_io.write_text(target,tikz_picture_output.batch(requests,labels,12*72.0/72.27,11.705980502801992))
+    @:0
+run()

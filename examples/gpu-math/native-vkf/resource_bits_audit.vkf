@@ -1,0 +1,14 @@
+# Full installed-font numeric audit; decoding remains the production VKF path.
+io:.io
+j:.resource_json
+parts:.binary64_parts
+run()->int:
+    tape:j.parse(io.read_text(io.read_line()))
+    tape.valid?! "Invalid resource JSON"
+    ::tape.count
+    index:0
+    index<tape.count?>
+        tape.kinds.(index)=4? ::parts.format(j.number(tape,index))
+        .index:index+1
+    @:0
+run()

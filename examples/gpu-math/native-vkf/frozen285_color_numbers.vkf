@@ -1,0 +1,187 @@
+# Correctly rounded finite Number input for bounded RGB channels. Decimal
+# remainders are exact integer digit vectors; binary extraction rounds once.
+# This avoids accumulating decimal digits in floating point before conversion.
+text:.frozen285_tex_text
+tokens:.frozen285_math_tokens
+j:.frozen285_resource_json
+Result:(value:num,valid:bit)
+
+character(source:str,position:int)->str:
+    vkf_string_eof(source,position)? @:""
+    @:text.at(source,position)
+digit(c:str)->bit:c>="0" /\ c<="9"
+
+parse(raw:str,limit:num=255)->Result:
+    begin:tokens.skip_space(raw,0)
+    end:begin
+    cursor:begin
+    ~vkf_string_eof(raw,cursor)?>
+        c:text.at(raw,cursor)
+        .cursor:text.next(raw,cursor)
+        ~tokens.space(c)? .end:cursor
+    source:text.span(raw,begin,end)
+    size:text.byte_length(source)
+    size=0? @:(value:0,valid:true)
+    position:0
+    negative:false
+    signed:false
+    first:character(source,0)
+    (first="+" \/ first="-")?
+        .signed:true
+        .negative:first="-"
+        .position:1
+    base:10
+    prefix:character(source,position+1)
+    character(source,position)="0"?
+        (prefix="x" \/ prefix="X")? .base:16
+        (prefix="b" \/ prefix="B")? .base:2
+        (prefix="o" \/ prefix="O")? .base:8
+    base~=10?
+        signed? @:(value:0,valid:false)
+        .position:position+2
+        position=size? @:(value:0,valid:false)
+        integer_value:0
+        position<size?>
+            d:j.hex(character(source,position))
+            (d<0 \/ d>=base)? @:(value:0,valid:false)
+            .integer_value:integer_value*base+d
+            integer_value>limit? @:(value:0,valid:false)
+            .position:position+1
+        @:(value:num(integer_value),valid:true)
+    capacity:size+1100
+    digits:[0:capacity]
+    count:0
+    seen:0
+    fraction:0
+    decimal:false
+    true?>
+        c:character(source,position)
+        (~digit(c) /\ (c~="." \/ decimal))? @|
+        c~="."?
+            d:int(vkf_decimal_parse(c))
+            (count>0 \/ d>0)?
+                digits.(count):d
+                .count:count+1
+            .seen:seen+1
+            decimal? .fraction:fraction+1
+        c="."? .decimal:true
+        .position:position+1
+    seen=0? @:(value:0,valid:false)
+    exponent:0
+    exponent_sign:1
+    exponent_prefix:character(source,position)
+    (exponent_prefix="e" \/ exponent_prefix="E")?
+        .position:position+1
+        sign:character(source,position)
+        sign="-"? .exponent_sign: -1
+        (sign="+" \/ sign="-")? .position:position+1
+        ~digit(character(source,position))? @:(value:0,valid:false)
+        digit(character(source,position))?>
+            exponent<size+2000? .exponent:exponent*10+int(vkf_decimal_parse(character(source,position)))
+            .position:position+1
+    position~=size? @:(value:0,valid:false)
+    count=0? @:(value:0,valid:true)
+    scale:fraction-exponent_sign*exponent
+    count>0 /\ digits.(count-1)=0?>
+        .count:count-1
+        .scale:scale-1
+    order:count-scale-1
+    order>2? @:(value:0,valid:false)
+    order< -324? @:(value:0,valid:true)
+    # Reverse the coefficient into a mutable little-endian decimal integer.
+    index:0
+    index<count//2?>
+        saved:digits.(index)
+        digits.(index):digits.(count-index-1)
+        digits.(count-index-1):saved
+        .index:index+1
+    scale<0?
+        shift: -scale
+        .index:count-1
+        index>=0?>
+            digits.(index+shift):digits.(index)
+            .index:index-1
+        .index:0
+        index<shift?>
+            digits.(index):0
+            .index:index+1
+        .count:count+shift
+        .scale:0
+    whole:0
+    count>scale?>
+        # Subtract 10^scale. Only its single nonzero digit is needed.
+        .index:scale
+        digits.(index)=0?>
+            digits.(index):9
+            .index:index+1
+        digits.(index):digits.(index)-1
+        count>0 /\ digits.(count-1)=0?> .count:count-1
+        .whole:whole+1
+        whole>255? @:(value:0,valid:false)
+    significand:whole
+    binary_exponent:0
+    bits:0
+    magnitude:whole
+    magnitude>0?>
+        .bits:bits+1
+        .magnitude:magnitude//2
+    bits>0? .binary_exponent:bits-1
+    # For a fraction, find its first nonzero binary digit, including the
+    # half-minimum-subnormal rounding boundary at 2^-1075.
+    bits=0 /\ count>0?>
+        carry:0
+        .index:0
+        index<count?>
+            product:digits.(index)*2+carry
+            digits.(index):product%10
+            .carry:product//10
+            .index:index+1
+        carry>0?
+            digits.(count):carry
+            .count:count+1
+        .binary_exponent:binary_exponent-1
+        count>scale?
+            .index:scale
+            digits.(index)=0?>
+                digits.(index):9
+                .index:index+1
+            digits.(index):digits.(index)-1
+            count>0 /\ digits.(count-1)=0?> .count:count-1
+            .significand:1
+            .bits:1
+        binary_exponent= -1075?
+            # At this point a leading one is the guard bit for zero.
+            tiny:0.0
+            bits=1 /\ count>0? .tiny:2.0^(-1074)
+            @:(value:tiny,valid:~negative \/ tiny=0)
+    bits=0? @:(value:0,valid:true)
+    precision:53
+    binary_exponent< -1022? .precision:binary_exponent+1075
+    guard:0
+    step:bits
+    step<=precision?>
+        carry:0
+        .index:0
+        index<count?>
+            product:digits.(index)*2+carry
+            digits.(index):product%10
+            .carry:product//10
+            .index:index+1
+        carry>0?
+            digits.(count):carry
+            .count:count+1
+        binary_digit:0
+        count>scale?
+            .index:scale
+            digits.(index)=0?>
+                digits.(index):9
+                .index:index+1
+            digits.(index):digits.(index)-1
+            count>0 /\ digits.(count-1)=0?> .count:count-1
+            .binary_digit:1
+        step<precision? .significand:significand*2+binary_digit
+        step=precision? .guard:binary_digit
+        .step:step+1
+    guard=1 /\ (count>0 \/ significand%2=1)? .significand:significand+1
+    value:num(significand)*2.0^(binary_exponent-precision+1)
+    @:(value:value,valid:(~negative \/ value=0) /\ value<=limit)

@@ -1,0 +1,63 @@
+document_materialize_config:.document_materialize_config
+document_materialize_items:.document_materialize_items
+document_pages:.document_pages
+font_catalog:.font_catalog
+test_font_data:.test_font_data
+tex_numeric:.tex_numeric
+resource_json:.resource_json
+json_numbers:.json_numbers
+tex_text:.tex_text
+fonts():
+    keys:["metrics","style/text","font/footnote"]
+    values:["{}","{\"em\":"&json_numbers.roundtrip(10*tex_numeric.pt())&"}","{\"nativeFootnoteSep\":6.25}"]
+    @:font_catalog.load(test_font_data.pack(keys,values))
+renderer_tests()->bit:
+    config:document_materialize_config.configure("article","","[{\"names\":\"geometry\",\"options\":\"margin=1in,right=.5in\"},{\"names\":\"amsmath,amssymb\",\"options\":\"\"}]",fonts())
+    tape:resource_json.parse(config.config)
+    (config.diagnostics="" /\ config.math.amsmath /\ document_materialize_config.has(config.packages,"amsfonts"))?! "actual registry package dependencies enable source math capabilities"
+    (document_materialize_config.number(tape,0,"left")=72 /\ document_materialize_config.number(tape,0,"top")=72 /\ document_materialize_config.number(tape,0,"textWidth")=504 /\ document_materialize_config.number(tape,0,"textHeight")=648)?! "geometry applies logical letter paper and source units before right override"
+    (document_pages.number_at(config.pages,14)=6.25)?! "page note settings come from supplied native font metadata"
+    unsupported:document_materialize_config.configure("article","","[{\"names\":\"no-such-package\",\"options\":\"\"}]",fonts())
+    (unsupported.diagnostics="\"Unsupported package: no-such-package\"")?! "unknown packages remain explicit source diagnostics"
+    requested:document_materialize_config.requested_options("article","[{\"names\":\"biblatex\",\"options\":\"style=alphabetic,sorting=nyt\"},{\"names\":\"biblatex\",\"options\":\"style=numeric\"}]","biblatex")
+    (requested.length()=2 /\ requested.(0)="style=alphabetic" /\ requested.(1)="sorting=nyt")?! "first loaded package owns actual requested options"
+    dependency:document_materialize_config.requested_options("amsart","[{\"names\":\"amsmath\",\"options\":\"fleqn\"}]","amsmath")
+    (dependency.length()=0)?! "class dependencies precede explicit package requests"
+    placements:document_pages.empty_placements()
+    xs:placements.xs
+    ys:placements.ys
+    units:placements.units
+    shrink:placements.shrink
+    stretch:placements.stretch
+    xs.(0):10
+    ys.(0):20
+    units.(0):2
+    shrink.(0):7
+    stretch.(0):8
+    placements.xs:xs
+    placements.ys:ys
+    placements.units:units
+    placements.shrink:shrink
+    placements.stretch:stretch
+    placements.count:1
+    leaf:resource_json.parse("{\"kind\":\"glyph\",\"key\":\"x\",\"x\":3,\"y\":4,\"sx\":0.5,\"destinationIds\":[\"label:x\"],\"opaque\":\"retained\"}")
+    placed:document_materialize_items.transform(leaf,0,placements,0)
+    item:resource_json.parse(placed)
+    (document_materialize_items.number(item,0,"x")=16 /\ document_materialize_items.number(item,0,"y")=28 /\ document_materialize_items.number(item,0,"sx")=1 /\ document_materialize_items.number(item,0,"sy")=2)?! "positioned source leaf receives one exact page translation and scale"
+    (tex_text.find(placed,"\"destinationIds\":[\"label:x\"]")>=0 /\ tex_text.find(placed,"\"opaque\":\"retained\"")>=0)?! "page materialization preserves source destination and opaque leaf metadata"
+    kinds:placements.kinds
+    kinds.(0):1
+    placements.kinds:kinds
+    note:document_materialize_items.transform(leaf,0,placements,0)
+    note_item:resource_json.parse(note)
+    (document_materialize_items.number(note_item,0,"x")=13 /\ document_materialize_items.number(note_item,0,"y")=24 /\ document_materialize_items.number(note_item,0,"sx")=0.5)?! "note leaves use direct source-unit translation"
+    (resource_json.member(note_item,0,"sy")<0 /\ resource_json.member(note_item,0,"verticalShrink")<0 /\ resource_json.member(note_item,0,"verticalStretch")<0)?! "note leaves preserve native scale and flex metadata absence"
+    link:resource_json.parse("{\"kind\":\"link\",\"x\":3,\"y\":4,\"width\":5,\"height\":6,\"target\":\"label:x\"}")
+    note_link:resource_json.parse(document_materialize_items.transform(link,0,placements,0))
+    (document_materialize_items.number(note_link,0,"x")=13 /\ document_materialize_items.number(note_link,0,"y")=24 /\ document_materialize_items.number(note_link,0,"width")=5 /\ document_materialize_items.number(note_link,0,"height")=6)?! "note links preserve measured rectangle without paragraph padding"
+    kinds.(0):4
+    placements.kinds:kinds
+    floating:resource_json.parse(document_materialize_items.transform(link,0,placements,0))
+    (resource_json.string(floating,resource_json.member(floating,0,"floatPlacement"))="bottom" /\ document_materialize_items.number(floating,0,"width")=5)?! "bottom floats preserve full-scene dimensions and record placement"
+    @:true
+renderer_tests()

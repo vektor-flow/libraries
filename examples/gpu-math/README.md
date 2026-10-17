@@ -1,3 +1,47 @@
+## Native VKF LaTeX diagnostics — 2026-10-16
+
+`native-vkf/math_kernel.vkf` exports
+`math_diagnostics(source, font_source, native=true, source_name="<math>")`.
+It returns JSON with `status` (`valid`, `incomplete`, `edit-required`) and `issues`.
+Each issue has a stable `VKF-LATEX-*` code, `message`, `hint`, `severity`,
+`recovery` (`append` or `edit-existing`) and a half-open `range`. Range endpoints
+contain zero-based UTF-8 `byte` offsets and one-based `line`/`column` values;
+columns count Unicode scalars, with a tab counting as one. `relatedStart` points
+back to the opening scope for missing closers. `sourceName` is caller supplied.
+An unfinished command is appendable only when it is a proven supported prefix;
+a space terminates that command name. An existing error wins over unfinished
+input when choosing the report status. Diagnostics are bounded to 25 issues;
+`truncated=true` means the bound was reached and the report stays conservative.
+
+For example, `\frac{a}` reports a missing denominator at byte8/line1/column9
+with `status=incomplete`; `x^2^3` reports `VKF-LATEX-REPEATED-SCRIPT` on the second
+`^` at byte3/line1/column4, with guidance to combine scripts in a single group.
+An extra `}` identifies that exact token and parsing continues to later errors.
+These statuses describe how to repair LaTeX; they do not prevent saving drafts.
+
+`math_parser.analyze` provides both the current AST arena and structured issues;
+`math_parser.diagnose` provides the report. Existing `parse`/`json` consumers keep
+their packet format. `native-vkf/latex_diagnostics_dump.vkf` is the native CLI;
+it reads the font-catalog, source-file and output-file paths on separate stdin
+lines. Eight affected VKF suites pass native and WASM, with 13 real-font API cases
+matching exactly across backends; see the rendering handover for evidence.
+
+This is the native math API, awaiting editor integration. Ranges describe the
+supplied math source, without include/macro-expansion source maps. Merged nested
+text/unit semantic issues currently highlight the containing argument. Supported
+syntax/resource validation is not universal TeX/package validation. The broader
+layout check initially encountered an existing syntax error; after concurrent
+layout edits it compiles but fails a two-headed-decoration geometry assertion.
+No layout source was edited for this task, and no full renderer or UI
+qualification is claimed.
+
+## Vector PDF output
+
+The document editor now offers **More → Export PDF**, independently of the
+LaTeX engine and WebGPU. It reuses native layout and original vector glyph
+curves, preserving sharp zoom. Text is currently outlined rather than searchable.
+See [export APIs, CLI and verification](typing-demo/README.md#independent-vector-pdf-export--2026-10-15).
+
 The live typing extension now supports recoverable drafts, Inline/Display styles,
 large operators, all Greek capitals/lowercase, matrices/cases and nested scopes.
 See [typing-demo/README.md](typing-demo/README.md) for the current runtime scope,
@@ -246,3 +290,27 @@ keyboard typing, recovery from incomplete braces, long input and phone layout.
 Warm edits currently measure11.9ms p95 in that lane, above the10ms target; one
 899-instance first update measures39ms. The public preview reports measurements
 on the visitor’s device rather than asserting those software timings universally.
+
+
+For source-fidelity comparison against downloaded arXiv PDFs, run
+`compare_document_pixels.py CORPUS CAPTURE --mapping MAPPING --exclude-arxiv-stamp`
+(with the usual optional `--oracle-extras` directory). The owner excludes the
+archive-added stamp from the LaTeX renderer's scope. This explicit option checks
+for a complete rotated arXiv mark isolated in the left margin, excludes only its
+reference glyphs and ink, and records the exclusion in each page's geometry
+report. It preserves original PDFs/rasters and every source-content/page check.
+Without the option, the original full-PDF comparison remains available. The
+runtime neither reads nor renders these external marks.
+
+
+The owner-approved glyph-origin tolerance is now0.1 pixels at96dpi. The comparison
+CLI defaults to this limit; `--position-tolerance-pixels` records any explicit
+alternative in its report. Ink error remains a separate .01 normalized limit.
+For subpixel audits use `--pdf-text-origins` and install development dependency
+`pypdf==6.20.1`. This preserves the original Type1 PDF font widths rather than
+MuPDF's three-decimal approximation. Independent font/glyph/count matching and
+trace agreement are still required; unsupported fonts retain trace origins.
+PDF decoding is an oracle only and never enters document layout or rendering.
+The complete39-page focus paper passes all61,949 glyphs with maximum0.0084px
+position error. Raster acceptance and broader full-paper compatibility remain
+incomplete; see STATUS.md and the shared LaTeX rendering handover.

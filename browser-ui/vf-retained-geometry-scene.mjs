@@ -6,11 +6,27 @@ import { createLayeredScreenScene } from 'vektor-flow/layered-screen-scene';
 export function createRetainedGeometryScene() {
   const scene = createLayeredScreenScene();
 
+  // Keep only the preceding/current frame's privately owned contour records.
+  // Caller geometry is compared by value every time, including mutable arrays.
+  let previousContours = new Map(), currentContours = new Map(), recording = null;
+  const own = value => Array.isArray(value) ? Object.freeze(value.map(own))
+    : value && typeof value === 'object'
+      ? Object.freeze(Object.fromEntries(Object.entries(value).map(([key, item]) => [key, own(item)])))
+      : value;
+  const samePoints = (a, b) => a.length === b.length && a.every((point, i) =>
+    point.length === b[i].length && point.every((value, j) => Object.is(value, b[i][j])));
+
   function beginFrame() {
+    previousContours = currentContours;
+    currentContours = new Map();
     scene.beginFrame();
   }
 
   function primitive(scope, id, value, { selection = false, overlay = false } = {}) {
+    if (recording) {
+      value = own(value);
+      recording.push({scope, id, value, selection, overlay});
+    }
     scene.primitive(scope, id, value, { selection, overlay });
   }
 
@@ -101,6 +117,27 @@ export function createRetainedGeometryScene() {
 
   function selectionContour(scope, id, points, color, pixelRatio, metrics) {
     if (!Array.isArray(points) || points.length < 2) return;
+    const rgba = colorToRgba(color);
+    const key = JSON.stringify([scope, id]);
+    const prior = currentContours.get(key) || previousContours.get(key);
+    if (prior && Object.is(prior.pixelRatio, pixelRatio)
+      && Object.is(prior.radius, metrics.selectionRadius)
+      && Object.is(prior.width, metrics.ringWidth)
+      && samePoints([prior.color], [rgba]) && samePoints(prior.points, points)) {
+      currentContours.set(key, prior);
+      for (const item of prior.primitives) scene.primitive(item.scope, item.id, item.value, item);
+      return;
+    }
+    const entry = {points:own(points), color:own(rgba), pixelRatio,
+      radius:metrics.selectionRadius, width:metrics.ringWidth, primitives:[]};
+    recording = entry.primitives;
+    try { buildSelectionContour(scope, id, points, rgba, pixelRatio, metrics); }
+    finally { recording = null; }
+    currentContours.set(key, entry);
+  }
+
+  function buildSelectionContour(scope, id, points, color, pixelRatio, metrics) {
+    if (!Array.isArray(points) || points.length < 2) return;
     const offset = metrics.selectionRadius * pixelRatio;
     const width = metrics.ringWidth * pixelRatio;
     const first = points[0];
@@ -179,6 +216,9 @@ export function createRetainedGeometryScene() {
     color,
     sides = [-1, 1]
   ) {
+    // Radius zero creates only zero-length edges, which the packed backend
+    // discards. Avoid allocating those empty primitives in the first place.
+    if (radius === 0) return;
     const incoming = unitVector(center[0] - previous[0], center[1] - previous[1]);
     const outgoing = unitVector(next[0] - center[0], next[1] - center[1]);
     if (!incoming || !outgoing) return;
@@ -211,6 +251,7 @@ export function createRetainedGeometryScene() {
   }
 
   function addSelectionEndCap(scope, id, center, inside, outwardSign, radius, width, color) {
+    if (radius === 0) return;
     const inwardX = inside[0] - center[0];
     const inwardY = inside[1] - center[1];
     const length = Math.hypot(inwardX, inwardY);

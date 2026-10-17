@@ -1,0 +1,42 @@
+text_source_paragraph:.text_source_paragraph
+text_source_paragraph_output:.text_source_paragraph_output
+text_parser:.text_parser
+paragraph_breaking:.paragraph_breaking
+paragraph_nodes:.paragraph_nodes
+math_packages:.math_packages
+hyphenation:.hyphenation
+hyphenation_test_asset:.hyphenation_test_asset
+font_catalog:.font_catalog
+test_font_data:.test_font_data
+resource_json:.resource_json
+
+fonts():
+    keys:["font/roman","text/roman/65","text/roman/86","text/roman/46","text/roman/118"]
+    values:["{\"size\":10,\"spaces\":{\"space\":3,\"extraspace\":2,\"stretch\":1,\"shrink\":1,\"slant\":0}}","{\"key\":\"A\",\"advance\":7,\"height\":8,\"depth\":0}","{\"key\":\"V\",\"advance\":8,\"height\":9,\"depth\":1}","{\"key\":\"period\",\"advance\":1,\"height\":1,\"depth\":0}","{\"key\":\"lowerV\",\"advance\":8,\"height\":9,\"depth\":1}"]
+    @:font_catalog.load(test_font_data.pack(keys,values))
+renderer_tests()->bit:
+    installed:fonts()
+    language:hyphenation.load(hyphenation_test_asset.source())
+    context:text_parser.context("roman",["roman"])
+    options:paragraph_breaking.options(100)
+    options.justify:false
+    options.hyphens:false
+    nested:text_source_paragraph.typeset("A \\mbox{V \\mbox{A}} V",installed,context,math_packages.defaults(),language,hyphenation.strings(0),options,paragraph_nodes.text_options())
+    (nested.complete /\ nested.width=39 /\ nested.glyph_count=2 /\ nested.scene_count=1)?! "Nested boxes contribute exact widths without leaking isolated children"
+    packet:resource_json.parse(text_source_paragraph_output.json(nested))
+    items:resource_json.member(packet,0,"items")
+    (resource_json.element(packet,items,3)>=0 /\ resource_json.element(packet,items,4)<0)?! "Nested retained scenes flatten every glyph once"
+    empty:text_source_paragraph.typeset("A\\mbox{}V",installed,context,math_packages.defaults(),language,hyphenation.strings(0),options,paragraph_nodes.text_options())
+    (empty.complete /\ empty.width=15)?! "Empty box is resolved and has zero width"
+    unresolved:text_source_paragraph.typeset("A\\mbox{\\unknown A}V",installed,context,math_packages.defaults(),language,hyphenation.strings(0),options,paragraph_nodes.text_options())
+    (~unresolved.complete /\ unresolved.lowering_complete /\ unresolved.diagnostics~="")?! "Nested diagnostics keep the outer document incomplete"
+    retained:text_source_paragraph.typeset("A\\mbox{\\vkftikzbox{9}}V",installed,context,math_packages.defaults(),language,hyphenation.strings(0),options,paragraph_nodes.text_options(),"{\"9\":{\"items\":[{\"kind\":\"rule\",\"x\":0,\"y\":0,\"width\":5,\"height\":2}],\"width\":5,\"height\":2,\"depth\":1}}")
+    (retained.complete /\ retained.width=20 /\ retained.scene_count=1)?! "Generic retained scene directory survives recursive box scopes"
+    missing:text_source_paragraph.typeset("A\\mbox{\\vkftikzbox{9}}V",installed,context,math_packages.defaults(),language,hyphenation.strings(0),options,paragraph_nodes.text_options())
+    (~missing.complete /\ missing.lowering_complete /\ missing.diagnostics="\"Missing native TikZ box: 9\"")?! "Missing retained scenes diagnose without claiming successful geometry"
+    sentence:text_source_paragraph.typeset("v.\\hspace{1bp} V",installed,context,math_packages.defaults(),language,hyphenation.strings(0),options,paragraph_nodes.text_options())
+    (sentence.complete /\ sentence.width=23)?! "Native spacing preserves the preceding sentence space factor"
+    invalid_space:text_source_paragraph.typeset("v.\\hspace{bad} V",installed,context,math_packages.defaults(),language,hyphenation.strings(0),options,paragraph_nodes.text_options())
+    (~invalid_space.complete /\ invalid_space.width=22 /\ invalid_space.lowering_complete)?! "Resolved-empty invalid spacing preserves sentence glue and diagnostics"
+    @:true
+renderer_tests()

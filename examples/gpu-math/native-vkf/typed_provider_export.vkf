@@ -1,0 +1,44 @@
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Store:(arena:Arena,firsts:[int],counts:[int],anchor_firsts:[int],anchor_counts:[int],anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int,widths:[num],heights:[num],depths:[num],tag_widths:[num],inline_destinations:[bit],count:int)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:Store,scene_ids:[int],scene_metadata:Metadata,scene_roots:[int],diagnostics:[str],count:int)
+# Explicit diagnostic boundary. Production Provider -> node -> Packet is typed.
+boxes:.text_inline_boxes
+metadata_json:.scene_metadata_json
+leaf_export:.document_scene_export
+j:.resource_json
+n:.json_numbers
+chunks:.text_chunks
+scene(input:Provider,index:int)->str:
+    (index>=0 /\ index<input.count)?! "Invalid provider index"
+    input.scene_ids.(index)<0? @:""
+    envelope:input.scene_roots.(index)
+    envelope>=0? @:metadata_json.encode(input.scene_metadata,envelope)
+    value:boxes.scene_at(input,index)
+    items:chunks.empty(value.arena.count)
+    i:0
+    i<value.arena.count?>
+        raw:leaf_export.leaf(value.arena,i,0,0)
+        root:value.arena.metadata_roots.(i)
+        root>=0? .raw:metadata_json.encode(value.arena.metadata,root)
+        prefix:""
+        i>0? .prefix:","
+        items.(i):prefix&raw
+        .i:i+1
+    anchors:chunks.empty(value.anchor_count)
+    .i:0
+    i<value.anchor_count?>
+        raw:"{\"id\":"&j.quote(value.anchor_ids.(i))&",\"x\":"&n.roundtrip(value.anchor_xs.(i))&",\"y\":"&n.roundtrip(value.anchor_ys.(i))&"}"
+        root:value.anchor_roots.(i)
+        root>=0? .raw:metadata_json.encode(value.anchor_metadata,root)
+        prefix:""
+        i>0? .prefix:","
+        anchors.(i):prefix&raw
+        .i:i+1
+    flag:"false"
+    value.inline_destinations? .flag:"true"
+    @:"{\"items\":["&chunks.join(items,0,value.arena.count)&"],\"width\":"&n.roundtrip(value.width)&",\"height\":"&n.roundtrip(value.height)&",\"depth\":"&n.roundtrip(value.depth)&",\"tagWidth\":"&n.roundtrip(value.tag_width)&",\"inlineDestinations\":"&flag&",\"destinations\":["&chunks.join(anchors,0,value.anchor_count)&"]}"

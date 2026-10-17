@@ -1,0 +1,22 @@
+l:.math_layout
+data:.test_layout_fonts
+j:.resource_json
+glyphs:.math_glyphs
+
+renderer_tests()->bit:
+    fonts:data.fonts()
+    measured:j.parse(l.typeset("\\widehat{\\widetilde{\\begin{equation}a\\label{eq:measured}\\end{equation}}}+\\begin{equation}b\\end{equation}",fonts))
+    (glyphs.numeric(measured,0,"nextEquationNumber")=6)?! "nested wide measurements repeat observable counter effects"
+    measured_refs:j.member(measured,0,"equationReferences")
+    (j.string(measured,j.member(measured,measured_refs,"eq:measured"))="4")?! "measurement replay preserves the last label assignment"
+    arrow_number:j.parse(l.typeset("\\xrightarrow{\\begin{equation}a\\label{eq:arrow}\\end{equation}}+\\begin{equation}b\\end{equation}",fonts))
+    (glyphs.numeric(arrow_number,0,"nextEquationNumber")=4)?! "arrow label sizing evaluates counter effects before the rendered label pass"
+    arrow_refs:j.member(arrow_number,0,"equationReferences")
+    (j.string(arrow_number,j.member(arrow_number,arrow_refs,"eq:arrow"))="2")?! "arrow labels bind the rendered second-pass number"
+    row_box:j.parse(l.typeset("\\boxed{\\begin{eqnarray*}a&=&b\\\\a&=&b\\end{eqnarray*}}",fonts))
+    row_metadata:j.member(row_box,0,"lastRow")
+    (row_metadata>=0 /\ glyphs.numeric(row_box,row_metadata,"baseline")>0)?! "boxed multiline math retains the last row baseline"
+    row_list:j.parse(l.typeset("a+\\begin{eqnarray*}a&=&b\\\\a&=&b\\end{eqnarray*}",fonts))
+    (j.member(row_list,0,"lastRow")<0)?! "a multi-box list does not inherit a child last-row marker"
+    @:true
+renderer_tests()

@@ -1,0 +1,26 @@
+# Frozen pre-prepared display function; independent load path for parity only.
+document_materialize_config:.document_materialize_config
+resource_json:.resource_json
+json_numbers:.json_numbers
+font_catalog:.font_catalog
+math_profiles:.math_profiles
+math_parser:.math_parser
+math_layout:.math_layout
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+PageConfig:(values:[num],flags:[bit],penalties:[int])
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Configuration:(config:str,pages:PageConfig,packages:[str],math:MathContext,overrides:[str],class_name:str,optical:bit,hyperref:bit,diagnostics:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+raw(tape:Tape,node:int)->str:@:document_materialize_config.raw(tape,node)
+number(tape:Tape,node:int,key:str,fallback:num=0)->num:@:document_materialize_config.number(tape,node,key,fallback)
+math_metrics(config:Tape,ams:bit)->str:
+    ~ams? @:""
+    @:"{\"baseline\":"&json_numbers.roundtrip(number(config,0,"lineHeight"))&",\"jot\":"&json_numbers.roundtrip(number(config,0,"mathJot"))&",\"lineSkip\":"&json_numbers.roundtrip(number(config,0,"lineSkip"))&",\"lineSkipLimit\":"&json_numbers.roundtrip(number(config,0,"lineSkipLimit"))&"}"
+display(source:str,fonts:Catalog,c:Configuration,role:str,width:num,equation_start:int=1,document_boxes_json:str="{}"):
+    arena:math_parser.parse_with_context(source,fonts,c.math,true,document_boxes_json)
+    font:font_catalog.text_font(fonts,role)
+    spacing:raw(font,resource_json.member(font,0,"spaces"))
+    config:resource_json.parse(c.config)
+    profiles:math_profiles.load(fonts)
+    scene:math_layout.layout_with_profiles(arena,fonts,profiles,false,true,true,equation_start,false,spacing,math_metrics(config,c.class_name="amsart"),width,false,c.math.qed_symbol)
+    @:(json:math_layout.json(scene),next_equation_number:scene.next_equation_number,references:scene.equation_references,diagnostics:scene.diagnostics)

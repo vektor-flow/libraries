@@ -1,0 +1,44 @@
+document_scene_flat:.document_scene_flat
+document_scene_json:.document_scene_json
+document_scene_pages:.document_scene_pages
+document_pages:.document_pages
+tex_numeric:.tex_numeric
+fixture(index:int):
+    source:"{\"items\":[{\"kind\":\"glyph\",\"key\":\"a\",\"x\":1,\"y\":2,\"flowLine\":0},{\"kind\":\"link\",\"x\":2,\"y\":0,\"width\":4,\"height\":0,\"flowLine\":0},{\"kind\":\"glyph\",\"key\":\"b\",\"x\":3,\"y\":12,\"flowLine\":1,\"equationTag\":true,\"tagWidth\":5}]}"
+    index=1? .source:"{\"items\":[{\"kind\":\"rule\",\"x\":4,\"y\":5,\"width\":6,\"height\":1,\"flowLine\":3}]}"
+    @:document_scene_json.decode(source)
+table_fixture(index:int):
+    source:"{\"width\":4,\"items\":[{\"kind\":\"segment\",\"x\":1,\"y\":2,\"dx\":3,\"dy\":4,\"color\":[1,0,0,0.5],\"strokeColor\":[0,1,0,1],\"destinationIds\":[\"dest\"],\"footnoteNumber\":2}],\"destinations\":[{\"id\":\"anchor\",\"x\":7,\"y\":8}]}"
+    @:document_scene_json.decode(source)
+renderer_tests()->bit:
+    [int] table_ids:[0:2]
+    table_scenes:table_ids >> table_fixture($0)
+    tables:document_scene_flat.flatten(table_scenes)
+    table_arena:tables.arena
+    (table_arena.count=2 /\ table_arena.paint_count=4 /\ table_arena.payload_count=2)?! "sparse tables retained"
+    (table_arena.paints.(1)=2 /\ table_arena.payloads.(1)=1 /\ table_arena.destination_firsts.(1)=1 /\ table_arena.footnote_numbers.(1)=2)?! "leaf table offsets"
+    (table_arena.payload_table.(1).stroke_paint=3 /\ table_arena.payload_table.(1).fill_paint<0)?! "payload paint offsets preserve default"
+    (table_arena.paint_table.(3).green=1 /\ table_arena.destination_ids.(1)="dest")?! "payload values and destinations"
+
+    [int] ids:[0:2]
+    scenes:ids >> fixture($0)
+    placements:document_pages.empty_placements(3)
+    .placements:document_pages.append(placements,0,0,0,0,0,0,10,20,2,100,7,3,0.2,0.3)
+    .placements:document_pages.append(placements,0,1,1,0,1,0,10,30,2,100,7,3,0.2,0.3)
+    .placements:document_pages.append(placements,1,0,0,1,0,3,40,50,99,0,0,0,0,0)
+    flat:document_scene_flat.flatten(scenes)
+    arena:flat.arena
+    (flat.firsts.(1)=3 /\ flat.counts.(0)=3 /\ arena.count=4)?! "flatten boundaries"
+    refs:document_scene_pages.index_flat(arena,flat.firsts,flat.counts,placements,[0,0,1],[0,1,0],3,2)
+    (refs.count=4 /\ refs.counts.(0)=3 /\ refs.counts.(1)=1 /\ refs.firsts.(1)=3)?! "page-contiguous references"
+    (refs.scene_ids.(2)=1 /\ refs.leaf_ids.(2)=3 /\ refs.placement_ids.(3)=1)?! "full scene and source-line order"
+    ordinary:document_scene_pages.placed_leaf_flat(arena,placements,refs,[0.0,12.0,0.0],0)
+    (ordinary.x=12 /\ ordinary.y=24 /\ ordinary.sx=2 /\ ordinary.vertical_shrink=0.2)?! "ordinary scale and glue"
+    link:document_scene_pages.placed_leaf_flat(arena,placements,refs,[0.0,12.0,0.0],1)
+    (|link.x-(14-tex_numeric.pt())|<0.000000001 /\ |link.height-(10+2*tex_numeric.pt())|<0.000000001)?! "link uses whole line extents"
+    full:document_scene_pages.placed_leaf_flat(arena,placements,refs,[0.0,12.0,0.0],2)
+    (full.x=44 /\ full.y=55 /\ full.width=6 /\ full.sx=1)?! "full scene translate with no scaling"
+    tag:document_scene_pages.placed_leaf_flat(arena,placements,refs,[0.0,12.0,0.0],3)
+    (tag.x=96 /\ tag.y=54)?! "equation tag base"
+    @:true
+renderer_tests()

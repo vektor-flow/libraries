@@ -1,0 +1,20 @@
+io:.io
+resource_numbers:.resource_numbers
+text_chunks:.text_chunks
+document_class_kernel:.document_class_kernel
+run()->int:
+    count:int(resource_numbers.parse(io.read_line()))
+    index:0
+    index<count?>
+        name:io.read_line()
+        option_count:int(resource_numbers.parse(io.read_line()))
+        options:text_chunks.empty(option_count)
+        option:0
+        option<option_count?>
+            options.(option):io.read_line()
+            .option:option+1
+        path:io.read_line()
+        io.write_text(path,document_class_kernel.class_packet(name,options))
+        .index:index+1
+    @:0
+run()

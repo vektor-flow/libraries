@@ -1,0 +1,27 @@
+tags:.math_tags
+parser:.math_parser
+catalog:.font_catalog
+numbers:.json_numbers
+
+# This adapter exercises the shared tag geometry without document counters.
+tag_packet(source:str,font_source:str,style:int=0):
+    fonts:catalog.load(font_source)
+    arena:parser.parse(source,fonts)
+    firsts:arena.first
+    @:tags.from_node(arena,firsts.(0),fonts,style)
+
+tag_json(source:str,font_source:str,style:int=0)->str:
+    run:tag_packet(source,font_source,style)
+    payload:run.payload
+    xs:run.xs
+    ys:run.ys
+    items:""
+    index:0
+    index<run.count?>
+        index>0? .items:items&","
+        .items:items&"{"&payload.(index)&",\"x\":"&numbers.roundtrip(xs.(index))&",\"y\":"&numbers.roundtrip(ys.(index))&"}"
+        .index:index+1
+    @:"{\"width\":"&numbers.roundtrip(run.width)&",\"height\":"&numbers.roundtrip(run.height)&",\"depth\":"&numbers.roundtrip(run.depth)&",\"items\":["&items&"],\"diagnostics\":["&run.diagnostics&"]}"
+
+noop()->int:0
+noop()

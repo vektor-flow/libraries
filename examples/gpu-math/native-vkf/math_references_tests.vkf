@@ -1,0 +1,19 @@
+r:.math_references
+j:.resource_json
+text:.tex_text
+
+renderer_tests()->bit:
+    empty:r.empty()
+    old:r.put(empty,"eq:x","1")
+    current:r.put(r.put(old,"α","A"),"eq:x","9")
+    (r.json(empty)="{}" /\ r.json(old)="{\"eq:x\":\"1\"}")?! "reference snapshots retain prior equation values"
+    tape:j.parse(r.json(current))
+    (j.string(tape,j.member(tape,0,"eq:x"))="9" /\ j.string(tape,j.member(tape,0,"α"))="A")?! "reference replacement and Unicode keys"
+    index:0
+    index<130?>
+        .current:r.put(current,"label:"&text.integer(index),text.integer(index))
+        .index:index+1
+    grown:j.parse(r.json(current))
+    (j.string(grown,j.member(grown,0,"label:129"))="129" /\ j.string(grown,j.member(grown,0,"eq:x"))="9")?! "reference table grows without losing prior bindings"
+    @:true
+renderer_tests()

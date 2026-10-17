@@ -1,0 +1,12 @@
+catalog:.font_catalog
+p:.math_parser
+packages:.math_packages
+
+package_packet(source:str,font_source:str,names:[str],class_name:str="article",native:bit=true,diagnostic:bit=false)->str:
+    fonts:catalog.load(font_source)
+    context:packages.from_names(names,class_name)
+    diagnostic? @:p.diagnose_with_context(source,fonts,context,native)
+    @:p.json(p.parse_with_context(source,fonts,context,native))
+
+noop()->int:0
+noop()

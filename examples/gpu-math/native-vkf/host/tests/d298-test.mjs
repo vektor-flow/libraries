@@ -1,0 +1,69 @@
+import assert from 'node:assert/strict';
+import {writeFile} from 'node:fs/promises';
+import {createDocumentRenderSession} from '../document_render_session.mjs';
+globalThis.GPUTextureUsage={TEXTURE_BINDING:4,COPY_DST:2};globalThis.GPUBufferUsage={VERTEX:32,COPY_DST:8,UNIFORM:64};
+function backend(){
+ const resources=[],gates=[],commands=[];let lossResolve;
+ const d={auto:true,validation:null,throwWrite:false,lost:new Promise(r=>lossResolve=r),lose(){lossResolve({reason:'synthetic'});},limits:{maxTextureDimension2D:8192},
+  pushErrorScope(){},async popErrorScope(){return d.validation;},
+  createTexture(desc){const r={desc,kind:'texture',destroyed:0,destroy(){this.destroyed++;},createView(){return {texture:this};}};resources.push(r);return r;},
+  createBuffer(desc){const r={desc,kind:'buffer',destroyed:0,destroy(){this.destroyed++;}};resources.push(r);return r;},
+  createSampler:x=>x,createBindGroup:x=>x,
+  createCommandEncoder(){if(d.encodeError)throw d.encodeError;const c={draws:[],beginRenderPass(){return {setPipeline(){},setVertexBuffer(i,b){c.buffer=b;},setBindGroup(i,b){c.bind=b;},draw(...args){c.draws.push({args,bind:c.bind});},end(){}};},finish(){if(d.finishError)throw d.finishError;return c;}};commands.push(c);return c;},
+  queue:{writeTexture({texture},bytes,layout,size){if(d.throwWrite)throw Error('synthetic write failure');texture.bytes=bytes.slice();texture.layout=layout;texture.size=size;},writeBuffer(buffer,offset,bytes){buffer.bytes=bytes.slice();if(d.writeError)throw d.writeError;},submit(c){if(d.submitError)throw d.submitError;d.submitted=c;},onSubmittedWorkDone(){if(d.fenceError)throw d.fenceError;return d.auto?Promise.resolve():new Promise((resolve,reject)=>gates.push({resolve,reject}));}},
+  flush(){for(const x of gates.splice(0))x.resolve();},resources,commands,gates};return d;
+}
+function fixture(){
+ const a={count:1,keys:[''],kinds:new Int32Array([4]),draws:new Uint8Array([1]),paints:new Int32Array([-1]),payloads:new Int32Array([0]),paint_table:[],payload_table:[{asset:'same.png'}]};
+ for(const [k,v]of Object.entries({xs:0,ys:0,sxs:1,sys:1,widths:20,heights:20}))a[k]=new Float64Array([v]);
+ const metadata={documentId:'E302-explicit-test-owner',revision:0,leafIds:['image'],groups:[{id:'image',first:0,count:1,contentVersion:0,layoutVersion:0,dependencies:[]}],resources:[{id:'pixels',version:0}],leafResources:[['pixels']],links:[],images:[{leaf:0,asset:'same.png',resourceId:'pixels'}]};
+ return v=>({complete:true,diagnostics:[],unresolved:[],scene:{arena:a},metadata:{...metadata,revision:v,resources:[{id:'pixels',version:v}]},tiles:new Map(),resources:[{id:'pixels',version:v,bytes:new Uint8Array([v,0,0,255]),image:{format:'rgba8unorm',alphaMode:'straight',width:1,height:1,bytesPerRow:4}}]});
+}
+const view={canvas:{width:100,height:100},context:{getCurrentTexture(){return {createView(){return {};}};}},scale:1};
+const pipeline={getBindGroupLayout(){return {};}};
+
+const checks=[],tick=()=>new Promise(r=>setImmediate(r));
+async function setup(){const d=backend(),s=createDocumentRenderSession({device:d,pipeline});await s.update(fixture()(0));d.auto=false;return {d,s};}
+function alive(d){assert.ok(d.resources.every(r=>r.destroyed===0));}
+async function ending(s,d){let ended=false;const p=s.dispose().then(()=>ended=true);await tick();assert.equal(ended,false);alive(d);return {p,get ended(){return ended;}};}
+{
+ const {d,s}=await setup();let priorDone=false;d.queue.onSubmittedWorkDone().then(()=>priorDone=true);
+ const receipt=await s.render(view);assert.ok(d.submitted);assert.equal(priorDone,false);assert.equal(d.gates.length,2);
+ let completed=false;receipt.completion.then(()=>completed=true);await tick();assert.equal(completed,false);alive(d);
+ const end=await ending(s,d);d.flush();await receipt.completion;await end.p;
+ assert.ok(d.resources.every(r=>r.destroyed===1));assert.equal(s.metrics.liveSnapshots,0);
+ checks.push('public render submits while unrelated prior fence unresolved; own completion and disposal retain all resources');
+}
+for(const fault of ['encodeError','finishError','submitError','writeError']){
+ const {d,s}=await setup(),error=new Error(fault);d[fault]=error;
+ if(fault==='encodeError'||fault==='writeError')assert.throws(()=>s.render(view),e=>e===error);
+ else await assert.rejects(s.render(view),e=>e===error);
+ assert.equal(d.submitted,undefined);alive(d);assert.equal(d.gates.length,1);
+ const end=await ending(s,d);d.flush();await end.p;assert.ok(d.resources.every(r=>r.destroyed===1));assert.equal(s.metrics.liveSnapshots,0);
+ checks.push(fault+': original exception preserved; attempted uniform write retained through cleanup fence/dispose');
+}
+for(const mode of ['aborted','cancel','dispose']){
+ const {d,s}=await setup(),abort=new AbortController();if(mode==='aborted')abort.abort();
+ const rendering=s.render(view,{signal:abort.signal});const rejection=assert.rejects(rendering,/Cancelled/);
+ let end;if(mode==='cancel')s.cancel();if(mode==='dispose')end=s.dispose();
+ await rejection;assert.equal(d.submitted,undefined);alive(d);
+ let ended=false;end??=s.dispose();end.then(()=>ended=true);await tick();assert.equal(ended,false);
+ d.flush();await end;assert.ok(d.resources.every(r=>r.destroyed===1));assert.equal(s.metrics.liveSnapshots,0);
+ checks.push(mode+': unsent draw revoked; queued uniform/scene survive until drained, exactly once');
+}
+for(const mode of ['loss','reject','syncFence']){
+ const {d,s}=await setup();if(mode==='syncFence')d.fenceError=new Error('fence acquisition');
+ const receipt=await s.render(view),rejected=assert.rejects(receipt.completion);
+ if(mode==='loss')d.lose();if(mode==='reject')for(const gate of d.gates.splice(0))gate.reject(new Error('completion rejected'));
+ await rejected;await s.dispose();assert.ok(d.resources.every(r=>r.destroyed===0));assert.equal(s.metrics.liveSnapshots,0);
+ checks.push(mode+': terminal release skips GPU destruction, rejects receipt, drains CPU leases');
+}
+for(const mode of ['loss','reject','syncFence']){
+ const {d,s}=await setup(),error=new Error('encoding original');d.encodeError=error;if(mode==='syncFence')d.fenceError=new Error('fence acquisition');
+ assert.throws(()=>s.render(view),e=>e===error);
+ if(mode==='loss')d.lose();if(mode==='reject')for(const gate of d.gates.splice(0))gate.reject(new Error('completion rejected'));
+ await s.dispose();assert.ok(d.resources.every(r=>r.destroyed===0));assert.equal(s.metrics.liveSnapshots,0);
+ checks.push('failed encoding + '+mode+': original failure preserved under terminal cleanup');
+}
+const result={passed:true,checks,scope:'host-only synthetic queue event ordering; real sealed typed bridge and patched public session/consumer',hardware_or_millisecond_claim:false,canonical_credit:0};
+await writeFile(new URL('raw-results.json',process.env.VKF_HOST_RESULT_DIR),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));

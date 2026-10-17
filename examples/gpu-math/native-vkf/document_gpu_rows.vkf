@@ -1,0 +1,14 @@
+# Numeric draw packets shared by native geometry and the WASM GPU adapter.
+# Rows are the renderer's existing16-float instance ABI, never JSON objects.
+Packet:(rows:[[num]],count:int,stride:int,revision:int)
+packet(rows:[[num]],revision:int)->Packet:
+    index:0
+    index<rows.length()?>
+        (rows.(index).length()=16)?! "GPU instance stride must be16 numbers"
+        column:0
+        column<16?>
+            value:rows.(index,column)
+            (value=value /\ |value|<=10.0^20)?! "GPU instance contains invalid geometry"
+            .column:column+1
+        .index:index+1
+    @:(rows:rows,count:rows.length(),stride:64,revision:revision)

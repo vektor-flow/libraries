@@ -1,0 +1,39 @@
+# Native host I/O around the shared VKF source-to-pages/PDF core.
+# Stdin lines: source path, font catalog path, vector operators path, language
+# path, ordered roles JSON, project files JSON path (empty -> {}), job, entry,
+# PDF output path, report output path, optional layout output path.
+# No source/layout/PDF/bytecode result is loaded from a previous execution.
+io:.io
+font_catalog:.font_catalog
+hyphenation:.hyphenation
+text_parser_kernel:.text_parser_kernel
+latex:.latex
+resource_json:.resource_json
+tex_text:.tex_text
+
+run()->int:
+    source_path:io.read_line()
+    catalog_path:io.read_line()
+    operators_path:io.read_line()
+    language_path:io.read_line()
+    roles_json:io.read_line()
+    project_path:io.read_line()
+    job:io.read_line()
+    entry:io.read_line()
+    pdf_path:io.read_line()
+    report_path:io.read_line()
+    layout_path:io.read_line()
+    files:"{}"
+    project_path~=""? .files:io.read_text(project_path)
+    job=""? .job:"main"
+    entry=""? .entry:"main.tex"
+    result:latex.tex2pdf(io.read_text(source_path),font_catalog.load(io.read_text(catalog_path)),io.read_text(operators_path),text_parser_kernel.roles(roles_json),hyphenation.load(io.read_text(language_path)),files,job,entry,layout_path~="")
+    complete:"false"
+    result.complete?
+        .complete:"true"
+        io.write_text(pdf_path,result.pdf)
+    layout_path~=""? io.write_text(layout_path,result.layout_json)
+    report:"{\"complete\":"&complete&",\"diagnostics\":["&result.diagnostics&"],\"unresolved\":"&result.unresolved_json&",\"blockCount\":"&tex_text.integer(result.block_count)&",\"pageCount\":"&tex_text.integer(result.page_count)&",\"pdfBytes\":"&tex_text.integer(tex_text.byte_length(result.pdf))&"}"
+    io.write_text(report_path,report)
+    @:0
+run()

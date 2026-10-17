@@ -1,0 +1,96 @@
+{
+  "source": "\\documentclass{article}\n\\newwrite\\positions\\immediate\\openout\\positions=positions.txt\n\\def\\save{\\pdfsavepos\\write\\positions{\\number\\pdflastxpos,\\number\\pdflastypos}}\n\\begin{document}\\noindent\\save A\\save\\textbullet{}\\save B\\kern1pt\\save C\\save\\textbullet{}\\save e\\raise1pt\\hbox{\\save X}\\save Y\\end{document}\n",
+  "reference": "pdfTeX 1.40.28; pdfsavepos scaled-point inputs and independent decoding of native PDF Td/TJ/Type3 widths",
+  "paperHeightSp": 55380990,
+  "paperHeightBp": 841.8897637795276,
+  "glyphs": [
+    {
+      "key": "text/@document:roman:65",
+      "inputSp": [
+        8799518,
+        46515936
+      ],
+      "expected": [
+        133.768,
+        134.765
+      ]
+    },
+    {
+      "key": "text/@text:bullet",
+      "inputSp": [
+        9291039,
+        46515936
+      ],
+      "expected": [
+        141.23995,
+        134.765
+      ]
+    },
+    {
+      "key": "text/@document:roman:66",
+      "inputSp": [
+        9618639,
+        46515936
+      ],
+      "expected": [
+        146.22026171008,
+        134.765
+      ]
+    },
+    {
+      "key": "text/@document:roman:67",
+      "inputSp": [
+        10148390,
+        46515936
+      ],
+      "expected": [
+        154.27303129008,
+        134.765
+      ]
+    },
+    {
+      "key": "text/@text:bullet",
+      "inputSp": [
+        10621706,
+        46515936
+      ],
+      "expected": [
+        161.46802101008,
+        134.765
+      ]
+    },
+    {
+      "key": "text/@document:roman:101",
+      "inputSp": [
+        10949306,
+        46515936
+      ],
+      "expected": [
+        166.44833272016,
+        134.765
+      ]
+    },
+    {
+      "key": "text/@document:roman:88",
+      "inputSp": [
+        11240577,
+        46581472
+      ],
+      "expected": [
+        170.877,
+        133.769
+      ]
+    },
+    {
+      "key": "text/@document:roman:89",
+      "inputSp": [
+        11732098,
+        46515936
+      ],
+      "expected": [
+        178.34900000000002,
+        134.765
+      ]
+    }
+  ]
+}

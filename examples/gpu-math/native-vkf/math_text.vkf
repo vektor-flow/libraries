@@ -1,0 +1,110 @@
+# Flat text-in-math leaves. Explicit font scopes use the original UTF-8 buffer;
+# formatting never reconstructs unread tails or recursively copies accumulated text.
+text:.tex_text
+tokens:.math_tokens
+groups:.tex_groups
+j:.resource_json
+chunks:.text_chunks
+Leaves:(kinds:[str],attrs:[str],count:int,diagnostics:str)
+
+repair(messages:str,message:str)->str:
+    quoted:j.quote(message)
+    text.find(","&messages&",",","&quoted&",")>=0? @:messages
+    messages=""? @:quoted
+    prior:j.parse("["&messages&"]")
+    prior.count>=25? @:messages
+    @:messages&","&quoted
+
+family(raw:str,current:str)->str:
+    ~text.matches(raw,0,"\\")? @:""
+    tokens.one_of(raw,["\\text","\\textrm","\\textnormal"])? @:"mathrm"
+    raw="\\textbf"? @:"mathbf"
+    raw="\\textit"? @:"mathit"
+    raw="\\emph"?
+        current="mathit"? @:"mathrm"
+        @:"mathit"
+    raw="\\textsf"? @:"mathsf"
+    raw="\\texttt"? @:"mathtt"
+    @:""
+
+escape(raw:str)->str:
+    raw="\\%"? @:"%"
+    raw="\\\$"? @:"\$"
+    raw="\\#"? @:"#"
+    raw="\\&"? @:"&"
+    raw="\\_"? @:"_"
+    raw="\\{"? @:"{"
+    raw="\\}"? @:"}"
+    raw="\\textbackslash"? @:"\\"
+    raw="\\textasciicircum"? @:"^"
+    raw="\\textasciitilde"? @:"~"
+    raw="\\ "? @:" "
+    @:""
+
+parse(source:str,depth:int=0,font:str="mathrm")->Leaves:
+    (depth<=32)?! "Text nesting limit: 32"
+    capacity:32
+    kinds:chunks.empty(capacity)
+    attrs:chunks.empty(capacity)
+    count:0
+    diagnostics:""
+    size:text.byte_length(source)
+    position:0
+    current:font
+    stack_fonts:chunks.empty(34)
+    stack_stops:[0:34]
+    stack_after:[0:34]
+    top:0
+    stop:size
+    position<size \/ top>0?>
+        position>=stop /\ top>0?
+            .top:top-1
+            .current:stack_fonts.(top)
+            .stop:stack_stops.(top)
+            .position:stack_after.(top)
+            @>
+        position>=size? @|
+        c:text.at(source,position)
+        (c="{" \/ c="}")?
+            .position:position+1
+            @>
+        kind:"textchar"
+        character:c
+        .position:text.next(source,position)
+        c="\\"?
+            command:tokens.peek(source,position-1)
+            .position:command.stop
+            .character:escape(command.raw)
+            character=""?
+                selected:family(command.raw,current)
+                selected~=""?
+                    start:tokens.skip_space(source,position)
+                    .position:start
+                    scope:groups.read(source,start)
+                    scope.present?
+                        (top+depth<32)?! "Text nesting limit: 32"
+                        stack_fonts.(top):current
+                        stack_stops.(top):stop
+                        stack_after.(top):scope.stop
+                        .top:top+1
+                        .current:selected
+                        .stop:scope.stop-1
+                        ~scope.closed?
+                            .stop:scope.stop
+                            .diagnostics:repair(diagnostics,"Inferred a closing text brace")
+                        .position:start+1
+                        @>
+                    .diagnostics:repair(diagnostics,"Missing text formatting argument")
+                    @>
+                .kind:"hole"
+                .diagnostics:repair(diagnostics,"Unsupported text command: "&command.raw)
+        c~="\\" /\ (c="~" \/ tokens.space(c))? .character:" "
+        count=capacity?
+            .kinds:kinds&chunks.empty(capacity)
+            .attrs:attrs&chunks.empty(capacity)
+            .capacity:capacity*2
+        kinds.(count):kind
+        attrs.(count):"\"type\":\"hole\""
+        kind="textchar"? attrs.(count):"\"type\":\"textchar\",\"char\":"&j.quote(character)&",\"font\":"&j.quote(current)
+        .count:count+1
+    @:(kinds:kinds,attrs:attrs,count:count,diagnostics:diagnostics)

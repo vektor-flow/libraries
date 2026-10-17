@@ -1,0 +1,277 @@
+# Literal document word shaping. Installed role records own optical font sizes;
+# callers provide the role, and no document/source results survive this call.
+catalog:.frozen285_font_catalog
+j:.frozen285_resource_json
+glyphs:.frozen285_math_glyphs
+text:.frozen285_tex_text
+chunks:.frozen285_text_chunks
+parser:.frozen285_math_parser
+tex:.frozen285_tex_numeric
+font_metrics:.frozen285_text_font_metrics
+FontState:(slots:[int],keys:[str],raws:[str],names:[str],advances:[num],heights:[num],depths:[num],italics:[num],kern_starts:[int],kern_stops:[int],kern_codes:[str],kern_values:[num],kern_count:int,count:int,role_names:[str],role_ready:[int],role_sizes:[num],role_quads:[num],role_sources:[str],role_spaces:[num],role_stretches:[num],role_shrinks:[num],role_extras:[num],role_slants:[num],role_starts:[int],role_stops:[int],role_count:int,lig_first:[int],lig_second:[int],lig_result:[int],lig_count:int)
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Context:(role:str,space:num,ligatures:str)
+Run:(keys:[str],xs:[num],metrics:[str],codes:[int],starts:[int],stops:[int],count:int,width:num,height:num,depth:num,italic:num,atoms:int,diagnostics:str)
+
+nums(size:int)->[num]:[0.0:size]
+ints(size:int)->[int]:[0:size]
+
+raw(tape:Tape,node:int)->str:
+    node<0? @:""
+    @:text.span(tape.source,tape.starts.(node),tape.stops.(node))
+
+context(fonts:Catalog,role:str)->Context:
+    prepared:font_metrics.context(font_metrics.empty(),fonts,role)
+    @:prepared.context
+
+encoded(code:int)->int:
+    code=8216? @:96
+    code=8217? @:39
+    code=8220? @:92
+    code=8221? @:34
+    code=8211? @:123
+    code=8212? @:124
+    code=305? @:16
+    code=567? @:17
+    @:code
+
+# JS source indices and discretionary offsets are UTF-16, even though the VKF
+# host strings are UTF-8. Retain code units explicitly, including surrogate
+# diagnostics for unsupported supplementary characters.
+units(source:str):
+    size:text.byte_length(source)
+    codes:ints(size+1)
+    chars:chunks.empty(size+1)
+    bytes:ints(size+2)
+    count:0
+    position:0
+    position<size?>
+        character:text.at(source,position)
+        scalar:0
+        character >>
+            .scalar:int($)
+            $
+        following:text.next(source,position)
+        bytes.(count):position
+        scalar<=65535?
+            codes.(count):scalar
+            chars.(count):character
+            .count:count+1
+        scalar>65535?
+            codes.(count):55296+(scalar-65536)//1024
+            codes.(count+1):56320+(scalar-65536)%1024
+            bytes.(count+1):position
+            .count:count+2
+        .position:following
+    bytes.(count):size
+    @:(codes:codes,chars:chars,bytes:bytes,count:count)
+
+hex4(code:int)->str:
+    alphabet:"0123456789abcdef"
+    @:text.at(alphabet,(code//4096)%16)&text.at(alphabet,(code//256)%16)&text.at(alphabet,(code//16)%16)&text.at(alphabet,code%16)
+
+unsupported(messages:str,code:int,character:str)->str:
+    quoted:j.quote("Unsupported document text character: "&character)
+    code>=55296 /\ code<=57343?
+        prefix:j.quote("Unsupported document text character: ")
+        .quoted:text.span(prefix,0,text.byte_length(prefix)-1)&"\\u"&hex4(code)&"\""
+    text.find(","&messages&",",","&quoted&",")>=0? @:messages
+    messages=""? @:quoted
+    @:messages&","&quoted
+
+shape_prepared(source:str,fonts:Catalog,ctx:Context,initial:FontState):
+    state:initial
+    role_index:font_metrics.role_index(initial,ctx.role)
+    role_index<0?
+        decoded:font_metrics.role(initial,ctx.role,ctx.ligatures)
+        .state:decoded.state
+        .role_index:decoded.index
+    input:units(source)
+    codes:input.codes
+    chars:input.chars
+    keys:chunks.empty(input.count+1)
+    xs:nums(input.count+1)
+    metrics:chunks.empty(input.count+1)
+    output_codes:ints(input.count+1)
+    starts:ints(input.count+1)
+    stops:ints(input.count+1)
+    width:0.0
+    height:0.0
+    depth:0.0
+    italic:0.0
+    prior: -1
+    has_prior:false
+    count:0
+    atoms:0
+    diagnostics:""
+    i:0
+    i<input.count?>
+        codes.(i)=32?
+            .width:width+ctx.space
+            .has_prior:false
+            .italic:0
+            .i:i+1
+            @>
+        code:encoded(codes.(i))
+        consumed:1
+        i+consumed<input.count?>
+            next:encoded(codes.(i+consumed))
+            joined:font_metrics.ligature(state,role_index,code,next)
+            joined<0? @|
+            .code:joined
+            .consumed:consumed+1
+        metric_key:"text/"&ctx.role&"/"&text.integer(code)
+        metric:font_metrics.find(state,metric_key)
+        metric<0?
+            selected:font_metrics.lookup(state,fonts,metric_key)
+            .state:selected.state
+            .metric:selected.index
+        found:metric>=0
+        fallback:false
+        ~found /\ chars.(i)~=""?
+            fallback_key:"math/text/@text:"&chars.(i)
+            .metric:font_metrics.find(state,fallback_key)
+            metric<0?
+                replacement:font_metrics.lookup(state,fonts,fallback_key)
+                .state:replacement.state
+                .metric:replacement.index
+            .found:metric>=0
+            .fallback:found
+        ~found?
+            .diagnostics:unsupported(diagnostics,codes.(i),chars.(i))
+            .i:i+consumed
+            @>
+        key:state.names.(metric)
+        fallback? .key:"text/@text:"&chars.(i)
+        ~fallback /\ has_prior? .width:width+font_metrics.kern(state,prior,code)
+        keys.(count):key
+        xs.(count):width
+        metrics.(count):state.raws.(metric)
+        output_codes.(count):code
+        starts.(count):i
+        stops.(count):i+consumed
+        advance:state.advances.(metric)
+        .width:width+advance
+        .height:tex.maximum(height,state.heights.(metric))
+        .depth:tex.maximum(depth,state.depths.(metric))
+        .prior:metric
+        .has_prior:true
+        .italic:state.italics.(metric)
+        fallback?
+            .has_prior:false
+            .italic:0
+        ~fallback? .atoms:atoms+1
+        .count:count+1
+        .i:i+consumed
+    run:(keys:keys,xs:xs,metrics:metrics,codes:output_codes,starts:starts,stops:stops,count:count,width:width,height:height,depth:depth,italic:italic,atoms:atoms,diagnostics:diagnostics)
+    @:(run:run,state:state)
+
+shape(source:str,fonts:Catalog,ctx:Context)->Run:
+    prepared:shape_prepared(source,fonts,ctx,font_metrics.empty())
+    @:prepared.run
+
+# Normal discretionary positions are between UTF-16 characters. Splitting a
+# surrogate pair cannot form a font glyph; reject that malformed boundary.
+slice16(source:str,start:int,stop:int)->str:
+    input:units(source)
+    (start>=0 /\ stop>=start /\ stop<=input.count)?! "Invalid text shaping range"
+    codes:input.codes
+    start<input.count? (codes.(start)<56320 \/ codes.(start)>57343)?! "Text range splits a surrogate pair"
+    stop<input.count? (codes.(stop)<56320 \/ codes.(stop)>57343)?! "Text range splits a surrogate pair"
+    bytes:input.bytes
+    @:text.span(source,bytes.(start),bytes.(stop))
+
+range_prepared(source:str,start:int,stop:int,fonts:Catalog,ctx:Context,initial:FontState):
+    prepared:shape_prepared(slice16(source,start,stop),fonts,ctx,initial)
+    run:prepared.run
+    starts:run.starts
+    stops:run.stops
+    i:0
+    i<run.count?>
+        starts.(i):starts.(i)+start
+        stops.(i):stops.(i)+start
+        .i:i+1
+    adjusted:(keys:run.keys,xs:run.xs,metrics:run.metrics,codes:run.codes,starts:starts,stops:stops,count:run.count,width:run.width,height:run.height,depth:run.depth,italic:run.italic,atoms:run.atoms,diagnostics:run.diagnostics)
+    @:(run:adjusted,state:prepared.state)
+
+range(source:str,start:int,stop:int,fonts:Catalog,ctx:Context)->Run:
+    prepared:range_prepared(source,start,stop,fonts,ctx,font_metrics.empty())
+    @:prepared.run
+
+correction(source:str,start:int,stop:int,prefix_start:num,prefix_stop:num,fonts:Catalog,ctx:Context)->num:
+    @:range(source,start,stop,fonts,ctx).width-(prefix_stop-prefix_start)
+
+# Exact shaped ranges retained only for this paragraph measurement request.
+Store:(keys:[str],xs:[num],metrics:[str],codes:[int],starts:[int],stops:[int],offsets:[int],counts:[int],widths:[num],heights:[num],depths:[num],italics:[num],atoms:[int],diagnostics:[str],count:int,glyph_count:int)
+empty_store()->Store:
+    @:(keys:chunks.empty(32),xs:nums(32),metrics:chunks.empty(32),codes:ints(32),starts:ints(32),stops:ints(32),offsets:ints(32),counts:ints(32),widths:nums(32),heights:nums(32),depths:nums(32),italics:nums(32),atoms:ints(32),diagnostics:chunks.empty(32),count:0,glyph_count:0)
+retain(store:Store,run:Run)->Store:
+    keys:store.keys
+    xs:store.xs
+    metrics:store.metrics
+    codes:store.codes
+    starts:store.starts
+    stops:store.stops
+    offsets:store.offsets
+    counts:store.counts
+    widths:store.widths
+    heights:store.heights
+    depths:store.depths
+    italics:store.italics
+    atoms:store.atoms
+    diagnostics:store.diagnostics
+    store.count>=offsets.length()?
+        .offsets:offsets&ints(offsets.length())
+        .counts:counts&ints(counts.length())
+        .widths:widths&nums(widths.length())
+        .heights:heights&nums(heights.length())
+        .depths:depths&nums(depths.length())
+        .italics:italics&nums(italics.length())
+        .atoms:atoms&ints(atoms.length())
+        .diagnostics:diagnostics&chunks.empty(diagnostics.length())
+    store.glyph_count+run.count>keys.length()?>
+        .keys:keys&chunks.empty(keys.length())
+        .xs:xs&nums(xs.length())
+        .metrics:metrics&chunks.empty(metrics.length())
+        .codes:codes&ints(codes.length())
+        .starts:starts&ints(starts.length())
+        .stops:stops&ints(stops.length())
+    offsets.(store.count):store.glyph_count
+    counts.(store.count):run.count
+    widths.(store.count):run.width
+    heights.(store.count):run.height
+    depths.(store.count):run.depth
+    italics.(store.count):run.italic
+    atoms.(store.count):run.atoms
+    diagnostics.(store.count):run.diagnostics
+    at:0
+    at<run.count?>
+        keys.(store.glyph_count+at):run.keys.(at)
+        xs.(store.glyph_count+at):run.xs.(at)
+        metrics.(store.glyph_count+at):run.metrics.(at)
+        codes.(store.glyph_count+at):run.codes.(at)
+        starts.(store.glyph_count+at):run.starts.(at)
+        stops.(store.glyph_count+at):run.stops.(at)
+        .at:at+1
+    @:(keys:keys,xs:xs,metrics:metrics,codes:codes,starts:starts,stops:stops,offsets:offsets,counts:counts,widths:widths,heights:heights,depths:depths,italics:italics,atoms:atoms,diagnostics:diagnostics,count:store.count+1,glyph_count:store.glyph_count+run.count)
+restore(store:Store,index:int)->Run:
+    (index>=0 /\ index<store.count)?! "Invalid shaped range index"
+    count:store.counts.(index)
+    offset:store.offsets.(index)
+    keys:chunks.empty(count+1)
+    xs:nums(count+1)
+    metrics:chunks.empty(count+1)
+    codes:ints(count+1)
+    starts:ints(count+1)
+    stops:ints(count+1)
+    at:0
+    at<count?>
+        keys.(at):store.keys.(offset+at)
+        xs.(at):store.xs.(offset+at)
+        metrics.(at):store.metrics.(offset+at)
+        codes.(at):store.codes.(offset+at)
+        starts.(at):store.starts.(offset+at)
+        stops.(at):store.stops.(offset+at)
+        .at:at+1
+    @:(keys:keys,xs:xs,metrics:metrics,codes:codes,starts:starts,stops:stops,count:count,width:store.widths.(index),height:store.heights.(index),depth:store.depths.(index),italic:store.italics.(index),atoms:store.atoms.(index),diagnostics:store.diagnostics.(index))

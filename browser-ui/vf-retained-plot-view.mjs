@@ -1,3 +1,6 @@
+import {curveContract,drawCurves} from './vf-analytic-curves.mjs';
+import {createSelectionController} from './vf-selection-controller.mjs';
+import {nativeGeometrySelectionObject} from './vf-selection-adapters.mjs';
 import { createRetainedGeometryScene } from './vf-retained-geometry-scene.mjs';
 import { materializeRetainedSceneArena } from './vf-retained-scene-arena.mjs';
 
@@ -10,7 +13,7 @@ export function createRetainedPlotView({ coordinates, renderer, pixelRatio = glo
   const scene = createRetainedGeometryScene();
   let frame = null;
   let meshes = [];
-  let selected = new Set();
+  const selectionController=createSelectionController({selectionColor,selectionRadius,ringWidth});
 
   function replace(next) {
     if (!next || typeof next.frame !== 'string' || !Array.isArray(next.meshes)) throw new TypeError('retained scene requires a frame and meshes');
@@ -31,12 +34,18 @@ export function createRetainedPlotView({ coordinates, renderer, pixelRatio = glo
       for (const name of ['selectable','draggable']) {
         if (name in mesh && typeof mesh[name] !== 'boolean') throw new TypeError(`mesh ${name} must be a boolean`);
       }
-      return {id: mesh.id, pickable: mesh.pickable !== false, selectable:mesh.selectable === true, draggable:mesh.draggable === true, points, colors, indices, topology, sizeSpace:mesh.marker_space || 'pixel', width: mesh.edge_width ?? 2, radius: (mesh.vertex_size ?? mesh.point_size ?? 14) / 2};
+      const curve = mesh.analytic_curve === undefined ? null : curveContract(mesh.analytic_curve);
+      if (curve && (mesh.selectable || mesh.draggable || !['line-list','line-strip'].includes(topology))) throw TypeError('analytic curve interaction/topology unsupported');
+      return {curve, id: mesh.id, pickable: mesh.pickable !== false, selectable:mesh.selectable === true, draggable:mesh.draggable === true, points, colors, indices, topology, sizeSpace:mesh.marker_space || 'pixel', width: mesh.edge_width ?? 2, radius: (mesh.vertex_size ?? mesh.point_size ?? 14) / 2};
     });
-    if (frame !== next.frame) selected = new Set();
     frame = next.frame;
     meshes = values;
-    selected = new Set([...selected].filter(id => values.some(mesh=>mesh.id===id && mesh.pickable && mesh.selectable)));
+    selectionController.replace(frame, values.filter(mesh=>mesh.pickable&&mesh.selectable).map(mesh=>({
+      ...nativeGeometrySelectionObject({objectId:mesh.id,points:mesh.points,indices:mesh.indices,topology:mesh.topology,coordinates,
+        width:()=>pixelSize(mesh,mesh.width)/pixelRatio,radius:()=>pixelSize(mesh,mesh.radius)/pixelRatio}),
+      // Preserve the retained picker's nearest/tie/tolerance semantics.
+      hitTest:(point,options)=>hitTest(point,options)?.id===mesh.id
+    })));
   }
 
   function projected(mesh) {
@@ -65,6 +74,10 @@ export function createRetainedPlotView({ coordinates, renderer, pixelRatio = glo
     scene.beginFrame();
     for (const mesh of meshes) {
       const points = projected(mesh);
+      if (mesh.curve) {
+        drawCurves(scene,frame,mesh.id,mesh.curve,{matrix:coordinates.affineWorldToScreen?.(),pixelRatio},pixelSize(mesh,mesh.width));
+        continue;
+      }
       for (const [index, [from, to]] of segments(mesh).entries()) {
         const path = [points[from], points[to]];
         scene.path(frame, `${mesh.id}:${index}`, path, pixelSize(mesh,mesh.width), [{offset:0,color:mesh.colors[from]},{offset:1,color:mesh.colors[to]}]);
@@ -76,12 +89,10 @@ export function createRetainedPlotView({ coordinates, renderer, pixelRatio = glo
       }
       if (mesh.topology === 'point-list') for (const index of mesh.indices) {
         scene.primitive(frame, `${mesh.id}:${index}`, {kind:'vertex',center:points[index],radius:pixelSize(mesh,mesh.radius),color:mesh.colors[index]});
-        if (selected.has(mesh.id)) scene.ring(frame, `${mesh.id}:${index}:selected`, points[index], pixelSize(mesh,mesh.radius) + selectionRadius * pixelRatio, ringWidth * pixelRatio, selectionColor, {selection:true});
-      }
-      if (selected.has(mesh.id)) for (const [index,path] of contourPaths(mesh,segments(mesh)).entries()) {
-        scene.selectionContour(frame, `${mesh.id}:outline:${index}`, path.map(vertex=>points[vertex]), selectionColor, pixelRatio, {selectionRadius,ringWidth});
+
       }
     }
+    selectionController.render(scene,{pixelRatio});
     return scene.commit(renderer);
   }
 
@@ -106,16 +117,8 @@ export function createRetainedPlotView({ coordinates, renderer, pixelRatio = glo
     return hit ? Object.freeze({id:hit.id,selectable:hit.selectable,draggable:hit.draggable}) : null;
   }
 
-  function selectAt(point, { tolerance = 7, additive = false } = {}) {
-    const hit=hitTest(point,{tolerance,capability:'selectable'});
-    if (!additive) selected.clear();
-    if (hit) selected.add(hit.id);
-    return selection();
-  }
-
-  function selection() { return Object.freeze([...selected]); }
-  function clearSelection() { selected.clear(); }
-  return Object.freeze({replace, replaceArena: packet => replace(materializeRetainedSceneArena(packet)), render, hitTest, selectAt, selection, clearSelection, invalidate:scene.invalidate});
+  const {selectAt,selection,clearSelection}=selectionController;
+  return Object.freeze({replace, replaceArena: packet => replace(materializeRetainedSceneArena(packet)), render, hitTest, selectAt, selection, clearSelection, selectionController, dispose:selectionController.dispose, invalidate:scene.invalidate});
 }
 
 function distanceToSegment(point, from, to) {
@@ -130,43 +133,3 @@ function insideTriangle(point, triangle) {
   return signs.some(value=>value>0) && !signs.some(value=>value<0) || signs.some(value=>value<0) && !signs.some(value=>value>0);
 }
 
-function contourPaths(mesh, lineSegments) {
-  const edges = new Map();
-  function append(from,to) {
-    const key = from < to ? `${from}:${to}` : `${to}:${from}`;
-    const entry = edges.get(key);
-    if (entry) entry.count++;
-    else edges.set(key,{from,to,count:1});
-  }
-  if (mesh.topology === 'triangle-list') {
-    for (let i=0;i<mesh.indices.length;i+=3) {
-      const [a,b,c]=mesh.indices.slice(i,i+3);
-      append(a,b);append(b,c);append(c,a);
-    }
-    for (const [key,entry] of edges) if (entry.count!==1) edges.delete(key);
-  } else for (const [from,to] of lineSegments) append(from,to);
-  const adjacency=new Map();
-  for (const [key,{from,to}] of edges) for (const vertex of [from,to]) {
-    if (!adjacency.has(vertex)) adjacency.set(vertex,[]);
-    adjacency.get(vertex).push(key);
-  }
-  const remaining=new Set(edges.keys());
-  const paths=[];
-  while (remaining.size) {
-    const first=edges.get(remaining.values().next().value);
-    const start=adjacency.get(first.from).length!==2 ? first.from : adjacency.get(first.to).length!==2 ? first.to : first.from;
-    const path=[start];
-    let current=start;
-    while (true) {
-      const key=adjacency.get(current).find(key=>remaining.has(key));
-      if (!key) break;
-      remaining.delete(key);
-      const edge=edges.get(key);
-      current=edge.from===current ? edge.to : edge.from;
-      path.push(current);
-      if (current===start || adjacency.get(current).length!==2) break;
-    }
-    if (path.length>1) paths.push(path);
-  }
-  return paths;
-}

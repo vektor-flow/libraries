@@ -1,0 +1,32 @@
+# Read generic font files and an arbitrary key after compilation. Font/PDF
+# integration fixture only; this does not perform document layout.
+io:.io
+fonts:.font_catalog
+j:.resource_json
+syntax:.pdf_syntax
+objects:.pdf_objects
+resources:.pdf_resources
+paths:.pdf_paths
+collections:.collections
+
+run()->int:
+    catalog_path:io.read_line()
+    operators_path:io.read_line()
+    glyph_key:io.read_line()
+    output_path:io.read_line()
+    catalog:fonts.load(io.read_text(catalog_path))
+    operators:io.read_text(operators_path)
+    form:fonts.vector_form(catalog,operators,glyph_key)
+    content:paths.glyph(0,20,40,4,-4)
+    tape:objects.pack([
+        resources.catalog(2),
+        resources.pages(collections.list(3)),
+        resources.page(2,4,5,80,80,collections.list()),
+        resources.resources(collections.list(6),collections.list()),
+        syntax.stream("",content),
+        form
+    ])
+    io.write_text(output_path,objects.serialize(tape,1))
+    ::catalog.count
+    @:0
+run()

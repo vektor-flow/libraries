@@ -1,0 +1,193 @@
+# Reference-only execution observer for QED scopes and hidden repeated calls.
+# It deliberately emits no geometry and rejects unrelated layout constructs.
+actions:.math_qed_actions
+qed:.math_qed
+parser:.math_parser
+packages:.math_packages
+glyphs:.math_glyphs
+j:.resource_json
+chunks:.text_chunks
+text:.tex_text
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+ints(size:int)->[int]:[0:size]
+bits(size:int)->[bit]:[false:size]
+
+trace(source:str,fonts:Catalog,inline:bit=false,display:bit=true)->str:
+    context:packages.from_names(["amsthm"],"amsart")
+    arena:parser.parse_with_context(source,fonts,context)
+    kinds:arena.kinds
+    attrs:arena.attrs
+    first:arena.first
+    nexts:arena.nexts
+    arguments:arena.a
+    supers:arena.sup
+    subs:arena.sub
+    capacity:arena.count*8+128
+    nodes:ints(capacity)
+    phases:ints(capacity)
+    styles:ints(capacity)
+    cramp:bits(capacity)
+    fonts_at:chunks.empty(capacity)
+    depths:ints(capacity)
+    inline? styles.(0):1
+    top:0
+    stack:qed.empty()
+    events:chunks.empty(32)
+    event_count:0
+    diagnostics:arena.diagnostics
+    steps:0
+    top>=0?>
+        .steps:steps+1
+        (steps<10000)?! "QED reference observer execution limit"
+        index:top
+        .top:top-1
+        node:nodes.(index)
+        phase:phases.(index)
+        style:styles.(index)
+        font:fonts_at.(index)
+        cramped:cramp.(index)
+        phase=1?
+            .stack:actions.finish(stack,depths.(index))
+            @>
+        kind:kinds.(node)
+        kind="list"?
+            start:top+1
+            child:first.(node)
+            current:style
+            child>=0?>
+                child_kind:kinds.(child)
+                child_kind="style"?
+                    data:j.parse("{"&attrs.(child)&"}")
+                    .current:int(glyphs.numeric(data,0,"style"))
+                (child_kind~="style" /\ child_kind~="color" /\ child_kind~="label")?
+                    .top:top+1
+                    (top<capacity)?! "QED observer task capacity"
+                    nodes.(top):child
+                    phases.(top):0
+                    styles.(top):current
+                    fonts_at.(top):font
+                    cramp.(top):cramped
+                .child:nexts.(child)
+            lo:start
+            hi:top
+            lo<hi?>
+                saved_node:nodes.(lo)
+                saved_style:styles.(lo)
+                saved_font:fonts_at.(lo)
+                saved_cramped:cramp.(lo)
+                nodes.(lo):nodes.(hi)
+                styles.(lo):styles.(hi)
+                fonts_at.(lo):fonts_at.(hi)
+                cramp.(lo):cramp.(hi)
+                nodes.(hi):saved_node
+                styles.(hi):saved_style
+                fonts_at.(hi):saved_font
+                cramp.(hi):saved_cramped
+                .lo:lo+1
+                .hi:hi-1
+            .steps:steps
+            @>
+        (kind="qedpush" \/ kind="qedpop" \/ kind="qedhere" \/ kind="qed")?
+            action:actions.enter(stack,kind,arguments.(node),style,cramped,font,"null",display)
+            .stack:action.stack
+            action.diagnostic~=""?
+                diagnostics~=""? .diagnostics:diagnostics&","
+                .diagnostics:diagnostics&j.quote(action.diagnostic)
+            action.needs_finish?
+                .top:top+1
+                nodes.(top):node
+                phases.(top):1
+                depths.(top):action.entry_depth
+                .top:top+1
+                nodes.(top):action.root
+                phases.(top):0
+                styles.(top):action.style
+                cramp.(top):action.cramped
+                fonts_at.(top):action.font
+            action.operation=actions.symbol_operation()?
+                symbol:glyphs.glyph(fonts,context.qed_symbol,1,font)
+                event_count>=events.length()? .events:events&chunks.empty(events.length())
+                prefix:""
+                event_count>0? .prefix:","
+                events.(event_count):prefix&j.quote(symbol.key)
+                .event_count:event_count+1
+            .steps:steps
+            @>
+        (kind="glyph" \/ kind="group" \/ kind="font" \/ kind="paint" \/ kind="class" \/ kind="style" \/ kind="color" \/ kind="space" \/ kind="label" \/ kind="decoration" \/ kind="arrow" \/ kind="delimited" \/ kind="middle")?! "QED reference observer unsupported construct"
+        script_style:3
+        style<2? .script_style:2
+        script:1
+        script>=0?>
+            child:supers.(node)
+            script=1? .child:subs.(node)
+            child>=0?
+                .top:top+1
+                nodes.(top):child
+                phases.(top):0
+                styles.(top):script_style
+                fonts_at.(top):font
+                cramp.(top):cramped \/ script=1
+            .script:script-1
+        kind="arrow"?
+            # First-pass labels precede the general scripts already queued.
+            # Both labels are initially uncramped, as layout(label,style).
+            .script:1
+            script>=0?>
+                child:supers.(node)
+                script=1? .child:subs.(node)
+                child>=0?
+                    .top:top+1
+                    nodes.(top):child
+                    phases.(top):0
+                    styles.(top):script_style
+                    fonts_at.(top):font
+                    cramp.(top):false
+                .script:script-1
+            .steps:steps
+            @>
+        kind="glyph"?
+            data:j.parse("{"&attrs.(node)&"}")
+            symbol:glyphs.glyph(fonts,glyphs.string(data,"token"),style,font)
+            event_count>=events.length()? .events:events&chunks.empty(events.length())
+            prefix:""
+            event_count>0? .prefix:","
+            events.(event_count):prefix&j.quote(symbol.key)
+            .event_count:event_count+1
+        arguments.(node)>=0?
+            child_font:font
+            child_cramped:cramped
+            kind="font"?
+                data:j.parse("{"&attrs.(node)&"}")
+                .child_font:glyphs.string(data,"name")
+            kind="decoration"?
+                data:j.parse("{"&attrs.(node)&"}")
+                name:glyphs.string(data,"name")
+                (name="widehat" \/ name="widetilde")?! "QED observer supports only wide accent measurement decoration"
+                .top:top+1
+                nodes.(top):arguments.(node)
+                phases.(top):0
+                styles.(top):1
+                fonts_at.(top):font
+                cramp.(top):true
+                .child_cramped:true
+            kind="delimited"?
+                contains_middle:false
+                child:first.(arguments.(node))
+                child>=0?>
+                    kinds.(child)="middle"? .contains_middle:true
+                    .child:nexts.(child)
+                contains_middle?
+                    .top:top+1
+                    nodes.(top):arguments.(node)
+                    phases.(top):0
+                    styles.(top):style
+                    fonts_at.(top):font
+                    cramp.(top):cramped
+            .top:top+1
+            nodes.(top):arguments.(node)
+            phases.(top):0
+            styles.(top):style
+            fonts_at.(top):child_font
+            cramp.(top):child_cramped
+        .steps:steps
+    @:"{\"events\":["&chunks.join(events,0,event_count)&"],\"diagnostics\":["&diagnostics&"],\"pending\":"&text.integer(stack.count)&",\"depth\":"&text.integer(stack.depth)&"}"

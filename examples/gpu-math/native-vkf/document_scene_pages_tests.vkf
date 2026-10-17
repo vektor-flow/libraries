@@ -1,0 +1,28 @@
+document_scene_json:.document_scene_json
+document_scene_pages:.document_scene_pages
+document_pages:.document_pages
+tex_numeric:.tex_numeric
+fixture(index:int):
+    source:"{\"items\":[{\"kind\":\"glyph\",\"key\":\"a\",\"x\":1,\"y\":2,\"flowLine\":0},{\"kind\":\"link\",\"x\":2,\"y\":0,\"width\":4,\"height\":0,\"flowLine\":0},{\"kind\":\"glyph\",\"key\":\"b\",\"x\":3,\"y\":12,\"flowLine\":1,\"equationTag\":true,\"tagWidth\":5}]}"
+    index=1? .source:"{\"items\":[{\"kind\":\"rule\",\"x\":4,\"y\":5,\"width\":6,\"height\":1,\"flowLine\":3}]}"
+    @:document_scene_json.decode(source)
+renderer_tests()->bit:
+    [int] ids:[0:2]
+    scenes:ids >> fixture($0)
+    placements:document_pages.empty_placements(3)
+    .placements:document_pages.append(placements,0,0,0,0,0,0,10,20,2,100,7,3,0.2,0.3)
+    .placements:document_pages.append(placements,0,1,1,0,1,0,10,30,2,100,7,3,0.2,0.3)
+    .placements:document_pages.append(placements,1,0,0,1,0,3,40,50,99,0,0,0,0,0)
+    refs:document_scene_pages.index(scenes,placements,[0,0,1],[0,1,0],3,2)
+    (refs.count=4 /\ refs.counts.(0)=3 /\ refs.counts.(1)=1 /\ refs.firsts.(1)=3)?! "page-contiguous references"
+    (refs.scene_ids.(2)=1 /\ refs.leaf_ids.(2)=0 /\ refs.placement_ids.(3)=1)?! "full scene and source-line order"
+    ordinary:document_scene_pages.placed_leaf(scenes,placements,refs,[0.0,12.0,0.0],0)
+    (ordinary.x=12 /\ ordinary.y=24 /\ ordinary.sx=2 /\ ordinary.vertical_shrink=0.2)?! "ordinary scale and glue"
+    link:document_scene_pages.placed_leaf(scenes,placements,refs,[0.0,12.0,0.0],1)
+    (|link.x-(14-tex_numeric.pt())|<0.000000001 /\ |link.height-(10+2*tex_numeric.pt())|<0.000000001)?! "link uses whole line extents"
+    full:document_scene_pages.placed_leaf(scenes,placements,refs,[0.0,12.0,0.0],2)
+    (full.x=44 /\ full.y=55 /\ full.width=6 /\ full.sx=1)?! "full scene translate with no scaling"
+    tag:document_scene_pages.placed_leaf(scenes,placements,refs,[0.0,12.0,0.0],3)
+    (tag.x=96 /\ tag.y=54)?! "equation tag base"
+    @:true
+renderer_tests()

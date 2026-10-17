@@ -1,0 +1,38 @@
+n:.tex_names
+
+hash_values():
+    (n.hash("")=0)?! "empty name hash"
+    (n.hash("abc")=1677554)?! "stable polynomial hash"
+    (n.hash("alpha")~=n.hash("beta"))?! "distinct names"
+
+lookup_and_replace():
+    original:n.create()
+    first:n.put(original,"alpha",7)
+    second:n.put(first,"beta",11)
+    replaced:n.put(second,"alpha",19)
+    (n.get(original,"alpha")= -1)?! "old table value remains unchanged"
+    (n.get(first,"alpha")=7 /\ n.get(first,"beta")= -1)?! "first table snapshot"
+    (n.get(second,"alpha")=7 /\ n.get(second,"beta")=11)?! "two entries"
+    (n.get(replaced,"alpha")=19 /\ replaced.count=2)?! "replacement preserves count"
+    (n.get(replaced,"absent")= -1)?! "missing name"
+
+grow_and_unicode():
+    table:n.create(2)
+    index:0
+    index<80?>
+        .table:n.put(table,"macro"&str(index),index)
+        .index:index+1
+    (table.count=80 /\ table.capacity>=128)?! "table grows generically"
+    .index:0
+    index<80?>
+        (n.get(table,"macro"&str(index))=index)?! "rehash preserves entries"
+        .index:index+1
+    extended:n.put(table,"αβ",81)
+    (n.get(extended,"αβ")=81)?! "Unicode reference name"
+
+renderer_tests()->bit:
+    hash_values()
+    lookup_and_replace()
+    grow_and_unicode()
+    @:true
+renderer_tests()

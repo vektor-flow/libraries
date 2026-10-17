@@ -1,0 +1,23 @@
+f:.font_catalog
+h:.hyphenation
+p:.paragraph_breaking
+b:.paragraph_nodes
+q:.text_paragraph
+inline_parser:.text_parser
+boxes:.text_inline_boxes
+role_reader:.text_parser_kernel
+out:.text_paragraph_output
+
+Options:(width:num,first_indent:num,forced_indent:num,justify:bit,hyphens:bit,tolerance:int,emergency:num,preserve_trailing:bit)
+TextOptions:(sentence_spacing:bit,french_spacing:bit,space_scale:num)
+make_options(width:num,indent:num,justify:bit,hyphens:bit,tolerance:int,emergency:num,preserve:bit)->Options:
+    @:(width:width,first_indent:indent,forced_indent:0,justify:justify,hyphens:hyphens,tolerance:tolerance,emergency:emergency,preserve_trailing:preserve)
+make_text_options(sentence:bit,french:bit,scale:num)->TextOptions:
+    @:(sentence_spacing:sentence,french_spacing:french,space_scale:scale)
+
+paragraph_packet(font_source:str,language_source:str,source:str,role:str,ordered_roles:str,optical:bit,width:num,indent:num,justify:bit,hyphens:bit,tolerance:int,emergency:num,preserve:bit,sentence:bit,french:bit,scale:num)->str:
+    options:make_options(width,indent,justify,hyphens,tolerance,emergency,preserve)
+    text_options:make_text_options(sentence,french,scale)
+    @:out.json(q.typeset(source,f.load(font_source),inline_parser.context(role,role_reader.roles(ordered_roles),optical),h.load(language_source),h.strings(0),options,text_options,boxes.empty()))
+noop()->int:0
+noop()

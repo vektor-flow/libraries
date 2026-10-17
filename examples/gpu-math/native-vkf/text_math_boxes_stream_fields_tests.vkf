@@ -1,0 +1,94 @@
+: .errors
+inline_boxes:.text_inline_boxes
+font_catalog:.font_catalog
+test_font_data:.test_font_data
+text_chunks:.text_chunks
+tex_text:.tex_text
+reference:.text_math_boxes_prepared_stream_reference
+text_math_boxes_prepared:.text_math_boxes_prepared
+math_profiles:.math_profiles
+math_packages:.math_packages
+test_layout_fonts:.test_layout_fonts
+text_parser_stream:.text_parser_stream
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+Context:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+Result:(provider:Provider,next_equation_number:int,equation_references:str,complete:bit)
+j:.resource_json
+metadata:.math_metadata
+fonts_with_role()->Catalog:
+    original:test_layout_fonts.fonts()
+    keys:text_chunks.empty(original.count+1)
+    values:text_chunks.empty(original.count+1)
+    at:0
+    i:0
+    i<original.capacity?>
+        entry:font_catalog.slot(original,i)
+        entry.found?
+            key_size:font_catalog.fixed(original.source,font_catalog.header_size()+i*font_catalog.slot_size()+12)
+            keys.(at):tex_text.span(original.source,entry.start,entry.start+key_size)
+            values.(at):tex_text.span(original.source,entry.start+key_size,entry.stop)
+            .at:at+1
+        .i:i+1
+    keys.(at):"font/roman"
+    values.(at):"{\"spaces\":{\"space\":3.3,\"stretch\":1.6,\"shrink\":1.1,\"extra\":1.1}}"
+    @:font_catalog.load(test_font_data.pack(keys,values))
+same_provider(a:Provider,b:Provider)->bit:
+    (a.count=b.count)?! "prepared provider count"
+    i:0
+    i<a.count?>
+        (a.operation_ids.(i)=b.operation_ids.(i))?! "prepared provider operation_ids"
+        (a.kinds.(i)=b.kinds.(i))?! "prepared provider kinds"
+        (a.widths.(i)=b.widths.(i))?! "prepared provider widths"
+        (a.stretches.(i)=b.stretches.(i))?! "prepared provider stretches"
+        (a.shrinks.(i)=b.shrinks.(i))?! "prepared provider shrinks"
+        (a.heights.(i)=b.heights.(i))?! "prepared provider heights"
+        (a.depths.(i)=b.depths.(i))?! "prepared provider depths"
+        (a.italics.(i)=b.italics.(i))?! "prepared provider italics"
+        (a.breakable.(i)=b.breakable.(i))?! "prepared provider breakable"
+        (a.flagged.(i)=b.flagged.(i))?! "prepared provider flagged"
+        (a.penalties.(i)=b.penalties.(i))?! "prepared provider penalties"
+        (a.scenes.(i)=b.scenes.(i))?! "prepared provider scenes"
+        (a.diagnostics.(i)=b.diagnostics.(i))?! "prepared provider diagnostics"
+        .i:i+1
+    @:true
+check(stream:Stream,fonts:Catalog,tables:Tables,context:Context)->bit:
+    before:inline_boxes.empty()
+    after:inline_boxes.empty()
+    before_error:""
+    after_error:""
+    (.before:reference.provide_prepared(stream,fonts,context,tables,7))!?
+        Error => .before_error: $.message
+    (.after:text_math_boxes_prepared.provide_prepared(stream,fonts,context,tables,7))!?
+        Error => .after_error: $.message
+    before_error=after_error?! "Frozen dispatcher prepared error semantics"
+    before_error=""? same_provider(before,after)?! "Frozen old dispatcher prepared parity"
+    .before:inline_boxes.empty()
+    .after:inline_boxes.empty()
+    .before_error:""
+    .after_error:""
+    (.before:reference.provide(stream,fonts,context,7))!?
+        Error => .before_error: $.message
+    (.after:text_math_boxes_prepared.provide(stream,fonts,context,7))!?
+        Error => .after_error: $.message
+    before_error=after_error?! "Frozen dispatcher lazy error semantics"
+    before_error=""? same_provider(before,after)?! "Frozen old dispatcher lazy parity"
+    @:true
+renderer_tests()->bit:
+    fonts:fonts_with_role()
+    tables:math_profiles.load(fonts)
+    context:math_packages.defaults()
+    operations:text_parser_stream.append(text_parser_stream.empty(),"math","roman","a+b",text_parser_stream.attributes(),0,3, -1).stream
+    check(operations,fonts,tables,context)?! "Typed operation prepared/lazy provider parity"
+    styles:["\\displaystyle ","\\textstyle ","\\scriptstyle ","\\scriptscriptstyle "]
+    i:0
+    i<styles.length()?>
+        styled:text_parser_stream.append(text_parser_stream.empty(),"math","roman",styles.(i)&"a+b",text_parser_stream.attributes(),0,0, -1).stream
+        check(styled,fonts,tables,context)?! "All four mathematical styles"
+        .i:i+1
+    @:true
+
+renderer_tests()

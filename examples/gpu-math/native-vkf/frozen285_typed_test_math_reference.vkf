@@ -1,0 +1,102 @@
+# Independent pre-preparation implementation retained for qualification only.
+# Connect actual inline math noads to the mixed text paragraph provider ABI.
+# A box retains all its leaves (glyphs/rules/links), while glue/kern/penalty
+# nodes stay visible to paragraph breaking instead of becoming an opaque hbox.
+layout:.frozen285_math_layout
+parser:.frozen285_math_parser
+profiles:.frozen285_math_profiles
+boxes:.frozen285_typed_test_legacy_inline_boxes
+ops:.frozen285_text_parser_stream
+catalog:.frozen285_font_catalog
+inline_index:.frozen285_text_inline_arguments
+j:.frozen285_resource_json
+text:.frozen285_tex_text
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Context:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+
+number(tape:Tape,node:int,key:str)->num:
+    value:j.member(tape,node,key)
+    value<0? @:0.0
+    @:j.number(tape,value)
+
+raw(tape:Tape,node:int)->str:
+    starts:tape.starts
+    stops:tape.stops
+    @:text.span(tape.source,starts.(node),stops.(node))
+
+evaluate(operation:int,source:str,fonts:Catalog,context:Context,text_spacing:str="",equation_start:int=1,document_boxes_json:str="{}"):
+    arena:parser.parse_with_context(source,fonts,context,true,document_boxes_json)
+    scene:layout.layout_with_profiles(arena,fonts,profiles.load(fonts),true,true,layout.display_context(source),equation_start,text.trim(source)~="",text_spacing,qed_symbol:context.qed_symbol)
+    out:boxes.empty()
+    layout.paragraph_json(scene)=""?
+        .out:boxes.append(out,operation,5,diagnostics:scene.diagnostics)
+        @:(provider:out,next_equation_number:scene.next_equation_number,equation_references:scene.equation_references,complete:scene.diagnostics="")
+    nodes:j.parse(layout.paragraph_json(scene))
+    node_ends:nodes.ends
+    cursor:1
+    limit:node_ends.(0)
+    index:0
+    cursor<limit?>
+        node:cursor
+        .cursor:node_ends.(node)
+        type:j.string(nodes,j.member(nodes,node,"type"))
+        diagnostic:""
+        index=0? .diagnostic:scene.diagnostics
+        type="box"?
+            box:j.member(nodes,node,"box")
+            .out:boxes.append(out,operation,0,number(nodes,box,"width"),number(nodes,box,"height"),number(nodes,box,"depth"),scene:raw(nodes,box),diagnostics:diagnostic)
+        type="glue"? .out:boxes.append(out,operation,1,number(nodes,node,"width"),stretch:number(nodes,node,"stretch"),shrink:number(nodes,node,"shrink"),diagnostics:diagnostic)
+        type="kern"? .out:boxes.append(out,operation,2,number(nodes,node,"width"),diagnostics:diagnostic,breakable:true)
+        type="penalty"? .out:boxes.append(out,operation,3,penalty:int(number(nodes,node,"penalty")),diagnostics:diagnostic)
+        .index:index+1
+    out.count=0? .out:boxes.append(out,operation,5,diagnostics:scene.diagnostics)
+    @:(provider:out,next_equation_number:scene.next_equation_number,equation_references:scene.equation_references,complete:scene.diagnostics="")
+
+append_provider(destination:Provider,source:Provider)->Provider:
+    out:destination
+    ids:source.operation_ids
+    kinds:source.kinds
+    widths:source.widths
+    heights:source.heights
+    depths:source.depths
+    italics:source.italics
+    scenes:source.scenes
+    messages:source.diagnostics
+    stretches:source.stretches
+    shrinks:source.shrinks
+    breaks:source.breakable
+    flags:source.flagged
+    penalties:source.penalties
+    index:0
+    index<source.count?>
+        .out:boxes.append(out,ids.(index),kinds.(index),widths.(index),heights.(index),depths.(index),italics.(index),scenes.(index),messages.(index),stretches.(index),shrinks.(index),breaks.(index),penalties.(index),flags.(index))
+        .index:index+1
+    @:out
+
+# document-text evaluates each inline operation independently. Font spacing is
+# selected from that operation's actual role; no scaled substitute is used.
+provide(stream:Stream,fonts:Catalog,context:Context,equation_start:int=1,document_boxes_json:str="{}")->Provider:
+    out:boxes.empty()
+    directory:inline_index.build(stream)
+    hidden:directory.hidden
+    index:0
+    index<stream.count?>
+        entry:j.parse(ops.raw(stream,index))
+        kind:j.string(entry,j.member(entry,0,"kind"))
+        kind="math" /\ ~hidden.(index)?
+            role:j.string(entry,j.member(entry,0,"role"))
+            font_source:catalog.raw(fonts,"font/"&role)
+            font_source~=""?
+                font:j.parse(font_source)
+                spacing_node:j.member(font,0,"spaces")
+                spacing:""
+                spacing_node>=0? .spacing:raw(font,spacing_node)
+                source:j.string(entry,j.member(entry,0,"value"))
+                rendered:evaluate(index,source,fonts,context,spacing,equation_start,document_boxes_json)
+                .out:append_provider(out,rendered.provider)
+        .index:index+1
+    @:out

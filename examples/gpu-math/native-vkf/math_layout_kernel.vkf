@@ -1,0 +1,23 @@
+catalog:.font_catalog
+layout:.math_layout
+parser:.math_parser
+packages:.math_packages
+
+math_layout(source:str,font_source:str,inline:bit=false,native:bit=true,display_environment:bit=false,equation_start:int=1)->str:
+    @:layout.typeset(source,catalog.load(font_source),inline,native,display_environment,equation_start)
+
+math_packet(source:str,font_source:str,inline:bit=false,native:bit=true,display_environment:bit=false,equation_start:int=1):
+    fonts:catalog.load(font_source)
+    @:layout.packet(layout.layout(parser.parse(source,fonts,native),fonts,inline,native,layout.display_context(source,display_environment),equation_start))
+
+noop()->int:0
+
+math_layout_with_context(source:str,font_source:str,names:[str],class_name:str="article",inline:bit=false,native:bit=true,display_environment:bit=false,equation_start:int=1)->str:
+    @:layout.typeset_with_context(source,catalog.load(font_source),packages.from_names(names,class_name),inline,native,display_environment,equation_start)
+
+math_packet_with_context(source:str,font_source:str,names:[str],class_name:str="article",inline:bit=false,native:bit=true,display_environment:bit=false,equation_start:int=1):
+    fonts:catalog.load(font_source)
+    context:packages.from_names(names,class_name)
+    @:layout.packet(layout.layout(parser.parse_with_context(source,fonts,context,native),fonts,inline,native,layout.display_context(source,display_environment),equation_start))
+
+noop()

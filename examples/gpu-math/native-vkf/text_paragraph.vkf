@@ -1,0 +1,424 @@
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Store:(arena:Arena,firsts:[int],counts:[int],anchor_firsts:[int],anchor_counts:[int],anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int,widths:[num],heights:[num],depths:[num],tag_widths:[num],inline_destinations:[bit],count:int)
+a268_links:.latex_link_provenance
+a260_pages:.math_command_pages
+scene_store:.paragraph_scene_store
+scene_legacy:.paragraph_scene_legacy
+prepared_runs:.text_prepared_runs
+request_json:.resource_json
+request_numbers:.json_numbers
+Prepared:(font_slots:[int],font_keys:[str],font_raws:[str],font_names:[str],font_advances:[num],font_heights:[num],font_depths:[num],font_italics:[num],font_kern_starts:[int],font_kern_stops:[int],font_kern_codes:[str],font_kern_values:[num],font_kern_count:int,font_count:int,font_role_names:[str],font_role_ready:[int],font_role_sizes:[num],font_role_quads:[num],font_role_sources:[str],font_role_spaces:[num],font_role_stretches:[num],font_role_shrinks:[num],font_role_extras:[num],font_role_slants:[num],font_role_starts:[int],font_role_stops:[int],font_role_count:int,font_lig_first:[int],font_lig_second:[int],font_lig_result:[int],font_lig_count:int,run_keys:[str],run_xs:[num],run_metrics:[str],run_codes:[int],run_starts:[int],run_stops:[int],run_offsets:[int],run_counts:[int],run_widths:[num],run_heights:[num],run_depths:[num],run_italics:[num],run_atoms:[int],run_diagnostics:[str],run_count:int,run_glyph_count:int,texts:[str],roles:[str],slots:[int],ids:[int],bases:[int],count:int,misses:int,hits:int)
+# Parsed TeX inline operations to positioned mixed-role paragraphs.
+# Pending native operations are exposed explicitly; retained provider scenes survive.
+builder:.paragraph_inline_nodes
+inline_parser:.text_parser
+ops:.text_parser_stream
+providers:.text_inline_boxes
+p:.paragraph_breaking
+shape:.text_shaping
+text:.tex_text
+tex:.tex_numeric
+chunks:.text_chunks
+text_link_spans:.text_link_spans
+text_link_render:.text_link_render
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+Options:(width:num,first_indent:num,forced_indent:num,justify:bit,hyphens:bit,tolerance:int,emergency:num,preserve_trailing:bit)
+TextOptions:(sentence_spacing:bit,french_spacing:bit,space_scale:num)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Context:(font:str,roles:[str],optical:bit,hyperref:bit,literal:bit,literal_input:bit,legacy_symbols:bit,bib_url:bit)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:Store,scene_ids:[int],scene_metadata:Metadata,scene_roots:[int],diagnostics:[str],count:int)
+
+Nodes:(kinds:[int],widths:[num],stretches:[num],shrinks:[num],breakable:[bit],penalties:[int],flagged:[bit],automatic:[bit],hyphens:[num],count:int)
+# Terminal fallback is constructed directly. Earlier passes must never rerun on
+# a different (already segmented) word stream after all legal passes failed.
+fallback(nodes:Nodes,preserve:bit):
+    kinds:nodes.kinds
+    widths:nodes.widths
+    penalties:nodes.penalties
+    flags:nodes.flagged
+    n:nodes.count
+    ~preserve?>
+        n=0? @|
+        kinds.(n-1)~=1? @|
+        .n:n-1
+    prefixes:p.nums(n+1)
+    i:0
+    i<n?>
+        add:0.0
+        kinds.(i)=0 \/ kinds.(i)=1 \/ kinds.(i)=2? .add:widths.(i)
+        prefixes.(i+1):prefixes.(i)+add
+        .i:i+1
+    out:p.blank(n+1)
+    starts:out.starts
+    ends:out.ends
+    naturals:out.naturals
+    output_flags:out.flagged
+    start:0
+    count:0
+    .i:0
+    i<=n?>
+        forced:i=n
+        i<n?
+            kinds.(i)=4 \/ (kinds.(i)=3 /\ penalties.(i)= -10000)? .forced:true
+        forced?
+            starts.(count):start
+            ends.(count):i
+            naturals.(count):prefixes.(i)-prefixes.(start)
+            i<n? output_flags.(count):flags.(i)
+            .count:count+1
+            .start:i+1
+        .i:i+1
+    out.starts:starts
+    out.ends:ends
+    out.naturals:naturals
+    out.flagged:output_flags
+    out.count:count
+    out.pass:5
+    @:out
+
+maximum(a:num,b:num)->num:
+    a~=a? @:a
+    b~=b? @:b
+    @:tex.maximum(a,b)
+
+position_request_with_link_events(request:Prepared,source:str,stream:Stream,fonts:Catalog,language:Language,overrides:[str],o:Options,t:TextOptions,provided:Provider,operation_scopes:[int],scope_directory:str,anchor_operations:[int],anchor_ids:[str],close_operations:[int],close_first:[int],close_last:[int],a268_scope_owners:[int]=[]):
+    built:builder.build_request_with_link_events(request,source,stream,fonts,language,overrides,false,t,provided,operation_scopes,close_operations,close_first,close_last)
+    selected:p.solve(built.nodes,built.corrections,o,100,false,0,false)
+    pass:1
+    ~selected.solved /\ o.hyphens?
+        .built:builder.build_request_with_link_events(request,source,stream,fonts,language,overrides,true,t,provided,operation_scopes,close_operations,close_first,close_last)
+        .selected:p.solve(built.nodes,built.corrections,o,o.tolerance,true,0,o.emergency=0)
+        .pass:2
+    ~selected.solved /\ o.emergency~=0?
+        .selected:p.solve(built.nodes,built.corrections,o,o.tolerance,true,o.emergency,true)
+        .pass:3
+    ~selected.solved /\ ~o.hyphens?
+        .selected:p.solve(built.nodes,built.corrections,o,o.tolerance,true,0,true)
+        .pass:4
+    ~selected.solved?
+        .selected:fallback(built.nodes,o.preserve_trailing)
+        .pass:selected.pass
+    nodes:built.nodes
+    kinds:nodes.kinds
+    node_widths:nodes.widths
+    stretches:nodes.stretches
+    shrinks:nodes.shrinks
+    node_hyphens:nodes.hyphens
+    node_autos:nodes.automatic
+    word_ids:built.word_ids
+    word_starts:built.word_starts
+    word_ends:built.word_ends
+    text_words:built.words
+    roles:built.roles
+    operation_ids:built.operation_ids
+    node_scenes:built.scenes
+    box_heights:built.box_heights
+    box_depths:built.box_depths
+    diagnostics:built.diagnostics
+    measurement_work:built.measurement_work
+    starts:selected.starts
+    ends:selected.ends
+    ratios:selected.ratios
+    indents:selected.indents
+    flags:selected.flagged
+    capacity:2*text.byte_length(source)+4*stream.count+provided.count+16
+    keys:chunks.empty(capacity)
+    xs:p.nums(capacity)
+    ys:p.nums(capacity)
+    flow_lines:p.ints(capacity)
+    glyph_operations:p.ints(capacity)
+    scenes:scene_store.empty()
+    scene_xs:p.nums(capacity)
+    scene_ys:p.nums(capacity)
+    scene_lines:p.ints(capacity)
+    scene_operations:p.ints(capacity)
+    scene_count:0
+    link_colors:text_link_render.colors(operation_scopes,scope_directory)
+    nonbox_scopes:text_link_render.nonbox_scopes(stream,operation_scopes)
+    # Event-aligned placement selectors; never semantic IDs.
+    [int] a277_anchor_scenes:[-1:anchor_operations.length()]
+    # A280 receipt selectors; unknown remains non-reusable.
+    [int] a280_anchor_leaves:[-1:anchor_operations.length()]
+    [int] a280_anchor_slots:[-1:anchor_operations.length()]
+    [int] a282_anchor_points:[-1:anchor_operations.length()]
+    next_anchor:0
+    last_visible_scene: -1
+    heights:p.nums(selected.count)
+    depths:p.nums(selected.count)
+    widths:p.nums(selected.count)
+    baselines:p.nums(selected.count)
+    glyph_count:0
+    width:0.0
+    height:0.0
+    depth:0.0
+    baseline:0.0
+    line:0
+    line<selected.count?>
+        x:0.0
+        line_height:0.0
+        line_depth:0.0
+        ratio:ratios.(line)
+        ~o.justify? .ratio:0
+        n:starts.(line)
+        stop:ends.(line)
+        line_spans:text_link_spans.empty()
+        n<stop?>
+            begin_x:x
+            operation:operation_ids.(n)
+            link_scope: -1
+            color:"null"
+            operation>=0 /\ operation<operation_scopes.length()?
+                .link_scope:operation_scopes.(operation)
+                .color:link_colors.(operation)
+            kind:kinds.(n)
+            kind~=0 /\ operation>=0 /\ operation<nonbox_scopes.length()? .link_scope:nonbox_scopes.(operation)
+            kind=0?
+                id:word_ids.(n)
+                id<0?
+                    retained:scene_store.empty_scene()
+                    node_scenes.(n)>=0? .retained:scene_store.get(built.scene_store,node_scenes.(n))
+                    visible:false
+                    anchor_operations.length()>0? .visible:scene_store.visible(retained)
+                    a281_begin:next_anchor
+                    anchor_ids_json:"[]"
+                    visible?
+                        marked:text_link_render.anchor_range(anchor_operations,anchor_ids,next_anchor,operation)
+                        a277_event:next_anchor
+                        a277_event<marked.next?>
+                            a277_anchor_scenes.(a277_event):scene_count
+                            .a277_event:a277_event+1
+                        .next_anchor:marked.next
+                        .anchor_ids_json:marked.ids
+                        .last_visible_scene:scene_count
+                    a281_edit:scene_legacy.a281_edit_mapped(retained,color,anchor_ids_json)
+                    # Rebase the actual local leaf before append into the retained arena.
+                    a281_edit.leaf>=0 /\ a281_edit.leaf<a281_edit.scene.arena.count /\ a281_edit.first>=0 /\ a281_edit.count=next_anchor-a281_begin?
+                        a281_event:a281_begin
+                        a281_event<next_anchor?>
+                            a280_anchor_leaves.(a281_event):scenes.arena.count+a281_edit.leaf
+                            a280_anchor_slots.(a281_event):a281_edit.first+a281_event-a281_begin
+                            .a281_event:a281_event+1
+                    .scenes:scene_store.append(scenes,a281_edit.scene)
+                    scene_xs.(scene_count):x
+                    scene_ys.(scene_count):baseline
+                    scene_lines.(scene_count):line
+                    scene_operations.(scene_count):operation_ids.(n)
+                    .scene_count:scene_count+1
+                    .x:x+node_widths.(n)
+                    .line_height:tex.maximum(line_height,box_heights.(n))
+                    .line_depth:tex.maximum(line_depth,box_depths.(n))
+                    .line_spans:text_link_spans.append(line_spans,link_scope,begin_x,x)
+                    .n:n+1
+                    @>
+                first:word_starts.(n)
+                last:word_ends.(n)
+                n+1<stop?>
+                    next:n+1
+                    word_ids.(next)~=id? @|
+                    next_kind:kinds.(next)
+                    next_kind=3?
+                        .n:next
+                        @>
+                    next_kind~=0? @|
+                    .last:word_ends.(next)
+                    .n:next
+                word:text_words.(id)
+                run_id:prepared_runs.lookup(request,word,first,last,roles.(id))
+                run_count:prepared_runs.glyph_count(request,run_id)
+                run_width:prepared_runs.width(request,run_id)
+                run_height:prepared_runs.height(request,run_id)
+                run_depth:prepared_runs.depth(request,run_id)
+                .diagnostics:builder.merge_diagnostics(diagnostics,prepared_runs.diagnostics(request,run_id))
+                .measurement_work:measurement_work+prepared_runs.atoms(request,run_id)
+                retained_run:color~="null" \/ anchor_operations.length()>0
+                retained_run /\ run_count>0?
+                    a281_begin:next_anchor
+                    marked:text_link_render.anchor_range(anchor_operations,anchor_ids,next_anchor,operation_ids.(n))
+                    a277_event:next_anchor
+                    a277_event<marked.next?>
+                        a277_anchor_scenes.(a277_event):scene_count
+                        .a277_event:a277_event+1
+                    .next_anchor:marked.next
+                    run_scene:request_glyph_scene(request,run_id)
+                    a281_edit:scene_legacy.a281_edit_mapped(run_scene,color,marked.ids)
+                    # Rebase the actual local leaf before append into the retained arena.
+                    a281_edit.leaf>=0 /\ a281_edit.leaf<a281_edit.scene.arena.count /\ a281_edit.first>=0 /\ a281_edit.count=next_anchor-a281_begin?
+                        a281_event:a281_begin
+                        a281_event<next_anchor?>
+                            a280_anchor_leaves.(a281_event):scenes.arena.count+a281_edit.leaf
+                            a280_anchor_slots.(a281_event):a281_edit.first+a281_event-a281_begin
+                            .a281_event:a281_event+1
+                    .scenes:scene_store.append(scenes,a281_edit.scene)
+                    scene_xs.(scene_count):x
+                    scene_ys.(scene_count):baseline
+                    scene_lines.(scene_count):line
+                    scene_operations.(scene_count):operation_ids.(n)
+                    .last_visible_scene:scene_count
+                    .scene_count:scene_count+1
+                ~retained_run?
+                    k:0
+                    k<run_count?>
+                        keys.(glyph_count):prepared_runs.glyph_key(request,run_id,k)
+                        xs.(glyph_count):prepared_runs.glyph_x(request,run_id,k)+x
+                        ys.(glyph_count):baseline
+                        flow_lines.(glyph_count):line
+                        glyph_operations.(glyph_count):operation_ids.(n)
+                        .glyph_count:glyph_count+1
+                        .k:k+1
+                .x:x+run_width
+                .line_height:tex.maximum(line_height,run_height)
+                .line_depth:tex.maximum(line_depth,run_depth)
+            kind=2? .x:x+node_widths.(n)
+            kind=1?
+                elastic:stretches.(n)
+                ratio<0? .elastic:shrinks.(n)
+                .x:x+node_widths.(n)+ratio*elastic
+            .line_spans:text_link_spans.append(line_spans,link_scope,begin_x,x)
+            .n:n+1
+        stop<nodes.count?
+            node_autos.(stop)?
+                id:word_ids.(stop)
+                hyphen_id:built.run_ids.(stop)
+                hyphen_count:prepared_runs.glyph_count(request,hyphen_id)
+                hyphen_width:prepared_runs.width(request,hyphen_id)
+                .diagnostics:builder.merge_diagnostics(diagnostics,prepared_runs.diagnostics(request,hyphen_id))
+                k:0
+                k<hyphen_count?>
+                    keys.(glyph_count):prepared_runs.glyph_key(request,hyphen_id,k)
+                    xs.(glyph_count):prepared_runs.glyph_x(request,hyphen_id,k)+x
+                    ys.(glyph_count):baseline
+                    flow_lines.(glyph_count):line
+                    glyph_operations.(glyph_count):operation_ids.(stop)
+                    .glyph_count:glyph_count+1
+                    .k:k+1
+                span_rights:line_spans.rights
+                line_spans.count>0?
+                    span_rights.(line_spans.count-1)=x? span_rights.(line_spans.count-1):x+hyphen_width
+                    line_spans.rights:span_rights
+                .x:x+hyphen_width
+        line_spans.count>0?
+            .scenes:scene_legacy.append_legacy(scenes,text_link_spans.scene(line_spans,scope_directory,line_height,line_depth))
+            .scenes:a268_links.attach(scenes,line_spans,a268_scope_owners,stream,source)
+            scene_xs.(scene_count):0
+            scene_ys.(scene_count):baseline
+            scene_lines.(scene_count):line
+            scene_operations.(scene_count):stream.count
+            .scene_count:scene_count+1
+        heights.(line):line_height
+        depths.(line):line_depth
+        widths.(line):x
+        baselines.(line):baseline
+        .width:maximum(width,x)
+        line=0? .height:line_height
+        .depth:baseline+line_depth
+        .baseline:baseline+12*tex.pt()
+        .line:line+1
+    next_anchor<anchor_operations.length()?
+        last_visible_scene>=0?
+            remaining:text_link_render.anchor_range(anchor_operations,anchor_ids,next_anchor,stream.count)
+            a277_event:next_anchor
+            a277_event<remaining.next?>
+                a277_anchor_scenes.(a277_event):last_visible_scene
+                .a277_event:a277_event+1
+            a280_mark:scene_store.a279_mark_mapped(scenes,last_visible_scene,scene_legacy.ids(remaining.ids))
+            .scenes:a280_mark.store
+            a280_mark.leaf>=0 /\ a280_mark.first>=0 /\ a280_mark.count=remaining.next-next_anchor?
+                a280_event:next_anchor
+                a280_event<remaining.next?>
+                    a280_anchor_leaves.(a280_event):a280_mark.leaf
+                    a280_anchor_slots.(a280_event):a280_mark.first+a280_event-next_anchor
+                    .a280_event:a280_event+1
+        last_visible_scene<0?
+            a277_event:next_anchor
+            a277_event<anchor_operations.length()?>
+                a277_anchor_scenes.(a277_event):scene_count
+                .a277_event:a277_event+1
+            a282_point:scene_legacy.point_scene(anchor_ids,next_anchor)
+            a282_point.anchor_count=anchor_operations.length()-next_anchor?! "Invalid generated point count"
+            a282_event:next_anchor
+            a282_event<anchor_operations.length()?>
+                a282_anchor_points.(a282_event):scenes.anchor_count+a282_event-next_anchor
+                .a282_event:a282_event+1
+            .scenes:scene_store.append(scenes,a282_point,true)
+            scene_xs.(scene_count):0
+            scene_ys.(scene_count):0
+            scene_lines.(scene_count):0
+            scene_operations.(scene_count):stream.count
+            .scene_count:scene_count+1
+    ~selected.solved? .diagnostics:builder.merge_diagnostics(diagnostics,"\"Paragraph exceeds supported line-break bounds\"")
+    [int] a260_starts:[-1:stream.count]
+    [int] a260_stops:[-1:stream.count]
+    a260_i:0
+    a260_i<stream.count?>
+        a260_starts.(a260_i):stream.starts.(a260_i//a260_pages.width(),a260_i%a260_pages.width())
+        a260_stops.(a260_i):stream.stops.(a260_i//a260_pages.width(),a260_i%a260_pages.width())
+        .a260_i:a260_i+1
+    @:(keys:keys,xs:xs,ys:ys,flow_lines:flow_lines,glyph_operations:glyph_operations,scenes:scenes,scene_xs:scene_xs,scene_ys:scene_ys,scene_lines:scene_lines,scene_operations:scene_operations,scene_count:scene_count,pending:built.pending,pending_count:built.pending_count,complete:built.pending_count=0 /\ diagnostics="",lowering_complete:built.pending_count=0,glyph_count:glyph_count,line_heights:heights,line_depths:depths,line_widths:widths,line_baselines:baselines,line_ratios:ratios,line_indents:indents,line_flagged:flags,line_count:selected.count,width:width,height:height,depth:depth,measurement_work:measurement_work,diagnostics:diagnostics,solved:selected.solved,pass:pass,a260_text:source,a260_starts:a260_starts,a260_stops:a260_stops,a272_anchor_operations:anchor_operations,a272_anchor_ids:anchor_ids,a277_anchor_scenes:a277_anchor_scenes,a280_anchor_leaves:a280_anchor_leaves,a280_anchor_slots:a280_anchor_slots,a282_anchor_points:a282_anchor_points)
+
+# Standalone call is one request; multi-paragraph callers seal their union first
+# and call position_request_with_link_events for every paragraph with that value.
+position_with_link_events(source:str,stream:Stream,fonts:Catalog,language:Language,overrides:[str],o:Options,t:TextOptions,provided:Provider,operation_scopes:[int],scope_directory:str,anchor_operations:[int],anchor_ids:[str],close_operations:[int],close_first:[int],close_last:[int],a268_scope_owners:[int]=[]):
+    collection:collect_request(prepared_runs.empty_collection(),stream,language,overrides,o.hyphens,provided)
+    request:prepared_runs.seal(fonts,collection)
+    @:position_request_with_link_events(request,source,stream,fonts,language,overrides,o,t,provided,operation_scopes,scope_directory,anchor_operations,anchor_ids,close_operations,close_first,close_last,a268_scope_owners)
+
+position_with_links(source:str,stream:Stream,fonts:Catalog,language:Language,overrides:[str],o:Options,t:TextOptions,provided:Provider,operation_scopes:[int],scope_directory:str,anchor_operations:[int],anchor_ids:[str]):
+    @:position_with_link_events(source,stream,fonts,language,overrides,o,t,provided,operation_scopes,scope_directory,anchor_operations,anchor_ids,p.ints(0),p.ints(0),p.ints(0))
+
+position(source:str,stream:Stream,fonts:Catalog,language:Language,overrides:[str],o:Options,t:TextOptions,provided:Provider):
+    @:position_with_links(source,stream,fonts,language,overrides,o,t,provided,p.ints(0),"{}",p.ints(0),chunks.empty(0))
+
+# Parsing and providers stay separable so root math evaluation can carry state.
+typeset(source:str,fonts:Catalog,c:Context,language:Language,overrides:[str],o:Options,t:TextOptions,provided:Provider):
+    parsed:inline_parser.parse(source,fonts,c)
+    @:position(source,parsed.stream,fonts,language,overrides,o,t,provided)
+
+Collection:(sources:[str],roles:[str],starts:[int],stops:[int],count:int,context_roles:[str])
+collect_request(c:Collection,stream:Stream,language:Language,overrides:[str],automatic:bit,provided:Provider)->Collection:
+    ids:p.ints(provided.count)
+    i:0
+    i<provided.count?>
+        ids.(i):provided.operation_ids.(i)
+        .i:i+1
+    @:prepared_runs.collect_append(c,stream,language,overrides,automatic,ids)
+position_request(request:Prepared,source:str,stream:Stream,fonts:Catalog,language:Language,overrides:[str],o:Options,t:TextOptions,provided:Provider):
+    @:position_request_with_link_events(request,source,stream,fonts,language,overrides,o,t,provided,p.ints(0),"{}",p.ints(0),chunks.empty(0),p.ints(0),p.ints(0),p.ints(0))
+# Existing retained link export, reading glyph columns without restoring an owned run.
+# Typed Provider/Packet/scene schemas are deliberately outside this function delta.
+request_glyph_scene(request:Prepared,id:int)->Scene:
+    count:prepared_runs.glyph_count(request,id)
+    keys:chunks.empty(count)
+    xs:p.nums(count)
+    index:0
+    index<count?>
+        keys.(index):prepared_runs.glyph_key(request,id,index)
+        xs.(index):prepared_runs.glyph_x(request,id,index)
+        .index:index+1
+    @:scene_legacy.glyph_run(keys,xs,count,prepared_runs.width(request,id),prepared_runs.height(request,id),prepared_runs.depth(request,id))
+
+prepare_sources(sources:[str],fonts:Catalog,c:Context,language:Language,overrides:[str],automatic:bit)->Prepared:
+    collection:prepared_runs.empty_collection()
+    i:0
+    i<sources.length()?>
+        parsed:inline_parser.parse(sources.(i),fonts,c)
+        .collection:collect_request(collection,parsed.stream,language,overrides,automatic,providers.empty())
+        .i:i+1
+    @:prepared_runs.seal(fonts,collection)
+typeset_request(request:Prepared,source:str,fonts:Catalog,c:Context,language:Language,overrides:[str],o:Options,t:TextOptions):
+    parsed:inline_parser.parse(source,fonts,c)
+    @:position_request(request,source,parsed.stream,fonts,language,overrides,o,t,providers.empty())
+typeset_many(sources:[str],fonts:Catalog,c:Context,language:Language,overrides:[str],o:Options,t:TextOptions):
+    request:prepare_sources(sources,fonts,c,language,overrides,o.hyphens)
+    indices:p.ints(sources.length())
+    i:0
+    i<sources.length()?>
+        indices.(i):i
+        .i:i+1
+    @:indices >> typeset_request(request,sources.($),fonts,c,language,overrides,o,t)

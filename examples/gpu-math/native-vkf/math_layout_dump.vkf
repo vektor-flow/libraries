@@ -1,0 +1,19 @@
+io:.io
+catalog:.font_catalog
+layout:.math_layout
+
+run()->int:
+    fonts:catalog.load(io.read_text(io.read_line()))
+    inline:io.read_line()="inline"
+    native:io.read_line()~="preview"
+    display_environment:io.read_line()="display-environment"
+    equation_start:int(vkf_decimal_parse(io.read_line()))
+    count:int(vkf_decimal_parse(io.read_line()))
+    index:0
+    index<count?>
+        input:io.read_line()
+        output:io.read_line()
+        io.write_text(output,layout.typeset(io.read_text(input),fonts,inline,native,display_environment,equation_start))
+        .index:index+1
+    @:0
+run()

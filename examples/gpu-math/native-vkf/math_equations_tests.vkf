@@ -1,0 +1,83 @@
+e:.math_equations
+p:.math_parser
+c:.font_catalog
+data:.test_font_data
+j:.resource_json
+text:.tex_text
+
+find(arena:(kinds:[str],attrs:[str],first:[int],last:[int],nexts:[int],a:[int],b:[int],sup:[int],sub:[int],limits:[int],count:int,diagnostics:str,atoms:int),ordinal:int)->int:
+    kinds:arena.kinds
+    attrs:arena.attrs
+    i:0
+    count:0
+    i<arena.count?>
+        kinds.(i)="matrix"?
+            data:j.parse("{"&attrs.(i)&"}")
+            name: -1
+            data.valid? .name:j.member(data,0,"name")
+            name>=0?
+                value:j.string(data,name)
+                (value="equation" \/ value="equation*")?
+                    count=ordinal? @:i
+                    .count:count+1
+        .i:i+1
+    @: -1
+
+renderer_tests()->bit:
+    fonts:c.load(data.math_catalog())
+    arena:p.parse("\\begin{equation*}a&+b\\\\=x\\end{equation*}",fonts)
+    original:p.json(arena)
+    prepared:e.prepare(arena)
+    p.json(arena)=original?! "equation normalization preserves original arena snapshot"
+    prepared.count=arena.count?! "equation normalization preserves node identities and count"
+    matrix:find(prepared,0)
+    args:prepared.a
+    firsts:prepared.first
+    lasts:prepared.last
+    nexts:prepared.nexts
+    attrs:prepared.attrs
+    rows:args.(matrix)
+    row:firsts.(rows)
+    cell:firsts.(row)
+    (nexts.(row)= -1 /\ nexts.(cell)= -1 /\ lasts.(rows)=row /\ lasts.(row)=cell)?! "all equation source cells become one row and cell"
+    cursor:firsts.(cell)
+    expected:["a","+","b","=","x"]
+    index:0
+    cursor>=0?>
+        data:j.parse("{"&attrs.(cursor)&"}")
+        (j.string(data,j.member(data,0,"token"))=expected.(index))?! "flatten order preserves binary and relation neighbors across source boundaries"
+        .index:index+1
+        .cursor:nexts.(cursor)
+    (index=5 /\ nexts.(lasts.(cell))= -1)?! "flatten list terminates at final original child"
+    all:0
+    all<arena.count?>
+        (prepared.attrs.(all)=arena.attrs.(all) /\ prepared.kinds.(all)=arena.kinds.(all) /\ prepared.a.(all)=arena.a.(all) /\ prepared.sup.(all)=arena.sup.(all) /\ prepared.sub.(all)=arena.sub.(all))?! "unrelated arena fields remain exact"
+        .all:all+1
+    empty:p.parse("\\begin{equation}\\end{equation}",fonts)
+    emptyPrepared:e.prepare(empty)
+    emptyNode:find(emptyPrepared,0)
+    emptyArgs:emptyPrepared.a
+    emptyFirst:emptyPrepared.first
+    emptyRows:emptyArgs.(emptyNode)
+    emptyRow:emptyFirst.(emptyRows)
+    emptyCell:emptyFirst.(emptyRow)
+    (emptyRow>=0 /\ emptyCell= -1 /\ emptyPrepared.count=empty.count /\ p.json(emptyPrepared)=p.json(empty))?! "empty equation retains its original empty row without allocating nodes"
+    nested:p.parse("\\begin{equation}a&{\\begin{equation*}x&y\\end{equation*}}^b\\\\+x\\end{equation}",fonts)
+    frozen:p.json(nested)
+    nestedPrepared:e.prepare(nested)
+    (p.json(nested)=frozen /\ nestedPrepared.count=nested.count /\ find(nestedPrepared,1)>=0)?! "nested normalization preserves original identities"
+    second:find(nestedPrepared,1)
+    nestedArgs:nestedPrepared.a
+    nestedFirst:nestedPrepared.first
+    nestedNext:nestedPrepared.nexts
+    innerCell:nestedFirst.(nestedFirst.(nestedArgs.(second)))
+    innerFirst:nestedFirst.(innerCell)
+    (nestedNext.(innerFirst)>=0 /\ nestedNext.(nestedNext.(innerFirst))= -1)?! "nested equation independently flattens original topology"
+    nestedIndex:0
+    nestedIndex<nested.count?>
+        (nestedPrepared.attrs.(nestedIndex)=nested.attrs.(nestedIndex) /\ nestedPrepared.sup.(nestedIndex)=nested.sup.(nestedIndex) /\ nestedPrepared.sub.(nestedIndex)=nested.sub.(nestedIndex) /\ nestedPrepared.a.(nestedIndex)=nested.a.(nestedIndex) /\ nestedPrepared.b.(nestedIndex)=nested.b.(nestedIndex))?! "nested normalization retains scripts and argument identities"
+        .nestedIndex:nestedIndex+1
+    ordinary:p.parse("\\begin{pmatrix}a&b\\\\x&y\\end{pmatrix}",fonts)
+    (p.json(e.prepare(ordinary))=p.json(ordinary))?! "ordinary matrix geometry topology remains unchanged"
+    @:true
+renderer_tests()

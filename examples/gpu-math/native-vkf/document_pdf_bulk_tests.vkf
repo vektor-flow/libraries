@@ -1,0 +1,80 @@
+document_pdf_bulk:.document_pdf_bulk
+document_pdf_typed:.document_pdf_typed
+document_pdf_typed_tests:.document_pdf_typed_tests
+document_pdf_tests:.document_pdf_tests
+document_scene:.document_scene
+font_catalog:.font_catalog
+test_font_data:.test_font_data
+tex_text:.tex_text
+text_chunks:.text_chunks
+
+stress_fonts():
+    path:"0 0 m 10 0 l 10 10 l h"
+    keys:text_chunks.empty(210)
+    values:text_chunks.empty(210)
+    index:0
+    index<140?>
+        keys.(index):"vector/key/"&tex_text.integer(index)
+        values.(index):"\"digest/"&tex_text.integer(index//2)&"\""
+        .index:index+1
+    .index:0
+    index<70?>
+        keys.(140+index):"path/digest/"&tex_text.integer(index)
+        values.(140+index):"{\"bounds\":[0,0,10,10],\"offset\":0,\"length\":"&tex_text.integer(tex_text.byte_length(path))&"}"
+        .index:index+1
+    @:(fonts:font_catalog.load(test_font_data.pack(keys,values)),operators:path)
+stress_leaf(index:int):
+    leaf:document_scene.leaf()
+    leaf.x:10+2*index
+    leaf.y:30
+    leaf.paint:document_scene.paint(index/210,0.2,0.7,(index%3)/2)
+    leaf.has_paint:true
+    index%3=2?
+        leaf.kind:3
+        leaf.width:1
+        leaf.height:4
+        payload:leaf.payload
+        payload.target_type:1
+        payload.target:"https://example.test/"&tex_text.integer(index)
+        leaf.payload:payload
+        leaf.has_payload:true
+        index%2=0? leaf.draw:false
+    index%3~=2?
+        leaf.key:"key/"&tex_text.integer(index-index//3)
+        index%3=0? leaf.sx:0
+        index%3=1? leaf.kind:1
+    @:leaf
+stress_document():
+    [int] ids:[0:210]
+    leaves:ids >> stress_leaf($0)
+    arena:document_scene.from_leaves(leaves,210)
+    [num] widths:[600.0,600,600]
+    [num] heights:[300.0,300,300]
+    [int] firsts:[0,70,140]
+    [int] counts:[70,70,70]
+    destination_names:text_chunks.empty(0)
+    [int] destination_pages:[]
+    [num] destination_xs:[]
+    [num] destination_ys:[]
+    @:(widths:widths,heights:heights,firsts:firsts,counts:counts,arena:arena,destination_names:destination_names,destination_pages:destination_pages,destination_xs:destination_xs,destination_ys:destination_ys,page_count:3,destination_count:0)
+
+renderer_tests()->bit:
+    fonts:document_pdf_tests.fixture_fonts()
+    doc:document_pdf_typed_tests.fixture()
+    actual:document_pdf_bulk.encode_detail(doc,fonts.fonts,fonts.operators)
+    expected:document_pdf_typed.encode_detail(doc,fonts.fonts,fonts.operators)
+    (actual.pdf=expected.pdf /\ actual.form_count=expected.form_count /\ actual.alpha_count=expected.alpha_count /\ actual.object_count=expected.object_count)?! "Bulk request-local columns preserve exact typed bytes and metadata for glyph crop, alias, paints, URI and destination links"
+    source:document_pdf_typed_tests.primitive_source()
+    primitives:document_pdf_typed_tests.single_page(source)
+    (document_pdf_bulk.encode(primitives,fonts.fonts,fonts.operators)=document_pdf_typed.encode(primitives,fonts.fonts,fonts.operators))?! "Bulk paint demand ordering preserves fill/stroke, shared alphas and all primitive dash styles"
+    empty:document_pdf_typed_tests.single_page("{\"width\":10,\"height\":20,\"items\":[]}")
+    (document_pdf_bulk.encode(empty,fonts.fonts,fonts.operators)=document_pdf_typed.encode(empty,fonts.fonts,fonts.operators))?! "Empty page does not eagerly allocate unused alpha or form objects"
+    stress:stress_document()
+    stress_fonts:stress_fonts()
+    large:document_pdf_bulk.encode_detail(stress,stress_fonts.fonts,stress_fonts.operators)
+    large_expected:document_pdf_typed.encode_detail(stress,stress_fonts.fonts,stress_fonts.operators)
+    (large.pdf=large_expected.pdf)?! "Bulk >64 interleaved object growth and resources preserve exact bytes across pages, alias keys, first-demand zero-scale glyphs, links and alpha reuse"
+    (large.form_count=70 /\ large.alpha_count=3 /\ large.object_count=152)?! "Alias pairs deduplicate by digest, including zero-scale first demands and nonpainting annotations"
+    (document_pdf_bulk.encode(stress,stress_fonts.fonts,stress_fonts.operators)=large.pdf)?! "Bulk independent request remains deterministic without output cache"
+    @:true
+renderer_tests()

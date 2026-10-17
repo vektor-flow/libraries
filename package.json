@@ -21,7 +21,13 @@
     "./branching-transport": "./browser-ui/vf-branching-transport.mjs",
     "./transition-clock": "./browser-ui/vf-transition-clock.mjs",
     "./visual-properties": "./browser-ui/vf-visual-properties.mjs",
-    "./object-transport": "./browser-ui/vf-object-transport.mjs"
+    "./object-transport": "./browser-ui/vf-object-transport.mjs",
+    "./selection-controller": "./browser-ui/vf-selection-controller.mjs",
+    "./selection-outline": "./browser-ui/vf-selection-outline.mjs",
+    "./selection-adapters": "./browser-ui/vf-selection-adapters.mjs",
+    "./selection-contours": "./browser-ui/vf-selection-contours.mjs",
+    "./selection-presentation": "./browser-ui/vf-selection-presentation.mjs",
+    "./analytic-curves": "./browser-ui/vf-analytic-curves.mjs"
   },
   "files": [
     "browser-ui",
@@ -30,7 +36,7 @@
     "PROVENANCE.json"
   ],
   "dependencies": {
-    "vektor-flow": "github:svenviktorjonsson/vektor-flow#623bd30"
+    "vektor-flow": "file:vendor/vektor-flow"
   },
   "devDependencies": {
     "vitest": "4.1.10"

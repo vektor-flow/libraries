@@ -1,0 +1,35 @@
+io:.io
+catalog:.font_catalog
+parser:.math_parser
+packages:.math_packages
+chunks:.text_chunks
+j:.resource_json
+
+run()->int:
+    fonts:catalog.load(io.read_text(io.read_line()))
+    count:int(vkf_decimal_parse(io.read_line()))
+    i:0
+    i<count?>
+        source_path:io.read_line()
+        output:io.read_line()
+        package_json:io.read_line()
+        class_name:io.read_line()
+        native:io.read_line()~="preview"
+        diagnostic:io.read_line()="diagnostics"
+        tape:j.parse(package_json)
+        count_names:0
+        j.element(tape,0,count_names)>=0?> .count_names:count_names+1
+        names:chunks.empty(count_names)
+        n:0
+        n<count_names?>
+            names.(n):j.string(tape,j.element(tape,0,n))
+            .n:n+1
+        context:packages.from_names(names,class_name)
+        source:io.read_text(source_path)
+        value:""
+        diagnostic? .value:parser.diagnose_with_context(source,fonts,context,native,"<math>")
+        ~diagnostic? .value:parser.json(parser.parse_with_context(source,fonts,context,native))
+        io.write_text(output,value)
+        .i:i+1
+    @:0
+run()

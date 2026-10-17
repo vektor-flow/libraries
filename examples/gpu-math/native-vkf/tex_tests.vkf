@@ -1,0 +1,87 @@
+text:.tex_text
+lexer:.tex_tokens
+
+text_boundaries():
+    (text.byte_length("")=0)?! "text_boundaries:5"
+    (text.byte_length("abc")=3)?! "text_boundaries:6"
+    (text.byte_length("αé🙂")=8)?! "text_boundaries:7"
+    (text.next("αé🙂",0)=2)?! "text_boundaries:8"
+    (text.slice("αé🙂",2,4)="é")?! "text_boundaries:9"
+
+math_tokens():
+    tape:lexer.tokenize("A \$x_i^2\$ \\alpha{é} % ignored\nB")
+    (tape.count=16)?! "math_tokens:13"
+    (tape.kinds.(2)=5)?! "math_tokens:14"
+    (tape.kinds.(4)=9)?! "math_tokens:15"
+    (tape.kinds.(6)=8)?! "math_tokens:16"
+    (tape.kinds.(10)=1)?! "math_tokens:17"
+    (text.slice(tape.source,tape.starts.(12),tape.stops.(12))="é")?! "math_tokens:18"
+    (tape.stops.(12)-tape.starts.(12)=2)?! "math_tokens:19"
+    (text.slice(tape.source,tape.starts.(15),tape.stops.(15))="B")?! "math_tokens:20"
+
+url_literals():
+    tape:lexer.tokenize("\\url{https://a.test/x%20#p} A")
+    (tape.count=4)?! "url_literals:24"
+    (tape.kinds.(1)=12)?! "url_literals:25"
+    (text.slice(tape.source,tape.starts.(1),tape.stops.(1))="{https://a.test/x%20#p}")?! "url_literals:26"
+    other:lexer.tokenize("\\url|a%20#b|")
+    (other.count=2)?! "url_literals:28"
+    (other.kinds.(1)=12)?! "url_literals:29"
+    (text.slice(other.source,other.starts.(1),other.stops.(1))="|a%20#b|")?! "url_literals:30"
+
+href_literals():
+    tape:lexer.tokenize("\\href {https://a.test/\\{x\\}%20}{label}")
+    (tape.count=6)?! "href_literals:34"
+    (tape.kinds.(2)=12)?! "href_literals:35"
+    (text.slice(tape.source,tape.starts.(2),tape.stops.(2))="{https://a.test/\\{x\\}%20}")?! "href_literals:36"
+    (text.slice(tape.source,tape.starts.(4),tape.stops.(4))="label")?! "href_literals:37"
+
+verbatim_and_escapes():
+    tape:lexer.tokenize("\\verb*|{a}%\$| \\%\\{\\}")
+    (tape.count=5)?! "verbatim_and_escapes:41"
+    (tape.kinds.(0)=12)?! "verbatim_and_escapes:42"
+    (text.slice(tape.source,tape.starts.(0),tape.stops.(0))="\\verb*|{a}%\$|")?! "verbatim_and_escapes:43"
+    (tape.kinds.(2)=2)?! "verbatim_and_escapes:44"
+    (tape.kinds.(3)=2)?! "verbatim_and_escapes:45"
+    (tape.kinds.(4)=2)?! "verbatim_and_escapes:46"
+
+empty_input():
+    tape:lexer.tokenize("")
+    (tape.count=0)?! "empty_input:50"
+
+known_boundary_spans():
+    (text.span("",0,0)="" /\ text.span("α",2,2)="")?! "empty spans at end of input"
+    prefix:""
+    index:0
+    index<300?>
+        .prefix:prefix&"x"
+        .index:index+1
+    source:prefix&"αé🙂tail"
+    (text.span(source,300,308)="αé🙂")?! "short span past a long prefix"
+    (text.span(source,308,312)="tail")?! "short ASCII span past a long prefix"
+    (text.span(source,300,300)="")?! "empty span past a long prefix"
+    (text.span(source,0,312)=source)?! "balanced long-span copy"
+    unicode:""
+    .index:0
+    index<200?>
+        .unicode:unicode&"aα🙂é"
+        .index:index+1
+    (text.span(unicode,0,text.byte_length(unicode))=unicode)?! "Unicode boundaries through recursive span splits"
+    (text.span(unicode,1,1749)=text.slice(unicode,1,1749))?! "Unicode internal span through recursive splits"
+
+nested_groups():
+    (text.group_stop("{a{b}c} tail",0)=7)?! "nested_groups:53"
+    (text.group_stop("{a\\{b\\}c} tail",0,true)=9)?! "nested_groups:54"
+    (text.group_stop("{unfinished",0)=11)?! "nested_groups:55"
+
+renderer_tests()->bit:
+    text_boundaries()
+    math_tokens()
+    url_literals()
+    href_literals()
+    verbatim_and_escapes()
+    empty_input()
+    known_boundary_spans()
+    nested_groups()
+    @:true
+renderer_tests()

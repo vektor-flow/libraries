@@ -1,0 +1,34 @@
+# The existing explicit siunitx subset's vocabulary, not document-specific data.
+text:.frozen285_tex_text
+j:.frozen285_resource_json
+
+glyph(token:str)->str:"{\"type\":\"glyph\",\"token\":"&j.quote(token)&"}"
+hole()->str:"{\"type\":\"hole\"}"
+roman(value:str)->str:"{\"type\":\"text\",\"text\":"&j.quote(value)&",\"class\":\"ord\"}"
+space()->str:"{\"type\":\"space\",\"mu\":3}"
+
+letters(value:str)->str:
+    value="@microMetre"? @:glyph("@unit:micro")&","&roman("m")
+    value="@degreeMinute"? @:glyph("@unit:arcminute")
+    value="@degreeSecond"? @:glyph("@unit:arcsecond")
+    value="@degreeCelsius"? @:glyph("@unit:degree")&","&roman("C")
+    text.matches(value,0,"@")? @:glyph("@unit:"&text.span(value,1,text.byte_length(value)))
+    @:roman(value)
+
+prefix(name:str)->str:
+    keys:["quetta","ronna","yotta","zetta","exa","peta","tera","giga","mega","kilo","hecto","deca","deci","centi","milli","micro","nano","pico","femto","atto","zepto","yocto","ronto","quecto"]
+    values:["Q","R","Y","Z","E","P","T","G","M","k","h","da","d","c","m","@micro","n","p","f","a","z","y","r","q"]
+    index:0
+    index<keys.length()?>
+        name=keys.(index)? @:values.(index)
+        .index:index+1
+    @:""
+
+unit(name:str)->str:
+    keys:["m","s","A","K","mol","cd","g","kg","km","mm","cm","um","nm","Hz","kHz","MHz","N","Pa","J","W","V","L","metre","meter","second","ampere","kelvin","mole","candela","gram","kilogram","radian","steradian","hertz","newton","pascal","joule","watt","coulomb","volt","farad","ohm","siemens","weber","tesla","henry","degreeCelsius","celsius","lumen","lux","becquerel","gray","sievert","katal","litre","liter","minute","hour","day","tonne","hectare","electronvolt","dalton","angstrom","bar","percent","degree","arcminute","arcsecond","astronomicalunit","neper","bel","decibel"]
+    values:["m","s","A","K","mol","cd","g","kg","km","mm","cm","@microMetre","nm","Hz","kHz","MHz","N","Pa","J","W","V","L","m","m","s","A","K","mol","cd","g","kg","rad","sr","Hz","N","Pa","J","W","C","V","F","@ohm","S","Wb","T","H","@degreeCelsius","@degreeCelsius","lm","lx","Bq","Gy","Sv","kat","L","L","min","h","d","t","ha","eV","Da","@angstrom","bar","@percent","@degree","@degreeMinute","@degreeSecond","au","Np","B","dB"]
+    index:0
+    index<keys.length()?>
+        name=keys.(index)? @:values.(index)
+        .index:index+1
+    @:""

@@ -1,0 +1,55 @@
+document_present:.document_present
+document_pages:.document_pages
+document_display_reference:.document_display_reference
+font_catalog:.font_catalog
+test_font_data:.test_font_data
+text_chunks:.text_chunks
+tex_text:.tex_text
+test_layout_fonts:.test_layout_fonts
+math_profiles:.math_profiles
+math_packages:.math_packages
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+PageConfig:(values:[num],flags:[bit],penalties:[int])
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Configuration:(config:str,pages:PageConfig,packages:[str],math:MathContext,overrides:[str],class_name:str,optical:bit,hyperref:bit,diagnostics:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+fonts_with_role()->Catalog:
+    original:test_layout_fonts.fonts()
+    keys:text_chunks.empty(original.count+1)
+    values:text_chunks.empty(original.count+1)
+    at:0
+    i:0
+    i<original.capacity?>
+        entry:font_catalog.slot(original,i)
+        entry.found?
+            key_size:font_catalog.fixed(original.source,font_catalog.header_size()+i*font_catalog.slot_size()+12)
+            keys.(at):tex_text.span(original.source,entry.start,entry.start+key_size)
+            values.(at):tex_text.span(original.source,entry.start+key_size,entry.stop)
+            .at:at+1
+        .i:i+1
+    keys.(at):"font/roman"
+    values.(at):"{\"spaces\":{\"space\":3.3,\"stretch\":1.6,\"shrink\":1.1,\"extra\":1.1}}"
+    @:font_catalog.load(test_font_data.pack(keys,values))
+renderer_tests()->bit:
+    fonts:fonts_with_role()
+    tables:math_profiles.load(fonts)
+    directory:"{\"0\":{\"items\":[{\"kind\":\"rule\",\"x\":1,\"y\":-2,\"width\":4,\"height\":0.5}],\"width\":6,\"height\":3,\"depth\":2}}"
+    cases:["a+b","\\frac{a+b}{x}","\\begin{equation}a+b\\label{x}\\end{equation}","\\begin{align}a&=b\\\\x&=y\\end{align}","a+\\vkftikzbox{0}+b","\\unknownVKFCommand",""]
+    style:0
+    style<2?>
+        class_name:"article"
+        style=1? .class_name:"amsart"
+        config:(config:"{\"lineHeight\":12,\"mathJot\":3,\"lineSkip\":1,\"lineSkipLimit\":0}",pages:(values:math_profiles.zeros(0),flags:document_pages.bits(0),penalties:document_pages.ints(0)),packages:text_chunks.empty(0),math:math_packages.from_names(["amsmath"]),overrides:text_chunks.empty(0),class_name:class_name,optical:false,hyperref:false,diagnostics:"")
+        i:0
+        i<cases.length()?>
+            previous:document_display_reference.display(cases.(i),fonts,config,"roman",30,7,directory)
+            prepared:document_present.display_prepared(cases.(i),fonts,config,"roman",30,tables,7,directory)
+            legacy:document_present.display(cases.(i),fonts,config,"roman",30,7,directory)
+            (previous.json=prepared.json /\ previous.json=legacy.json)?! "display exact serialized geometry"
+            (previous.next_equation_number=prepared.next_equation_number /\ previous.next_equation_number=legacy.next_equation_number)?! "display equation counter"
+            (previous.references=prepared.references /\ previous.references=legacy.references)?! "display references"
+            (previous.diagnostics=prepared.diagnostics /\ previous.diagnostics=legacy.diagnostics)?! "display diagnostics"
+            .i:i+1
+        .style:style+1
+    @:true
+renderer_tests()

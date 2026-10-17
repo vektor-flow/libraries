@@ -1,0 +1,8 @@
+document_class:.document_class
+class_packet(name:str,options:[str])->str:
+    configured:document_class.configure(name,options)
+    complete:"false"
+    configured.complete? .complete:"true"
+    @:"{\"config\":"&configured.config&",\"diagnostics\":["&configured.diagnostics&"],\"complete\":"&complete&"}"
+noop()->int:0
+noop()

@@ -1,0 +1,49 @@
+p:.math_parser
+packages:.math_packages
+catalog:.font_catalog
+data:.test_font_data
+j:.resource_json
+text:.tex_text
+
+renderer_tests()->bit:
+    fonts:catalog.load(data.math_catalog())
+    context:packages.from_names(["amsthm","bbm","latexsym","faktor","amsmath"])
+    source:"\\pushQED{\\qed}a\\qedhere\\popQED"
+    plain:p.json(p.parse(source,fonts))
+    explicit:p.json(p.parse_with_context(source,fonts,context))
+    (text.find(plain,"qedpush")<0 /\ text.find(plain,"Unfinished or unsupported command")>=0)?! "default package syntax remains unsupported"
+    qed:j.parse(explicit)
+    nodes:j.member(qed,0,"nodes")
+    push:j.element(qed,nodes,0)
+    children:j.member(qed,push,"children")
+    captured:j.element(qed,children,0)
+    (j.string(qed,j.member(qed,push,"type"))="qedpush" /\ j.string(qed,j.member(qed,captured,"type"))="qed" /\ j.number(qed,j.member(qed,0,"atoms"))=5)?! "QED capture creates exact fresh children and counts captured atoms"
+    bbm:j.parse(p.json(p.parse_with_context("\\mathbbm{1}",fonts,context)))
+    bbm_nodes:j.member(bbm,0,"nodes")
+    family:j.element(bbm,bbm_nodes,0)
+    (j.string(bbm,j.member(bbm,family,"type"))="font" /\ j.string(bbm,j.member(bbm,family,"name"))="mathbbm")?! "enabled BBM uses ordinary font argument grammar"
+    symbol:p.parse_with_context("\\Box",fonts,context)
+    (symbol.diagnostics="" /\ text.find(p.json(symbol),"@latexsym:")>=0)?! "latexsym hook creates glyph before builtin existence checking"
+    quotient:j.parse(p.json(p.parse_with_context("\\faktor[\\scriptstyle]{a_b}{x}",fonts,context)))
+    quotient_nodes:j.member(quotient,0,"nodes")
+    q:j.element(quotient,quotient_nodes,0)
+    (j.string(quotient,j.member(quotient,q,"type"))="quotient" /\ j.member(quotient,q,"num")>=0 /\ j.member(quotient,q,"den")>=0 /\ j.member(quotient,q,"children")<0)?! "quotient imports numerator and denominator with their exact serialized roles"
+    empty:p.parse_with_context("\\binom ab",fonts,packages.from_names([]))
+    (empty.diagnostics=j.quote("Command requires amsmath: \\binom") /\ empty.atoms=3)?! "explicit no-AMS consumes only denied command and leaves operands in outer list"
+    prefix:j.parse(p.diagnose_with_context("\\qedh",fonts,context))
+    (j.string(prefix,j.member(prefix,0,"status"))="incomplete")?! "enabled extension prefixes provide append-only completion"
+    remapped:j.parse(p.diagnose_with_context("a+\\pushQED{\\unknown}",fonts,context))
+    issues:j.member(remapped,0,"issues")
+    issue:j.element(remapped,issues,0)
+    range:j.member(remapped,issue,"range")
+    start:j.member(remapped,range,"start")
+    stop:j.member(remapped,range,"end")
+    (j.number(remapped,j.member(remapped,start,"byte"))=11 /\ j.number(remapped,j.member(remapped,stop,"byte"))=19)?! "captured diagnostics map exact original UTF8 source bytes"
+    closed:j.parse(p.diagnose_with_context("\\pushQED{\\fra}",fonts,context))
+    (j.string(closed,j.member(closed,0,"status"))="edit-required")?! "closed captured fragment cannot be fixed by appending outside its group"
+    unfinished:j.parse(p.diagnose_with_context("\\pushQED{\\frac{a}",fonts,context))
+    (j.string(unfinished,j.member(unfinished,0,"status"))="incomplete")?! "open captured fragment preserves appendable argument recovery"
+    nested:p.parse_with_context("\\pushQED{\\faktor{a}{\\pushQED{b}\\qedhere}}",fonts,context)
+    (nested.diagnostics="" /\ text.find(p.json(nested),"quotient")>=0)?! "nested fresh extension parses preserve context and graph ownership"
+    @:true
+renderer_tests()

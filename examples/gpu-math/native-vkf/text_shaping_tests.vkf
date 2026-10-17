@@ -1,0 +1,46 @@
+s:.text_shaping
+f:.font_catalog
+d:.test_font_data
+j:.resource_json
+
+fonts():
+    keys:["font/roman","text/roman/65","text/roman/86","text/roman/102","text/roman/105","text/roman/12","text/roman/11","text/roman/14","text/roman/96","text/roman/39","text/roman/16","text/roman/17","math/text/@text:å"]
+    values:["{\"size\":10,\"spaces\":{\"space\":3},\"ligatures\":{\"102\":{\"105\":[\"LIG\",12],\"102\":[\"LIG\",11]},\"11\":{\"105\":[\"LIG\",14]}}}","{\"key\":\"A\",\"advance\":7,\"height\":8,\"depth\":0,\"italic\":1,\"kerns\":{\"86\":-2}}","{\"key\":\"V\",\"advance\":8,\"height\":9,\"depth\":1,\"italic\":2}","{\"key\":\"f\",\"advance\":4,\"height\":7,\"depth\":0}","{\"key\":\"i\",\"advance\":3,\"height\":6,\"depth\":0}","{\"key\":\"fi\",\"advance\":6,\"height\":7,\"depth\":0}","{\"key\":\"ff\",\"advance\":7,\"height\":7,\"depth\":0}","{\"key\":\"ffi\",\"advance\":9,\"height\":7,\"depth\":0}","{\"key\":\"lq\",\"advance\":2,\"height\":7,\"depth\":0}","{\"key\":\"rq\",\"advance\":2,\"height\":7,\"depth\":0}","{\"key\":\"dotlessi\",\"advance\":3,\"height\":4,\"depth\":0}","{\"key\":\"dotlessj\",\"advance\":3,\"height\":4,\"depth\":2}","{\"width\":5,\"height\":8,\"depth\":1}"]
+    @:f.load(d.pack(keys,values))
+
+renderer_tests()->bit:
+    catalog:fonts()
+    context:s.context(catalog,"unavailable-role")
+    (context.role="roman" /\ context.space=3)?! "unknown role selects roman installed metrics"
+    lig:s.shape("ffi",catalog,context)
+    keys:lig.keys
+    starts:lig.starts
+    stops:lig.stops
+    (lig.count=1 /\ lig.width=9 /\ lig.atoms=1 /\ keys.(0)="ffi" /\ starts.(0)=0 /\ stops.(0)=3)?! "chained native ligature retains constituent source span"
+    kern:s.shape("AV",catalog,context)
+    positions:kern.xs
+    (kern.width=13 /\ positions.(1)=5 /\ kern.italic=2 /\ kern.height=9 /\ kern.depth=1)?! "native pair kern and final italic correction"
+    spaces:s.shape("A V ",catalog,context)
+    (spaces.width=21 /\ spaces.italic=0 /\ spaces.count=2)?! "literal spaces reset kerning and last italic"
+    fallback:s.shape("AåV",catalog,context)
+    fallbackKeys:fallback.keys
+    (fallback.width=20 /\ fallback.count=3 /\ fallback.atoms=2 /\ fallbackKeys.(1)="text/@text:å" /\ fallback.diagnostics="")?! "math text fallback uses width when advance absent and resets prior kern"
+    unknown:s.shape("A☃V☃",catalog,context)
+    (unknown.width=13 /\ unknown.count=2 /\ unknown.italic=2 /\ unknown.diagnostics=j.quote("Unsupported document text character: ☃"))?! "unsupported characters preserve prior symbol and deduplicate diagnostics"
+    punctuation:s.shape("‘’ıȷ",catalog,context)
+    code:punctuation.codes
+    (code.(0)=96 /\ code.(1)=39 /\ code.(2)=16 /\ code.(3)=17 /\ punctuation.width=10)?! "native punctuation and dotless encoding"
+    prefix:s.range("ffi",0,1,catalog,context)
+    full:s.shape("ffi",catalog,context)
+    suffix:s.range("ffi",1,3,catalog,context)
+    suffixKeys:suffix.keys
+    suffixStarts:suffix.starts
+    suffixStops:suffix.stops
+    (prefix.width=4 /\ suffix.width=6 /\ suffixKeys.(0)="fi" /\ suffixStarts.(0)=1 /\ suffixStops.(0)=3)?! "partial word reshapes ligature independently and retains original source ranges"
+    (s.correction("ffi",1,3,prefix.width,full.width,catalog,context)=1)?! "partial word correction replaces prefix-difference widths"
+    (s.slice16("åffi",1,4)="ffi")?! "UTF16 slices convert multi-byte source boundaries"
+    supplemental:s.shape("A😀V",catalog,context)
+    ranges:supplemental.starts
+    (supplemental.width=13 /\ ranges.(1)=3 /\ supplemental.diagnostics="\"Unsupported document text character: \\ud83d\",\"Unsupported document text character: \\ude00\"")?! "supplementary source retains JS UTF16 offsets and surrogate diagnostics"
+    @:true
+renderer_tests()

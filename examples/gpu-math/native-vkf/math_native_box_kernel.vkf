@@ -1,0 +1,23 @@
+native_box_parser:.math_parser
+native_box_layout:.math_layout
+native_box_profiles:.math_profiles
+native_box_packages:.math_packages
+native_box_fonts:.font_catalog
+native_box_json:.resource_json
+native_box_text:.tex_text
+native_box_reference:.math_display_metrics_kernel
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+json(fonts:Catalog,request:str)->str:
+    tape:native_box_json.parse(request)
+    boxes:native_box_reference.raw(tape,native_box_json.member(tape,0,"boxes"))
+    source:native_box_reference.text(tape,"source")
+    class_name:native_box_reference.text(tape,"class")
+    context:native_box_packages.from_names(["amsmath","tikz"],class_name)
+    arena:native_box_parser.parse_with_context(source,fonts,context,true,boxes)
+    role:native_box_reference.text(tape,"role")
+    font:native_box_fonts.text_font(fonts,role)
+    spacing:native_box_reference.raw(font,native_box_json.member(font,0,"spaces"))
+    metrics:native_box_reference.raw(tape,native_box_json.member(tape,0,"mathMetrics"))
+    metrics="null"? .metrics:""
+    scene:native_box_layout.layout_with_profiles(arena,fonts,native_box_profiles.load(fonts),native_box_reference.flag(tape,"inline"),true,native_box_reference.flag(tape,"displayEnvironment"),7,false,spacing,metrics,native_box_reference.number(tape,"displayWidth",-1),false,context.qed_symbol)
+    @:native_box_layout.json(scene)

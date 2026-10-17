@@ -1,0 +1,34 @@
+link_context_output_parser:.text_parser
+link_context_output_context:.text_link_context
+link_context_output_catalog:.font_catalog
+link_context_output_ops:.text_parser_stream
+link_context_output_json:.resource_json
+link_context_output_chunks:.text_chunks
+link_context_output_text:.tex_text
+packet(source:str,font_source:str,initial:str,enabled:bit)->str:
+    parser_context:link_context_output_parser.context("roman",["roman","bold","italic","mono"],false,enabled)
+    parsed:link_context_output_parser.parse(source,link_context_output_catalog.load(font_source),parser_context)
+    context:link_context_output_context.build(parsed.stream,initial,enabled)
+    parts:link_context_output_chunks.empty(parsed.stream.count)
+    count:0
+    scopes:context.operation_scopes
+    index:0
+    index<parsed.stream.count?>
+        kind:link_context_output_ops.value(parsed.stream,index,"kind")
+        (kind="word" \/ kind="math" \/ kind="url")?
+            prefix:""
+            count>0? .prefix:","
+            parts.(count):prefix&"{\"kind\":"&link_context_output_json.quote(kind)&",\"value\":"&link_context_output_json.quote(link_context_output_ops.value(parsed.stream,index,"value"))&",\"scope\":"&link_context_output_text.integer(scopes.(index))&"}"
+            .count:count+1
+        .index:index+1
+    anchor_parts:link_context_output_chunks.empty(context.anchor_count)
+    ids:context.anchor_ids
+    .index:0
+    index<context.anchor_count?>
+        prefix:""
+        index>0? .prefix:","
+        anchor_parts.(index):prefix&link_context_output_json.quote(ids.(index))
+        .index:index+1
+    complete:"false"
+    context.complete? .complete:"true"
+    @:"{\"scopes\":"&context.scopes_json&",\"words\":["&link_context_output_chunks.join(parts,0,count)&"],\"anchors\":["&link_context_output_chunks.join(anchor_parts,0,context.anchor_count)&"],\"diagnostics\":["&context.diagnostics&"],\"complete\":"&complete&"}"

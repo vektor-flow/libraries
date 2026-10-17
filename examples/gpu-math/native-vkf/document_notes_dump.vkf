@@ -1,0 +1,19 @@
+io:.io
+resource_numbers:.resource_numbers
+document_notes_kernel:.document_notes_kernel
+run()->int:
+    catalog:io.read_text(io.read_line())
+    language:io.read_text(io.read_line())
+    roles:io.read_line()
+    count:int(resource_numbers.parse(io.read_line()))
+    index:0
+    index<count?>
+        class_name:io.read_line()
+        options:io.read_line()
+        hyperref:io.read_line()="true"
+        definitions:io.read_text(io.read_line())
+        path:io.read_line()
+        io.write_text(path,document_notes_kernel.note_packet(catalog,language,roles,class_name,options,definitions,hyperref))
+        .index:index+1
+    @:0
+run()

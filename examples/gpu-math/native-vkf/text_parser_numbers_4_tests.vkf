@@ -1,0 +1,12 @@
+n:.text_parser_numbers
+r:.resource_numbers
+renderer_tests()->bit:
+    (n.shortest(r.parse("1.6077580689452588e+185"))="1.6077580689452588e+185")?! "shortest binary64 spelling 21"
+    (n.shortest(r.parse("-1.3575719760265202e-154"))="-1.3575719760265202e-154")?! "shortest binary64 spelling 22"
+    (n.shortest(r.parse("1.1196968695148825e+175"))="1.1196968695148825e+175")?! "shortest binary64 spelling 23"
+    (n.shortest(r.parse("-1.2389367718715219e-188"))="-1.238936771871522e-188")?! "shortest binary64 spelling 24"
+    (n.shortest(r.parse("1.8052576710470022e-43"))="1.805257671047002e-43")?! "shortest binary64 spelling 25"
+    (n.shortest(r.parse("-1.5260228782426566e-190"))="-1.5260228782426566e-190")?! "shortest binary64 spelling 26"
+    (n.shortest(r.parse("1.2092334534972906e+219"))="1.2092334534972906e+219")?! "shortest binary64 spelling 27"
+    @:true
+renderer_tests()

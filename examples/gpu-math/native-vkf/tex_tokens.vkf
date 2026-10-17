@@ -1,0 +1,85 @@
+text:.tex_text
+# UTF-8 spans and numeric token tags. Runs share one scan loop, so no helper
+# call copies a source-sized aggregate at each word boundary.
+TokenTape:(source:str,kinds:[int],starts:[int],stops:[int],count:int)
+
+tokenize(source:str)->TokenTape:
+    size:text.byte_length(source)
+    capacity:size+1
+    [int] kinds:[0:capacity]
+    [int] starts:[0:capacity]
+    [int] stops:[0:capacity]
+    position:0
+    begin:0
+    count:0
+    mode:0
+    raw_mode:0
+    position<size \/ mode>0?>
+        kind:0
+        mode=1 \/ mode=6 \/ mode=7?
+            keep:false
+            position<size?
+                current:text.at(source,position)
+                mode=1? .keep:text.letter(current)
+                mode=6? .keep:text.space(current)
+                mode=7? .keep:~text.special(current)
+            keep?
+                .position:text.next(source,position)
+                @>
+            .kind:mode
+            .mode:0
+            kind=1?
+                name:text.span(source,begin+1,position)
+                (name="url" \/ name="nolinkurl")? .raw_mode:1
+                name="href"? .raw_mode:2
+                name="verb" /\ position<size?
+                    text.at(source,position)="*"? .position:text.next(source,position)
+                    .position:text.literal_stop(source,position)
+                    .kind:12
+        mode = -1?
+            position>=size? @|
+            ch:text.at(source,position)
+            .position:text.next(source,position)
+            ch="\n"? .mode:0
+            @>
+        kind=0?
+            position>=size? @|
+            .begin:position
+            c:text.at(source,position)
+            raw_mode>0 /\ ~text.space(c)?
+                .kind:12
+                .position:text.literal_stop(source,position,raw_mode=2)
+                .raw_mode:0
+            kind=0?
+                c="%"?
+                    .mode: -1
+                    .position:text.next(source,position)
+                    @>
+                .position:text.next(source,position)
+                c="\\"?
+                    .kind:2
+                    position<size?
+                        next_char:text.at(source,position)
+                        text.letter(next_char)?
+                            .mode:1
+                            @>
+                        .position:text.next(source,position)
+                c~="\\"?
+                    text.space(c)?
+                        .mode:6
+                        @>
+                    ~text.special(c)?
+                        .mode:7
+                        @>
+                    c="{"? .kind:3
+                    c="}"? .kind:4
+                    c="\$"? .kind:5
+                    c="^"? .kind:8
+                    c="_"? .kind:9
+                    c="&"? .kind:10
+                    c="#"? .kind:11
+        kinds.(count):kind
+        starts.(count):begin
+        stops.(count):position
+        .count:count+1
+    @:(source:source,kinds:kinds,starts:starts,stops:stops,count:count)

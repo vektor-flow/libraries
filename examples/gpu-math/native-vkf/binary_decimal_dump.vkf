@@ -1,0 +1,17 @@
+io:.io
+p:.binary_decimal
+text:.tex_text
+parts:.binary64_parts
+
+run()->int:
+    count:int(vkf_decimal_parse(io.read_line()))
+    i:0
+    i<count?>
+        source:io.read_line()
+        result:p.decode(source,0,text.byte_length(source))
+        value:"invalid"
+        result.valid? .value:parts.format(result.value)
+        ::value
+        .i:i+1
+    @:0
+run()

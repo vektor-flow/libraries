@@ -10,8 +10,11 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 from fontTools.t1Lib import T1Font
 from fontTools.tfmLib import TFM
+import pymupdf
+from document_reference_overlays import arxiv_stamp_regions,is_overlay_glyph
 
-def compare_geometry(pdf,layout,data,trace_path,extras=None):
+def compare_geometry(pdf,layout,data,trace_path,extras=None,*,exclude_arxiv_stamp=False,position_tolerance_pixels=.1,pdf_text_origins=False):
+ if not math.isfinite(position_tolerance_pixels)or position_tolerance_pixels<=0:raise ValueError('Position tolerance must be finite and positive')
  subprocess.run(['mutool','draw','-F','trace','-o',str(trace_path),str(pdf)],capture_output=True,check=True)
  pages=ET.parse(trace_path).getroot().findall('page');font_cache={};env=os.environ.copy()
  if extras:
@@ -25,6 +28,8 @@ def compare_geometry(pdf,layout,data,trace_path,extras=None):
   name=name.split('+')[-1].lower()
   return ('bitmap',glyph)if re.fullmatch('f[0-9]+',name)and glyph.isdigit()else(name,glyph)
  def actual(item):
+  if item.get('nativeGlyph'):
+   g=item['nativeGlyph'];return[{'identity':(g['fontName'],str(g['fontGlyphId'])if'fontGlyphId'in g else g['glyphName']),'x':item['x'],'y':item['y'],'size':g['fontSize']*item.get('sx',1),'key':item['key']}]
   key=item['key'];style,token=key.split('/',1);symbol=data['maps'][style]['symbols'].get(token)
   if token.startswith('@document:'):
    _,role,code=token.split(':');symbol=data['documentFonts'][role]['symbols'][code]
@@ -41,9 +46,18 @@ def compare_geometry(pdf,layout,data,trace_path,extras=None):
    records.append({'identity':identity,'x':item['x']+part['x']*sx,'y':item['y']+part['y']*sy,'size':size*sx if size else None,'key':key})
   return records
 
- records=[]
+ precise=None
+ if pdf_text_origins:
+  from pdf_reference_positions import pdf_reference_positions
+  precise=pdf_reference_positions(pdf,lambda name:font(name)[0]['Encoding']if font(name)[0]else None)
+ records=[];pdf_document=pymupdf.open(pdf)
  for index in range(max(len(pages),len(layout['pages']))):
-  expected=[];gpu=[];unknown=[];figures=[];actual_figures=[];unsupported=[]
+  expected=[];gpu=[];unknown=[];figures=[];actual_figures=[];unsupported=[];boxes=defaultdict(list)
+  overlays=arxiv_stamp_regions(pdf_document[index])if exclude_arxiv_stamp and index<len(pdf_document)else[]
+  if index<len(pdf_document):
+   for span in pdf_document[index].get_texttrace():
+    for code,gid,origin,bbox in span['chars']:
+     boxes[(native_identity(span['font'],str(gid))[0],round(origin[0],2),round(origin[1],2))].append(list(bbox))
   if index<len(pages):
    for text in pages[index].iter('fill_text'):
     transform=[float(n)for n in text.get('transform','1 0 0 1 0 0').split()];aa,bb,cc,dd,ee,ff=transform
@@ -61,6 +75,30 @@ def compare_geometry(pdf,layout,data,trace_path,extras=None):
      if g is not None:gpu.extend(g)
      else:unknown.append({'key':item['key'],'x':item['x'],'y':item['y']})
     elif item['kind']=='image':actual_figures.append({k:item[k]for k in ['x','y','width','height']})
+    elif item['kind']=='placeholder':unsupported.append(item)
+  for g in expected:
+   name=g['identity'][0];x,y=g['x'],g['y'];candidates=[]
+   for dx in [-.01,0,.01]:
+    for dy in [-.01,0,.01]:candidates.extend(boxes.get((name,round(x+dx,2),round(y+dy,2)),[]))
+   if candidates:g['bbox']=min(candidates,key=lambda b:abs(b[0]-x))
+  corrected=0
+  if precise is not None and index<len(precise):
+   # Match the two independent PDF decoders by identity. Reject discrepancies
+   # rather than moving a trace glyph to an unrelated encoded position.
+   native_groups=defaultdict(list);trace_groups=defaultdict(list)
+   for g in precise[index]:native_groups[tuple(g['identity'])].append(g)
+   for g in expected:trace_groups[tuple(g['identity'])].append(g)
+   for key,native in native_groups.items():
+    traced=trace_groups[key]
+    if len(native)!=len(traced):raise ValueError(f'PDF decoders disagree on glyph count: page {index+1}, {key}')
+    D=np.linalg.norm(np.array([[g['x'],g['y']]for g in traced])[:,None]-np.array([[g['x'],g['y']]for g in native])[None,:],axis=2)
+    ri,ci=linear_sum_assignment(D)
+    if D[ri,ci].max(initial=0)>1:raise ValueError(f'PDF decoders disagree on origins: page {index+1}, {key}')
+    for r,c in zip(ri,ci):
+     g,n=traced[r],native[c];g['x'],g['y'],g['size']=n['x'],n['y'],n['size'];corrected+=1
+  excluded=[g for g in expected if is_overlay_glyph(g,overlays)]
+  if len(excluded)!=sum(r['glyphs']for r in overlays):raise ValueError('Reference overlay glyph count disagrees with independent trace')
+  expected=[g for g in expected if not is_overlay_glyph(g,overlays)]
   er=defaultdict(list);ar=defaultdict(list)
   for n,g in enumerate(expected):er[tuple(g['identity'])].append(n)
   for n,g in enumerate(gpu):ar[tuple(g['identity'])].append(n)
@@ -70,14 +108,15 @@ def compare_geometry(pdf,layout,data,trace_path,extras=None):
    if ei and ai:
     E=np.array([[expected[n]['x'],expected[n]['y']]for n in ei]);A=np.array([[gpu[n]['x'],gpu[n]['y']]for n in ai]);D=np.linalg.norm(E[:,None]-A[None,:],axis=2);ri,ci=linear_sum_assignment(D)
     for r,c in zip(ri,ci):
-     e,g=expected[ei[r]],gpu[ai[c]];dx=(g['x']-e['x'])*96/72;dy=(g['y']-e['y'])*96/72;pairs.append({'identity':list(identity),'reference':[e['x'],e['y']],'gpu':[g['x'],g['y']],'dxPixels':dx,'dyPixels':dy,'distancePixels':math.hypot(dx,dy),'sizeErrorPixels':abs(g['size']-e['size'])*96/72 if g['size']else None,'key':g['key']})
+     e,g=expected[ei[r]],gpu[ai[c]];dx=(g['x']-e['x'])*96/72;dy=(g['y']-e['y'])*96/72;pairs.append({'identity':list(identity),'reference':[e['x'],e['y']],'referenceBBox':e.get('bbox'),'referenceSize':e['size'],'gpuSize':g['size'],'gpu':[g['x'],g['y']],'dxPixels':dx,'dyPixels':dy,'distancePixels':math.hypot(dx,dy),'sizeErrorPixels':abs(g['size']-e['size'])*96/72 if g['size']else None,'key':g['key']})
     missing.extend(expected[ei[n]]for n in range(len(ei))if n not in set(ri));extra.extend(gpu[ai[n]]for n in range(len(ai))if n not in set(ci))
    else:missing.extend(expected[n]for n in ei);extra.extend(gpu[n]for n in ai)
-  bad=[p for p in pairs if p['distancePixels']>1 or p['sizeErrorPixels']is None or p['sizeErrorPixels']>.1];image_errors=[]
+  bad=[p for p in pairs if p['distancePixels']>position_tolerance_pixels or p['sizeErrorPixels']is None or p['sizeErrorPixels']>.1];image_errors=[]
   if len(figures)!=len(actual_figures):image_errors.append('Image count differs')
   for e,a in zip(figures,actual_figures):
    errors={k:(a[k]-e[k])*96/72 for k in ['x','y','width','height']}
    if max(map(abs,errors.values()))>1:image_errors.append(errors)
-  passed=index<len(pages)and index<len(layout['pages'])and not(missing or extra or unknown or bad or image_errors)
-  records.append({'page':index+1,'referenceGlyphs':len(expected),'measuredGpuGlyphs':len(gpu),'unmeasuredGpuGlyphs':len(unknown),'pairedGlyphs':len(pairs),'missingReferenceGlyphs':missing,'extraGpuGlyphs':extra,'unmeasured':unknown,'misplacedOrWrongSize':sorted(bad,key=lambda x:-x['distancePixels']),'maxPositionErrorPixels':max((p['distancePixels']for p in pairs),default=0),'medianPositionErrorPixels':float(np.median([p['distancePixels']for p in pairs]))if pairs else None,'p95PositionErrorPixels':float(np.percentile([p['distancePixels']for p in pairs],95))if pairs else None,'images':{'reference':figures,'gpu':actual_figures,'errors':image_errors},'passed':passed})
- return {'policy':'Same page, same native font/glyph identity, one-to-one assignment without registration; every glyph within 1px, size within 0.1px, no missing/extra/unmeasured glyphs; image boxes within 1px. Composite tiles without primitive provenance are unmeasured, never assumed correct.','passed':all(p['passed']for p in records),'pages':records}
+  passed=index<len(pages)and index<len(layout['pages'])and not(missing or extra or unknown or bad or image_errors or unsupported)
+  records.append({'page':index+1,'referenceGlyphs':len(expected),'excludedReferenceOverlays':overlays,'excludedReferenceGlyphs':len(excluded),'measuredGpuGlyphs':len(gpu),'unmeasuredGpuGlyphs':len(unknown),'pairedGlyphs':len(pairs),'glyphNeighborhoods':pairs,'missingReferenceGlyphs':missing,'extraGpuGlyphs':extra,'unmeasured':unknown,'unsupportedPrimitives':unsupported,'misplacedOrWrongSize':sorted(bad,key=lambda x:-x['distancePixels']),'maxPositionErrorPixels':max((p['distancePixels']for p in pairs),default=0),'medianPositionErrorPixels':float(np.median([p['distancePixels']for p in pairs]))if pairs else None,'p95PositionErrorPixels':float(np.percentile([p['distancePixels']for p in pairs],95))if pairs else None,'images':{'reference':figures,'gpu':actual_figures,'errors':image_errors},'passed':passed})
+  records[-1]['pdfEncodedOrigins']=corrected
+ return {'excludeArxivStamp':exclude_arxiv_stamp,'positionTolerancePixels':position_tolerance_pixels,'referenceOrigins':'PDF operators with original font widths; unsupported fonts use MuPDF trace'if pdf_text_origins else'MuPDF trace','policy':f'Same page, same native font/glyph identity, one-to-one assignment without registration; every glyph within {position_tolerance_pixels:g}px, size within 0.1px, no missing/extra/unmeasured glyphs or recovery placeholders; image boxes within 1px. Composite tiles without primitive provenance are unmeasured, never assumed correct.','passed':all(p['passed']for p in records),'pages':records}

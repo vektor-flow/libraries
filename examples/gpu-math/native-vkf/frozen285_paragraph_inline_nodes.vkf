@@ -1,0 +1,588 @@
+# Mixed-role parsed inline operations -> paragraph nodes.
+# Unresolved native actions are retained as explicit pending operation IDs.
+shape:.frozen285_text_shaping
+font_metrics:.frozen285_text_font_metrics
+FontState:(slots:[int],keys:[str],raws:[str],names:[str],advances:[num],heights:[num],depths:[num],italics:[num],kern_starts:[int],kern_stops:[int],kern_codes:[str],kern_values:[num],kern_count:int,count:int,role_names:[str],role_ready:[int],role_sizes:[num],role_quads:[num],role_sources:[str],role_spaces:[num],role_stretches:[num],role_shrinks:[num],role_extras:[num],role_slants:[num],role_starts:[int],role_stops:[int],role_count:int,lig_first:[int],lig_second:[int],lig_result:[int],lig_count:int)
+Run:(keys:[str],xs:[num],metrics:[str],codes:[int],starts:[int],stops:[int],count:int,width:num,height:num,depth:num,italic:num,atoms:int,diagnostics:str)
+RunStore:(keys:[str],xs:[num],metrics:[str],codes:[int],starts:[int],stops:[int],offsets:[int],counts:[int],widths:[num],heights:[num],depths:[num],italics:[num],atoms:[int],diagnostics:[str],count:int,glyph_count:int)
+h:.frozen285_hyphenation
+p:.frozen285_paragraph_breaking
+text:.frozen285_tex_text
+catalog:.frozen285_font_catalog
+glyphs:.frozen285_math_glyphs
+j:.frozen285_resource_json
+tex:.frozen285_tex_numeric
+chunks:.frozen285_text_chunks
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Context:(role:str,space:num,ligatures:str)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+TextOptions:(sentence_spacing:bit,french_spacing:bit,space_scale:num)
+Cache:(words:[int],starts:[int],ends:[int],widths:[num],heights:[num],depths:[num],count:int,atoms:int,diagnostics:str,fonts:FontState,runs:RunStore)
+with_fonts(cache:Cache,fonts:FontState)->Cache:
+    @:(words:cache.words,starts:cache.starts,ends:cache.ends,widths:cache.widths,heights:cache.heights,depths:cache.depths,count:cache.count,atoms:cache.atoms,diagnostics:cache.diagnostics,fonts:fonts,runs:cache.runs)
+context(cache:Cache,fonts:Catalog,role:str)->Context:
+    index:font_metrics.context_index(cache.fonts,role)
+    index>=0? @:font_metrics.context_value(cache.fonts,index)
+    prepared:font_metrics.context(cache.fonts,fonts,role)
+    @:prepared.context
+shaped(cache:Cache,index:int)->Run:
+    @:shape.restore(cache.runs,index)
+text_options()->TextOptions:@:(sentence_spacing:true,french_spacing:false,space_scale:1)
+empty_cache()->Cache:
+    @:(words:p.ints(32),starts:p.ints(32),ends:p.ints(32),widths:p.nums(32),heights:p.nums(32),depths:p.nums(32),count:0,atoms:0,diagnostics:"",fonts:font_metrics.empty(),runs:shape.empty_store())
+merge_diagnostics(current:str,extra:str)->str:
+    extra=""? @:current
+    out:current
+    at:0
+    ~vkf_string_eof(extra,at)?>
+        text.at(extra,at)=","?
+            .at:at+1
+            @>
+        (text.at(extra,at)="\"")?! "Invalid quoted text diagnostic"
+        begin:at
+        .at:at+1
+        ~vkf_string_eof(extra,at)?>
+            c:text.at(extra,at)
+            c="\\"?
+                .at:at+2
+                @>
+            .at:text.next(extra,at)
+            c="\""? @|
+        value:text.span(extra,begin,at)
+        text.find(","&out&",",","&value&",")<0?
+            out~=""? .out:out&","&value
+            out=""? .out:value
+    @:out
+find_measure(cache:Cache,id:int,start:int,end:int)->int:
+    i:0
+    i<cache.count?>
+        cache.words.(i)=id /\ cache.starts.(i)=start /\ cache.ends.(i)=end? @:i
+        .i:i+1
+    @: -1
+measure(cache:Cache,id:int,word:str,start:int,end:int,fonts:Catalog,ctx:Context):
+    i:0
+    i<cache.count?>
+        cache.words.(i)=id /\ cache.starts.(i)=start /\ cache.ends.(i)=end?
+            @:(cache:cache,width:cache.widths.(i),height:cache.heights.(i),depth:cache.depths.(i),run_index:i)
+        .i:i+1
+    prepared:shape.range_prepared(word,start,end,fonts,ctx,cache.fonts)
+    run:prepared.run
+    words:cache.words
+    starts:cache.starts
+    ends:cache.ends
+    widths:cache.widths
+    heights:cache.heights
+    depths:cache.depths
+    at:cache.count
+    at>=words.length()?
+        .words:words&p.ints(words.length())
+        .starts:starts&p.ints(starts.length())
+        .ends:ends&p.ints(ends.length())
+        .widths:widths&p.nums(widths.length())
+        .heights:heights&p.nums(heights.length())
+        .depths:depths&p.nums(depths.length())
+    words.(at):id
+    starts.(at):start
+    ends.(at):end
+    widths.(at):run.width
+    heights.(at):run.height
+    depths.(at):run.depth
+    updated:(words:words,starts:starts,ends:ends,widths:widths,heights:heights,depths:depths,count:at+1,atoms:cache.atoms+run.atoms,diagnostics:merge_diagnostics(cache.diagnostics,run.diagnostics),fonts:prepared.state,runs:shape.retain(cache.runs,run))
+    @:(cache:updated,width:run.width,height:run.height,depth:run.depth,run_index:at)
+
+whitespace(c:str)->bit:
+    @:c=" " \/ c="\t" \/ c="\n" \/ c="\r" \/ c=str(chr(11)) \/ c=str(chr(12)) \/ c=" " \/ c=" " \/ (c>=" " /\ c<=" ") \/ c=" " \/ c=" " \/ c=" " \/ c=" " \/ c="　" \/ c="﻿"
+
+ops:.frozen285_text_parser_stream
+pages:.frozen285_math_command_pages
+providers:.frozen285_text_inline_boxes
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+flag(tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit),node:int,key:str)->bit:
+    at:j.member(tape,node,key)
+    at<0? @:false
+    starts:tape.starts
+    stops:tape.stops
+    @:text.span(tape.source,starts.(at),stops.(at))="true"
+slant(fonts:Catalog,role:str)->num:
+    table:catalog.text_font(fonts,role)
+    @:glyphs.numeric(table,j.member(table,0,"spaces"),"slant")
+build_with_link_events(source:str,stream:Stream,fonts:Catalog,language:Language,overrides:[str],automatic:bit,o:TextOptions,provided:Provider,operation_scopes:[int],close_operations:[int],close_first:[int],close_last:[int]):
+    capacity:2*text.byte_length(source)+4*stream.count+provided.count+16
+    kinds:p.ints(capacity)
+    widths:p.nums(capacity)
+    stretches:p.nums(capacity)
+    shrinks:p.nums(capacity)
+    breakable:p.bits(capacity)
+    penalties:p.ints(capacity)
+    flagged:p.bits(capacity)
+    autos:p.bits(capacity)
+    hyphens:p.nums(capacity)
+    word_ids:h.ints(capacity)
+    word_starts:p.ints(capacity)
+    word_ends:p.ints(capacity)
+    prefix_starts:p.nums(capacity)
+    prefix_ends:p.nums(capacity)
+    words:chunks.empty(capacity)
+    lengths:p.ints(capacity)
+    roles:chunks.empty(capacity)
+    operation_ids:p.ints(capacity)
+    scenes:chunks.empty(capacity)
+    box_heights:p.nums(capacity)
+    box_depths:p.nums(capacity)
+    italics:p.nums(capacity)
+    explicit_glue:p.bits(capacity)
+    pending:p.ints(stream.count)
+    pending_count:0
+    style_starts:p.ints(stream.count)
+    count:0
+    word_count:0
+    cache:empty_cache()
+    sf:1000
+    # Build an operation index once; lookup cost stays O(operations+provider nodes).
+    provider_first:[ -1:stream.count]
+    provider_last:[ -1:stream.count]
+    provider_next:[ -1:provided.count]
+    provider_ids:provided.operation_ids
+    provider_index:0
+    provider_index<provided.count?>
+        owner:provider_ids.(provider_index)
+        (owner>=0 /\ owner<stream.count)?! "Provider operation outside parsed inline stream"
+        previous:provider_last.(owner)
+        previous>=0? provider_next.(previous):provider_index
+        previous<0? provider_first.(owner):provider_index
+        provider_last.(owner):provider_index
+        .provider_index:provider_index+1
+    scope_count:0
+    close_operations.length()>0? .scope_count:stream.count+1
+    scope_nodes:p.ints(scope_count)
+    previous_operation: -1
+    previous_count:0
+    next_close:0
+    operation:0
+    operation<stream.count?>
+        previous_operation>=0 /\ previous_operation<operation_scopes.length() /\ scope_count>0?
+            previous_scope:operation_scopes.(previous_operation)
+            previous_scope>=0? scope_nodes.(previous_scope):scope_nodes.(previous_scope)+count-previous_count
+        .previous_operation:operation
+        .previous_count:count
+        next_close<close_operations.length()?>
+            close_operations.(next_close)>operation? @|
+            first_scope:close_first.(next_close)
+            last_scope:close_last.(next_close)
+            nested_node:false
+            first_scope<=last_scope?>
+                scope_nodes.(first_scope)>0? .nested_node:true
+                .first_scope:first_scope+1
+            nested_node? cache.diagnostics:merge_diagnostics(cache.diagnostics,"\"Nested PDF links are not supported\"")
+            .next_close:next_close+1
+        id_operation:operation
+        .operation:operation+1
+        kind:ops.value(stream,id_operation,"kind")
+        role:ops.value(stream,id_operation,"role")
+        word:ops.value(stream,id_operation,"value")
+        action:ops.attribute(stream,id_operation,"action")
+        kind="diagnostic"?
+            cache.diagnostics:merge_diagnostics(cache.diagnostics,j.quote(word))
+            @>
+        ancestor:pages.integer(stream.parents,id_operation)
+        hidden:false
+        ancestor>=0?>
+            ops.value(stream,ancestor,"kind")="box_content"? .hidden:true
+            .ancestor:pages.integer(stream.parents,ancestor)
+        hidden \/ kind="box_content"? @>
+        # Native providers may contribute multiple solver nodes per operation.
+        found:false
+        emitted:false
+        pr:provider_first.(id_operation)
+        pr>=0?>
+            next_provider:provider_next.(pr)
+            .found:true
+            provider_kinds:provided.kinds
+            provider_diagnostics:provided.diagnostics
+            cache.diagnostics:merge_diagnostics(cache.diagnostics,provider_diagnostics.(pr))
+            provider_kinds.(pr)=5?
+                .pr:next_provider
+                @>
+            .emitted:true
+            provider_widths:provided.widths
+            provider_stretches:provided.stretches
+            provider_shrinks:provided.shrinks
+            provider_heights:provided.heights
+            provider_depths:provided.depths
+            provider_italics:provided.italics
+            provider_breaks:provided.breakable
+            provider_flags:provided.flagged
+            provider_penalties:provided.penalties
+            provider_scenes:provided.scenes
+            kinds.(count):provider_kinds.(pr)
+            widths.(count):provider_widths.(pr)
+            hyphens.(count):provider_widths.(pr)
+            stretches.(count):provider_stretches.(pr)
+            shrinks.(count):provider_shrinks.(pr)
+            box_heights.(count):provider_heights.(pr)
+            box_depths.(count):provider_depths.(pr)
+            italics.(count):provider_italics.(pr)
+            breakable.(count):provider_breaks.(pr)
+            flagged.(count):provider_flags.(pr)
+            penalties.(count):provider_penalties.(pr)
+            scenes.(count):provider_scenes.(pr)
+            operation_ids.(count):id_operation
+            word_ids.(count): -2
+            .count:count+1
+            .pr:next_provider
+        found?
+            # Character, marker and spacing commands preserve TeX's prior sf.
+            # Failed accents and missing mbox arguments also have no sf effect.
+            preserve_sf:kind="command" /\ (word="char" \/ word="footnotemark" \/ word="symbolfootnotemark" \/ word="hspace" \/ word="quad" \/ word="qquad" \/ word="newblock" \/ word="," \/ action="link" \/ action="anchor" \/ action="linksetup")
+            kind="command" /\ (action="accent" \/ word="mbox") /\ ~emitted? .preserve_sf:true
+            ~preserve_sf? .sf:1000
+            kind="command" /\ (word="dots" \/ word="ldots")? .sf:3000
+            @>
+        kind="argument" \/ kind="optional" \/ kind="accent_base"? @>
+        role_index:font_metrics.context_index(cache.fonts,role)
+        role_index<0?
+            prepared_context:font_metrics.context(cache.fonts,fonts,role)
+            .cache:with_fonts(cache,prepared_context.state)
+            .role_index:font_metrics.context_index(cache.fonts,prepared_context.context.role)
+        ctx:font_metrics.context_value(cache.fonts,role_index)
+        space:ctx.space
+        stretch:font_stretch(cache.fonts,role_index)
+        shrink:font_shrink(cache.fonts,role_index)
+        extra:font_extra(cache.fonts,role_index)
+        kind="command" /\ action="style"?
+            new_role:ops.attribute(stream,id_operation,"newRole")
+            # Malformed style commands have no child and no correction effect.
+            new_role=""? @>
+            new_context:font_metrics.context(cache.fonts,fonts,new_role)
+            .cache:with_fonts(cache,new_context.state)
+            new_context.slant<=0 /\ count>0?
+                insertion:count
+                kinds.(count-1)=1? .insertion:count-1
+                insertion>0?
+                    prior:insertion-1
+                    kinds.(prior)=0 /\ italics.(prior)~=0?
+                        at:count
+                        at>insertion?>
+                            kinds.(at):kinds.(at-1)
+                            widths.(at):widths.(at-1)
+                            stretches.(at):stretches.(at-1)
+                            shrinks.(at):shrinks.(at-1)
+                            breakable.(at):breakable.(at-1)
+                            penalties.(at):penalties.(at-1)
+                            flagged.(at):flagged.(at-1)
+                            autos.(at):autos.(at-1)
+                            hyphens.(at):hyphens.(at-1)
+                            word_ids.(at):word_ids.(at-1)
+                            word_starts.(at):word_starts.(at-1)
+                            word_ends.(at):word_ends.(at-1)
+                            prefix_starts.(at):prefix_starts.(at-1)
+                            prefix_ends.(at):prefix_ends.(at-1)
+                            operation_ids.(at):operation_ids.(at-1)
+                            scenes.(at):scenes.(at-1)
+                            box_heights.(at):box_heights.(at-1)
+                            box_depths.(at):box_depths.(at-1)
+                            italics.(at):italics.(at-1)
+                            explicit_glue.(at):explicit_glue.(at-1)
+                            .at:at-1
+                        kinds.(insertion):2
+                        stretches.(insertion):0
+                        shrinks.(insertion):0
+                        breakable.(insertion):false
+                        explicit_glue.(insertion):false
+                        italics.(insertion):0
+                        box_heights.(insertion):0
+                        box_depths.(insertion):0
+                        scenes.(insertion):""
+                        widths.(insertion):italics.(prior)
+                        word_ids.(insertion): -1
+                        operation_ids.(insertion):id_operation
+                        .count:count+1
+            style_starts.(id_operation):count
+            @>
+        kind="style_end"?
+            parent:pages.integer(stream.parents,id_operation)
+            start_node:style_starts.(parent)
+            font_slant(cache.fonts,role_index)>0? @>
+            word="." \/ word=","? @>
+            prior:count-1
+            prior>=start_node?>
+                kinds.(prior)=0? @|
+                .prior:prior-1
+            prior<start_node? @>
+            italics.(prior)=0? @>
+            kinds.(count):2
+            widths.(count):italics.(prior)
+            word_ids.(count): -1
+            operation_ids.(count):id_operation
+            .count:count+1
+
+            @>
+        kind="forced" \/ (kind="command" /\ word="\\")?
+            kinds.(count):4
+            word_ids.(count): -1
+            operation_ids.(count):id_operation
+            .count:count+1
+            @>
+        kind="command" /\ (word="/" \/ word="italiccorrection")?
+            prior:count-1
+            prior>=0?>
+                kinds.(prior)=0? @|
+                .prior:prior-1
+            prior<0? @>
+            italics.(prior)=0? @>
+            kinds.(count):2
+            widths.(count):italics.(prior)
+            word_ids.(count): -1
+            operation_ids.(count):id_operation
+            .count:count+1
+
+            @>
+        kind="command" /\ word="@"?
+            .sf:1000
+            @>
+        kind="command" /\ (action="declaration" \/ action="unsupported" \/ word="protect" \/ word="relax" \/ word="ignorespaces" \/ word="i" \/ word="j" \/ word="lq" \/ word="rq" \/ word="textbackslash" \/ word=" ")? @>
+        kind="command" /\ word=","?
+            breakable.(count):true
+            kinds.(count):2
+            widths.(count):font_size(cache.fonts,role_index)/6
+            word_ids.(count): -1
+            operation_ids.(count):id_operation
+            .count:count+1
+            @>
+        kind="command" /\ (word="quad" \/ word="qquad" \/ word="newblock")?
+            quad:font_quad(cache.fonts,role_index)
+            kinds.(count):1
+            widths.(count):quad
+            word="qquad"? widths.(count):2*quad
+            word="newblock"?
+                widths.(count):0.11*quad
+                stretches.(count):0.33*quad
+                shrinks.(count):0.07*quad
+            breakable.(count):true
+            word_ids.(count): -1
+            operation_ids.(count):id_operation
+            .count:count+1
+            @>
+        kind="glue"?
+            explicit:ops.flag(stream,id_operation,"explicit")
+            nonbreak:ops.flag(stream,id_operation,"nonbreak")
+            conditional:ops.flag(stream,id_operation,"conditional")
+            conditional /\ count>0?
+                explicit_glue.(count-1)? @>
+            factor:sf
+            o.french_spacing \/ explicit \/ nonbreak? .factor:1000
+            natural:space
+            factor>=2000? .natural:natural+extra
+            kinds.(count):1
+            widths.(count):o.space_scale*natural
+            stretches.(count):o.space_scale*stretch*factor/1000
+            shrinks.(count):o.space_scale*shrink*1000/factor
+            breakable.(count): ~nonbreak
+            explicit_glue.(count):explicit
+            word_ids.(count): -1
+            operation_ids.(count):id_operation
+            .count:count+1
+            @>
+        kind="word" \/ kind="literal"?
+            word="" /\ kind~="literal"? @>
+            at:0
+            ~vkf_string_eof(word,at)?>
+                code:tex.space_factor(text.at(word,at))
+                text.at(word,at)="." /\ ~o.sentence_spacing? .code:1000
+                code~=0?
+                    old:sf
+                    .sf:code
+                    code>1000 /\ old<1000? .sf:1000
+                .at:text.next(word,at)
+        ~(kind="word" \/ kind="literal")?
+            pending.(pending_count):id_operation
+            .pending_count:pending_count+1
+            @>
+        input:shape.units(word)
+        codes:input.codes
+        size:input.count
+        id:word_count
+        words.(id):word
+        roles.(id):ctx.role
+        lengths.(id):size
+        .word_count:word_count+1
+        marks:p.bits(size+1)
+        eligible:kind~="literal" /\ ctx.role~="mono" /\ ctx.role~="footnotemono"
+        automatic /\ eligible?
+            points:h.opportunities(word,language,overrides)
+            values:points.values
+            k:0
+            k<points.count?>
+                marks.(values.(k)):true
+                .k:k+1
+        eligible?
+            k:0
+            k<size?>
+                code:codes.(k)
+                code=45?
+                    .k:k+1
+                    k<size?>
+                        codes.(k)~=45? @|
+                        .k:k+1
+                    k<size? marks.(k):true
+                    @>
+                code=8211 \/ code=8212?
+                    k+1<size? marks.(k+1):true
+                .k:k+1
+        segment:0
+        end:0
+        prefix:0.0
+        end<=size?>
+            final:end=size
+            chosen:final \/ marks.(end)
+            chosen?
+                part_index:find_measure(cache,id,segment,end)
+                part_index<0?
+                    part:measure(cache,id,word,segment,end,fonts,ctx)
+                    .cache:part.cache
+                    .part_index:part.run_index
+                full_index:find_measure(cache,id,0,end)
+                full_index<0?
+                    full:measure(cache,id,word,0,end,fonts,ctx)
+                    .cache:full.cache
+                    .full_index:full.run_index
+                box_heights.(count):cache.heights.(part_index)
+                box_depths.(count):cache.depths.(part_index)
+                italics.(count):cache.runs.italics.(part_index)
+                operation_ids.(count):id_operation
+                kinds.(count):0
+                widths.(count):cache.widths.(full_index)-prefix
+                word_ids.(count):id
+                word_starts.(count):segment
+                word_ends.(count):end
+                prefix_starts.(count):prefix
+                prefix_ends.(count):cache.widths.(full_index)
+                .count:count+1
+                end<size?
+                    explicit:false
+                    end>0?
+                        prior:codes.(end-1)
+                        .explicit:prior=45 \/ prior=8211 \/ prior=8212
+                    operation_ids.(count):id_operation
+                    kinds.(count):3
+                    penalties.(count):50
+                    flagged.(count):true
+                    autos.(count): ~explicit
+                    word_ids.(count):id
+                    word_starts.(count):end
+                    word_ends.(count):end
+                    ~explicit?
+                        prepared_hyphen:shape.shape_prepared("-",fonts,ctx,cache.fonts)
+                        .cache:with_fonts(cache,prepared_hyphen.state)
+                        hyphen:prepared_hyphen.run
+                        hyphens.(count):hyphen.width
+                        cache.atoms:cache.atoms+hyphen.atoms
+                        cache.diagnostics:merge_diagnostics(cache.diagnostics,hyphen.diagnostics)
+                    .count:count+1
+                .segment:end
+                .prefix:cache.widths.(full_index)
+                final /\ marks.(end)?
+                    # Exception opportunities may include the word end; the
+                    # production appendText emits its final empty box too.
+                    operation_ids.(count):id_operation
+                    kinds.(count):0
+                    word_ids.(count):id
+                    word_starts.(count):end
+                    word_ends.(count):end
+                    prefix_starts.(count):prefix
+                    prefix_ends.(count):prefix
+                    .count:count+1
+            .end:end+1
+        eligible /\ size>0?
+            codes.(size-1)=45?
+                kinds.(count):3
+                penalties.(count):50
+                flagged.(count):true
+                word_ids.(count): -1
+                .count:count+1
+    nodes:p.from_arrays(kinds,widths,stretches,shrinks,breakable,penalties,flagged,autos,hyphens,count)
+    correction_starts:p.ints(32)
+    correction_ends:p.ints(32)
+    correction_deltas:p.nums(32)
+    corrections:0
+    i:0
+    i<count?>
+        kinds.(i)=0 /\ word_ids.(i)>=0 /\ word_starts.(i)>0?
+            id:word_ids.(i)
+            word:words.(id)
+            ctx:context(cache,fonts,roles.(id))
+            first:word_starts.(i)
+            last:lengths.(id)
+            full_index:find_measure(cache,id,0,last)
+            full_index<0?
+                full:measure(cache,id,word,0,last,fonts,ctx)
+                .cache:full.cache
+                .full_index:full.run_index
+            tail_index:find_measure(cache,id,first,last)
+            tail_index<0?
+                tail:measure(cache,id,word,first,last,fonts,ctx)
+                .cache:tail.cache
+                .tail_index:tail.run_index
+            corrections>=correction_starts.length()?
+                .correction_starts:correction_starts&p.ints(correction_starts.length())
+                .correction_ends:correction_ends&p.ints(correction_ends.length())
+                .correction_deltas:correction_deltas&p.nums(correction_deltas.length())
+            correction_starts.(corrections):i
+            correction_ends.(corrections): -1
+            correction_deltas.(corrections):cache.widths.(tail_index)-(cache.widths.(full_index)-prefix_starts.(i))
+            .corrections:corrections+1
+            k:i+1
+            k<count?>
+                word_ids.(k)~=id? @|
+                kinds.(k)=3?
+                    stop:word_starts.(k)
+                    prefix_stop_index:find_measure(cache,id,0,stop)
+                    prefix_stop_index<0?
+                        prefix_stop:measure(cache,id,word,0,stop,fonts,ctx)
+                        .cache:prefix_stop.cache
+                        .prefix_stop_index:prefix_stop.run_index
+                    piece_index:find_measure(cache,id,first,stop)
+                    piece_index<0?
+                        piece:measure(cache,id,word,first,stop,fonts,ctx)
+                        .cache:piece.cache
+                        .piece_index:piece.run_index
+                    corrections>=correction_starts.length()?
+                        .correction_starts:correction_starts&p.ints(correction_starts.length())
+                        .correction_ends:correction_ends&p.ints(correction_ends.length())
+                        .correction_deltas:correction_deltas&p.nums(correction_deltas.length())
+                    correction_starts.(corrections):i
+                    correction_ends.(corrections):k
+                    correction_deltas.(corrections):cache.widths.(piece_index)-(cache.widths.(prefix_stop_index)-prefix_starts.(i))
+                    .corrections:corrections+1
+                .k:k+1
+        .i:i+1
+    previous_operation>=0 /\ previous_operation<operation_scopes.length() /\ scope_count>0?
+        previous_scope:operation_scopes.(previous_operation)
+        previous_scope>=0? scope_nodes.(previous_scope):scope_nodes.(previous_scope)+count-previous_count
+    next_close<close_operations.length()?>
+        first_scope:close_first.(next_close)
+        last_scope:close_last.(next_close)
+        nested_node:false
+        first_scope<=last_scope?>
+            scope_nodes.(first_scope)>0? .nested_node:true
+            .first_scope:first_scope+1
+        nested_node? cache.diagnostics:merge_diagnostics(cache.diagnostics,"\"Nested PDF links are not supported\"")
+        .next_close:next_close+1
+    @:(nodes:nodes,word_ids:word_ids,roles:roles,operation_ids:operation_ids,scenes:scenes,box_heights:box_heights,box_depths:box_depths,italics:italics,pending:pending,pending_count:pending_count,word_starts:word_starts,word_ends:word_ends,words:words,lengths:lengths,cache:cache,corrections:p.corrections(correction_starts,correction_ends,correction_deltas,corrections))
+
+build(source:str,stream:Stream,fonts:Catalog,language:Language,overrides:[str],automatic:bit,o:TextOptions,provided:Provider):
+    @:build_with_link_events(source,stream,fonts,language,overrides,automatic,o,provided,p.ints(0),p.ints(0),p.ints(0),p.ints(0))
+
+font_stretch(fonts:FontState,index:int)->num:fonts.role_stretches.(index)
+
+font_shrink(fonts:FontState,index:int)->num:fonts.role_shrinks.(index)
+
+font_extra(fonts:FontState,index:int)->num:fonts.role_extras.(index)
+
+font_size(fonts:FontState,index:int)->num:fonts.role_sizes.(index)
+
+font_quad(fonts:FontState,index:int)->num:fonts.role_quads.(index)
+
+font_slant(fonts:FontState,index:int)->num:fonts.role_slants.(index)

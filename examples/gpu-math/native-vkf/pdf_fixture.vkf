@@ -1,0 +1,20 @@
+io:.io
+syntax:.pdf_syntax
+objects:.pdf_objects
+
+fixture()->str:
+    contents:"q 0 0 1 rg 10 10 30 20 re f Q\nq 1 0 0 RG 2 w 10 50 m 20 80 70 80 90 50 c S Q"
+    tape:objects.pack([
+        "<< /Type /Catalog /Pages 2 0 R >>",
+        "<< /Type /Pages /Count 1 /Kids [3 0 R] >>",
+        "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 100 100] /Resources << >> /Contents 4 0 R >>",
+        syntax.stream("",contents)
+    ])
+    @:objects.serialize(tape,1)
+
+run()->int:
+    path:io.read_line()
+    document:fixture()
+    io.write_text(path,document)
+    @:0
+run()

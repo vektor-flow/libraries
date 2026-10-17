@@ -1,0 +1,119 @@
+# Append a source AST graph without modifying either input snapshot. Root's
+# external sibling is deliberately excluded; all reachable node IDs are mapped.
+chunks:.frozen285_text_chunks
+j:.frozen285_resource_json
+Arena:(kinds:[str],attrs:[str],first:[int],last:[int],nexts:[int],a:[int],b:[int],sup:[int],sub:[int],limits:[int],count:int,diagnostics:str,atoms:int)
+nil(size:int)->[int]:[-1:size]
+
+# Actual matrix nodes overload b as a scalar row counter. Internal matrix rows
+# roots have raw environment-name attrs and use b as their last-rule node edge.
+row_counter(kind:str,attrs:str)->bit:
+    kind~="matrix"? @:false
+    data:j.parse("{"&attrs&"}")
+    ~data.valid? @:false
+    type:j.member(data,0,"type")
+    type<0? @:false
+    @:j.string(data,type)="matrix"
+
+mapped(mapping:[int],node:int)->int:
+    node<0? @: -1
+    (node<mapping.length())?! "Invalid imported AST edge"
+    result:mapping.(node)
+    result>=0?! "Imported AST edge escapes copied graph"
+    @:result
+
+import_into(destination:Arena,source:Arena,root:int):
+    mapping:nil(source.count)
+    root<0? @:(arena:destination,root: -1,mapping:mapping)
+    root<source.count?! "Invalid imported AST root"
+    queue:nil(source.count)
+    queue.(0):root
+    mapping.(root):destination.count
+    found:1
+    cursor:0
+    sourceKinds:source.kinds
+    sourceAttrs:source.attrs
+    sourceFirst:source.first
+    sourceLast:source.last
+    sourceNext:source.nexts
+    sourceA:source.a
+    sourceB:source.b
+    sourceSup:source.sup
+    sourceSub:source.sub
+    sourceLimits:source.limits
+    cursor<found?>
+        original:queue.(cursor)
+        counter:row_counter(sourceKinds.(original),sourceAttrs.(original))
+        edge:0
+        edge<7?>
+            target:sourceFirst.(original)
+            edge=1? .target:sourceLast.(original)
+            edge=2? .target:sourceA.(original)
+            edge=3?
+                .target:sourceB.(original)
+                counter? .target: -1
+            edge=4? .target:sourceSup.(original)
+            edge=5? .target:sourceSub.(original)
+            edge=6?
+                .target:sourceNext.(original)
+                original=root? .target: -1
+            target>=0?
+                target<source.count?! "Invalid source AST edge"
+                mapping.(target)<0?
+                    mapping.(target):destination.count+found
+                    queue.(found):target
+                    .found:found+1
+            .edge:edge+1
+        .cursor:cursor+1
+    size:destination.count+found
+    kinds:chunks.empty(size)
+    attrs:chunks.empty(size)
+    firsts:nil(size)
+    lasts:nil(size)
+    nexts:nil(size)
+    arguments:nil(size)
+    denominators:nil(size)
+    supers:nil(size)
+    subs:nil(size)
+    limits:nil(size)
+    oldKinds:destination.kinds
+    oldAttrs:destination.attrs
+    oldFirst:destination.first
+    oldLast:destination.last
+    oldNext:destination.nexts
+    oldA:destination.a
+    oldB:destination.b
+    oldSup:destination.sup
+    oldSub:destination.sub
+    oldLimits:destination.limits
+    index:0
+    index<destination.count?>
+        kinds.(index):oldKinds.(index)
+        attrs.(index):oldAttrs.(index)
+        firsts.(index):oldFirst.(index)
+        lasts.(index):oldLast.(index)
+        nexts.(index):oldNext.(index)
+        arguments.(index):oldA.(index)
+        denominators.(index):oldB.(index)
+        supers.(index):oldSup.(index)
+        subs.(index):oldSub.(index)
+        limits.(index):oldLimits.(index)
+        .index:index+1
+    copy:0
+    copy<found?>
+        original:queue.(copy)
+        target:destination.count+copy
+        kinds.(target):sourceKinds.(original)
+        attrs.(target):sourceAttrs.(original)
+        firsts.(target):mapped(mapping,sourceFirst.(original))
+        lasts.(target):mapped(mapping,sourceLast.(original))
+        arguments.(target):mapped(mapping,sourceA.(original))
+        b:sourceB.(original)
+        ~row_counter(sourceKinds.(original),sourceAttrs.(original))? .b:mapped(mapping,b)
+        denominators.(target):b
+        supers.(target):mapped(mapping,sourceSup.(original))
+        subs.(target):mapped(mapping,sourceSub.(original))
+        limits.(target):sourceLimits.(original)
+        original~=root? nexts.(target):mapped(mapping,sourceNext.(original))
+        .copy:copy+1
+    @:(arena:(kinds:kinds,attrs:attrs,first:firsts,last:lasts,nexts:nexts,a:arguments,b:denominators,sup:supers,sub:subs,limits:limits,count:size,diagnostics:destination.diagnostics,atoms:destination.atoms),root:destination.count,mapping:mapping)

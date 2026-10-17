@@ -1,0 +1,10 @@
+# Staged doubling factory. The dynamic repeat leaf is reached only for 0/1.
+# Recursive concatenation occurs per doubling level, not per output slot.
+leaf(capacity:int)->[str]:["":capacity]
+empty(capacity:int)->[str]:
+    (capacity%1=0 /\ capacity>=0 /\ capacity<=536870909)?! "Invalid string column capacity"
+    capacity<=1? @:leaf(capacity)
+    half:empty(capacity//2)
+    [str] doubled:half&half
+    capacity%2=1? @:doubled&leaf(1)
+    @:doubled

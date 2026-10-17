@@ -1,0 +1,21 @@
+unicode_case:.unicode_case
+resource_json:.resource_json
+text_chunks:.text_chunks
+unicode_batch(source:str)->str:
+    tape:resource_json.parse(source)
+    tape.valid?! "Invalid casing reference cases"
+    ends:tape.ends
+    asset:unicode_case.load()
+    out:text_chunks.empty(tape.count)
+    count:0
+    at:1
+    at<tape.count?>
+        value:resource_json.string(tape,at)
+        prefix:""
+        count>0? .prefix:","
+        out.(count):prefix&"["&resource_json.quote(unicode_case.upper(value,asset))&","&resource_json.quote(unicode_case.lower(value,asset))&","&resource_json.quote(unicode_case.upper_tex(value,asset))&"]"
+        .count:count+1
+        .at:ends.(at)
+    @:"["&text_chunks.join(out,0,count)&"]"
+noop()->int:0
+noop()

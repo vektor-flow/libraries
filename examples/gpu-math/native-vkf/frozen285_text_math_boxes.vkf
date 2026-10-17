@@ -1,0 +1,23 @@
+# Public compatibility API; request-owned profile preparation lives in one module.
+text_math_boxes_prepared:.frozen285_text_math_boxes_prepared
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Context:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+number(tape:Tape,node:int,key:str)->num:
+    @:text_math_boxes_prepared.number(tape,node,key)
+raw(tape:Tape,node:int)->str:
+    @:text_math_boxes_prepared.raw(tape,node)
+evaluate(operation:int,source:str,fonts:Catalog,context:Context,text_spacing:str="",equation_start:int=1,document_boxes_json:str="{}"):
+    @:text_math_boxes_prepared.evaluate(operation,source,fonts,context,text_spacing,equation_start,document_boxes_json)
+append_provider(destination:Provider,source:Provider)->Provider:
+    @:text_math_boxes_prepared.append_provider(destination,source)
+provide(stream:Stream,fonts:Catalog,context:Context,equation_start:int=1,document_boxes_json:str="{}")->Provider:
+    @:text_math_boxes_prepared.provide(stream,fonts,context,equation_start,document_boxes_json)
+evaluate_prepared(operation:int,source:str,fonts:Catalog,context:Context,tables:Tables,text_spacing:str="",equation_start:int=1,document_boxes_json:str="{}"):
+    @:text_math_boxes_prepared.evaluate_prepared(operation,source,fonts,context,tables,text_spacing,equation_start,document_boxes_json)
+provide_prepared(stream:Stream,fonts:Catalog,context:Context,tables:Tables,equation_start:int=1,document_boxes_json:str="{}")->Provider:
+    @:text_math_boxes_prepared.provide_prepared(stream,fonts,context,tables,equation_start,document_boxes_json)

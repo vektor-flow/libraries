@@ -1,0 +1,66 @@
+# Recompose only root paragraph noads for TeX display mu-glue shrink.
+# Child metric/draw owners and paragraph-node metadata remain unchanged.
+math_commands:.frozen285_math_commands
+math_command_pages:.frozen285_math_command_pages
+math_draw:.frozen285_math_draw
+resource_json:.frozen285_resource_json
+tex_numeric:.frozen285_tex_numeric
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Buffer:(heads:[[int]],tails:[[int]],boxes:int,nexts:[[int]],children:[[int]],pool:Pool,payload_ids:[[int]],xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int)
+Nodes:(kinds:[int],owners:[int],widths:[num],heights:[num],depths:[num],stretches:[num],shrinks:[num],penalties:[int],count:int)
+has_equation_tag(buffer:Buffer,root:int)->bit:
+    stack:math_draw.ints(buffer.count+1)
+    stack.(0):math_command_pages.integer(buffer.heads,root)
+    pool:buffer.pool
+    values:pool.values
+    top:0
+    top>=0?>
+        command:stack.(top)
+        command<0?
+            .top:top-1
+            @>
+        stack.(top):math_command_pages.integer(buffer.nexts,command)
+        child:math_command_pages.integer(buffer.children,command)
+        child>=0?
+            .top:top+1
+            stack.(top):math_command_pages.integer(buffer.heads,child)
+            @>
+        id:math_command_pages.integer(buffer.payload_ids,command)
+        id>=0?
+            record:resource_json.parse("{"&values.(id)&"}")
+            tag:resource_json.member(record,0,"equationTag")
+            tag>=0?
+                kinds:record.kinds
+                kinds.(tag)=5? @:true
+    @:false
+apply(buffer:Buffer,root:int,nodes:Nodes,width:num,target:num):
+    (target<=0 \/ width<=target)? @:(buffer:buffer,width:width,ratio:0.0)
+    has_equation_tag(buffer,root)? @:(buffer:buffer,width:width,ratio:0.0)
+    shrinks:nodes.shrinks
+    shrink:0.0
+    index:0
+    index<nodes.count?>
+        .shrink:shrink+shrinks.(index)
+        .index:index+1
+    shrink<=0? @:(buffer:buffer,width:width,ratio:0.0)
+    ratio:tex_numeric.minimum(1,(width-target)/shrink)
+    heads:buffer.heads
+    tails:buffer.tails
+    heads.(root//math_command_pages.width(),root%math_command_pages.width()): -1
+    tails.(root//math_command_pages.width(),root%math_command_pages.width()): -1
+    out:buffer
+    out.heads:heads
+    out.tails:tails
+    kinds:nodes.kinds
+    widths:nodes.widths
+    owners:nodes.owners
+    x:0.0
+    .index:0
+    index<nodes.count?>
+        kind:kinds.(index)
+        kind=0?
+            .out:math_commands.append(out,root,owners.(index),"",x,0)
+            .x:x+widths.(index)
+        (kind=1 \/ kind=2)? .x:x+widths.(index)-ratio*shrinks.(index)
+        .index:index+1
+    @:(buffer:out,width:x,ratio:ratio)

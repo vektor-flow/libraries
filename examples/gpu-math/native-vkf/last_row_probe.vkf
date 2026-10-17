@@ -1,0 +1,19 @@
+m:.math_matrices
+c:.math_commands
+d:.math_draw
+
+last_row_probe(name:str,size:int):
+    cells:m.empty_cells(2,1)
+    table:m.layout(c.empty(1),0,name,"",cells,m.empty_rules(0),0.4,2)
+    flags:d.bits(size)
+    flags.(2):table.row_display
+    flags.(1):flags.(2)
+    flags.(0):flags.(1)
+    literals:d.bits(size)
+    literals.(2):true
+    literals.(1):literals.(2)
+    literals.(0):literals.(1)
+    @:(raw:table.row_display,normalized:table.row_display=true,stored:flags.(2),copied:flags.(1),root:flags.(0),normalized_root:flags.(0)=true,literal_root:literals.(0),last_baseline:table.last_baseline,last_depth:table.last_depth)
+
+noop()->int:0
+noop()

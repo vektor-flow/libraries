@@ -1,0 +1,52 @@
+# Provider-owned native/math nodes. Scenes remain opaque until document assembly.
+# kind 5 is a resolved empty operation; all other kinds match paragraph_breaking.
+p:.frozen285_paragraph_breaking
+chunks:.frozen285_text_chunks
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+empty(capacity:int=1)->Provider:
+    @:(operation_ids:p.ints(capacity),kinds:p.ints(capacity),widths:p.nums(capacity),stretches:p.nums(capacity),shrinks:p.nums(capacity),heights:p.nums(capacity),depths:p.nums(capacity),italics:p.nums(capacity),breakable:p.bits(capacity),flagged:p.bits(capacity),penalties:p.ints(capacity),scenes:chunks.empty(capacity),diagnostics:chunks.empty(capacity),count:0)
+append(input:Provider,operation:int,kind:int,width:num=0,height:num=0,depth:num=0,italic:num=0,scene:str="",diagnostics:str="",stretch:num=0,shrink:num=0,breakable:bit=false,penalty:int=0,flagged:bit=false)->Provider:
+    out:input
+    count:input.count
+    ids:input.operation_ids
+    kinds:input.kinds
+    widths:input.widths
+    stretches:input.stretches
+    shrinks:input.shrinks
+    heights:input.heights
+    depths:input.depths
+    italics:input.italics
+    breaks:input.breakable
+    flags:input.flagged
+    penalties:input.penalties
+    scenes:input.scenes
+    messages:input.diagnostics
+    count>=ids.length()?
+        size:ids.length()+1
+        .ids:ids&p.ints(size)
+        .kinds:kinds&p.ints(size)
+        .widths:widths&p.nums(size)
+        .stretches:stretches&p.nums(size)
+        .shrinks:shrinks&p.nums(size)
+        .heights:heights&p.nums(size)
+        .depths:depths&p.nums(size)
+        .italics:italics&p.nums(size)
+        .breaks:breaks&p.bits(size)
+        .flags:flags&p.bits(size)
+        .penalties:penalties&p.ints(size)
+        .scenes:scenes&chunks.empty(size)
+        .messages:messages&chunks.empty(size)
+    ids.(count):operation
+    kinds.(count):kind
+    widths.(count):width
+    stretches.(count):stretch
+    shrinks.(count):shrink
+    heights.(count):height
+    depths.(count):depth
+    italics.(count):italic
+    breaks.(count):breakable
+    flags.(count):flagged
+    penalties.(count):penalty
+    scenes.(count):scene
+    messages.(count):diagnostics
+    @:(operation_ids:ids,kinds:kinds,widths:widths,stretches:stretches,shrinks:shrinks,heights:heights,depths:depths,italics:italics,breakable:breaks,flagged:flags,penalties:penalties,scenes:scenes,diagnostics:messages,count:count+1)

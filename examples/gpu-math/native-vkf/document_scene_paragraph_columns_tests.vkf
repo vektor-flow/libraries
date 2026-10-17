@@ -1,0 +1,54 @@
+document_scene_paragraph_linear_tests:.document_scene_paragraph_linear_tests
+document_scene:.document_scene
+
+check(glyph_count:int,fragment_count:int)->bit:
+    q:document_scene_paragraph_linear_tests.fixture(2)
+    keys:document_scene.strings(glyph_count)
+    [num] xs:[0.0:glyph_count]
+    [num] ys:[0.0:glyph_count]
+    [int] lines:[0:glyph_count]
+    [int] operations:[0:glyph_count]
+    index:0
+    index<glyph_count?>
+        keys.(index):"ordinary"
+        xs.(index):index*3.25
+        ys.(index):2.5
+        operations.(index):2*index
+        .index:index+1
+    q.keys:keys
+    q.xs:xs
+    q.ys:ys
+    q.flow_lines:lines
+    q.glyph_operations:operations
+    q.glyph_count:glyph_count
+    scenes:document_scene.strings(fragment_count)
+    [num] scene_xs:[0.0:fragment_count]
+    [num] scene_ys:[0.0:fragment_count]
+    [int] scene_lines:[0:fragment_count]
+    [int] scene_operations:[0:fragment_count]
+    .index:0
+    index<fragment_count?>
+        scenes.(index):"{\"items\":[{\"kind\":\"rule\",\"x\":1,\"y\":2,\"width\":3,\"height\":0.5,\"color\":[0.2,0.3,0.4,0.5],\"destinationIds\":[\"rule-anchor\"]},{\"kind\":\"vectorrect\",\"x\":2,\"y\":3,\"width\":4,\"height\":5,\"fill\":true,\"fillColor\":[1,0,0,0.25],\"strokeColor\":[0,0,1,0.75],\"lineWidth\":0.5}],\"destinations\":[{\"id\":\"inline-anchor\",\"x\":4,\"y\":5}]}"
+        scene_xs.(index):index*2
+        scene_ys.(index):index*0.5
+        scene_operations.(index):2*index+1
+        .index:index+1
+    q.scenes:scenes
+    q.scene_xs:scene_xs
+    q.scene_ys:scene_ys
+    q.scene_lines:scene_lines
+    q.scene_operations:scene_operations
+    q.scene_count:fragment_count
+    @:document_scene_paragraph_linear_tests.compare(q)
+renderer_tests()->bit:
+    check(0,0)?! "Empty typed paragraph columns"
+    check(1,0)?! "One direct glyph"
+    check(2,0)?! "Two direct glyphs"
+    check(3,0)?! "Odd direct glyph count"
+    check(17,0)?! "Direct glyph order"
+    check(129,0)?! "Direct glyph columns beyond initial storage"
+    check(0,1)?! "One retained fragment"
+    check(3,3)?! "Odd retained fragments interleave in source order"
+    check(17,17)?! "Retained paint/payload IDs, destinations and anchors preserve order"
+    @:true
+renderer_tests()

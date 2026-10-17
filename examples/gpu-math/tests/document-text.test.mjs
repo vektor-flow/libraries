@@ -1,9 +1,9 @@
-import test from'node:test';import assert from'node:assert/strict';import{readFileSync}from'node:fs';import{expandDocumentMacros,stripDocumentComments}from'../latex-modules/core/macros.mjs';import{typesetDocumentText,hyphenate}from'../document-text.mjs';import{typeset}from'../typing-layout.mjs';
+import test from'node:test';import assert from'node:assert/strict';import{readFileSync}from'node:fs';import{expandDocumentMacros,stripDocumentComments}from'../latex-modules/core/macros.mjs';import{typesetDocumentText,hyphenate,texBadness}from'../document-text.mjs';import{typeset}from'../typing-layout.mjs';
 const data=JSON.parse(readFileSync(new URL('../typing-demo/typing-data.json',import.meta.url)));
 test('author macros preserve token boundaries, aliases, options and literal examples',()=>{const source=String.raw`\newcommand{\base}[1]{\mathit{#1}}\let\alias=\base \newcommand{\ntt}{\ttfamily}\newcommand{\code}[1]{{\ntt#1}}\newcommand{\pick}[2][x]{#1+#2}\alias{v}+\pick{y} \code{sum}\begin{verbatim}\alias{z}% unchanged
 \end{verbatim}`;const result=expandDocumentMacros(source).source;assert.match(result,/\\mathit\{v\}/);assert.match(result,/x\+y/);assert.match(result,/\\ttfamily sum/);assert.match(result,/\\alias\{z\}% unchanged/);assert.equal(stripDocumentComments('a% comment\nb\\%c'),'ab\\%c');assert.throws(()=>expandDocumentMacros(String.raw`\def\loop{\loop}\loop`),/limit/);});
 test('line breaking permits shrinking while keeping unbroken ligatures',()=>{const source='Words are separated by one or more spaces. Paragraphs are separated by one or more blank lines. The output is not affected by adding extra spaces or extra blank lines to the input file.';const box=typesetDocumentText(source,data,{width:345*72/72.27});assert.equal(box.lines.length,3);const text=line=>box.items.filter(i=>i.flowLine===line).map(i=>Number(i.key.split(':').at(-1)));assert.ok(text(1).slice(-5).every((c,i)=>c==='extra'.charCodeAt(i)));assert.ok(text(1).includes(11));assert.ok(box.lines[1].ratio<0);});
-test('escaped symbols reset sentence spacing and native optical fonts remain distinct',()=>{const a=typesetDocumentText(String.raw`Text: \$ x`,data,{width:1000,justify:false}),b=typesetDocumentText(String.raw`Text: \$\ x`,data,{width:1000,justify:false});assert.ok(Math.abs(a.width-b.width)<.001);assert.equal(data.documentFonts.section.name,'cmbx12');assert.ok(Math.abs(data.documentFonts.section.size-14.4*72/72.27)<1e-10);assert.ok(hyphenate('representation').length>0);});
+test('escaped symbols reset sentence spacing and native optical fonts remain distinct',()=>{const a=typesetDocumentText(String.raw`Text: \$ x`,data,{width:1000,justify:false}),b=typesetDocumentText(String.raw`Text: \$\ x`,data,{width:1000,justify:false});assert.ok(Math.abs(a.width-b.width)<.001);assert.equal(data.documentFonts.section.name,'cmbx12');assert.ok(Math.abs(data.documentFonts.section.size-943718/65536*72/72.27)<1e-10);assert.ok(hyphenate('representation').length>0);});
 test('valid empty nuclei and primes differ from unfinished script operands',()=>{const b=typeset(String.raw`{}^{\mathrm{1}}+x''+\mathinner{[x]}+\substack{i=1\\j=2}+\mathop{X}\limits_0^n`,data.maps);assert.equal(b.complete,true,JSON.stringify(b.diagnostics));assert.ok(!b.items.some(i=>i.kind==='placeholder'));assert.equal(b.items.filter(i=>i.key==='script/\\prime').length,2);assert.ok(b.items.some(i=>i.key==='script/n'));assert.ok(b.items.some(i=>i.key==='script/0'));assert.ok(typeset(String.raw`x^`,data.maps).items.some(i=>i.kind==='placeholder'));});
 test('theorem/proof nesting and footnotes retain independent visible primitives',async()=>{const{typesetDocument}=await import('../document-layout.mjs');const source=String.raw`\documentclass{article}\usepackage{amsthm}\newtheorem{thm}{Theorem}[section]\begin{document}\section{Test}\begin{thm}\label{t}Claim $x'=1$.\end{thm}\begin{proof}Proof text.\end{proof}A note\footnote{A native footnote.} and Theorem \ref{t}.\end{document}`;const r=await typesetDocument(source,data);assert.equal(r.complete,true,JSON.stringify(r.diagnostics));assert.equal(r.pages[0].footnoteNumbers.length,1);assert.ok(r.pages[0].items.some(i=>i.key?.startsWith('text/@document:footnote:')));assert.ok(r.pages[0].items.some(i=>i.key?.startsWith('text/@document:footnotemark:')));assert.ok(r.pages[0].items.filter(i=>i.kind==='rule').length>=5);assert.ok(r.pages[0].items.every(i=>Number.isFinite(i.x+i.y)));});
 
@@ -47,7 +47,7 @@ test('native text kern precedence preserves the measured value width',()=>{
 });
 
 test('explicit hyphen breaks retain exactly one visible hyphen and all letters',()=>{
- const box=typesetDocumentText('one-line',data,{width:30,justify:false});
+ const box=typesetDocumentText('one-line',data,{width:30,justify:false,tolerance:10000});
  const line=n=>box.items.filter(i=>i.flowLine===n).map(i=>String.fromCharCode(Number(i.key.split(':').at(-1)))).join('');
  assert.equal(box.complete,true,JSON.stringify(box.diagnostics));assert.equal(line(0),'one-');assert.equal(line(1),'line');
 });
@@ -71,4 +71,55 @@ test('quotes resume the paragraph and itemize uses the native text-companion bul
  const r=await typesetDocument(String.raw`\documentclass{article}\begin{document}Before quote.\begin{quote}Quoted text.\end{quote}Continued text.`+'\n\n'+String.raw`New paragraph.\begin{itemize}\item First.\item Second.\end{itemize}\end{document}`,data);
  assert.equal(r.complete,true,JSON.stringify(r.diagnostics));const c=r.pages[0].items.find(i=>i.key==='text/@document:roman:67');assert.ok(Math.abs(c.x-133.768)<.03);assert.ok(Math.abs(c.y-174.615)<.03);
  assert.equal(r.pages[0].items.filter(i=>i.key==='text/@text:bullet').length,2);assert.equal(data.maps.text.symbols['@text:bullet'].glyphParts[0].fontCode,136);
+});
+
+test('punctuation and capital letters preserve word hyphenation opportunities',()=>{
+ assert.deepEqual(hyphenate('notably,'),hyphenate('notably'));assert.deepEqual(hyphenate('Notably'),hyphenate('notably'));assert.deepEqual(hyphenate('(representation)'),hyphenate('representation').map(n=>n+1));
+ const literal=typesetDocumentText('representation notably,',data,{font:'footnotemono',width:1000,literal:true});assert.ok(literal.items.every(i=>i.key.startsWith('text/@document:footnotemono:')));
+});
+
+test('final paragraph line shrinks ordinary spaces when natural width is slightly too large',()=>{
+ const text='a b c',natural=typesetDocumentText(text,data,{width:1000,justify:false}).width,width=natural-.2;
+ const box=typesetDocumentText(text,data,{width});assert.equal(box.lines.length,1);assert.ok(Math.abs(box.width-width)<1e-10);assert.ok(box.lines[0].ratio<0);
+});
+test('adjacent quote commands form the native opening and closing ligatures',()=>{
+ const box=typesetDocumentText(String.raw`\lq\lq Example\rq\rq`,data,{width:1000});assert.equal(box.items[0].key,'text/@document:roman:92');assert.equal(box.items.at(-1).key,'text/@document:roman:34');
+});
+
+
+test('dash ligatures stay intact at explicit line breaks',()=>{
+ for(const [dash,code]of [['--',123],['---',124],['–',123],['—',124]]){
+  const box=typesetDocumentText('one'+dash+'two',data,{width:30,justify:false,tolerance:10000});
+  assert.equal(box.lines.length,2);
+  assert.deepEqual(box.items.filter(i=>i.flowLine===0).map(i=>Number(i.key.split(':').at(-1))),[111,110,101,code]);
+  assert.deepEqual(box.items.filter(i=>i.flowLine===1).map(i=>Number(i.key.split(':').at(-1))),[116,119,111]);
+ }
+});
+
+test('native integer badness reaches infinity before the floating cubic approximation',()=>{
+ assert.equal(texBadness(0,0),0);
+ assert.equal(texBadness(1,0),10000);
+ assert.equal(texBadness(.5,1),12);
+ assert.equal(texBadness(4.53,1),10000);
+});
+
+test('existing dash breaks are available before automatic hyphenation',()=>{
+ // Reference PDF lines use the em dash after biases, with no automatic hyphenation.
+ const source=String.raw`Here, the factor $\scriptstyle{\frac{1}{2}}$ is included for convenience; it simplifies matters when we start differentiating. We emphasize that $\mathrm{Cost}$ is a function of the weights and biases---the data points are fixed. The form in (6), where discrepancy is measured by averaging the squared Euclidean norm over the data points, is often refered to as a \emph{quadratic cost function}. In the language of optimization, $\mathrm{Cost}$ is our \emph{objective function}.`;
+ const options={width:345*72/72.27};
+ const automatic=typesetDocumentText(source,data,options),explicit=typesetDocumentText(source,data,{...options,hyphens:false});
+ assert.deepEqual(automatic.items,explicit.items);
+ assert.deepEqual(typesetDocumentText(source.replace('---','—'),data,options).items,automatic.items);
+ assert.equal(automatic.lines.length,6);
+ assert.ok(!automatic.items.some(i=>i.key==='text/@document:roman:45'));
+ assert.equal(automatic.items.filter(i=>i.flowLine===1).at(-1).key,'text/@document:roman:124');
+});
+
+test('wide numbered displays reserve the native equation-number clearance',async()=>{
+ // Independent pdfTeX trace: 55 adjacent x's begin at 142.676bp; tag at 464.749bp.
+ const {typesetDocument}=await import('../document-layout.mjs');
+ const source=String.raw`\documentclass{article}\begin{document}\begin{equation}`+'x'.repeat(55)+String.raw`\end{equation}\end{document}`;
+ const result=await typesetDocument(source,data),items=result.pages[0].items;
+ assert.ok(Math.abs(items.find(i=>i.key==='display/x').x-142.676)<.001);
+ assert.ok(Math.abs(items.find(i=>i.equationTag).x-464.749)<.001);
 });

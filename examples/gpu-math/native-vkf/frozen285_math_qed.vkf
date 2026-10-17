@@ -1,0 +1,93 @@
+# amsthm QED ownership is explicit request state. Captured children are AST
+# roots, scheduled by the enclosing postorder renderer when an outcome emits.
+commands:.frozen285_math_commands
+catalog:.frozen285_font_catalog
+glyphs:.frozen285_math_glyphs
+j:.frozen285_resource_json
+numbers:.frozen285_json_numbers
+tex:.frozen285_tex_numeric
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Buffer:(heads:[[int]],tails:[[int]],boxes:int,nexts:[[int]],children:[[int]],pool:Pool,payload_ids:[[int]],xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int)
+Stack:(roots:[int],used:[bit],count:int,depth:int)
+Outcome:(stack:Stack,root:int,emit:bit,tag:bit,qed_tag:bit,diagnostic:str)
+
+ints(size:int)->[int]:[-1:size]
+bits(size:int)->[bit]:[false:size]
+
+empty()->Stack:@:(roots:ints(8),used:bits(8),count:0,depth:0)
+
+push(stack:Stack,root:int)->Stack:
+    (root>=0)?! "Invalid captured QED root"
+    roots:stack.roots
+    used:stack.used
+    stack.count>=roots.length()?
+        .roots:roots&ints(roots.length())
+        .used:used&bits(used.length())
+    roots.(stack.count):root
+    used.(stack.count):false
+    @:(roots:roots,used:used,count:stack.count+1,depth:stack.depth)
+
+pop(stack:Stack)->Outcome:
+    stack.count=0? @:(stack:stack,root: -1,emit:false,tag:false,qed_tag:false,diagnostic:"")
+    roots:stack.roots
+    used:stack.used
+    next_count:stack.count-1
+    emit:~used.(next_count)
+    result:(roots:roots,used:used,count:next_count,depth:stack.depth)
+    @:(stack:result,root:roots.(next_count),emit:emit,tag:emit,qed_tag:emit,diagnostic:"")
+
+here(stack:Stack)->Outcome:
+    stack.count=0? @:(stack:stack,root: -1,emit:false,tag:false,qed_tag:false,diagnostic:"qedhere has no pending QED symbol")
+    roots:stack.roots
+    used:stack.used
+    used.(stack.count-1):true
+    result:(roots:roots,used:used,count:stack.count,depth:stack.depth)
+    @:(stack:result,root:roots.(stack.count-1),emit:true,tag:true,qed_tag:true,diagnostic:"")
+
+begin_symbol(stack:Stack)->Stack:
+    @:(roots:stack.roots,used:stack.used,count:stack.count,depth:stack.depth+1)
+
+end_symbol(stack:Stack)->Stack:
+    (stack.depth>0)?! "Unbalanced QED symbol layout depth"
+    @:(roots:stack.roots,used:stack.used,count:stack.count,depth:stack.depth-1)
+
+tag(stack:Stack,display_context:bit)->bit:display_context /\ stack.depth=0
+
+rule(buffer:Buffer,owner:int,x:num,y:num,width:num,height:num)->Buffer:
+    value:"\"kind\":\"rule\",\"width\":"&numbers.roundtrip(width)&",\"height\":"&numbers.roundtrip(height)
+    @:commands.append(buffer,owner, -1,value,x,y)
+
+# The four fallback rules intentionally omit color, as qed-box.mjs does.
+box(buffer:Buffer,owner:int,quad:num):
+    width:0.77778*quad
+    height:0.675*quad
+    thickness:0.4*tex.pt()
+    inner:0.6*quad
+    left:(width-inner-2*thickness)/2
+    out:rule(buffer,owner,left, -height,thickness,height)
+    .out:rule(out,owner,left+thickness, -height,inner,thickness)
+    .out:rule(out,owner,left+thickness, -thickness,inner,thickness)
+    .out:rule(out,owner,left+thickness+inner, -height,thickness,height)
+    @:(buffer:out,width:width,height:height,depth:0.0,italic:0.0,class_id:0,character:false,nucleus:"",diagnostic:"")
+
+symbol(buffer:Buffer,owner:int,fonts:Catalog,quad_override:num= -1,font:str="",color:str="null",symbol_token:str=""):
+    profile:catalog.style(fonts,"text")
+    field:j.member(profile,0,"qedSymbol")
+    token:""
+    field>=0?
+        kinds:profile.kinds
+        kinds.(field)=3? .token:j.string(profile,field)
+    symbol_token~=""? .token:symbol_token
+    token=""?
+        quad:glyphs.numeric(profile,0,"em")
+        quad_override>=0? .quad:quad_override
+        @:box(buffer,owner,quad)
+    glyph:glyphs.glyph(fonts,token,1,font)
+    value:"\"kind\":\"glyph\",\"color\":"&color&",\"key\":"&j.quote(glyph.key)
+    y:0.0
+    glyph.placeholder?
+        .value:"\"kind\":\"placeholder\",\"color\":"&color&",\"width\":"&numbers.roundtrip(glyph.width)&",\"height\":"&numbers.roundtrip(glyph.height)
+        .y: -glyph.height
+    out:commands.append(buffer,owner, -1,value,0,y)
+    @:(buffer:out,width:glyph.width,height:glyph.height,depth:glyph.depth,italic:glyph.italic,class_id:glyph.class_id,character:glyph.character,nucleus:glyph.metric,diagnostic:glyph.diagnostic)

@@ -1,0 +1,35 @@
+io:.io
+catalog:.font_catalog
+layout:.math_layout
+parser:.math_parser
+packages:.math_packages
+profiles:.math_profiles
+chunks:.text_chunks
+text:.tex_text
+
+run()->int:
+    fonts:catalog.load(io.read_text(io.read_line()))
+    count:int(vkf_decimal_parse(io.read_line()))
+    index:0
+    index<count?>
+        class_name:io.read_line()
+        package_count:int(vkf_decimal_parse(io.read_line()))
+        names:chunks.empty(package_count)
+        package_index:0
+        package_index<package_count?>
+            names.(package_index):io.read_line()
+            .package_index:package_index+1
+        inline:io.read_line()="inline"
+        native:io.read_line()~="preview"
+        display:io.read_line()="display-environment"
+        equation:int(vkf_decimal_parse(io.read_line()))
+        spacing:io.read_line()
+        input:io.read_line()
+        output:io.read_line()
+        source:io.read_text(input)
+        context:packages.from_names(names,class_name)
+        scene:layout.layout_with_profiles(parser.parse_with_context(source,fonts,context,native),fonts,profiles.load(fonts),inline,native,layout.display_context(source,display),equation,text.trim(source)~="",spacing)
+        io.write_text(output,layout.json(scene))
+        .index:index+1
+    @:0
+run()

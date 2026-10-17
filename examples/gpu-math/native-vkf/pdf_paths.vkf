@@ -1,0 +1,71 @@
+p:.pdf_syntax
+n:.tex_numeric
+m:.math
+
+matrix(sx:num,sy:num,x:num,y:num)->str:
+    @:p.number(sx)&" 0 0 "&p.number(sy)&" "&p.number(x)&" "&p.number(y)
+
+rgb(red:num,green:num,blue:num,alpha:int)->str:
+    (red>=0 /\ red<=1 /\ green>=0 /\ green<=1 /\ blue>=0 /\ blue<=1 /\ alpha>=0)?! "Invalid PDF paint"
+    values:p.number(red)&" "&p.number(green)&" "&p.number(blue)
+    @:values&" rg "&values&" RG /A"&p.integer(alpha)&" gs"
+
+glyph(form:int,x:num,y:num,sx:num=1,sy:num=1)->str:
+    (form>=0)?! "Invalid PDF glyph form"
+    sx=0 \/ sy=0? @:""
+    @:"q "&matrix(sx,sy,x,y)&" cm /G"&p.integer(form)&" Do Q"
+
+clip(left:num,top:num,right:num,bottom:num)->str:
+    @:p.number(left)&" "&p.number(top)&" "&p.number(n.maximum(0,right-left))&" "&p.number(n.maximum(0,bottom-top))&" re W n"
+
+clipped_glyph(form:int,x:num,y:num,sx:num,sy:num,left:num,top:num,right:num,bottom:num)->str:
+    (form>=0)?! "Invalid PDF glyph form"
+    sx=0 \/ sy=0? @:""
+    @:"q "&matrix(sx,sy,x,y)&" cm "&clip(left,top,right,bottom)&" /G"&p.integer(form)&" Do Q"
+
+rectangle(x:num,y:num,width:num,height:num)->str:
+    @:p.number(x)&" "&p.number(y)&" "&p.number(width)&" "&p.number(height)&" re"
+
+rule(x:num,y:num,width:num,height:num)->str:"q "&rectangle(x,y,width,height)&" f Q"
+
+segment(dx:num,dy:num)->str:"0 0 m "&p.number(dx)&" "&p.number(dy)&" l"
+
+bezier(c1x:num,c1y:num,c2x:num,c2y:num,dx:num,dy:num)->str:
+    @:"0 0 m "&p.number(c1x)&" "&p.number(c1y)&" "&p.number(c2x)&" "&p.number(c2y)&" "&p.number(dx)&" "&p.number(dy)&" c"
+
+ellipse(width:num,height:num)->str:
+    (width>=0 /\ height>=0)?! "Invalid PDF ellipse"
+    rx:width/2
+    ry:height/2
+    step:m.pi/4
+    k:4/3*m.sin(step/4)/m.cos(step/4)
+    path:p.number(width)&" "&p.number(ry)&" m"
+    index:0
+    index<8?>
+        a:index*step
+        b:(index+1)*step
+        c1x:rx+rx*(m.cos(a)-k*m.sin(a))
+        c1y:ry+ry*(m.sin(a)+k*m.cos(a))
+        c2x:rx+rx*(m.cos(b)+k*m.sin(b))
+        c2y:ry+ry*(m.sin(b)-k*m.cos(b))
+        x:rx+rx*m.cos(b)
+        y:ry+ry*m.sin(b)
+        .path:path&"\n"&p.number(c1x)&" "&p.number(c1y)&" "&p.number(c2x)&" "&p.number(c2y)&" "&p.number(x)&" "&p.number(y)&" c"
+        .index:index+1
+    @:path&"\nh"
+
+dash(style:int,width:num)->str:
+    (style>=0 /\ style<=4 /\ width>=0)?! "Invalid PDF dash style"
+    style=0? @:"[] 0 d 0 J"
+    style=1? @:"["&p.number(3*n.pt())&" "&p.number(3*n.pt())&"] 0 d 0 J"
+    factor:2
+    style=3? .factor:1
+    style=4? .factor:4
+    @:"[0 "&p.number(factor*n.pt()+width)&"] 0 d 1 J"
+
+paint(path:str,x:num,y:num,sx:num,sy:num,width:num,style:int,fill:bit,fill_paint:str,stroke_paint:str)->str:
+    (width>=0)?! "Invalid PDF stroke width"
+    result:"q "&matrix(sx,sy,x,y)&" cm"
+    fill? .result:result&"\n"&fill_paint&" "&path&" f"
+    width>0? .result:result&"\n"&stroke_paint&" "&p.number(width)&" w "&dash(style,width)&" "&path&" S"
+    @:result&"\nQ"

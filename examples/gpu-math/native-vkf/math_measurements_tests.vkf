@@ -1,0 +1,92 @@
+m:.math_measurements
+s:.math_subtrees
+p:.math_parser
+f:.test_layout_fonts
+j:.resource_json
+g:.math_glyphs
+
+renderer_tests()->bit:
+    fonts:f.fonts()
+    original:p.parse("\\widehat{a+\\widetilde{b^a}}+a",fonts)
+    prepared:m.prepare(original)
+    arena:prepared.arena
+    kinds:original.kinds
+    attrs:original.attrs
+    arguments:original.a
+    roots:prepared.measurement_roots
+    newKinds:arena.kinds
+    newAttrs:arena.attrs
+    first:arena.first
+    last:arena.last
+    nexts:arena.nexts
+    a:arena.a
+    supers:arena.sup
+    outer: -1
+    inner: -1
+    i:0
+    i<original.count?>
+        kinds.(i)="decoration"?
+            data:j.parse("{"&attrs.(i)&"}")
+            name:g.string(data,"name")
+            name="widehat"? .outer:i
+            name="widetilde"? .inner:i
+        (newKinds.(i)=kinds.(i) /\ newAttrs.(i)=attrs.(i))?! "original node indices and exact attribute spelling stay stable"
+        .i:i+1
+    (outer>=0 /\ inner>=0 /\ prepared.original_count=original.count)?! "original nested accents located"
+    outerRoot:roots.(outer)
+    innerRoot:roots.(inner)
+    (outerRoot>=original.count /\ innerRoot>outerRoot /\ nexts.(outerRoot)= -1 /\ nexts.(innerRoot)= -1)?! "measurement roots are isolated from external siblings"
+    clonedInner: -1
+    .i:outerRoot
+    i<innerRoot?>
+        newKinds.(i)="decoration"? .clonedInner:i
+        .i:i+1
+    (clonedInner>=0 /\ roots.(clonedInner)=innerRoot /\ a.(clonedInner)>=outerRoot /\ a.(clonedInner)<innerRoot)?! "nested clone shares canonical measurement while retaining isolated actual body"
+    (p.list_json(original,arguments.(outer))=p.list_json(arena,outerRoot) /\ p.list_json(original,arguments.(inner))=p.list_json(arena,innerRoot))?! "cloned subtree preserves exact full grammar and scripts"
+    (last.(outerRoot)>=outerRoot /\ first.(outerRoot)>=outerRoot)?! "cloned list endpoints remap"
+    clonedSup: -1
+    .i:outerRoot
+    i<innerRoot?>
+        supers.(i)>=0? .clonedSup:supers.(i)
+        .i:i+1
+    (clonedSup>=outerRoot /\ clonedSup<innerRoot)?! "superscript edges remap into isolated subtree"
+    untouched:m.prepare(p.parse("a+b",fonts))
+    (untouched.arena.count=untouched.original_count)?! "sources without wide accents create no additional nodes"
+    single:s.append(original,outer)
+    singleNext:single.arena.nexts
+    (singleNext.(single.root)= -1 /\ p.node_json(original,outer)=p.node_json(single.arena,single.root))?! "cloning one noad excludes its outer sibling and preserves all node attributes"
+    fixtures:["\\frac{a_b}{\\sqrt[2]{b}}","\\begin{array}{|cr|}a&b\\\\b&a\\hline\\end{array}","\\color{red}\\mathbf{a}+\\scriptstyle b","\\xrightarrow[a]{b}+\\left(a\\right)","\\smash[t]{\\widehat{a}}_b^a"]
+    fixture:0
+    fixture<fixtures.length()?>
+        parsed:p.parse(fixtures.(fixture),fonts)
+        copy:s.append(parsed,0)
+        (p.list_json(parsed,0)=p.list_json(copy.arena,copy.root))?! "generic subtree copy preserves fractions/radicals/matrix rules/colors/styles/arrows/boxes grammar"
+        .fixture:fixture+1
+    matrices:["\\begin{matrix}a&b\\end{matrix}","\\begin{matrix}a\\\\b\\end{matrix}","\\begin{matrix}a\\\\b\\\\x\\end{matrix}"]
+    matrixCase:0
+    matrixCase<matrices.length()?>
+        matrixSource:p.parse("a+\\widehat{"&matrices.(matrixCase)&"}+b",fonts)
+        matrixKinds:matrixSource.kinds
+        matrixFirst:matrixSource.first
+        matrixA:matrixSource.a
+        matrixB:matrixSource.b
+        accent: -1
+        scan:0
+        scan<matrixSource.count?>
+            matrixKinds.(scan)="decoration"? .accent:scan
+            .scan:scan+1
+        body:matrixA.(accent)
+        matrix:matrixFirst.(body)
+        copied:s.append(matrixSource,body)
+        map:copied.mapping
+        copiedB:copied.arena.b
+        copiedNext:copied.arena.nexts
+        (matrixB.(matrix)=matrixCase /\ copiedB.(map.(matrix))=matrixCase)?! "zero and positive matrix rowcounts remain scalars during subtree copy"
+        (map.(0)= -1 /\ map.(matrixFirst.(0))= -1)?! "matrix counter never imports unrelated document root or sibling"
+        (p.list_json(matrixSource,body)=p.list_json(copied.arena,copied.root))?! "wide matrix cloned grammar remains exact"
+        measured:m.prepare(matrixSource)
+        measuredRoots:measured.measurement_roots
+        (p.list_json(matrixSource,body)=p.list_json(measured.arena,measuredRoots.(accent)))?! "wide matrix measurement excludes external document structure"
+        .matrixCase:matrixCase+1
+    @:true
+renderer_tests()

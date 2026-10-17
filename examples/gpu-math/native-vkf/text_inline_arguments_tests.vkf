@@ -1,0 +1,17 @@
+text_inline_arguments:.text_inline_arguments
+text_parser_stream:.text_parser_stream
+
+renderer_tests()->bit:
+    stream:text_parser_stream.empty()
+    .stream:text_parser_stream.append(stream,"command","roman","mbox",text_parser_stream.attributes(),0,8,-1).stream
+    .stream:text_parser_stream.append(stream,"argument","roman","x",text_parser_stream.attributes(),6,7,0).stream
+    .stream:text_parser_stream.append(stream,"box_content","roman","",text_parser_stream.attributes(),6,7,0).stream
+    .stream:text_parser_stream.append(stream,"word","roman","x",text_parser_stream.attributes(),6,7,2).stream
+    directory:text_inline_arguments.build(stream)
+    first:directory.first
+    second:directory.second
+    hidden:directory.hidden
+    (first.(0)=1 /\ second.(0)= -1)?! "Direct arguments exclude isolated child content"
+    (~hidden.(0) /\ ~hidden.(1) /\ ~hidden.(2) /\ hidden.(3))?! "Box descendants are isolated from outer provider evaluation"
+    @:true
+renderer_tests()

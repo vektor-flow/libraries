@@ -1,0 +1,19 @@
+document_resolve:.document_resolve
+document_present_maps:.document_present_maps
+renderer_tests()->bit:
+    labels:document_present_maps.put(document_present_maps.empty(),"section","2")
+    pages:document_present_maps.put(document_present_maps.empty(),"section","7")
+    plain:document_resolve.resolve("See \\cite[pp. 2--4]{alpha} and \\eqref{section}, p. \\pageref{section}.",labels,pages,"{\"alpha\":\"AB20\"}","; ",true)
+    (plain.source="See [AB20, pp. 2--4] and (2), p. 7." /\ plain.diagnostics="" /\ ~plain.pending_pages)?! "late source resolves citations and references with real current labels"
+    linked:document_resolve.resolve("\\cite{alpha} \\ref{section}",labels,pages,"{\"alpha\":\"AB20\"}","; ",true,true)
+    (linked.source="[\\documentlinkspan{cite}{cite%3Aalpha}{AB20}] \\documentlinkspan{ref}{label%3Asection}{2}")?! "citation and reference spans retain distinct encoded destinations"
+    legacy:document_resolve.resolve("\\cite{alpha}",labels,pages,"{\"alpha\":\"AB20\"}",",~",false,false,true)
+    (legacy.source="[\\documentlink{cite}{AB20}{cite%3Aalpha}]")?! "legacy citations use the opaque linked box"
+    literal:document_resolve.resolve("\\cite{missing} \\ref{missing}",labels,pages,"{}",",~",false,true,false,true)
+    (literal.source="\\cite{missing} \\ref{missing}" /\ literal.diagnostics="" /\ ~literal.pending_pages)?! "verbatim source bypasses document resolution"
+    missing:document_resolve.resolve("\\cite{absent} \\ref{absent} \\pageref{future}",labels,pages)
+    (missing.source="[?] ?? ??" /\ missing.diagnostics="\"Undefined citation: absent\",\"Undefined reference: absent\"" /\ missing.pending_pages)?! "missing source references diagnose and page requests remain pending"
+    changed:document_resolve.resolve("\\cite{alpha}",labels,pages,"{\"alpha\":\"CD24\"}")
+    (changed.source="[CD24]")?! "an edited bibliography label is consumed on the next request"
+    @:true
+renderer_tests()

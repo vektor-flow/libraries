@@ -1,0 +1,35 @@
+# One source-order pass indexes direct command arguments and isolated box scopes.
+# Parent operations precede their children; no quadratic ancestor walk is needed.
+text_parser_stream:.frozen285_text_parser_stream
+math_command_pages:.frozen285_math_command_pages
+paragraph_breaking:.frozen285_paragraph_breaking
+resource_json:.frozen285_resource_json
+tex_text:.frozen285_tex_text
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+flag(tape:Tape,node:int,key:str)->bit:
+    value:resource_json.member(tape,node,key)
+    value<0? @:false
+    starts:tape.starts
+    stops:tape.stops
+    @:tex_text.span(tape.source,starts.(value),stops.(value))="true"
+build(stream:Stream):
+    first:[ -1:stream.count]
+    second:[ -1:stream.count]
+    third:[ -1:stream.count]
+    hidden:paragraph_breaking.bits(stream.count)
+    isolated:paragraph_breaking.bits(stream.count)
+    index:0
+    index<stream.count?>
+        parent:math_command_pages.integer(stream.parents,index)
+        kind:text_parser_stream.value(stream,index,"kind")
+        kind="box_content"? isolated.(index):true
+        parent>=0?
+            (hidden.(parent) \/ isolated.(parent))? hidden.(index):true
+            kind="argument"?
+                first.(parent)<0? first.(parent):index
+                first.(parent)~=index /\ second.(parent)<0? second.(parent):index
+                first.(parent)~=index /\ second.(parent)~=index /\ third.(parent)<0? third.(parent):index
+        .index:index+1
+    @:(first:first,second:second,third:third,hidden:hidden)

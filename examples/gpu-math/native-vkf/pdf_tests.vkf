@@ -1,0 +1,46 @@
+p:.pdf_syntax
+text:.tex_text
+objects:.pdf_objects
+
+coordinate_numbers():
+    (p.number(0)="0")?! "zero"
+    (p.number(2)="2")?! "integer coordinate"
+    (p.number(-2.5)="-2.5")?! "negative coordinate"
+    (vkf_decimal_parse(p.number(0.0000001))=0.0000001)?! "small PDF decimal"
+    (vkf_decimal_parse(p.number(123.456789012345))=123.456789012345)?! "full coordinate precision"
+
+literal_strings():
+    (p.hex_string("a(b)\\c")="<612862295C63>")?! "PDF delimiters must remain data"
+    (p.hex_string("é🙂")="<C3A9F09F9982>")?! "UTF-8 PDF string"
+    (p.hex_string("")="<>")?! "empty PDF string"
+
+object_syntax():
+    (p.reference(12)="12 0 R")?! "object reference"
+    (p.object(1,"<< >>")="1 0 obj\n<< >>\nendobj\n")?! "object framing"
+    (p.stream("", "abc")="<<  /Length 3 >>\nstream\nabc\nendstream")?! "stream byte length"
+    (p.xref_row(123)="0000000123 00000 n \n")?! "xref offsets"
+
+object_tables():
+    tape:objects.pack(["<< /Type /Catalog >>","<< >>","abc"])
+    (tape.count=3)?! "object count"
+    (tape.starts.(0)=0)?! "first body offset"
+    (text.slice(tape.bodies,tape.starts.(1),tape.stops.(1))="<< >>")?! "packed body range"
+    document:objects.serialize(tape,1)
+    (text.slice(document,0,9)="%PDF-1.7\n")?! "PDF header"
+    start:text.find(document,"\nstartxref\n")+11
+    (start>=11)?! "startxref exists"
+    stop:text.find(document,"\n",start)
+    xref:int(vkf_decimal_parse(text.slice(document,start,stop)))
+    (text.slice(document,xref,xref+4)="xref")?! "xref byte offset"
+    first_row:text.find(document,"0000000000 65535 f \n")+20
+    first_offset:int(vkf_decimal_parse(text.slice(document,first_row,first_row+10)))
+    (text.slice(document,first_offset,first_offset+7)="1 0 obj")?! "first object xref"
+
+
+renderer_tests()->bit:
+    coordinate_numbers()
+    literal_strings()
+    object_syntax()
+    object_tables()
+    @:true
+renderer_tests()

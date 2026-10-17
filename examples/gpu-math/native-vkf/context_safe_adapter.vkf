@@ -1,0 +1,20 @@
+PageConfig:(values:[num],flags:[bit],penalties:[int])
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+# B346 test adapter: pass a retained old seed through the public safe API.
+present:.document_present
+metrics:.document_materialize_metrics
+Prepared:(font_slots:[int],font_keys:[str],font_raws:[str],font_names:[str],font_advances:[num],font_heights:[num],font_depths:[num],font_italics:[num],font_kern_starts:[int],font_kern_stops:[int],font_kern_codes:[str],font_kern_values:[num],font_kern_count:int,font_count:int,font_role_names:[str],font_role_ready:[int],font_role_sizes:[num],font_role_quads:[num],font_role_sources:[str],font_role_spaces:[num],font_role_stretches:[num],font_role_shrinks:[num],font_role_extras:[num],font_role_slants:[num],font_role_starts:[int],font_role_stops:[int],font_role_count:int,font_lig_first:[int],font_lig_second:[int],font_lig_result:[int],font_lig_count:int,run_keys:[str],run_xs:[num],run_metrics:[str],run_codes:[int],run_starts:[int],run_stops:[int],run_offsets:[int],run_counts:[int],run_widths:[num],run_heights:[num],run_depths:[num],run_italics:[num],run_atoms:[int],run_diagnostics:[str],run_count:int,run_glyph_count:int,texts:[str],roles:[str],slots:[int],ids:[int],bases:[int],count:int,misses:int,hits:int)
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+Configuration:(config:str,pages:PageConfig,packages:[str],math:MathContext,overrides:[str],class_name:str,optical:bit,hyperref:bit,diagnostics:str)
+prepare(seed:Prepared,source:str,role:str,fonts:Catalog,roles:[str],language:Language,c:Configuration,reuse_fixed_context:bit=false)->Prepared:
+    plan:present.empty("[]")
+    plan.kinds:["paragraph"]
+    plan.sources:[source]
+    plan.contexts:["{\"font\":\""&role&"\"}"]
+    plan.attrs:[""]
+    plan.origins:[0]
+    plan.scenes:[""]
+    plan.count:1
+    generation:metrics.prepare_main_request(seed,[source],plan,fonts,roles,language,c,plan.references,"{}",", ",reuse_fixed_context:reuse_fixed_context)
+    @:generation.request

@@ -1,0 +1,219 @@
+# Assemble generic floats from actual graphics and provider-owned paragraph
+# packets. The caller resolves refs and selects caption single/multiline packets.
+float_graphics:.frozen285_document_graphics
+float_json:.frozen285_resource_json
+float_text:.frozen285_tex_text
+float_chunks:.frozen285_text_chunks
+float_numbers:.frozen285_json_numbers
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Result:(items:str,height:num,diagnostics:str,placement:str,complete:bit)
+integers(size:int)->[int]:[0:size]
+raw(tape:Tape,node:int)->str:float_graphics.raw(tape,node)
+number(tape:Tape,node:int,key:str,fallback:num=0)->num:float_graphics.number(tape,node,key,fallback)
+string(tape:Tape,node:int,key:str,fallback:str="")->str:
+    at:float_json.member(tape,node,key)
+    at<0? @:fallback
+    @:float_json.string(tape,at)
+array(tape:Tape,node:int)->[int]:
+    result:integers(0)
+    ends:tape.ends
+    node<0? @:result
+    at:node+1
+    at<ends.(node)?>
+        .result:result&[at]
+        .at:ends.(at)
+    @:result
+append(current:str,extra:str)->str:
+    extra=""? @:current
+    current=""? @:extra
+    @:current&","&extra
+members(source:str)->str:
+    @:float_text.span(source,1,float_text.byte_length(source)-1)
+field(name:str,n:num)->str:float_json.quote(name)&":"&float_numbers.roundtrip(n)
+shift(tape:Tape,node:int,x:num,y:num,width:num,height:num,link:bit,destinations:str="")->str:
+    pieces:float_chunks.empty(tape.count+1)
+    count:0
+    ends:tape.ends
+    at:node+1
+    at<ends.(node)?>
+        key:float_json.string(tape,at)
+        keep:key~="x" /\ key~="y"
+        destinations~="" /\ key="destinationIds"? .keep:false
+        link /\ (key="width" \/ key="height")? .keep:false
+        keep?
+            pieces.(count):raw(tape,at)&":"&raw(tape,at+1)&","
+            .count:count+1
+        .at:ends.(at+1)
+    ending:field("x",x)&","&field("y",y)
+    destinations~=""? .ending:ending&",\"destinationIds\":"&destinations
+    link? .ending:ending&","&field("width",width)&","&field("height",height)
+    @:"{"&float_chunks.join(pieces,0,count)&ending&"}"
+merge_destinations(packet:Tape,item:int,ids:str)->str:
+    extra:float_json.parse(ids)
+    nodes:array(extra,0)
+    prior:float_json.member(packet,item,"destinationIds")
+    kept:array(packet,prior)
+    values:float_chunks.empty(nodes.length()+kept.length())
+    count:0
+    i:0
+    i<kept.length()?>
+        values.(count):float_json.string(packet,kept.(i))
+        .count:count+1
+        .i:i+1
+    .i:0
+    i<nodes.length()?>
+        value:float_json.string(extra,nodes.(i))
+        found:false
+        j:0
+        j<count?>
+            values.(j)=value? .found:true
+            .j:j+1
+        ~found?
+            values.(count):value
+            .count:count+1
+        .i:i+1
+    out:""
+    .i:0
+    i<count?>
+        .out:append(out,float_json.quote(values.(i)))
+        .i:i+1
+    @:"["&out&"]"
+measure_with_warnings(block_json:str,config_json:str,assets_json:str,packets:[str],provider_warnings:[str])->Result:
+    block:float_json.parse(block_json)
+    config:float_json.parse(config_json)
+    assets:float_json.parse(assets_json)
+    children:array(block,float_json.member(block,0,"blocks"))
+    plain:string(block,0,"style")="plain"
+    order:integers(0)
+    at:0
+    at<children.length()?>
+        ~plain \/ string(block,children.(at),"kind")~="caption"? .order:order&[at]
+        .at:at+1
+    plain?
+        .at:0
+        at<children.length()?>
+            string(block,children.(at),"kind")="caption"? .order:order&[at]
+            .at:at+1
+    y:0.0
+    items:""
+    diagnostics:""
+    complete:true
+    overwide:false
+    pt:72/72.27
+    index:0
+    index<order.length()?>
+        original:order.(index)
+        child:children.(original)
+        kind:string(block,child,"kind")
+        kind="vspace"?
+            .y:y+number(block,child,"amount")
+            trailing:float_json.member(block,child,"trailingLine")
+            trailing>=0 /\ overwide?
+                kinds:block.kinds
+                kinds.(trailing)=5? .y:y+12*pt
+            .index:index+1
+            @>
+        kind="image"?
+            name:string(block,child,"asset")
+            asset:float_json.member(assets,0,name)
+            asset<0?
+                end:float_text.byte_length(name)
+                dot:end-1
+                dot>=0 /\ float_text.at(name,dot)~="."?> .dot:dot-1
+                dot>=0? .asset:float_json.member(assets,0,float_text.span(name,0,dot))
+            asset<0?
+                .diagnostics:append(diagnostics,float_json.quote("Missing image asset: "&name))
+                .complete:false
+                .index:index+1
+                @>
+            options:float_json.member(block,child,"options")
+            options_json:"{}"
+            options>=0? .options_json:raw(block,options)
+            dimension:float_graphics.dimensions(raw(assets,asset),options_json,config_json)
+            ~dimension.complete?
+                .diagnostics:append(diagnostics,dimension.diagnostics)
+                .complete:false
+                .index:index+1
+                @>
+            centered:float_json.member(block,0,"center")
+            .overwide:false
+            centered>=0?
+                kinds:block.kinds
+                .overwide:kinds.(centered)=5 /\ dimension.width>number(config,0,"textWidth")
+            overwide? .y:y+pt
+            x:(number(config,0,"textWidth")-dimension.width)/2
+            x<0? .x:0
+            .items:append(items,members(float_graphics.items(raw(assets,asset),name,x,y,dimension)))
+            .y:y+dimension.height+10*pt
+            .index:index+1
+            @>
+        original>=packets.length() \/ packets.(original)=""?
+            .diagnostics:append(diagnostics,float_json.quote("VKF float paragraph provider unresolved"))
+            .complete:false
+            .index:index+1
+            @>
+        packet:float_json.parse(packets.(original))
+        original<provider_warnings.length()? .diagnostics:append(diagnostics,provider_warnings.(original))
+        warnings:float_json.member(packet,0,"diagnostics")
+        warnings>=0? .diagnostics:append(diagnostics,members(raw(packet,warnings)))
+        lines:array(packet,float_json.member(packet,0,"lines"))
+        leaves:array(packet,float_json.member(packet,0,"items"))
+        target: -1
+        leaf_index:0
+        leaf_index<leaves.length()?>
+            string(packet,leaves.(leaf_index),"kind")~="link"?
+                .target:leaves.(leaf_index)
+                @|
+            .leaf_index:leaf_index+1
+        destinations:""
+        target>=0?
+            ids:float_json.member(block,child,"destinationIds")
+            ids>=0? .destinations:merge_destinations(packet,target,raw(block,ids))
+        literal:kind="verbatim"
+        caption:kind="caption"
+        caption /\ plain? .y:y+20*pt
+        leading:12*pt
+        context:float_json.member(block,child,"context")
+        literal /\ context>=0? .leading:number(block,context,"lineHeight",12*pt)
+        line:0
+        line<lines.length()?>
+            ln:lines.(line)
+            h:number(packet,ln,"height")
+            d:number(packet,ln,"depth")
+            step:12*pt
+            (literal \/ plain)? .step:h
+            line>0?
+                adjacent:number(packet,lines.(line-1),"depth")+h
+                .step:leading
+                adjacent>leading? .step:adjacent+pt
+            baseline:y+step
+            xshift:0.0
+            caption /\ lines.length()=1? .xshift:(number(config,0,"textWidth")-number(packet,0,"width"))/2
+            leaf:0
+            leaf<leaves.length()?>
+                item:leaves.(leaf)
+                number(packet,item,"flowLine")=line?
+                    link:string(packet,item,"kind")="link"
+                    x:number(packet,item,"x")+xshift
+                    top:baseline+number(packet,item,"y")-number(packet,ln,"baseline")
+                    width:number(packet,item,"width")
+                    height:number(packet,item,"height")
+                    link?
+                        .x:x-pt
+                        .top:baseline-h-pt
+                        .width:width+2*pt
+                        .height:h+d+2*pt
+                    leaf_ids:""
+                    item=target? .leaf_ids:destinations
+                    .items:append(items,shift(packet,item,x,top,width,height,link,leaf_ids))
+                .leaf:leaf+1
+            .y:baseline
+            line=lines.length()-1? .y:y+d
+            .line:line+1
+        caption /\ ~plain? .y:y+10*pt
+        .index:index+1
+    y<0? .y:0
+    @:(items:"["&items&"]",height:y,diagnostics:diagnostics,placement:string(block,0,"placement","tbp"),complete:complete)
+
+measure(block_json:str,config_json:str,assets_json:str,packets:[str])->Result:
+    @:measure_with_warnings(block_json,config_json,assets_json,packets,float_chunks.empty(0))

@@ -1,0 +1,36 @@
+document_present:.document_present
+document_present_context:.document_present_context
+document_present_maps:.document_present_maps
+document_materialize_config:.document_materialize_config
+document_materialize_tests:.document_materialize_tests
+tex_frontend:.tex_frontend
+document_blocks:.document_blocks
+hyphenation:.hyphenation
+resource_json:.resource_json
+font_catalog:.font_catalog
+test_font_data:.test_font_data
+tex_numeric:.tex_numeric
+tex_text:.tex_text
+renderer_tests()->bit:
+    source:"\\documentclass{article}\\newtheorem{thm}{Theorem}\\begin{document}\\section{Start}\\label{sec}First paragraph.\n\n\\begin{enumerate}\\item One.\\item Two.\\end{enumerate}\n\n\\begin{thm}Works.\\label{theorem}\\end{thm}\\end{document}"
+    front:tex_frontend.prepare(source)
+    document:document_blocks.parse(front.source,"",front.declarations)
+    fonts:font_catalog.load(test_font_data.pack(["metrics","style/text","style/display","font/roman","font/footnote"],["{}","{\"em\":9.962640099626402}","{\"em\":9.962640099626402}","{\"spaces\":{\"quad\":0}}","{\"nativeFootnoteSep\":6.25}"]))
+    c:document_materialize_config.configure(document.class_name,document.class_options,document.imports,fonts)
+    language:(source:"",nodes:0,edges:0,weights:0,exceptions:0,node_start:0,edge_start:0,weight_start:0,exception_start:0,size:0)
+    plan:document_present.prepare(document,front.source,fonts,["roman","italic","bold"],language,c)
+    (plan.count=5)?! "source headings, paragraph, list items and theorem remain visible"
+    kinds:plan.kinds
+    texts:plan.sources
+    contexts:plan.contexts
+    (kinds.(0)="section" /\ texts.(0)="1\\quad Start")?! "section counter is source-driven"
+    (texts.(4)="\\textbf{Theorem 1}\\hspace{0bp}\\ignorespaces Works.")?! "theorem prefix is retained in real paragraph source"
+    list:document_present_context.parse(contexts.(2))
+    (list.label="1." /\ list.left=25*tex_numeric.pt())?! "list packet carries margin and numeric label"
+    second:document_present_context.parse(contexts.(3))
+    (second.label="2.")?! "list item counter increments within scope"
+    ref:document_present_maps.get(plan.references,"sec")
+    (ref.found /\ ref.value="1")?! "source label captures section counter"
+    (plan.unresolved="")?! "supported source presentation emits no pending shortcut"
+    @:true
+renderer_tests()

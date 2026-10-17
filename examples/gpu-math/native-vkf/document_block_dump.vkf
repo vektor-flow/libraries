@@ -1,0 +1,15 @@
+docblock_io:.io
+docblock_front:.tex_frontend
+docblock_blocks:.document_blocks
+docblock_output:.document_block_output
+
+run()->int:
+    source:docblock_io.read_text(docblock_io.read_line())
+    files:docblock_io.read_text(docblock_io.read_line())
+    path:docblock_io.read_line()
+    job:docblock_io.read_line()
+    entry:docblock_io.read_line()
+    prepared:docblock_front.prepare(source,files,job,entry)
+    docblock_io.write_text(path,docblock_output.json(docblock_blocks.parse(prepared.source,"",prepared.declarations)))
+    @:0
+run()

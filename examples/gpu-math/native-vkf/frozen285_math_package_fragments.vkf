@@ -1,0 +1,61 @@
+# Original byte ownership for fresh extension parses. Synthetic braces map to
+# the captured argument's boundaries; copied modifier/body bytes stay exact.
+packages:.frozen285_math_packages
+text:.frozen285_tex_text
+issues:.frozen285_latex_diagnostics
+j:.frozen285_resource_json
+Fragment:(source:str,positions:[int],stop:int,diagnostic:str,start:int,closed:bit,present:bit,appendable:bit)
+ints(size:int)->[int]:[0:size]
+
+capture(source:str,begin:int,wrap:bit=false,modifier:str="",modifier_start:int=0)->Fragment:
+    argument:packages.raw_argument(source,begin)
+    content:argument.start
+    braced:argument.present /\ text.at(source,argument.start)="{"
+    braced? .content:content+1
+    result:argument.value
+    prefix:0
+    wrap?
+        .result:modifier&"{"&argument.value&"}"
+        .prefix:text.byte_length(modifier)+1
+    size:text.byte_length(result)
+    positions:ints(size+1)
+    i:0
+    i<=size?>
+        origin:content+i-prefix
+        wrap?
+            i<prefix-1? .origin:modifier_start+i
+            i=prefix-1? .origin:argument.start
+            i=prefix-1 /\ prefix>1? .origin:modifier_start+prefix-1
+            i=size-1? .origin:content+text.byte_length(argument.value)
+            i=size? .origin:argument.stop
+        positions.(i):origin
+        .i:i+1
+    @:(source:result,positions:positions,stop:argument.stop,diagnostic:argument.diagnostic,start:argument.start,closed:argument.closed,present:argument.present,appendable:braced /\ ~argument.closed)
+
+mapped(positions:[int],offset:int)->int:
+    (offset>=0 /\ offset<positions.length())?! "Invalid extension diagnostic offset"
+    @:positions.(offset)
+
+remap(destination:str,additional:str,source:str,positions:[int],allow_append:bit)->str:
+    additional=""? @:destination
+    tape:j.parse("["&additional&"]")
+    result:destination
+    i:0
+    true?>
+        node:j.element(tape,0,i)
+        node<0? @|
+        range:j.member(tape,node,"range")
+        start:j.member(tape,range,"start")
+        end:j.member(tape,range,"end")
+        begin:mapped(positions,int(j.number(tape,j.member(tape,start,"byte"))))
+        stop:mapped(positions,int(j.number(tape,j.member(tape,end,"byte"))))
+        # A modifier then body can move to an earlier original source span.
+        stop<begin? .stop:begin
+        code:j.string(tape,j.member(tape,node,"code"))
+        recovery:j.string(tape,j.member(tape,node,"recovery"))
+        related:j.member(tape,node,"relatedStart")
+        origin: -1
+        related>=0? .origin:mapped(positions,int(j.number(tape,j.member(tape,related,"byte"))))
+        .result:issues.record(result,source,begin,stop,text.span(code,10,text.byte_length(code)),allow_append /\ recovery="append",j.string(tape,j.member(tape,node,"message")),j.string(tape,j.member(tape,node,"hint")),origin)
+        .i:i+1
+    @:result

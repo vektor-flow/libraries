@@ -1,0 +1,63 @@
+bibliography_api:.bibliography
+bibliography_kernel_data:.bibtex_data
+bibliography_kernel_names:.bibtex_names
+bibliography_kernel_format:.bibtex_format
+bibliography_kernel_json:.resource_json
+bibliography_kernel_text:.tex_text
+bibliography_kernel_chunks:.text_chunks
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+value(tape:Tape,object:int,key:str,fallback:str="")->str:
+    node:bibliography_kernel_json.member(tape,object,key)
+    node<0? @:fallback
+    @:bibliography_kernel_json.string(tape,node)
+raw(tape:Tape,node:int)->str:
+    node<0? @:"{}"
+    @:bibliography_kernel_text.span(tape.source,tape.starts.(node),tape.stops.(node))
+packet(request:str)->str:
+    tape:bibliography_kernel_json.parse(request)
+    operation:value(tape,0,"operation","prepare")
+    source:value(tape,0,"source")
+    operation="parse"?
+        parsed:bibliography_kernel_data.parse(source,bibliography_kernel_data.empty_map())
+        entries:""
+        i:0
+        i<parsed.count?>
+            i>0? .entries:entries&","
+            .entries:entries&"{\"key\":"&bibliography_kernel_json.quote(parsed.keys.(i))&",\"type\":"&bibliography_kernel_json.quote(parsed.types.(i))&",\"fields\":"&parsed.fields.(i)&"}"
+            .i:i+1
+        valid:"false"
+        parsed.valid? .valid:"true"
+        @:"{\"entries\":["&entries&"],\"strings\":"&bibliography_kernel_data.map_json(parsed.strings)&",\"diagnostics\":["&parsed.diagnostics&"],\"error\":"&bibliography_kernel_json.quote(parsed.error)&",\"valid\":"&valid&"}"
+    operation="names"?
+        names:bibliography_kernel_names.parse(source)
+        items:""
+        i:0
+        i<names.count?>
+            i>0? .items:items&","
+            .items:items&"{\"family\":"&bibliography_kernel_json.quote(names.family.(i))&",\"given\":"&bibliography_kernel_json.quote(names.given.(i))
+            names.corporate.(i)=1? .items:items&",\"corporate\":true"
+            names.corporate.(i)=2? .items:items&",\"suffix\":"&bibliography_kernel_json.quote(names.suffix.(i))
+            .items:items&"}"
+            .i:i+1
+        @:"{\"names\":["&items&"],\"plain\":"&bibliography_kernel_json.quote(bibliography_kernel_names.plain(source))&",\"error\":"&bibliography_kernel_json.quote(names.error)&"}"
+    operation="format"?
+        fields:bibliography_kernel_data.from_json(raw(tape,bibliography_kernel_json.member(tape,0,"fields")))
+        formatted:bibliography_kernel_format.format(value(tape,0,"type"),fields)
+        @:"{\"text\":"&bibliography_kernel_json.quote(formatted.text)&",\"error\":"&bibliography_kernel_json.quote(formatted.error)&"}"
+    options:bibliography_kernel_chunks.empty(0)
+    node:bibliography_kernel_json.member(tape,0,"options")
+    node>=0?
+        option:node+1
+        option<tape.ends.(node)?>
+            .options:bibliography_kernel_data.append(options,bibliography_kernel_json.string(tape,option))
+            .option:tape.ends.(option)
+    widths:raw(tape,bibliography_kernel_json.member(tape,0,"labelWidths"))
+    operation="measured"? .widths:"{}"
+    result:bibliography_api.prepare(source,raw(tape,bibliography_kernel_json.member(tape,0,"files")),value(tape,0,"entry"),options,widths)
+    result_source:result.source
+    operation="measured"? .result_source:bibliography_api.set_widest(result.source,value(tape,0,"widest"),source)
+    complete:"false"
+    result.complete? .complete:"true"
+    @:"{\"source\":"&bibliography_kernel_json.quote(result_source)&",\"labels\":"&result.labels_json&",\"entries\":"&result.entries_json&",\"inputs\":"&result.inputs_json&",\"diagnostics\":"&result.diagnostics_json&",\"separator\":"&bibliography_kernel_json.quote(result.separator)&",\"style\":"&bibliography_kernel_json.quote(result.style)&",\"complete\":"&complete&"}"
+noop()->int:0
+noop()

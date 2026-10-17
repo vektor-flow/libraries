@@ -1,0 +1,78 @@
+# Request-local math constants. Decode the generic font profiles once for this
+# layout, rather than reparsing their JSON for every glyph and spacing edge.
+# This is initialization from cold font inputs, not a retained document cache.
+catalog:.frozen285_font_catalog
+geometry:.frozen285_math_geometry
+glyphs:.frozen285_math_glyphs
+tex:.frozen285_tex_numeric
+j:.frozen285_resource_json
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+
+zeros(size:int)->[num]:[0.0:size]
+
+load(fonts:Catalog)->Tables:
+    values:zeros(168)
+    ems:zeros(8)
+    delim1:zeros(8)
+    delim2:zeros(8)
+    mus:zeros(8)
+    index:0
+    index<8?>
+        tape:catalog.style(fonts,glyphs.style_name(index%4))
+        p:geometry.parameters(tape,index>=4)
+        base:index*21
+        values.(base):p.quad
+        values.(base+1):p.xheight
+        values.(base+2):p.rule
+        values.(base+3):p.axis
+        values.(base+4):p.num1
+        values.(base+5):p.num2
+        values.(base+6):p.num3
+        values.(base+7):p.denom1
+        values.(base+8):p.denom2
+        values.(base+9):p.sup1
+        values.(base+10):p.sup2
+        values.(base+11):p.sup3
+        values.(base+12):p.sub1
+        values.(base+13):p.sub2
+        values.(base+14):p.supdrop
+        values.(base+15):p.subdrop
+        values.(base+16):p.big1
+        values.(base+17):p.big2
+        values.(base+18):p.big3
+        values.(base+19):p.big4
+        values.(base+20):p.big5
+        ems.(index):glyphs.numeric(tape,0,"em")
+        node:j.member(tape,0,"parameters")
+        index>=4?
+            bold:j.member(tape,0,"boldParameters")
+            bold>=0? .node:bold
+        delim1.(index):glyphs.numeric(tape,node,"DELIM1")
+        delim2.(index):glyphs.numeric(tape,node,"DELIM2")
+        mus.(index):tex.mu_unit(p.quad)
+        .index:index+1
+    @:(values:values,ems:ems,delim1:delim1,delim2:delim2,mus:mus)
+
+index(style:int,font:str)->int:
+    (style>=0 /\ style<=3)?! "Invalid math profile"
+    font="boldsymbol"? @:style+4
+    @:style
+
+parameters(tables:Tables,style:int,font:str):
+    values:tables.values
+    base:index(style,font)*21
+    @:(quad:values.(base),xheight:values.(base+1),rule:values.(base+2),axis:values.(base+3),num1:values.(base+4),num2:values.(base+5),num3:values.(base+6),denom1:values.(base+7),denom2:values.(base+8),sup1:values.(base+9),sup2:values.(base+10),sup3:values.(base+11),sub1:values.(base+12),sub2:values.(base+13),supdrop:values.(base+14),subdrop:values.(base+15),big1:values.(base+16),big2:values.(base+17),big3:values.(base+18),big4:values.(base+19),big5:values.(base+20))
+
+mu(tables:Tables,style:int,font:str)->num:
+    values:tables.mus
+    @:values.(index(style,font))
+
+em(tables:Tables,style:int,font:str)->num:
+    values:tables.ems
+    @:values.(index(style,font))
+
+delim(tables:Tables,style:int,font:str)->num:
+    values:tables.delim2
+    style=0? .values:tables.delim1
+    @:values.(index(style,font))

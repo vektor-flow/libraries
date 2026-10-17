@@ -1,0 +1,194 @@
+# Generic graphicx dimensions and retained vector/image leaves. No source assets
+# or document positions are compiled into this module.
+graphics_json:.frozen285_resource_json
+graphics_text:.frozen285_tex_text
+graphics_chunks:.frozen285_text_chunks
+graphics_numbers:.frozen285_json_numbers
+graphics_decimal:.frozen285_binary_decimal
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Dimensions:(width:num,height:num,draw_width:num,draw_height:num,natural_width:num,natural_height:num,diagnostics:str,complete:bit)
+raw(tape:Tape,node:int)->str:
+    @:graphics_text.span(tape.source,tape.starts.(node),tape.stops.(node))
+number(tape:Tape,node:int,key:str,fallback:num=0)->num:
+    at:graphics_json.member(tape,node,key)
+    at<0? @:fallback
+    @:graphics_json.number(tape,at)
+value(tape:Tape,key:str)->str:
+    at:graphics_json.member(tape,0,key)
+    at<0? @:""
+    kinds:tape.kinds
+    kinds.(at)=3? @:graphics_json.string(tape,at)
+    @:raw(tape,at)
+truth(tape:Tape,key:str)->bit:
+    at:graphics_json.member(tape,0,key)
+    at<0? @:false
+    kinds:tape.kinds
+    kinds.(at)=5? @:true
+    kinds.(at)=3? @:graphics_json.string(tape,at)~=""
+    kinds.(at)=4? @:graphics_json.number(tape,at)~=0
+    @:false
+numeric(source:str,fallback:num)->num:
+    clean:graphics_text.trim(source)
+    clean=""? @:0
+    clean_size:graphics_text.byte_length(clean)
+    clean_size>2 /\ graphics_text.at(clean,0)="0"?
+        prefix:graphics_text.at(clean,1)
+        base:0
+        (prefix="x" \/ prefix="X")? .base:16
+        (prefix="b" \/ prefix="B")? .base:2
+        (prefix="o" \/ prefix="O")? .base:8
+        base>0?
+            result:0.0
+            cursor:2
+            cursor<clean_size?>
+                c:graphics_text.at(clean,cursor)
+                digit: -1
+                c>="0" /\ c<="9"? .digit:int(vkf_decimal_parse(c))
+                c>="a" /\ c<="f"? .digit:10+graphics_text.find("abcdef",c,0)
+                c>="A" /\ c<="F"? .digit:10+graphics_text.find("ABCDEF",c,0)
+                (digit<0 \/ digit>=base)? @:fallback
+                .result:result*base+digit
+                .cursor:cursor+1
+            @:result
+    begin:0
+    graphics_text.at(clean,0)="+"? .begin:1
+    at:begin
+    digits:0
+    dots:0
+    size:graphics_text.byte_length(clean)
+    at<size?>
+        c:graphics_text.at(clean,at)
+        (c="e" \/ c="E")? @|
+        c>="0" /\ c<="9"? .digits:digits+1
+        c="."? .dots:dots+1
+        ~(c>="0" /\ c<="9") /\ c~="." /\ ~(at=begin /\ c="-")? @:fallback
+        .at:at+1
+    (digits=0 \/ dots>1)? @:fallback
+    at<size?
+        .at:at+1
+        at<size?
+            sign:graphics_text.at(clean,at)
+            (sign="+" \/ sign="-")? .at:at+1
+        exponent_start:at
+        at<size?>
+            c:graphics_text.at(clean,at)
+            (c<"0" \/ c>"9")? @:fallback
+            .at:at+1
+        at=exponent_start? @:fallback
+    decoded:graphics_decimal.decode(clean,begin,size)
+    ~decoded.valid? @:fallback
+    @:decoded.value
+coerce(tape:Tape,node:int,fallback:num)->num:
+    node<0? @:fallback
+    tape.kinds.(node)=5? @:1
+    tape.kinds.(node)=6 \/ tape.kinds.(node)=7? @:0
+    tape.kinds.(node)=4? @:graphics_json.number(tape,node)
+    tape.kinds.(node)=3? @:numeric(graphics_json.string(tape,node),fallback)
+    @:fallback
+length(source:str,fallback:num,config:Tape)->num:
+    size:graphics_text.byte_length(source)
+    at:0
+    at<size?>
+        c:graphics_text.at(source,at)
+        ~(c>="0" /\ c<="9") /\ c~="."? @|
+        .at:at+1
+    suffix:graphics_text.span(source,at,size)
+    (suffix="\\textwidth" \/ suffix="\\linewidth" \/ suffix="\\textheight")?
+        multiplier:1.0
+        at>0? .multiplier:numeric(graphics_text.span(source,0,at),-1)
+        relative:number(config,0,"textWidth")
+        suffix="\\textheight"? .relative:number(config,0,"textHeight")
+        @:multiplier*relative
+    clean:graphics_text.trim(source)
+    stop:graphics_text.byte_length(clean)
+    stop<2? @:fallback
+    unit:graphics_text.span(clean,stop-2,stop)
+    amount_source:graphics_text.trim(graphics_text.span(clean,0,stop-2))
+    amount_size:graphics_text.byte_length(amount_source)
+    amount_size=0? @:fallback
+    amount_at:0
+    amount_at<amount_size?>
+        c:graphics_text.at(amount_source,amount_at)
+        valid:c>="0" /\ c<="9"
+        c="." \/ (amount_at=0 /\ (c="+" \/ c="-"))? .valid:true
+        ~valid? @:fallback
+        .amount_at:amount_at+1
+    amount:numeric(amount_source,-(10^300))
+    unit="pt"? @:amount*72/72.27
+    unit="bp"? @:amount
+    unit="cm"? @:amount*72/2.54
+    unit="mm"? @:amount*72/25.4
+    unit="in"? @:amount*72
+    unit="em"? @:amount*number(config,0,"fontSize")
+    unit="ex"? @:amount*(0.43*number(config,0,"fontSize"))
+    @:fallback
+native_dimension(bp:num)->num:
+    scaled:((bp/(72/72.27/65536)+0.5)//1)
+    @:(((scaled*65291/65536)//1)*7227/7200)//1
+dimensions(asset_json:str,options_json:str,config_json:str,native_box:bit=true)->Dimensions:
+    asset:graphics_json.parse(asset_json)
+    options:graphics_json.parse(options_json)
+    config:graphics_json.parse(config_json)
+    nw:number(asset,0,"widthBp",number(asset,0,"width")*72/96)
+    nh:number(asset,0,"heightBp",number(asset,0,"height")*72/96)
+    width:length(value(options,"width"),nw,config)
+    height:length(value(options,"height"),nh,config)
+    has_width:truth(options,"width")
+    has_height:truth(options,"height")
+    has_width /\ ~has_height? .height:width*nh/nw
+    has_height /\ ~has_width? .width:height*nw/nh
+    truth(options,"keepaspectratio") /\ has_width /\ has_height?
+        ratio:width/nw
+        height/nh<ratio? .ratio:height/nh
+        .width:nw*ratio
+        .height:nh*ratio
+    scale:1.0
+    truth(options,"scale")? .scale:coerce(options,graphics_json.member(options,0,"scale"),-1)
+    .width:width*scale
+    .height:height*scale
+    draw_width:width
+    draw_height:height
+    native_box /\ ~has_width /\ ~has_height?
+        native_scale:1.0
+        scale_node:graphics_json.member(options,0,"scale")
+        scale_node>=0?
+            options.kinds.(scale_node)~=7? .native_scale:coerce(options,scale_node,-1)
+        factor:(native_scale*65536+0.5)//1
+        .width:((native_dimension(nw)*factor/65536)//1)*(72/72.27/65536)
+        .height:((native_dimension(nh)*factor/65536)//1)*(72/72.27/65536)
+    valid:width>0 /\ height>0 /\ width+height-(width+height)=0
+    diagnostics:""
+    ~valid? .diagnostics:graphics_json.quote("Invalid image dimensions")
+    @:(width:width,height:height,draw_width:draw_width,draw_height:draw_height,natural_width:nw,natural_height:nh,diagnostics:diagnostics,complete:valid)
+field(name:str,n:num)->str:graphics_json.quote(name)&":"&graphics_numbers.roundtrip(n)
+items(asset_json:str,name:str,x:num,y:num,dimension:Dimensions)->str:
+    ~dimension.complete? @:"[]"
+    top:y+dimension.height-dimension.draw_height
+    asset:graphics_json.parse(asset_json)
+    array:graphics_json.member(asset,0,"items")
+    array<0? @:"[{\"kind\":\"image\",\"asset\":"&graphics_json.quote(name)&","&field("x",x)&","&field("y",top)&","&field("width",dimension.draw_width)&","&field("height",dimension.draw_height)&"}]"
+    ends:asset.ends
+    sx:dimension.draw_width/dimension.natural_width
+    sy:dimension.draw_height/dimension.natural_height
+    leaves:graphics_chunks.empty(asset.count+1)
+    count:0
+    at:array+1
+    at<ends.(array)?>
+        parts:graphics_chunks.empty(asset.count+1)
+        n:0
+        member:at+1
+        member<ends.(at)?>
+            key:graphics_json.string(asset,member)
+            (key~="x" /\ key~="y" /\ key~="sx" /\ key~="sy" /\ key~="sourceAsset")?
+                parts.(n):raw(asset,member)&":"&raw(asset,member+1)&","
+                .n:n+1
+            .member:ends.(member+1)
+        ox:number(asset,at,"x")
+        oy:number(asset,at,"y")
+        leaves.(count):"{"&graphics_chunks.join(parts,0,n)&field("x",x+ox*sx)&","&field("y",top+oy*sy)&","&field("sx",number(asset,at,"sx",1)*sx)&","&field("sy",number(asset,at,"sy",1)*sy)&",\"sourceAsset\":{"&field("x",ox)&","&field("y",oy)&","&field("scaleX",sx)&","&field("scaleY",sy)&","&field("drawHeight",dimension.draw_height)&"}}"
+        count>0? leaves.(count):","&leaves.(count)
+        .count:count+1
+        .at:ends.(at)
+    @:"["&graphics_chunks.join(leaves,0,count)&"]"
+json(dimension:Dimensions)->str:
+    @:"{"&field("width",dimension.width)&","&field("height",dimension.height)&","&field("drawWidth",dimension.draw_width)&","&field("drawHeight",dimension.draw_height)&","&field("naturalWidth",dimension.natural_width)&","&field("naturalHeight",dimension.natural_height)&"}"

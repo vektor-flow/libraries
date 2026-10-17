@@ -1,0 +1,12 @@
+n:.text_parser_numbers
+r:.resource_numbers
+renderer_tests()->bit:
+    (n.shortest(r.parse("0"))="0")?! "shortest binary64 spelling 0"
+    (n.shortest(r.parse("-0"))="0")?! "shortest binary64 spelling 1"
+    (n.shortest(r.parse("1"))="1")?! "shortest binary64 spelling 2"
+    (n.shortest(r.parse("-1"))="-1")?! "shortest binary64 spelling 3"
+    (n.shortest(r.parse("0.1"))="0.1")?! "shortest binary64 spelling 4"
+    (n.shortest(r.parse("1.2345678901234567"))="1.2345678901234567")?! "shortest binary64 spelling 5"
+    (n.shortest(r.parse("9.962640099626402"))="9.962640099626402")?! "shortest binary64 spelling 6"
+    @:true
+renderer_tests()

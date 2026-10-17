@@ -1,0 +1,13 @@
+bibliography_dump_io:.io
+bibliography_dump_numbers:.resource_numbers
+bibliography_dump_kernel:.bibliography_kernel
+run()->int:
+    count:int(bibliography_dump_numbers.parse(bibliography_dump_io.read_line()))
+    i:0
+    i<count?>
+        request:bibliography_dump_io.read_line()
+        path:bibliography_dump_io.read_line()
+        bibliography_dump_io.write_text(path,bibliography_dump_kernel.packet(request))
+        .i:i+1
+    @:0
+run()

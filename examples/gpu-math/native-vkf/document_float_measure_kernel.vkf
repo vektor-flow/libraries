@@ -1,0 +1,21 @@
+float_measure_core:.document_float_measure
+float_measure_json:.resource_json
+float_measure_chunks:.text_chunks
+float_measure_assert:.math_display_metrics_kernel
+float_measure_numbers:.json_numbers
+json(request:str)->str:
+    tape:float_measure_json.parse(request)
+    block:float_measure_json.member(tape,0,"block")
+    config:float_measure_json.member(tape,0,"config")
+    assets:float_measure_json.member(tape,0,"assets")
+    packets_node:float_measure_json.member(tape,0,"packets")
+    packet_nodes:float_measure_core.array(tape,packets_node)
+    packets:float_measure_chunks.empty(packet_nodes.length())
+    i:0
+    i<packet_nodes.length()?>
+        packets.(i):float_measure_core.raw(tape,packet_nodes.(i))
+        .i:i+1
+    result:float_measure_core.measure(float_measure_core.raw(tape,block),float_measure_core.raw(tape,config),float_measure_core.raw(tape,assets),packets)
+    @:"{\"items\":"&result.items&",\"height\":"&float_measure_numbers.roundtrip(result.height)&",\"diagnostics\":["&result.diagnostics&"],\"placement\":"&float_measure_json.quote(result.placement)&"}"
+check(request:str,expected:str)->bit:
+    @:float_measure_assert.assert_projection(expected,json(request))

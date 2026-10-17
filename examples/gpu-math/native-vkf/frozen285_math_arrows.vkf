@@ -1,0 +1,63 @@
+# Native overlapping relbar leaders and preview rules share the same retained
+# command arena. Arrow dimensions come from installed fonts and label widths.
+commands:.frozen285_math_commands
+glyphs:.frozen285_math_glyphs
+parser:.frozen285_math_parser
+catalog:.frozen285_font_catalog
+j:.frozen285_resource_json
+tex:.frozen285_tex_numeric
+numbers:.frozen285_json_numbers
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Glyph:(token:str,key:str,width:num,height:num,depth:num,class_id:int,italic:num,character:bit,metric:str,diagnostic:str,placeholder:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Buffer:(heads:[[int]],tails:[[int]],boxes:int,nexts:[[int]],children:[[int]],pool:Pool,payload_ids:[[int]],xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int)
+
+add(buffer:Buffer,owner:int,glyph:Glyph,color:str,x:num)->Buffer:
+    value:"\"kind\":\"glyph\",\"color\":"&color&",\"key\":"&j.quote(glyph.key)
+    y:0.0
+    glyph.placeholder?
+        .value:"\"kind\":\"placeholder\",\"color\":"&color&",\"width\":"&numbers.roundtrip(glyph.width)&",\"height\":"&numbers.roundtrip(glyph.height)
+        .y: -glyph.height
+    @:commands.append(buffer,owner, -1,value,x,y)
+
+layout(buffer:Buffer,owner:int,fonts:Catalog,required:num,mu:num,left:bit,native:bit=true,style:int=0,font:str="",color:str="null"):
+    first_token:"-"
+    last_token:"\\rightarrow"
+    left?
+        .first_token:"\\leftarrow"
+        .last_token:"-"
+    first:glyphs.glyph(fonts,first_token,style,font)
+    last:glyphs.glyph(fonts,last_token,style,font)
+    width:tex.maximum(required,first.width+last.width-14*mu)
+    height:tex.maximum(0,last.height)
+    depth:tex.maximum(0,last.depth)
+    left?
+        .height:tex.maximum(0,first.height)
+        .depth:tex.maximum(0,first.depth)
+    out:add(buffer,owner,first,color,0)
+    .out:add(out,owner,last,color,width-last.width)
+    diagnostic:""
+    first.diagnostic~=""? .diagnostic:parser.repair(diagnostic,first.diagnostic)
+    last.diagnostic~=""? .diagnostic:parser.repair(diagnostic,last.diagnostic)
+    lo:first.width-7*mu
+    hi:width-last.width+7*mu
+    hi>lo?
+        native?
+            bar:glyphs.glyph(fonts,"-",style,font)
+            bar.diagnostic~=""? .diagnostic:parser.repair(diagnostic,bar.diagnostic)
+            leader:bar.width-4*mu
+            (leader>0)?! "Invalid installed arrow leader width"
+            count:int(((hi-lo)/leader+0.000000001)//1)
+            offset:(hi-lo-num(count)*leader)/2
+            i:0
+            i<count?>
+                .out:add(out,owner,bar,color,lo+offset+num(i)*leader-2*mu)
+                .i:i+1
+        ~native?
+            metric:catalog.math_symbol(fonts,glyphs.style_name(style),"-")
+            bounds:j.member(metric,0,"inkBounds")
+            start:j.number(metric,j.element(metric,bounds,1))
+            stop:j.number(metric,j.element(metric,bounds,3))
+            value:"\"kind\":\"rule\",\"color\":"&color&",\"width\":"&numbers.roundtrip(hi-lo)&",\"height\":"&numbers.roundtrip(stop-start)
+            .out:commands.append(out,owner, -1,value,lo,start)
+    @:(buffer:out,width:width,height:height,depth:depth,diagnostic:diagnostic)

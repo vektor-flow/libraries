@@ -1,0 +1,14 @@
+io:.io
+kernel:.math_tags_kernel
+run()->int:
+    font_source:io.read_text(io.read_line())
+    count:int(vkf_decimal_parse(io.read_line()))
+    index:0
+    index<count?>
+        style:int(vkf_decimal_parse(io.read_line()))
+        source:io.read_text(io.read_line())
+        output:io.read_line()
+        io.write_text(output,kernel.tag_json(source,font_source,style))
+        .index:index+1
+    @:0
+run()

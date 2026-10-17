@@ -1,0 +1,67 @@
+# Compiler language contract; deliberately exercises direct string vectors.
+# No renderer allocation helpers or affected-compiler workarounds are used.
+tex_text:.tex_text
+word(index:int)->str:
+    index%3=0? @:""
+    index%3=1? @:"å/漢字/🙂"
+    @:"value-"&tex_text.integer(index)
+read_string_slot(values:[str],index:int)->str:@:values.(index)
+changed(values:[str],index:int,value:str)->[str]:
+    copy:values
+    copy.(index):value
+    @:copy
+verify_written(values:[str],size:int)->bit:
+    (values.length()=size)?! "dynamic string vector length"
+    i:0
+    i<size?>
+        direct:values.(i)
+        read:read_string_slot(values,i)
+        (direct=word(i) /\ read=word(i))?! "all indexed writes and scalar reads survive"
+        .i:i+1
+    @:true
+repeat_case(size:int,initial:str)->bit:
+    [str] values:[initial:size]
+    i:0
+    i<size?>
+        (values.(i)=initial)?! "repeat initialization preserves Unicode/empty seed"
+        values.(i):word(i)
+        (read_string_slot(values,i)=word(i))?! "direct repeat write immediately visible"
+        .i:i+1
+    verify_written(values,size)?! "direct repeat all writes independent"
+    size>0?
+        copied:values
+        held:read_string_slot(values,0)
+        copied.(0):"copy🙂"
+        (values.(0)=word(0) /\ held=word(0))?! "copy update preserves original and scalar ownership"
+        values.(size-1):"source漢"
+        expected:word(size-1)
+        size=1? .expected:"copy🙂"
+        (copied.(size-1)=expected)?! "original update preserves copied ownership"
+        result:changed(copied,0,"calleeå")
+        (copied.(0)="copy🙂" /\ result.(0)="calleeå")?! "function vector update is independent"
+    @:true
+map_case(size:int)->bit:
+    [int] indices:[0:size]
+    [str] values:indices >> word($0)
+    verify_written(values,size)?! "index-map string vector scalar reads"
+    size>0?
+        before:read_string_slot(values,0)
+        values.(0):"map漢🙂"
+        (before=word(0) /\ read_string_slot(values,0)="map漢🙂")?! "mapped vector indexed write and scalar ownership"
+        copy:changed(values,size-1,"lastå")
+        (copy.(size-1)="lastå")?! "mapped vector callee write"
+        expected:word(size-1)
+        size=1? .expected:"map漢🙂"
+        (values.(size-1)=expected)?! "mapped vector callee preserves caller"
+    @:true
+renderer_tests()->bit:
+    sizes:[0,1,2,3,17,129,512]
+    i:0
+    i<sizes.length()?>
+        size:sizes.(i)
+        repeat_case(size,"")?! "empty direct repeat contract"
+        repeat_case(size,"seedå漢🙂")?! "nonempty Unicode direct repeat contract"
+        map_case(size)?! "dynamic map contract"
+        .i:i+1
+    @:true
+renderer_tests()

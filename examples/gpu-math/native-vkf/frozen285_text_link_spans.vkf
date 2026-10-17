@@ -1,0 +1,57 @@
+# Per-line hyperlink extents use solver advances, including linked glue/kerns.
+# Scope identity is independent of target equality, matching JS object identity.
+paragraph_breaking:.frozen285_paragraph_breaking
+text_chunks:.frozen285_text_chunks
+resource_json:.frozen285_resource_json
+tex_text:.frozen285_tex_text
+json_numbers:.frozen285_json_numbers
+State:(scopes:[int],lefts:[num],rights:[num],count:int)
+empty()->State:@:(scopes:paragraph_breaking.ints(4),lefts:paragraph_breaking.nums(4),rights:paragraph_breaking.nums(4),count:0)
+append(input:State,scope:int,left:num,right:num)->State:
+    scope<0? @:input
+    scopes:input.scopes
+    lefts:input.lefts
+    rights:input.rights
+    count:input.count
+    count>0?
+        scopes.(count-1)=scope?
+            rights.(count-1):right
+            @:(scopes:scopes,lefts:lefts,rights:rights,count:count)
+    count>=scopes.length()?
+        size:scopes.length()+1
+        .scopes:scopes&paragraph_breaking.ints(size)
+        .lefts:lefts&paragraph_breaking.nums(size)
+        .rights:rights&paragraph_breaking.nums(size)
+    scopes.(count):scope
+    lefts.(count):left
+    rights.(count):right
+    @:(scopes:scopes,lefts:lefts,rights:rights,count:count+1)
+
+scene(input:State,scope_directory:str,height:num,depth:num)->str:
+    directory:resource_json.parse(scope_directory)
+    scopes:input.scopes
+    lefts:input.lefts
+    rights:input.rights
+    starts:directory.starts
+    stops:directory.stops
+    parts:text_chunks.empty(input.count)
+    count:0
+    index:0
+    index<input.count?>
+        current:index
+        .index:index+1
+        rights.(current)<=lefts.(current)? @>
+        scope:resource_json.member(directory,0,tex_text.integer(scopes.(current)))
+        (scope>=0)?! "Hyperlink span requires its actual appearance and target"
+        color_node:resource_json.member(directory,scope,"color")
+        border_node:resource_json.member(directory,scope,"borderWidth")
+        target_node:resource_json.member(directory,scope,"target")
+        (color_node>=0 /\ border_node>=0 /\ target_node>=0)?! "Incomplete hyperlink appearance"
+        color:tex_text.span(directory.source,starts.(color_node),stops.(color_node))
+        border:tex_text.span(directory.source,starts.(border_node),stops.(border_node))
+        target:tex_text.span(directory.source,starts.(target_node),stops.(target_node))
+        prefix:""
+        count>0? .prefix:","
+        parts.(count):prefix&"{\"kind\":\"link\",\"x\":"&json_numbers.roundtrip(lefts.(current))&",\"y\":"&json_numbers.roundtrip(-height)&",\"width\":"&json_numbers.roundtrip(rights.(current)-lefts.(current))&",\"height\":"&json_numbers.roundtrip(height+depth)&",\"color\":"&color&",\"borderWidth\":"&border&",\"target\":"&target&"}"
+        .count:count+1
+    @:"{\"items\":["&text_chunks.join(parts,0,count)&"],\"width\":0,\"height\":0,\"depth\":0}"

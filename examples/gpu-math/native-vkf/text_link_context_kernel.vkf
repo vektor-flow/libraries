@@ -1,0 +1,5 @@
+link_context_kernel_output:.text_link_context_output
+link_context_packet(source:str,fonts:str,initial:str,enabled:bit)->str:
+    @:link_context_kernel_output.packet(source,fonts,initial,enabled)
+noop()->int:0
+noop()

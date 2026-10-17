@@ -1,0 +1,22 @@
+j:.frozen285_resource_json
+t:.frozen285_tex_text
+chunks:.frozen285_text_chunks
+legacy:.frozen285_paragraph_typeset_output
+Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_count:int,glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
+json(q:Packet,items_json:str="",extra_members:str="",include_diagnostics:bit=true)->str:
+    diagnostics:q.diagnostics
+    ~include_diagnostics? .diagnostics:""
+    value:legacy.json((keys:q.keys,xs:q.xs,ys:q.ys,flow_lines:q.flow_lines,glyph_count:q.glyph_count,line_heights:q.line_heights,line_depths:q.line_depths,line_widths:q.line_widths,line_baselines:q.line_baselines,line_ratios:q.line_ratios,line_indents:q.line_indents,line_flagged:q.line_flagged,line_count:q.line_count,width:q.width,height:q.height,depth:q.depth,measurement_work:q.measurement_work,diagnostics:diagnostics,solved:q.solved,pass:q.pass),items_json)
+    pending:q.pending
+    entries:chunks.empty(q.pending_count)
+    i:0
+    i<q.pending_count?>
+        prefix:""
+        i>0? .prefix:","
+        entries.(i):prefix&t.integer(pending.(i))
+        .i:i+1
+    complete:"false"
+    q.complete? .complete:"true"
+    lowering:"false"
+    q.lowering_complete? .lowering:"true"
+    @:t.span(value,0,t.byte_length(value)-1)&",\"complete\":"&complete&",\"loweringComplete\":"&lowering&",\"pending\":["&chunks.join(entries,0,q.pending_count)&"],\"sceneCount\":"&t.integer(q.scene_count)&extra_members&"}"

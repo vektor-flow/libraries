@@ -112,6 +112,7 @@ def fetch(output, cache=None):
         records.append({'name': name, 'arxiv': identifier, 'entry': entry,
                         'url': 'https://arxiv.org/abs/' + identifier,
                         'downloads': downloads, 'sha256': sha(text.encode()),
+                        'buildContext': paper.get('buildContext', {}),
                         'includedFiles': included, 'assemblyDiagnostics': diagnostics,
                         'files': {path: {'sha256': sha(raw), 'bytes': len(raw)} for path, raw in files.items()},
                         'scope': 'Complete project and original PDF; source.tex only substitutes local inputs. No macro/package removal, repaired PDF, or source license reassignment.'})

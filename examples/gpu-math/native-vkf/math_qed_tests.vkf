@@ -1,0 +1,57 @@
+q:.math_qed
+c:.math_commands
+p:.math_command_pages
+f:.test_layout_fonts
+data:.test_font_data
+catalog:.font_catalog
+j:.resource_json
+tex:.tex_numeric
+
+native_fonts(token:str):
+    @:catalog.load(data.pack(["style/text","math/text/@customqed"],["{\"em\":10,\"qedSymbol\":"&j.quote(token)&"}","{\"width\":7,\"height\":8,\"depth\":2,\"italic\":1.5,\"class\":\"op\"}"]))
+
+renderer_tests()->bit:
+    empty:q.empty()
+    (q.tag(empty,true) /\ ~q.tag(empty,false))?! "bare QED tags only in display context"
+    absent:q.here(empty)
+    inert:q.pop(empty)
+    (~absent.emit /\ absent.diagnostic="qedhere has no pending QED symbol" /\ ~inert.emit /\ inert.diagnostic="")?! "missing here diagnoses while empty pop stays inert"
+    pushed:q.push(empty,10)
+    nested:q.push(pushed,20)
+    here:q.here(nested)
+    twice:q.here(here.stack)
+    used:q.pop(twice.stack)
+    outer:q.pop(used.stack)
+    (here.root=20 /\ here.emit /\ here.tag /\ here.qed_tag /\ twice.emit /\ ~used.emit /\ outer.root=10 /\ outer.emit /\ outer.stack.count=0)?! "nested QED here marks only top, repeated here emits, used pop stays silent"
+    original:q.pop(nested)
+    (original.emit /\ original.root=20 /\ empty.count=0)?! "QED mutations preserve previous stack snapshots"
+    state:q.empty()
+    i:0
+    i<40?>
+        .state:q.push(state,i)
+        .i:i+1
+    .i:39
+    i>=0?>
+        outcome:q.pop(state)
+        (outcome.emit /\ outcome.root=i)?! "QED stack grows and retains LIFO order"
+        .state:outcome.stack
+        .i:i-1
+    depth:q.begin_symbol(q.begin_symbol(empty))
+    (~q.tag(depth,true) /\ ~q.tag(q.end_symbol(depth),true) /\ q.tag(q.end_symbol(q.end_symbol(depth)),true))?! "captured symbols suppress bare nested QED display tags until balanced exit"
+    box:q.box(c.empty(1),0,10)
+    pool:box.buffer.pool
+    values:pool.values
+    left:j.parse("{"&values.(p.integer(box.buffer.payload_ids,0))&"}")
+    (box.buffer.count=4 /\ box.width=7.7778 /\ box.height=6.75 /\ box.depth=0 /\ j.member(left,0,"color")= -1)?! "fallback openbox dimensions and color omission"
+    (|p.number(box.buffer.xs,0)-(7.7778-6-0.8*tex.pt())/2|<0.000000001 /\ p.number(box.buffer.ys,0)= -6.75 /\ |p.number(box.buffer.ys,2)+0.4*tex.pt()|<0.000000001)?! "fallback openbox side glue and rule positions"
+    fonts:f.fonts()
+    fallback:q.symbol(c.empty(1),0,fonts,12,"","[1,0,0,1]")
+    (fallback.width=0.77778*12 /\ fallback.height=0.675*12 /\ fallback.buffer.count=4)?! "text spacing quad overrides fallback em"
+    native:q.symbol(c.empty(1),0,native_fonts("@customqed"),100,"","[1,0,0,1]")
+    (native.buffer.count=1 /\ native.width=7 /\ native.height=8 /\ native.depth=2 /\ native.italic=1.5 /\ native.class_id=1 /\ ~native.character /\ native.nucleus~="")?! "native textstyle QED symbol preserves font metrics and ignores quad override"
+    overridden:q.symbol(c.empty(1),0,native_fonts("@absent"), -1,"","null","@customqed")
+    (overridden.width=7 /\ overridden.diagnostic="")?! "class QED token overrides catalog default without rewriting font assets"
+    missing:q.symbol(c.empty(1),0,native_fonts("@absent"))
+    (missing.buffer.count=1 /\ missing.diagnostic="Missing native glyph: @absent (text)" /\ missing.width=3.2)?! "missing explicit native QED symbol stays a diagnostic placeholder"
+    @:true
+renderer_tests()

@@ -1,0 +1,145 @@
+l:.text_parser_lex
+t:.tex_text
+renderer_tests()->bit:
+    target0:l.target("",0,false)
+    (target0.found=false)?! "target 0 recognized"
+    target1:l.target("",0,true)
+    (target1.found=false)?! "target 1 recognized"
+    target2:l.target("ordinary",0,false)
+    (target2.found=false)?! "target 2 recognized"
+    target3:l.target("ordinary",0,true)
+    (target3.found=false)?! "target 3 recognized"
+    target4:l.target("\\url",0,false)
+    (target4.found=true)?! "target 4 recognized"
+    (t.span("\\url",target4.start,target4.stop)="" /\ target4.end=4 /\ target4.closed=false)?! "target 4 payload/recovery"
+    target5:l.target("\\url",0,true)
+    (target5.found=false)?! "target 5 recognized"
+    target6:l.target("\\url{}",0,false)
+    (target6.found=true)?! "target 6 recognized"
+    (t.span("\\url{}",target6.start,target6.stop)="" /\ target6.end=6 /\ target6.closed=true)?! "target 6 payload/recovery"
+    target7:l.target("\\url{}",0,true)
+    (target7.found=false)?! "target 7 recognized"
+    target8:l.target("\\url{a{b}c}",0,false)
+    (target8.found=true)?! "target 8 recognized"
+    (t.span("\\url{a{b}c}",target8.start,target8.stop)="a{b}c" /\ target8.end=11 /\ target8.closed=true)?! "target 8 payload/recovery"
+    target9:l.target("\\url{a{b}c}",0,true)
+    (target9.found=false)?! "target 9 recognized"
+    target10:l.target("\\url|a%20#b|",0,false)
+    (target10.found=true)?! "target 10 recognized"
+    (t.span("\\url|a%20#b|",target10.start,target10.stop)="a%20#b" /\ target10.end=12 /\ target10.closed=true)?! "target 10 payload/recovery"
+    target11:l.target("\\url|a%20#b|",0,true)
+    (target11.found=false)?! "target 11 recognized"
+    target12:l.target("\\url*abc*",0,false)
+    (target12.found=true)?! "target 12 recognized"
+    (t.span("\\url*abc*",target12.start,target12.stop)="abc" /\ target12.end=9 /\ target12.closed=true)?! "target 12 payload/recovery"
+    target13:l.target("\\url*abc*",0,true)
+    (target13.found=false)?! "target 13 recognized"
+    target14:l.target("\\urlabc{x}",0,false)
+    (target14.found=false)?! "target 14 recognized"
+    target15:l.target("\\urlabc{x}",0,true)
+    (target15.found=false)?! "target 15 recognized"
+    target16:l.target("\\url1{x}",0,false)
+    (target16.found=false)?! "target 16 recognized"
+    target17:l.target("\\url1{x}",0,true)
+    (target17.found=false)?! "target 17 recognized"
+    target18:l.target("\\url_abc{x}",0,false)
+    (target18.found=false)?! "target 18 recognized"
+    target19:l.target("\\url_abc{x}",0,true)
+    (target19.found=false)?! "target 19 recognized"
+    target20:l.target("\\urlαhelloα",0,false)
+    (target20.found=true)?! "target 20 recognized"
+    (t.span("\\urlαhelloα",target20.start,target20.stop)="hello" /\ target20.end=13 /\ target20.closed=true)?! "target 20 payload/recovery"
+    target21:l.target("\\urlαhelloα",0,true)
+    (target21.found=false)?! "target 21 recognized"
+    target22:l.target("\\nolinkurl {https://a.test/%20#x}",0,false)
+    (target22.found=true)?! "target 22 recognized"
+    (t.span("\\nolinkurl {https://a.test/%20#x}",target22.start,target22.stop)="https://a.test/%20#x" /\ target22.end=33 /\ target22.closed=true)?! "target 22 payload/recovery"
+    target23:l.target("\\nolinkurl {https://a.test/%20#x}",0,true)
+    (target23.found=false)?! "target 23 recognized"
+    target24:l.target("\\href{x}{label}",0,false)
+    (target24.found=false)?! "target 24 recognized"
+    target25:l.target("\\href{x}{label}",0,true)
+    (target25.found=true)?! "target 25 recognized"
+    (t.span("\\href{x}{label}",target25.start,target25.stop)="x" /\ target25.end=8 /\ target25.closed=true)?! "target 25 payload/recovery"
+    target26:l.target("\\href {a\\{b\\}c}{label}",0,false)
+    (target26.found=false)?! "target 26 recognized"
+    target27:l.target("\\href {a\\{b\\}c}{label}",0,true)
+    (target27.found=true)?! "target 27 recognized"
+    (t.span("\\href {a\\{b\\}c}{label}",target27.start,target27.stop)="a\\{b\\}c" /\ target27.end=15 /\ target27.closed=true)?! "target 27 payload/recovery"
+    target28:l.target("\\hrefabc{x}",0,false)
+    (target28.found=false)?! "target 28 recognized"
+    target29:l.target("\\hrefabc{x}",0,true)
+    (target29.found=false)?! "target 29 recognized"
+    target30:l.target("\\url{a\\{b}}",0,false)
+    (target30.found=true)?! "target 30 recognized"
+    (t.span("\\url{a\\{b}}",target30.start,target30.stop)="a\\{b}" /\ target30.end=11 /\ target30.closed=true)?! "target 30 payload/recovery"
+    target31:l.target("\\url{a\\{b}}",0,true)
+    (target31.found=false)?! "target 31 recognized"
+    target32:l.target("\\url {😀π}",0,false)
+    (target32.found=true)?! "target 32 recognized"
+    (t.span("\\url {😀π}",target32.start,target32.stop)="😀π" /\ target32.end=13 /\ target32.closed=true)?! "target 32 payload/recovery"
+    target33:l.target("\\url {😀π}",0,true)
+    (target33.found=false)?! "target 33 recognized"
+    target34:l.target("\\url|unterminated",0,false)
+    (target34.found=true)?! "target 34 recognized"
+    (t.span("\\url|unterminated",target34.start,target34.stop)="unterminated" /\ target34.end=17 /\ target34.closed=false)?! "target 34 payload/recovery"
+    target35:l.target("\\url|unterminated",0,true)
+    (target35.found=false)?! "target 35 recognized"
+    target36:l.target("\\href{a{b}",0,false)
+    (target36.found=false)?! "target 36 recognized"
+    target37:l.target("\\href{a{b}",0,true)
+    (target37.found=true)?! "target 37 recognized"
+    (t.span("\\href{a{b}",target37.start,target37.stop)="a{b}" /\ target37.end=10 /\ target37.closed=false)?! "target 37 payload/recovery"
+    target38:l.target("\\url\n{line\nbreak}",0,false)
+    (target38.found=true)?! "target 38 recognized"
+    (t.span("\\url\n{line\nbreak}",target38.start,target38.stop)="line\nbreak" /\ target38.end=17 /\ target38.closed=true)?! "target 38 payload/recovery"
+    target39:l.target("\\url\n{line\nbreak}",0,true)
+    (target39.found=false)?! "target 39 recognized"
+    group40:l.group("",0)
+    (group40.found=false /\ group40.end=0)?! "group 40 found/end"
+    group41:l.group("x",0)
+    (group41.found=false /\ group41.end=0)?! "group 41 found/end"
+    group42:l.group(" {}",0)
+    (group42.found=true /\ group42.end=3)?! "group 42 found/end"
+    (t.span(" {}",group42.start,group42.stop)="")?! "group 42 raw value"
+    group43:l.group("{a{b}c}",0)
+    (group43.found=true /\ group43.end=7)?! "group 43 found/end"
+    (t.span("{a{b}c}",group43.start,group43.stop)="a{b}c")?! "group 43 raw value"
+    group44:l.group("{a\\{b\\}c}",0)
+    (group44.found=true /\ group44.end=9)?! "group 44 found/end"
+    (t.span("{a\\{b\\}c}",group44.start,group44.stop)="a\\{b\\}c")?! "group 44 raw value"
+    group45:l.group("{unterminated",0)
+    (group45.found=true /\ group45.end=13)?! "group 45 found/end"
+    (t.span("{unterminated",group45.start,group45.stop)="unterminated")?! "group 45 raw value"
+    group46:l.group("{tail\\",0)
+    (group46.found=true /\ group46.end=7)?! "group 46 found/end"
+    (t.span("{tail\\",group46.start,group46.stop)="tail\\")?! "group 46 raw value"
+    group47:l.group("\t\n{😀a}",0)
+    (group47.found=true /\ group47.end=9)?! "group 47 found/end"
+    (t.span("\t\n{😀a}",group47.start,group47.stop)="😀a")?! "group 47 raw value"
+    group48:l.group("{\\i}",0)
+    (group48.found=true /\ group48.end=4)?! "group 48 found/end"
+    (t.span("{\\i}",group48.start,group48.stop)="\\i")?! "group 48 raw value"
+    group49:l.group("{\\\\{x}}",0)
+    (group49.found=true /\ group49.end=7)?! "group 49 found/end"
+    (t.span("{\\\\{x}}",group49.start,group49.stop)="\\\\{x}")?! "group 49 raw value"
+    group50:l.group("{a}rest",0)
+    (group50.found=true /\ group50.end=3)?! "group 50 found/end"
+    (t.span("{a}rest",group50.start,group50.stop)="a")?! "group 50 raw value"
+    (l.uri_value("label%3Aalpha")="label%3Aalpha")?! "URI escapes 51"
+    (l.uri_decode("label%3Aalpha")="label:alpha")?! "URI decode 51"
+    (l.uri_value("%C3%A5%F0%9F%98%80")="%C3%A5%F0%9F%98%80")?! "URI escapes 52"
+    (l.uri_decode("%C3%A5%F0%9F%98%80")="å😀")?! "URI decode 52"
+    (l.uri_value("plain+plus")="plain+plus")?! "URI escapes 53"
+    (l.uri_decode("plain+plus")="plain+plus")?! "URI decode 53"
+    (l.uri_value("%00%2F%25")="%00%2F%25")?! "URI escapes 54"
+    (l.uri_decode("%00%2F%25")=(str(chr(0))&"/%"))?! "URI decode 54"
+    (l.uri_value("%7B%7D")="%7B%7D")?! "URI escapes 55"
+    (l.uri_decode("%7B%7D")="{}")?! "URI decode 55"
+    (l.uri_value("a%20b")="a%20b")?! "URI escapes 56"
+    (l.uri_decode("a%20b")="a b")?! "URI decode 56"
+    (l.uri_value("日本%41")="日本%41")?! "URI escapes 57"
+    (l.uri_decode("日本%41")="日本A")?! "URI decode 57"
+    (l.uri_value("https://a/\\%20\\#x\\_y\\&z\\{x\\}\\\$")="https://a/%20#x_y&z{x}\$")?! "URI escapes 58"
+    @:true
+renderer_tests()

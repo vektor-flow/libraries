@@ -1,0 +1,41 @@
+t:.math_tags
+p:.math_parser
+data:.test_font_data
+catalog:.font_catalog
+j:.resource_json
+c:.math_commands
+pages:.math_command_pages
+text:.tex_text
+
+tag_fonts():
+    keys:["style/display","math/display/@text:a","math/display/@text:b","math/display/@text:2","math/display/(","math/display/)"]
+    values:["{\"em\":10,\"parameters\":{\"QUAD\":18,\"XHEIGHT\":4,\"RULE\":0.4,\"AXISHEIGHT\":2,\"NUM1\":7,\"NUM2\":4,\"NUM3\":4.5,\"DENOM1\":7,\"DENOM2\":3.5,\"SUP1\":4,\"SUP2\":3.5,\"SUP3\":2.8,\"SUB1\":1.5,\"SUB2\":2.5,\"SUPDROP\":3,\"SUBDROP\":0.5,\"BIGOPSPACING1\":1,\"BIGOPSPACING2\":1.6,\"BIGOPSPACING3\":2,\"BIGOPSPACING4\":6,\"BIGOPSPACING5\":1}}","{\"width\":5,\"advance\":5,\"height\":7,\"depth\":1,\"fontName\":\"cmr10\",\"fontCode\":97,\"kerns\":{\"98\":-0.5}}","{\"width\":6,\"advance\":6,\"height\":7,\"depth\":1,\"fontName\":\"cmr10\",\"fontCode\":98}","{\"width\":4,\"advance\":4.5,\"height\":7,\"depth\":1}","{\"width\":3,\"height\":8,\"depth\":2,\"class\":\"open\"}","{\"width\":3,\"height\":8,\"depth\":2,\"class\":\"close\"}"]
+    @:catalog.load(data.pack(keys,values))
+
+renderer_tests()->bit:
+    fonts:tag_fonts()
+    arena:p.parse("\\tag*{a\\textbf{b}}",fonts)
+    firsts:arena.first
+    node:firsts.(0)
+    t.reference(arena,node)="ab"?! "custom tag reference follows direct text chars"
+    run:t.from_node(arena,node,fonts,0,"","\"red\"")
+    (run.width=10.5 /\ run.count=2 /\ run.height=7 /\ run.depth=1)?! "starred tag is exact shaped body"
+    buffer:t.emit(c.empty(1),0,run,20,3,true)
+    pool:buffer.pool
+    values:pool.values
+    first:values.(pages.integer(buffer.payload_ids,0))
+    last:values.(pages.integer(buffer.payload_ids,1))
+    (text.find(first,"\"equationTag\":true")>=0 /\ j.number(j.parse("{"&last&"}"),j.member(j.parse("{"&last&"}"),0,"tagWidth"))=10.5 /\ text.find(last,"\"color\":\"red\"")>=0)?! "each equation tag leaf carries width and color"
+    (pages.number(buffer.xs,0)=20 /\ pages.number(buffer.xs,1)=24.5 /\ pages.number(buffer.ys,1)=3)?! "tag emission translates body once"
+    ordinary:t.emit(c.empty(1),0,run)
+    ordinary_pool:ordinary.pool
+    ordinary_values:ordinary_pool.values
+    text.find(ordinary_values.(0),"equationTag")<0?! "standalone tags omit row equation metadata"
+    plain:p.parse("\\tag{a}",fonts)
+    plain_first:plain.first
+    wrapped:t.from_node(plain,plain_first.(0),fonts,0)
+    (wrapped.count=3 /\ wrapped.width=11 /\ wrapped.height=7 /\ wrapped.depth=3 /\ wrapped.ys.(0)=1 /\ wrapped.xs.(1)=3)?! "unstarred tag keeps axis-centered delimiters"
+    generated:t.generated(2,fonts,0)
+    (generated.count=3 /\ generated.width=10.5 /\ generated.height=7 /\ generated.depth=3)?! "generated equation number uses text advance and tag delimiter geometry"
+    @:true
+renderer_tests()

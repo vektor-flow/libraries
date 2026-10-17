@@ -1,0 +1,57 @@
+io:.io
+font_catalog:.font_catalog
+resource_json:.resource_json
+text_chunks:.text_chunks
+tex_text:.tex_text
+math_profiles:.math_profiles
+math_packages:.math_packages
+text_math_boxes_reference:.text_math_boxes_reference
+text_math_boxes_prepared:.text_math_boxes_prepared
+text_math_boxes_prepared_compare:.text_math_boxes_prepared_compare
+text_parser_stream:.text_parser_stream
+run()->int:
+    cases:resource_json.parse(io.read_text(io.read_line()))
+    output:io.read_line()
+    stage_count:int(vkf_decimal_parse(io.read_line()))
+    results:text_chunks.empty(stage_count)
+    stage:0
+    stage<stage_count?>
+        fonts:font_catalog.load(io.read_text(io.read_line()))
+        tables:math_profiles.load(fonts)
+        context:math_packages.from_names(["amsmath","amsthm","faktor","bbm","latexsym"])
+        font:resource_json.parse(font_catalog.raw(fonts,"font/roman"))
+        spacing_node:resource_json.member(font,0,"spaces")
+        spacing:""
+        spacing_node>=0? .spacing:text_math_boxes_prepared.raw(font,spacing_node)
+        node:1
+        count:0
+        node<cases.ends.(0)?>
+            source:""
+            document_boxes:"{}"
+            cases.kinds.(node)=3? .source:resource_json.string(cases,node)
+            cases.kinds.(node)~=3?
+                .source:resource_json.string(cases,resource_json.member(cases,node,"source"))
+                boxes_node:resource_json.member(cases,node,"boxes")
+                boxes_node>=0? .document_boxes:text_math_boxes_prepared.raw(cases,boxes_node)
+            before:text_math_boxes_reference.evaluate(count,source,fonts,context,spacing,7,document_boxes)
+            after:text_math_boxes_prepared.evaluate_prepared(count,source,fonts,context,tables,spacing,7,document_boxes)
+            text_math_boxes_prepared_compare.same_result(before,after)?! "real corpus prepared evaluator"
+            .node:cases.ends.(node)
+            .count:count+1
+        stream:text_parser_stream.empty()
+        .stream:text_parser_stream.append(stream,"math","roman","a+b",text_parser_stream.attributes(),0,3,-1).stream
+        .stream:text_parser_stream.append(stream,"word","roman","skip",text_parser_stream.attributes(),4,8,-1).stream
+        .stream:text_parser_stream.append(stream,"math","bold","\\frac{a}{b}",text_parser_stream.attributes(),9,19,-1).stream
+        .stream:text_parser_stream.append(stream,"math","roman","\\unknownVKFCommand",text_parser_stream.attributes(),20,40,-1).stream
+        old_provider:text_math_boxes_reference.provide(stream,fonts,context,7)
+        prepared_provider:text_math_boxes_prepared.provide_prepared(stream,fonts,context,tables,7)
+        text_math_boxes_prepared_compare.same_provider(old_provider,prepared_provider)?! "prepared provider operation sequence"
+        request_provider:text_math_boxes_prepared.provide(stream,fonts,context,7)
+        text_math_boxes_prepared_compare.same_provider(old_provider,request_provider)?! "one-load request provider operation sequence"
+        prefix:""
+        stage>0? .prefix:","
+        results.(stage):prefix&"{\"stage\":"&tex_text.integer(stage)&",\"casesPassed\":"&tex_text.integer(count)&",\"providerNodes\":"&tex_text.integer(old_provider.count)&"}"
+        .stage:stage+1
+    io.write_text(output,"["&text_chunks.join(results,0,stage_count)&"]")
+    @:0
+run()

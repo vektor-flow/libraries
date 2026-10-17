@@ -1,0 +1,88 @@
+# Finite JavaScript Number grammar for hyperref pdfborder, including unsigned
+# hexadecimal/binary/octal strings and correctly rounded decimal conversion.
+link_number_text:.frozen285_tex_text
+link_number_tokens:.frozen285_math_tokens
+link_number_json:.frozen285_resource_json
+link_number_binary:.frozen285_binary_decimal
+Result:(value:num,valid:bit)
+character(source:str,at:int)->str:
+    vkf_string_eof(source,at)? @:""
+    @:link_number_text.at(source,at)
+trim(source:str)->str:
+    start:link_number_tokens.skip_space(source,0)
+    stop:start
+    at:start
+    ~vkf_string_eof(source,at)?>
+        c:link_number_text.at(source,at)
+        .at:link_number_text.next(source,at)
+        ~link_number_tokens.space(c)? .stop:at
+    @:link_number_text.span(source,start,stop)
+digit(c:str)->bit:c>="0" /\ c<="9"
+parse(raw:str)->Result:
+    source:trim(raw)
+    size:link_number_text.byte_length(source)
+    size=0? @:(value:0,valid:true)
+    at:0
+    signed:false
+    sign:character(source,at)
+    (sign="+" \/ sign="-")?
+        .signed:true
+        .at:at+1
+    base:10
+    character(source,at)="0"?
+        prefix:character(source,at+1)
+        (prefix="x" \/ prefix="X")? .base:16
+        (prefix="o" \/ prefix="O")? .base:8
+        (prefix="b" \/ prefix="B")? .base:2
+    base~=10?
+        signed? @:(value:0,valid:false)
+        .at:at+2
+        at=size? @:(value:0,valid:false)
+        # Exact little-endian decimal digits avoid intermediate binary64
+        # rounding for long radix literals before the final conversion.
+        digits:[0:size*2+1]
+        count:1
+        at<size?>
+            value:link_number_json.hex(character(source,at))
+            (value<0 \/ value>=base)? @:(value:0,valid:false)
+            carry:value
+            i:0
+            i<count?>
+                product:digits.(i)*base+carry
+                digits.(i):product%10
+                .carry:product//10
+                .i:i+1
+            carry>0?>
+                digits.(count):carry%10
+                .count:count+1
+                .carry:carry//10
+            .at:at+1
+        decimal:""
+        i:count-1
+        i>=0?>
+            .decimal:decimal&str(chr(digits.(i)+48))
+            .i:i-1
+        result:link_number_binary.decode(decimal,0,count)
+        @:(value:result.value,valid:result.valid)
+    start:0
+    sign="+"? .start:1
+    digits_seen:0
+    digit(character(source,at))?>
+        .digits_seen:digits_seen+1
+        .at:at+1
+    character(source,at)="."?
+        .at:at+1
+        digit(character(source,at))?>
+            .digits_seen:digits_seen+1
+            .at:at+1
+    digits_seen=0? @:(value:0,valid:false)
+    e:character(source,at)
+    (e="e" \/ e="E")?
+        .at:at+1
+        s:character(source,at)
+        (s="+" \/ s="-")? .at:at+1
+        ~digit(character(source,at))? @:(value:0,valid:false)
+        digit(character(source,at))?> .at:at+1
+    at~=size? @:(value:0,valid:false)
+    result:link_number_binary.decode(source,start,size)
+    @:(value:result.value,valid:result.valid)

@@ -1,0 +1,69 @@
+m:.math_parser
+t:.math_tokens
+c:.font_catalog
+fixtures:.test_font_data
+j:.resource_json
+text:.tex_text
+
+lexical_tokens():
+    (t.peek("α≤x",0).value="\\alpha" /\ t.peek("α≤x",2).value="\\leq")?! "Unicode math normalization"
+    (t.peek("\\alpha x",0).stop=6 /\ t.peek("\\a@b",0).raw="\\a")?! "math command boundaries"
+    (t.normalize("\\le")="\\leq" /\ t.normalize("\\{")="\\lbrace")?! "math aliases"
+
+fractions_and_scripts():
+    fonts:c.load(fixtures.math_catalog())
+    arena:m.parse("x^{a_1}+\\frac{a}{b_2}",fonts)
+    tape:j.parse(m.json(arena))
+    (tape.valid /\ arena.atoms=6 /\ arena.diagnostics="")?! "nested fraction/script syntax"
+    nodes:j.member(tape,0,"nodes")
+    fraction:j.element(tape,nodes,2)
+    (j.string(tape,j.member(tape,fraction,"type"))="frac")?! "fraction node"
+    (j.element(tape,j.member(tape,fraction,"num"),0)>=0 /\ j.element(tape,j.member(tape,fraction,"den"),0)>=0)?! "both operands retained"
+    first_nodes:arena.first
+    superscripts:arena.sup
+    subscripts:arena.sub
+    first:first_nodes.(0)
+    superscript:superscripts.(first)
+    script_base:first_nodes.(superscript)
+    subscript:subscripts.(script_base)
+    (superscript>=0 /\ subscript>=0)?! "script nesting belongs to current base"
+
+missing_operands_and_repeated_scripts():
+    fonts:c.load(fixtures.math_catalog())
+    arena:m.parse("x^a^b''+\\frac{a}",fonts)
+    (text.find(arena.diagnostics,"Grouped repeated scripts for preview")>=0 /\ text.find(arena.diagnostics,"Empty operand placeholder")>=0)?! "recovery is explicit"
+    tree:m.json(arena)
+    (text.find(tree,"\\prime")>=0 /\ text.find(tree,"\"type\":\"hole\"")>=0)?! "current-source primes and missing denominator"
+    unknown:m.parse("\\unknown+\$",fonts)
+    (text.find(unknown.diagnostics,"unsupported command")>=0 /\ text.find(unknown.diagnostics,"Unsupported symbol")>=0)?! "unknown input cannot disappear"
+
+scope_and_styles():
+    fonts:c.load(fixtures.math_catalog())
+    arena:m.parse("\\left(\\sqrt[2]{x}+\\mathbf{a}\\right)^2",fonts)
+    (arena.diagnostics="")?! "nested scopes"
+    tree:m.json(arena)
+    (text.find(tree,"\"index\":[")>=0 /\ text.find(tree,"\"right\":\")\"")>=0 /\ text.find(tree,"\"name\":\"mathbf\"")>=0)?! "radical index, scalable closer and font scope"
+    styles:m.parse("\\scriptstyle a\\,b\\qquad\\sum\\limits_1^2",fonts)
+    (styles.diagnostics="" /\ text.find(m.json(styles),"\"limits\":true")>=0)?! "explicit style, spaces and limits"
+
+preview_and_diagnostic_limits():
+    fonts:c.load(fixtures.math_catalog())
+    preview:m.parse("(a+b+",fonts,false)
+    (text.find(preview.diagnostics,"Empty operand placeholder")>=0 /\ text.find(preview.diagnostics,"Inferred an invisible closing scope")>=0)?! "preview repairs current-source trailing operator and scope"
+    source:""
+    index:0
+    index<40?>
+        .source:source&"\\unsupported"&str(chr(97+index//26))&str(chr(97+index%26))&" "
+        .index:index+1
+    unknown:m.parse(source,fonts)
+    messages:j.parse("["&unknown.diagnostics&"]")
+    (messages.count=25 /\ unknown.atoms=40)?! "24 diagnostic limit preserves all unknown atoms"
+
+renderer_tests()->bit:
+    lexical_tokens()
+    fractions_and_scripts()
+    missing_operands_and_repeated_scripts()
+    scope_and_styles()
+    preview_and_diagnostic_limits()
+    @:true
+renderer_tests()

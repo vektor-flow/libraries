@@ -1,0 +1,128 @@
+pages:.frozen285_math_command_pages
+# Draw commands retain nested boxes by reference. Flatten once, in draw order;
+# the outermost list owns flow metadata just as the original layout does.
+text:.frozen285_tex_text
+chunks:.frozen285_text_chunks
+numbers:.frozen285_json_numbers
+ParagraphNodes:(kinds:[int],owners:[int],widths:[num],heights:[num],depths:[num],stretches:[num],shrinks:[num],penalties:[int],count:int)
+Scene:(width:num,height:num,depth:num,heads:[[int]],box_count:int,nexts:[[int]],children:[[int]],payload:[str],payload_ids:[[int]],payload_count:int,xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int,diagnostics:str,atoms:int,next_equation_number:int,equation_references:str,has_last_row:bit,last_row_baseline:num,last_row_depth:num,paragraph:ParagraphNodes,has_paragraph:bit)
+Packet:(payload:[str],ids:[int],payload_count:int,xs:[num],ys:[num],flow:[bit],flow_x:[num],flow_width:[num],count:int)
+
+zeros(size:int)->[num]:[0.0:size]
+ints(size:int)->[int]:[0:size]
+bits(size:int)->[bit]:[false:size]
+
+flatten_from(scene:Scene,owner:int=0)->Packet:
+    heads:scene.heads
+    nexts:scene.nexts
+    children:scene.children
+    payload:scene.payload
+    payloadIds:scene.payload_ids
+    xs:scene.xs
+    ys:scene.ys
+    flow:scene.flow
+    flow_x:scene.flow_x
+    flow_width:scene.flow_width
+    capacity:64
+    stack:ints(capacity)
+    sx:zeros(capacity)
+    sy:zeros(capacity)
+    has_flow:bits(capacity)
+    fx:zeros(capacity)
+    fw:zeros(capacity)
+    top:0
+    (owner>=0 /\ owner<scene.box_count)?! "Invalid retained math root owner"
+    stack.(0):pages.integer(heads,owner)
+    # A requested child can contain one leaf in a large scene. Grow from one
+    # page instead of allocating the entire scene's capacity for every noad.
+    output_rows:1
+    outputIds:pages.integers(output_rows)
+    outputX:pages.numbers(output_rows)
+    outputY:pages.numbers(output_rows)
+    outputFlow:pages.booleans(output_rows)
+    outputFlowX:pages.numbers(output_rows)
+    outputFlowWidth:pages.numbers(output_rows)
+    count:0
+    top>=0?>
+        command:stack.(top)
+        command<0?
+            .top:top-1
+            @>
+        (command<scene.count)?! "Invalid retained math command"
+        stack.(top):pages.integer(nexts,command)
+        x:sx.(top)+pages.number(xs,command)
+        y:sy.(top)+pages.number(ys,command)
+        child:pages.integer(children,command)
+        child>=0?
+            (child<scene.box_count /\ top+1<=scene.box_count)?! "Invalid or cyclic retained math box"
+            top+1>=capacity?
+                .stack:stack&ints(capacity)
+                .sx:sx&zeros(capacity)
+                .sy:sy&zeros(capacity)
+                .has_flow:has_flow&bits(capacity)
+                .fx:fx&zeros(capacity)
+                .fw:fw&zeros(capacity)
+                .capacity:capacity*2
+            stack.(top+1):pages.integer(heads,child)
+            sx.(top+1):x
+            sy.(top+1):y
+            has_flow.(top+1):has_flow.(top) \/ pages.boolean(flow,command)
+            fx.(top+1):pages.number(flow_x,command)
+            fw.(top+1):pages.number(flow_width,command)
+            has_flow.(top)?
+                fx.(top+1):fx.(top)
+                fw.(top+1):fw.(top)
+            .top:top+1
+            @>
+        id:pages.integer(payloadIds,command)
+        (id>=0 /\ id<scene.payload_count)?! "Invalid retained metadata ID"
+        count>=outputIds.length()*pages.width()?
+            .outputIds:pages.grow_integers(outputIds)
+            .outputX:pages.grow_numbers(outputX)
+            .outputY:pages.grow_numbers(outputY)
+            .outputFlow:pages.grow_booleans(outputFlow)
+            .outputFlowX:pages.grow_numbers(outputFlowX)
+            .outputFlowWidth:pages.grow_numbers(outputFlowWidth)
+        outputIds.(count//pages.width(),count%pages.width()):id
+        outputX.(count//pages.width(),count%pages.width()):x
+        outputY.(count//pages.width(),count%pages.width()):y
+        outputFlow.(count//pages.width(),count%pages.width()):has_flow.(top)
+        outputFlowX.(count//pages.width(),count%pages.width()):fx.(top)
+        outputFlowWidth.(count//pages.width(),count%pages.width()):fw.(top)
+        .count:count+1
+    packedIds:ints(0)
+    count>0? .packedIds:[..count-1 >> pages.integer(outputIds,int($))]
+    packed_xs:zeros(0)
+    count>0? .packed_xs:[..count-1 >> pages.number(outputX,int($))]
+    packed_ys:zeros(0)
+    count>0? .packed_ys:[..count-1 >> pages.number(outputY,int($))]
+    packed_flow:bits(0)
+    count>0? .packed_flow:[..count-1 >> pages.boolean(outputFlow,int($))]
+    packed_fx:zeros(0)
+    count>0? .packed_fx:[..count-1 >> pages.number(outputFlowX,int($))]
+    packed_fw:zeros(0)
+    count>0? .packed_fw:[..count-1 >> pages.number(outputFlowWidth,int($))]
+    @:(payload:payload,ids:packedIds,payload_count:scene.payload_count,xs:packed_xs,ys:packed_ys,flow:packed_flow,flow_x:packed_fx,flow_width:packed_fw,count:count)
+
+flatten(scene:Scene)->Packet:flatten_from(scene,0)
+
+json_items(packet:Packet)->str:
+    payload:packet.payload
+    ids:packet.ids
+    xs:packet.xs
+    ys:packet.ys
+    flow:packet.flow
+    flow_x:packet.flow_x
+    flow_width:packet.flow_width
+    parts:chunks.empty(packet.count)
+    count:0
+    count<packet.count?>
+        prefix:""
+        count>0? .prefix:","
+        value:prefix&"{"&payload.(ids.(count))&",\"x\":"&numbers.roundtrip(xs.(count))&",\"y\":"&numbers.roundtrip(ys.(count))
+        flow.(count)? .value:value&",\"flowX\":"&numbers.roundtrip(flow_x.(count))&",\"flowWidth\":"&numbers.roundtrip(flow_width.(count))
+        parts.(count):value&"}"
+        .count:count+1
+    @:"["&chunks.join(parts,0,count)&"]"
+
+items(scene:Scene)->str:json_items(flatten(scene))

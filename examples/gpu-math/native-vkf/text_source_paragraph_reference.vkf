@@ -1,0 +1,90 @@
+# Independent pre-request-tables paragraph for qualification only.
+# Connected TeX source -> inline operations -> native math -> optimal paragraph.
+# Other native providers can be supplied explicitly; unresolved actions remain
+# visible in the returned pending list and never disappear from completeness.
+inline_parser:.text_parser
+math_boxes:.text_math_boxes_reference
+paragraph:.text_paragraph
+boxes:.text_inline_boxes
+source_output:.text_source_paragraph_output
+inline_index:.text_inline_arguments
+inline_ops:.text_parser_stream
+resource_json:.resource_json
+text_native_primitives:.text_native_primitives_reference
+text_retained_boxes:.text_retained_boxes
+text_link_context:.text_link_context
+text_link_render:.text_link_render
+document_uri:.document_uri
+text_source_rewrites:.text_source_rewrites
+text_url_boxes:.text_url_boxes
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+TextContext:(font:str,roles:[str],optical:bit,hyperref:bit,literal:bit,literal_input:bit,legacy_symbols:bit,bib_url:bit)
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+Options:(width:num,first_indent:num,forced_indent:num,justify:bit,hyphens:bit,tolerance:int,emergency:num,preserve_trailing:bit)
+TextOptions:(sentence_spacing:bit,french_spacing:bit,space_scale:num)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+
+Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
+
+with_providers(source:str,fonts:Catalog,text_context:TextContext,math_context:MathContext,language:Language,overrides:[str],options:Options,text_options:TextOptions,provided:Provider,document_boxes_json:str="{}",document_links_json:str="{}")->Packet:
+    parsed:inline_parser.parse(source,fonts,text_context)
+    parsed.stream:text_source_rewrites.lowercase(parsed.stream)
+    links:text_link_context.build(parsed.stream,document_links_json,text_context.hyperref)
+    combined_provided:math_boxes.append_provider(provided,links.provider)
+    math_provided:math_boxes.provide(parsed.stream,fonts,math_context,document_boxes_json:document_boxes_json)
+    complete_boxes:math_boxes.append_provider(combined_provided,math_provided)
+    native_provided:text_native_primitives.provide(parsed.stream,fonts,math_context,text_context.legacy_symbols)
+    .complete_boxes:math_boxes.append_provider(complete_boxes,native_provided)
+    url_provided:text_url_boxes.provide(parsed.stream,fonts,options.width,text_context.bib_url)
+    .complete_boxes:math_boxes.append_provider(complete_boxes,url_provided)
+    retained_provided:text_retained_boxes.provide(parsed.stream,document_boxes_json)
+    .complete_boxes:math_boxes.append_provider(complete_boxes,retained_provided)
+    directory:inline_index.build(parsed.stream)
+    first:directory.first
+    second:directory.second
+    third:directory.third
+    link_styles:links.styles
+    hidden:directory.hidden
+    operation:0
+    operation<parsed.stream.count?>
+        current:operation
+        .operation:operation+1
+        hidden.(current)? @>
+        inline_ops.value(parsed.stream,current,"kind")~="command"? @>
+        command:inline_ops.value(parsed.stream,current,"value")
+        command~="mbox" /\ command~="documentlink"? @>
+        argument:first.(current)
+        command="documentlink"? .argument:second.(current)
+        argument<0?
+            .complete_boxes:boxes.append(complete_boxes,current,5)
+            @>
+        argument_tape:resource_json.parse(inline_ops.raw(parsed.stream,argument))
+        argument_aux:resource_json.member(argument_tape,0,"aux")
+        command="mbox" /\ ~inline_index.flag(argument_tape,argument_aux,"found")?
+            .complete_boxes:boxes.append(complete_boxes,current,5)
+            @>
+        child_source:inline_ops.value(parsed.stream,argument,"value")
+        child_context:(font:inline_ops.value(parsed.stream,current,"role"),roles:text_context.roles,optical:text_context.optical,hyperref:text_context.hyperref,literal:false,literal_input:false,legacy_symbols:text_context.legacy_symbols,bib_url:false)
+        child_options:(width:1000000.0,first_indent:0.0,forced_indent:0.0,justify:false,hyphens:false,tolerance:200,emergency:0.0,preserve_trailing:false)
+        child_text_options:(sentence_spacing:true,french_spacing:false,space_scale:1.0)
+        child:with_providers(child_source,fonts,child_context,math_context,language,overrides,child_options,child_text_options,boxes.empty(),document_boxes_json,document_links_json)
+        child.pending_count>0? @>
+        retained:source_output.scene(child)
+        command="documentlink"?
+            kind:text_link_context.argument(parsed.stream,first.(current))
+            destination:text_link_context.argument(parsed.stream,third.(current))
+            target:"null"
+            destination~=""?
+                decoded:document_uri.decode_destination(destination)
+                ~decoded.valid?
+                    .complete_boxes:boxes.append(complete_boxes,current,5,diagnostics:resource_json.quote(decoded.diagnostic))
+                    @>
+                .target:"{\"type\":\"destination\",\"value\":"&resource_json.quote(decoded.value)&"}"
+            appearance:text_link_context.appearance(link_styles.(current),kind,target)
+            .retained:text_link_render.inline_box(retained,child.width,appearance)
+        .complete_boxes:boxes.append(complete_boxes,current,0,child.width,child.height,child.depth,scene:retained,diagnostics:child.diagnostics)
+    @:paragraph.position_with_link_events(parsed.source,parsed.stream,fonts,language,overrides,options,text_options,complete_boxes,links.operation_scopes,links.scopes_json,links.anchor_operations,links.anchor_ids,links.close_operations,links.close_scope_first,links.close_scope_last)
+
+typeset(source:str,fonts:Catalog,text_context:TextContext,math_context:MathContext,language:Language,overrides:[str],options:Options,text_options:TextOptions,document_boxes_json:str="{}",document_links_json:str="{}"):
+    @:with_providers(source,fonts,text_context,math_context,language,overrides,options,text_options,boxes.empty(),document_boxes_json,document_links_json)

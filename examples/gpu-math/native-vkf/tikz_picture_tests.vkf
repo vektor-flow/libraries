@@ -1,0 +1,27 @@
+tikz_geometry:.tikz_picture
+tikz_geometry_numbers:.tikz_numbers
+tikz_geometry_options:.tikz_options
+tikz_geometry_text:.tex_text
+renderer_tests()->bit:
+    styles:tikz_geometry_options.empty()
+    dims:tikz_geometry_numbers.empty()
+    line:tikz_geometry.compile("\\draw (0,0)--(1,0);",styles,dims,10,10,tikz_geometry.nodes())
+    (line.diagnostic="" /\ |line.width-(72.0/2.54+0.4*72.0/72.27)|<0.00002 /\ line.height>0 /\ line.depth=0)?! "Straight geometry bounds include half line width"
+    native:tikz_geometry.compile("[x=1cm,y=-.5cm,baseline=0]\\node[draw,circle,minimum size=1.5mm,inner sep=0] (a) at (0,0) {};\\node[draw,circle,minimum size=1.5mm,inner sep=0] (b) at (1,0) {};\\draw (a) to[out=0,in=180] (b);",styles,dims,10,10,tikz_geometry.nodes())
+    (native.diagnostic="" /\ native.nodes.count=2 /\ native.height>0 /\ native.depth>0 /\ tikz_geometry_text.find(native.items,"bezier")>=0)?! "Named nodes retain anchors and native curve controls"
+    missing:tikz_geometry.compile("\\node {word};",styles,dims,10,10,tikz_geometry.nodes())
+    (missing.diagnostic="TikZ text requires a label typesetter" /\ missing.missing_label="word")?! "No fabricated empty label geometry"
+    label:tikz_geometry.compile("\\node {word};",styles,dims,10,10,tikz_geometry.nodes(),"{\"word\":{\"width\":3,\"height\":2,\"depth\":1,\"items\":[{\"kind\":\"glyph\",\"key\":\"roman/87\",\"x\":0,\"y\":0,\"width\":3,\"height\":2}]}}")
+    (label.diagnostic="" /\ label.width>3 /\ tikz_geometry_text.find(label.items,"roman/87")>=0)?! "Text provider leaf identity preserved"
+    registry:tikz_geometry.compile("\\node (saved) at (2,3) {};",styles,dims,10,10,tikz_geometry.nodes())
+    continuation:tikz_geometry.compile("\\draw (saved)--(3,4);",styles,dims,10,10,registry.nodes)
+    (continuation.diagnostic="" /\ continuation.width>0)?! "Named registry explicitly persists between pictures"
+    ascii:tikz_geometry.compile("\\node@ {};",styles,dims,10,10,tikz_geometry.nodes())
+    (ascii.diagnostic="Expected TikZ node text")?! "TikZ ASCII control words stop at at-sign independent of TeX catcodes"
+    threshold:tikz_geometry.empty(tikz_geometry.nodes())
+    threshold.primitive_count:19999
+    last:tikz_geometry.tick(threshold)
+    excess:tikz_geometry.tick(last)
+    (last.diagnostic="" /\ last.primitive_count=20000 /\ excess.diagnostic="TikZ primitive limit")?! "Invisible bounds count toward the exact primitive cap"
+    @:true
+renderer_tests()

@@ -1,0 +1,149 @@
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Store:(arena:Arena,firsts:[int],counts:[int],anchor_firsts:[int],anchor_counts:[int],anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_scenes:[int],anchor_count:int,widths:[num],heights:[num],depths:[num],tag_widths:[num],inline_destinations:[bit],count:int)
+# Request-owned source TikZ provider. All node labels run through the same real
+# TeX paragraph pipeline used by ordinary document text.
+text_tikz_prepare:.tikz_prepare
+text_tikz_labels:.tikz_labels
+text_tikz_picture:.tikz_picture
+text_tikz_picture_output:.tikz_picture_output
+text_tikz_paragraph:.text_source_paragraph
+text_tikz_paragraph_output:.text_source_paragraph_output
+text_tikz_inline_boxes:.text_inline_boxes
+text_tikz_inline_index:.text_inline_arguments
+text_tikz_operations:.text_parser_stream
+text_tikz_json:.resource_json
+text_tikz_text:.tex_text
+text_tikz_chunks:.text_chunks
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+TextContext:(font:str,roles:[str],optical:bit,hyperref:bit,literal:bit,literal_input:bit,legacy_symbols:bit,bib_url:bit)
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+Scenes:(source:str,original_source:str,contents:[str],starts:[int],stops:[int],boxes:[str],widths:[num],heights:[num],depths:[num],count:int,complete:bit,diagnostics:str)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:Store,scene_ids:[int],scene_metadata:Metadata,scene_roots:[int],diagnostics:[str],count:int)
+Lookup:(index:int,valid:bit,diagnostic:str)
+nums(size:int)->[num]:[0.0:size]
+message(previous:str,next:str)->str:
+    next=""? @:previous
+    previous=""? @:next
+    @:previous&","&next
+
+prepare(source:str,fonts:Catalog,text_context:TextContext,math_context:MathContext,language:Language,overrides:[str],font_size:num,font_quad:num,document_links_json:str="{}")->Scenes:
+    requests:text_tikz_prepare.prepare(source,font_size,font_quad)
+    scenes:text_tikz_chunks.empty(requests.count)
+    widths:nums(requests.count)
+    heights:nums(requests.count)
+    depths:nums(requests.count)
+    complete:requests.diagnostic=""
+    diagnostics:""
+    requests.diagnostic~=""? .diagnostics:text_tikz_json.quote(requests.diagnostic)
+    registry:text_tikz_picture.nodes()
+    contents:requests.contents
+    styles:requests.style_snapshots
+    dimensions:requests.dimension_snapshots
+    label_context:(font:"roman",roles:text_context.roles,optical:text_context.optical,hyperref:text_context.hyperref,literal:false,literal_input:false,legacy_symbols:text_context.legacy_symbols,bib_url:false)
+    label_options:(width:1000000.0,first_indent:0.0,forced_indent:0.0,justify:false,hyphens:false,tolerance:200,emergency:0.0,preserve_trailing:false)
+    label_text_options:(sentence_spacing:true,french_spacing:false,space_scale:1.0)
+    picture:0
+    picture<requests.count /\ requests.diagnostic=""?>
+        labels:text_tikz_labels.collect(contents.(picture))
+        labels.diagnostic~=""?
+            .complete:false
+            .diagnostics:message(diagnostics,text_tikz_json.quote("TikZ picture "&text_tikz_text.integer(picture+1)&": "&labels.diagnostic))
+            .picture:picture+1
+            @>
+        label_sources:labels.sources
+        label_parts:text_tikz_chunks.empty(labels.count)
+        label_complete:true
+        index:0
+        index<labels.count?>
+            label:text_tikz_paragraph.typeset(label_sources.(index),fonts,label_context,math_context,language,overrides,label_options,label_text_options,"{}",document_links_json)
+            ~label.complete? .label_complete:false
+            .diagnostics:message(diagnostics,label.diagnostics)
+            prefix:""
+            index>0? .prefix:","
+            label_parts.(index):prefix&text_tikz_json.quote(label_sources.(index))&":"&text_tikz_paragraph_output.json(label)
+            .index:index+1
+        ~label_complete?
+            .complete:false
+            .diagnostics:message(diagnostics,text_tikz_json.quote("TikZ picture "&text_tikz_text.integer(picture+1)&": unresolved label source"))
+            .picture:picture+1
+            @>
+        label_json:"{"&text_tikz_chunks.join(label_parts,0,labels.count)&"}"
+        geometry:text_tikz_picture.compile(contents.(picture),text_tikz_picture.decode_styles(styles.(picture)),text_tikz_picture.decode_dimensions(dimensions.(picture)),font_size,font_quad,registry,label_json)
+        geometry.diagnostic~=""?
+            .complete:false
+            .diagnostics:message(diagnostics,text_tikz_json.quote("TikZ picture "&text_tikz_text.integer(picture+1)&": "&geometry.diagnostic))
+            .picture:picture+1
+            @>
+        .registry:geometry.nodes
+        scenes.(picture):text_tikz_picture_output.json(geometry)
+        widths.(picture):geometry.width
+        heights.(picture):geometry.height
+        depths.(picture):geometry.depth
+        .picture:picture+1
+    @:(source:requests.source,original_source:source,contents:requests.contents,starts:requests.starts,stops:requests.stops,boxes:scenes,widths:widths,heights:heights,depths:depths,count:requests.count,complete:complete,diagnostics:diagnostics)
+
+lookup(raw:str,scenes:Scenes)->Lookup:
+    size:text_tikz_text.byte_length(raw)
+    size=0? @:(index: -1,valid:false,diagnostic:"Invalid TikZ picture reference")
+    value:0
+    at:0
+    at<size?>
+        c:text_tikz_text.at(raw,at)
+        (c<"0" \/ c>"9")? @:(index: -1,valid:false,diagnostic:"Invalid TikZ picture reference")
+        value>scenes.count? @:(index: -1,valid:false,diagnostic:"Invalid TikZ picture reference")
+        digit:0
+        c >>
+            .digit:int($)-48
+            $
+        .value:value*10+digit
+        .at:at+1
+    (value<0 \/ value>=scenes.count)? @:(index: -1,valid:false,diagnostic:"Invalid TikZ picture reference")
+    boxes:scenes.boxes
+    boxes.(value)=""? @:(index:value,valid:false,diagnostic:"Unresolved TikZ picture reference")
+    @:(index:value,valid:true,diagnostic:"")
+
+directory(scenes:Scenes)->str:
+    boxes:scenes.boxes
+    parts:text_tikz_chunks.empty(scenes.count)
+    count:0
+    index:0
+    index<scenes.count?>
+        boxes.(index)~=""?
+            prefix:""
+            count>0? .prefix:","
+            parts.(count):prefix&text_tikz_json.quote(text_tikz_text.integer(index))&":"&boxes.(index)
+            .count:count+1
+        .index:index+1
+    @:"{"&text_tikz_chunks.join(parts,0,count)&"}"
+
+provide(stream:Stream,scenes:Scenes)->Provider:
+    output:text_tikz_inline_boxes.empty()
+    directory:text_tikz_inline_index.build(stream)
+    first:directory.first
+    hidden:directory.hidden
+    boxes:scenes.boxes
+    widths:scenes.widths
+    heights:scenes.heights
+    depths:scenes.depths
+    operation:0
+    operation<stream.count?>
+        current:operation
+        .operation:operation+1
+        hidden.(current)? @>
+        text_tikz_operations.value(stream,current,"kind")~="command"? @>
+        text_tikz_operations.value(stream,current,"value")~="vkftikzbox"? @>
+        argument:first.(current)
+        argument<0? @>
+        resolved:lookup(text_tikz_operations.value(stream,argument,"value"),scenes)
+        ~resolved.valid? @>
+        index:resolved.index
+        .output:text_tikz_inline_boxes.append(output,current,0,widths.(index),heights.(index),depths.(index),scene:boxes.(index))
+    @:output

@@ -1,0 +1,21 @@
+# Page boundaries, Unicode, replacement and ownership for typed operations.
+ops:.text_parser_stream
+renderer_tests()->bit:
+    original:ops.empty()
+    stream:original
+    i:0
+    i<137?>
+        a:ops.attributes(action:"style",new_role:"italic",found:true,closed:true,present:1)
+        .stream:ops.append(stream,"word","roman","å😀 \"\\",a,i,i+1, -1).stream
+        .i:i+1
+    (original.count=0 /\ stream.count=137)?! "Stream append preserves prior value"
+    .i:0
+    i<137?>
+        (ops.value(stream,i,"kind")="word" /\ ops.value(stream,i,"role")="roman" /\ ops.value(stream,i,"value")="å😀 \"\\")?! "Typed columns cross page boundaries"
+        (ops.attribute(stream,i,"newRole")="italic" /\ ops.flag(stream,i,"found") /\ ops.flag(stream,i,"closed"))?! "Typed attributes cross page boundaries"
+        .i:i+1
+    changed:ops.replace(stream,8,"math","bold","x^2",ops.attributes())
+    (ops.value(stream,8,"value")="å😀 \"\\" /\ ops.value(changed,8,"value")="x^2")?! "Typed replacement preserves earlier value"
+    (~ops.flag(changed,8,"found") /\ ops.attribute(changed,8,"action")="")?! "Replacement clears prior attributes"
+    @:true
+renderer_tests()

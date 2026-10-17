@@ -1,0 +1,125 @@
+text_source_paragraph:.text_source_paragraph
+text_source_paragraph_reference:.text_source_paragraph_reference
+text_source_paragraph_output:.text_source_paragraph_output
+text_inline_boxes:.text_inline_boxes
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Tables:(values:[num],ems:[num],delim1:[num],delim2:[num],mus:[num])
+TextContext:(font:str,roles:[str],optical:bit,hyperref:bit,literal:bit,literal_input:bit,legacy_symbols:bit,bib_url:bit)
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+Options:(width:num,first_indent:num,forced_indent:num,justify:bit,hyphens:bit,tolerance:int,emergency:num,preserve_trailing:bit)
+TextOptions:(sentence_spacing:bit,french_spacing:bit,space_scale:num)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
+same(a:Packet,b:Packet)->bit:
+    (a.keys.length()=b.keys.length())?! "Packet keys length"
+    i_keys:0
+    i_keys<a.keys.length()?>
+        (a.keys.(i_keys)=b.keys.(i_keys))?! "Packet keys exact"
+        .i_keys:i_keys+1
+    (a.xs.length()=b.xs.length())?! "Packet xs length"
+    i_xs:0
+    i_xs<a.xs.length()?>
+        (a.xs.(i_xs)=b.xs.(i_xs))?! "Packet xs exact"
+        .i_xs:i_xs+1
+    (a.ys.length()=b.ys.length())?! "Packet ys length"
+    i_ys:0
+    i_ys<a.ys.length()?>
+        (a.ys.(i_ys)=b.ys.(i_ys))?! "Packet ys exact"
+        .i_ys:i_ys+1
+    (a.flow_lines.length()=b.flow_lines.length())?! "Packet flow_lines length"
+    i_flow_lines:0
+    i_flow_lines<a.flow_lines.length()?>
+        (a.flow_lines.(i_flow_lines)=b.flow_lines.(i_flow_lines))?! "Packet flow_lines exact"
+        .i_flow_lines:i_flow_lines+1
+    (a.glyph_operations.length()=b.glyph_operations.length())?! "Packet glyph_operations length"
+    i_glyph_operations:0
+    i_glyph_operations<a.glyph_operations.length()?>
+        (a.glyph_operations.(i_glyph_operations)=b.glyph_operations.(i_glyph_operations))?! "Packet glyph_operations exact"
+        .i_glyph_operations:i_glyph_operations+1
+    (a.scenes.length()=b.scenes.length())?! "Packet scenes length"
+    i_scenes:0
+    i_scenes<a.scenes.length()?>
+        (a.scenes.(i_scenes)=b.scenes.(i_scenes))?! "Packet scenes exact"
+        .i_scenes:i_scenes+1
+    (a.scene_xs.length()=b.scene_xs.length())?! "Packet scene_xs length"
+    i_scene_xs:0
+    i_scene_xs<a.scene_xs.length()?>
+        (a.scene_xs.(i_scene_xs)=b.scene_xs.(i_scene_xs))?! "Packet scene_xs exact"
+        .i_scene_xs:i_scene_xs+1
+    (a.scene_ys.length()=b.scene_ys.length())?! "Packet scene_ys length"
+    i_scene_ys:0
+    i_scene_ys<a.scene_ys.length()?>
+        (a.scene_ys.(i_scene_ys)=b.scene_ys.(i_scene_ys))?! "Packet scene_ys exact"
+        .i_scene_ys:i_scene_ys+1
+    (a.scene_lines.length()=b.scene_lines.length())?! "Packet scene_lines length"
+    i_scene_lines:0
+    i_scene_lines<a.scene_lines.length()?>
+        (a.scene_lines.(i_scene_lines)=b.scene_lines.(i_scene_lines))?! "Packet scene_lines exact"
+        .i_scene_lines:i_scene_lines+1
+    (a.scene_operations.length()=b.scene_operations.length())?! "Packet scene_operations length"
+    i_scene_operations:0
+    i_scene_operations<a.scene_operations.length()?>
+        (a.scene_operations.(i_scene_operations)=b.scene_operations.(i_scene_operations))?! "Packet scene_operations exact"
+        .i_scene_operations:i_scene_operations+1
+    (a.scene_count=b.scene_count)?! "Packet scene_count exact"
+    (a.pending.length()=b.pending.length())?! "Packet pending length"
+    i_pending:0
+    i_pending<a.pending.length()?>
+        (a.pending.(i_pending)=b.pending.(i_pending))?! "Packet pending exact"
+        .i_pending:i_pending+1
+    (a.pending_count=b.pending_count)?! "Packet pending_count exact"
+    (a.complete=b.complete)?! "Packet complete exact"
+    (a.lowering_complete=b.lowering_complete)?! "Packet lowering_complete exact"
+    (a.glyph_count=b.glyph_count)?! "Packet glyph_count exact"
+    (a.line_heights.length()=b.line_heights.length())?! "Packet line_heights length"
+    i_line_heights:0
+    i_line_heights<a.line_heights.length()?>
+        (a.line_heights.(i_line_heights)=b.line_heights.(i_line_heights))?! "Packet line_heights exact"
+        .i_line_heights:i_line_heights+1
+    (a.line_depths.length()=b.line_depths.length())?! "Packet line_depths length"
+    i_line_depths:0
+    i_line_depths<a.line_depths.length()?>
+        (a.line_depths.(i_line_depths)=b.line_depths.(i_line_depths))?! "Packet line_depths exact"
+        .i_line_depths:i_line_depths+1
+    (a.line_widths.length()=b.line_widths.length())?! "Packet line_widths length"
+    i_line_widths:0
+    i_line_widths<a.line_widths.length()?>
+        (a.line_widths.(i_line_widths)=b.line_widths.(i_line_widths))?! "Packet line_widths exact"
+        .i_line_widths:i_line_widths+1
+    (a.line_baselines.length()=b.line_baselines.length())?! "Packet line_baselines length"
+    i_line_baselines:0
+    i_line_baselines<a.line_baselines.length()?>
+        (a.line_baselines.(i_line_baselines)=b.line_baselines.(i_line_baselines))?! "Packet line_baselines exact"
+        .i_line_baselines:i_line_baselines+1
+    (a.line_ratios.length()=b.line_ratios.length())?! "Packet line_ratios length"
+    i_line_ratios:0
+    i_line_ratios<a.line_ratios.length()?>
+        (a.line_ratios.(i_line_ratios)=b.line_ratios.(i_line_ratios))?! "Packet line_ratios exact"
+        .i_line_ratios:i_line_ratios+1
+    (a.line_indents.length()=b.line_indents.length())?! "Packet line_indents length"
+    i_line_indents:0
+    i_line_indents<a.line_indents.length()?>
+        (a.line_indents.(i_line_indents)=b.line_indents.(i_line_indents))?! "Packet line_indents exact"
+        .i_line_indents:i_line_indents+1
+    (a.line_flagged.length()=b.line_flagged.length())?! "Packet line_flagged length"
+    i_line_flagged:0
+    i_line_flagged<a.line_flagged.length()?>
+        (a.line_flagged.(i_line_flagged)=b.line_flagged.(i_line_flagged))?! "Packet line_flagged exact"
+        .i_line_flagged:i_line_flagged+1
+    (a.line_count=b.line_count)?! "Packet line_count exact"
+    (a.width=b.width)?! "Packet width exact"
+    (a.height=b.height)?! "Packet height exact"
+    (a.depth=b.depth)?! "Packet depth exact"
+    (a.measurement_work=b.measurement_work)?! "Packet measurement_work exact"
+    (a.diagnostics=b.diagnostics)?! "Packet diagnostics exact"
+    (a.solved=b.solved)?! "Packet solved exact"
+    (a.pass=b.pass)?! "Packet pass exact"
+    @:true
+check(source:str,fonts:Catalog,text_context:TextContext,math_context:MathContext,language:Language,overrides:[str],options:Options,text_options:TextOptions,tables:Tables,directory:str="{}",links:str="{}")->bit:
+    before:text_source_paragraph_reference.typeset(source,fonts,text_context,math_context,language,overrides,options,text_options,directory,links)
+    after:text_source_paragraph.typeset_prepared(source,fonts,text_context,math_context,language,overrides,options,text_options,tables,directory,links)
+    same(before,after)?! "document-owned prepared Tables"
+    compatibility:text_source_paragraph.typeset(source,fonts,text_context,math_context,language,overrides,options,text_options,directory,links)
+    same(before,compatibility)?! "unchanged legacy paragraph API"
+    @:true

@@ -1,0 +1,48 @@
+f:.font_resources
+j:.resource_json
+text:.tex_text
+
+fixture_metrics()->str:
+    @:"{\"maps\":{\"text\":{\"em\":10,\"symbols\":{\"a\":{\"width\":5.25,\"height\":4.3,\"depth\":0,\"advance\":5.125,\"italic\":0.125,\"glyphParts\":[{\"fontName\":\"cmmi10\",\"fontCode\":97,\"fontSize\":10,\"x\":-0.125,\"y\":0}],\"extension\":null,\"kerns\":{\"127\":0.5}}}}},\"documentFonts\":{\"roman\":{\"name\":\"cmr10\",\"symbols\":{\"65\":{\"width\":7.5,\"key\":\"text/@document:roman:65\"}}}},\"tiles\":{\"text/a\":{\"plane\":[-0.5,-4.8,5.75,0.5]}}}"
+
+fixture_index()->str:
+    @:"{\"schema\":\"vkf.pdf-vector-index/1\",\"keys\":{\"text/a\":\"outline\",\"text/alias\":\"outline\",\"text/@document:roman:65\":\"outline\"},\"paths\":{\"outline\":{\"bounds\":[0,-4.3,5.25,0],\"offset\":3,\"length\":20}}}"
+
+metric_lookup():
+    fonts:f.load(fixture_metrics(),fixture_index(),"pad0 0 m 5 0 l 2 -4 l htail")
+    symbol:f.math_symbol(fonts,"text","a")
+    (symbol>=0)?! "math symbol lookup"
+    (f.numeric(fonts.metrics,symbol,"width")=5.25)?! "advance and width remain distinct"
+    (f.numeric(fonts.metrics,symbol,"advance")=5.125)?! "exact native advance"
+    (f.numeric(fonts.metrics,symbol,"depth")=0)?! "zero depth"
+    (f.numeric(fonts.metrics,symbol,"absent",7)=7)?! "optional numeric default"
+    (f.math_symbol(fonts,"text","absent")= -1 /\ f.math_symbol(fonts,"absent","a")= -1)?! "missing symbols"
+    parts:f.required(fonts.metrics,symbol,"glyphParts")
+    part:j.element(fonts.metrics,parts,0)
+    (f.numeric(fonts.metrics,part,"x")= -0.125)?! "constituent glyph offset retained"
+    kerns:f.required(fonts.metrics,symbol,"kerns")
+    (f.numeric(fonts.metrics,kerns,"127")=0.5)?! "native pair kern retained"
+
+document_font_lookup():
+    fonts:f.load(fixture_metrics(),fixture_index(),"pad0 0 m 5 0 l 2 -4 l htail")
+    font:f.text_font(fonts,"roman")
+    glyph:f.text_symbol(fonts,font,65)
+    (f.numeric(fonts.metrics,glyph,"width")=7.5)?! "document face and encoding"
+    (f.text_font(fonts,"unknown")= -1 /\ f.text_symbol(fonts,font,66)= -1)?! "missing face and code"
+
+indexed_vectors():
+    fonts:f.load(fixture_metrics(),fixture_index(),"pad0 0 m 5 0 l 2 -4 l htail")
+    node:f.vector_node(fonts,"text/a")
+    (node=f.vector_node(fonts,"text/alias"))?! "shared font path identifier"
+    (f.vector_node(fonts,"missing")= -1)?! "missing vector key"
+    (f.vector_operators(fonts,node)="0 0 m 5 0 l 2 -4 l h")?! "bounded operator slice"
+    form:f.vector_form(fonts,"text/a")
+    (text.find(form,"/BBox [0 -4.3 5.25 0]")>=0)?! "native outline bounds"
+    (text.find(form,"0 0 m 5 0 l 2 -4 l h\nf\nendstream")>=0)?! "native reusable vector form"
+
+renderer_tests()->bit:
+    metric_lookup()
+    document_font_lookup()
+    indexed_vectors()
+    @:true
+renderer_tests()

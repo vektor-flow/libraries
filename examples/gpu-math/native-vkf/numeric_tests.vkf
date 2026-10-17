@@ -1,0 +1,49 @@
+n:.tex_numeric
+
+badness_cases():
+    (n.badness(0,0)=0)?! "badness_cases:4"
+    (n.badness(n.pt(),n.pt())=100)?! "badness_cases:5"
+    (n.badness(-n.pt(),n.pt())=100)?! "badness_cases:6"
+    (n.badness(2*n.pt(),n.pt())=800)?! "badness_cases:7"
+    (n.badness(3*n.pt(),n.pt())=2698)?! "badness_cases:8"
+    (n.badness(5*n.pt(),n.pt())=10000)?! "badness_cases:9"
+    (n.badness(n.pt(),0)=10000)?! "badness_cases:10"
+    (n.badness(200*n.pt(),100*n.pt())=800)?! "badness_cases:11"
+
+fitness_cases():
+    (n.fitness(-0.5,12)=1)?! "fitness_cases:14"
+    (n.fitness(-0.5,13)=0)?! "fitness_cases:15"
+    (n.fitness(0.5,99)=2)?! "fitness_cases:16"
+    (n.fitness(1,100)=3)?! "fitness_cases:17"
+
+spacing_cases():
+    (n.math_space(0,2,1)=4)?! "spacing_cases:20"
+    (n.math_space(0,3,0)=5)?! "spacing_cases:21"
+    (n.math_space(4,0,1)=0)?! "spacing_cases:22"
+    (n.math_space(0,2,2)=0)?! "spacing_cases:23"
+    (n.math_space(0,1,2)=3)?! "spacing_cases:24"
+    (n.math_space(1,0,3)=3)?! "spacing_cases:25"
+
+spacing_factors():
+    (n.space_factor("A")=999)?! "spacing_factors:28"
+    (n.space_factor(".")=3000)?! "spacing_factors:29"
+    (n.space_factor(":")=2000)?! "spacing_factors:30"
+    (n.space_factor(";")=1500)?! "spacing_factors:31"
+    (n.space_factor(",")=1250)?! "spacing_factors:32"
+    (n.space_factor(")")=0)?! "spacing_factors:33"
+    (n.space_factor("é")=1000)?! "spacing_factors:34"
+
+demerit_cases():
+    (n.line_demerits(0,0,0,1,1,false,false,false)=100)?! "demerit_cases:37"
+    (n.line_demerits(100,10,50,1,2,false,false,false)=3000)?! "demerit_cases:38"
+    (n.line_demerits(100,10,-50,1,2,true,true,true)=13000)?! "demerit_cases:39"
+    (n.line_demerits(0,0,-10000,0,3,false,false,true)=10100)?! "demerit_cases:40"
+
+renderer_tests()->bit:
+    badness_cases()
+    fitness_cases()
+    spacing_cases()
+    spacing_factors()
+    demerit_cases()
+    @:true
+renderer_tests()

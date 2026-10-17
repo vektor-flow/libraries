@@ -1,0 +1,8 @@
+io:.io
+unicode_case_kernel:.unicode_case_kernel
+run()->int:
+    source:io.read_text(io.read_line())
+    path:io.read_line()
+    io.write_text(path,unicode_case_kernel.unicode_batch(source))
+    @:0
+run()

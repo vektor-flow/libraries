@@ -1,0 +1,40 @@
+# Small generic directory producer for VKF assertions only. Production bundles
+# are prepared offline from installed fonts, never from these synthetic records.
+f:.font_catalog
+text:.tex_text
+chunks:.text_chunks
+
+fixed(value:int)->str:
+    digits:text.integer(value)
+    padding:""
+    size:text.byte_length(digits)
+    size<12?>
+        .padding:padding&"0"
+        .size:size+1
+    @:padding&digits
+
+pack(keys:[str],values:[str])->str:
+    count:keys.length()
+    capacity:8
+    capacity<count*2?> .capacity:capacity*2
+    table:chunks.empty(capacity)
+    payload:""
+    index:0
+    index<count?>
+        key:keys.(index)
+        value:values.(index)
+        slot:f.hash(key)%capacity
+        table.(slot)~=""?> .slot:(slot+1)%capacity
+        table.(slot):fixed(68+capacity*36+text.byte_length(payload))&fixed(text.byte_length(key))&fixed(text.byte_length(value))
+        .payload:payload&key&value
+        .index:index+1
+    .index:0
+    index<capacity?>
+        table.(index)=""? table.(index):"000000000000000000000000000000000000"
+        .index:index+1
+    @:f.magic()&fixed(capacity)&fixed(count)&fixed(text.byte_length(payload))&chunks.join(table,0,capacity)&payload
+
+math_catalog()->str:
+    keys:["math/display/a","math/display/b","math/display/c","math/display/x","math/display/y","math/display/1","math/display/2","math/display/+","math/display/=","math/display/(","math/display/)","math/display/[","math/display/]","math/display/\\alpha","math/display/\\sum","math/display/\\prime"]
+    values:["{}","{}","{}","{}","{}","{}","{}","{\"class\":\"bin\"}","{\"class\":\"rel\"}","{}","{}","{}","{}","{}","{}","{}"]
+    @:pack(keys,values)

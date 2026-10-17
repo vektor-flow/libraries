@@ -1,0 +1,6 @@
+# Scalar payload lookup; ownership is limited to the returned operation string.
+math_command_pages_read:.math_command_pages_read
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+ops:.text_parser_stream
+raw(input:Stream,index:int)->str:ops.raw(input,index)

@@ -1,0 +1,19 @@
+p:.binary_decimal
+text:.tex_text
+n:.json_numbers
+
+parse(value:str)->num:
+    result:p.decode(value,0,text.byte_length(value))
+    result.valid?! "finite decimal conversion"
+    @:result.value
+
+renderer_tests()->bit:
+    (parse("0.1")=0.1 /\ parse("-2.5")= -2.5 /\ parse("1e22")=10.0^22)?! "exact-coefficient fast path"
+    (parse("9007199254740993")=9007199254740992 /\ parse("9007199254740995")=9007199254740996)?! "integer ties round to even"
+    (parse("0.1000000000000000055511151231257827021181583404541015625")=0.1)?! "exact decimal midpoint conversion"
+    (parse("2.4703282292062327e-324")=0 /\ parse("2.4703282292062328e-324")=2.0^(-1074))?! "half minimum subnormal boundary"
+    (parse("-4.9406564584124654e-324")=num(-1)*2.0^(-1074))?! "negative subnormal"
+    (n.roundtrip(parse("1e300"))="1.0000000000000001e300")?! "large finite decimal"
+    (~p.decode("1e309",0,5).valid)?! "reject overflow"
+    @:true
+renderer_tests()

@@ -1,0 +1,66 @@
+{
+  "name": "vektor-flow",
+  "version": "0.1.0",
+  "description": "Vektor Flow is a functional, scope-based language for shaping data, describing\r geometry, and driving interactive visual programs. The important thing is not\r just the syntax. The important thing is the model:",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./axis2d-ticks": "./web/vf-ui/vf-axis2d-ticks.mjs",
+    "./axis2d-label-layout": "./web/vf-ui/vf-axis2d-label-layout.mjs",
+    "./coordinate-grid": "./web/vf-ui/vf-coordinate-grid.mjs",
+    "./color-field": "./web/vf-ui/vf-color-field.mjs",
+    "./color-scale": "./web/vf-ui/vf-color-scale.mjs",
+    "./colorbar": "./web/vf-ui/vf-colorbar-view.mjs",
+    "./interpolation": "./web/vf-ui/vf-interpolation.mjs",
+    "./interpolation-editor": "./web/vf-ui/vf-interpolation-editor.mjs",
+    "./property-program": "./web/vf-ui/vf-property-program.mjs",
+    "./physics-engine": "./web/vf-ui/vf-physics-engine.mjs",
+    "./selection-interaction": "./web/vf-ui/vf-selection-interaction.mjs",
+    "./spatial-geometry": "./web/vf-ui/vf-spatial-geometry.mjs",
+    "./screen-simplex-renderer": "./web/vf-ui/geom/vf-screen-simplex-renderer.mjs",
+    "./screen-point-cloud-renderer": "./web/vf-ui/geom/vf-screen-point-cloud-renderer.mjs",
+    "./layered-screen-scene": "./web/vf-ui/vf-layered-screen-scene.mjs",
+    "./symbolic-kernel": "./web/vf-ui/vf-symbolic-kernel-runtime.mjs",
+    "./symbolic-plot-renderer": "./web/vf-ui/geom/vf-symbolic-plot-renderer.mjs",
+    "./symbolic-plot-controller": "./web/vf-ui/vf-symbolic-plot-controller.mjs",
+    "./symbolic-document-runtime": "./web/vf-ui/vf-symbolic-document-runtime.mjs",
+    "./symbolic-surface-constraints": "./web/vf-ui/vf-symbolic-surface-constraints.mjs",
+    "./symbolic-kernel-manifest": "./web/vf-ui/artifacts/vkf-symbolic-kernel.json",
+    "./symbolic-kernel-wasm": "./web/vf-ui/artifacts/vkf-symbolic-kernel.wasm",
+    "./symbolic-text-channel": "./web/vf-ui/vf-symbolic-wasm-runtime.mjs",
+    "./prism-language": "./web/editor/prism-vektorflow.mjs",
+    "./surface-context": "./web/vf-ui/vf-surface-context.mjs",
+    "./world-exchange": "./web/vf-ui/vf-world-exchange.mjs",
+    "./world-svg": "./web/vf-ui/vf-world-svg.mjs",
+    "./world-step": "./web/vf-ui/vf-world-step.mjs",
+    "./glb-import": "./web/vf-ui/vf-glb-import.mjs",
+    "./ui-math": "./web/vf-ui/vf-vkf-ui-math.mjs",
+    "./ui-modifiers": "./web/vf-ui/vf-ui-modifiers.mjs",
+    "./ui-theme": "./web/vf-ui/vf-ui-theme.mjs",
+    "./web/vf-ui/*": "./web/vf-ui/*"
+  },
+  "files": [
+    "index.js",
+    "README.md",
+    "web/editor",
+    "web/vf-ui"
+  ],
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "node --test tests/js/*.test.cjs tests/js/*.test.mjs",
+    "build:symbolic-kernel": "node tools/build-symbolic-kernel.mjs",
+    "check:symbolic-kernel": "node tools/build-symbolic-kernel.mjs --check",
+    "test:package": "node --test tests/js/package-exports.test.mjs tests/js/package-archive.integration.mjs"
+  },
+  "dependencies": {
+    "interpolation-editor": "github:svenviktorjonsson/interpolation-editor#2657860985bdeb29e4af3f94c8d7a2f66543ff98"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

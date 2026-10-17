@@ -1,0 +1,113 @@
+document_pages:.document_pages
+tex_numeric:.tex_numeric
+
+close(a:num,b:num)->bit:|a-b|<0.000000001
+basic()->bit:
+    config:document_pages.settings(200,200,10,10,100,30,12,10)
+    blocks:document_pages.empty_blocks(1)
+    .blocks:document_pages.with_block_kinds(blocks,0,"paragraph")
+    .blocks:document_pages.with_block_counts(blocks,0,3)
+    .blocks:document_pages.with_block_widths(blocks,0,30)
+    lines:document_pages.empty_lines(3)
+    scenes:lines.scenes
+    heights:lines.heights
+    depths:lines.depths
+    natural:lines.natural_depths
+    line_widths:lines.widths
+    i:0
+    i<3?>
+        scenes.(i):i
+        heights.(i):7
+        depths.(i):2
+        natural.(i):2
+        line_widths.(i):30
+        .i:i+1
+    lines.scenes:scenes
+    lines.heights:heights
+    lines.depths:depths
+    lines.natural_depths:natural
+    lines.widths:line_widths
+    result:document_pages.layout(config,blocks,lines,document_pages.empty_notes(0),document_pages.empty_markers(0))
+    placement:result.placements
+    pages:placement.pages
+    ys:placement.ys
+    (result.complete /\ result.pages.count=2 /\ placement.count=3 /\ pages.(0)=0 /\ pages.(1)=0 /\ pages.(2)=1)?! "paragraph splits at native line boundaries"
+    (close(ys.(0),10+10*tex_numeric.pt()) /\ close(ys.(1),22+10*tex_numeric.pt()) /\ close(ys.(2),10+10*tex_numeric.pt()))?! "first-page strut and exact leading preserved"
+    original:document_pages.empty_assignments()
+    assigned:document_pages.assign(original,0,0)
+    duplicate:document_pages.assign(assigned,0,0)
+    (original.count=0 /\ assigned.count=1 /\ duplicate.count=1)?! "footnote assignments deduplicate per page and preserve snapshots"
+    point:document_pages.position(placement,0,2, -1,5,3,"link",false,0,0)
+    (close(point.x,12-tex_numeric.pt()) /\ close(point.y,ys.(0)-7-tex_numeric.pt()) /\ close(point.width,5+2*tex_numeric.pt()) /\ close(point.height,9+2*tex_numeric.pt()))?! "link rectangle uses actual line metrics"
+    @:true
+notes_test()->bit:
+    config:document_pages.settings(200,200,10,10,100,100,12,10)
+    blocks:document_pages.empty_blocks(1)
+    .blocks:document_pages.with_block_kinds(blocks,0,"paragraph")
+    .blocks:document_pages.with_block_counts(blocks,0,1)
+    .blocks:document_pages.with_block_widths(blocks,0,30)
+    metrics:document_pages.empty_lines(2)
+    heights:metrics.heights
+    depths:metrics.depths
+    natural:metrics.natural_depths
+    scenes:metrics.scenes
+    widths:metrics.widths
+    markerCounts:metrics.marker_counts
+    heights.(0):7
+    heights.(1):4
+    depths.(0):2
+    depths.(1):2
+    natural.(0):2
+    natural.(1):2
+    scenes.(0):23
+    scenes.(1):24
+    widths.(0):30
+    widths.(1):20
+    markerCounts.(0):1
+    metrics.heights:heights
+    metrics.depths:depths
+    metrics.natural_depths:natural
+    metrics.scenes:scenes
+    metrics.widths:widths
+    metrics.marker_counts:markerCounts
+    notes:document_pages.empty_notes(1)
+    firsts:notes.firsts
+    counts:notes.counts
+    firstHeights:notes.first_heights
+    noteDepths:notes.depths
+    reserves:notes.reserves
+    indents:notes.indents
+    firsts.(0):1
+    counts.(0):1
+    firstHeights.(0):4
+    noteDepths.(0):2
+    reserves.(0):20
+    indents.(0):6
+    notes.firsts:firsts
+    notes.counts:counts
+    notes.first_heights:firstHeights
+    notes.depths:noteDepths
+    notes.reserves:reserves
+    notes.indents:indents
+    markers:document_pages.empty_markers(1)
+    ids:markers.ids
+    ids.(0):0
+    markers.ids:ids
+    result:document_pages.layout(config,blocks,metrics,notes,markers)
+    placements:result.placements
+    xs:placements.xs
+    ys:placements.ys
+    kinds:placements.kinds
+    baseline:10+10*tex_numeric.pt()
+    (result.complete /\ result.pages.count=1 /\ placements.count=2 /\ result.footnotes.count=1 /\ kinds.(1)=1)?! "footnote body placed once on marker page"
+    (close(xs.(1),16) /\ close(ys.(1),baseline+2+9*tex_numeric.pt()+4))?! "footnote baseline uses real first-height and previous depth"
+    rules:result.rules
+    ruleYs:rules.ys
+    ruleWidths:rules.widths
+    (rules.count=1 /\ close(ruleYs.(0),baseline+2+6*tex_numeric.pt()) /\ close(ruleWidths.(0),40))?! "article footnote rule follows original dimensions"
+    @:true
+renderer_tests()->bit:
+    basic()?! "basic"
+    notes_test()?! "notes"
+    @:true
+renderer_tests()

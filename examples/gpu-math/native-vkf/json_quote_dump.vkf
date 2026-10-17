@@ -1,0 +1,16 @@
+json_quote_io:.io
+json_quote_numbers:.resource_numbers
+json_quote_parser:.resource_json
+json_quote_native:.json_quote_kernel
+run()->int:
+    count:int(json_quote_numbers.parse(json_quote_io.read_line()))
+    i:0
+    i<count?>
+        raw:json_quote_io.read_line()
+        path:json_quote_io.read_line()
+        parsed:json_quote_parser.parse(raw)
+        source:json_quote_parser.string(parsed,0)
+        json_quote_io.write_text(path,json_quote_native.quote(source))
+        .i:i+1
+    @:0
+run()

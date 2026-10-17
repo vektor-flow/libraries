@@ -1,0 +1,17 @@
+s:.unit_stream
+text:.tex_text
+
+object_spans():
+    source:"{\"type\":\"group\",\"unit\":true,\"children\":[{\"type\":\"text\",\"text\":\"a\\\\\\\"[,]\"}],\"sup\":[{\"type\":\"hole\"}]},next"
+    stop:s.value_stop(source,0)
+    (stop=text.find(source,",next"))?! "nested/escaped value span"
+    meta:s.metadata(source,0)
+    starts:meta.starts
+    stops:meta.stops
+    (meta.kind="group" /\ starts.(0)>0 /\ stops.(0)>starts.(0) /\ starts.(2)>stops.(0) /\ starts.(1)= -1)?! "child source spans and metadata"
+    (meta.attrs="\"type\":\"group\",\"unit\":true")?! "only non-child metadata is retained"
+
+renderer_tests()->bit:
+    object_spans()
+    @:true
+renderer_tests()

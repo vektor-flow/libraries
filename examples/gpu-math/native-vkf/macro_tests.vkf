@@ -1,0 +1,81 @@
+p:.tex_macros
+
+ordinary_definitions():
+    expanded:p.expand("\\newcommand{\\pair}[2]{#1+#2}\\pair{x}{y}")
+    (expanded.source="x+y" /\ expanded.expansions=1 /\ expanded.definition_count=1)?! "newcommand parameters"
+    optional:p.expand("\\newcommand{\\foo}[2][d]{#1:#2}\\foo{x} \\foo[z]{y}")
+    (optional.source="d:x z:y")?! "optional macro arguments"
+
+redefinitions():
+    expanded:p.expand("\\newcommand{\\f}{x}\\providecommand{\\f}{y}\\f\\renewcommand{\\f}{z}\\f")
+    (expanded.source="xz")?! "renew and provide command semantics"
+    alias:p.expand("\\let\\a=\\alpha \\a")
+    (alias.source=" \\alpha")?! "let alias"
+    primitive:p.expand("\\def\\pair#1#2{#2#1}\\pair ab")
+    (primitive.source="ba")?! "def parameters"
+    spaced:p.expand("\\newcommand{\\x}{a}\\x   b")
+    (spaced.source="ab")?! "control-word macro consumes delimiter whitespace"
+
+operator_and_character():
+    operator:p.expand("\\DeclareMathOperator*{\\limfoo}{limfoo}\\limfoo_x")
+    (operator.source="\\operatorname*{limfoo}_x")?! "declared operator"
+    character:p.expand("\\chardef\\marker=`\\|\\marker")
+    (character.source="\\char124 ")?! "character definition"
+
+conditionals():
+    first:p.expand("a\\iffalse hidden\\else shown\\fi z")
+    (first.source="a shown z")?! "false conditional"
+    nested:p.expand("\\iftrue A\\iffalse X\\else B\\fi C\\else D\\fi")
+    (nested.source=" A B C")?! "nested conditional"
+    comparison:p.expand("\\ifx aaYES\\else NO\\fi")
+    (comparison.source="YES")?! "ifx token comparison"
+
+literal_preservation():
+    literal:p.expand("\\newcommand{\\x}{changed}\\url{https://a.test/\\x%20} \\verb|\\x%| \\x")
+    (literal.source="\\url{https://a.test/\\x%20} \\verb|\\x%| changed")?! "literal targets are not expanded"
+
+frame_continuations():
+    result:p.expand("\\newcommand{\\a}{\\b}\\newcommand{\\b}[1]{[#1]}\\a{x}")
+    (result.source="[x]" /\ result.expansions=2)?! "macro argument crosses an expansion frame"
+    optional:p.expand("\\newcommand{\\a}{\\b}\\newcommand{\\b}[2][d]{#1:#2}\\a[z]{x}")
+    (optional.source="z:x")?! "optional argument crosses an expansion frame"
+    literal:p.expand("\\newcommand{\\a}{\\url}\\newcommand{\\x}{wrong}\\a{https://a/\\x#target}")
+    (literal.source="\\url{https://a/\\x#target}")?! "literal target crosses an expansion frame"
+    split:p.expand("\\newcommand{\\a}{\\b{first}\\b}\\newcommand{\\b}[1]{(#1)}\\a{second}")
+    (split.source="(first)(second)")?! "resume after consumed and deferred arguments"
+
+output_growth():
+    source:"\\newcommand{\\x}{a}"
+    index:0
+    expected:""
+    index<600?>
+        .source:source&"\\x{}"
+        .expected:expected&"a{}"
+        .index:index+1
+    result:p.expand(source)
+    (result.source=expected /\ result.expansions=600)?! "chunk vector grows across multiple boundaries"
+
+frame_growth():
+    source:""
+    name:"a"
+    index:0
+    index<63?>
+        next:name&"a"
+        .source:source&"\\newcommand{\\"&name&"}{\\"&next&"}"
+        .name:next
+        .index:index+1
+    .source:source&"\\newcommand{\\"&name&"}{z}\\a"
+    result:p.expand(source)
+    (result.source="z" /\ result.expansions=64)?! "expansion frame storage grows without copying the remaining document"
+
+renderer_tests()->bit:
+    ordinary_definitions()
+    redefinitions()
+    operator_and_character()
+    conditionals()
+    literal_preservation()
+    frame_continuations()
+    output_growth()
+    frame_growth()
+    @:true
+renderer_tests()

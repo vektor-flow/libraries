@@ -1,0 +1,26 @@
+io:.io
+numbers:.resource_numbers
+q:.paragraph_typeset_kernel
+run()->int:
+    fonts:io.read_text(io.read_line())
+    language:io.read_text(io.read_line())
+    count:int(numbers.parse(io.read_line()))
+    i:0
+    i<count?>
+        source:io.read_text(io.read_line())
+        role:io.read_line()
+        width:numbers.parse(io.read_line())
+        indent:numbers.parse(io.read_line())
+        justify:io.read_line()="true"
+        hyphens:io.read_line()="true"
+        tolerance:int(numbers.parse(io.read_line()))
+        emergency:numbers.parse(io.read_line())
+        preserve:io.read_line()="true"
+        sentence:io.read_line()="true"
+        french:io.read_line()="true"
+        scale:numbers.parse(io.read_line())
+        path:io.read_line()
+        io.write_text(path,q.paragraph_packet(fonts,language,source,role,width,indent,justify,hyphens,tolerance,emergency,preserve,sentence,french,scale))
+        .i:i+1
+    @:0
+run()

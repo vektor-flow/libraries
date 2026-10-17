@@ -1,0 +1,47 @@
+# Component benchmark server. Each request reopens every font input and writes a
+# new PDF. Only the executable stays alive for same-process warm measurements.
+# This is deliberately not a document renderer or a font/result object cache.
+io:.io
+eager:.font_resources
+indexed:.font_catalog
+syntax:.pdf_syntax
+objects:.pdf_objects
+resources:.pdf_resources
+paths:.pdf_paths
+collections:.collections
+
+form(mode:str,first:str,second:str,third:str,key:str)->str:
+    mode="eager"?
+        library:eager.load(io.read_text(first),io.read_text(second),io.read_text(third))
+        @:eager.vector_form(library,key)
+    (mode="indexed")?! "Unknown font benchmark mode"
+    catalog:indexed.load(io.read_text(first))
+    operators:io.read_text(second)
+    @:indexed.vector_form(catalog,operators,key)
+
+write_pdf(outline:str,destination:str):
+    content:paths.glyph(0,20,40,4,-4)
+    tape:objects.pack([
+        resources.catalog(2),
+        resources.pages(collections.list(3)),
+        resources.page(2,4,5,80,80,collections.list()),
+        resources.resources(collections.list(6),collections.list()),
+        syntax.stream("",content),
+        outline
+    ])
+    io.write_text(destination,objects.serialize(tape,1))
+
+run()->int:
+    true?>
+        mode:io.read_line()
+        mode=""? @:0
+        first:io.read_line()
+        second:io.read_line()
+        third:io.read_line()
+        key:io.read_line()
+        destination:io.read_line()
+        outline:form(mode,first,second,third,key)
+        write_pdf(outline,destination)
+        ::"done"
+    @:0
+run()

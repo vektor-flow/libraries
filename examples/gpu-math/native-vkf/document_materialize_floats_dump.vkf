@@ -1,0 +1,30 @@
+source_float_dump_io:.io
+source_float_dump_kernel:.document_materialize_floats_kernel
+source_float_dump_fonts:.font_catalog
+source_float_dump_hyphen:.hyphenation
+source_float_dump_config:.document_materialize_config
+source_float_dump_json:.resource_json
+source_float_dump_chunks:.text_chunks
+source_float_dump_assert:.math_display_metrics_kernel
+run()->int:
+    fonts:source_float_dump_fonts.load(source_float_dump_io.read_text(source_float_dump_io.read_line()))
+    language:source_float_dump_hyphen.load(source_float_dump_io.read_text(source_float_dump_io.read_line()))
+    roles_tape:source_float_dump_json.parse(source_float_dump_io.read_line())
+    roles:source_float_dump_chunks.empty(0)
+    ends:roles_tape.ends
+    at:1
+    at<ends.(0)?>
+        .roles:roles&[source_float_dump_json.string(roles_tape,at)]
+        .at:ends.(at)
+    count:int(vkf_decimal_parse(source_float_dump_io.read_line()))
+    index:0
+    index<count?>
+        request:source_float_dump_io.read_text(source_float_dump_io.read_line())
+        expected:source_float_dump_io.read_text(source_float_dump_io.read_line())
+        output:source_float_dump_io.read_line()
+        actual:source_float_dump_kernel.shape_json(fonts,roles,language,request)
+        source_float_dump_io.write_text(output,actual)
+        source_float_dump_assert.assert_projection(expected,actual)?! "Real native float paragraphs match actual JS"
+        .index:index+1
+    @:0
+run()

@@ -1,0 +1,67 @@
+# Actual installed registry metadata controls request-local package loading.
+document_module_data:.frozen285_document_module_data
+resource_json:.frozen285_resource_json
+tex_text:.frozen285_tex_text
+text_chunks:.frozen285_text_chunks
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+State:(names:[str],options:[str],count:int,diagnostics:str)
+empty()->State:@:(names:text_chunks.empty(32),options:text_chunks.empty(32),count:0,diagnostics:"")
+has(values:[str],count:int,wanted:str)->bit:
+    i:0
+    i<count?>
+        values.(i)=wanted? @:true
+        .i:i+1
+    @:false
+allowed(tape:Tape,node:int,wanted:str)->bit:
+    ends:tape.ends
+    i:node+1
+    i<ends.(node)?>
+        resource_json.string(tape,i)=wanted? @:true
+        .i:ends.(i)
+    @:false
+message(state:State,value:str)->State:
+    diagnostics:state.diagnostics
+    diagnostics~=""? .diagnostics:diagnostics&","
+    out:state
+    out.diagnostics:diagnostics&resource_json.quote(value)
+    @:out
+# The caller passes CSV tokens from the same source option parser as classes.
+load(state:State,definitions:Tape,name:str,options:[str],depth:int=0)->State:
+    (depth<=32)?! "Package dependency nesting limit"
+    has(state.names,state.count,name)? @:state
+    definition:resource_json.member(definitions,0,name)
+    definition<0? @:message(state,"Unsupported package: "&name)
+    id:state.count
+    names:state.names
+    sources:state.options
+    state.count>=names.length()?
+        .names:names&text_chunks.empty(names.length())
+        .sources:sources&text_chunks.empty(sources.length())
+    names.(id):name
+    out:state
+    out.names:names
+    out.options:sources
+    out.count:id+1
+    allowed_options:resource_json.member(definitions,definition,"options")
+    implemented_options:resource_json.member(definitions,definition,"implementedOptions")
+    option_source:""
+    i:0
+    i<options.length()?>
+        option:options.(i)
+        key:option
+        equals:tex_text.find(option,"=")
+        equals>=0? .key:tex_text.span(option,0,equals)
+        ~allowed(definitions,allowed_options,key)? .out:message(out,"Unsupported "&name&" option: "&option)
+        allowed(definitions,allowed_options,key) /\ name~="geometry" /\ name~="hyperref" /\ ~allowed(definitions,implemented_options,key) /\ option~="final"? .out:message(out,"Package option implementation pending: "&name&" "&option)
+        i>0? .option_source:option_source&","
+        .option_source:option_source&option
+        .i:i+1
+    sources.(id):option_source
+    out.options:sources
+    dependencies:resource_json.member(definitions,definition,"dependencies")
+    ends:definitions.ends
+    dependency:dependencies+1
+    dependency<ends.(dependencies)?>
+        .out:load(out,definitions,resource_json.string(definitions,dependency),text_chunks.empty(0),depth+1)
+        .dependency:ends.(dependency)
+    @:out

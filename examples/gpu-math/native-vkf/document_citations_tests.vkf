@@ -1,0 +1,16 @@
+citation_tests:.document_citations
+renderer_tests()->bit:
+    linked:citation_tests.resolve("A \\cite[see][p.~4]{a,b}","{\"a\":\"A20\",\"b\":\"B21\"}","; ",true,true)
+    linked.source="A [see \\documentlinkspan{cite}{cite%3Aa}{A20}; \\documentlinkspan{cite}{cite%3Ab}{B21}, p.~4]"?! "Citation notes, separator, destinations"
+    linked.diagnostics=""?! "Known citation labels"
+    legacy:citation_tests.resolve("\\cite*{a}","{\"a\":\"A20\"}",",~",false,false,true)
+    legacy.source="[\\documentlink{cite}{A20}{cite%3Aa}]"?! "Legacy opaque link remains link even starred"
+    literal:citation_tests.resolve("\\verb|\\cite{a}| \\url{https://x/\\cite{b}} \\cite{a}","{\"a\":\"A\"}")
+    literal.source="\\verb|\\cite{a}| \\url{https://x/\\cite{b}} [A]"?! "Literal source citations remain opaque"
+    missing:citation_tests.resolve("\\textcite{no}")
+    missing.source="[?]"?! "Undefined citation marker"
+    missing.diagnostics="\"Command requires biblatex: textcite\",\"Textual author citation formatting is not implemented\",\"Undefined citation: no\""?! "Warning order retained"
+    collected:citation_tests.collect("\\bibitem{a} A \\bibitem[B]{b} B \\bibitem{a} C")
+    collected="{\"a\":\"3\",\"b\":\"B\"}"?! "Manual bibliography uses map size before replacement"
+    @:true
+::renderer_tests()

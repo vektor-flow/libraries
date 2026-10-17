@@ -1,0 +1,16 @@
+# Lossless independent-test transport: exact integer significand and binary
+# exponent. Ordinary numeric printing uses fewer than17 significant digits.
+text:.tex_text
+format(value:num)->str:
+    value=0? @:"0,0"
+    magnitude:|value|
+    exponent:0
+    magnitude<1?>
+        .magnitude:magnitude*2
+        .exponent:exponent-1
+    magnitude>=2?>
+        .magnitude:magnitude/2
+        .exponent:exponent+1
+    significand:int(magnitude*4503599627370496)
+    value<0? .significand: -significand
+    @:text.integer(significand)&","&text.integer(exponent-52)

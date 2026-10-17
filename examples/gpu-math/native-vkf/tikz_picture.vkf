@@ -1,0 +1,527 @@
+tikz_picture_control:.tikz_control
+# Generic retained TikZ geometry from tikz-layout.mjs. Text is supplied by the
+# caller's real paragraph provider, keyed by the exact node source string.
+tikz_picture_text:.tex_text
+tikz_picture_groups:.tex_groups
+tikz_picture_numbers:.tikz_numbers
+tikz_picture_options:.tikz_options
+tikz_picture_syntax:.tikz_syntax
+tikz_picture_chunks:.text_chunks
+tikz_picture_json:.resource_json
+tikz_picture_decimal:.json_numbers
+tikz_picture_math:.math
+tikz_picture_numeric:.tex_numeric
+Dimensions:(names:[str],values:[num],count:int)
+Styles:(names:[str],values:[str],count:int)
+Context:(dimensions:Dimensions,em:num,ex:num)
+Style:(x:num,y:num,scale:num,line_width:num,draw:bit,fill:bit,color:str,fill_color:str,draw_color:str,shape:str,minimum:num,inner_sep:num,outer_sep:num,has_outer:bit,baseline:num,has_baseline:bit,sides:int,dash:str,position:str,separation:num,out:num,has_out:bit,into:num,has_in:bit,looseness:num)
+Nodes:(names:[str],xs:[num],ys:[num],widths:[num],heights:[num],outers:[num],shapes:[str],count:int)
+Point:(x:num,y:num,node:int,stop:int,diagnostic:str)
+State:(payloads:[str],xs:[num],ys:[num],count:int,primitive_count:int,left:num,top:num,right:num,bottom:num,nodes:Nodes,at:int,diagnostic:str,missing_label:str)
+Box:(items:str,width:num,height:num,depth:num,nodes:Nodes,diagnostic:str,missing_label:str)
+
+nums(size:int)->[num]:[0.0:size]
+nodes()->Nodes:
+    @:(names:tikz_picture_chunks.empty(32),xs:nums(32),ys:nums(32),widths:nums(32),heights:nums(32),outers:nums(32),shapes:tikz_picture_chunks.empty(32),count:0)
+node_index(registry:Nodes,name:str)->int:
+    names:registry.names
+    i:0
+    i<registry.count?>
+        names.(i)=name? @:i
+        .i:i+1
+    @: -1
+store(registry:Nodes,name:str,x:num,y:num,width:num,height:num,outer:num,shape:str)->Nodes:
+    result:registry
+    names:registry.names
+    xs:registry.xs
+    ys:registry.ys
+    widths:registry.widths
+    heights:registry.heights
+    outers:registry.outers
+    shapes:registry.shapes
+    chosen:node_index(registry,name)
+    chosen<0?
+        .chosen:registry.count
+        chosen>=names.length()?
+            capacity:names.length()
+            .names:names&tikz_picture_chunks.empty(capacity)
+            .xs:xs&nums(capacity)
+            .ys:ys&nums(capacity)
+            .widths:widths&nums(capacity)
+            .heights:heights&nums(capacity)
+            .outers:outers&nums(capacity)
+            .shapes:shapes&tikz_picture_chunks.empty(capacity)
+        result.count:chosen+1
+    names.(chosen):name
+    xs.(chosen):x
+    ys.(chosen):y
+    widths.(chosen):width
+    heights.(chosen):height
+    outers.(chosen):outer
+    shapes.(chosen):shape
+    result.names:names
+    result.xs:xs
+    result.ys:ys
+    result.widths:widths
+    result.heights:heights
+    result.outers:outers
+    result.shapes:shapes
+    @:result
+empty(registry:Nodes)->State:
+    @:(payloads:tikz_picture_chunks.empty(64),xs:nums(64),ys:nums(64),count:0,primitive_count:0,left:(10.0^100),top:(10.0^100),right: -(10.0^100),bottom: -(10.0^100),nodes:registry,at:0,diagnostic:"",missing_label:"")
+fail(state:State,message:str)->State:
+    out:state
+    out.diagnostic:message
+    @:out
+bound(state:State,left:num,top:num,right:num,bottom:num)->State:
+    out:state
+    out.left:tikz_picture_numeric.minimum(state.left,left)
+    out.top:tikz_picture_numeric.minimum(state.top,top)
+    out.right:tikz_picture_numeric.maximum(state.right,right)
+    out.bottom:tikz_picture_numeric.maximum(state.bottom,bottom)
+    @:out
+tick(state:State)->State:
+    state.primitive_count>=20000? @:fail(state,"TikZ primitive limit")
+    out:state
+    out.primitive_count:state.primitive_count+1
+    @:out
+add(state:State,x:num,y:num,payload:str)->State:
+    out:tick(state)
+    out.diagnostic~=""? @:out
+    values:state.payloads
+    xs:state.xs
+    ys:state.ys
+    state.count>=values.length()?
+        capacity:values.length()
+        .values:values&tikz_picture_chunks.empty(capacity)
+        .xs:xs&nums(capacity)
+        .ys:ys&nums(capacity)
+    values.(state.count):payload
+    xs.(state.count):x
+    ys.(state.count):y
+    out.payloads:values
+    out.xs:xs
+    out.ys:ys
+    out.count:state.count+1
+    @:out
+paint(style:Style)->str:
+    result:",\"color\":"&style.color
+    style.fill_color~=""? .result:result&",\"fillColor\":"&style.fill_color
+    style.draw_color~=""? .result:result&",\"strokeColor\":"&style.draw_color
+    @:result
+shape(state:State,style:Style,x:num,y:num,width:num,height:num,circle:bit)->State:
+    line:0.0
+    style.draw? .line:style.line_width
+    out:bound(state,x-line/2,y-line/2,x+width+line/2,y+height+line/2)
+    (~style.draw /\ ~style.fill)? @:tick(out)
+    kind:"vectorrect"
+    circle? .kind:"circle"
+    fill:"false"
+    style.fill? .fill:"true"
+    value:"\"kind\":"&tikz_picture_json.quote(kind)&",\"width\":"&tikz_picture_decimal.roundtrip(width)&",\"height\":"&tikz_picture_decimal.roundtrip(height)&",\"lineWidth\":"&tikz_picture_decimal.roundtrip(line)&",\"fill\":"&fill&paint(style)
+    circle? .value:value&",\"radius\":"&tikz_picture_decimal.roundtrip(width/2)
+    style.dash~="" /\ ~circle? .value:value&",\"dash\":"&tikz_picture_json.quote(style.dash)
+    @:add(out,x,y,value)
+
+coordinate(content:str,begin:int,style:Style,ctx:Context,registry:Nodes)->Point:
+    group:tikz_picture_groups.read(content,begin,"(",")")
+    ~group.present? @:(x:0,y:0,node: -1,stop:begin,diagnostic:"Expected TikZ coordinate")
+    parts:tikz_picture_syntax.split(group.value)
+    parts.diagnostic~=""? @:(x:0,y:0,node: -1,stop:group.stop,diagnostic:parts.diagnostic)
+    values:parts.values
+    parts.count=1?
+        chosen:node_index(registry,values.(0))
+        chosen<0? @:(x:0,y:0,node: -1,stop:group.stop,diagnostic:"Unknown TikZ node: "&values.(0))
+        xs:registry.xs
+        ys:registry.ys
+        @:(x:xs.(chosen),y:ys.(chosen),node:chosen,stop:group.stop,diagnostic:"")
+    parts.count~=2? @:(x:0,y:0,node: -1,stop:group.stop,diagnostic:"Unsupported TikZ coordinate system: "&group.value)
+    px:tikz_picture_numbers.parse(values.(0),ctx)
+    px.diagnostic~=""? @:(x:0,y:0,node: -1,stop:group.stop,diagnostic:px.diagnostic)
+    py:tikz_picture_numbers.parse(values.(1),ctx)
+    py.diagnostic~=""? @:(x:0,y:0,node: -1,stop:group.stop,diagnostic:py.diagnostic)
+    fx:style.x
+    fy:style.y
+    px.dimensioned? .fx:1
+    py.dimensioned? .fy:1
+    @:(x:tikz_picture_numbers.scaled(px.value*fx*style.scale),y:tikz_picture_numbers.scaled(-py.value*fy*style.scale),node: -1,stop:group.stop,diagnostic:"")
+anchor(point:Point,angle:num,registry:Nodes)->Point:
+    point.node<0? @:point
+    xs:registry.xs
+    ys:registry.ys
+    widths:registry.widths
+    heights:registry.heights
+    outers:registry.outers
+    shapes:registry.shapes
+    n:point.node
+    radians:angle*tikz_picture_math.pi/180
+    dx:tikz_picture_math.cos(radians)
+    dy: -tikz_picture_math.sin(radians)
+    rx:widths.(n)/2+outers.(n)
+    ry:heights.(n)/2+outers.(n)
+    distance:rx
+    shapes.(n)~="circle"?
+        a:(10.0^100)
+        b:(10.0^100)
+        |dx|>0.000000000001? .a:rx/|dx|
+        |dy|>0.000000000001? .b:ry/|dy|
+        .distance:tikz_picture_numeric.minimum(a,b)
+    @:(x:xs.(n)+dx*distance,y:ys.(n)+dy*distance,node: -1,stop:point.stop,diagnostic:"")
+
+node_tail(content:str,state:State,point:Point,base:Style,defaults:Style,styles:Styles,ctx:Context,labels:str)->State:
+    out:state
+    style:base
+    every:tikz_picture_options.index(styles,"every node")
+    style_values:styles.values
+    every>=0?
+        resolved:tikz_picture_options.resolve(style_values.(every),style,styles,ctx)
+        resolved.diagnostic~=""? @:fail(out,resolved.diagnostic)
+        .style:resolved.style
+    position:point
+    name:""
+    count:0
+    count<8?>
+        out.at:tikz_picture_groups.skip_space(content,out.at)
+        c:tikz_picture_numbers.character(content,out.at)
+        c="["?
+            group:tikz_picture_groups.read(content,out.at,"[","]")
+            resolved:tikz_picture_options.resolve(group.value,style,styles,ctx)
+            resolved.diagnostic~=""? @:fail(out,resolved.diagnostic)
+            .style:resolved.style
+            out.at:group.stop
+            .count:count+1
+            @>
+        c="("?
+            group:tikz_picture_groups.read(content,out.at,"(",")")
+            .name:group.value
+            out.at:group.stop
+            .count:count+1
+            @>
+        tikz_picture_text.matches(content,out.at,"at") /\ ~tikz_picture_text.letter(tikz_picture_numbers.character(content,out.at+2))?
+            .position:coordinate(content,out.at+2,style,ctx,out.nodes)
+            position.diagnostic~=""? @:fail(out,position.diagnostic)
+            out.at:position.stop
+            .count:count+1
+            @>
+        true? @|
+    group:tikz_picture_groups.read(content,out.at)
+    ~group.present? @:fail(out,"Expected TikZ node text")
+    out.at:group.stop
+    width:0.0
+    height:0.0
+    depth:0.0
+    label_items:"[]"
+    group.value~=""?
+        tape:tikz_picture_json.parse(labels)
+        label:tikz_picture_json.member(tape,0,group.value)
+        label<0?
+            out.missing_label:group.value
+            @:fail(out,"TikZ text requires a label typesetter")
+        .width:tikz_picture_json.number(tape,tikz_picture_json.member(tape,label,"width"))
+        .height:tikz_picture_json.number(tape,tikz_picture_json.member(tape,label,"height"))
+        .depth:tikz_picture_json.number(tape,tikz_picture_json.member(tape,label,"depth"))
+        item_node:tikz_picture_json.member(tape,label,"items")
+        spans:tape.starts
+        stops:tape.stops
+        .label_items:tikz_picture_text.span(labels,spans.(item_node),stops.(item_node))
+    box_width:tikz_picture_numeric.maximum(style.minimum,width+2*style.inner_sep)
+    box_height:tikz_picture_numeric.maximum(style.minimum,height+depth+2*style.inner_sep)
+    style.shape="circle"?
+        dx:width+2*style.inner_sep
+        dy:height+depth+2*style.inner_sep
+        .box_width:tikz_picture_numeric.maximum(style.minimum,tikz_picture_math.sqrt(dx*dx+dy*dy))
+        .box_height:box_width
+    style.shape="polygon"?
+        style.sides~=4? @:fail(out,"Unsupported TikZ regular polygon")
+        inner:tikz_picture_numbers.scaled(tikz_picture_numeric.maximum(width/2+style.inner_sep,(height+depth)/2+style.inner_sep)*1.41421)
+        radius:tikz_picture_numeric.maximum(tikz_picture_numbers.scaled(inner*1.41421),style.minimum/2)
+        .box_width:2*tikz_picture_numbers.scaled(radius*0.7071)
+        .box_height:box_width
+    outer:style.line_width/2
+    style.has_outer? .outer:style.outer_sep
+    x:position.x
+    y:position.y
+    amount:style.separation+outer
+    style.position="left"? .x:x-box_width/2-amount
+    style.position="right"? .x:x+box_width/2+amount
+    style.position="above"? .y:y-box_height/2-amount
+    style.position="below"? .y:y+box_height/2+amount
+    name~=""? out.nodes:store(out.nodes,name,x,y,box_width,box_height,outer,style.shape)
+    .out:tick(out)
+    out.diagnostic~=""? @:out
+    .out:bound(out,x-box_width/2,y-box_height/2,x+box_width/2,y+box_height/2)
+    (style.draw \/ style.fill)? .out:shape(out,style,x-box_width/2,y-box_height/2,box_width,box_height,style.shape="circle")
+    baseline:y+(height-depth)/2
+    tape:tikz_picture_json.parse(label_items)
+    item_count:0
+    true?>
+        item:tikz_picture_json.element(tape,0,item_count)
+        item<0? @|
+        spans:tape.starts
+        stops:tape.stops
+        # Preserve every original text leaf field. Later members override x/y.
+        raw:tikz_picture_text.span(label_items,spans.(item)+1,stops.(item)-1)
+        ix:tikz_picture_json.number(tape,tikz_picture_json.member(tape,item,"x"))
+        iy:tikz_picture_json.number(tape,tikz_picture_json.member(tape,item,"y"))
+        lx:x-width/2+ix
+        ly:baseline+iy
+        width_node:tikz_picture_json.member(tape,item,"width")
+        height_node:tikz_picture_json.member(tape,item,"height")
+        line_node:tikz_picture_json.member(tape,item,"lineWidth")
+        leaf_width:0.0
+        leaf_height:0.0
+        pad:0.0
+        width_node>=0? .leaf_width:tikz_picture_json.number(tape,width_node)
+        height_node>=0? .leaf_height:tikz_picture_json.number(tape,height_node)
+        line_node>=0? .pad:tikz_picture_json.number(tape,line_node)/2
+        top:ly
+        height_node>=0? .top:ly-pad
+        .out:bound(out,lx-pad,top,lx+leaf_width+pad,ly+leaf_height+pad)
+        .out:add(out,lx,ly,raw)
+        .item_count:item_count+1
+    @:out
+
+control_distance(a:Point,b:Point)->num:
+    sp:tikz_picture_numbers.sp()
+    dx:|tikz_picture_numbers.round((b.x-a.x)/sp)|
+    dy:|tikz_picture_numbers.round((b.y-a.y)/sp)|
+    dx=0 /\ dy=0? @:0
+    largest:tikz_picture_numeric.maximum(dx,dy)
+    norm:largest/tikz_picture_math.sqrt(dx*dx+dy*dy)
+    divisor:tikz_picture_numbers.floor(tikz_picture_numbers.round(norm*65536)/255)
+    @:tikz_picture_numbers.round(tikz_picture_numbers.floor(largest*16/divisor)*16*25657/65536)*sp
+
+path(content:str,state:State,style:Style,defaults:Style,styles:Styles,ctx:Context,labels:str)->State:
+    out:state
+    point:coordinate(content,out.at,style,ctx,out.nodes)
+    point.diagnostic~=""? @:fail(out,point.diagnostic)
+    out.at:tikz_picture_groups.skip_space(content,point.stop)
+    line:0.0
+    style.draw? .line:style.line_width
+    tikz_picture_text.matches(content,out.at,"node")?
+        out.at:out.at+4
+        @:node_tail(content,out,point,defaults,defaults,styles,ctx,labels)
+    tikz_picture_text.matches(content,out.at,"circle")?
+        radius:tikz_picture_groups.read(content,out.at+6,"(",")")
+        ~radius.present? @:fail(out,"Expected TikZ circle radius")
+        number:tikz_picture_numbers.parse(radius.value,ctx)
+        number.diagnostic~=""? @:fail(out,number.diagnostic)
+        (~number.dimensioned /\ |style.x|~=|style.y|)? @:fail(out,"Anisotropic TikZ circle radii are not implemented")
+        factor:|style.x|
+        number.dimensioned? .factor:1
+        value:number.value*factor*style.scale
+        value<=0? @:fail(out,"Invalid TikZ circle radius")
+        .value:tikz_picture_numbers.scaled(value)
+        .out:shape(out,style,point.x-value,point.y-value,2*value,2*value,true)
+        out.at:tikz_picture_groups.skip_space(content,radius.stop)
+        tikz_picture_text.matches(content,out.at,"node")?
+            out.at:out.at+4
+            @:node_tail(content,out,point,defaults,defaults,styles,ctx,labels)
+        @:out
+    tikz_picture_text.matches(content,out.at,"rectangle")?
+        endpoint:coordinate(content,out.at+9,style,ctx,out.nodes)
+        endpoint.diagnostic~=""? @:fail(out,endpoint.diagnostic)
+        .out:shape(out,style,tikz_picture_numeric.minimum(point.x,endpoint.x),tikz_picture_numeric.minimum(point.y,endpoint.y),|endpoint.x-point.x|,|endpoint.y-point.y|,false)
+        out.at:endpoint.stop
+        @:out
+    style.fill? @:fail(out,"Filled multi-segment TikZ paths are not implemented")
+    edges:0
+    true?>
+        out.at:tikz_picture_groups.skip_space(content,out.at)
+        straight:tikz_picture_text.matches(content,out.at,"--")
+        to:tikz_picture_text.matches(content,out.at,"to")
+        (~straight /\ ~to)? @|
+        out.at:out.at+2
+        route:style
+        to?
+            bracket:tikz_picture_groups.read(content,out.at,"[","]")
+            bracket.present?
+                resolved:tikz_picture_options.resolve(bracket.value,style,styles,ctx)
+                resolved.diagnostic~=""? @:fail(out,resolved.diagnostic)
+                .route:resolved.style
+                out.at:bracket.stop
+        endpoint:coordinate(content,out.at,route,ctx,out.nodes)
+        endpoint.diagnostic~=""? @:fail(out,endpoint.diagnostic)
+        curved:to /\ (route.has_out \/ route.has_in)
+        a:point
+        b:endpoint
+        c1x:0.0
+        c1y:0.0
+        c2x:0.0
+        c2y:0.0
+        curved?
+            out_angle:0.0
+            in_angle:180.0
+            route.has_out? .out_angle:route.out
+            route.has_in? .in_angle:route.into
+            .a:anchor(point,out_angle,out.nodes)
+            .b:anchor(endpoint,in_angle,out.nodes)
+            distance:control_distance(a,b)*route.looseness
+            ra:out_angle*tikz_picture_math.pi/180
+            rb:in_angle*tikz_picture_math.pi/180
+            .c1x:tikz_picture_numbers.scaled(a.x+tikz_picture_math.cos(ra)*distance)
+            .c1y:tikz_picture_numbers.scaled(a.y-tikz_picture_math.sin(ra)*distance)
+            .c2x:tikz_picture_numbers.scaled(b.x+tikz_picture_math.cos(rb)*distance)
+            .c2y:tikz_picture_numbers.scaled(b.y-tikz_picture_math.sin(rb)*distance)
+        ~curved?
+            angle:tikz_picture_math.atan2(point.y-endpoint.y,endpoint.x-point.x)*180/tikz_picture_math.pi
+            .a:anchor(point,angle,out.nodes)
+            .b:anchor(endpoint,angle+180,out.nodes)
+        ~style.draw? .out:tick(out)
+        out.diagnostic~=""? @:out
+        ~style.draw? .out:bound(out,tikz_picture_numeric.minimum(a.x,b.x),tikz_picture_numeric.minimum(a.y,b.y),tikz_picture_numeric.maximum(a.x,b.x),tikz_picture_numeric.maximum(a.y,b.y))
+        style.draw?
+            .out:bound(out,a.x-line/2,a.y-line/2,a.x+line/2,a.y+line/2)
+            .out:bound(out,b.x-line/2,b.y-line/2,b.x+line/2,b.y+line/2)
+            kind:"segment"
+            curved?
+                .kind:"bezier"
+                .out:bound(out,c1x-line/2,c1y-line/2,c1x+line/2,c1y+line/2)
+                .out:bound(out,c2x-line/2,c2y-line/2,c2x+line/2,c2y+line/2)
+            color:style.color
+            style.draw_color~=""? .color:style.draw_color
+            payload:"\"kind\":"&tikz_picture_json.quote(kind)&",\"delta\":["&tikz_picture_decimal.roundtrip(b.x-a.x)&","&tikz_picture_decimal.roundtrip(b.y-a.y)&"],\"lineWidth\":"&tikz_picture_decimal.roundtrip(line)&",\"color\":"&color
+            style.dash~=""? .payload:payload&",\"dash\":"&tikz_picture_json.quote(style.dash)
+            curved? .payload:payload&",\"controls\":[{\"x\":"&tikz_picture_decimal.roundtrip(c1x-a.x)&",\"y\":"&tikz_picture_decimal.roundtrip(c1y-a.y)&"},{\"x\":"&tikz_picture_decimal.roundtrip(c2x-a.x)&",\"y\":"&tikz_picture_decimal.roundtrip(c2y-a.y)&"}]"
+            .out:add(out,a.x,a.y,payload)
+        .point:endpoint
+        out.at:endpoint.stop
+        .edges:edges+1
+    edges=0?
+        stop:tikz_picture_numeric.minimum(num(tikz_picture_text.byte_length(content)),num(out.at+35))
+        @:fail(out,"Unsupported TikZ path operation: "&tikz_picture_text.span(content,out.at,int(stop)))
+    @:out
+
+decode_styles(raw:str)->Styles:
+    result:tikz_picture_options.empty()
+    tape:tikz_picture_json.parse(raw)
+    ends:tape.ends
+    at:1
+    at<ends.(0)?>
+        .result:tikz_picture_options.set(result,tikz_picture_json.string(tape,at),tikz_picture_json.string(tape,at+1))
+        .at:ends.(at+1)
+    @:result
+decode_dimensions(raw:str)->Dimensions:
+    result:tikz_picture_numbers.empty()
+    tape:tikz_picture_json.parse(raw)
+    ends:tape.ends
+    at:1
+    at<ends.(0)?>
+        .result:tikz_picture_numbers.set(result,tikz_picture_json.string(tape,at),tikz_picture_json.number(tape,at+1))
+        .at:ends.(at+1)
+    @:result
+
+compile(content:str,styles:Styles,dimensions:Dimensions,font_size:num,font_quad:num,registry:Nodes,labels:str="{}")->Box:
+    state:empty(registry)
+    dims:dimensions
+    ctx:tikz_picture_numbers.context(dims,font_quad,font_size*0.430554)
+    defaults:tikz_picture_options.defaults(font_quad)
+    base:defaults
+    style_values:styles.values
+    every:tikz_picture_options.index(styles,"every picture")
+    every>=0?
+        resolved:tikz_picture_options.resolve(style_values.(every),base,styles,ctx)
+        resolved.diagnostic~=""? @:(items:"[]",width:0,height:0,depth:0,nodes:registry,diagnostic:resolved.diagnostic,missing_label:"")
+        .base:resolved.style
+    bracket:tikz_picture_groups.read(content,0,"[","]")
+    picture:base
+    bracket.present?
+        resolved:tikz_picture_options.resolve(bracket.value,base,styles,ctx)
+        resolved.diagnostic~=""? @:(items:"[]",width:0,height:0,depth:0,nodes:registry,diagnostic:resolved.diagnostic,missing_label:"")
+        .picture:resolved.style
+        state.at:bracket.stop
+    picture.shape="polygon" /\ picture.sides~=4? .state:fail(state,"TikZ polygon needs a supported side count")
+    operations:0
+    size:tikz_picture_text.byte_length(content)
+    state.diagnostic=""?>
+        state.at:tikz_picture_groups.skip_space(content,state.at)
+        state.at>=size? @|
+        .operations:operations+1
+        operations>5000?
+            .state:fail(state,"TikZ command limit")
+            @|
+        command:tikz_picture_control.read(content,state.at)
+        (~command.word \/ command.name="")?
+            stop:state.at+35
+            stop>size? .stop:size
+            .state:fail(state,"Unsupported TikZ syntax: "&tikz_picture_text.span(content,state.at,stop))
+            @|
+        state.at:command.stop
+        (command.name="multiply" \/ command.name="divide")?
+            at:tikz_picture_groups.skip_space(content,state.at)
+            variable:tikz_picture_control.read(content,at)
+            chosen:tikz_picture_numbers.index(dims,variable.name)
+            (chosen<0 \/ ~variable.word)?
+                .state:fail(state,"Unsupported TikZ dimension assignment")
+                @|
+            .at:tikz_picture_groups.skip_space(content,variable.stop)
+            tikz_picture_text.matches(content,at,"by")? .at:tikz_picture_groups.skip_space(content,at+2)
+            begin:at
+            sign:tikz_picture_numbers.character(content,at)
+            (sign="+" \/ sign="-")? .at:at+1
+            digits:at
+            tikz_picture_numbers.digit(tikz_picture_numbers.character(content,at))?> .at:at+1
+            at=digits?
+                .state:fail(state,"Unsupported TikZ dimension assignment")
+                @|
+            parsed:tikz_picture_numbers.parse(tikz_picture_text.span(content,begin,at),ctx)
+            factor:parsed.value
+            command.name="divide" /\ factor=0?
+                .state:fail(state,"TikZ division by zero")
+                @|
+            dimension_values:dims.values
+            value:dimension_values.(chosen)*factor
+            command.name="divide"?
+                quotient:dimension_values.(chosen)/tikz_picture_numbers.sp()/factor
+                rounded:tikz_picture_numbers.floor(|quotient|)
+                quotient<0? .rounded: -rounded
+                .value:rounded*tikz_picture_numbers.sp()
+            .dims:tikz_picture_numbers.set(dims,variable.name,tikz_picture_numbers.scaled(value))
+            ctx.dimensions:dims
+            state.at:at
+            @>
+        command.name="node"?
+            point:(x:0.0,y:0.0,node: -1,stop:state.at,diagnostic:"")
+            .state:node_tail(content,state,point,picture,defaults,styles,ctx,labels)
+        (command.name="draw" \/ command.name="fill")?
+            style:picture
+            style.draw:command.name="draw"
+            style.fill:command.name="fill"
+            each:tikz_picture_options.index(styles,"every path")
+            each>=0?
+                resolved:tikz_picture_options.resolve(style_values.(each),style,styles,ctx)
+                resolved.diagnostic~=""?
+                    .state:fail(state,resolved.diagnostic)
+                    @|
+                .style:resolved.style
+            options:tikz_picture_groups.read(content,state.at,"[","]")
+            options.present?
+                resolved:tikz_picture_options.resolve(options.value,style,styles,ctx)
+                resolved.diagnostic~=""?
+                    .state:fail(state,resolved.diagnostic)
+                    @|
+                .style:resolved.style
+                state.at:options.stop
+            .state:path(content,state,style,defaults,styles,ctx,labels)
+        ~(command.name="node" \/ command.name="draw" \/ command.name="fill")? .state:fail(state,"Unsupported TikZ command: \\"&command.name)
+        state.diagnostic~=""? @|
+        state.at:tikz_picture_groups.skip_space(content,state.at)
+        tikz_picture_numbers.character(content,state.at)~=";"?
+            .state:fail(state,"Expected TikZ path terminator")
+            @|
+        state.at:state.at+1
+    state.diagnostic~=""? @:(items:"[]",width:0,height:0,depth:0,nodes:registry,diagnostic:state.diagnostic,missing_label:state.missing_label)
+    state.left=(10.0^100)? @:(items:"[]",width:0,height:0,depth:0,nodes:state.nodes,diagnostic:"",missing_label:"")
+    baseline:state.bottom
+    picture.has_baseline? .baseline: -picture.baseline
+    primitive_payloads:state.payloads
+    xs:state.xs
+    ys:state.ys
+    items:tikz_picture_chunks.empty(state.count)
+    i:0
+    i<state.count?>
+        prefix:""
+        i>0? .prefix:","
+        items.(i):prefix&"{"&primitive_payloads.(i)&",\"x\":"&tikz_picture_decimal.roundtrip(xs.(i)-state.left)&",\"y\":"&tikz_picture_decimal.roundtrip(ys.(i)-baseline)&",\"tikz\":true}"
+        .i:i+1
+    @:(items:"["&tikz_picture_chunks.join(items,0,state.count)&"]",width:state.right-state.left,height:tikz_picture_numeric.maximum(0,baseline-state.top),depth:tikz_picture_numeric.maximum(0,state.bottom-baseline),nodes:state.nodes,diagnostic:"",missing_label:"")

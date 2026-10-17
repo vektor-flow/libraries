@@ -1,0 +1,124 @@
+# ECMAScript shortest finite binary64 diagnostic spelling. Runtime VKF only.
+# Exact decimal digits + nearest ties-even candidates, verified by exact decode.
+text:.frozen285_tex_text
+chunks:.frozen285_text_chunks
+binary:.frozen285_binary_decimal
+ints(size:int)->[int]:[0:size]
+copy(values:[int],count:int)->[int]:[..count >> values.(int($))]
+render(digits:[str],count:int,exponent:int,negative:bit)->str:
+    sign:""
+    negative? .sign:"-"
+    (exponent< -6 \/ exponent>=21)?
+        mantissa:digits.(0)
+        count>1? .mantissa:mantissa&"."&chunks.join(digits,1,count)
+        exp_sign:""
+        exponent>=0? .exp_sign:"+"
+        @:sign&mantissa&"e"&exp_sign&text.integer(exponent)
+    exponent<0?
+        zeros:""
+        i:0
+        i< -exponent-1?>
+            .zeros:zeros&"0"
+            .i:i+1
+        @:sign&"0."&zeros&chunks.join(digits,0,count)
+    before:exponent+1
+    before>=count?
+        zeros:""
+        i:count
+        i<before?>
+            .zeros:zeros&"0"
+            .i:i+1
+        @:sign&chunks.join(digits,0,count)&zeros
+    @:sign&chunks.join(digits,0,before)&"."&chunks.join(digits,before,count)
+
+shortest(value:num)->str:
+    value=0? @:"0"
+    (value=value /\ |value|<=10.0^300)?! "Finite diagnostic number in resource range required"
+    magnitude:|value|
+    exponent:0
+    magnitude<1?>
+        .magnitude:magnitude*2
+        .exponent:exponent-1
+    magnitude>=2?>
+        .magnitude:magnitude/2
+        .exponent:exponent+1
+    significand:int(magnitude*4503599627370496)
+    power:52-exponent
+    power>0 /\ significand%2=0?>
+        .significand:significand//2
+        .power:power-1
+    iterations:power
+    factor:5
+    power<0?
+        .iterations: -power
+        .factor:2
+        .power:0
+    # A binary64 significand has at most 16 decimal digits. Multiplication by
+    # 2 or 5 adds at most one digit per step; reserve the proven bound plus
+    # carry/rounding space instead of allocating 1200 slots for every coordinate.
+    capacity:20+iterations
+    digits:[0:capacity]
+    count:0
+    significand>0?>
+        digits.(count):significand%10
+        .significand:significand//10
+        .count:count+1
+    step:0
+    step<iterations?>
+        index:0
+        carry:0
+        index<count?>
+            product:digits.(index)*factor+carry
+            digits.(index):product%10
+            .carry:product//10
+            .index:index+1
+        carry>0?
+            (count<capacity)?! "JSON decimal digit capacity"
+            digits.(count):carry
+            .count:count+1
+        .step:step+1
+    decimal_exponent:count-power-1
+    precision:1
+    precision<=17?>
+        rounded:copy(digits,count)
+        rounded_count:count
+        drop:count-precision
+        drop<0? .drop:0
+        current_exponent:decimal_exponent
+        drop>0?
+            guard:digits.(drop-1)
+            sticky:false
+            scan:0
+            scan<drop-1?>
+                digits.(scan)~=0? .sticky:true
+                .scan:scan+1
+            round_up:guard>5 \/ (guard=5 /\ (sticky \/ digits.(drop)%2=1))
+            round_up?
+                place:drop
+                place<count /\ rounded.(place)=9?>
+                    rounded.(place):0
+                    .place:place+1
+                place<count? rounded.(place):rounded.(place)+1
+                place=count?
+                    rounded.(count):1
+                    .rounded_count:count+1
+                    .current_exponent:current_exponent+1
+        low:drop
+        low<rounded_count-1 /\ rounded.(low)=0?> .low:low+1
+        parts:chunks.empty(17)
+        emitted:0
+        position:rounded_count-1
+        position>=low?>
+            parts.(emitted):text.integer(rounded.(position))
+            .emitted:emitted+1
+            .position:position-1
+        mantissa:parts.(0)
+        emitted>1? .mantissa:mantissa&"."&chunks.join(parts,1,emitted)
+        sign:""
+        value<0? .sign:"-"
+        candidate:sign&mantissa&"e"&text.integer(current_exponent)
+        decoded:binary.decode(candidate,0,text.byte_length(candidate))
+        decoded.valid /\ decoded.value=value? @:render(parts,emitted,current_exponent,value<0)
+        .precision:precision+1
+    false?! "No shortest diagnostic decimal found"
+    @:""

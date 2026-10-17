@@ -1,0 +1,51 @@
+m:.math_parser
+c:.font_catalog
+fixtures:.test_font_data
+j:.resource_json
+text:.tex_text
+
+rows_rules_and_spacing():
+    fonts:c.load(fixtures.math_catalog())
+    arena:m.parse("\\begin{array}{|rl|}\\hline a&b\\\\[2pt]\\cline{1-2}b&a\\end{array}",fonts)
+    tape:j.parse(m.json(arena))
+    nodes:j.member(tape,0,"nodes")
+    matrix:j.element(tape,nodes,0)
+    rows:j.member(tape,matrix,"rows")
+    row:j.element(tape,rows,1)
+    (j.element(tape,row,1)>=0 /\ j.element(tape,rows,2)= -1 /\ arena.diagnostics="")?! "array preserves two rows and two cells"
+    gaps:j.member(tape,matrix,"rowGaps")
+    (j.string(tape,j.element(tape,gaps,0))="2pt")?! "explicit row dimension"
+    rules:j.member(tape,matrix,"rules")
+    second_rule:j.element(tape,rules,1)
+    (j.number(tape,j.member(tape,second_rule,"row"))=1 /\ j.string(tape,j.member(tape,second_rule,"columns"))="1-2")?! "column rules retain source row"
+    (j.string(tape,j.member(tape,matrix,"align"))="|rl|")?! "column alignment and vertical rules"
+
+nested_and_shorthand():
+    fonts:c.load(fixtures.math_catalog())
+    arena:m.parse("\\pmatrix{\\begin{matrix}a\\\\b\\end{matrix}&\\frac{a}{b}}^2",fonts)
+    tree:m.json(arena)
+    (arena.diagnostics="" /\ text.find(tree,"\"name\":\"pmatrix\"")>=0 /\ text.find(tree,"\"name\":\"matrix\"")>=0 /\ text.find(tree,"\"sup\":[")>=0)?! "nested environments and scripts"
+    missing:m.parse("\\begin{matrix}a\\\\",fonts)
+    (text.find(missing.diagnostics,"Inferred \\\\end{matrix}")>=0 /\ text.find(m.json(missing),"\"incomplete\":true")>=0)?! "unfinished matrix is current-source recovery"
+
+growing_rows_and_cells():
+    fonts:c.load(fixtures.math_catalog())
+    body:""
+    index:0
+    index<40?>
+        index>0? .body:body&"\\\\"
+        .body:body&"a&b"
+        .index:index+1
+    arena:m.parse("\\begin{matrix}"&body&"\\end{matrix}",fonts)
+    tape:j.parse(m.json(arena))
+    nodes:j.member(tape,0,"nodes")
+    matrix:j.element(tape,nodes,0)
+    rows:j.member(tape,matrix,"rows")
+    (j.element(tape,rows,39)>=0 /\ j.element(tape,rows,40)= -1 /\ arena.atoms=81 /\ arena.diagnostics="")?! "growing matrix storage preserves every cell"
+
+renderer_tests()->bit:
+    rows_rules_and_spacing()
+    nested_and_shorthand()
+    growing_rows_and_cells()
+    @:true
+renderer_tests()

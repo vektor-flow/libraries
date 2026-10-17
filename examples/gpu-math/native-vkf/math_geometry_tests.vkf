@@ -1,0 +1,26 @@
+g:.math_geometry
+tex:.tex_numeric
+
+test_geometry():
+    p:(quad:18.0,xheight:4.0,rule:0.4,axis:2.5,num1:7.0,num2:4.0,num3:4.5,denom1:7.0,denom2:3.5,sup1:4.0,sup2:3.5,sup3:2.8,sub1:1.5,sub2:2.5,supdrop:3.0,subdrop:0.5,big1:1.0,big2:1.6,big3:2.0,big4:6.0,big5:1.0)
+    n:(width:4.0,height:6.0,depth:2.0)
+    d:(width:8.0,height:10.0,depth:1.0)
+    f:g.fraction(n,d,p,0,0.4)
+    (|f.numerator_y+7|<0.000000001 /\ |f.denominator_y-8.9|<0.000000001)?! "fraction clearance"
+    (|f.width-(8+2.4*tex.pt())|<0.000000001 /\ f.rule_height=0.4)?! "fraction padding and rule"
+    binomial:g.fraction(n,d,p,1,0,true)
+    (binomial.width=8 /\ binomial.rule_height=0 /\ binomial.denominator_y-binomial.numerator_y>=13.2)?! "ruleless fraction clearance"
+    body:(width:5.0,height:7.0,depth:2.0,italic:1.0,character:true)
+    script:g.scripts(body,n,d,p,p,0,false,true,true,false)
+    (script.sup_x=5 /\ script.sub_x=4 /\ script.sup_y<0 /\ script.sub_y>0)?! "script positions and italic correction"
+    (script.sub_y-script.sup_y-n.depth-d.height>=4*p.rule-0.000000001)?! "simultaneous script clearance"
+    limits:g.scripts(body,n,d,p,p,0,false,true,true,true)
+    (limits.width=8 /\ limits.body_x=1.5 /\ limits.sup_x=2.5 /\ limits.sub_x= -0.5)?! "operator limits center with italic correction"
+    root:g.radical(n,(width:3.0,height:0.5,depth:12.0),d,p,0,true)
+    (root.body_x-root.mark_x=3 /\ root.rule_width=4 /\ root.rule_height=0.5)?! "radical pieces"
+    (g.extension_count(19,4,3,false)=5 /\ g.extension_count(19,4,3,true)=3 /\ g.extension_count(2,4,3,false)=0)?! "extensible repetition ceiling"
+
+renderer_tests()->bit:
+    test_geometry()
+    @:true
+renderer_tests()

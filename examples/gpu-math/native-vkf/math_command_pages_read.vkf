@@ -1,0 +1,17 @@
+# Read paged scalar columns without owning a temporary row.
+math_command_pages:.math_command_pages
+number(pages:[[num]],index:int)->num:
+    stride:math_command_pages.width()
+    row:index//stride
+    column:index%stride
+    @:pages.(row,column)
+integer(pages:[[int]],index:int)->int:
+    stride:math_command_pages.width()
+    row:index//stride
+    column:index%stride
+    @:pages.(row,column)
+boolean(pages:[[bit]],index:int)->bit:
+    stride:math_command_pages.width()
+    row:index//stride
+    column:index%stride
+    @:pages.(row,column)

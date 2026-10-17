@@ -1,0 +1,23 @@
+document_citations_api:.document_citations
+citation_kernel_json:.resource_json
+citation_kernel_text:.tex_text
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+string(tape:Tape,key:str,fallback:str="")->str:
+    node:citation_kernel_json.member(tape,0,key)
+    node<0? @:fallback
+    @:citation_kernel_json.string(tape,node)
+flag(tape:Tape,key:str)->bit:
+    node:citation_kernel_json.member(tape,0,key)
+    node<0? @:false
+    @:citation_kernel_text.span(tape.source,tape.starts.(node),tape.stops.(node))="true"
+packet(request:str)->str:
+    tape:citation_kernel_json.parse(request)
+    labels:"{}"
+    node:citation_kernel_json.member(tape,0,"labels")
+    node>=0? .labels:citation_kernel_text.span(tape.source,tape.starts.(node),tape.stops.(node))
+    source:string(tape,"source")
+    string(tape,"operation")="collect"? @:document_citations_api.collect(source,labels)
+    result:document_citations_api.resolve(source,labels,string(tape,"separator",",~"),flag(tape,"biblatex"),flag(tape,"links"),flag(tape,"legacy"))
+    @:"{\"source\":"&citation_kernel_json.quote(result.source)&",\"diagnostics\":["&result.diagnostics&"]}"
+noop()->int:0
+noop()

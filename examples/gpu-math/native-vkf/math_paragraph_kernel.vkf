@@ -1,0 +1,14 @@
+catalog:.font_catalog
+layout:.math_layout
+parser:.math_parser
+packages:.math_packages
+profiles:.math_profiles
+text:.tex_text
+
+math_paragraph_packet(source:str,font_source:str,names:[str],class_name:str,inline:bit,native:bit,display:bit,equation:int,spacing:str):
+    fonts:catalog.load(font_source)
+    context:packages.from_names(names,class_name)
+    scene:layout.layout_with_profiles(parser.parse_with_context(source,fonts,context,native),fonts,profiles.load(fonts),inline,native,layout.display_context(source,display),equation,text.trim(source)~="",spacing)
+    @:layout.packet(scene)
+noop()->int:0
+noop()

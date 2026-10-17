@@ -1,0 +1,15 @@
+tikz_output_chunks:.text_chunks
+tikz_output_json:.resource_json
+Result:(source:str,contents:[str],style_snapshots:[str],dimension_snapshots:[str],starts:[int],stops:[int],count:int,diagnostic:str)
+json(result:Result)->str:
+    contents:result.contents
+    styles:result.style_snapshots
+    dimensions:result.dimension_snapshots
+    parts:tikz_output_chunks.empty(result.count)
+    i:0
+    i<result.count?>
+        prefix:""
+        i>0? .prefix:","
+        parts.(i):prefix&"{\"content\":"&tikz_output_json.quote(contents.(i))&",\"styles\":"&styles.(i)&",\"dimensions\":"&dimensions.(i)&"}"
+        .i:i+1
+    @:"{\"source\":"&tikz_output_json.quote(result.source)&",\"pictures\":["&tikz_output_chunks.join(parts,0,result.count)&"],\"diagnostic\":"&tikz_output_json.quote(result.diagnostic)&"}"

@@ -1,0 +1,41 @@
+# Generic retained vector scenes, shared by every recursive inline box scope.
+text_inline_arguments:.frozen285_text_inline_arguments
+text_parser_stream:.frozen285_text_parser_stream
+text_inline_boxes:.frozen285_text_inline_boxes
+resource_json:.frozen285_resource_json
+tex_text:.frozen285_tex_text
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+provide(stream:Stream,scenes_json:str="{}")->Provider:
+    scenes:resource_json.parse("{}")
+    loaded:false
+    directory:text_inline_arguments.build(stream)
+    first:directory.first
+    hidden:directory.hidden
+    out:text_inline_boxes.empty()
+    index:0
+    index<stream.count?>
+        operation:index
+        .index:index+1
+        hidden.(operation)? @>
+        text_parser_stream.value(stream,operation,"kind")~="command"? @>
+        text_parser_stream.value(stream,operation,"value")~="vkftikzbox"? @>
+        ~loaded?
+            .scenes:resource_json.parse(scenes_json)
+            .loaded:true
+        argument:first.(operation)
+        key:""
+        argument>=0? .key:text_parser_stream.value(stream,argument,"value")
+        scene:resource_json.member(scenes,0,key)
+        scene<0?
+            .out:text_inline_boxes.append(out,operation,5,diagnostics:resource_json.quote("Missing native TikZ box: "&key))
+            @>
+        starts:scenes.starts
+        stops:scenes.stops
+        retained:tex_text.span(scenes.source,starts.(scene),stops.(scene))
+        width:resource_json.number(scenes,resource_json.member(scenes,scene,"width"))
+        height:resource_json.number(scenes,resource_json.member(scenes,scene,"height"))
+        depth:resource_json.number(scenes,resource_json.member(scenes,scene,"depth"))
+        .out:text_inline_boxes.append(out,operation,0,width,height,depth,scene:retained)
+    @:out

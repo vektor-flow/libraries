@@ -1,0 +1,431 @@
+# Raw database preparation for independent biblatex. All state is request-local.
+bibliography_data:.bibtex_data
+bibliography_names:.bibtex_names
+bibliography_format:.bibtex_format
+bibliography_text:.tex_text
+bibliography_groups:.tex_groups
+bibliography_source:.tex_source
+bibliography_json:.resource_json
+bibliography_paths:.project_paths
+bibliography_chunks:.text_chunks
+bibliography_collation:.bibliography_collation
+Map:(keys:[str],values:[str],count:int)
+Database:(keys:[str],types:[str],fields:[str],count:int,strings:Map,diagnostics:str,error:str,valid:bit)
+Result:(source:str,labels_json:str,entries_json:str,inputs_json:str,diagnostics_json:str,separator:str,style:str,complete:bit)
+join_diagnostics(left:str,right:str)->str:
+    left=""? @:right
+    right=""? @:left
+    @:left&","&right
+diagnostic(previous:str,message:str)->str:join_diagnostics(previous,bibliography_json.quote(message))
+contains(values:[str],key:str)->bit:
+    i:0
+    i<values.length()?>
+        values.(i)=key? @:true
+        .i:i+1
+    @:false
+array_json(values:[str])->str:
+    parts:bibliography_chunks.empty(values.length())
+    i:0
+    i<values.length()?>
+        prefix:""
+        i>0? .prefix:","
+        parts.(i):prefix&bibliography_json.quote(values.(i))
+        .i:i+1
+    @:"["&bibliography_chunks.join(parts,0,i)&"]"
+csv(source:str)->[str]:
+    values:bibliography_chunks.empty(0)
+    at:0
+    size:bibliography_text.byte_length(source)
+    at<=size?>
+        comma:bibliography_text.find(source,",",at)
+        comma<0? .comma:size
+        .values:bibliography_data.append(values,bibliography_text.trim(bibliography_text.span(source,at,comma)))
+        .at:comma+1
+    @:values
+file_text(raw:str,path:str)->str:
+    tape:bibliography_json.parse(raw)
+    (~tape.valid \/ tape.kinds.(0)~=1)? @:""
+    node:bibliography_json.member(tape,0,path)
+    node<0? @:""
+    tape.kinds.(node)=3? @:bibliography_json.string(tape,node)
+    tape.kinds.(node)~=1? @:""
+    member:bibliography_json.member(tape,node,"text")
+    member<0? @:""
+    tape.kinds.(member)~=3? @:""
+    @:bibliography_json.string(tape,member)
+file_present(raw:str,path:str)->bit:
+    tape:bibliography_json.parse(raw)
+    (~tape.valid \/ tape.kinds.(0)~=1)? @:false
+    node:bibliography_json.member(tape,0,path)
+    node<0? @:false
+    tape.kinds.(node)=3? @:true
+    tape.kinds.(node)~=1? @:false
+    member:bibliography_json.member(tape,node,"text")
+    member<0? @:false
+    @:tape.kinds.(member)=3
+literal_end(source:str,at:int)->int:
+    c:bibliography_text.at(source,at)
+    c="%"?
+        end:bibliography_text.find(source,"\n",at)
+        end<0? @:bibliography_text.byte_length(source)
+        @:end+1
+    c~="\\"? @:at
+    command:bibliography_groups.control(source,at)
+    stop:bibliography_source.literal_stop(source,command.name,command.stop)
+    stop>command.stop? @:stop
+    command.name="\\"? @:command.stop
+    @:at
+name_key(fields:Map)->str:
+    names:bibliography_names.parse(bibliography_data.get(fields,"sortname",bibliography_data.get(fields,"author",bibliography_data.get(fields,"editor"))))
+    result:""
+    i:0
+    i<names.count?>
+        i>0? .result:result&" "
+        .result:result&bibliography_names.plain(names.family.(i))&" "&bibliography_names.plain(names.given.(i))
+        .i:i+1
+    @:result
+compare(left:str,right:str)->int:
+    a:bibliography_collation.key(left).key
+    b:bibliography_collation.key(right).key
+    a<b? @: -1
+    a>b? @:1
+    @:0
+less(database:Database,left:int,right:int,sorting:str)->bit:
+    a:bibliography_data.from_json(database.fields.(left))
+    b:bibliography_data.from_json(database.fields.(right))
+    names:compare(name_key(a),name_key(b))
+    names~=0? @:names<0
+    year:compare(bibliography_data.get(a,"year"),bibliography_data.get(b,"year"))
+    title:compare(bibliography_names.plain(bibliography_data.get(a,"sorttitle",bibliography_data.get(a,"title"))),bibliography_names.plain(bibliography_data.get(b,"sorttitle",bibliography_data.get(b,"title"))))
+    sorting="nty"?
+        title~=0? @:title<0
+        @:year<0
+    year~=0? @:year<0
+    @:title<0
+first(source:str,count:int)->str:
+    at:0
+    i:0
+    i<count /\ ~vkf_string_eof(source,at)?>
+        .at:bibliography_text.next(source,at)
+        .i:i+1
+    @:bibliography_text.span(source,0,at)
+last_two(source:str)->str:
+    size:bibliography_text.byte_length(source)
+    size<=2? @:source
+    @:bibliography_text.span(source,size-2,size)
+widest_plan(source:str)->[int]:
+    events:bibliography_names.integers(0)
+    at:0
+    size:bibliography_text.byte_length(source)
+    at<size?>
+        literal:literal_end(source,at)
+        literal>at?
+            .at:literal
+            @>
+        bibliography_text.at(source,at)~="\\"?
+            .at:bibliography_text.next(source,at)
+            @>
+        command:bibliography_groups.control(source,at)
+        .at:command.stop
+        (command.name="bibliography" \/ command.name="addbibresource")?
+            options:bibliography_groups.read(source,at,"[","]")
+            options.present /\ options.closed? .at:options.stop
+            resource:bibliography_groups.read(source,at)
+            resource.present /\ resource.closed /\ resource.value~="" /\ bibliography_text.find(resource.value,"{")<0? .at:resource.stop
+            @>
+        command.name="printbibliography"?
+            .events:bibliography_names.append_int(events,1)
+            settings:bibliography_groups.read(source,at,"[","]")
+            settings.present /\ settings.closed? .at:settings.stop
+            @>
+        command.name="begin"?
+            environment:bibliography_groups.read(source,at)
+            environment.present /\ environment.closed?
+                .at:environment.stop
+                environment.value="thebibliography"? .events:bibliography_names.append_int(events,0)
+    @:events
+set_widest(source:str,widest:str,original_source:str="")->str:
+    selective:original_source~=""
+    events:widest_plan(original_source)
+    event:0
+    generated_depth:0
+    at:0
+    copied:0
+    result:""
+    size:bibliography_text.byte_length(source)
+    at<size?>
+        literal:literal_end(source,at)
+        literal>at?
+            .at:literal
+            @>
+        bibliography_text.at(source,at)~="\\"?
+            .at:bibliography_text.next(source,at)
+            @>
+        command:bibliography_groups.control(source,at)
+        .at:command.stop
+        ~(command.name="begin" \/ command.name="end")? @>
+        environment:bibliography_groups.read(source,at)
+        (~environment.present \/ ~environment.closed)? @>
+        .at:environment.stop
+        environment.value~="thebibliography"? @>
+        command.name="end"?
+            generated_depth>0? .generated_depth:generated_depth-1
+            @>
+        generated_depth>0?
+            .generated_depth:generated_depth+1
+            @>
+        replace:~selective
+        selective?
+            event<events.length()? .replace:events.(event)=1
+            .event:event+1
+        ~replace? @>
+        selective? .generated_depth:1
+        width:bibliography_groups.read(source,at)
+        (~width.present \/ ~width.closed)? @>
+        start:bibliography_groups.skip_space(source,at)
+        .result:result&bibliography_text.span(source,copied,start)&"{"&widest&"}"
+        .at:width.stop
+        .copied:at
+    @:result&bibliography_text.span(source,copied,size)
+label(kind:str,fields:Map,index:int)->str:
+    kind="numeric"? @:bibliography_text.integer(index+1)
+    shorthand:bibliography_data.get(fields,"shorthand")
+    shorthand~=""? @:shorthand
+    names:bibliography_names.parse(bibliography_data.get(fields,"author",bibliography_data.get(fields,"editor")))
+    family:""
+    names.count=1? .family:first(bibliography_names.plain(names.family.(0)),3)
+    names.count~=1?
+        i:0
+        i<names.count /\ i<3?>
+            .family:family&first(bibliography_names.plain(names.family.(i)),1)
+            .i:i+1
+        names.count>3? .family:family&"+"
+    explicit:bibliography_data.index(fields,"label")
+    explicit>=0? .family:fields.values.(explicit)
+    year:bibliography_data.get(fields,"year",first(bibliography_data.get(fields,"date"),4))
+    @:family&last_two(year)
+prepare(source:str,files_json:str="{}",entry:str="",options:[str]=[],label_widths_json:str="{}")->Result:
+    diagnostics:""
+    requested:bibliography_data.empty_map()
+    .requested:bibliography_data.put(requested,"style","numeric")
+    .requested:bibliography_data.put(requested,"sorting","nty")
+    .requested:bibliography_data.put(requested,"backend","biber")
+    i:0
+    i<options.length()?>
+        option:options.(i)
+        equals:bibliography_text.find(option,"=")
+        equals<0? .requested:bibliography_data.put(requested,option,"")
+        equals>=0? .requested:bibliography_data.put(requested,bibliography_text.span(option,0,equals),bibliography_text.span(option,equals+1,bibliography_text.byte_length(option)))
+        .i:i+1
+    style:bibliography_data.get(requested,"style")
+    sorting:bibliography_data.get(requested,"sorting")
+    backend:bibliography_data.get(requested,"backend")
+    ~(style="numeric" \/ style="alphabetic")? .diagnostics:diagnostic(diagnostics,"Unsupported biblatex style: "&style)
+    ~(sorting="nyt" \/ sorting="nty" \/ sorting="anyt" \/ sorting="none")? .diagnostics:diagnostic(diagnostics,"Unsupported biblatex sorting: "&sorting)
+    ~(backend="biber" \/ backend="bibtex")? .diagnostics:diagnostic(diagnostics,"Unsupported biblatex backend: "&backend)
+    empty:bibliography_chunks.empty(0)
+    database:(keys:empty,types:empty,fields:empty,count:0,strings:bibliography_data.empty_map(),diagnostics:"",error:"",valid:true)
+    inputs:bibliography_chunks.empty(0)
+    at:0
+    copied:0
+    rewritten:""
+    size:bibliography_text.byte_length(source)
+    at<size /\ database.valid?>
+        literal:literal_end(source,at)
+        literal>at?
+            .at:literal
+            @>
+        bibliography_text.at(source,at)~="\\"?
+            .at:bibliography_text.next(source,at)
+            @>
+        command:bibliography_groups.control(source,at)
+        begin:at
+        .at:command.stop
+        ~(command.name="bibliography" \/ command.name="addbibresource")? @>
+        resource_options:bibliography_groups.read(source,at,"[","]")
+        resource_options.present /\ resource_options.closed? .at:resource_options.stop
+        resource:bibliography_groups.read(source,at)
+        (~resource.present \/ ~resource.closed \/ resource.value="")? @>
+        bibliography_text.find(resource.value,"{")>=0? @>
+        resource_options.present /\ resource_options.value~=""? .diagnostics:diagnostic(diagnostics,"Unsupported bibliography resource options: "&resource_options.value)
+        names:csv(resource.value)
+        n:0
+        n<names.length() /\ database.valid?>
+            name:names.(n)
+            ~bibliography_paths.has_extension(name)? .name:name&".bib"
+            path:bibliography_paths.canonical(name,entry)
+            ~path.valid?
+                .diagnostics:diagnostic(diagnostics,"Missing bibliography input: "&name)
+                .n:n+1
+                @>
+            ~file_present(files_json,path.value)?
+                .diagnostics:diagnostic(diagnostics,"Missing bibliography input: "&path.value)
+                .n:n+1
+                @>
+            parsed:bibliography_data.parse(file_text(files_json,path.value),database.strings)
+            ~parsed.valid?
+                database.valid:false
+                database.error:parsed.error
+                @>
+            database.strings:parsed.strings
+            e:0
+            e<parsed.count /\ database.valid?>
+                bibliography_data.database_index(database,parsed.keys.(e))>=0?
+                    database.valid:false
+                    database.error:"Duplicate bibliography key: "&parsed.keys.(e)
+                    @>
+                database.keys:bibliography_data.append(database.keys,parsed.keys.(e))
+                database.types:bibliography_data.append(database.types,parsed.types.(e))
+                database.fields:bibliography_data.append(database.fields,parsed.fields.(e))
+                database.count:database.count+1
+                .e:e+1
+            .diagnostics:join_diagnostics(diagnostics,parsed.diagnostics)
+            .inputs:bibliography_data.append(inputs,path.value)
+            .n:n+1
+        .rewritten:rewritten&bibliography_text.span(source,copied,begin)
+        .at:resource.stop
+        .copied:at
+    .rewritten:rewritten&bibliography_text.span(source,copied,size)
+    ~database.valid?
+        .diagnostics:diagnostic(diagnostics,database.error)
+        @:(source:rewritten,labels_json:"{}",entries_json:"[]",inputs_json:array_json(inputs),diagnostics_json:"["&diagnostics&"]",separator:"; ",style:style,complete:false)
+    cited:bibliography_chunks.empty(0)
+    .at:0
+    .size:bibliography_text.byte_length(rewritten)
+    at<size?>
+        literal:literal_end(rewritten,at)
+        literal>at?
+            .at:literal
+            @>
+        bibliography_text.at(rewritten,at)~="\\"?
+            .at:bibliography_text.next(rewritten,at)
+            @>
+        command:bibliography_groups.control(rewritten,at)
+        .at:command.stop
+        ~(command.name="cite" \/ command.name="nocite" \/ command.name="parencite" \/ command.name="textcite" \/ command.name="autocite")? @>
+        ~vkf_string_eof(rewritten,at) /\ bibliography_text.at(rewritten,at)="*"? .at:at+1
+        o:0
+        o<2?>
+            note:bibliography_groups.read(rewritten,at,"[","]")
+            note.present /\ note.closed? .at:note.stop
+            .o:o+1
+        keys:bibliography_groups.read(rewritten,at)
+        (~keys.present \/ ~keys.closed \/ keys.value="" \/ bibliography_text.find(keys.value,"{")>=0)? @>
+        .at:keys.stop
+        parts:csv(keys.value)
+        k:0
+        k<parts.length()?>
+            ~contains(cited,parts.(k))? .cited:bibliography_data.append(cited,parts.(k))
+            .k:k+1
+    chosen:cited
+    contains(cited,"*")? .chosen:database.keys
+    order:[0:chosen.length()]
+    count:0
+    .i:0
+    i<chosen.length()?>
+        found:bibliography_data.database_index(database,chosen.(i))
+        found<0? .diagnostics:diagnostic(diagnostics,"Undefined citation: "&chosen.(i))
+        found>=0?
+            order.(count):found
+            .count:count+1
+        .i:i+1
+    sorting~="none"?
+        .i:0
+        i<count?>
+            entry_fields:bibliography_data.from_json(database.fields.(order.(i)))
+            sort_names:bibliography_collation.key(name_key(entry_fields))
+            sort_year:bibliography_collation.key(bibliography_data.get(entry_fields,"year"))
+            sort_title:bibliography_collation.key(bibliography_names.plain(bibliography_data.get(entry_fields,"sorttitle",bibliography_data.get(entry_fields,"title"))))
+            sort_names.unsupported~=""? .diagnostics:diagnostic(diagnostics,"Unsupported bibliography collation character: "&sort_names.unsupported)
+            sort_year.unsupported~=""? .diagnostics:diagnostic(diagnostics,"Unsupported bibliography collation character: "&sort_year.unsupported)
+            sort_title.unsupported~=""? .diagnostics:diagnostic(diagnostics,"Unsupported bibliography collation character: "&sort_title.unsupported)
+            .i:i+1
+    sorting~="none"?
+        .i:1
+        i<count?>
+            candidate:order.(i)
+            p:i
+            p>0 /\ less(database,candidate,order.(p-1),sorting)?>
+                order.(p):order.(p-1)
+                .p:p-1
+            order.(p):candidate
+            .i:i+1
+    labels:bibliography_data.empty_map()
+    .i:0
+    i<count?>
+        e:order.(i)
+        .labels:bibliography_data.put(labels,database.keys.(e),label(style,bibliography_data.from_json(database.fields.(e)),i))
+        .i:i+1
+    original_labels:labels.values
+    style="alphabetic"?
+        .i:0
+        i<count?>
+            peers:0
+            ordinal:0
+            k:0
+            k<count?>
+                original_labels.(k)=original_labels.(i)?
+                    .peers:peers+1
+                    k<i? .ordinal:ordinal+1
+                .k:k+1
+            peers>1?
+                ordinal>=26?
+                    .diagnostics:diagnostic(diagnostics,"Alphabetic citation disambiguation limit")
+                    @:(source:rewritten,labels_json:bibliography_data.map_json(labels),entries_json:"[]",inputs_json:array_json(inputs),diagnostics_json:"["&diagnostics&"]",separator:"; ",style:style,complete:false)
+                .labels:bibliography_data.put(labels,labels.keys.(i),original_labels.(i)&str(chr(97+ordinal)))
+            .i:i+1
+    bibliography:""
+    entry_chunks:bibliography_chunks.empty(count)
+    widest:"9"
+    width: -1.0
+    widths:bibliography_json.parse(label_widths_json)
+    .i:0
+    i<count?>
+        e:order.(i)
+        key:database.keys.(e)
+        current_label:bibliography_data.get(labels,key)
+        measured:num(bibliography_data.utf16_length(current_label))
+        widths.valid /\ widths.kinds.(0)=1?
+            node:bibliography_json.member(widths,0,current_label)
+            node>=0?
+                widths.kinds.(node)=4? .measured:bibliography_json.number(widths,node)
+        measured>width?
+            .width:measured
+            .widest:current_label
+        prefix:""
+        i>0? .prefix:","
+        entry_chunks.(i):prefix&"{\"key\":"&bibliography_json.quote(key)&",\"type\":"&bibliography_json.quote(database.types.(e))&",\"fields\":"&database.fields.(e)&"}"
+        formatted:bibliography_format.format(database.types.(e),bibliography_data.from_json(database.fields.(e)))
+        formatted.error~=""? .diagnostics:diagnostic(diagnostics,formatted.error)
+        formatted.error=""? .bibliography:bibliography&"\\bibitem["&current_label&"]{"&key&"}"&formatted.text&"\n"
+        .i:i+1
+    .at:0
+    .copied:0
+    final:""
+    at<size?>
+        literal:literal_end(rewritten,at)
+        literal>at?
+            .at:literal
+            @>
+        bibliography_text.at(rewritten,at)~="\\"?
+            .at:bibliography_text.next(rewritten,at)
+            @>
+        command:bibliography_groups.control(rewritten,at)
+        begin:at
+        .at:command.stop
+        command.name="printbibliography"?
+            settings:bibliography_groups.read(rewritten,at,"[","]")
+            .at:bibliography_groups.skip_space(rewritten,at)
+            settings.present /\ settings.closed?
+                .at:settings.stop
+                settings.value~=""? .diagnostics:diagnostic(diagnostics,"Unsupported printbibliography options: "&settings.value)
+            .final:final&bibliography_text.span(rewritten,copied,begin)&"\\begin{thebibliography}{"&widest&"}\n"&bibliography&"\\end{thebibliography}"
+            .copied:at
+        command.name="nocite"?
+            group:bibliography_groups.read(rewritten,at)
+            group.present /\ group.closed /\ bibliography_text.find(group.value,"{")<0?
+                .final:final&bibliography_text.span(rewritten,copied,begin)
+                .at:group.stop
+                .copied:at
+    .final:final&bibliography_text.span(rewritten,copied,size)
+    @:(source:final,labels_json:bibliography_data.map_json(labels),entries_json:"["&bibliography_chunks.join(entry_chunks,0,count)&"]",inputs_json:array_json(inputs),diagnostics_json:"["&diagnostics&"]",separator:"; ",style:style,complete:diagnostics="")

@@ -1,0 +1,29 @@
+math_layout:.math_layout
+math_parser:.math_parser
+math_packages:.math_packages
+math_draw:.math_draw
+math_command_pages:.math_command_pages
+resource_json:.resource_json
+test_layout_fonts:.test_layout_fonts
+renderer_tests()->bit:
+    fonts:test_layout_fonts.fonts()
+    context:math_packages.from_names(["amsthm"])
+    arena:math_parser.parse_with_context("\\pushQED{a}a\\qedhere\\qedhere\\popQED",fonts,context,true)
+    frozen:math_parser.json(arena)
+    plain:math_layout.layout(math_parser.parse("a",fonts),fonts)
+    result:math_layout.layout(arena,fonts)
+    (math_parser.json(arena)=frozen)?! "fresh executions preserve caller AST snapshot"
+    (result.box_count>arena.count*4 /\ result.width=plain.width /\ result.next_equation_number=1 /\ result.diagnostics="")?! "captured QED executions grow stable owners without widening the body"
+    packet:math_draw.flatten(result)
+    (packet.count=3)?! "two independent captures emit separate retained leaves"
+    values:packet.payload
+    ids:packet.ids
+    first:resource_json.parse("{"&values.(ids.(0))&"}")
+    second:resource_json.parse("{"&values.(ids.(1))&"}")
+    third:resource_json.parse("{"&values.(ids.(2))&"}")
+    (resource_json.member(first,0,"equationTag")<0 /\ resource_json.member(second,0,"equationTag")>=0 /\ resource_json.member(third,0,"equationTag")>=0)?! "QED metadata isolates commands sharing original glyph payload"
+    (resource_json.number(second,resource_json.member(second,0,"tagWidth"))=plain.width /\ resource_json.number(third,resource_json.member(third,0,"tagWidth"))=plain.width)?! "each capture retains its own exact tag width"
+    repeated:math_layout.layout(arena,fonts)
+    (math_draw.items(result)=math_draw.items(repeated) /\ math_parser.json(arena)=frozen)?! "request-local QED and growth state never leaks across renders"
+    @:true
+renderer_tests()

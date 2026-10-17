@@ -1,0 +1,66 @@
+text_paragraph:.text_paragraph
+text_source_paragraph_output:.text_source_paragraph_output
+text_parser:.text_parser
+text_parser_stream:.text_parser_stream
+math_command_pages:.math_command_pages
+paragraph_breaking:.paragraph_breaking
+paragraph_nodes:.paragraph_nodes
+text_inline_boxes:.text_inline_boxes
+hyphenation:.hyphenation
+hyphenation_test_asset:.hyphenation_test_asset
+font_catalog:.font_catalog
+test_font_data:.test_font_data
+resource_json:.resource_json
+
+fonts():
+    keys:["font/roman","text/roman/65","text/roman/86"]
+    values:["{\"size\":10,\"spaces\":{\"space\":3,\"slant\":0}}","{\"key\":\"A\",\"advance\":7,\"height\":8,\"depth\":0}","{\"key\":\"V\",\"advance\":8,\"height\":9,\"depth\":1}"]
+    @:font_catalog.load(test_font_data.pack(keys,values))
+renderer_tests()->bit:
+    installed:fonts()
+    language:hyphenation.load(hyphenation_test_asset.source())
+    context:text_parser.context("roman",["roman"])
+    context.hyperref:true
+    options:paragraph_breaking.options(100)
+    options.justify:false
+    options.hyphens:false
+    source:"A \\hyperlink{k}{V A} V"
+    parsed:text_parser.parse(source,installed,context)
+    scopes:[ -1:parsed.stream.count]
+    provided:text_inline_boxes.empty()
+    index:0
+    command: -1
+    index<parsed.stream.count?>
+        name:text_parser_stream.value(parsed.stream,index,"value")
+        kind:text_parser_stream.value(parsed.stream,index,"kind")
+        kind="command" /\ name="hyperlink"?
+            .command:index
+            .provided:text_inline_boxes.append(provided,index,5)
+        parent:math_command_pages.integer(parsed.stream.parents,index)
+        parent=command /\ command>=0? scopes.(index):0
+        .index:index+1
+    style:"{\"0\":{\"color\":[1,0,0,1],\"borderWidth\":1,\"colorlinks\":false,\"target\":{\"type\":\"destination\",\"value\":\"named:k\"}}}"
+    result:text_paragraph.position_with_links(source,parsed.stream,installed,language,hyphenation.strings(0),options,paragraph_nodes.text_options(),provided,scopes,style,paragraph_breaking.ints(0),hyphenation.strings(0))
+    (result.complete /\ result.width=39 /\ result.glyph_count=4 /\ result.scene_count=1)?! "Breakable source scopes retain ordinary paragraph geometry and append an annotation scene"
+    merged:resource_json.parse(text_source_paragraph_output.json(result))
+    items:resource_json.member(merged,0,"items")
+    link:resource_json.element(merged,items,4)
+    (resource_json.string(merged,resource_json.member(merged,link,"kind"))="link" /\ resource_json.number(merged,resource_json.member(merged,link,"x"))=10 /\ resource_json.number(merged,resource_json.member(merged,link,"width"))=18 /\ resource_json.number(merged,resource_json.member(merged,link,"height"))=10)?! "Linked spaces are included in the final full-height link rectangle"
+    colored:"{\"0\":{\"color\":[0,0,1,1],\"borderWidth\":0,\"colorlinks\":true,\"target\":null}}"
+    anchors:[command,parsed.stream.count]
+    anchored:text_paragraph.position_with_links(source,parsed.stream,installed,language,hyphenation.strings(0),options,paragraph_nodes.text_options(),provided,scopes,colored,anchors,["first","last"])
+    output:resource_json.parse(text_source_paragraph_output.json(anchored))
+    output_items:resource_json.member(output,0,"items")
+    first:resource_json.element(output,output_items,1)
+    last:resource_json.element(output,output_items,3)
+    (resource_json.member(output,first,"color")>=0 /\ resource_json.member(output,last,"color")<0)?! "Only linked leaves receive the requested color"
+    first_ids:resource_json.member(output,first,"destinationIds")
+    last_ids:resource_json.member(output,last,"destinationIds")
+    (resource_json.string(output,resource_json.element(output,first_ids,0))="first" /\ resource_json.string(output,resource_json.element(output,last_ids,0))="last")?! "Source anchors choose the next visible node and fall back to the final emitted node"
+    empty:text_parser.parse("",installed,context)
+    points:text_paragraph.position_with_links("",empty.stream,installed,language,hyphenation.strings(0),options,paragraph_nodes.text_options(),text_inline_boxes.empty(),paragraph_breaking.ints(0),"{}",[0],["empty"])
+    point_packet:resource_json.parse(text_source_paragraph_output.json(points))
+    destinations:resource_json.member(point_packet,0,"destinations")
+    (destinations>=0 /\ points.complete)?! "An anchor without visible leaves survives as an explicit destination point"
+    @:true
+renderer_tests()

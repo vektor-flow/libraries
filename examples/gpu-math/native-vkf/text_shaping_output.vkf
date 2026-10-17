@@ -1,0 +1,21 @@
+# Diagnostic/reference transport only. Geometry and assertions live in VKF.
+j:.resource_json
+n:.json_numbers
+chunks:.text_chunks
+text:.tex_text
+Run:(keys:[str],xs:[num],metrics:[str],codes:[int],starts:[int],stops:[int],count:int,width:num,height:num,depth:num,italic:num,atoms:int,diagnostics:str)
+
+json(run:Run)->str:
+    parts:chunks.empty(run.count)
+    keys:run.keys
+    xs:run.xs
+    starts:run.starts
+    stops:run.stops
+    codes:run.codes
+    i:0
+    i<run.count?>
+        prefix:""
+        i>0? .prefix:","
+        parts.(i):prefix&"{\"key\":"&j.quote(keys.(i))&",\"x\":"&n.roundtrip(xs.(i))&",\"y\":0,\"code\":"&text.integer(codes.(i))&",\"start\":"&text.integer(starts.(i))&",\"stop\":"&text.integer(stops.(i))&"}"
+        .i:i+1
+    @:"{\"width\":"&n.roundtrip(run.width)&",\"height\":"&n.roundtrip(run.height)&",\"depth\":"&n.roundtrip(run.depth)&",\"italic\":"&n.roundtrip(run.italic)&",\"atoms\":"&text.integer(run.atoms)&",\"diagnostics\":["&run.diagnostics&"],\"items\":["&chunks.join(parts,0,run.count)&"]}"

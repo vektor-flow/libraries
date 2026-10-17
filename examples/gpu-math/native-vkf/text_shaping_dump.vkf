@@ -1,0 +1,20 @@
+io:.io
+catalog:.font_catalog
+s:.text_shaping
+output:.text_shaping_output
+
+run()->int:
+    fonts:catalog.load(io.read_text(io.read_line()))
+    count:int(vkf_decimal_parse(io.read_line()))
+    i:0
+    i<count?>
+        role:io.read_line()
+        start:int(vkf_decimal_parse(io.read_line()))
+        stop:int(vkf_decimal_parse(io.read_line()))
+        source:io.read_text(io.read_line())
+        path:io.read_line()
+        ctx:s.context(fonts,role)
+        io.write_text(path,output.json(s.range(source,start,stop,fonts,ctx)))
+        .i:i+1
+    @:0
+run()

@@ -1,0 +1,57 @@
+a264_routes:.latex_document_routes
+a264_text:.tex_text
+a264_linear:.document_scene_paragraph_linear
+Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+document_present:.document_present
+document_scene_json:.document_scene_json
+document_scene_paragraph:.document_scene_paragraph
+document_label_scene:.document_label_scene
+document_materialize_config:.document_materialize_config
+resource_json:.resource_json
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Leaf:(kind:int,key:str,x:num,y:num,sx:num,sy:num,width:num,height:num,line:int,equation_tag:bit,tag_width:num,draw:bit,metadata:Metadata,glyph_parts:int,flow_x:num,flow_width:num,has_flow:bit,vertical_shrink:num,vertical_stretch:num,paint:Paint,has_paint:bit,payload:Payload,has_payload:bit,fill_paint:Paint,has_fill_paint:bit,stroke_paint:Paint,has_stroke_paint:bit,destination_ids:[str],footnote_number:int,a260_scope:str,a260_text:str,a260_operation:int,a260_start:int,a260_stop:int,a260_part:int)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],metadata:Metadata,metadata_roots:[int],glyph_parts:[int],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int],a260_scopes:[str],a260_texts:[str],a260_operations:[int],a260_starts:[int],a260_stops:[int],a260_parts:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_metadata:Metadata,anchor_roots:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num,inline_destinations:bit)
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+PageConfig:(values:[num],flags:[bit],penalties:[int])
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Configuration:(config:str,pages:PageConfig,packages:[str],math:MathContext,overrides:[str],class_name:str,optical:bit,hyperref:bit,diagnostics:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Outer:(scene:Scene,diagnostics:str)
+measure_outer(tape:Tape,node:int,fonts:Catalog,roles:[str],language:Language,c:Configuration,directory:str,a264_block:int= -1,a264_outer:int= -1,a264_blocks:[int]=[],a264_scopes:[str]=[],a264_texts:[str]=[],a264_kinds:[str]=[]):
+    source:document_materialize_config.string(tape,node,"source")
+    role:document_materialize_config.string(tape,node,"font")
+    q:document_present.measure(source,role,fonts,roles,language,c,directory)
+    a264_scope:a264_routes.select(a264_block,source,a264_blocks,a264_scopes,a264_texts,a264_kinds,"outer:"&a264_text.integer(a264_outer))
+    a264_scene:document_scene_paragraph.from_paragraph(q)
+    a264_scope~=""? .a264_scene:a264_linear.from_paragraph_owned(q,a264_scope)
+    @:(scene:a264_scene,diagnostics:q.diagnostics)
+outer_at(values:[Outer],index:int):@:values.(index).scene
+compose(primary:Scene,pending:str,left:num,label_sep:num,fonts:Catalog,roles:[str],language:Language,c:Configuration,directory:str="{}",a264_block:int= -1,a264_blocks:[int]=[],a264_scopes:[str]=[],a264_texts:[str]=[],a264_kinds:[str]=[]):
+    tape:resource_json.parse(pending)
+    count:0
+    node:1
+    node<tape.ends.(0)?>
+        .count:count+1
+        .node:tape.ends.(node)
+    [int] nodes:[0:count]
+    [num] lefts:[0.0:count]
+    .node:1
+    i:0
+    i<count?>
+        nodes.(i):node
+        lefts.(i):document_materialize_config.number(tape,node,"left")
+        .node:tape.ends.(node)
+        .i:i+1
+    [int] indices:[0:count]
+    measured:indices >> measure_outer(tape,nodes.($0),fonts,roles,language,c,directory,a264_block,$0,a264_blocks,a264_scopes,a264_texts,a264_kinds)
+    outers:indices >> outer_at(measured,$0)
+    diagnostics:""
+    .i:0
+    i<count?>
+        .diagnostics:document_materialize_config.merge(diagnostics,measured.(i).diagnostics)
+        .i:i+1
+    result:document_label_scene.compose(primary,outers,lefts,left,label_sep)
+    @:(scene:result,diagnostics:diagnostics)

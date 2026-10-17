@@ -1,0 +1,128 @@
+# Runtime source graphics/float adapter. Child captions and paragraphs are
+# shaped in native VKF; neither prepared scenes nor reference geometry enter.
+materialize_float_json:.resource_json
+materialize_float_text:.tex_text
+materialize_float_chunks:.text_chunks
+materialize_float_config:.document_materialize_config
+materialize_float_graphics:.document_graphics
+materialize_float_options:.document_graphic_options
+materialize_float_measure:.document_float_measure
+materialize_float_parser:.text_parser
+materialize_float_paragraph:.text_source_paragraph
+materialize_float_output:.text_source_paragraph_output
+materialize_float_breaking:.paragraph_breaking
+materialize_float_nodes:.paragraph_nodes
+materialize_float_fonts:.font_catalog
+materialize_float_resolve:.document_resolve
+materialize_float_numbers:.json_numbers
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+PageConfig:(values:[num],flags:[bit],penalties:[int])
+MathContext:(restricted:bit,amsmath:bit,amsthm:bit,bbm:bit,latexsym:bit,faktor:bit,qed_symbol:str)
+Configuration:(config:str,pages:PageConfig,packages:[str],math:MathContext,overrides:[str],class_name:str,optical:bit,hyperref:bit,diagnostics:str)
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Map:(keys:Pool,values:[str])
+Request:(kind:str,source:str,attrs:str,assets_json:str,directory:str,references:Map,page_values:Map,citation_labels_json:str,citation_separator:str)
+Result:(scene:str,diagnostics:str,unresolved:str,pending_pages:bit)
+raw(tape:Tape,node:int)->str:materialize_float_config.raw(tape,node)
+number(tape:Tape,node:int,key:str,fallback:num=0)->num:materialize_float_config.number(tape,node,key,fallback)
+string(tape:Tape,node:int,key:str)->str:materialize_float_config.string(tape,node,key)
+flag(tape:Tape,node:int,key:str)->bit:
+    node<0? @:false
+    at:materialize_float_json.member(tape,node,key)
+    at<0? @:false
+    @:tape.kinds.(at)=5
+quad(fonts:Catalog,role:str)->num:
+    font:materialize_float_fonts.text_font(fonts,role)
+    spaces:materialize_float_json.member(font,0,"spaces")
+    @:number(font,spaces,"quad")
+scene(items:str,width:num,height:num)->str:
+    w:materialize_float_numbers.roundtrip(width)
+    h:materialize_float_numbers.roundtrip(height)
+    @:"{\"items\":"&items&",\"width\":"&w&",\"height\":"&h&",\"depth\":0,\"lines\":[{\"width\":"&w&",\"height\":"&h&",\"depth\":0,\"baseline\":0}]}"
+pending(reason:str,source:str)->str:"{\"reason\":"&materialize_float_json.quote(reason)&",\"source\":"&materialize_float_json.quote(source)&"}"
+shape(request:Request,fonts:Catalog,roles:[str],language:Language,c:Configuration)->Result:
+    properties:materialize_float_json.parse("{"&request.attrs&"}")
+    config:materialize_float_json.parse(c.config)
+    diagnostics:""
+    unresolved:""
+    pending_pages:false
+    width:number(config,0,"textWidth")
+    request.kind="image"?
+        assets:materialize_float_json.parse(request.assets_json)
+        asset:materialize_float_json.member(assets,0,request.source)
+        asset<0?
+            dot:materialize_float_text.byte_length(request.source)-1
+            dot>=0 /\ materialize_float_text.at(request.source,dot)~="."?> .dot:dot-1
+            dot>=0? .asset:materialize_float_json.member(assets,0,materialize_float_text.span(request.source,0,dot))
+        asset<0? @:(scene:scene("[]",0,0),diagnostics:materialize_float_json.quote("Missing image asset: "&request.source),unresolved:pending("Missing source image asset",request.source),pending_pages:false)
+        options_json:"{}"
+        option:materialize_float_json.member(properties,0,"options")
+        option>=0? .options_json:raw(properties,option)
+        option<0?
+            parsed:materialize_float_options.parse(string(properties,0,"option"))
+            .options_json:parsed.json
+            .diagnostics:parsed.diagnostics
+        dimensions:materialize_float_graphics.dimensions(raw(assets,asset),options_json,c.config,false)
+        .diagnostics:materialize_float_config.merge(diagnostics,dimensions.diagnostics)
+        ~dimensions.complete? @:(scene:scene("[]",0,0),diagnostics:diagnostics,unresolved:pending("Invalid source image dimensions",request.source),pending_pages:false)
+        items:materialize_float_graphics.items(raw(assets,asset),request.source,0,0,dimensions)
+        @:(scene:scene(items,dimensions.width,dimensions.height),diagnostics:diagnostics,unresolved:"",pending_pages:false)
+    request.kind~="figure"? @:(scene:scene("[]",0,0),diagnostics:"",unresolved:pending("Unsupported graphic provider kind",request.kind),pending_pages:false)
+    children:materialize_float_measure.array(properties,materialize_float_json.member(properties,0,"blocks"))
+    packets:materialize_float_chunks.empty(children.length())
+    provider_warnings:materialize_float_chunks.empty(children.length())
+    index:0
+    index<children.length()?>
+        child:children.(index)
+        kind:string(properties,child,"kind")
+        (kind="image" \/ kind="vspace")?
+            .index:index+1
+            @>
+        literal:kind="verbatim"
+        role:"roman"
+        context:materialize_float_json.member(properties,child,"context")
+        literal?
+            .role:"mono"
+            context>=0? string(properties,context,"font")="footnote"? .role:"footnotemono"
+        source:string(properties,child,"source")
+        resolved:materialize_float_resolve.resolve(source,request.references,request.page_values,request.citation_labels_json,request.citation_separator,materialize_float_config.has(c.packages,"biblatex"),c.hyperref,flag(config,0,"legacyEquationAnchor"),literal)
+        .diagnostics:materialize_float_config.merge(diagnostics,resolved.diagnostics)
+        resolved.pending_pages? .pending_pages:true
+        text_context:materialize_float_parser.context(role,roles,c.optical,c.hyperref)
+        text_context.literal:literal
+        text_context.literal_input:flag(properties,child,"fileInput")
+        text_options:materialize_float_nodes.text_options()
+        options:materialize_float_breaking.options(width)
+        options.justify:~literal
+        options.tolerance:9999
+        options.emergency:3*quad(fonts,role)
+        links_json:"{}"
+        default_links:materialize_float_json.member(config,0,"linkAppearance")
+        default_links>=0? .links_json:raw(config,default_links)
+        context>=0?
+            links:materialize_float_json.member(properties,context,"linkAppearance")
+            links>=0? .links_json:raw(properties,links)
+        selected:""
+        kind="caption"?
+            single_options:materialize_float_breaking.options(1000000)
+            single_options.justify:false
+            single_options.hyphens:false
+            single_options.preserve_trailing:true
+            single:materialize_float_paragraph.typeset(resolved.source,fonts,text_context,c.math,language,c.overrides,single_options,text_options,request.directory,links_json)
+            single.width<=width?
+                .selected:materialize_float_output.scene(single)
+                provider_warnings.(index):single.diagnostics
+                ~single.lowering_complete? .unresolved:materialize_float_measure.append(unresolved,pending("Unresolved source float caption",source))
+        selected=""?
+            measured:materialize_float_paragraph.typeset(resolved.source,fonts,text_context,c.math,language,c.overrides,options,text_options,request.directory,links_json)
+            .selected:materialize_float_output.scene(measured)
+            provider_warnings.(index):measured.diagnostics
+            ~measured.lowering_complete? .unresolved:materialize_float_measure.append(unresolved,pending("Unresolved source float paragraph",source))
+        packets.(index):selected
+        .index:index+1
+    result:materialize_float_measure.measure_with_warnings("{"&request.attrs&"}",c.config,request.assets_json,packets,provider_warnings)
+    .diagnostics:materialize_float_config.merge(diagnostics,result.diagnostics)
+    ~result.complete? .unresolved:materialize_float_measure.append(unresolved,pending("Incomplete source float measurement",request.source))
+    @:(scene:scene(result.items,width,result.height),diagnostics:diagnostics,unresolved:unresolved,pending_pages:pending_pages)

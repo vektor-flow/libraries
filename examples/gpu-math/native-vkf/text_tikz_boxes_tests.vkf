@@ -1,0 +1,46 @@
+text_tikz_test_bridge:.text_tikz_boxes
+text_tikz_test_parser:.text_parser
+text_tikz_test_fonts:.font_catalog
+text_tikz_test_data:.test_font_data
+text_tikz_test_language:.hyphenation
+text_tikz_test_language_asset:.hyphenation_test_asset
+text_tikz_test_packages:.math_packages
+text_tikz_test_json:.resource_json
+text_tikz_test_text:.tex_text
+text_tikz_test_paragraph:.text_source_paragraph
+text_tikz_test_breaks:.paragraph_breaking
+text_tikz_test_nodes:.paragraph_nodes
+
+fonts():
+    keys:["font/roman","text/roman/65","text/roman/86"]
+    values:["{\"size\":10,\"spaces\":{\"space\":3,\"slant\":0,\"quad\":10}}","{\"key\":\"A\",\"advance\":7,\"height\":8,\"depth\":0,\"italic\":0}","{\"key\":\"V\",\"advance\":8,\"height\":9,\"depth\":1,\"italic\":0}"]
+    @:text_tikz_test_fonts.load(text_tikz_test_data.pack(keys,values))
+renderer_tests()->bit:
+    fonts:fonts()
+    language:text_tikz_test_language.load(text_tikz_test_language_asset.source())
+    context:text_tikz_test_parser.context("roman",["roman"])
+    math:text_tikz_test_packages.defaults()
+    overrides:text_tikz_test_language.strings(0)
+    source:"before\\begin{tikzpicture}\\node (a) {A};\\draw (a)--(1,0);\\end{tikzpicture}after"
+    scenes:text_tikz_test_bridge.prepare(source,fonts,context,math,language,overrides,10,10)
+    boxes:scenes.boxes
+    (scenes.complete /\ scenes.count=1 /\ scenes.source="before\\vkftikzbox{0}after" /\ scenes.original_source=source /\ scenes.diagnostics="")?! "Real source label provider compiles scene while preserving source sidecars"
+    (text_tikz_test_text.find(boxes.(0),"\"key\":\"A\"")>=0 /\ text_tikz_test_text.find(boxes.(0),"segment")>=0)?! "Label glyph identity and native line share retained scene"
+    parsed:text_tikz_test_parser.parse("\\vkftikzbox{0}",fonts,context)
+    provider:text_tikz_test_bridge.provide(parsed.stream,scenes)
+    ids:provider.operation_ids
+    payloads:provider.scenes
+    (provider.count=1 /\ ids.(0)=0 /\ payloads.(0)=boxes.(0))?! "Native scene resolves exact inline command operation and first argument"
+    missing:text_tikz_test_bridge.lookup("1",scenes)
+    invalid:text_tikz_test_bridge.lookup("0x",scenes)
+    (missing.diagnostic="Invalid TikZ picture reference" /\ ~missing.valid /\ ~invalid.valid)?! "Invalid references never become zero-size valid scenes"
+    directory:text_tikz_test_bridge.directory(scenes)
+    json:text_tikz_test_json.parse(directory)
+    (text_tikz_test_json.member(json,0,"0")>=0)?! "Generic native scene directory uses original picture index"
+    options:text_tikz_test_breaks.options(1000)
+    options.justify:false
+    options.hyphens:false
+    paragraph:text_tikz_test_paragraph.typeset("A\\mbox{\\vkftikzbox{0}}V",fonts,context,math,language,overrides,options,text_tikz_test_nodes.text_options(),directory)
+    (paragraph.complete /\ paragraph.pending_count=0 /\ paragraph.scene_count=1 /\ paragraph.glyph_count=2)?! "Generic scene directory survives mbox recursion without TikZ module cycles"
+    @:true
+renderer_tests()

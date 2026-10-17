@@ -1,0 +1,12 @@
+io:.io
+document_materialize_kernel:.document_materialize_kernel
+run()->int:
+    source:io.read_text(io.read_line())
+    fonts:io.read_text(io.read_line())
+    language:io.read_text(io.read_line())
+    roles:io.read_line()
+    files:io.read_text(io.read_line())
+    path:io.read_line()
+    io.write_text(path,document_materialize_kernel.materialize(source,fonts,language,roles,files))
+    @:0
+run()

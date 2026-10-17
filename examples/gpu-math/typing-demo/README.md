@@ -1,3 +1,40 @@
+## Native AMS/TikZ source projects — 2026-10-16
+
+The document runtime includes an independently prepared12pt AMS optical profile,
+source-driven TikZ segments/curves/nodes/rectangles, BBM glyphs, faktor, AMS
+front matter/proofs/lists and BibTeX-backed biblatex alphabetic references. Load
+the source and its `.bib` with matching project-relative names. Package loading
+and options come from the source; unsupported syntax emits diagnostics.
+
+Stage a runnable copy from `examples/gpu-math`:
+
+```sh
+python3 stage_typing_demo.py /tmp/vkf-document-runtime
+python3 -m http.server 8875 --directory /tmp/vkf-document-runtime
+```
+
+Open `http://127.0.0.1:8875/document.html`. The staging tool copies the actual
+runtime module graph, prepared class profiles and font notices; it neither
+executes TeX nor downloads/reads a reference document. Existing output directories
+are rejected so earlier evidence is retained. WebGPU support is required for the
+preview; physical GPU use remains prohibited in this development workspace, so
+local automated checks must explicitly select SwiftShader.
+
+The complete40-page test article passes every glyph origin/size/identity/count
+check against a fresh exact-source LaTeX build, at0.1px tolerance (worst0.082px).
+That is a geometry result. The separate strict1% raster-ink gate still finds
+sparse font-cache rounding/antialiasing differences; the archived older DVI/
+Ghostscript PDF also remains a separate failing comparison. Neither pixel identity
+nor arbitrary LaTeX/TikZ support is claimed. The runtime never reads either
+reference. Its public `renderDocument` API accepts `pdfPixels:true` for the
+prepared96dpi native-font masks; other zooms use outline fields and exact PK
+font-pixel geometry. Source glyph identities and full-precision layout stay
+unchanged. Independent vector PDF export now loads the matching amsart-12
+metrics/vector bundle automatically, without WebGPU or a TeX runtime. Ordinary
+fonts use Type1 curves; native BBM bitmap fonts use exact PK rectangles as vector
+paths, retaining their original pixel contours at high zoom. See the same-source
+40-page timing checkpoint below; historical 39-page measurements remain separate.
+
 # Live typing test
 
 The GitHub Pages preview at `/previews/gpu-math-typing/` is linked from Coming soon.
@@ -454,3 +491,161 @@ checks,9 exact tile/full captures and471 present/93 missing report views pass.
 Full arXiv documents/AMS still fail; arXiv aggregate coverage slightly regresses.
 The report preserves those failures. Shader-alpha experiments are retained as
 rejected trials; the default MTSDF shader is unchanged. No site was published.
+
+## Independent vector PDF export — 2026-10-15
+
+The document editor now provides **More → Export PDF**. It typesets the current
+source with the existing native layout and writes a downloadable PDF without a
+LaTeX engine, WebGPU, the MTSDF atlas, browser text or page screenshots. Export
+also works when the WebGPU preview is unavailable. The exporter uses reusable
+cubic Bezier Form XObjects from the original vector fonts, preserving full
+precision positions, scales, cropped extension pieces, colours, alpha and rules.
+Native segments, Beziers, circles and rectangles also export as vector paths.
+Circles use eight cubic arcs (radial approximation below 5e-6 of the radius).
+
+Text is currently outlined: it stays sharp at high zoom but is not selectable or
+searchable. Original raster illustrations remain raster illustrations. Prepared
+vector illustrations need the new `vectors` field from
+`prepare_document_assets.py`; older atlas-only assets fail export explicitly.
+Missing outlines, incomplete placeholders and unsupported item kinds fail rather
+than silently substituting pixels. Existing source compatibility diagnostics
+remain visible; exporting does not add LaTeX package support.
+
+`vector-pdf.mjs` exports `exportVectorPdf(layout, vectors, {images})` and
+`verifyVectorMapping`. The browser loads `pdf-vectors.json.gz` on first export
+and verifies its SHA256 mapping pin. The bundle covers all 8,532 existing tile
+keys with 5,600 deduplicated outlines (2,226,091 compressed bytes). Font notices
+and existing source archives remain alongside it. Regenerate after font-mapping
+changes using `prepare_pdf_vectors.py`; font discovery/preparation is development
+work, never an export-time dependency. Standard Type1 fonts may be supplied with
+`--font-dir`; bundled supplementary font archives are reused unchanged.
+
+Standalone source and image-free saved layouts can also export with:
+
+```sh
+node examples/gpu-math/export_vector_pdf.mjs input.tex output.pdf
+node examples/gpu-math/export_vector_pdf.mjs layout.json output.pdf
+```
+
+The browser API `window.exportDocumentPdf(source, {buildContext})` handles the
+loaded project files and original illustrations; it returns bytes, page count,
+diagnostics and the layout. Export uses black default ink, preserving explicit
+source colours. Camera pan/zoom and diagnostic raster-position rounding do not
+alter PDF geometry.
+
+Verification: 84 Node and 25 Python regression checks pass. Browser download,
+error feedback and 390px layout pass with WebGPU disabled, without loading the
+atlas/shader. The normal preview and export also pass with explicit software
+SwiftShader. Independent MuPDF checks compare three glyphs directly against
+Type1-derived SVG curves at 1/16/64x: all nine silhouette IoUs are 1.0, maximum
+mean grayscale difference 0.0000095. These are targeted zoom checks, not a full
+39-page raster-parity claim. The exported example contains no image objects.
+
+The original complete 1801.05894v1 exports 39 pages (1.5MB), with unchanged
+positioned items against accepted layout-74. Independent pypdf checks all 61,922
+glyph/field instance transforms: maximum serialization error 5.01e-11 bp.
+MuPDF reads 62,182 vector paints and exactly 13 original raster illustration
+placements. The two existing float-layout diagnostics remain. The earlier
+61,949 native-glyph audit includes composite glyph parts; it is a different
+count from PDF instances. Its accepted position tolerance remains 0.1px.
+
+Evidence: `/home/viktor/Projects/Cuvami/staging/artifacts/gpu-math/20261015/vector-pdf/`:
+`example.pdf`, `full-paper.pdf`, `full-paper-layout.json`, `layout-equivalence.json`,
+`browser.json`, `preview/browser.json`, `vector-verification.json`, prepared
+illustration assets and targeted 64x PNGs. Reproduce with `verify_vector_pdf.mjs`
+and `verify_vector_pdf.py`. No push, publication, deployment or physical GPU use.
+
+## Clickable PDF links
+
+The exported PDF now makes LaTeX links clickable through separate PDF annotations.
+Existing red/green rectangles keep their appearance and gain their destinations.
+Use `\usepackage{hyperref}` for normal linking commands:
+
+```tex
+\href{https://example.org}{Website}
+\url{https://example.org}
+\ref{section:example} \eqref{equation:example} \pageref{section:example}
+\cite{bibliography-key}
+\hyperlink{named-target}{Jump here}
+\hypertarget{named-target}{Destination text}
+\hyperref[section:example]{Custom link text}
+```
+
+Section/theorem/equation/figure/listing labels, bibliography entries and footnotes
+retain destinations at their final page positions, including moved floats and
+aligned equation rows. Page references use bounded native re-layout to converge.
+`\ref*`, `\eqref*`, `\pageref*` and `\nolinkurl` remain unlinked.
+`hidelinks`, `colorlinks`, `linkcolor`, `citecolor`, `urlcolor`, `allcolors` and
+basic `pdfborder` settings control appearance; `\hypersetup` can update those
+settings. Wrapped href labels retain ordinary paragraph layout and gain a region
+per line. Broken destinations produce explicit diagnostics/export errors.
+
+The layout exposes `destinations` (zero-based page index and top-origin bp x/y).
+A link item has `target: {type: 'uri'|'destination', value: string}` and optional
+`borderWidth: 0` for invisible links. Additional invisible annotation regions can
+be supplied as `page.links`; these do not enter the renderer's painted items.
+The core exporter resolves forward destinations to actual PDF page references,
+converts rectangle/page coordinates to PDF coordinates and safely writes URI
+bytes as hex strings. The annotations themselves have invisible borders because
+any visible border is already drawn in vector content. Text remains outlined;
+PDF search/selection and bookmarks are separate capabilities.
+
+`tests/pdf-links.tex` is the three-page browser/export fixture.
+`verify_pdf_links.py OUTPUT --baseline EARLIER_VECTOR_OUTPUT` independently checks
+annotation destinations/rectangles and all 39 focus-paper pages against the
+previous vector PDF. Evidence is under `vector-pdf-links/` beside `vector-pdf/`.
+
+## Same-source 40-page PDF performance — 2026-10-16
+
+The exact source plus original .bib now produces a complete saved vector PDF in
+2.241s file-cache cold, 0.406s warm, and 0.371s after a visible title-period edit
+(medians, three cold and nine warm/edit runs). TeXres 0.7.7 takes
+10.931/2.683/2.774s; pdfLaTeX takes 11.350/3.238/3.236s. All nine cold launches have
+zero resident input/private-executable pages verified by mincore after Linux
+cache eviction. Browser startup/app loading count for ours; native startup,
+Biber and required reference/font passes count for the compilers. Every run
+includes final disk output. Reusable installed font assets are prepared in advance.
+Warm runs build real new PDFs, with no document-specific shortcut or saved PDF.
+
+All 40 pages, 67,610 constituent glyphs and 46 diagrams retain the accepted layout
+exactly. Independent PDF checks cover every glyph transform; the output contains
+no raster image objects. 147 Node and 25 Python tests pass. Evidence and scripts:
+`20261016/pdf-40-comparison/`, including rejected attempts, raw samples, PDF files,
+font provenance, frozen runtime and verification reports. SwiftShader page-render
+timings measure a separate pipeline. Cold PDF export remains above 0.6s.
+
+## Historical 39-page PDF export performance
+
+The verified filesystem-cold39-page browser workflow takes median1.927s from
+fresh browser launch through a saved vector PDF. Warm full rebuilds take0.383s;
+one-digit local formula edits take0.369s. These are actual new PDFs, not cached
+output checks. Three cold, nine warm and three samples per edit were measured.
+The600ms full cold target has not been reached.
+
+TeXres0.7.7 on the exact same LaTeX project measures0.553/0.221/0.239s for
+cold/warm/formula-edit; pdfLaTeX measures0.526/0.243/0.249s. Before every cold run,
+Linux cache eviction and independent root mincore verify zero resident input and
+executable pages. Shared system-library residency is recorded. Our cold result
+includes browser/app startup and project loading; the competitors include native
+process startup and all required reference passes. All include final PDF disk
+output. CPU/disk-controller caches, installation and asset preparation are outside
+this claim. Earlier fresh-page API results with warm OS caches are not cold runs.
+
+The backend reuses eligible opaque PNG IDAT data with PDF row predictors, copies
+RGBA channels directly and overlaps bounded CPU-worker compression with PDF
+construction. Small glyph outline streams remain uncompressed. Native placement
+indexes items by line and reuses word shaping only within each newly built layout.
+No prior layout/PDF cache or hardcoded document shortcut is used. Coordinates,
+vector curves, original figures and215 links remain intact; the PDF is about2.20MB.
+
+`window.exportDocumentPdf` returns stage `timings`; `{profile:true}` additionally
+returns `pdfMetrics`. `layoutAndFontLoadMs` records overlapping layout/font setup;
+worker `compressionMs` records the final wait, not all worker CPU time. API stages
+exclude app/project setup and final download; do not equate them with cold totals.
+
+Evidence and runnable scripts are in `20261016/pdf-cold-comparison/`; its timing
+snapshot uses the accepted10pt renderer plus generic performance changes, with
+exact positions/page pixels verified against the accepted PDF. Concurrent AMS
+layout development is separately unqualified. Optical11/12pt profiles still need
+their own PDF vector bundles. The earlier profiles/snapshots remain in
+`20261015/pdf-speed/`, `pdf-speed-2/` and `pdf-speed-3/`.

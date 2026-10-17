@@ -1,0 +1,20 @@
+catalog:.font_catalog
+parser:.math_parser
+packages:.math_packages
+
+math_ast(source:str,font_source:str,native:bit=true):
+    fonts:catalog.load(font_source)
+    @:parser.json(parser.parse(source,fonts,native))
+
+math_diagnostics(source:str,font_source:str,native:bit=true,source_name:str="<math>")->str:
+    @:parser.diagnose(source,catalog.load(font_source),native,source_name)
+
+math_ast_with_context(source:str,font_source:str,names:[str],class_name:str="article",native:bit=true)->str:
+    fonts:catalog.load(font_source)
+    @:parser.json(parser.parse_with_context(source,fonts,packages.from_names(names,class_name),native))
+
+math_diagnostics_with_context(source:str,font_source:str,names:[str],class_name:str="article",native:bit=true,source_name:str="<math>")->str:
+    @:parser.diagnose_with_context(source,catalog.load(font_source),packages.from_names(names,class_name),native,source_name)
+
+noop()->int:0
+noop()

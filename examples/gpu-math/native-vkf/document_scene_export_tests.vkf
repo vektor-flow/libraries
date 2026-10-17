@@ -1,0 +1,111 @@
+document_scene_export:.document_scene_export
+document_scene_json:.document_scene_json
+document_scene_pages:.document_scene_pages
+document_scene:.document_scene
+document_pages:.document_pages
+document_materialize_items:.document_materialize_items
+resource_json:.resource_json
+tex_text:.tex_text
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+same(a:Tape,an:int,b:Tape,bn:int)->bit:
+    an<0 \/ bn<0? @:false
+    a.kinds.(an)~=b.kinds.(bn)? @:false
+    kind:a.kinds.(an)
+    kind=1?
+        at:an+1
+        count_a:0
+        count_b:0
+        bt:bn+1
+        bt<b.ends.(bn)?>
+            .count_b:count_b+1
+            .bt:b.ends.(bt+1)
+        at<a.ends.(an)?>
+            key:resource_json.string(a,at)
+            other:resource_json.member(b,bn,key)
+            ~same(a,at+1,b,other)? @:false
+            .count_a:count_a+1
+            .at:a.ends.(at+1)
+        @:count_a=count_b
+    kind=2?
+        at:an+1
+        bt:bn+1
+        at<a.ends.(an) /\ bt<b.ends.(bn)?>
+            ~same(a,at,b,bt)? @:false
+            .at:a.ends.(at)
+            .bt:b.ends.(bt)
+        @:at=a.ends.(an) /\ bt=b.ends.(bn)
+    kind=3? @:resource_json.string(a,an)=resource_json.string(b,bn)
+    kind=4? @:|resource_json.number(a,an)-resource_json.number(b,bn)|<0.000000001
+    @:true
+assert_json(left:str,right:str)->bit:
+    a:resource_json.parse(left)
+    b:resource_json.parse(right)
+    (a.valid /\ b.valid /\ same(a,0,b,0))?! "Debug export preserves exact JSON fields and values"
+    @:true
+check(source:str,kind:int,mode:int)->bit:
+    scene:document_scene_json.decode("{\"items\":["&source&"]}")
+    placements:document_pages.empty_placements(1)
+    .placements:document_pages.append(placements,0,0,0,0,0,kind,10,20,2,100,7,3,0.2,0.3)
+    item:document_scene_pages.apply_leaf(document_scene.leaf_at(scene.arena,0),placements,0,12)
+    arena:document_scene.from_leaves([item],1)
+    expected:document_materialize_items.transform(resource_json.parse(source),0,placements,0,12)
+    actual:document_scene_export.leaf(arena,0,mode)
+    @:assert_json(expected,actual)
+page_fixture(arena:any):
+    widths:document_pages.zeros(1)
+    heights:document_pages.zeros(1)
+    firsts:document_pages.ints(1)
+    counts:document_pages.ints(1)
+    names:document_scene.strings(1)
+    pages:document_pages.ints(1)
+    xs:document_pages.zeros(1)
+    ys:document_pages.zeros(1)
+    widths.0:200
+    heights.0:300
+    counts.0:arena.count
+    names.0:"document"
+    @:(widths:widths,heights:heights,firsts:firsts,counts:counts,arena:arena,destination_names:names,destination_pages:pages,destination_xs:xs,destination_ys:ys,page_count:1,destination_count:1)
+proof_end_metadata()->bit:
+    glyph:document_scene_json.decode("{\"items\":[{\"kind\":\"glyph\",\"key\":\"symbol/box\",\"x\":3,\"y\":4}]}")
+    result:document_scene_export.leaf(glyph.arena,0,9,0)
+    assert_json(result,"{\"kind\":\"glyph\",\"key\":\"symbol/box\",\"x\":3,\"y\":4,\"verticalShrink\":0,\"verticalStretch\":0}")?! "proof endings preserve omitted native scales"
+    rule:document_scene_json.decode("{\"items\":[{\"kind\":\"rule\",\"x\":1,\"y\":2,\"width\":3,\"height\":0.4}]}")
+    output:document_scene_export.leaf(rule.arena,0,9,0)
+    assert_json(output,"{\"kind\":\"rule\",\"x\":1,\"y\":2,\"width\":3,\"height\":0.4,\"verticalShrink\":0,\"verticalStretch\":0}")?! "outlined proof endings preserve native rule metadata"
+    scaled:document_scene_json.decode("{\"items\":[{\"kind\":\"glyph\",\"key\":\"custom/symbol\",\"x\":0,\"y\":0,\"sx\":2,\"sy\":0.5}]}")
+    explicit:document_scene_export.leaf(scaled.arena,0,9,0)
+    assert_json(explicit,"{\"kind\":\"glyph\",\"key\":\"custom/symbol\",\"x\":0,\"y\":0,\"sx\":2,\"sy\":0.5,\"verticalShrink\":0,\"verticalStretch\":0}")?! "proof endings retain explicit symbol scales"
+    @:true
+renderer_tests()->bit:
+    proof_end_metadata()?! "native proof box schema"
+    glyph:"{\"kind\":\"glyph\",\"key\":\"text/a\",\"x\":1,\"y\":2,\"sx\":3,\"color\":[1,0,0],\"flowLine\":4,\"crop\":[null,3],\"destinationIds\":[],\"glyphParts\":[{\"key\":\"part\",\"x\":1,\"y\":2}],\"uncommon\":\"keep me\"}"
+    check(glyph,0,1)?!
+    check(glyph,1,3)?!
+    check(glyph,3,4)?!
+    check(glyph,4,5)?!
+    check(glyph,5,6)?!
+    check("{\"kind\":\"link\",\"x\":1,\"y\":2,\"width\":5,\"height\":6,\"target\":{\"type\":\"uri\",\"value\":\"https://a.test\"},\"borderWidth\":0,\"color\":null}",0,1)?!
+    check("{\"kind\":\"rule\",\"x\":1,\"y\":2,\"width\":5,\"height\":6}",0,1)?!
+    typed:document_scene.leaf("a",3,4,5)
+    typed.has_paint:true
+    typed.paint:document_scene.paint(1,0,0,0.5)
+    q:document_scene.from_leaves([typed],1)
+    assert_json(document_scene_export.leaf(q,0,1),"{\"kind\":\"glyph\",\"key\":\"a\",\"x\":3,\"y\":4,\"flowLine\":5,\"verticalShrink\":0,\"verticalStretch\":0,\"sx\":1,\"sy\":1,\"color\":[1,0,0,0.5]}")?!
+    assert_json(document_scene_export.leaf(q,0,2),"{\"kind\":\"glyph\",\"key\":\"a\",\"x\":3,\"y\":4,\"flowLine\":5,\"verticalShrink\":0,\"verticalStretch\":0,\"color\":[1,0,0,0.5]}")?!
+    assert_json(document_scene_export.leaf(q,0,3,0),"{\"kind\":\"glyph\",\"key\":\"a\",\"x\":3,\"y\":4,\"color\":[1,0,0,0.5]}")?!
+    modes:document_pages.ints(1)
+    modes.0:1
+    flags:document_pages.bits(1)
+    doc:page_fixture(q)
+    expected_page:"{\"pages\":[{\"width\":200,\"height\":300,\"number\":1,\"items\":[{\"kind\":\"glyph\",\"key\":\"a\",\"x\":3,\"y\":4,\"verticalShrink\":0,\"verticalStretch\":0,\"sx\":1,\"sy\":1,\"color\":[1,0,0,0.5]}]}],\"destinations\":{\"document\":{\"page\":0,\"x\":0,\"y\":0}}}"
+    assert_json(document_scene_export.encode(doc,modes,flags),expected_page)?!
+    rule:document_scene.leaf()
+    rule.kind:2
+    rule.x:10
+    rule.y:11
+    rule.width:12
+    rule.height:0.5
+    rules:document_scene.from_leaves([rule],1)
+    assert_json(document_scene_export.leaf(rules,0,7),"{\"kind\":\"rule\",\"x\":10,\"y\":11,\"width\":12,\"height\":0.5}")?!
+    @:true
+renderer_tests()

@@ -1,0 +1,16 @@
+native_io:.io
+math_display_metrics_kernel:.math_display_metrics_kernel
+run()->int:
+    fonts:native_io.read_text(native_io.read_line())
+    count:int(vkf_decimal_parse(native_io.read_line()))
+    index:0
+    index<count?>
+        request:native_io.read_text(native_io.read_line())
+        expected:native_io.read_text(native_io.read_line())
+        output:native_io.read_line()
+        actual:math_display_metrics_kernel.display_metrics_json(fonts,request)
+        native_io.write_text(output,actual)
+        math_display_metrics_kernel.assert_projection(expected,actual)?! "Independent native display metrics reference"
+        .index:index+1
+    @:0
+run()

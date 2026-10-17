@@ -1,0 +1,31 @@
+\documentclass{article}
+\usepackage{amsmath,hyperref}
+\begin{document}
+\section{Clickable vector PDF}
+Section~\ref{sec:destination}, Equation~\eqref{eq:destination},
+page~\pageref{sec:destination}, and citation~\cite{example} are internal links.
+
+\href{https://example.org/a?x=1\&y=2%20ok#fragment}{Open an external website}.
+\href{mailto:author@example.org}{Send an email}.
+\url{https://example.org/document#section}
+
+\nolinkurl{https://example.org/plain} is deliberately plain text.
+\hyperlink{named-target}{Jump to the named target}.
+\hyperref[sec:destination]{Custom section link}.
+A linked footnote\footnote{The footnote destination remains on this page.}.
+
+\newpage
+\section{Destination section}\label{sec:destination}
+\begin{align}
+x&=1\label{eq:first}\\
+y&=2\label{eq:destination}
+\end{align}
+\hypertarget{named-target}{This is the named destination.}
+
+\hypersetup{hidelinks}
+\href{https://example.org/invisible}{This link has no visible border}.
+\newpage
+\begin{thebibliography}{9}
+\bibitem{example} An example bibliography entry.
+\end{thebibliography}
+\end{document}

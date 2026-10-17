@@ -1,0 +1,9 @@
+# Export the same front end as a tagged-value WASM entry for host integration.
+# The host supplies buffers/project data; all preprocessing remains VKF.
+front:.tex_frontend
+
+preprocess(source:str,files:str,job:str,entry:str):
+    @:front.prepare(source,files,job,entry)
+
+noop()->int:0
+noop()

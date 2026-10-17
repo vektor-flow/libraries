@@ -1,0 +1,24 @@
+c:.math_commands
+p:.math_command_pages
+
+renderer_tests()->bit:
+    buffer:c.empty(3)
+    original:buffer
+    i:0
+    i<260?>
+        .buffer:c.append(buffer,i%2, -1,"leaf",num(i), -num(i),true,num(i)+1,2)
+        .i:i+1
+    heads:buffer.heads
+    tails:buffer.tails
+    originalHeads:original.heads
+    (buffer.count=260 /\ original.count=0 /\ p.integer(originalHeads,0)= -1)?! "append preserves prior buffer"
+    (p.integer(heads,0)=0 /\ p.integer(heads,1)=1 /\ p.integer(heads,2)= -1 /\ p.integer(tails,0)=258 /\ p.integer(tails,1)=259)?! "per-owner command chains survive growth"
+    (p.integer(buffer.nexts,126)=128 /\ p.integer(buffer.nexts,257)=259 /\ p.integer(buffer.nexts,259)= -1)?! "command links cross both page and capacity boundaries"
+    metadata:buffer.pool
+    payload:metadata.values
+    (metadata.count=1 /\ payload.(0)="leaf" /\ p.integer(buffer.payload_ids,259)=0 /\ p.number(buffer.xs,259)=259 /\ p.number(buffer.ys,259)= -259)?! "shared draw metadata and coordinates survive growth"
+    (p.boolean(buffer.flow,259) /\ p.number(buffer.flow_x,259)=260 /\ p.number(buffer.flow_width,259)=2)?! "flow metadata survives growth"
+    sparse:c.append(c.empty(260),259, -1,"last box")
+    (p.integer(sparse.heads,259)=0 /\ p.integer(sparse.tails,259)=0 /\ p.integer(sparse.heads,3)= -1)?! "command owner indices cross box pages"
+    @:true
+renderer_tests()

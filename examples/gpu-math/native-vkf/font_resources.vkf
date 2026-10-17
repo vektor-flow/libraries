@@ -1,0 +1,72 @@
+# Shared native/WASM view of installed font-only resources. No article layout
+# or compiled page data is an input. JSON spans retain every optional metric.
+j:.resource_json
+text:.tex_text
+pdf:.pdf_resources
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Fonts:(metrics:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit),index:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit),operators:str)
+
+required(tape:Tape,node:int,key:str)->int:
+    found:j.member(tape,node,key)
+    (found>=0)?! "Missing required font-resource field"
+    @:found
+
+numeric(tape:Tape,node:int,key:str,fallback:num=0)->num:
+    found:j.member(tape,node,key)
+    found<0? @:fallback
+    tape.kinds.(found)=7? @:fallback
+    @:j.number(tape,found)
+
+load(metrics_source:str,index_source:str,operators:str)->Fonts:
+    metrics:j.parse(metrics_source)
+    index:j.parse(index_source)
+    (metrics.valid /\ index.valid)?! "Invalid prepared font JSON"
+    (metrics.kinds.(0)=1 /\ index.kinds.(0)=1)?! "Prepared font objects required"
+    (j.string(index,required(index,0,"schema"))="vkf.pdf-vector-index/1")?! "Unsupported font vector index"
+    required(metrics,0,"maps")
+    required(metrics,0,"documentFonts")
+    required(metrics,0,"tiles")
+    required(index,0,"keys")
+    required(index,0,"paths")
+    @:(metrics:metrics,index:index,operators:operators)
+
+math_symbol(fonts:Fonts,style:str,token:str)->int:
+    maps:required(fonts.metrics,0,"maps")
+    level:j.member(fonts.metrics,maps,style)
+    level<0? @: -1
+    symbols:required(fonts.metrics,level,"symbols")
+    @:j.member(fonts.metrics,symbols,token)
+
+text_font(fonts:Fonts,name:str)->int:
+    root:required(fonts.metrics,0,"documentFonts")
+    @:j.member(fonts.metrics,root,name)
+
+text_symbol(fonts:Fonts,font:int,code:int)->int:
+    symbols:required(fonts.metrics,font,"symbols")
+    @:j.member(fonts.metrics,symbols,text.integer(code))
+
+vector_node(fonts:Fonts,key:str)->int:
+    keys:required(fonts.index,0,"keys")
+    identifier:j.member(fonts.index,keys,key)
+    identifier<0? @: -1
+    hash:j.string(fonts.index,identifier)
+    paths:required(fonts.index,0,"paths")
+    @:required(fonts.index,paths,hash)
+
+vector_operators(fonts:Fonts,node:int)->str:
+    offset:j.number(fonts.index,required(fonts.index,node,"offset"))
+    length:j.number(fonts.index,required(fonts.index,node,"length"))
+    size:text.byte_length(fonts.operators)
+    (offset>=0 /\ length>=0 /\ offset=offset//1 /\ length=length//1 /\ offset<=size /\ length<=size-offset)?! "Invalid indexed font path range"
+    @:text.span(fonts.operators,int(offset),int(offset+length))
+
+vector_form(fonts:Fonts,key:str)->str:
+    node:vector_node(fonts,key)
+    (node>=0)?! "Missing prepared vector glyph"
+    bounds:required(fonts.index,node,"bounds")
+    (j.element(fonts.index,bounds,4)= -1)?! "Font path requires four bounds"
+    left:j.number(fonts.index,j.element(fonts.index,bounds,0))
+    top:j.number(fonts.index,j.element(fonts.index,bounds,1))
+    right:j.number(fonts.index,j.element(fonts.index,bounds,2))
+    bottom:j.number(fonts.index,j.element(fonts.index,bounds,3))
+    @:pdf.form(left,top,right,bottom,vector_operators(fonts,node))

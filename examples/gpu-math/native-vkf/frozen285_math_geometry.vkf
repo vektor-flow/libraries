@@ -1,0 +1,148 @@
+# Shared math-box geometry. Font values come from the installed generic catalog;
+# these functions never inspect document identities or a reference PDF.
+tex:.frozen285_tex_numeric
+j:.frozen285_resource_json
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+Size:(width:num,height:num,depth:num)
+Body:(width:num,height:num,depth:num,italic:num,character:bit)
+Parameters:(quad:num,xheight:num,rule:num,axis:num,num1:num,num2:num,num3:num,denom1:num,denom2:num,sup1:num,sup2:num,sup3:num,sub1:num,sub2:num,supdrop:num,subdrop:num,big1:num,big2:num,big3:num,big4:num,big5:num)
+Fraction:(width:num,height:num,depth:num,numerator_x:num,numerator_y:num,denominator_x:num,denominator_y:num,rule_x:num,rule_y:num,rule_width:num,rule_height:num)
+Scripts:(width:num,height:num,depth:num,body_x:num,sup_x:num,sup_y:num,sub_x:num,sub_y:num)
+Radical:(width:num,height:num,depth:num,mark_x:num,mark_y:num,body_x:num,rule_x:num,rule_y:num,rule_width:num,rule_height:num,index_x:num,index_y:num)
+
+number(tape:Tape,node:int,key:str)->num:
+    index:j.member(tape,node,key)
+    (index>=0)?! "Missing math font parameter"
+    @:j.number(tape,index)
+
+parameters(tape:Tape,bold:bit=false)->Parameters:
+    node:j.member(tape,0,"parameters")
+    bold?
+        bold_node:j.member(tape,0,"boldParameters")
+        bold_node>=0? .node:bold_node
+    (node>=0)?! "Missing math parameters"
+    @:(quad:number(tape,node,"QUAD"),xheight:number(tape,node,"XHEIGHT"),rule:number(tape,node,"RULE"),axis:number(tape,node,"AXISHEIGHT"),num1:number(tape,node,"NUM1"),num2:number(tape,node,"NUM2"),num3:number(tape,node,"NUM3"),denom1:number(tape,node,"DENOM1"),denom2:number(tape,node,"DENOM2"),sup1:number(tape,node,"SUP1"),sup2:number(tape,node,"SUP2"),sup3:number(tape,node,"SUP3"),sub1:number(tape,node,"SUB1"),sub2:number(tape,node,"SUB2"),supdrop:number(tape,node,"SUPDROP"),subdrop:number(tape,node,"SUBDROP"),big1:number(tape,node,"BIGOPSPACING1"),big2:number(tape,node,"BIGOPSPACING2"),big3:number(tape,node,"BIGOPSPACING3"),big4:number(tape,node,"BIGOPSPACING4"),big5:number(tape,node,"BIGOPSPACING5"))
+
+fraction(n:Size,d:Size,p:Parameters,style:int,rule:num,delimited:bit=false)->Fraction:
+    clear:p.rule*3
+    style=0? .clear:p.rule*7
+    rule>0?
+        .clear:rule
+        style=0? .clear:3*rule
+    up:p.num3
+    rule>0? .up:p.num2
+    style=0? .up:p.num1
+    down:p.denom2
+    style=0? .down:p.denom1
+    rule>0?
+        .up:tex.maximum(up,n.depth+p.axis+rule/2+clear)
+        .down:tex.maximum(down,d.height-p.axis+rule/2+clear)
+    rule=0?
+        delta:(clear-(up-n.depth-(d.height-down)))/2
+        delta>0?
+            .up:up+delta
+            .down:down+delta
+    pad:1.2*tex.pt()
+    delimited? .pad:0
+    width:tex.maximum(n.width,d.width)+2*pad
+    @:(width:width,height:n.height+up,depth:d.depth+down,numerator_x:(width-n.width)/2,numerator_y: -up,denominator_x:(width-d.width)/2,denominator_y:down,rule_x:pad,rule_y: -p.axis-rule/2,rule_width:width-2*pad,rule_height:rule)
+
+scripts(body:Body,sup:Size,sub:Size,p:Parameters,q:Parameters,style:int,cramped:bit,has_sup:bit,has_sub:bit,use_limits:bit,arrow:bit=false,left_arrow:bit=false)->Scripts:
+    width:body.width
+    height:body.height
+    depth:body.depth
+    body_x:0.0
+    sup_x:body.width
+    sup_y:0.0
+    sub_x:body.width-body.italic
+    sub_y:0.0
+    use_limits?
+        pad:0.0
+        shift:0.0
+        arrow?
+            .pad:3*tex.mu_unit(q.quad)
+            .shift: -pad/2
+            left_arrow? .shift:pad/2
+        sup_width:0.0
+        sub_width:0.0
+        has_sup? .sup_width:sup.width
+        has_sub? .sub_width:sub.width
+        .width:tex.maximum(body.width,tex.maximum(sup_width+pad,sub_width+pad))
+        .body_x:(width-body.width)/2
+        has_sup?
+            up:body.height+tex.maximum(p.big1,p.big3-sup.depth)+sup.depth
+            .sup_x:(width-sup.width+body.italic)/2+shift
+            .sup_y: -up
+            .height:up+sup.height+p.big5
+        has_sub?
+            down:body.depth+tex.maximum(p.big2,p.big4-sub.height)+sub.height
+            .sub_x:(width-sub.width-body.italic)/2+shift
+            .sub_y:down
+            .depth:down+sub.depth+p.big5
+    ~use_limits?
+        up:body.height-q.supdrop
+        down:body.depth+q.subdrop
+        body.character?
+            .up:0
+            .down:0
+        has_sup?
+            minimum:p.sup2
+            style=0? .minimum:p.sup1
+            cramped? .minimum:p.sup3
+            .up:tex.maximum(up,tex.maximum(minimum,sup.depth+p.xheight/4))
+        has_sub?
+            minimum:p.sub1
+            has_sup? .minimum:p.sub2
+            .down:tex.maximum(down,tex.maximum(minimum,sub.height-0.8*p.xheight))
+        has_sup /\ has_sub?
+            clearance:up-sup.depth+down-sub.height
+            clearance<4*p.rule?
+                .down:down+4*p.rule-clearance
+                shift:0.8*p.xheight-up+sup.depth
+                shift>0?
+                    .up:up+shift
+                    .down:down-shift
+        has_sup?
+            .sup_y: -up
+            .width:tex.maximum(width,body.width+sup.width+0.5*tex.pt())
+            .height:tex.maximum(height,up+sup.height)
+        has_sub?
+            .sub_y:down
+            .width:tex.maximum(width,body.width-body.italic+sub.width+0.5*tex.pt())
+            .depth:tex.maximum(depth,down+sub.depth)
+    @:(width:width,height:height,depth:depth,body_x:body_x,sup_x:sup_x,sup_y:sup_y,sub_x:sub_x,sub_y:sub_y)
+
+radical(body:Size,mark:Size,index:Size,p:Parameters,style:int,has_index:bit)->Radical:
+    clear:p.rule+p.rule/4
+    style=0? .clear:p.rule+|p.xheight|/4
+    delta:mark.depth-(body.height+body.depth+clear)
+    delta>0? .clear:clear+delta/2
+    width:mark.width+body.width
+    height:body.height+clear+2*mark.height
+    depth:tex.maximum(body.depth,mark.depth-body.height-clear)
+    offset:0.0
+    index_x:5*tex.mu_unit(p.quad)
+    index_y: -0.6*(height-depth)
+    has_index?
+        .offset:index.width-5*tex.mu_unit(p.quad)
+        .width:width+offset
+        .height:tex.maximum(height,index.height-index_y)
+        .depth:tex.maximum(depth,index.depth+index_y)
+    @:(width:width,height:height,depth:depth,mark_x:offset,mark_y: -body.height-clear,body_x:mark.width+offset,rule_x:mark.width+offset,rule_y: -body.height-clear-mark.height,rule_width:body.width,rule_height:mark.height,index_x:index_x,index_y:index_y)
+
+delimiter_required(body:Size,p:Parameters,scalable:bit=true)->num:
+    ~scalable? @:0
+    delta:tex.maximum(body.height-p.axis,body.depth+p.axis)
+    @:tex.maximum(1.802*delta,2*delta-5*tex.pt())
+
+delimiter_shift(mark:Size,axis:num)->num:(mark.height-mark.depth)/2-axis
+
+extension_count(required:num,fixed:num,repeat:num,middle:bit)->int:
+    (repeat>0)?! "Invalid zero-size extensible glyph"
+    divisor:repeat
+    middle? .divisor:divisor*2
+    value:(required-fixed)/divisor
+    count:int(value//1)
+    num(count)<value? .count:count+1
+    count<0? @:0
+    @:count

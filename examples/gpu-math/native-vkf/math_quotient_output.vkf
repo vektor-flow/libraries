@@ -1,0 +1,39 @@
+# Reference adapter with one generic marker item per retained operand. The
+# helper's glyph/rule metadata and child placements remain unmodified.
+q:.math_quotient
+c:.math_commands
+p:.math_command_pages
+catalog:.font_catalog
+glyphs:.math_glyphs
+geometry:.math_geometry
+tex:.tex_numeric
+j:.resource_json
+n:.json_numbers
+chunks:.text_chunks
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+
+packet(fonts:Catalog,sizes:str,style:int=0,font:str="",color:str="null")->str:
+    tape:j.parse(sizes)
+    num:j.member(tape,0,"numerator")
+    den:j.member(tape,0,"denominator")
+    numerator:(width:glyphs.numeric(tape,num,"width"),height:glyphs.numeric(tape,num,"height"),depth:glyphs.numeric(tape,num,"depth"))
+    denominator:(width:glyphs.numeric(tape,den,"width"),height:glyphs.numeric(tape,den,"height"),depth:glyphs.numeric(tape,den,"depth"))
+    profile:catalog.style(fonts,glyphs.style_name(style))
+    parameters:geometry.parameters(profile,font="boldsymbol")
+    result:q.layout(c.empty(3),0,1,2,fonts,numerator,denominator,style,tex.mu_unit(parameters.quad),font,color)
+    buffer:result.buffer
+    pool:buffer.pool
+    values:pool.values
+    items:chunks.empty(3)
+    i:0
+    i<3?>
+        value:"\"kind\":\"glyph\",\"key\":\"numerator\""
+        i=1? .value:values.(p.integer(buffer.payload_ids,i))
+        i=2? .value:"\"kind\":\"glyph\",\"key\":\"denominator\""
+        prefix:""
+        i>0? .prefix:","
+        items.(i):prefix&"{"&value&",\"x\":"&n.roundtrip(p.number(buffer.xs,i))&",\"y\":"&n.roundtrip(p.number(buffer.ys,i))&"}"
+        .i:i+1
+    diagnostics:""
+    result.diagnostic~=""? .diagnostics:j.quote(result.diagnostic)
+    @:"{\"width\":"&n.roundtrip(result.width)&",\"height\":"&n.roundtrip(result.height)&",\"depth\":"&n.roundtrip(result.depth)&",\"items\":["&chunks.join(items,0,3)&"],\"diagnostics\":["&diagnostics&"]}"

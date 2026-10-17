@@ -1,0 +1,46 @@
+i:.math_arena_import
+p:.math_parser
+c:.font_catalog
+data:.test_font_data
+
+renderer_tests()->bit:
+    fonts:c.load(data.math_catalog())
+    destination:p.parse("a+\\unknown",fonts)
+    frozenDestination:p.json(destination)
+    source:p.parse("\\begin{array}{|c|r|}\\hline a^b&\\frac{x}{y}\\\\\\cline{1-2}b&\\sqrt{x}\\end{array}+x",fonts)
+    frozenSource:p.json(source)
+    first:source.first
+    root:first.(0)
+    imported:i.import_into(destination,source,root)
+    expanded:imported.arena
+    (p.node_json(expanded,imported.root)=p.node_json(source,root))?! "matrix rows rules nested scopes and scripts import exactly"
+    (p.json(destination)=frozenDestination /\ p.json(source)=frozenSource)?! "both source and destination snapshots remain unchanged"
+    (imported.root=destination.count /\ expanded.atoms=destination.atoms /\ expanded.diagnostics=destination.diagnostics)?! "existing identities and destination diagnostic atom ownership remain stable"
+    nexts:expanded.nexts
+    nexts.(imported.root)= -1?! "external source root sibling is excluded"
+    mapping:imported.mapping
+    sourceNext:source.nexts
+    mapping.(sourceNext.(root))= -1?! "unreachable external siblings are not appended"
+    b:expanded.b
+    sourceB:source.b
+    b.(imported.root)=sourceB.(root)?! "matrix scalar row counter is not remapped as an edge"
+    index:0
+    index<destination.count?>
+        (expanded.kinds.(index)=destination.kinds.(index) /\ expanded.attrs.(index)=destination.attrs.(index) /\ expanded.first.(index)=destination.first.(index) /\ expanded.last.(index)=destination.last.(index) /\ expanded.nexts.(index)=destination.nexts.(index) /\ expanded.a.(index)=destination.a.(index) /\ expanded.b.(index)=destination.b.(index) /\ expanded.sup.(index)=destination.sup.(index) /\ expanded.sub.(index)=destination.sub.(index) /\ expanded.limits.(index)=destination.limits.(index))?! "every preexisting destination field is exact"
+        .index:index+1
+    listImport:i.import_into(destination,source,0)
+    (p.list_json(listImport.arena,listImport.root)=p.list_json(source,0))?! "whole source list preserves external siblings within its root"
+    empty:p.parse("",fonts)
+    emptyImport:i.import_into(destination,empty,0)
+    (emptyImport.arena.count=destination.count+1 /\ emptyImport.arena.first.(emptyImport.root)= -1)?! "empty list imports one reachable root"
+    absent:i.import_into(destination,source, -1)
+    (absent.root= -1 /\ absent.arena.count=destination.count)?! "absent fragment is a no-op"
+    one:p.parse("\\begin{matrix}a&b\\end{matrix}+x",fonts)
+    oneFirst:one.first
+    oneRoot:oneFirst.(0)
+    oneImport:i.import_into(destination,one,oneRoot)
+    oneB:oneImport.arena.b
+    oneMap:oneImport.mapping
+    (oneB.(oneImport.root)=0 /\ oneMap.(0)= -1)?! "zero rowcount does not import unrelated source root"
+    @:true
+renderer_tests()

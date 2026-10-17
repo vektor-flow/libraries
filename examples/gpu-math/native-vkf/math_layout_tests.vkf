@@ -1,0 +1,88 @@
+l:.math_layout
+data:.test_layout_fonts
+j:.resource_json
+tex:.tex_numeric
+glyphs:.math_glyphs
+dimensions:.math_dimensions
+
+renderer_tests()->bit:
+    fonts:data.fonts()
+    sum:j.parse(l.typeset("a+b",fonts))
+    (|glyphs.numeric(sum,0,"width")-(15+8*tex.mu_unit(18))|<0.000000001)?! "binary noad spacing"
+    unary:j.parse(l.typeset("+a",fonts))
+    (glyphs.numeric(unary,0,"width")=9)?! "leading binary becomes ordinary"
+    trailing:j.parse(l.typeset("a+",fonts))
+    (glyphs.numeric(trailing,0,"width")=9)?! "trailing binary becomes ordinary"
+    fraction:j.parse(l.typeset("\\frac ab",fonts))
+    items:j.member(fraction,0,"items")
+    first:j.element(fraction,items,0)
+    second:j.element(fraction,items,1)
+    third:j.element(fraction,items,2)
+    (j.string(fraction,j.member(fraction,first,"key"))="text/a" /\ j.string(fraction,j.member(fraction,second,"key"))="text/b")?! "fraction child font style and draw order"
+    (j.string(fraction,j.member(fraction,third,"kind"))="rule" /\ j.element(fraction,items,3)= -1)?! "fraction rule follows both children"
+    (glyphs.numeric(fraction,first,"y")= -7 /\ glyphs.numeric(fraction,second,"y")=7)?! "fraction baselines"
+    (glyphs.numeric(fraction,first,"flowX")=0 /\ glyphs.numeric(fraction,second,"flowX")=0)?! "outer list overrides nested flow positions"
+    script:j.parse(l.typeset("a_b",fonts))
+    script_items:j.member(script,0,"items")
+    sub:j.element(script,script_items,1)
+    (j.string(script,j.member(script,sub,"key"))="script/b" /\ glyphs.numeric(script,sub,"x")=5 /\ glyphs.numeric(script,sub,"y")>0)?! "subscript style and placement"
+    unit:dimensions.parse(" -.5 em ",10,4,18)
+    (unit.valid /\ unit.value= -5)?! "signed font-relative dimension"
+    bound:dimensions.parse("99999in",10,4,18)
+    (bound.valid /\ bound.value=10000)?! "dimension bound"
+    (~dimensions.parse("1e2pt",10,4,18).valid /\ ~dimensions.parse("2PT",10,4,18).valid)?! "dimension grammar excludes exponent/capital unit"
+    literal:j.parse(l.typeset("\\text{ffi a}",fonts))
+    literal_items:j.member(literal,0,"items")
+    ligature:j.element(literal,literal_items,0)
+    (j.string(literal,j.member(literal,ligature,"key"))="display/@text:ffi" /\ j.element(literal,literal_items,2)= -1)?! "text ligature is one retained glyph"
+    (|glyphs.numeric(literal,0,"width")-(13+10/3)|<0.000000001)?! "font text space participates in width"
+    stacked:j.parse(l.typeset("\\overset ba",fonts))
+    stack_items:j.member(stacked,0,"items")
+    base:j.element(stacked,stack_items,0)
+    label:j.element(stacked,stack_items,1)
+    (j.string(stacked,j.member(stacked,base,"key"))="display/a" /\ j.string(stacked,j.member(stacked,label,"key"))="script/b")?! "stack retains base and script style"
+    (glyphs.numeric(stacked,base,"y")=0 /\ glyphs.numeric(stacked,label,"y")<0 /\ glyphs.numeric(stacked,label,"x")<5)?! "stack label is above and centered on the base"
+    arrow:j.parse(l.typeset("\\xrightarrow[b]{a}",fonts))
+    arrow_items:j.member(arrow,0,"items")
+    first_head:j.element(arrow,arrow_items,0)
+    last_head:j.element(arrow,arrow_items,1)
+    (j.string(arrow,j.member(arrow,first_head,"key"))="display/-" /\ j.string(arrow,j.member(arrow,last_head,"key"))="display/\\rightarrow")?! "arrow heads retain native draw order and display style"
+    preview:j.parse(l.typeset("\\xleftarrow[b]{a}",fonts,false,false))
+    preview_items:j.member(preview,0,"items")
+    shaft:j.element(preview,preview_items,2)
+    above:j.element(preview,preview_items,3)
+    below:j.element(preview,preview_items,4)
+    (j.string(preview,j.member(preview,shaft,"kind"))="rule" /\ glyphs.numeric(preview,shaft,"y")= -3 /\ |glyphs.numeric(preview,shaft,"height")-0.4|<0.000000001)?! "preview arrow uses installed relbar ink bounds"
+    (glyphs.numeric(preview,above,"y")<0 /\ glyphs.numeric(preview,below,"y")>0 /\ j.element(preview,preview_items,5)= -1)?! "arrow labels remain above/below the shaft"
+    repeated:j.parse(l.typeset("\\text{aaa}",fonts))
+    (glyphs.numeric(repeated,0,"width")=15)?! "repeated text advances retain font metrics"
+    changed:j.parse(l.typeset("\\text{aba}",fonts))
+    (glyphs.numeric(changed,0,"width")=16)?! "text lookup reuse invalidates when the character changes"
+    pod_display:j.parse(l.typeset("\\pod{a}",fonts,false,true,true))
+    pod_inline:j.parse(l.typeset("\\pod{a}",fonts,true))
+    (|glyphs.numeric(pod_display,0,"width")-glyphs.numeric(pod_inline,0,"width")-10*tex.mu_unit(18)|<0.000000001)?! "modulo leading glue follows display context"
+    pod_items:j.member(pod_display,0,"items")
+    pod_body:j.element(pod_display,pod_items,1)
+    (j.string(pod_display,j.member(pod_display,pod_body,"key"))="display/a")?! "modulo retains its laid-out argument between delimiters"
+    matrix:j.parse(l.typeset("\\begin{matrix}a&b\\\\x&y\\end{matrix}",fonts))
+    (|glyphs.numeric(matrix,0,"width")-(11+10*tex.pt())|<0.000000001)?! "matrix widths include column maxima and installed unit gap"
+    (|glyphs.numeric(matrix,0,"height")-(12*tex.pt()+2.5)|<0.000000001)?! "matrix rows center around the font math axis"
+    matrix_items:j.member(matrix,0,"items")
+    matrix_last:j.element(matrix,matrix_items,3)
+    (j.string(matrix,j.member(matrix,matrix_last,"key"))="text/y" /\ j.element(matrix,matrix_items,4)<0)?! "matrix retains cells in row-major source order"
+    both:j.parse(l.typeset("\\overleftrightarrow{a}",fonts))
+    (|glyphs.numeric(both,0,"width")-(20-14*tex.mu_unit(18))|<0.000000001)?! "two-headed decoration centers body within native heads"
+    equation:j.parse(l.typeset("\\begin{equation}a\\label{eq:a}\\end{equation}",fonts,false,true,false,9))
+    (glyphs.numeric(equation,0,"nextEquationNumber")=10)?! "equation counter advances from caller-supplied state"
+    equation_refs:j.member(equation,0,"equationReferences")
+    (j.string(equation,j.member(equation,equation_refs,"eq:a"))="9")?! "equation label binds the current source counter"
+    equation_items:j.member(equation,0,"items")
+    equation_first:j.element(equation,equation_items,0)
+    equation_destinations:j.member(equation,equation_first,"destinationIds")
+    (j.string(equation,j.element(equation,equation_destinations,0))="label:eq:a")?! "equation destination marks the first rendered body leaf"
+    numbered_tag:j.element(equation,equation_items,1)
+    tag_flag:j.member(equation,numbered_tag,"equationTag")
+    equation_kinds:equation.kinds
+    (tag_flag>=0 /\ equation_kinds.(tag_flag)=5)?! "generated equation number retains tag metadata"
+    @:true
+renderer_tests()

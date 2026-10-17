@@ -1,0 +1,26 @@
+io:.io
+front:.tex_frontend
+text:.tex_text
+pdf:.pdf_syntax
+
+run()->int:
+    source_path:io.read_line()
+    files_path:io.read_line()
+    job:io.read_line()
+    entry:io.read_line()
+    output_path:io.read_line()
+    result:front.prepare(io.read_text(source_path),io.read_text(files_path),job,entry)
+    io.write_text(output_path,result.source)
+    io.write_text(output_path&".theorems.json",result.declarations)
+    io.write_text(output_path&".diagnostics",result.diagnostics)
+    ::result.valid
+    ::result.expansions
+    ::result.definition_count
+    ::result.declaration_count
+    ::result.input_count
+    index:0
+    index<result.input_count?>
+        ::pdf.hex_string(text.span(result.input_names,result.input_starts.(index),result.input_stops.(index)))
+        .index:index+1
+    @:0
+run()

@@ -1,0 +1,33 @@
+document_pdf:.document_pdf
+font_catalog:.font_catalog
+test_font_data:.test_font_data
+tex_text:.tex_text
+resource_numbers:.resource_numbers
+fixture_fonts():
+    path:"0 0 m 10 0 l 10 10 l h"
+    keys:["vector/glyph/a","vector/glyph/alias","path/shared"]
+    values:["\"shared\"","\"shared\"","{\"bounds\":[0,0,10,10],\"offset\":0,\"length\":"&tex_text.integer(tex_text.byte_length(path))&"}"]
+    @:(fonts:font_catalog.load(test_font_data.pack(keys,values)),operators:path)
+fixture_layout()->str:
+    @:"{\"pages\":[{\"width\":200,\"height\":300,\"items\":[{\"kind\":\"glyph\",\"key\":\"glyph/a\",\"x\":20,\"y\":30,\"sx\":2,\"sy\":3,\"crop\":[2,8],\"cropX\":[-1,7]},{\"kind\":\"rule\",\"x\":10,\"y\":50,\"width\":40,\"height\":0.2,\"color\":[1,0,0,0.4]},{\"kind\":\"link\",\"x\":10,\"y\":60,\"width\":20,\"height\":10,\"target\":{\"type\":\"uri\",\"value\":\"https://example.test/å b\"}}],\"links\":[{\"x\":10,\"y\":80,\"width\":20,\"height\":10,\"target\":{\"type\":\"destination\",\"value\":\"named:other\"}}]},{\"width\":200,\"height\":300,\"items\":[{\"kind\":\"field\",\"key\":\"glyph/alias\",\"x\":10,\"y\":20}]}],\"destinations\":{\"named:other\":{\"page\":1,\"x\":12,\"y\":34}}}"
+renderer_tests()->bit:
+    fixture:fixture_fonts()
+    result:document_pdf.encode_detail(fixture_layout(),fixture.fonts,fixture.operators)
+    pdf:result.pdf
+    (result.page_count=2 /\ result.form_count=1 /\ result.alpha_count=2 /\ result.object_count=12)?! "request-local glyph digest and opacity interning spans pages and alias keys"
+    tex_text.matches(pdf,0,"%PDF-1.7\n")?! "ordinary vector PDF header"
+    (tex_text.find(pdf,"0 2 7 6 re W n")>=0 /\ tex_text.find(pdf,"2 0 0 3 20 30 cm")>=0)?! "glyph scale and local crop survive physical PDF output"
+    (tex_text.find(pdf,"cm\n0 0 0 rg")>=0 /\ tex_text.find(pdf,"gs\nq 2 0 0 3")>=0)?! "PDF command boundaries have whitespace separators"
+    (tex_text.find(pdf,"10 50 40 0.2 re f")>=0 /\ tex_text.find(pdf,"/ca 0.4 /CA 0.4")>=0)?! "rules and opacity stay vector"
+    (tex_text.find(pdf,"/Subtype /Image")<0 /\ tex_text.find(pdf,"/Subtype /Form")>=0)?! "text is a reusable vector Form rather than a page image"
+    (tex_text.find(pdf,"/Dest [5 0 R /XYZ 12 266 null]")>=0 /\ tex_text.find(pdf,"/S /URI")>=0 /\ tex_text.find(pdf,"/Border [0 0 0]")>=0)?! "URI and cross-page destinations remain interactive PDF links"
+    xref:tex_text.find(pdf,"xref\n")
+    start:tex_text.find(pdf,"startxref\n")+10
+    stop:tex_text.find(pdf,"\n",start)
+    (resource_numbers.parse(tex_text.span(pdf,start,stop))=xref)?! "classic xref offset counts emitted UTF8 PDF bytes"
+    again:document_pdf.encode_detail(fixture_layout(),fixture.fonts,fixture.operators)
+    (again.pdf=pdf /\ again.object_count=result.object_count)?! "independent request emits deterministic PDF without persistent output cache"
+    empty:document_pdf.encode_detail("{\"pages\":[{\"width\":10,\"height\":20,\"items\":[],\"links\":null}]}",fixture.fonts,fixture.operators)
+    (empty.form_count=0 /\ empty.alpha_count=0 /\ empty.object_count=5)?! "empty positioned page needs no fake glyph or paint resources"
+    @:true
+renderer_tests()

@@ -1,0 +1,106 @@
+# Focused actual-source typed metrics integration observer; no PDF or benchmark.
+io:.io
+font_catalog:.font_catalog
+hyphenation:.hyphenation
+text_parser_kernel:.text_parser_kernel
+document_present:.document_present
+document_blocks:.document_blocks
+tex_frontend:.tex_frontend
+document_present_context:.document_present_context
+document_present_maps:.document_present_maps
+document_materialize_config:.document_materialize_config
+document_materialize_metrics:.document_materialize_metrics
+document_paragraph_metrics:.document_paragraph_metrics
+resource_json:.resource_json
+json_numbers:.json_numbers
+text_chunks:.text_chunks
+tex_text:.tex_text
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+Paint:(red:num,green:num,blue:num,alpha:num)
+Payload:(crop_x:bit,crop_y:bit,crop_left:bit,crop_right:bit,crop_top:bit,crop_bottom:bit,left:num,right:num,top:num,bottom:num,dx:num,dy:num,c1x:num,c1y:num,c2x:num,c2y:num,line_width:num,fill:bit,fill_paint:int,stroke_paint:int,dash:int,target_type:int,target:str,border_width:num,asset:str)
+Arena:(kinds:[int],keys:[str],xs:[num],ys:[num],sxs:[num],sys:[num],widths:[num],heights:[num],lines:[int],equation_tags:[bit],tag_widths:[num],draws:[bit],extras:[str],flow_xs:[num],flow_widths:[num],has_flows:[bit],vertical_shrinks:[num],vertical_stretches:[num],paints:[int],payloads:[int],destination_firsts:[int],destination_counts:[int],destination_ids:[str],count:int,paint_table:[Paint],paint_count:int,payload_table:[Payload],payload_count:int,footnote_numbers:[int])
+Scene:(arena:Arena,anchor_ids:[str],anchor_xs:[num],anchor_ys:[num],anchor_lines:[int],anchor_count:int,width:num,height:num,depth:num,tag_width:num)
+scene_json(q:Scene)->str:
+    arena:q.arena
+    chunks:text_chunks.empty(arena.count)
+    i:0
+    i<arena.count?>
+        prefix:""
+        i>0? .prefix:","
+        chunks.(i):prefix&"{\"kind\":"&tex_text.integer(arena.kinds.(i))&",\"key\":"&resource_json.quote(arena.keys.(i))&",\"x\":"&json_numbers.roundtrip(arena.xs.(i))&",\"y\":"&json_numbers.roundtrip(arena.ys.(i))&",\"line\":"&tex_text.integer(arena.lines.(i))&",\"width\":"&json_numbers.roundtrip(arena.widths.(i))&",\"height\":"&json_numbers.roundtrip(arena.heights.(i))&",\"sx\":"&json_numbers.roundtrip(arena.sxs.(i))&",\"sy\":"&json_numbers.roundtrip(arena.sys.(i))&"}"
+        .i:i+1
+    @:"{\"width\":"&json_numbers.roundtrip(q.width)&",\"height\":"&json_numbers.roundtrip(q.height)&",\"depth\":"&json_numbers.roundtrip(q.depth)&",\"items\":["&text_chunks.join(chunks,0,arena.count)&"]}"
+display_flags(source:str,fonts:Catalog,roles:[str],language:Language)->str:
+    front:tex_frontend.prepare(source)
+    document:document_blocks.parse(front.source,"",front.declarations)
+    config:document_materialize_config.configure(document.class_name,document.class_options,document.imports,fonts)
+    plan:document_present.prepare(document,front.source,fonts,roles,language,config,"{}",front.declarations)
+    (plan.diagnostics="" /\ plan.unresolved="")?! "Display fixture presentation diagnostics"
+    chunks:text_chunks.empty(plan.count)
+    count:0
+    i:0
+    i<plan.count?>
+        plan.kinds.(i)="paragraph"?
+            context:document_present_context.parse(plan.contexts.(i))
+            value:"false"
+            context.paragraph_after_display? .value:"true"
+            count>0? .value:","&value
+            chunks.(count):value
+            .count:count+1
+        .i:i+1
+    @:"["&text_chunks.join(chunks,0,count)&"]"
+run()->int:
+    fonts:font_catalog.load(io.read_text(io.read_line()))
+    language:hyphenation.load(io.read_text(io.read_line()))
+    roles:text_parser_kernel.roles(io.read_line())
+    sources:resource_json.parse(io.read_text(io.read_line()))
+    output:io.read_line()
+    config:document_materialize_config.configure("amsart","12pt","[]",fonts)
+    config.config:document_materialize_config.replace_raw(config.config,"bibliographyStyle",resource_json.quote("numeric"))
+    settings:resource_json.parse(config.config)
+    context:document_present_context.empty(document_materialize_config.number(settings,0,"paragraphIndent"),document_materialize_config.number(settings,0,"lineHeight"),true)
+    plan:document_present.empty("[]")
+    source_array:resource_json.member(sources,0,"paragraphs")
+    at:source_array+1
+    ends:sources.ends
+    count:0
+    at<ends.(source_array)?>
+        block_context:document_present_context.clone(context)
+        bibliography_node:resource_json.member(sources,at,"bibliography")
+        bibliography_node>=0 /\ sources.kinds.(bibliography_node)=5?
+            block_context.kind:"bibliography"
+            block_context.sentence:false
+        source_node:resource_json.member(sources,at,"source")
+        .plan:document_present.emit(plan,"paragraph",resource_json.string(sources,source_node),block_context,"",count)
+        .count:count+1
+        .at:ends.(at)
+    result:document_materialize_metrics.shape(plan,fonts,roles,language,config,document_present_maps.empty())
+    (result.typed_scenes.length()=count /\ result.typed_labels.length()=count)?! "Typed scene cardinality"
+    (result.diagnostics="" /\ result.unresolved="")?! "Typed source integration diagnostics"
+    scenes:result.typed_scenes
+    chunks:text_chunks.empty(count)
+    i:0
+    i<count?>
+        (result.scenes.(i)="" /\ result.labels.(i)="")?! "Production typed path serialized a debug scene"
+        prefix:""
+        i>0? .prefix:","
+        chunks.(i):prefix&scene_json(scenes.(i))
+        .i:i+1
+    paragraphs_json:"["&text_chunks.join(chunks,0,count)&"]"
+    displays:resource_json.member(sources,0,"displays")
+    .at:displays+1
+    display_chunks:text_chunks.empty(16)
+    display_count:0
+    at<ends.(displays)?>
+        value:display_flags(resource_json.string(sources,at),fonts,roles,language)
+        display_count>0? .value:","&value
+        display_chunks.(display_count):value
+        .display_count:display_count+1
+        .at:ends.(at)
+    synthetic:document_paragraph_metrics.legacy("{\"depth\":9,\"lines\":[{\"depth\":4,\"naturalDepth\":2},{\"depth\":5,\"naturalDepth\":null}]}")
+    natural:document_paragraph_metrics.line_natural_depth(synthetic,0)
+    naturals:"["&json_numbers.roundtrip(natural)&","&json_numbers.roundtrip(document_paragraph_metrics.label_natural_depth(natural,3,1))&","&json_numbers.roundtrip(document_paragraph_metrics.label_natural_depth(natural,1,1))&","&json_numbers.roundtrip(document_paragraph_metrics.line_natural_depth(synthetic,1))&","&json_numbers.roundtrip(document_paragraph_metrics.line_natural_depth(synthetic,2))&"]"
+    io.write_text(output,"{\"paragraphs\":"&paragraphs_json&",\"displays\":["&text_chunks.join(display_chunks,0,display_count)&"],\"natural\":"&naturals&"}")
+    @:0
+run()

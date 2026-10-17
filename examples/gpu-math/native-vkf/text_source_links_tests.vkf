@@ -1,0 +1,44 @@
+text_source_paragraph:.text_source_paragraph
+text_source_paragraph_output:.text_source_paragraph_output
+text_parser:.text_parser
+paragraph_breaking:.paragraph_breaking
+paragraph_nodes:.paragraph_nodes
+math_packages:.math_packages
+hyphenation:.hyphenation
+hyphenation_test_asset:.hyphenation_test_asset
+font_catalog:.font_catalog
+test_font_data:.test_font_data
+resource_json:.resource_json
+tex_text:.tex_text
+fonts():
+    keys:["font/roman","text/roman/65","text/roman/86","text/roman/118"]
+    values:["{\"size\":10,\"spaces\":{\"space\":3,\"slant\":0}}","{\"key\":\"A\",\"advance\":7,\"height\":8,\"depth\":0}","{\"key\":\"V\",\"advance\":8,\"height\":9,\"depth\":1}","{\"key\":\"v\",\"advance\":8,\"height\":9,\"depth\":1}"]
+    @:font_catalog.load(test_font_data.pack(keys,values))
+renderer_tests()->bit:
+    installed:fonts()
+    language:hyphenation.load(hyphenation_test_asset.source())
+    context:text_parser.context("roman",["roman"])
+    context.hyperref:true
+    options:paragraph_breaking.options(100)
+    options.justify:false
+    options.hyphens:false
+    basic:text_source_paragraph.typeset("A \\hyperlink{k}{V A} V",installed,context,math_packages.defaults(),language,hyphenation.strings(0),options,paragraph_nodes.text_options())
+    (basic.complete /\ basic.width=39 /\ basic.scene_count=1)?! "Source hyperlink resolves without turning its contents into an opaque box"
+    nested:text_source_paragraph.typeset("\\hyperlink{outer}{A \\hyperlink{inner}{V} \\unknown}",installed,context,math_packages.defaults(),language,hyphenation.strings(0),options,paragraph_nodes.text_options())
+    (nested.lowering_complete /\ nested.diagnostics="\"Unsupported document text command: \\\\unknown\",\"Nested PDF links are not supported\"")?! "Nested-link diagnostics occur after fragment contents and preserve source warning order"
+    empty:text_source_paragraph.typeset("\\hyperlink{outer}{\\hyperlink{inner}{}}",installed,context,math_packages.defaults(),language,hyphenation.strings(0),options,paragraph_nodes.text_options())
+    (empty.complete /\ empty.width=0 /\ empty.diagnostics="")?! "Empty nested fragments do not invent a linked solver node or warning"
+    opaque:text_source_paragraph.typeset("A\\documentlink{ref}{V}{label%3Ax}A",installed,context,math_packages.defaults(),language,hyphenation.strings(0),options,paragraph_nodes.text_options())
+    packet:resource_json.parse(text_source_paragraph_output.json(opaque))
+    items:resource_json.member(packet,0,"items")
+    link:resource_json.element(packet,items,2)
+    target:resource_json.member(packet,link,"target")
+    (opaque.complete /\ opaque.width=22 /\ resource_json.string(packet,resource_json.member(packet,target,"value"))="label:x")?! "Opaque document links preserve decoded cross-page destination identities"
+    lower:text_source_paragraph.typeset("A\\lowercase{V}A",installed,context,math_packages.defaults(),language,hyphenation.strings(0),options,paragraph_nodes.text_options())
+    lower_keys:lower.keys
+    (lower.complete /\ lower_keys.(1)="v" /\ lower.width=22)?! "Source lowercase uses literal shaping of the generic Unicode mapping"
+    unicode:text_source_paragraph.typeset("\\mbox{\\url{😀}}",installed,context,math_packages.defaults(),language,hyphenation.strings(0),options,paragraph_nodes.text_options())
+    unicode_json:text_source_paragraph_output.json(unicode)
+    (~unicode.complete /\ unicode.lowering_complete /\ tex_text.find(unicode_json,"\\ud83d")>=0 /\ tex_text.find(unicode_json,"\\ude00")>=0)?! "Unsupported UTF16 characters remain ordered JSON warnings through retained boxes"
+    @:true
+renderer_tests()

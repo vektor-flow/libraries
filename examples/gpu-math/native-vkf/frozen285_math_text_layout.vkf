@@ -1,0 +1,209 @@
+# Literal/text-in-math shaping. The run owns only its leaves; parent math boxes
+# retain it without rebuilding already placed descendants.
+glyphs:.frozen285_math_glyphs
+catalog:.frozen285_font_catalog
+parser:.frozen285_math_parser
+j:.frozen285_resource_json
+text:.frozen285_tex_text
+chunks:.frozen285_text_chunks
+numbers:.frozen285_json_numbers
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Arena:(kinds:[str],attrs:[str],first:[int],last:[int],nexts:[int],a:[int],b:[int],sup:[int],sub:[int],limits:[int],count:int,diagnostics:str,atoms:int)
+Run:(width:num,height:num,depth:num,payload:[str],xs:[num],ys:[num],count:int,diagnostics:str)
+
+from_node(arena:Arena,node:int,fonts:Catalog,style:int,active_font:str,color:str)->Run:
+    kinds:arena.kinds
+    arguments:arena.a
+    attrs:arena.attrs
+    kinds.(node)="textflow"? @:layout(arena,arguments.(node),fonts,style,active_font,color)
+    data:j.parse("{"&attrs.(node)&"}")
+    @:plain(glyphs.string(data,"text"),fonts,style,active_font,color)
+
+zeros(size:int)->[num]:[0.0:size]
+
+glyph_payload(key:str,color:str)->str:"\"kind\":\"glyph\",\"color\":"&color&",\"key\":"&j.quote(key)
+hole_payload(size:num,color:str)->str:"\"kind\":\"placeholder\",\"color\":"&color&",\"width\":"&numbers.roundtrip(size)&",\"height\":"&numbers.roundtrip(size)
+
+layout(arena:Arena,list:int,fonts:Catalog,style:int,active_font:str,color:str)->Run:
+    kinds:arena.kinds
+    attrs:arena.attrs
+    firsts:arena.first
+    nexts:arena.nexts
+    profile:catalog.style(fonts,glyphs.style_name(style))
+    em:glyphs.numeric(profile,0,"em")
+    font_spaces:j.member(profile,0,"textFontSpaces")
+    capacity:32
+    payload:chunks.empty(capacity)
+    xs:zeros(capacity)
+    ys:zeros(capacity)
+    count:0
+    width:0.0
+    height:0.0
+    depth:0.0
+    prior:glyphs.hole(fonts,style)
+    has_prior:false
+    prior_italic_font:false
+    cached_glyph:prior
+    cached_chars:""
+    cached_font:""
+    cached_advance:0.0
+    cached_italic_font:false
+    cached_payload:""
+    cached:false
+    kern_prior:""
+    kern_current:""
+    kern_value:0.0
+    diagnostics:""
+    node:firsts.(list)
+    node>=0?>
+        count>=payload.length()?
+            .payload:payload&chunks.empty(payload.length())
+            .xs:xs&zeros(xs.length())
+            .ys:ys&zeros(ys.length())
+        kinds.(node)="hole"?
+            hole:glyphs.hole(fonts,style)
+            payload.(count):hole_payload(hole.width,color)
+            xs.(count):width
+            ys.(count): -hole.height
+            .width:width+hole.width
+            .height:tex_max(height,hole.height)
+            .count:count+1
+            .has_prior:false
+            .node:nexts.(node)
+            @>
+        data:j.parse("{"&attrs.(node)&"}")
+        char:glyphs.string(data,"char")
+        font:glyphs.string(data,"font")
+        has_prior?
+            prior_italic_font /\ (char=" " \/ font~="mathit")?
+                .width:width+prior.italic
+                .has_prior:false
+        char=" "?
+            space:glyphs.numeric(profile,0,"textSpace",em/3)
+            font_spaces>=0?
+                record:j.member(profile,font_spaces,font)
+                record>=0? .space:glyphs.numeric(profile,record,"space",space)
+            .width:width+space
+            .has_prior:false
+            .node:nexts.(node)
+            @>
+        chars:char
+        last:node
+        font="mathrm"?
+            ligatures:["ffi","ffl","ff","fi","fl"]
+            candidate:0
+            candidate<5?>
+                word:ligatures.(candidate)
+                cursor:node
+                position:0
+                matched:true
+                last_match:node
+                position<text.byte_length(word) /\ matched?>
+                    cursor<0?
+                        .matched:false
+                    cursor>=0?
+                        part:j.parse("{"&attrs.(cursor)&"}")
+                        (kinds.(cursor)~="textchar" \/ glyphs.string(part,"char")~=text.at(word,position) \/ glyphs.string(part,"font")~="mathrm")? .matched:false
+                        .last_match:cursor
+                        .cursor:nexts.(cursor)
+                    .position:position+1
+                matched /\ catalog.find(fonts,"math/"&glyphs.style_name(style)&"/@text:"&word).found?
+                    .chars:word
+                    .last:last_match
+                    @|
+                .candidate:candidate+1
+        (~cached \/ cached_chars~=chars \/ cached_font~=font)?
+            token:glyphs.text_token(fonts,chars,font,style)
+            .cached_glyph:glyphs.glyph(fonts,token,style,active_font)
+            .cached_chars:chars
+            .cached_font:font
+            .cached_advance:cached_glyph.width
+            .cached_italic_font:false
+            .cached_payload:glyph_payload(cached_glyph.key,color)
+            cached_glyph.placeholder?
+                .cached_payload:hole_payload(cached_glyph.width,color)
+            ~cached_glyph.placeholder?
+                metric:j.parse(cached_glyph.metric)
+                .cached_advance:glyphs.numeric(metric,0,"advance",cached_glyph.width)
+                .cached_italic_font:text.matches(glyphs.string(metric,"fontName"),0,"cmti")
+            .cached:true
+        glyph:cached_glyph
+        glyph.placeholder?
+            glyph.diagnostic~=""? .diagnostics:parser.repair(diagnostics,glyph.diagnostic)
+            .diagnostics:parser.repair(diagnostics,"Unsupported text character: "&chars)
+            payload.(count):cached_payload
+            xs.(count):width
+            ys.(count): -glyph.height
+            .width:width+glyph.width
+            .count:count+1
+            .has_prior:false
+            .node:nexts.(last)
+            @>
+        has_prior?
+            (kern_prior~=prior.metric \/ kern_current~=glyph.metric)?
+                .kern_prior:prior.metric
+                .kern_current:glyph.metric
+                .kern_value:glyphs.kern(prior,glyph,true)
+            .width:width+kern_value
+        payload.(count):cached_payload
+        xs.(count):width
+        .width:width+cached_advance
+        .height:tex_max(height,glyph.height)
+        .depth:tex_max(depth,glyph.depth)
+        .count:count+1
+        .prior:glyph
+        .prior_italic_font:cached_italic_font
+        .has_prior:true
+        .node:nexts.(last)
+    @:(width:width,height:height,depth:depth,payload:payload,xs:xs,ys:ys,count:count,diagnostics:diagnostics)
+
+tex_max(a:num,b:num)->num:
+    a>b? @:a
+    @:b
+
+plain(source:str,fonts:Catalog,style:int,active_font:str,color:str)->Run:
+    profile:catalog.style(fonts,glyphs.style_name(style))
+    em:glyphs.numeric(profile,0,"em")
+    payload:chunks.empty(32)
+    xs:zeros(32)
+    ys:zeros(32)
+    count:0
+    width:0.0
+    height:0.0
+    depth:0.0
+    position:0
+    diagnostics:""
+    prefix:"math/"&glyphs.style_name(style)&"/"
+    cached_glyph:glyphs.hole(fonts,style)
+    cached_char:""
+    cached_payload:""
+    cached:false
+    ~vkf_string_eof(source,position)?>
+        char:text.at(source,position)
+        .position:text.next(source,position)
+        char=" "?
+            .width:width+em/3
+            @>
+        count>=payload.length()?
+            .payload:payload&chunks.empty(payload.length())
+            .xs:xs&zeros(xs.length())
+            .ys:ys&zeros(ys.length())
+        (~cached \/ cached_char~=char)?
+            token:char
+            catalog.find(fonts,prefix&"@roman:"&char).found? .token:"@roman:"&char
+            catalog.find(fonts,prefix&"@text:"&char).found? .token:"@text:"&char
+            .cached_glyph:glyphs.glyph(fonts,token,style,active_font)
+            .cached_char:char
+            .cached_payload:glyph_payload(cached_glyph.key,color)
+            cached_glyph.placeholder? .cached_payload:hole_payload(cached_glyph.width,color)
+            .cached:true
+        glyph:cached_glyph
+        payload.(count):cached_payload
+        xs.(count):width
+        glyph.placeholder? ys.(count): -glyph.height
+        glyph.diagnostic~=""? .diagnostics:parser.repair(diagnostics,glyph.diagnostic)
+        .width:width+glyph.width
+        .height:tex_max(height,glyph.height)
+        .depth:tex_max(depth,glyph.depth)
+        .count:count+1
+    @:(width:width,height:height,depth:depth,payload:payload,xs:xs,ys:ys,count:count,diagnostics:diagnostics)

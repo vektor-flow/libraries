@@ -1,0 +1,25 @@
+link_context_dump_io:.io
+link_context_dump_json:.resource_json
+link_context_dump_output:.text_link_context_output
+link_context_dump_raw:.document_link_policy
+link_context_dump_chunks:.text_chunks
+run()->int:
+    fonts:link_context_dump_io.read_text(link_context_dump_io.read_line())
+    source:link_context_dump_io.read_text(link_context_dump_io.read_line())
+    target:link_context_dump_io.read_line()
+    tape:link_context_dump_json.parse(source)
+    parts:link_context_dump_chunks.empty(tape.count)
+    index:0
+    true?>
+        item:link_context_dump_json.element(tape,0,index)
+        item<0? @|
+        case_source:link_context_dump_json.string(tape,link_context_dump_json.member(tape,item,"source"))
+        initial:link_context_dump_raw.raw(tape,link_context_dump_json.member(tape,item,"initial"))
+        enabled:link_context_dump_raw.raw(tape,link_context_dump_json.member(tape,item,"enabled"))="true"
+        prefix:""
+        index>0? .prefix:","
+        parts.(index):prefix&link_context_dump_output.packet(case_source,fonts,initial,enabled)
+        .index:index+1
+    link_context_dump_io.write_text(target,"["&link_context_dump_chunks.join(parts,0,index)&"]")
+    @:0
+run()

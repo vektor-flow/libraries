@@ -1,0 +1,23 @@
+p:.math_command_pages
+
+renderer_tests()->bit:
+    values:p.numbers(3)
+    snapshot:values
+    index:129
+    row:values.(index//p.width())
+    row.(index%p.width()):7
+    values.(index//p.width()):row
+    (p.number(values,129)=7 /\ p.number(values,1)=0 /\ p.number(snapshot,129)=0)?! "page update preserves other rows and prior value"
+    ids:p.integers(2)
+    flags:p.booleans(2)
+    ids.(1,0):42
+    flags.(1,0):true
+    (p.integer(ids,128)=42 /\ p.integer(ids,0)= -1)?! "paged command child index"
+    (p.boolean(flags,128) /\ ~p.boolean(flags,0))?! "paged flow flags"
+    packed:p.collect_numbers(values,130)
+    packed_flags:p.collect_booleans(flags,129)
+    (packed.length()=130 /\ packed.(129)=7 /\ packed.(1)=0)?! "numeric packet materialization crosses a page"
+    (packed_flags.length()=129 /\ packed_flags.(128) /\ ~packed_flags.(0))?! "flow packet materialization crosses a page"
+    (p.collect_numbers(values,0).length()=0 /\ p.collect_booleans(flags,0).length()=0)?! "empty packet materialization"
+    @:true
+renderer_tests()

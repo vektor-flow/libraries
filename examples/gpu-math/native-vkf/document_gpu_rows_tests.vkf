@@ -1,0 +1,30 @@
+gpu:.document_gpu_rows
+transport(revision:num):
+    rows:[
+        [-1.0,-1,10,10,0,0,0,0,1,0,0,1,1,8,8,0],
+        [0.1,-0.1,1.0000000596046448,1.0000001788139343,0.0000000000000000000000000000000000000000000014,-0.0000000000000000000000000000000000000000000014,0.0000000000000000000000000000000000000001,-0.0000000000000000000000000000000000000001,0.000000000000000000000000000001,-0.000000000000000000000000000001,10000000000000000000,-10000000000000000000,3.141592653589793,-3.141592653589793,0.000000000000000000000000000000000000011754943508222875,0.000000000000000000000000000000000000000000001401298464324817],
+        [15.0,-1,10,10,0,0,0,0,0,1,0,1,1,8,8,0],
+        [31.0,-1,10,10,0,0,0,0,0,0,1,1,1,8,8,0]
+    ]
+    rows.(0,0):revision-1
+    @:gpu.packet(rows,int(revision))
+transport_many(revision:num):
+    row:[-1.0,-1,10,10,0,0,0,0,1,0,0,1,1,8,8,0]
+    rows:[row:1025]
+    index:0
+    index<1025?>
+        rows.(index,0):num(index)+revision
+        .index:index+1
+    @:gpu.packet(rows,int(revision))
+transport_empty(revision:num):
+    [[num]] rows:[]
+    @:gpu.packet(rows,int(revision))
+renderer_tests()->bit:
+    first:transport(0)
+    second:transport(2)
+    (first.count=4 /\ first.stride=64 /\ first.revision=0 /\ first.rows.(0,0)= -1 /\ second.rows.(0,0)=1 /\ second.revision=2)?! "Typed GPU packets retain revision and owned row values"
+    many:transport_many(2)
+    empty:transport_empty(3)
+    (many.count=1025 /\ many.rows.(0,0)=2 /\ many.rows.(1024,0)=1026 /\ first.rows.(0,0)= -1 /\ empty.count=0)?! "GPU growth, empty input and prior packet ownership"
+    @:true
+renderer_tests()

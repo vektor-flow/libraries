@@ -1,0 +1,14 @@
+io:.io
+numbers:.resource_numbers
+output:.math_qed_output
+
+run()->int:
+    count:int(vkf_decimal_parse(io.read_line()))
+    i:0
+    i<count?>
+        quad:numbers.parse(io.read_line())
+        path:io.read_line()
+        io.write_text(path,output.box_json(quad))
+        .i:i+1
+    @:0
+run()

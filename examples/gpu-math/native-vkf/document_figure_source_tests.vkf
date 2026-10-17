@@ -1,0 +1,21 @@
+figure_source_under_test:.document_figure_source
+figure_options_under_test:.document_graphic_options
+figure_test_json:.resource_json
+figure_test_measure:.document_float_measure
+renderer_tests()->bit:
+    input:"\\includegraphics[width=50bp,keepaspectratio]{drawing.png}\\caption{A \$x+y\$ caption}\\label{fig:test} \\vspace{-2pt}"
+    parsed:figure_source_under_test.extract(input,"h",3,"{\"textWidth\":100,\"fontSize\":10}")
+    (parsed.here /\ ~parsed.immediate /\ parsed.diagnostics="" /\ parsed.labels.length()=1 /\ parsed.labels.(0)="fig:test")?! "Figure source labels and exact here placement"
+    attrs:figure_test_json.parse("{"&parsed.attrs&"}")
+    nodes:figure_test_measure.array(attrs,figure_test_json.member(attrs,0,"blocks"))
+    nodes.length()=3?! "Source picture caption and vertical space preserved in lexical order"
+    (figure_test_measure.string(attrs,nodes.(0),"kind")="image" /\ figure_test_measure.string(attrs,nodes.(1),"source")="Figure 3: \\hspace{0bp}A \$x+y\$ caption")?! "Figure captions remain native source"
+    options:figure_test_json.member(attrs,nodes.(0),"options")
+    figure_test_measure.string(attrs,options,"width")="50bp"?! "Graphic options retain dimension source"
+    options_parsed:figure_options_under_test.parse("width=10bp,angle=0,scale=2,width=20bp,unknown=true")
+    option_tape:figure_test_json.parse(options_parsed.json)
+    (figure_test_measure.string(option_tape,0,"width")="20bp" /\ options_parsed.diagnostics="\"Unsupported graphicx option: unknown\"")?! "Options preserve duplicate precedence and diagnostics"
+    first_caption:figure_source_under_test.extract("\\caption{first}\\caption{second}","H",4,"{}")
+    (first_caption.immediate /\ ~first_caption.here /\ first_caption.diagnostics~="")?! "Immediate figures retain missing-image diagnostics"
+    @:true
+renderer_tests()

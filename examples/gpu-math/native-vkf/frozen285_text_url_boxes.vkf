@@ -1,0 +1,132 @@
+# Literal URL character boxes and legal native breakpoints from
+# document-text.mjs44-48. Character iteration is Unicode-scalar; each shape
+# still consumes UTF-16 units exactly as the production literal font shaper.
+url_boxes_ops:.frozen285_text_parser_stream
+url_boxes_index:.frozen285_text_inline_arguments
+url_boxes_pages:.frozen285_math_command_pages
+url_boxes_shaping:.frozen285_text_shaping
+url_boxes_catalog:.frozen285_font_catalog
+url_boxes_glyphs:.frozen285_math_glyphs
+url_boxes_boxes:.frozen285_text_inline_boxes
+url_boxes_chunks:.frozen285_text_chunks
+url_boxes_text:.frozen285_tex_text
+url_boxes_json:.frozen285_resource_json
+url_boxes_decimal:.frozen285_json_numbers
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+Provider:(operation_ids:[int],kinds:[int],widths:[num],stretches:[num],shrinks:[num],heights:[num],depths:[num],italics:[num],breakable:[bit],flagged:[bit],penalties:[int],scenes:[str],diagnostics:[str],count:int)
+Run:(keys:[str],xs:[num],metrics:[str],codes:[int],starts:[int],stops:[int],count:int,width:num,height:num,depth:num,italic:num,atoms:int,diagnostics:str)
+Characters:(values:[str],classes:[int],count:int,units:int)
+ints(size:int)->[int]:[0:size]
+characters(source:str,bib_url:bit)->Characters:
+    size:url_boxes_text.byte_length(source)
+    values:url_boxes_chunks.empty(size+1)
+    classes:ints(size+1)
+    count:0
+    units:0
+    at:0
+    breaks:".@\\/!_|;>]),?&'+=#"
+    opens:"([{<"
+    at<size?>
+        c:url_boxes_text.at(source,at)
+        values.(count):c
+        kind:0
+        url_boxes_text.find(breaks,c)>=0? .kind:1
+        url_boxes_text.find(opens,c)>=0? .kind:3
+        (c=":" \/ (bib_url /\ c="-"))? .kind:2
+        classes.(count):kind
+        scalar:0
+        c >>
+            .scalar:int($)
+            $
+        .units:units+1
+        scalar>65535? .units:units+1
+        .count:count+1
+        .at:url_boxes_text.next(source,at)
+    index:0
+    index<count?>
+        classes.(index)=1?
+            previous:0
+            index>0? .previous:classes.(index-1)
+            (index=0 \/ previous=1 \/ previous=2 \/ previous=3)? classes.(index):0
+        classes.(index)=2 /\ index>0?
+            classes.(index-1)=1? classes.(index-1):0
+        .index:index+1
+    count>0?
+        classes.(count-1)=1? classes.(count-1):0
+    @:(values:values,classes:classes,count:count,units:units)
+scene(run:Run,tilde_raise:num)->str:
+    keys:run.keys
+    xs:run.xs
+    parts:url_boxes_chunks.empty(run.count)
+    i:0
+    i<run.count?>
+        y:0.0
+        keys.(i)="text/@document:mono:126"? .y:tilde_raise
+        prefix:""
+        i>0? .prefix:","
+        parts.(i):prefix&"{\"kind\":\"glyph\",\"key\":"&url_boxes_json.quote(keys.(i))&",\"x\":"&url_boxes_decimal.roundtrip(xs.(i))&",\"y\":"&url_boxes_decimal.roundtrip(y)&"}"
+        .i:i+1
+    @:"{\"items\":["&url_boxes_chunks.join(parts,0,run.count)&"],\"width\":"&url_boxes_decimal.roundtrip(run.width)&",\"height\":"&url_boxes_decimal.roundtrip(run.height)&",\"depth\":"&url_boxes_decimal.roundtrip(run.depth)&",\"italic\":"&url_boxes_decimal.roundtrip(run.italic)&"}"
+provide(stream:Stream,fonts:Catalog,width:num,bib_url:bit=false)->Provider:
+    output:url_boxes_boxes.empty()
+    directory:url_boxes_index.build(stream)
+    hidden:directory.hidden
+    first_url:0
+    first_url<stream.count?>
+        (~hidden.(first_url) /\ url_boxes_ops.value(stream,first_url,"kind")="url")? @|
+        .first_url:first_url+1
+    first_url>=stream.count? @:output
+    shaping:url_boxes_shaping.context(fonts,"mono")
+    roman:url_boxes_catalog.text_font(fonts,"roman")
+    roman_spaces:url_boxes_json.member(roman,0,"spaces")
+    roman_quad:url_boxes_glyphs.numeric(roman,roman_spaces,"quad")
+    tilde_raise:0.0
+    url_boxes_catalog.raw(fonts,"font/mono")~=""?
+        mono:url_boxes_catalog.text_font(fonts,"mono")
+        mono_spaces:url_boxes_json.member(mono,0,"spaces")
+        .tilde_raise:0.45*url_boxes_glyphs.numeric(mono,mono_spaces,"xheight")
+    operation:first_url
+    operation<stream.count?>
+        current:operation
+        .operation:operation+1
+        hidden.(current)? @>
+        url_boxes_ops.value(stream,current,"kind")~="url"? @>
+        source:url_boxes_ops.value(stream,current,"value")
+        input:characters(source,bib_url)
+        values:input.values
+        classes:input.classes
+        run_width:0.0
+        maximum:0.0
+        index:0
+        index<input.count?>
+            kind:classes.(index)
+            bib_url /\ index>0?
+                previous:classes.(index-1)
+                before:(previous=0 \/ previous=4) /\ (kind=1 \/ kind=2)
+                after:(previous=1 \/ previous=2) /\ (kind=0 \/ kind=3)
+                (before \/ after)? .output:url_boxes_boxes.append(output,current,1,0,stretch:roman_quad/6,breakable:false)
+            shaped:url_boxes_shaping.shape(values.(index),fonts,shaping)
+            .run_width:run_width+shaped.width
+            run_width>maximum? .maximum:run_width
+            (kind=1 \/ kind=2)? .run_width:0
+            .output:url_boxes_boxes.append(output,current,0,shaped.width,shaped.height,shaped.depth,shaped.italic,scene:scene(shaped,tilde_raise),diagnostics:shaped.diagnostics)
+            # Preserve actual JS's UTF-16 .length test despite scalar entries.
+            index<input.units-1 /\ (kind=1 \/ kind=2)?
+                penalty:700
+                kind=2? .penalty:500
+                bib_url?
+                    .penalty:200
+                    kind=2? .penalty:100
+                .output:url_boxes_boxes.append(output,current,3,penalty:penalty)
+            .index:index+1
+        diagnostics:""
+        maximum>width? .diagnostics:url_boxes_json.quote("URL line breaking: unbreakable component exceeds line width")
+        parent:url_boxes_pages.integer(stream.parents,current)
+        parent>=0?
+            ~url_boxes_ops.flag(stream,parent,"closed")?
+                diagnostics~=""? .diagnostics:diagnostics&","
+                .diagnostics:diagnostics&url_boxes_json.quote("Unfinished URL")
+        .output:url_boxes_boxes.append(output,current,5,diagnostics:diagnostics)
+    @:output

@@ -1,0 +1,147 @@
+# Metadata-preserving leaf paint and anchor edits for paragraph emission.
+link_render_json:.resource_json
+link_render_text:.tex_text
+link_render_chunks:.text_chunks
+link_render_numbers:.json_numbers
+link_render_ops:.text_parser_stream
+link_render_pages:.math_command_pages
+Tape:(source:str,kinds:[int],starts:[int],stops:[int],ends:[int],count:int,valid:bit)
+raw(tape:Tape,node:int)->str:
+    starts:tape.starts
+    stops:tape.stops
+    @:link_render_text.span(tape.source,starts.(node),stops.(node))
+visible(scene:str)->bit:
+    tape:link_render_json.parse(scene)
+    items:link_render_json.member(tape,0,"items")
+    items<0? @:false
+    ends:tape.ends
+    at:items+1
+    at<ends.(items)?>
+        link_render_json.string(tape,link_render_json.member(tape,at,"kind"))~="link"? @:true
+        .at:ends.(at)
+    @:false
+edit(scene:str,color:str="null",ids:str="[]",paint_links:bit=true)->str:
+    color="null" /\ ids="[]"? @:scene
+    tape:link_render_json.parse(scene)
+    items:link_render_json.member(tape,0,"items")
+    items<0? @:scene
+    ends:tape.ends
+    parts:link_render_chunks.empty(ends.(items)-items+1)
+    count:0
+    at:items+1
+    marked:false
+    at<ends.(items)?>
+        members:link_render_chunks.empty(ends.(at)-at+2)
+        member_count:0
+        key:at+1
+        kind:link_render_json.string(tape,link_render_json.member(tape,at,"kind"))
+        mark:~marked /\ kind~="link" /\ ids~="[]"
+        paint:color~="null" /\ (paint_links \/ kind~="link")
+        previous:"[]"
+        key<ends.(at)?>
+            name:link_render_json.string(tape,key)
+            name="destinationIds"? .previous:raw(tape,key+1)
+            retain:~(name="color" /\ paint) /\ ~(name="destinationIds" /\ mark)
+            retain?
+                prefix:""
+                member_count>0? .prefix:","
+                members.(member_count):prefix&raw(tape,key)&":"&raw(tape,key+1)
+                .member_count:member_count+1
+            .key:ends.(key+1)
+        paint?
+            prefix:""
+            member_count>0? .prefix:","
+            members.(member_count):prefix&"\"color\":"&color
+            .member_count:member_count+1
+        mark?
+            combined:ids
+            previous~="[]"? .combined:link_render_text.span(previous,0,link_render_text.byte_length(previous)-1)&","&link_render_text.span(ids,1,link_render_text.byte_length(ids))
+            prefix:""
+            member_count>0? .prefix:","
+            members.(member_count):prefix&"\"destinationIds\":"&combined
+            .member_count:member_count+1
+            .marked:true
+        prefix:""
+        count>0? .prefix:","
+        parts.(count):prefix&"{"&link_render_chunks.join(members,0,member_count)&"}"
+        .count:count+1
+        .at:ends.(at)
+    starts:tape.starts
+    stops:tape.stops
+    @:link_render_text.span(scene,0,starts.(items))&"["&link_render_chunks.join(parts,0,count)&"]"&link_render_text.span(scene,stops.(items),link_render_text.byte_length(scene))
+glyph_run(keys:[str],xs:[num],count:int,width:num,height:num,depth:num)->str:
+    parts:link_render_chunks.empty(count)
+    index:0
+    index<count?>
+        prefix:""
+        index>0? .prefix:","
+        parts.(index):prefix&"{\"kind\":\"glyph\",\"key\":"&link_render_json.quote(keys.(index))&",\"x\":"&link_render_numbers.roundtrip(xs.(index))&",\"y\":0}"
+        .index:index+1
+    @:"{\"items\":["&link_render_chunks.join(parts,0,count)&"],\"width\":"&link_render_numbers.roundtrip(width)&",\"height\":"&link_render_numbers.roundtrip(height)&",\"depth\":"&link_render_numbers.roundtrip(depth)&"}"
+
+colors(operation_scopes:[int],directory:str)->[str]:
+    tape:link_render_json.parse(directory)
+    result:link_render_chunks.empty(operation_scopes.length())
+    index:0
+    index<operation_scopes.length()?>
+        result.(index):"null"
+        scope:operation_scopes.(index)
+        scope>=0?
+            entry:link_render_json.member(tape,0,link_render_text.integer(scope))
+            enabled:link_render_json.member(tape,entry,"colorlinks")
+            enabled>=0?
+                raw(tape,enabled)="true"? result.(index):raw(tape,link_render_json.member(tape,entry,"color"))
+        .index:index+1
+    @:result
+anchor_range(operations:[int],ids:[str],begin:int,last_operation:int):
+    parts:link_render_chunks.empty(operations.length()-begin)
+    index:begin
+    index<operations.length()?>
+        operations.(index)>last_operation? @|
+        prefix:""
+        index>begin? .prefix:","
+        parts.(index-begin):prefix&link_render_json.quote(ids.(index))
+        .index:index+1
+    @:(ids:"["&link_render_chunks.join(parts,0,index-begin)&"]",next:index)
+point_scene(ids:[str],begin:int)->str:
+    parts:link_render_chunks.empty(ids.length()-begin)
+    index:begin
+    index<ids.length()?>
+        prefix:""
+        index>begin? .prefix:","
+        parts.(index-begin):prefix&"{\"id\":"&link_render_json.quote(ids.(index))&",\"x\":0,\"y\":0}"
+        .index:index+1
+    @:"{\"items\":[],\"inlineDestinations\":true,\"destinations\":["&link_render_chunks.join(parts,0,index-begin)&"],\"width\":0,\"height\":0,\"depth\":0}"
+
+inline_box(scene:str,width:num,appearance:str)->str:
+    style:link_render_json.parse(appearance)
+    color:raw(style,link_render_json.member(style,0,"color"))
+    border:raw(style,link_render_json.member(style,0,"borderWidth"))
+    target:raw(style,link_render_json.member(style,0,"target"))
+    paint:raw(style,link_render_json.member(style,0,"colorlinks"))="true"
+    retained:scene
+    paint? .retained:edit(scene,color,paint_links:false)
+    tape:link_render_json.parse(retained)
+    items:link_render_json.member(tape,0,"items")
+    ends:tape.ends
+    stops:tape.stops
+    prefix:""
+    items+1<ends.(items)? .prefix:","
+    link:"{\"kind\":\"link\",\"x\":0,\"y\":0,\"width\":"&link_render_numbers.roundtrip(width)&",\"color\":"&color&",\"borderWidth\":"&border&",\"target\":"&target&"}"
+    @:link_render_text.span(retained,0,stops.(items)-1)&prefix&link&link_render_text.span(retained,stops.(items)-1,link_render_text.byte_length(retained))
+
+Pool:(values:[str],slots:[int],hashes:[int],count:int)
+Stream:(texts:[str],numbers:[[int]],starts:[[int]],stops:[[int]],parents:[[int]],count:int,diagnostics:str)
+nonbox_scopes(stream:Stream,operation_scopes:[int])->[int]:
+    result:[ -1:operation_scopes.length()]
+    index:0
+    index<operation_scopes.length()?>
+        result.(index):operation_scopes.(index)
+        link_render_ops.value(stream,index,"kind")="url"?
+            result.(index): -1
+            command:link_render_pages.integer(stream.parents,index)
+            command>=0?
+                inherited:link_render_pages.integer(stream.parents,command)
+                inherited>=0? result.(index):operation_scopes.(inherited)
+        .index:index+1
+    @:result

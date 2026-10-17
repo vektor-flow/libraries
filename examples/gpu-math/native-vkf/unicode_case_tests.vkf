@@ -1,0 +1,26 @@
+unicode_case:.unicode_case
+renderer_tests()->bit:
+    asset:unicode_case.load()
+    (unicode_case.lower("ΟΣ",asset)="ος")?! "ECMAScript contextual lowercase 0"
+    (unicode_case.upper("ΟΣ",asset)="ΟΣ")?! "ECMAScript full uppercase 0"
+    (unicode_case.lower("ΟΣΑ",asset)="οσα")?! "ECMAScript contextual lowercase 1"
+    (unicode_case.upper("ΟΣΑ",asset)="ΟΣΑ")?! "ECMAScript full uppercase 1"
+    (unicode_case.lower("Σ",asset)="σ")?! "ECMAScript contextual lowercase 2"
+    (unicode_case.upper("Σ",asset)="Σ")?! "ECMAScript full uppercase 2"
+    (unicode_case.lower("ΑΣ'",asset)="ας'")?! "ECMAScript contextual lowercase 3"
+    (unicode_case.upper("ΑΣ'",asset)="ΑΣ'")?! "ECMAScript full uppercase 3"
+    (unicode_case.lower("ͅΣ",asset)="ͅσ")?! "ECMAScript contextual lowercase 4"
+    (unicode_case.upper("ͅΣ",asset)="ΙΣ")?! "ECMAScript full uppercase 4"
+    (unicode_case.lower("ᾼΣ",asset)="ᾳς")?! "ECMAScript contextual lowercase 5"
+    (unicode_case.upper("ᾼΣ",asset)="ΑΙΣ")?! "ECMAScript full uppercase 5"
+    (unicode_case.lower("Α-Σ",asset)="α-σ")?! "ECMAScript contextual lowercase 6"
+    (unicode_case.upper("Α-Σ",asset)="Α-Σ")?! "ECMAScript full uppercase 6"
+    (unicode_case.lower("AΣ ΑΣİstraße ﬃ",asset)="aς ασi̇straße ﬃ")?! "ECMAScript contextual lowercase 7"
+    (unicode_case.upper("AΣ ΑΣİstraße ﬃ",asset)="AΣ ΑΣİSTRASSE FFI")?! "ECMAScript full uppercase 7"
+    (unicode_case.lower("ΑΣ́A",asset)="ασ́a")?! "ECMAScript contextual lowercase 8"
+    (unicode_case.upper("ΑΣ́A",asset)="ΑΣ́A")?! "ECMAScript full uppercase 8"
+    (unicode_case.lower("ΑΣ́!",asset)="ας́!")?! "ECMAScript contextual lowercase 9"
+    (unicode_case.upper("ΑΣ́!",asset)="ΑΣ́!")?! "ECMAScript full uppercase 9"
+    (unicode_case.upper_tex("A \\textit{mixed Straße} and \$l_1+σ\$ \\@abc",asset)="A \\textit{MIXED STRASSE} AND \$l_1+σ\$ \\@ABC")?! "AMS title case preserves native command names and math spans"
+    @:true
+renderer_tests()

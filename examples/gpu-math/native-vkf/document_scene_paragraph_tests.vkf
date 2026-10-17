@@ -1,0 +1,29 @@
+fixture_keys()->[str]:@:["text/a","text/b"]
+fixture_xs()->[num]:@:[1.0,20.0]
+fixture_ys()->[num]:@:[0.0,12.0]
+fixture_flow_lines()->[int]:@:[0,1]
+fixture_glyph_operations()->[int]:@:[1,5]
+fixture_scenes()->[str]:@:["{\"items\":[{\"kind\":\"rule\",\"x\":2,\"y\":3,\"width\":4,\"height\":0.5}]}","{\"items\":[],\"inlineDestinations\":true,\"destinations\":[{\"id\":\"anchor\",\"x\":0,\"y\":0}]}"]
+fixture_scene_xs()->[num]:@:[5.0,7.0]
+fixture_scene_ys()->[num]:@:[0.0,12.0]
+fixture_scene_lines()->[int]:@:[0,1]
+fixture_scene_operations()->[int]:@:[2,4]
+fixture_line_heights()->[num]:@:[7.0,7.0]
+fixture_line_depths()->[num]:@:[2.0,2.0]
+fixture_line_widths()->[num]:@:[10.0,10.0]
+fixture_line_baselines()->[num]:@:[0.0,12.0]
+fixture_line_ratios()->[num]:@:[0.0,0.0]
+fixture_line_indents()->[num]:@:[0.0,0.0]
+fixture_line_flagged()->[bit]:@:[false,false]
+ints(size:int)->[int]:[0:size]
+document_scene_paragraph:.document_scene_paragraph
+Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
+renderer_tests()->bit:
+    q:(keys:fixture_keys(),xs:fixture_xs(),ys:fixture_ys(),flow_lines:fixture_flow_lines(),glyph_operations:fixture_glyph_operations(),scenes:fixture_scenes(),scene_xs:fixture_scene_xs(),scene_ys:fixture_scene_ys(),scene_lines:fixture_scene_lines(),scene_operations:fixture_scene_operations(),scene_count:2,pending:ints(0),pending_count:0,complete:true,lowering_complete:true,glyph_count:2,line_heights:fixture_line_heights(),line_depths:fixture_line_depths(),line_widths:fixture_line_widths(),line_baselines:fixture_line_baselines(),line_ratios:fixture_line_ratios(),line_indents:fixture_line_indents(),line_flagged:fixture_line_flagged(),line_count:2,width:30.0,height:7.0,depth:14.0,measurement_work:0,diagnostics:"",solved:true,pass:0)
+    result:document_scene_paragraph.from_paragraph(q)
+    (result.arena.count=3 /\ result.arena.keys.(0)="text/a" /\ result.arena.keys.(2)="text/b")?! "stable mixed draw order"
+    (result.arena.kinds.(1)=2 /\ result.arena.xs.(1)=7 /\ result.arena.ys.(1)=3 /\ result.arena.lines.(2)=1)?! "retained translation and lines"
+    (result.anchor_count=1 /\ result.anchor_ids.(0)="anchor" /\ result.anchor_xs.(0)=7 /\ result.anchor_ys.(0)=12)?! "typed standalone anchor position"
+    (result.arena.extras.(0)="")?! "ordinary glyph avoids JSON"
+    @:true
+renderer_tests()

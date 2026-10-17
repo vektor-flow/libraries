@@ -1,0 +1,53 @@
+d:.math_decorations
+c:.math_commands
+p:.math_command_pages
+f:.test_layout_fonts
+data:.test_font_data
+catalog:.font_catalog
+chunks:.text_chunks
+j:.resource_json
+numbers:.json_numbers
+tex:.tex_numeric
+
+mark_fonts():
+    keys:["math/text/@braceld","math/text/@braceru","math/text/@bracelu","math/text/@bracerd","math/script/@accent:widehat0","math/script/@accent:widehat1","math/script/@accent:widehat2","math/script/@accent:widehatAMS0","math/script/@accent:widehatAMS1"]
+    widths:[2.0,3.0,4.0,5.0,4.0,8.0,12.0,16.0,24.0]
+    values:chunks.empty(9)
+    i:0
+    i<9?>
+        values.(i):"{\"width\":"&numbers.roundtrip(widths.(i))&",\"height\":2,\"depth\":1,\"class\":\"ord\"}"
+        .i:i+1
+    @:catalog.load(data.pack(keys,values))
+
+payload(buffer:(heads:[[int]],tails:[[int]],boxes:int,nexts:[[int]],children:[[int]],pool:(values:[str],slots:[int],hashes:[int],count:int),payload_ids:[[int]],xs:[[num]],ys:[[num]],flow:[[bit]],flow_x:[[num]],flow_width:[[num]],count:int),index:int)->str:
+    pool:buffer.pool
+    values:pool.values
+    @:values.(p.integer(buffer.payload_ids,index))
+
+renderer_tests()->bit:
+    fonts:f.fonts()
+    both:d.arrow(c.empty(1),0,fonts,30,1,"both",true,0,"","null", -9)
+    (both.width=30 /\ both.height=7 /\ both.depth=1 /\ both.diagnostic="")?! "both arrow dimensions use head metrics"
+    (both.buffer.count=8 /\ p.number(both.buffer.xs,1)=20 /\ p.number(both.buffer.ys,0)= -9 /\ p.number(both.buffer.ys,7)= -9)?! "native leaders retain head order and mark baseline"
+    preview:d.arrow(c.empty(1),0,fonts,30,1,"both",false,0,"","null",5)
+    rule:j.parse("{"&payload(preview.buffer,2)&"}")
+    (preview.buffer.count=3 /\ p.number(preview.buffer.ys,2)=2 /\ |j.number(rule,j.member(rule,0,"height"))-0.4|<0.000000001)?! "preview shaft uses ink bounds plus mark offset"
+    right:d.arrow(c.empty(1),0,fonts,0,1,"right",true)
+    left:d.arrow(c.empty(1),0,fonts,0,1,"left",true)
+    (right.width=4 /\ left.width=4 /\ right.buffer.count=2 /\ left.buffer.count=2)?! "short arrow minimum width does not emit negative shaft"
+    marks:mark_fonts()
+    over:d.brace(c.empty(2),0,1,marks,30,7,1,false)
+    (over.width=30 /\ |over.height-(10+6*tex.pt())|<0.000000001 /\ over.depth=1)?! "overbrace native vertical clearance"
+    (over.buffer.count=7 /\ p.integer(over.buffer.children,0)=1 /\ p.number(over.buffer.xs,0)=0 /\ p.number(over.buffer.xs,2)=2)?! "brace child precedes four native pieces and two rules"
+    first:j.parse("{"&payload(over.buffer,1)&"}")
+    (j.string(first,j.member(first,0,"key"))="text/@braceld")?! "overbrace always chooses textstyle piece family"
+    under:d.brace(c.empty(2),0,1,marks,10,7,1,true)
+    (under.width=14 /\ under.buffer.count=5 /\ p.number(under.buffer.xs,0)=2 /\ |under.depth-(4+6*tex.pt())|<0.000000001)?! "underbrace minimum piece width centers body without gap rules"
+    under_first:j.parse("{"&payload(under.buffer,1)&"}")
+    (j.string(under_first,j.member(under_first,0,"key"))="text/@bracelu")?! "underbrace reverses native piece orientation"
+    small:d.wide(marks,"widehat",2,8,20,10)
+    ams:d.wide(marks,"widehat",2,24,20.0001,10)
+    fallback:d.wide(marks,"widehat",2,3,20,10)
+    (small.token="@accent:widehat1" /\ ams.token="@accent:widehatAMS1" /\ fallback.token="@accent:widehat0")?! "wide accent strict AMS threshold and inclusive actual-width selection"
+    @:true
+renderer_tests()

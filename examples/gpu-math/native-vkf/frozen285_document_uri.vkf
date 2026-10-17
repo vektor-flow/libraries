@@ -1,0 +1,90 @@
+# encode/decodeURIComponent and document-links.mjs uriValue, on valid UTF-8 VKF
+# strings. Decoding validates complete UTF-8 sequences before constructing text.
+document_uri_text:.frozen285_tex_text
+document_uri_json:.frozen285_resource_json
+document_uri_chunks:.frozen285_text_chunks
+Decoded:(value:str,valid:bit,diagnostic:str)
+
+hex(byte:int)->str:
+    digits:"0123456789ABCDEF"
+    @:"%"&document_uri_text.span(digits,byte//16,byte//16+1)&document_uri_text.span(digits,byte%16,byte%16+1)
+encode_scalar(value:int)->str:
+    ((value>=65 /\ value<=90) \/ (value>=97 /\ value<=122) \/ (value>=48 /\ value<=57) \/ value=45 \/ value=95 \/ value=46 \/ value=33 \/ value=126 \/ value=42 \/ value=39 \/ value=40 \/ value=41)? @:str(chr(value))
+    value<128? @:hex(value)
+    value<2048? @:hex(192+value//64)&hex(128+value%64)
+    value<65536? @:hex(224+value//4096)&hex(128+(value//64)%64)&hex(128+value%64)
+    @:hex(240+value//262144)&hex(128+(value//4096)%64)&hex(128+(value//64)%64)&hex(128+value%64)
+encode_destination(value:str)->str:value >> encode_scalar(int($))
+invalid()->Decoded:(value:"",valid:false,diagnostic:"URI malformed")
+percent(source:str,at:int)->int:
+    vkf_string_eof(source,at)? @: -1
+    document_uri_text.at(source,at)~="%"? @: -1
+    vkf_string_eof(source,at+2)? @: -1
+    high:document_uri_json.hex(document_uri_text.at(source,at+1))
+    low:document_uri_json.hex(document_uri_text.at(source,at+2))
+    (high<0 \/ low<0)? @: -1
+    @:high*16+low
+decode_destination(value:str)->Decoded:
+    size:document_uri_text.byte_length(value)
+    parts:document_uri_chunks.empty(size+1)
+    count:0
+    at:0
+    at<size?>
+        c:document_uri_text.at(value,at)
+        c~="%"?
+            parts.(count):c
+            .count:count+1
+            .at:document_uri_text.next(value,at)
+            @>
+        first:percent(value,at)
+        first<0? @:invalid()
+        first<128?
+            parts.(count):str(chr(first))
+            .count:count+1
+            .at:at+3
+            @>
+        following:0
+        scalar:0
+        minimum:0
+        (first>=194 /\ first<=223)?
+            .following:1
+            .scalar:first-192
+            .minimum:128
+        (first>=224 /\ first<=239)?
+            .following:2
+            .scalar:first-224
+            .minimum:2048
+        (first>=240 /\ first<=244)?
+            .following:3
+            .scalar:first-240
+            .minimum:65536
+        following=0? @:invalid()
+        .at:at+3
+        step:0
+        step<following?>
+            byte:percent(value,at)
+            (byte<128 \/ byte>191)? @:invalid()
+            .scalar:scalar*64+byte-128
+            .at:at+3
+            .step:step+1
+        (scalar<minimum \/ scalar>1114111 \/ (scalar>=55296 /\ scalar<=57343))? @:invalid()
+        parts.(count):str(chr(scalar))
+        .count:count+1
+    @:(value:document_uri_chunks.join(parts,0,count),valid:true,diagnostic:"")
+uri_value(value:str)->str:
+    size:document_uri_text.byte_length(value)
+    parts:document_uri_chunks.empty(size+1)
+    count:0
+    at:0
+    at<size?>
+        c:document_uri_text.at(value,at)
+        next:document_uri_text.next(value,at)
+        c="\\" /\ next<size?
+            following:document_uri_text.at(value,next)
+            (following="%" \/ following="#" \/ following="&" \/ following="_" \/ following="{" \/ following="}" \/ following="\$")?
+                .c:following
+                .next:document_uri_text.next(value,next)
+        parts.(count):c
+        .count:count+1
+        .at:next
+    @:document_uri_chunks.join(parts,0,count)

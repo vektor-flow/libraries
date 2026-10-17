@@ -1,0 +1,47 @@
+p:.math_text
+m:.math_parser
+c:.font_catalog
+fixtures:.test_font_data
+j:.resource_json
+text:.tex_text
+
+font_scopes():
+    leaves:p.parse("a\\textbf{b\\emph{c\\emph{x}}}y")
+    (leaves.count=5 /\ leaves.diagnostics="")?! "nested text scopes"
+    attrs:leaves.attrs
+    (text.find(attrs.(0),"mathrm")>=0 /\ text.find(attrs.(1),"mathbf")>=0 /\ text.find(attrs.(2),"mathit")>=0 /\ text.find(attrs.(3),"mathrm")>=0 /\ text.find(attrs.(4),"mathrm")>=0)?! "formatting restores each enclosing family"
+
+escapes_and_recovery():
+    leaves:p.parse("\\%\\\$\\{\\}\\textbackslash\\textasciicircum\\textasciitilde\\ ")
+    (leaves.count=8 /\ leaves.diagnostics="")?! "escaped delimiters remain text"
+    attrs:leaves.attrs
+    (text.find(attrs.(1),j.quote("\$"))>=0)?! "literal dollar"
+    recovered:p.parse("a\\textbf b\\unknown")
+    (recovered.count=3 /\ text.find(recovered.diagnostics,"Missing text formatting argument")>=0 /\ text.find(recovered.diagnostics,"Unsupported text command")>=0)?! "recovery skips command delimiter spaces and preserves holes"
+    unfinished:p.parse("\\textbf{a")
+    (unfinished.count=1 /\ text.find(unfinished.diagnostics,"Inferred a closing text brace")>=0)?! "incomplete formatting"
+
+growing_text_and_metadata():
+    source:""
+    index:0
+    index<400?>
+        .source:source&"x"
+        .index:index+1
+    fonts:c.load(fixtures.math_catalog())
+    arena:m.parse("\\text{"&source&"}\\operatorname*{lim}_x\\tag*{a}",fonts)
+    tape:j.parse(m.json(arena))
+    nodes:j.member(tape,0,"nodes")
+    flow:j.element(tape,nodes,0)
+    chars:j.member(tape,flow,"children")
+    (j.element(tape,chars,399)>=0 /\ j.element(tape,chars,400)= -1)?! "arena and text leaf growth"
+    operator:j.element(tape,nodes,1)
+    (tape.kinds.(j.member(tape,operator,"operatorLimits"))=5)?! "starred operator preserves limit metadata"
+    tag:j.element(tape,nodes,2)
+    (j.string(tape,j.member(tape,tag,"type"))="tag" /\ arena.diagnostics="")?! "tag metadata"
+
+renderer_tests()->bit:
+    font_scopes()
+    escapes_and_recovery()
+    growing_text_and_metadata()
+    @:true
+renderer_tests()

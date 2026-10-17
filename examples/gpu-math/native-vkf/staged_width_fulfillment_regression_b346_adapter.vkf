@@ -1,0 +1,40 @@
+legacy_present:.frozen285_document_present
+# SOURCE ONLY; independent runtime qualification remains pending.
+io:.io
+fonts:.font_catalog
+h:.hyphenation
+present:.document_present
+config:.document_materialize_config
+prep:.text_prepared_runs
+request:.document_shaping_request
+run()->bit:
+    installed:fonts.load(io.read_text(io.read_line()))
+    language:h.load(io.read_text(io.read_line()))
+    c:config.configure("article","","[]",installed)
+    roles:["roman","author","italic","bold"]
+    seed:prep.seal(installed,prep.empty_collection())
+    authors:"Alice\\and Bob\\and Alice"
+    collected:present.collect_label_width(prep.empty_collection(),"[13]","roman",installed,roles,language,c)
+    .collected:present.collect_label_width(collected,"(xiii)","roman",installed,roles,language,c)
+    .collected:present.collect_author_widths(collected,authors,installed,roles,language,c)
+    prepared:request.extend(seed,installed,collected)
+    count:prepared.run_count
+    bibliography:present.fulfill_label_width(prepared,"[13]","roman",installed,roles,language,c)
+    list:present.fulfill_label_width(prepared,"(xiii)","roman",installed,roles,language,c)
+    measured:present.fulfill_author_widths(prepared,authors,installed,roles,language,c)
+    old_bibliography:legacy_present.measure("[13]","roman",installed,roles,language,c)
+    old_list:legacy_present.measure("(xiii)","roman",installed,roles,language,c)
+    old_author:legacy_present.compose_authors(authors,installed,roles,language,c)
+    final:present.finalize_author_widths(measured.demand_sources,measured.demand_widths,measured.author_count,measured.width,measured.author_quad,measured.complete)
+    (bibliography.width=old_bibliography.width /\ bibliography.diagnostics=old_bibliography.diagnostics /\ list.width=old_list.width /\ list.diagnostics=old_list.diagnostics)?! "Batched label fulfillment preserves independent provider widths and diagnostics"
+    (final.source=old_author.source /\ final.complete=old_author.complete)?! "Batched authors preserve legacy composition"
+    (prepared.run_count=count /\ measured.request.run_count=count /\ seed.run_count=0)?! "Fulfillment preserves generation and seed"
+    changed:present.collect_label_width(prep.empty_collection(),"[139]","roman",installed,roles,language,c)
+    next:request.extend(prepared,installed,changed)
+    edited:present.fulfill_label_width(next,"[139]","roman",installed,roles,language,c)
+    old_edit:legacy_present.measure("[139]","roman",installed,roles,language,c)
+    (edited.width=old_edit.width /\ prepared.run_count=count)?! "Changed source explicitly recollected without mutating prior generation"
+    singleton:present.collect_author_widths(prep.empty_collection(),"Alice",installed,roles,language,c)
+    (singleton.count=0 /\ singleton.context_roles.length()=0)?! "Single author requires no measurement preparation"
+    @:true
+(run())?! "Staged width fulfillment regression returned false"

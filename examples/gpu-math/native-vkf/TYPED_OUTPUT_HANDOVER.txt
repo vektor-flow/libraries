@@ -1,0 +1,39 @@
+Typed page output assembly (2026-10-16)
+
+Ready: document_materialize_output_typed.vkf. Existing legacy output file is
+unchanged. build uses legacy plan/blocks/lines/placements/pages/config/fonts/
+rules arguments with typed Scene vectors for body/labels/decorations. Returns
+(document:PageDocument,page_values:Map,debug_modes:[int],debug_has_lines:[bit]).
+
+Scene vectors flatten once through document_scene_flat (math-agent module).
+Integer references preserve placement order, labels before line0, separator
+before first note, empty-note separators, and decorations last. Context IDs
+merge onto first nonlink leaf. Standalone points overwrite prior destinations;
+glyph IDs use first-wins. New glyph destinations apply font tile plane top.
+Already-resolved glyph IDs never parse tile JSON. Aliases populate destinations
+and page-reference values. No glyph JSON roundtrip in page/PDF core.
+
+Native gate11 terminal PASS: /mnt/development/CuvamiLaTeX/typed-output-073-01/
+gate11-verification.json and gate11-inferred-variant.json. VKF assertions cover
+mixed page types/metadata/link/context/tile/anchor/aliases and mapped leaf counts
+0/1/17/129. Actual JS document-links.mjs markDestination/collectDestinations
+oracle is oracle.mjs + actual-js-destinations.json, with complete generated
+fixture destination assertions in VKF tests. This is focused qualification;
+full40 reference validation and timings are root-owned and not claimed here.
+
+IR: flat-output-ir-inspection.json / flat-output-clone-locals.json. Mapped
+output_leaf has1 vector clone (small Leaf destination IDs), no Arena snapshots;
+placed_leaf_flat has0 vector/string clones. index_flat and anchor_index have6
+output-column clones at final return. Other assembly clones are bulk ownership
+and output construction. Previous projected Scene/Arena path is retained in
+preflat-selected-ir.json as optimization evidence, not wrong-result evidence.
+
+Canonical output SHA256:
+cc1105c777fca20cb35fc2cbf37993b1c931ea622bd3b1b34c2c3a8ea09e0b85
+Tests SHA256:
+186a052b0ebab9a42088903967d18d00a9dda90de99c18fb26b1a6f4b3ccc205
+
+Gate09 helper-name collision failed; gate10 was explicitly stopped on a known
+stale helper binding collision. Neither is claimed as a compiler bug. Gate11
+captured corrected helper and completed compile/run successfully. All owned
+systemd jobs ended. No further source edits planned before root full freeze.

@@ -1,0 +1,37 @@
+source_float_core:.document_materialize_floats
+source_float_config:.document_materialize_config
+source_float_maps:.document_present_maps
+source_float_json:.resource_json
+source_float_fonts:.font_catalog
+source_float_hyphen:.hyphenation
+source_float_chunks:.text_chunks
+source_float_text:.tex_text
+source_float_assert:.math_display_metrics_kernel
+Catalog:(source:str,capacity:int,count:int,payload:int,size:int,valid:bit)
+Language:(source:str,nodes:int,edges:int,weights:int,exceptions:int,node_start:int,edge_start:int,weight_start:int,exception_start:int,size:int)
+shape_json(fonts:Catalog,roles:[str],language:Language,request_json:str)->str:
+    tape:source_float_json.parse(request_json)
+    class_name:source_float_config.string(tape,0,"class")
+    class_options:source_float_config.string(tape,0,"classOptions")
+    config:source_float_config.configure(class_name,class_options,"[{\"names\":\"graphicx,hyperref,amsmath\",\"options\":\"\"}]",fonts)
+    config_node:source_float_json.member(tape,0,"config")
+    config_node>=0? config.config:source_float_config.raw(tape,config_node)
+    asset_node:source_float_json.member(tape,0,"assets")
+    attrs_node:source_float_json.member(tape,0,"block")
+    kind:source_float_config.string(tape,attrs_node,"kind")
+    block:source_float_config.raw(tape,attrs_node)
+    block_tape:source_float_json.parse(block)
+    refs:source_float_maps.empty()
+    refs_node:source_float_json.member(tape,0,"references")
+    refs_node>=0?
+        ends:tape.ends
+        member:refs_node+1
+        member<ends.(refs_node)?>
+            .refs:source_float_maps.put(refs,source_float_json.string(tape,member),source_float_json.string(tape,member+1))
+            .member:ends.(member+1)
+    request:(kind:kind,source:source_float_config.string(block_tape,0,"asset"),attrs:source_float_text.span(block,1,source_float_text.byte_length(block)-1),assets_json:source_float_config.raw(tape,asset_node),directory:"{}",references:refs,page_values:source_float_maps.empty(),citation_labels_json:"{}",citation_separator:",~")
+    result:source_float_core.shape(request,fonts,roles,language,config)
+    (result.unresolved="")?! "Every real source float provider resolved"
+    scene:source_float_json.parse(result.scene)
+    kind="figure"? @:"{\"items\":"&source_float_config.raw(scene,source_float_json.member(scene,0,"items"))&",\"height\":"&source_float_config.raw(scene,source_float_json.member(scene,0,"height"))&",\"diagnostics\":["&result.diagnostics&"],\"placement\":"&source_float_json.quote(source_float_config.string(block_tape,0,"placement"))&"}"
+    @:result.scene
