@@ -1,0 +1,60 @@
+COMPILER PACKAGE REVIEW06 — orchestration only — 2026-10-17
+
+P1: Approval/receipt joins do not identify the regression actually approved.
+Original payload.py57-58 compares only candidate source + accepted boolean;
+an independently pinned approval can differ from the plan's regression source,
+baseline failure marker or candidate stdout oracle and still pass admission.
+prepare.py tests_plan requires native_build_passed but ignores
+core_regression_passed, and leaves the compiler ELF out of execution inputs.
+Thus changing the compiler after materialization reaches a child unchecked.
+Fix: compare the entire normalized review; receipt carries that review and
+both pass flags are required; carry/recheck the compiler pin in VKF inputs.
+Independent tests demonstrate all three review mismatches, false core flag,
+different receipt review and post-preparation compiler replacement.
+
+P1: Orphan cleanup can be credited as the expected baseline defect.
+owned-processes.py returns125 for an orphaned descendant, with
+orphaned_descendant_on_exit=true after cleanup and no_live_descendants=true.
+Original payload.py110 checks neither that flag nor remaining identities.
+Baseline expects any nonzero plus a marker, so marker+cleanup125 qualifies.
+Fix: reject orphan cleanup and remaining identities regardless of exit oracle.
+A fake baseline125 with the exact marker proves the original acceptance and
+patched rejection. This is host logic evidence, not real process qualification.
+
+P2: Output evidence/freshness is weaker than SPEC's binding claims.
+Original execute accepts preexisting outputs, omits report/log containment,
+does not persist produced output hashes, and re-pins the final compiler without
+requiring it to equal the link stage's bytes. Replacing it with different fake
+bytes containing the same identity still produces a successful fake receipt.
+Fix: require absent contained declared outputs/depfiles/reports/logs, unique
+single-component stage names, persist output/depfile/log/report pins, check
+generated arguments before later stages and all produced/immutable pins at end.
+Compiler receipt joins exact plan/results/review. Record child join before
+log-size validation so a large log does not discard already obtained join data.
+No controller, namespace, signature authority or grant redesign is introduced.
+
+AUTHENTICATION / LINK / IDENTITY / CONTROLS
+All727 selected input bytes still match,406289434 bytes streamed in256KiB chunks;
+691 recorded-pin-match,36 literal-path observed-only.36 comprises10 metadata/
+authority files,7 tool paths,19 ELF dependency paths. No observed-only compiler
+header exists in this packet. The ELF loader /usr/lib/x86_64-linux-gnu/
+ld-linux-x86-64.so.2 resolves to the same file/hash as recorded /lib64/
+ld-linux-x86-64.so.2.35 rows lack selected path-or-alias authority. Original
+classification is accurate per literal path; calling all36 unknown dependency
+identities or unpinned headers is inaccurate. No historic provenance inferred.
+
+No material defect found in the selected real MD dependency-set/hash checks or
+the240-provider ordered link replacement. Missing provider and changed generated
+object negatives pass on BOTH versions. The original13 host tests pass on both.
+Identity algorithm reproduces D288; the identity is not a complete graph digest.
+Production O3/NDEBUG flags, full control bodies, all10 D288 controls, F364ten+
+unknown selector, A347both modes and full-app closure remain unchanged by patch.
+Regression uses explicit require()/throw, so NDEBUG does not disable its checks.
+Fresh actual MD/link results and native outcomes remain unexecuted. Known
+test-only header closure may fail closed until newly required inputs are reviewed.
+
+PATCH
+orchestration.patch:174-line proposal against pinned peer files; git apply --check
+passes. candidate/ contains complete results. Four files change: prepare.py,
+payload.py,SPEC.txt and one host-fixture receipt line in test_preparation.py.
+No peer package changed. No compiler repair overlap or acceptance decision.

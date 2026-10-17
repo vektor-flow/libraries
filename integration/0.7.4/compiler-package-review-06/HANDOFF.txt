@@ -1,0 +1,59 @@
+COMPILER PACKAGE REVIEW06 — DONE, SOURCE-ONLY — 2026-10-17
+Worker01a14960-ee33-7592-8ed0-bb69ef0d04f7
+Sole coordinator01a14893-cb1e-7203-97dd-de3da44dcf31
+Assigned/observed HEAD84689e30101b6e5f8b6e1da6c1f36bbbb4345255
+
+RESULT
+Three material orchestration findings;174-line usable patch, NOT applied to peer.
+P1 full regression approval/receipt/compiler joins; P1 orphan-cleanup baseline
+false acceptance; P2 output freshness, containment and stable evidence pins.
+FINDINGS.txt has causal paths and test witnesses. candidate/ has exact full files.
+orchestration.patch changes prepare.py,payload.py,SPEC.txt and one receipt fixture
+line in test_preparation.py. Root retains integration and admission authority.
+No compiler source correction, peer edits, production edits or redesign.
+
+SOURCE / AUTHENTICATION PINS
+input-pins.json seals28 selected package/repair/grant files, rechecked unchanged.
+artifact-pins.json seals review outputs; observed-only-classification.json lists
+all36 exact rows with groups and sole recorded alias. verification.json records
+all727 unchanged selected inputs/406289434 bytes/691 recorded matches. Hashes are
+streamed in262144-byte chunks; no broad graph loading or new dependency scan.
+36 observed-only =10 metadata/authority +7 tools +19 ELF dependency paths.
+One ELF loader aliases an already recorded matching pin;35 remain uncorroborated
+by selected path-or-alias authority. No observed-only compiler headers here.
+Current hashes and alias agreement do not establish missing historical provenance.
+Ordered240-provider replacement and inherited identity recipe remain intact.
+
+EXACT HOST TESTS / JOINS
+P = this directory.
+/usr/bin/python3 -B "$P/test_review.py" --original
+ 24 tests, exit1,9 failing test methods/11 failed assertions including subtests;
+ original13 and2 independent dependency/link negatives pass.7.329132s process.
+/usr/bin/python3 -B "$P/test_review.py"
+ 24/24 PASS,exit0,6.582422s process (13 inherited+11 independent).
+Both ran under512MiB RLIMIT_AS,core0,60s subprocess timeout; direct Python children
+joined. run_host_tests.py reproduces the exact wrapper. All native stages use
+fake callbacks/bytes; fake receipts never earn native/core pass flags.
+/usr/bin/python3 -B "$P/verify_review.py"
+ PASS,0.278966s;28 source pins unchanged,727 hashes matched,classification checked,
+ /usr/bin/git apply --check "$P/orchestration.patch" passed; Git children joined.
+512MiB address-space bound; actual verifier VmHWM20472KiB,VmPeak34000KiB.
+Only own redundant preview manifests and empty test directory removed after tests.
+
+LIMITS / PRESERVED HOLDS
+Old candidate8ff80f95d154585cc0966cfb2b9b06ae441cb357017eb524c8b750616ae6161d
+remains unconditionally HELD. Repair05's corrected226bb513... remains separately
+owned and was not modified/adopted/certified by this review. Full control bodies,
+production flags,240 providers and exact identity algorithm remain unchanged.
+No compiler/clang/linker/native/VKF/service/namespace execution or qualification.
+No agents, commits, deployment, operational mutation, new grants or outside-output
+writes. Old dispatcher hold,D267 allocator,D289 typedArena/fixedspread exclusions
+preserved. All children synchronous/joined; no successor work in this chat.
+Future real MD/link dependencies, exact native regression outcomes, qualified
+storage/cgroup joins, renderer/PDF performance and acceptance gates remain open.
+External root-issued grants/namespace enforcement are not supplied by this patch.
+Older compiler receipts cannot acquire missing success fields without real evidence.
+
+NOTIFICATION
+One DONE through existing app-server client; notification-receipt.json contains
+acknowledgement or exact uncertainty. No retry. Stop after completion notice.

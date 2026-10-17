@@ -1,0 +1,174 @@
+--- a/integration/0.7.4/compiler-build-preparation-03/prepare.py
++++ b/integration/0.7.4/compiler-build-preparation-03/prepare.py
+@@ -153,6 +153,8 @@
+     head=current_head();recipe=read(CACHE/'Frontend/experiments/independent-worker-A/iteration347/recipe.json')
+     verify(compiler_receipt['compiler']);require(compiler_receipt['candidate_sha256']==r['candidate']['sha256'],'wrong compiler candidate')
+     require(compiler_receipt['native_build_passed'] is True,'compiler build not passed')
++    require(compiler_receipt.get('core_regression_passed') is True,'core regression not passed')
++    require(compiler_receipt.get('candidate_review')==r,'compiler regression review mismatch')
+     expected_id=identity(read(read(REPAIR/'build-prerequisites.json')['D288_profile']['path'])['identity'],[r['candidate']['sha256']],TAG)
+     require(compiler_receipt['identity']==expected_id,'compiler identity mismatch')
+     normalizer=next(p for p in recipe['tools'] if Path(p['path']).name=='normalize_module_aliases.py')
+@@ -215,7 +217,7 @@
+     require(current_head()==head,'shared HEAD changed during materialization')
+     for p in source_pins.values():verify(p)
+     # The new closure is authenticated at each phase, never inherited from this packet's HEAD.
+-    plan=dict(schema=1,kind='vkf',selection=selection,out=str(out),candidate_review=r,compiler_receipt=compiler_receipt,executable=r['executable'],application_head_at_preparation=head,application_inputs=list(source_pins.values()),inputs=auth['inputs'],cases=cases,stages=stages,generated=[])
++    plan=dict(schema=1,kind='vkf',selection=selection,out=str(out),candidate_review=r,compiler_receipt=compiler_receipt,executable=r['executable'],application_head_at_preparation=head,application_inputs=list(source_pins.values()),inputs=auth['inputs']+[compiler_receipt['compiler']],cases=cases,stages=stages,generated=[])
+     plan['generated']=[pin(p) for p in sorted(out.rglob('*')) if p.is_file() and not p.is_symlink()]
+     save(out/'plan.json',plan);return plan
+ 
+--- a/integration/0.7.4/compiler-build-preparation-03/payload.py
++++ b/integration/0.7.4/compiler-build-preparation-03/payload.py
+@@ -4,7 +4,7 @@
+ from pathlib import Path
+ sys.dont_write_bytecode=True
+ from authenticate import HERE, REPO, read, save, sha, pin, md
+-from prepare import require, verify, current_head, freeze_check, HELD
++from prepare import require, verify, review, current_head, freeze_check, HELD
+ 
+ def canonical(path):return os.path.realpath(path)
+ def validate_md(stage,generated_pins):
+@@ -54,8 +54,7 @@
+     require(admission['phase']==plan.get('selection',plan['kind']),'wrong phase')
+     for key in ['grant','controller_receipt','environment_qualification','candidate_review']:
+         verify(admission[key])
+-    require(read(admission['candidate_review']['path'])['candidate']==r['candidate'],'candidate approval binding mismatch')
+-    require(read(admission['candidate_review']['path']).get('accepted') is True,'candidate approval held')
++    require(review(admission['candidate_review']['path'])==r,'candidate approval binding mismatch')
+     require(admission['ram_bytes']>0 and admission['disk_bytes']>0 and admission['timeout_seconds']>0,'missing real budget')
+ 
+ def environment(out,plan):
+@@ -74,10 +73,17 @@
+     require(current_head()==plan['application_head_at_preparation'],'stale application HEAD; regenerate closure in fresh attempt')
+     freeze_check(dict(inputs=plan['inputs'],failures=[]))
+     for p in plan.get('application_inputs',[])+plan['generated']:verify(p)
+-    # Reject accidental path escape before launching even one child.
++    # Reject accidental path escape or stale output before launching even one child.
++    names=set()
+     for s in plan['stages']:
+-        for path in s.get('outputs',[])+([s['md']] if 'md' in s else []):
++        name=s['name']
++        require(name and name not in ('.','..') and Path(name).name==name and name not in names,'unsafe/duplicate stage name')
++        names.add(name)
++        paths=s.get('outputs',[])+([s['md']] if 'md' in s else [])+([s['report']] if s.get('report') else [])
++        paths += [str(out/'logs'/(name+suffix)) for suffix in ('.stdout','.stderr')]
++        for path in paths:
+             require(Path(path).is_relative_to(out) and Path(path).resolve().is_relative_to(out),'output escapes charged attempt')
++            require(not os.path.lexists(path),'preexisting stage output '+path)
+     save(out/'execution-started.json',dict(native_execution=run_override is None,plan=pin(out/'plan.json')))
+     owned=None
+     if run_override is None:
+@@ -93,6 +99,10 @@
+     try:
+         for s in plan['stages']:
+             guard();t=time.monotonic();name=s['name'];log=out/'logs'/name
++            # A prior stage's executable/object must still be the bytes it produced.
++            for arg in s['argv']:
++                key=canonical(arg)
++                if key in generated_pins:verify(dict(path=key,sha256=generated_pins[key]))
+             if run_override is not None:
+                 code,stdout,stderr,join=run_override(s);Path(str(log)+'.stdout').write_text(stdout);Path(str(log)+'.stderr').write_text(stderr)
+             else:
+@@ -103,17 +113,25 @@
+                         code,join=owned.wait_owned(child,min(s['timeout'],max(1,admission['timeout_seconds']-(time.monotonic()-started))),guard=guard)
+                     finally:
+                         if stdin_file:stdin_file.close()
+-                require(Path(str(log)+'.stdout').stat().st_size<=8*1024*1024 and Path(str(log)+'.stderr').stat().st_size<=8*1024*1024,'oversized logs retained; stop')
+-                stdout=Path(str(log)+'.stdout').read_text(errors='replace');stderr=Path(str(log)+'.stderr').read_text(errors='replace')
+             row=dict(name=name,argv=s['argv'],exit=code,join=join,seconds=time.monotonic()-t,usage=list(resource.getrusage(resource.RUSAGE_CHILDREN)))
+             results.append(row);save(out/'results.json',results)
+-            require(join.get('no_live_descendants') is True and not join.get('timed_out') and not join.get('guard_error'),'child not cleanly joined')
++            require(Path(str(log)+'.stdout').stat().st_size<=8*1024*1024 and Path(str(log)+'.stderr').stat().st_size<=8*1024*1024,'oversized logs retained; stop')
++            row['logs']=[pin(str(log)+suffix) for suffix in ('.stdout','.stderr')]
++            save(out/'results.json',results)
++            require(join.get('no_live_descendants') is True and not join.get('timed_out') and not join.get('guard_error') and not join.get('orphaned_descendant_on_exit') and not join.get('remaining_identities'),'child not cleanly joined')
++            stdout=Path(str(log)+'.stdout').read_text(errors='replace');stderr=Path(str(log)+'.stderr').read_text(errors='replace')
+             check_result(s,code,stdout,stderr)
+-            if 'md' in s:row['actual_dependencies']=validate_md(s,generated_pins)
++            if 'md' in s:
++                row['depfile']=pin(s['md'])
++                row['actual_dependencies']=validate_md(s,generated_pins)
++            row['outputs']=[]
+             for path in s.get('outputs',[]):
+-                require(Path(path).is_file(),'missing expected output '+path);generated_pins[canonical(path)]=sha(path)
++                require(Path(path).is_file(),'missing expected output '+path)
++                p=pin(path);row['outputs'].append(p);generated_pins[canonical(path)]=p['sha256']
++            if s.get('report'):row['report']=pin(s['report'])
+             save(out/'results.json',results)
+-        for p in plan.get('application_inputs',[])+plan['inputs']:verify(p)
++        for p in plan.get('application_inputs',[])+plan['inputs']+plan['generated']:verify(p)
++        for path,digest in generated_pins.items():verify(dict(path=path,sha256=digest))
+         require(current_head()==plan['application_head_at_preparation'],'HEAD advanced during execution; closure result unqualified')
+         guard()
+         if plan['kind']=='compiler':
+@@ -123,7 +141,7 @@
+                 while b:=f.read(262144):
+                     found|=marker in tail+b;tail=b[-len(marker):]
+             require(found,'rebuilt ELF lacks new identity')
+-            save(out/'compiler-receipt.json',dict(compiler=pin(out/'vkf-strict'),identity=plan['identity'],candidate_sha256=plan['candidate_review']['candidate']['sha256'],native_build_passed=run_override is None,core_regression_passed=run_override is None))
++            save(out/'compiler-receipt.json',dict(compiler=pin(out/'vkf-strict'),identity=plan['identity'],candidate_sha256=plan['candidate_review']['candidate']['sha256'],candidate_review=plan['candidate_review'],plan=pin(out/'plan.json'),results=pin(out/'results.json'),native_build_passed=run_override is None,core_regression_passed=run_override is None))
+     except BaseException as exc:
+         error=str(exc);raise
+     finally:
+--- a/integration/0.7.4/compiler-build-preparation-03/SPEC.txt
++++ b/integration/0.7.4/compiler-build-preparation-03/SPEC.txt
+@@ -102,6 +102,9 @@
+ These fields bind an existing admitted controller run. They are NOT a grant,
+ proof of namespace operation, or a claim that arbitrary JSON can authorize work.
+ Operational service/cgroup/namespace joining and admission remain root-owned.
++The bound candidate-review file must match the complete normalized review in
++the plan, including regression pin, whole-record review, identity recipe and both
++output oracles. Matching only the candidate source is insufficient.
+ 
+ After the compiler phase has genuinely passed, independently admit each control:
+   python3 -B "$P/prepare.py" vkf --candidate-review "$R" --compiler-receipt "$B/compiler-receipt.json" --selection metadata --out "$T"
+@@ -111,6 +114,11 @@
+ real C++ core (in compiler phase), d288, metadata, a345, f364, a347, full-app.
+ Each stops on the first failure. Preserve unsuccessful outputs and charge them.
+ Do not combine unadmitted phases or infer admission from any forecast.
++VKF preparation requires both native_build_passed and core_regression_passed,
++the same complete candidate review, and the expected identity. The compiler ELF
++pin is carried in the VKF plan inputs and checked before and after execution.
++Older receipts without these fields must not be upgraded by toggling booleans;
++they need a separately reviewed evidence migration or a genuinely completed run.
+ 
+ CONTROL CONTENT / CURRENT CLOSURE
+ - d288: all10 original numeric/String adaptation and ownership controls unchanged;
+@@ -157,3 +165,25 @@
+ 7 Forecasts include unsuccessful artifacts; actual peaks are unknown. Native
+   admission, RAM limits, namespace enforcement and cumulative accounting are
+   exclusively coordinator decisions after real qualification.
++
++REVIEW06 ORCHESTRATION CORRECTIONS (SOURCE-ONLY PROPOSAL)
++Every declared output, depfile, report and stage log must be absent and inside
++the charged attempt before the first child. Stage names must be unique single
++path components. No stale file can satisfy a missing producer's output check.
++Results retain joins even if a subsequent log-size/oracle check fails. Orphan
++cleanup, timeout, guard failure or remaining identities cannot qualify the
++expected baseline failure. The external cgroup join remains independently required.
++Successful stage rows pin outputs, depfiles, stdout/stderr and A347 reports.
++Generated objects/executables used by later commands are rechecked; all declared
++outputs and materialized immutable inputs are rechecked before completion.
++Compiler receipts bind the complete review, exact plan and final results pins.
++
++The original 36 observed-only rows are 10 metadata/authority files, 7 tool paths
++and 19 ELF dependency paths, not 36 unpinned compiler headers. One ELF path is
++the same resolved loader as a recorded-pin-match path with identical bytes.
++Thus 36 is correct for literal-path classification; 35 rows lack corroboration
++through either their literal path or a recorded alias in this selected packet.
++Do not infer historical provenance for the remaining observed bytes. No broader
++graph search was used, and authentication.json's original classifications remain
++unchanged. Repair05's later correction stays separately owned and requires root
++review; these orchestration changes neither adopt it nor lift the old hash hold.
+--- a/integration/0.7.4/compiler-build-preparation-03/test_preparation.py
++++ b/integration/0.7.4/compiler-build-preparation-03/test_preparation.py
+@@ -86,7 +86,7 @@
+         fake=self.basepath/'FAKE-NOT-A-COMPILER';fake.write_bytes(b'not executable')
+         parent=read(D/'delta-profile.json')['identity']
+         # Fixture metadata only, never native evidence; tests_plan does not execute it.
+-        receipt=dict(compiler=pin(fake),candidate_sha256=self.r['candidate']['sha256'],native_build_passed=True,identity=identity(parent,[self.r['candidate']['sha256']],'compiler-build-preparation-03'))
++        receipt=dict(compiler=pin(fake),candidate_sha256=self.r['candidate']['sha256'],native_build_passed=True,core_regression_passed=True,candidate_review=self.r,identity=identity(parent,[self.r['candidate']['sha256']],'compiler-build-preparation-03'))
+         counts={};application={}
+         for selection in ['d288','metadata','a345','f364','a347','full-app']:
+             p=tests_plan(self.basepath/selection,self.r,self.auth,receipt,selection);self.assertFalse(p['executable'])

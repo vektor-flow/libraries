@@ -1,0 +1,141 @@
+test_actual_link_missing_provider_rejected (__main__.Review.test_actual_link_missing_provider_rejected) ... ok
+test_changed_and_missing_dependency_rejected (__main__.Review.test_changed_and_missing_dependency_rejected) ... ok
+test_changed_linked_compiler_cannot_be_receipted (__main__.Review.test_changed_linked_compiler_cannot_be_receipted) ... FAIL
+test_compiler_failure_stops_before_identity_or_link (__main__.Review.test_compiler_failure_stops_before_identity_or_link) ... ok
+test_compiler_mutation_after_preparation_stops_before_child (__main__.Review.test_compiler_mutation_after_preparation_stops_before_child) ... FAIL
+test_core_regression_required (__main__.Review.test_core_regression_required) ... FAIL
+test_current_closures_all_requested_controls_without_native (__main__.Review.test_current_closures_all_requested_controls_without_native) ... ok
+test_dependency_drift_stops_before_link (__main__.Review.test_dependency_drift_stops_before_link) ... ok
+test_environment_and_disk_stop (__main__.Review.test_environment_and_disk_stop) ... ok
+test_exact_order_only53_90_and_new_paths (__main__.Review.test_exact_order_only53_90_and_new_paths) ... ok
+test_failed_join_stops (__main__.Review.test_failed_join_stops) ... ok
+test_fake_complete_orchestration_no_native_credit (__main__.Review.test_fake_complete_orchestration_no_native_credit) ... ok
+test_full_review_binding (__main__.Review.test_full_review_binding) ... 
+  test_full_review_binding (__main__.Review.test_full_review_binding) (field='candidate_success_stdout') ... FAIL
+  test_full_review_binding (__main__.Review.test_full_review_binding) (field='baseline_failure_marker') ... FAIL
+  test_full_review_binding (__main__.Review.test_full_review_binding) (field='regression') ... FAIL
+test_hold_is_unconditionally_rejected (__main__.Review.test_hold_is_unconditionally_rejected) ... ok
+test_link_consumes_exact_generated_object_bytes (__main__.Review.test_link_consumes_exact_generated_object_bytes) ... ok
+test_missing_expected_md_and_phony_rules (__main__.Review.test_missing_expected_md_and_phony_rules) ... ok
+test_original_identity_algorithm_reproduces_d288 (__main__.Review.test_original_identity_algorithm_reproduces_d288) ... ok
+test_orphan_cleanup_is_not_baseline_failure_evidence (__main__.Review.test_orphan_cleanup_is_not_baseline_failure_evidence) ... FAIL
+test_preexisting_link_output_rejected_before_launch (__main__.Review.test_preexisting_link_output_rejected_before_launch) ... FAIL
+test_receipt_regression_review_required (__main__.Review.test_receipt_regression_review_required) ... FAIL
+test_regression_md_requires_actual_source (__main__.Review.test_regression_md_requires_actual_source) ... ok
+test_report_escape_rejected_before_launch (__main__.Review.test_report_escape_rejected_before_launch) ... FAIL
+test_stage_output_hashes_and_receipt_joins (__main__.Review.test_stage_output_hashes_and_receipt_joins) ... FAIL
+test_stale_application_head_prevents_launch (__main__.Review.test_stale_application_head_prevents_launch) ... ok
+
+======================================================================
+FAIL: test_changed_linked_compiler_cannot_be_receipted (__main__.Review.test_changed_linked_compiler_cannot_be_receipted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-package-review-06/test_review.py", line 183, in test_changed_linked_compiler_cannot_be_receipted
+    with self.assertRaisesRegex(ValueError, 'changed/missing input'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_compiler_mutation_after_preparation_stops_before_child (__main__.Review.test_compiler_mutation_after_preparation_stops_before_child)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-package-review-06/test_review.py", line 123, in test_compiler_mutation_after_preparation_stops_before_child
+    payload.execute(p, dict(timeout_seconds=30, disk_bytes=20_000_000), no_native)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-build-preparation-03/payload.py", line 97, in execute
+    code,stdout,stderr,join=run_override(s);Path(str(log)+'.stdout').write_text(stdout);Path(str(log)+'.stderr').write_text(stderr)
+                            ~~~~~~~~~~~~^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-package-review-06/test_review.py", line 121, in no_native
+    raise AssertionError('reached child with changed compiler')
+AssertionError: reached child with changed compiler
+
+======================================================================
+FAIL: test_core_regression_required (__main__.Review.test_core_regression_required)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-package-review-06/test_review.py", line 104, in test_core_regression_required
+    with self.assertRaisesRegex(ValueError, 'core regression not passed'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_full_review_binding (__main__.Review.test_full_review_binding) (field='candidate_success_stdout')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-package-review-06/test_review.py", line 89, in test_full_review_binding
+    with self.assertRaisesRegex(ValueError, 'approval binding mismatch'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_full_review_binding (__main__.Review.test_full_review_binding) (field='baseline_failure_marker')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-package-review-06/test_review.py", line 89, in test_full_review_binding
+    with self.assertRaisesRegex(ValueError, 'approval binding mismatch'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_full_review_binding (__main__.Review.test_full_review_binding) (field='regression')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-package-review-06/test_review.py", line 89, in test_full_review_binding
+    with self.assertRaisesRegex(ValueError, 'approval binding mismatch'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_orphan_cleanup_is_not_baseline_failure_evidence (__main__.Review.test_orphan_cleanup_is_not_baseline_failure_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-package-review-06/test_review.py", line 135, in test_orphan_cleanup_is_not_baseline_failure_evidence
+    with self.assertRaisesRegex(ValueError, 'not cleanly joined'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_preexisting_link_output_rejected_before_launch (__main__.Review.test_preexisting_link_output_rejected_before_launch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-package-review-06/test_review.py", line 143, in test_preexisting_link_output_rejected_before_launch
+    with self.assertRaisesRegex(ValueError, 'preexisting stage output'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_receipt_regression_review_required (__main__.Review.test_receipt_regression_review_required)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-package-review-06/test_review.py", line 111, in test_receipt_regression_review_required
+    with self.assertRaisesRegex(ValueError, 'regression review mismatch'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_report_escape_rejected_before_launch (__main__.Review.test_report_escape_rejected_before_launch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-package-review-06/test_review.py", line 154, in test_report_escape_rejected_before_launch
+    payload.execute(p, dict(timeout_seconds=30, disk_bytes=20_000_000), no_native)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-build-preparation-03/payload.py", line 97, in execute
+    code,stdout,stderr,join=run_override(s);Path(str(log)+'.stdout').write_text(stdout);Path(str(log)+'.stderr').write_text(stderr)
+                            ~~~~~~~~~~~~^^^
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-package-review-06/test_review.py", line 152, in no_native
+    raise AssertionError('launched with report escape')
+AssertionError: launched with report escape
+
+======================================================================
+FAIL: test_stage_output_hashes_and_receipt_joins (__main__.Review.test_stage_output_hashes_and_receipt_joins)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/compiler-package-review-06/test_review.py", line 162, in test_stage_output_hashes_and_receipt_joins
+    self.assertEqual(row.get('outputs'), [auth.pin(x) for x in stage['outputs']])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != [{'path': '/home/viktor/Projects/Vektor F[250 chars]8e'}]
+
+----------------------------------------------------------------------
+Ran 24 tests in 7.245s
+
+FAILED (failures=11)
