@@ -1,0 +1,6 @@
+legacy:.paragraph_scene_legacy
+native_gate_main():
+    bad:legacy.import_scene("{")
+    bad.arena.count=0?! "Unreachable"
+
+native_gate_main()

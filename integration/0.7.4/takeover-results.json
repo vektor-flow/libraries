@@ -13,10 +13,12 @@
     "examples/gpu-math/document-layout.mjs": "50f731403952c47156316ac7b29cc06274b39cedb336e613d2a7f970518165a7",
     "examples/gpu-math/tests/document-text.test.mjs": "7cf5f84c304d00476bc156d5ec3f0967f63e7d32d8c99fcf25171335584e543a",
     "integration/0.7.4/diagnostics/label-caller.vkf": "0338df4cfdda8e3c751094da688d11c17f829526155e2f4b1684793ddfbb40e9",
-    "examples/gpu-math/tests/document-source-origins.test.mjs": "8309119e1b303dcce5116a994ef417211fc14f0a1e5ce325b7dde6d1d87aa925"
+    "examples/gpu-math/tests/document-source-origins.test.mjs": "8309119e1b303dcce5116a994ef417211fc14f0a1e5ce325b7dde6d1d87aa925",
+    "examples/gpu-math/native-vkf/host/latex_source_revision.mjs": "dc365aaead2c3536ddb9390680dfd5ca08e677d0a5a08a4f34a7d795b6e13d9f",
+    "examples/gpu-math/tests/source-revision.test.mjs": "d6674ac51fd8b99f34b5552ed2f87d1c64a49c94623113fbf6420ce8a427f0f8"
   },
   "native": {
-    "status": "A346 immediate caller reduction reproduced exact compose shape failure; next discriminating caller-topology reduction in progress",
+    "status": "A346 sealed; A347 explicit singleton diagnostic correction assigned; no production fix",
     "used_bytes": 21838598144,
     "retained_charge_bytes": 60000000,
     "budget_bytes": 21900000000,
@@ -32,7 +34,20 @@
       "runtime_reached": false,
       "peak_gib_approx": 4.1,
       "children_joined": true
-    }
+    },
+    "caller_discriminators": [
+      {
+        "attempt": "A346-02",
+        "result": "synthetic scenes with both maps pass",
+        "compile_seconds": 7.774,
+        "runtime_seconds": 0.009
+      },
+      {
+        "attempt": "A346-03",
+        "result": "new width mismatch; possible inferred-singleton fixture artifact, not original-failure localization",
+        "compile_seconds": 76.087
+      }
+    ]
   },
   "unchanged_limits": true,
   "release_qualified": false,
@@ -57,5 +72,19 @@
     "files": 9,
     "seconds": 2.74
   },
-  "display_origin_fix": "Producer spans for bracket/dollar displays and equation/equation*/displaymath; exact Unicode/macro/tag origins and track-off geometry tests"
+  "display_origin_fix": "Producer spans for bracket/dollar displays and equation/equation*/displaymath; exact Unicode/macro/tag origins and track-off geometry tests",
+  "source_revision_tests": {
+    "passed": 8,
+    "failed": 0,
+    "seconds": 0.173,
+    "scope": "Node host utility; not native API or external atomic save integration"
+  },
+  "native_gate_preparation": {
+    "suites": 37,
+    "cases": 47,
+    "ready_positive": 35,
+    "blocked_rejections": 12,
+    "executed_native": 0,
+    "static_checks_passed": 5
+  }
 }

@@ -1,0 +1,53 @@
+FOUR SKIPPED PYTHON NATIVE CHECKS — PREPARATION ONLY
+
+Source: examples/gpu-math/tests/test_native_vkf.py, NativeVkfTokens.
+The exact four cases are:
+- test_math_commands_comments_and_utf8_byte_spans
+- test_literal_link_targets_preserve_percent_and_hash
+- test_verbatim_and_escaped_control_symbols
+- test_one_executable_reads_fresh_unknown_sources
+
+Current direct entry (DOCUMENTATION ONLY; not an admitted launch):
+  VKF_COMPILER=/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration288-record01/vkf-strict \
+  /mnt/development/CompilerOptimization/consolidation-20261017/venv/bin/python \
+  -m unittest discover -s examples/gpu-math/tests -p test_native_vkf.py -v
+
+Set the manifest's exact pinned environment:
+VKF_HOME=/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-coordinator/combined-B294-root01/main/home
+LD_LIBRARY_PATH=/home/viktor/.cache/vkf-s0-runtimes-20261012/Layout/independent-worker-B/iteration318-string-storage01
+PYTHONDONTWRITEBYTECODE=1; LC_ALL=C; LANG=C
+Unset LD_PRELOAD, VKF_AST_CACHE, DISPLAY, WAYLAND_DISPLAY.
+VKF_COMPILER must point to the verified D288 compiler (hash in manifest.json).
+
+IMPORTANT: the current unittest setUpClass directly starts a compiler with
+120-second timeout, and tokens() starts native binaries with 10-second timeout.
+Those subprocess calls do not implement owned descendant joining. The 120-second
+compiler timeout conflicts with the existing 30-second per-child policy. Do not
+run this command unmodified or infer authorization for 120 seconds. Native37's
+plan does not include these four checks, and does not adapt the Python runner.
+
+Required guarded integration before launch:
+1. Pin this Python test source, current token_dump.vkf and the complete local
+   import closure rooted at token_dump (io is pinned stdlib; tex_tokens is local).
+   Use shared source only. Materialize that closure under admitted OUTPUT/raw.
+   Give each attempt a new admitted output directory; no default /tmp outputs.
+2. Materialize pinned stdlib symlinks beneath OUTPUT exactly as in the native37
+   plan (paths relative to VKF_HOME). Apply the environment above and cwd OUTPUT.
+3. Through the external guard, run (deadline <=30 seconds):
+   /usr/bin/python3 -B REPO/examples/gpu-math/native-vkf/normalize_module_aliases.py --source-dir OUTPUT/raw --output-dir OUTPUT/normalized
+4. Through the external guard, compile once (deadline <=30 seconds):
+   PINNED_COMPILER -b OUTPUT/normalized/source/token_dump.vkf -o OUTPUT/token-dump --diagnostics
+5. Use a separately reviewable derivative Python driver that loads the unchanged
+   four assertion methods but replaces setUpClass's compile/tempdir creation with
+   the admitted prebuilt binary and OUTPUT fixtures, and replaces tokens() child
+   launching with the external owned-process wrapper. Preserve its 10-second
+   native-run deadline and exact UTF-8 byte-span assertions. Keep teardown from
+   deleting retained guard evidence. This adapter has NOT been implemented here.
+6. Every tokens() call writes the test-provided TeX to the admitted fixture path
+   and sends that absolute path plus newline to the same token-dump executable.
+   Validate stdout as 1+3*count integers, then the existing tests compare token
+   kinds, original UTF-8 slices, span ordering, and fresh/changed/restored/empty
+   inputs. All four must execute (zero skips), with joined children and pinned
+   posthashes. Preserve exact cases; do not replace them with compile-only smoke.
+
+No Python/native compiler checks were executed during this preparation.

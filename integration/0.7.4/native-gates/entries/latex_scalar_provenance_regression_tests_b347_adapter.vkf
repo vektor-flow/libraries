@@ -1,0 +1,24 @@
+# SOURCE ONLY: native regressions, not compiled or executed.
+merge:.document_scene_paragraph_linear
+tests()->bit:
+    merge.a266_scalar_spans_valid("abc",[0],[3])?! "ascii"
+    merge.a266_scalar_spans_valid("aéz",[1],[3])?! "two_byte"
+    ~merge.a266_scalar_spans_valid("aéz",[2],[3])?! "split_start"
+    ~merge.a266_scalar_spans_valid("aéz",[1],[2])?! "split_stop"
+    ~merge.a266_scalar_spans_valid("aéz",[2],[2])?! "split_empty"
+    merge.a266_scalar_spans_valid("a中z",[1],[4])?! "three_byte"
+    merge.a266_scalar_spans_valid("a😀z",[1],[5])?! "four_byte"
+    ~merge.a266_scalar_spans_valid("a😀z",[2],[4])?! "four_split"
+    merge.a266_scalar_spans_valid("é",[2],[2])?! "end_empty"
+    merge.a266_scalar_spans_valid("é",[-1],[-1])?! "unknown"
+    ~merge.a266_scalar_spans_valid("é",[-1],[2])?! "partial_unknown"
+    ~merge.a266_scalar_spans_valid("é",[0],[3])?! "out_of_range"
+    ~merge.a266_scalar_spans_valid("é",[0],[])?! "columns"
+    merge.a266_scalar_spans_valid("é $x$ 😀",[7, 0, 3],[11, 2, 6])?! "reordered_math"
+    merge.a266_scalar_spans_valid("\\href{é}{x}",[0, 6],[12, 8])?! "overlapping_link"
+    merge.a266_scalar_spans_valid("",[],[])?! "empty"
+    merge.a266_scalar_spans_valid("",[0],[0])?! "empty_origin"
+    ~merge.a266_scalar_spans_valid("abc",[2],[1])?! "reversed"
+    merge.a266_scalar_spans_valid("é",[0, 1],[1, 3])?! "combining"
+    @:true
+(tests())?! "Native gate entry returned false"

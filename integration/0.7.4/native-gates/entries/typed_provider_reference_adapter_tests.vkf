@@ -1,0 +1,35 @@
+# UNCOMPILED candidate-side adapter regression; no oracle rewritten.
+boxes:.text_inline_boxes
+adapter:.typed_provider_reference_adapter
+export:.typed_provider_export
+native_gate_main():
+    empty:boxes.empty(0)
+    absent:boxes.append(empty,11,5,diagnostics:"absent")
+    present:boxes.append(absent,12,0,scene:"{}")
+    envelope:"{\"items\":[{\"kind\":\"glyph\",\"key\":\"a\",\"glyphParts\":[\"a\",{\"key\":\"b\"}],\"color\":[0.1,0.2,0.3]}],\"inlineDestinations\":true,\"destinations\":[{\"id\":\"here\",\"x\":3,\"y\":4}],\"custom\":[null,true]}"
+    input:boxes.append(present,13,3,width:7,height:8,depth:9,italic:0.5,scene:envelope,diagnostics:"keep",stretch:2,shrink:1,breakable:true,penalty:42,flagged:true)
+    old:adapter.to_legacy(input)
+    (old.count=3 /\ old.scenes.(0)="" /\ old.scenes.(1)="{}" /\ old.scenes.(2)=envelope)?! "Legacy scene presence and complete ordered envelope"
+    restored:adapter.from_legacy(old)
+    (restored.count=3 /\ restored.scene_ids.(0)= -1 /\ restored.scenes.count=2)?! "Typed absent versus present-empty survives adapter"
+    export.scene(restored,2)=envelope?! "Nested glyphParts paint and destination envelope preserved"
+    scene:boxes.scene_at(restored,2)
+    (scene.inline_destinations /\ scene.anchor_xs.(0)=3 /\ scene.anchor_ys.(0)=4)?! "Typed placement survives reference adapter"
+    restored.operation_ids.(2)=input.operation_ids.(2)?! "operation_ids transport"
+    restored.kinds.(2)=input.kinds.(2)?! "kinds transport"
+    restored.widths.(2)=input.widths.(2)?! "widths transport"
+    restored.stretches.(2)=input.stretches.(2)?! "stretches transport"
+    restored.shrinks.(2)=input.shrinks.(2)?! "shrinks transport"
+    restored.heights.(2)=input.heights.(2)?! "heights transport"
+    restored.depths.(2)=input.depths.(2)?! "depths transport"
+    restored.italics.(2)=input.italics.(2)?! "italics transport"
+    restored.breakable.(2)=input.breakable.(2)?! "breakable transport"
+    restored.flagged.(2)=input.flagged.(2)?! "flagged transport"
+    restored.penalties.(2)=input.penalties.(2)?! "penalties transport"
+    restored.diagnostics.(2)=input.diagnostics.(2)?! "diagnostics transport"
+    next:boxes.append(restored,14,5)
+    (next.count=4 /\ restored.count=3 /\ input.count=3 /\ old.count=3 /\ absent.count=1 /\ empty.count=0)?! "Earlier values independent"
+    zero:adapter.from_legacy(adapter.to_legacy(empty))
+    (zero.count=0 /\ zero.scenes.count=0)?! "Empty adapter"
+
+native_gate_main()

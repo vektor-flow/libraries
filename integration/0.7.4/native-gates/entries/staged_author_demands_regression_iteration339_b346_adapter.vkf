@@ -1,0 +1,31 @@
+legacy_present:.frozen285_document_present
+# SOURCE ONLY: compile/runtime qualification pending.
+io:.io
+fonts:.font_catalog
+h:.hyphenation
+present:.document_present
+config:.document_materialize_config
+prep:.text_prepared_runs
+run()->bit:
+    installed:fonts.load(io.read_text(io.read_line()))
+    language:h.load(io.read_text(io.read_line()))
+    c:config.configure("article","","[]",installed)
+    roles:["roman","author","italic","bold"]
+    seed:prep.seal(installed,prep.empty_collection())
+    single:present.compose_authors_staged(seed,"Alice",installed,roles,language,c)
+    (single.demand_count=0 /\ single.demand_sources.length()=0 /\ single.demand_widths.length()=0 /\ single.request.run_count=seed.run_count)?! "Single author creates no width measurement node"
+    source:"Alice\\and Bob\\and Alice"
+    parts:present.split_authors(source)
+    (parts.count=3)?! "Three author fixture parts"
+    actual:present.compose_authors_staged(seed,source,installed,roles,language,c)
+    expected:legacy_present.compose_authors(source,installed,roles,language,c)
+    (actual.source=expected.source /\ actual.complete=expected.complete /\ actual.demand_count=parts.count)?! "Author composition parity and exact demand cardinality"
+    i:0
+    i<parts.count?>
+        (actual.demand_sources.(i)=parts.values.(i) /\ actual.demand_widths.(i)>=0)?! "Demand ordinals preserve actual source and width"
+        .i:i+1
+    width:actual.demand_widths.(0)
+    next:present.compose_authors_staged(actual.request,source,installed,roles,language,c)
+    (next.source=actual.source /\ next.request.run_count=actual.request.run_count /\ actual.demand_widths.(0)=width /\ seed.run_count=0)?! "Repeated author preparation reuses runs and preserves earlier values"
+    @:true
+(run())?! "Staged author demand regression returned false"

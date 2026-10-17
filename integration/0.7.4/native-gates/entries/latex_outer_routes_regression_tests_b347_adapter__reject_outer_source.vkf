@@ -1,0 +1,14 @@
+# UNCOMPILED regression SOURCE.
+routes:.latex_document_routes
+outer_routes_tests()->bit:
+    routes.validate(3,[2,2,2],["primary","outer-a","outer-b"],["x","x","x"],["label","outer:0","outer:1"])?! "separate equal-text owners"
+    routes.select(2,"x",[2,2],["A","B"],["x","x"],["outer:0","outer:1"],"outer:1")="B"?! "second invocation"
+    routes.select(0,"x",[0],["B"],["x"],["outer:0"],"outer:0")="B"?! "explicit reorder retains owner"
+    routes.select(0,"x",[],[],[],[],"outer:0")=""?! "unknown remains unbound"
+    ~routes.a264_outer_kind("outer:01")?! "noncanonical ordinal"
+    ~routes.a264_outer_kind("outer:-1")?! "negative ordinal"
+    @:true
+reject_outer_source()->str:routes.select(0,"changed",[0],["A"],["x"],["outer:0"],"outer:0")
+reject_outer_duplicate()->bit:routes.validate(1,[0,0],["A","B"],["x","x"],["outer:0","outer:0"])
+
+reject_outer_source()

@@ -1,0 +1,77 @@
+legacy_boxes:.frozen285_typed_test_legacy_inline_boxes
+legacy_output:.frozen285_text_source_paragraph_output
+# Qualification SOURCE ONLY. Reads pinned real font and language assets on stdin.
+io:.io
+fonts:.font_catalog
+h:.hyphenation
+q:.text_paragraph
+before:.frozen285_text_paragraph
+prep:.text_prepared_runs
+parser:.text_parser
+boxes:.text_inline_boxes
+p:.paragraph_breaking
+nodes:.paragraph_nodes
+output:.text_source_paragraph_output
+source_paragraph:.text_source_paragraph
+source_before:.frozen285_text_source_paragraph
+math_context:.math_packages
+run()->bit:
+    installed:fonts.load(io.read_text(io.read_line()))
+    language:h.load(io.read_text(io.read_line()))
+    c:parser.context("roman",["roman","italic","mono"])
+    c.hyperref:true
+    o:p.options(35)
+    o.hyphens:true
+    o.justify:false
+    t:nodes.text_options()
+    overrides:["ta-ble"]
+    sources:["ffi AV ffi AV", "ffi AV table table", "\\textit{ }\\textrm{ }", "😀table AV", "AA-VV table", "", "☃ \\unknown AV"]
+    request:q.prepare_sources(sources,installed,c,language,overrides,true)
+    (request.hits>0 /\ request.misses=request.run_count)?! "Real repeated and cross-paragraph demands share request IDs"
+    id:prep.lookup(request,"ffi",0,3,"roman")
+    (id=prep.lookup(request,"xxffi",2,5,"roman"))?! "Run lookup separates text identity from source base"
+    count:request.run_count
+    width:prep.width(request,id)
+    i:0
+    i<sources.length()?>
+        actual:q.typeset_request(request,sources.(i),installed,c,language,overrides,o,t)
+        expected:before.typeset(sources.(i),installed,c,language,overrides,o,t,legacy_boxes.empty())
+        # This counter now describes consumer demand work, not repeated shaping.
+        actual.measurement_work:0
+        expected.measurement_work:0
+        (output.json(actual)=legacy_output.json(expected))?! "Real font geometry/source/link/diagnostic parity against frozen pre-integration consumer"
+        .i:i+1
+    (request.run_count=count /\ prep.width(request,id)=width)?! "Consumers leave immutable request and earlier values unchanged"
+    spaced:parser.parse("\\textit{ }\\textrm{ }",installed,c)
+    only:q.collect_request(prep.empty_collection(),spaced.stream,language,overrides,true,boxes.empty())
+    spacing:prep.seal(installed,only)
+    (spacing.count=0 /\ spacing.run_count=0 /\ prep.role_index(spacing,"italic")>=0)?! "Spacing/style-only roles decode without fake demands"
+    parsed:parser.parse("ffi AV table",installed,c)
+    scopes:[0:parsed.stream.count]
+    directory:"{\"0\":{\"color\":[1,0,0,1],\"borderWidth\":1,\"colorlinks\":true,\"target\":{\"type\":\"destination\",\"value\":\"named:k\"}}}"
+    linked:q.position_request_with_link_events(request,"ffi AV table",parsed.stream,installed,language,overrides,o,t,boxes.empty(),scopes,directory,[0],["anchor"],p.ints(0),p.ints(0),p.ints(0))
+    old_linked:before.position_with_link_events("ffi AV table",parsed.stream,installed,language,overrides,o,t,legacy_boxes.empty(),scopes,directory,[0],["anchor"],p.ints(0),p.ints(0),p.ints(0))
+    linked.measurement_work:0
+    old_linked.measurement_work:0
+    (output.json(linked)=legacy_output.json(old_linked))?! "Retained colored run, anchor, discretionary hyphen and link spans match"
+    # UTF16 rebasing does not require the selected real font to contain emoji.
+    u:prep.lookup(request,"😀table",0,7,"roman")
+    k:0
+    k<prep.glyph_count(request,u)?>
+        (prep.source_start(request,u,k,9)-prep.source_start(request,u,k,0)=9 /\ prep.source_stop(request,u,k,9)-prep.source_stop(request,u,k,0)=9)?! "Shared glyph UTF16 offsets rebase independently"
+        .k:k+1
+    recursive_sources:["ffi \\mbox{ffi table} AV", "\\mbox{\\textit{ }ffi} ffi", "\\MakeLowercase{AV} ffi", "\\mbox{\\mbox{table}}", "\\mbox{☃} ☃", "\\documentlink{ref}{ffi table}{label%3Ax}", "\\mbox{😀table}"]
+    recursive:source_paragraph.prepare_source_request(recursive_sources,installed,c,language,overrides,true)
+    recursive_count:recursive.run_count
+    math:math_context.from_names(["amsmath","amsthm"])
+    i:0
+    i<recursive_sources.length()?>
+        actual:source_paragraph.with_providers_request_core(recursive,recursive_sources.(i),installed,c,math,language,overrides,o,t,boxes.empty(),source_paragraph.empty_tables(),false)
+        expected:source_before.typeset(recursive_sources.(i),installed,c,math,language,overrides,o,t)
+        actual.measurement_work:0
+        expected.measurement_work:0
+        (output.json(actual)=legacy_output.json(expected))?! "Recursive source children, lowercase rewrite and diagnostics preserve geometry"
+        .i:i+1
+    (recursive.run_count=recursive_count)?! "Recursive consumers preserve earlier prepared value"
+    @:true
+(run())?! "Request consumer regression returned false"

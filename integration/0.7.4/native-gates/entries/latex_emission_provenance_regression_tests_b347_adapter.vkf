@@ -1,0 +1,22 @@
+# SOURCE ONLY: uncompiled native boundary regressions.
+merge:.document_scene_paragraph_linear
+tests()->bit:
+    merge.a265_provenance_valid(2,[0],[2],[0, 0],2,[],0)?! "ordinary split leaves"
+    merge.a265_provenance_valid(3,[1],[2],[],0,[0, 0],2)?! "inline math provider"
+    merge.a265_provenance_valid(2,[0],[2],[0],1,[1],1)?! "generated link sentinel"
+    merge.a265_provenance_valid(2,[0],[2],[-1],1,[-1],1)?! "unknown operation"
+    merge.a265_provenance_valid(2,[-1],[-1],[0],1,[],0)?! "unknown span"
+    merge.a265_provenance_valid(0,[],[],[],0,[0],1)?! "empty parser generated"
+    merge.a265_provenance_valid(2,[0],[2],[0, 999],1,[1, 999],1)?! "capacity tail ignored"
+    ~merge.a265_provenance_valid(2,[0],[],[0],1,[],0)?! "mismatched span columns"
+    ~merge.a265_provenance_valid(2,[0],[2],[],1,[],0)?! "short glyph mapping"
+    ~merge.a265_provenance_valid(2,[0],[2],[],0,[],1)?! "short scene mapping"
+    ~merge.a265_provenance_valid(2,[2],[1],[0],1,[],0)?! "reversed span"
+    ~merge.a265_provenance_valid(2,[0],[3],[0],1,[],0)?! "past input"
+    ~merge.a265_provenance_valid(2,[-1],[2],[0],1,[],0)?! "partial unknown"
+    ~merge.a265_provenance_valid(2,[0],[2],[-2],1,[],0)?! "invalid negative operation"
+    ~merge.a265_provenance_valid(2,[0],[2],[],0,[2],1)?! "out of range scene"
+    ~merge.a265_provenance_valid(2,[0],[2],[],-1,[],0)?! "negative count"
+    merge.a265_provenance_valid(4,[1],[3],[0],1,[],0)?! "UTF8 byte length"
+    @:true
+(tests())?! "Native gate entry returned false"

@@ -1,0 +1,59 @@
+# UNCOMPILED regression source. Case1 input copied byte-for-byte from frozen
+# independent reference. Original full suite remains immutable in old closure.
+legacy:.paragraph_scene_legacy
+store:.paragraph_scene_store
+scene:.document_scene
+metadata:.scene_metadata
+metadata_json:.scene_metadata_json
+export:.document_scene_export
+packet_export:.paragraph_scene_export
+j:.resource_json
+native_gate_main():
+    empty:store.empty()
+    empty.count=0?! "Absent provider"
+    case1:"{\"items\":[{\"kind\":\"glyph\",\"key\":\"math/A\",\"x\":2,\"y\":-3,\"sx\":1.25,\"sy\":0.8,\"cropX\":[null,4],\"crop\":[-2,null],\"glyphParts\":[\"alpha\",\"beta\"],\"equationTag\":true,\"tagWidth\":9,\"flowLine\":17,\"color\":[0.2,0.3,0.4,0.5],\"destinationIds\":[\"math-origin\"],\"footnoteNumber\":3},{\"kind\":\"field\",\"key\":\"field/b\",\"x\":3,\"y\":1},{\"kind\":\"rule\",\"x\":1,\"y\":2,\"width\":3,\"height\":0.4},{\"kind\":\"link\",\"x\":0,\"y\":1,\"width\":10,\"height\":5,\"target\":{\"type\":\"uri\",\"value\":\"https://example.test/a\"},\"borderWidth\":0.5,\"color\":[1,0,0],\"flowX\":-2,\"flowWidth\":20},{\"kind\":\"image\",\"x\":1,\"y\":2,\"width\":3,\"height\":4,\"asset\":\"asset\"},{\"kind\":\"segment\",\"x\":1,\"y\":2,\"delta\":[3,4],\"lineWidth\":0.6,\"strokeColor\":[0,1,0],\"dash\":\"dotted\"},{\"kind\":\"bezier\",\"x\":1,\"y\":2,\"delta\":[3,4],\"controls\":[{\"x\":0.5,\"y\":-0.5},{\"x\":2,\"y\":3}],\"fill\":true,\"fillColor\":[0,0,1,0.25]},{\"kind\":\"circle\",\"x\":1,\"y\":2,\"width\":3,\"height\":3},{\"kind\":\"vectorrect\",\"x\":1,\"y\":2,\"width\":3,\"height\":4},{\"kind\":\"placeholder\",\"x\":1,\"y\":2,\"width\":3,\"height\":4}],\"destinations\":[{\"id\":\"one\",\"x\":1,\"y\":2,\"flowLine\":99},{\"id\":\"two\",\"x\":3,\"y\":4}],\"width\":22}"
+    imported:legacy.import_scene(case1)
+    retained:store.append(empty,imported)
+    restored:store.get(retained,0)
+    restored.arena.count=10?! "Original case1 leaf count"
+    root:restored.arena.metadata_roots.(0)
+    part:restored.arena.glyph_parts.(0)
+    (part>=0 /\ restored.arena.metadata.kinds.(part)=2)?! "Typed glyphParts range"
+    restored.arena.metadata.texts.(part+1)="alpha"?! "First glyph part"
+    restored.arena.metadata.texts.(part+2)="beta"?! "Second glyph part"
+    metadata_json.encode(restored.arena.metadata,root)="{\"kind\":\"glyph\",\"key\":\"math/A\",\"x\":2,\"y\":-3,\"sx\":1.25,\"sy\":0.8,\"cropX\":[null,4],\"crop\":[-2,null],\"glyphParts\":[\"alpha\",\"beta\"],\"equationTag\":true,\"tagWidth\":9,\"flowLine\":17,\"color\":[0.2,0.3,0.4,0.5],\"destinationIds\":[\"math-origin\"],\"footnoteNumber\":3}"?! "Exact original case1 metadata value/order"
+    debug:export.leaf(restored.arena,0,1,1)
+    parsed:j.parse(debug)
+    parts:j.member(parsed,0,"glyphParts")
+    j.string(parsed,j.element(parsed,parts,1))="beta"?! "Public debug export preserves glyphParts"
+    j.number(parsed,j.member(parsed,0,"footnoteNumber"))=3?! "Footnote metadata"
+    marked:store.mark(retained,0,["new"])
+    retained.arena.destination_counts.(0)=1?! "Earlier value destinations mutated"
+    metadata_json.encode(retained.arena.metadata,root)="{\"kind\":\"glyph\",\"key\":\"math/A\",\"x\":2,\"y\":-3,\"sx\":1.25,\"sy\":0.8,\"cropX\":[null,4],\"crop\":[-2,null],\"glyphParts\":[\"alpha\",\"beta\"],\"equationTag\":true,\"tagWidth\":9,\"flowLine\":17,\"color\":[0.2,0.3,0.4,0.5],\"destinationIds\":[\"math-origin\"],\"footnoteNumber\":3}"?! "Earlier metadata mutated"
+    marked.arena.destination_counts.(0)=2?! "Destination append"
+    painted:legacy.edit(imported,"[1,0,0]","[]")
+    painted.arena.paint_table.(painted.arena.paints.(0)).red=1?! "Typed paint"
+    packet:packet_export.leaf(painted.arena,0,10,20,7)
+    placed:j.parse(packet)
+    j.number(placed,j.member(placed,0,"x"))=12?! "Placed x"
+    j.number(placed,j.member(placed,0,"y"))=17?! "Placed y"
+    j.number(placed,j.member(placed,0,"flowLine"))=7?! "Placed line"
+    again:store.append(retained,imported)
+    second:scene.leaf_at(again.arena,again.firsts.(1))
+    second.metadata.texts.(second.glyph_parts+1)="alpha"?! "Metadata ID rebasing"
+    second.payload.crop_right?! "Crop preserved"
+    linked:scene.leaf_at(again.arena,again.firsts.(1)+3)
+    linked.payload.target="https://example.test/a"?! "Link preserved"
+    point:legacy.import_scene("{\"items\":[],\"inlineDestinations\":true,\"destinations\":[{\"id\":\"ordinary\",\"x\":3,\"y\":4,\"flowLine\":9,\"extra\":\"keep\"}]}")
+    ordinary:store.append(empty,legacy.edit(point,"null","[]"))
+    ordinary.inline_destinations.(0)?! "Ordinary Provider flag retained through edit"
+    (ordinary.anchor_xs.(0)=3 /\ ordinary.anchor_ys.(0)=4 /\ ordinary.anchor_lines.(0)=9)?! "Destination placement columns"
+    m:ordinary.anchor_metadata
+    metadata.member(m,ordinary.anchor_roots.(0),"extra")>=0?! "Destination extension preserved"
+    present:store.append(empty,store.empty_scene())
+    (present.count=1 /\ present.counts.(0)=0)?! "Present empty versus absent"
+    unknown:legacy.import_scene("{\"items\":[{\"kind\":\"glyph\",\"key\":\"k\",\"glyphParts\":[{\"key\":\"part\",\"x\":1,\"y\":2}],\"uncommon\":\"keep me\"}]}")
+    u:unknown.arena.metadata
+    metadata.member(u,0,"uncommon")>=0?! "Unknown explicit import edge field"
+
+native_gate_main()

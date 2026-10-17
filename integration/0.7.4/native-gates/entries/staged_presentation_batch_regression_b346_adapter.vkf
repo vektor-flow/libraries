@@ -1,0 +1,44 @@
+legacy_present:.frozen285_document_present
+# SOURCE ONLY; semantic/runtime checks remain pending.
+io:.io
+fonts:.font_catalog
+h:.hyphenation
+present:.document_present
+config:.document_materialize_config
+prep:.text_prepared_runs
+request:.document_shaping_request
+retained:.math_retained_directory
+run()->bit:
+    installed:fonts.load(io.read_text(io.read_line()))
+    language:h.load(io.read_text(io.read_line()))
+    c:config.configure("article","","[]",installed)
+    roles:["roman","author","italic","bold"]
+    document:(kinds:["author","environment_start","bibitem","paragraph","environment_end"],sources:["Alice\\and Bob","","key","Body",""],attrs:["","\"name\":\"thebibliography\",\"widest\":\"13\"","","",""],starts:[0,0,0,0,0],stops:[0,0,0,0,0],parents:[-1,-1,1,1,1],count:5,metadata:"{}",footnotes:"[]",diagnostics:"",class_name:"article",class_options:"",imports:"[]",body_start:0,body_stop:0)
+    seed:prep.seal(installed,prep.empty_collection())
+    demands:present.collect_presentation_widths(document,installed,roles,language,c)
+    (demands.kinds.(0)=3 /\ demands.roles.(0)="author" /\ demands.sources.(0)=document.sources.(0) /\ demands.kinds.(1)=2 /\ demands.sources.(1)="[13]" /\ demands.kinds.(3)=0)?! "Origin keyed author and bibliography demand nodes"
+    prepared:request.extend(seed,installed,demands.collection)
+    staged:present.prepare_staged_retained(seed,document,"",installed,roles,language,c,retained.unprepared("{}"))
+    fixed:present.prepare_staged_retained(staged.request,document,"",installed,roles,language,c,retained.unprepared("{}"),reuse_fixed_context:true)
+    (fixed.request.run_count=staged.request.run_count /\ fixed.plan.sources=staged.plan.sources)?! "Explicit immutable presentation context reuse preserves result"
+    legacy_author:legacy_present.compose_authors(document.sources.(0),installed,roles,language,c)
+    legacy_label:legacy_present.measure("[13]","roman",installed,roles,language,c)
+    (staged.request.run_count=prepared.run_count /\ seed.run_count=0)?! "Ordered presentation consumes one batched generation"
+    (staged.plan.sources.(0)=legacy_author.source /\ staged.width_values.(1)=legacy_label.width /\ staged.author_demand_counts.(0)=2)?! "Final source and margin use retained measurements"
+    edited:document
+    edited.sources:["Alice\\and Carol","","key","Body",""]
+    next:present.prepare_staged_retained(staged.request,edited,"",installed,roles,language,c,retained.unprepared("{}"))
+    old_edit:legacy_present.compose_authors(edited.sources.(0),installed,roles,language,c)
+    (next.plan.sources.(0)=old_edit.source /\ staged.plan.sources.(0)=legacy_author.source)?! "Changed source recollects without stale author result"
+    ams:config.configure("amsart","","[]",installed)
+    nested:document
+    nested.kinds:["environment_start","environment_start","environment_end","environment_end","author"]
+    nested.attrs:["\"name\":\"enumerate\"","\"name\":\"itemize\"","","",""]
+    lists:present.collect_presentation_widths(nested,installed,roles,language,ams)
+    (lists.sources.(0)="(13)" /\ lists.sources.(1)="(m)" /\ lists.kinds.(4)=0)?! "Nested AMS depth and author exemption"
+    opaque:nested
+    opaque.attrs:["\"name\":\"figure\"","\"name\":\"itemize\"","","",""]
+    skipped:present.collect_presentation_widths(opaque,installed,roles,language,ams)
+    (skipped.collection.count=0 /\ skipped.kinds.(1)=0)?! "Opaque figure descendants are not presentation demands"
+    @:true
+(run())?! "Staged presentation batch regression returned false"

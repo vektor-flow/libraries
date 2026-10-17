@@ -1,0 +1,26 @@
+legacy_present:.frozen285_document_present
+# SOURCE ONLY: runtime qualification pending.
+present:.document_present
+contexts:.document_present_context
+run()->bit:
+    input:contexts.empty(15,12,true)
+    input.left:7
+    input.right:9
+    input.description_margin:31
+    input.prefix:"retained prefix"
+    input.pending_outer_labels:"retained labels"
+    outer:present.finalize_ams_list_width(20,1,15,1)
+    inner:present.finalize_ams_list_width(20,2,15,1)
+    (outer=40 /\ inner=25)?! "Only first-level AMS label margin adds paragraph indent"
+    list:present.finalize_list_context(input,"enumerate",outer,1)
+    (list.left=47 /\ list.indent=0 /\ list.kind="list" /\ list.description_margin=31)?! "List finalization adds to retained outer left"
+    desc:present.finalize_list_context(input,"description",inner,1)
+    (desc.left=32 /\ desc.indent=-20 /\ desc.description_margin=25 /\ desc.kind="description")?! "Description finalization retains hanging margin"
+    bib:present.finalize_bibliography_context(input,20,5,9999,30)
+    (bib.left=25 /\ bib.label_sep=5 /\ bib.indent=0 /\ bib.kind="bibliography" /\ bib.before=0 /\ ~bib.sentence /\ bib.tolerance=9999 /\ bib.emergency=30)?! "Bibliography uses absolute label margin"
+    repeated:present.finalize_bibliography_context(input,20,5,9999,30)
+    changed:present.finalize_bibliography_context(input,24,6,200,0)
+    (repeated.left=bib.left /\ changed.left=30 /\ changed.tolerance=200 /\ changed.emergency=0 /\ bib.left=25)?! "Changed fulfilled width preserves earlier finalized value"
+    (list.right=9 /\ desc.prefix="retained prefix" /\ bib.pending_outer_labels="retained labels" /\ input.left=7 /\ input.description_margin=31)?! "Unrelated retained fields and input survive finalization"
+    @:true
+(run())?! "Staged margin regression returned false"

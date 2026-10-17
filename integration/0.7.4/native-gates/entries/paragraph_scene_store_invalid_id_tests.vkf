@@ -1,0 +1,6 @@
+store:.paragraph_scene_store
+native_gate_main():
+    bad:store.get(store.empty(),0)
+    bad.arena.count=0?! "Unreachable"
+
+native_gate_main()

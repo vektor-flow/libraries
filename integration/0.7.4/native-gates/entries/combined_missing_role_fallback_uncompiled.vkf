@@ -1,0 +1,23 @@
+legacy_boxes:.frozen285_typed_test_legacy_inline_boxes
+# SOURCE WITNESS ONLY; not compiled/executed. Missing selected role must use the required roman fallback.
+fonts:.font_catalog
+data:.test_font_data
+parser:.text_parser
+h:.hyphenation
+io:.io
+boxes:.text_inline_boxes
+candidate:.paragraph_inline_nodes
+before:.frozen285_paragraph_inline_nodes
+run()->bit:
+    language:h.load(io.read_text(io.read_line()))
+    font:"{\"size\":10,\"spaces\":{\"space\":3,\"quad\":10},\"ligatures\":{}}"
+    installed:fonts.load(data.pack(["font/roman"],[font]))
+    source:" "
+    parsed:parser.parse(source,installed,parser.context("italic",["italic"]))
+    expected:before.build(source,parsed.stream,installed,language,[""],false,before.text_options(),legacy_boxes.empty())
+    (expected.cache.diagnostics="")?! "Frozen missing selected role uses roman"
+    actual:candidate.build(source,parsed.stream,installed,language,[""],false,candidate.text_options(),boxes.empty())
+    (actual.diagnostics="")?! "Consumed missing role still resolves roman"
+    (actual.nodes.widths.(0)=expected.nodes.widths.(0))?! "Fallback spacing preserved"
+    @:true
+(run())?! "Missing-role fallback parity"

@@ -1,0 +1,54 @@
+# SOURCE ONLY: no compiled/native result claimed by A260.
+q:.text_paragraph
+parser:.text_parser
+ops:.text_parser_stream
+pages:.math_command_pages
+boxes:.text_inline_boxes
+nodes:.paragraph_nodes
+breaks:.paragraph_breaking
+hyph:.hyphenation
+asset:.hyphenation_test_asset
+fonts_import:.font_catalog
+font_data:.test_font_data
+scene:.document_scene
+merge:.document_scene_paragraph_linear
+flat:.document_scene_flat
+store:.paragraph_scene_store
+fonts():
+    keys:["font/roman","text/roman/65","text/roman/86"]
+    values:["{\"size\":10,\"spaces\":{\"space\":3,\"slant\":0}}","{\"key\":\"A\",\"advance\":7,\"height\":8,\"depth\":0}","{\"key\":\"V\",\"advance\":8,\"height\":9,\"depth\":1}"]
+    @:fonts_import.load(font_data.pack(keys,values))
+links:.text_link_context
+origin:.latex_link_provenance
+spans:.text_link_spans
+legacy:.paragraph_scene_legacy
+# SOURCE ONLY. Exercise a real parser/link/paragraph packet, then corrupt only
+# provenance sidecars. No compiler/render result is claimed.
+renderer_tests()->bit:
+    source:"\\hyperlink{k}{A}"
+    f:fonts()
+    parsed:parser.parse(source,f,parser.context("roman",["roman"],false,true))
+    linked:links.build(parsed.stream,"{}",true)
+    options:breaks.options(100)
+    options.justify:false
+    options.hyphens:false
+    packet:q.position_with_link_events(source,parsed.stream,f,hyph.load(asset.source()),hyph.strings(0),options,nodes.text_options(),linked.provider,linked.operation_scopes,linked.scopes_json,linked.anchor_operations,linked.anchor_ids,linked.close_operations,linked.close_scope_first,linked.close_scope_last,linked.a268_scope_owners)
+    state:(scopes:[0],lefts:[0.0],rights:[1.0],count:1)
+    origin.a270_mapping_valid(packet.scenes,state,linked.a268_scope_owners,parsed.stream,source)?! "actual generated link mapping"
+    missing:packet.scenes
+    missing.firsts:[]
+    ~origin.a270_mapping_valid(missing,state,linked.a268_scope_owners,parsed.stream,source)?! "missing scene range rejects before indexing"
+    short:packet.scenes
+    short.arena.a260_stops:[]
+    ~origin.a270_mapping_valid(short,state,linked.a268_scope_owners,parsed.stream,source)?! "truncated output provenance rejects"
+    broken:parsed.stream
+    broken.starts:[]
+    ~origin.a270_mapping_valid(packet.scenes,state,linked.a268_scope_owners,broken,source)?! "missing parser page rejects"
+    bad:packet.scenes
+    bad.counts.(bad.count-1): -1
+    ~origin.a270_mapping_valid(bad,state,linked.a268_scope_owners,parsed.stream,source)?! "negative scene size rejects"
+    ~origin.a270_mapping_valid(packet.scenes,state,[parsed.stream.count],parsed.stream,source)?! "ordering sentinel is not a source owner"
+    ~origin.a270_mapping_valid(packet.scenes,state,linked.a268_scope_owners,parsed.stream,"")?! "foreign source extent rejects"
+    origin.a270_mapping_valid(packet.scenes,state,linked.a268_scope_owners,parsed.stream,source)?! "earlier packet value preserved"
+    @:true
+(renderer_tests())?! "Native gate entry returned false"

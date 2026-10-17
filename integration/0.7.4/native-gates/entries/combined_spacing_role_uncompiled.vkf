@@ -1,0 +1,22 @@
+legacy_boxes:.frozen285_typed_test_legacy_inline_boxes
+# SOURCE WITNESS ONLY; not compiled/executed. Valid selected role; no roman record.
+fonts:.font_catalog
+data:.test_font_data
+parser:.text_parser
+h:.hyphenation
+io:.io
+boxes:.text_inline_boxes
+candidate:.paragraph_inline_nodes
+before:.frozen285_paragraph_inline_nodes
+run()->bit:
+    language:h.load(io.read_text(io.read_line()))
+    font:"{\"size\":10,\"spaces\":{\"space\":3,\"quad\":10},\"ligatures\":{}}"
+    installed:fonts.load(data.pack(["font/italic"],[font]))
+    source:" "
+    parsed:parser.parse(source,installed,parser.context("italic",["italic"]))
+    expected:before.build(source,parsed.stream,installed,language,[""],false,before.text_options(),legacy_boxes.empty())
+    (expected.cache.diagnostics="")?! "Frozen spacing-only role needs no roman font"
+    actual:candidate.build(source,parsed.stream,installed,language,[""],false,candidate.text_options(),boxes.empty())
+    (actual.diagnostics="")?! "Only consumed roles must be required"
+    @:true
+(run())?! "Spacing-only role parity"

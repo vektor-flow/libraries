@@ -1,0 +1,21 @@
+# UNCOMPILED: run alongside unchanged C274 case1 and independent reference suite.
+legacy:.paragraph_scene_legacy
+store:.paragraph_scene_store
+packet:.paragraph_scene_export
+export:.document_scene_export
+native_gate_main():
+    first:legacy.import_scene("{\"items\":[{\"kind\":\"glyph\",\"key\":\"prefix\",\"large\":[1,2,3]}]}")
+    second:legacy.import_scene("{\"items\":[{\"kind\":\"glyph\",\"key\":\"k\",\"x\":2,\"y\":3,\"glyphParts\":[\"a\",{\"text\":\"b\",\"flags\":[true,false,null]}],\"flowLine\":99,\"extension\":{\"empty\":{},\"list\":[]},\"destinationIds\":[]}]}")
+    earlier:store.append(store.empty(),first)
+    both:store.append(earlier,second)
+    root:both.arena.metadata_roots.(1)
+    root>0?! "Exercise nonzero metadata root"
+    original:packet.leaf(both.arena,1,0,0,99)
+    placed:packet.leaf(both.arena,1,10,20,7)
+    placed="{\"kind\":\"glyph\",\"key\":\"k\",\"glyphParts\":[\"a\",{\"text\":\"b\",\"flags\":[true,false,null]}],\"extension\":{\"empty\":{},\"list\":[]},\"destinationIds\":[],\"x\":12,\"y\":23,\"flowLine\":7}"?! "Typed packet ordering and nested values"
+    debug:export.leaf(both.arena,1,0,1)
+    debug="{\"kind\":\"glyph\",\"key\":\"k\",\"glyphParts\":[\"a\",{\"text\":\"b\",\"flags\":[true,false,null]}],\"extension\":{\"empty\":{},\"list\":[]},\"x\":2,\"y\":3,\"flowLine\":99,\"destinationIds\":[]}"?! "Typed debug ordering and nested values"
+    packet.leaf(both.arena,1,0,0,99)=original?! "Export value independence"
+    earlier.count=1?! "Append value independence"
+
+native_gate_main()

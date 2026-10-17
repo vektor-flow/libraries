@@ -1,0 +1,72 @@
+safe:.context_safe_adapter
+legacy_source:.frozen285_text_source_paragraph
+# SOURCE ONLY F324: automatic hyphenation requires the lower-level prepared API.
+# B342 collect_label_width always disables automatic hyphens; label-only tests
+# cannot demonstrate language/override invalidation. Use its underlying collector.
+io:.io
+fonts:.font_catalog
+h:.hyphenation
+tex:.tex_text
+parser:.text_parser
+config:.document_materialize_config
+source_provider:.text_source_paragraph
+prep:.text_prepared_runs
+request:.document_shaping_request
+boxes:.text_inline_boxes
+breaking:.paragraph_breaking
+nodes:.paragraph_nodes
+run()->bit:
+    installed:fonts.load(io.read_text(io.read_line()))
+    loaded:h.load(io.read_text(io.read_line()))
+    # Independent language values with one explicit exception each; trie retained.
+    language_a:loaded
+    language_a.exception_start:tex.byte_length(loaded.source)
+    language_a.source:loaded.source&"abcd-efgh\n"
+    language_a.size:tex.byte_length(language_a.source)
+    language_a.exceptions:1
+    language_b:loaded
+    language_b.exception_start:tex.byte_length(loaded.source)
+    language_b.source:loaded.source&"ab-cdefgh\n"
+    language_b.size:tex.byte_length(language_b.source)
+    language_b.exceptions:1
+    source:"abcdefgh"
+    roles:["roman","italic"]
+    context:parser.context("roman",roles)
+    c:config.configure("article","","[]",installed)
+    options:breaking.options(20)
+    options.hyphens:true
+    options.justify:false
+    baseline_collection:source_provider.collect_source_request(prep.empty_collection(),source,installed,context,language_a,[""],true,boxes.empty())
+    baseline:request.extend(prep.seal(installed,prep.empty_collection()),installed,baseline_collection)
+    baseline_id:prep.lookup(baseline,source,0,4,"roman")
+    baseline_width:baseline.run_widths.(baseline_id)
+    baseline_count:baseline.run_count
+    # Caller supplies a fresh generation for language; source text is unchanged.
+    language_context_generation:2
+    language_collection:source_provider.collect_source_request(prep.empty_collection(),source,installed,context,language_b,[""],true,boxes.empty())
+    language_new:safe.prepare(baseline,source,"roman",installed,roles,language_b,c)
+    language_fresh:prep.seal(installed,source_provider.collect_source_request(prep.empty_collection(),source,installed,context,language_b,[""],true,boxes.empty()))
+    language_actual:source_provider.with_providers_request_core(language_new,source,installed,context,c.math,language_b,[""],options,nodes.text_options(),boxes.empty(),source_provider.empty_tables(),false)
+    language_expected:legacy_source.typeset(source,installed,context,c.math,language_b,[""],options,nodes.text_options())
+    (language_actual.width=language_expected.width /\ language_actual.diagnostics=language_expected.diagnostics /\ language_actual.complete=language_expected.complete /\ language_actual.line_count=language_expected.line_count /\ language_actual.line_widths=language_expected.line_widths)?! "language: new context matches independent legacy layout and diagnostics"
+    language_id:prep.lookup(language_new,source,0,2,"roman")
+    language_fresh_id:prep.lookup(language_fresh,source,0,2,"roman")
+    (language_new.texts.(language_id)=language_fresh.texts.(language_fresh_id) /\ language_new.roles.(language_id)=language_fresh.roles.(language_fresh_id) /\ language_new.run_widths.(language_id)=language_fresh.run_widths.(language_fresh_id))?! "language: fresh demand lookup has required changed split"
+    (prep.find(baseline.texts,baseline.roles,baseline.slots,"ab","roman")<0)?! "language: old generation lacks the newly required prefix"
+    # Caller supplies a fresh generation for overrides; source text is unchanged.
+    overrides_context_generation:3
+    overrides_collection:source_provider.collect_source_request(prep.empty_collection(),source,installed,context,language_a,["abcde-fgh"],true,boxes.empty())
+    override_c:c
+    override_c.overrides:["abcde-fgh"]
+    overrides_new:safe.prepare(baseline,source,"roman",installed,roles,language_a,override_c)
+    overrides_fresh:prep.seal(installed,source_provider.collect_source_request(prep.empty_collection(),source,installed,context,language_a,["abcde-fgh"],true,boxes.empty()))
+    overrides_actual:source_provider.with_providers_request_core(overrides_new,source,installed,context,c.math,language_a,["abcde-fgh"],options,nodes.text_options(),boxes.empty(),source_provider.empty_tables(),false)
+    overrides_expected:legacy_source.typeset(source,installed,context,c.math,language_a,["abcde-fgh"],options,nodes.text_options())
+    (overrides_actual.width=overrides_expected.width /\ overrides_actual.diagnostics=overrides_expected.diagnostics /\ overrides_actual.complete=overrides_expected.complete /\ overrides_actual.line_count=overrides_expected.line_count /\ overrides_actual.line_widths=overrides_expected.line_widths)?! "overrides: new context matches independent legacy layout and diagnostics"
+    overrides_id:prep.lookup(overrides_new,source,0,5,"roman")
+    overrides_fresh_id:prep.lookup(overrides_fresh,source,0,5,"roman")
+    (overrides_new.texts.(overrides_id)=overrides_fresh.texts.(overrides_fresh_id) /\ overrides_new.roles.(overrides_id)=overrides_fresh.roles.(overrides_fresh_id) /\ overrides_new.run_widths.(overrides_id)=overrides_fresh.run_widths.(overrides_fresh_id))?! "overrides: fresh demand lookup has required changed split"
+    (prep.find(baseline.texts,baseline.roles,baseline.slots,"abcde","roman")<0)?! "overrides: old generation lacks the newly required prefix"
+    (baseline.run_count=baseline_count /\ baseline.run_widths.(baseline_id)=baseline_width /\ baseline.texts.(baseline_id)="abcd")?! "Language and override edits preserve old generation"
+    @:true
+(run())?! "F324 context invalidation hyphenation"

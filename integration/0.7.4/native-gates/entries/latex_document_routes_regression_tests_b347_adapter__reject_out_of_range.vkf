@@ -1,0 +1,17 @@
+# UNCOMPILED regression SOURCE. Run with existing A260 parser/emission suite.
+routes:.latex_document_routes
+routes_tests()->bit:
+    routes.validate(3,[2,0],["stable-A","stable-B"],["fi $x$","B"])?! "explicit reordered selectors"
+    routes.select(0,"B",[2,0],["stable-A","stable-B"],["fi $x$","B"])="stable-B"?! "reorder retains owner identity"
+    routes.select(2,"fi $x$",[2,0],["stable-A","stable-B"],["fi $x$","B"])="stable-A"?! "inline math input unchanged"
+    routes.select(1,"generated",[2,0],["stable-A","stable-B"],["fi $x$","B"])=""?! "generated block stays unknown"
+    routes.select(3,"B",[3],["stable-B"],["B"])="stable-B"?! "insertion changes selector only"
+    routes.select(0,"B",[0],["stable-B"],["B"])="stable-B"?! "deletion preserves supplied identity"
+    @:true
+# Separate expected rejection entry points; never treat crashes as rejection.
+reject_changed_source()->str:routes.select(0,"resolved-reference",[0],["owner"],["original-reference"])
+reject_duplicate()->bit:routes.validate(2,[0,0],["A","B"],["same","same"])
+reject_missing_column()->bit:routes.validate(2,[0],["A"],[])
+reject_out_of_range()->bit:routes.validate(2,[2],["A"],["x"])
+
+reject_out_of_range()

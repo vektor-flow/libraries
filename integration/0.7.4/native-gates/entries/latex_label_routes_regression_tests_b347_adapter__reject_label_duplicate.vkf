@@ -1,0 +1,16 @@
+# UNCOMPILED regression SOURCE; no native acceptance claimed.
+routes:.latex_document_routes
+label_routes_tests()->bit:
+    routes.validate(5,[4,4],["body-owner","label-owner"],["body","1."],["body","label"])?! "distinct producer selectors"
+    routes.select(4,"body",[4,4],["body-owner","label-owner"],["body","1."],["body","label"])="body-owner"?! "body mapping"
+    routes.select(4,"1.",[4,4],["body-owner","label-owner"],["body","1."],["body","label"],"label")="label-owner"?! "label mapping"
+    routes.select(2,"1.",[2],["label-owner"],["1."],["label"],"label")="label-owner"?! "owner survives block reorder"
+    routes.select(4,"1.",[4],["body-owner"],["1."],[],"label")=""?! "equal text cannot alias body as label"
+    routes.select(4,"1.",[],[],[],[],"label")=""?! "unmapped label stays unknown"
+    @:true
+reject_label_text()->str:routes.select(0,"2.",[0],["label-owner"],["1."],["label"],"label")
+reject_label_duplicate()->bit:routes.validate(1,[0,0],["A","B"],["1.","1."],["label","label"])
+reject_unknown_producer()->bit:routes.validate(1,[0],["A"],["x"],["decoration"])
+reject_kind_length()->bit:routes.validate(1,[0],["A"],["x"],["body","label"])
+
+reject_label_duplicate()

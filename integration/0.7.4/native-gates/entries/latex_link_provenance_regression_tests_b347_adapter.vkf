@@ -1,0 +1,65 @@
+# SOURCE ONLY: no compiled/native result claimed by A260.
+q:.text_paragraph
+parser:.text_parser
+ops:.text_parser_stream
+pages:.math_command_pages
+boxes:.text_inline_boxes
+nodes:.paragraph_nodes
+breaks:.paragraph_breaking
+hyph:.hyphenation
+asset:.hyphenation_test_asset
+fonts_import:.font_catalog
+font_data:.test_font_data
+scene:.document_scene
+merge:.document_scene_paragraph_linear
+flat:.document_scene_flat
+store:.paragraph_scene_store
+fonts():
+    keys:["font/roman","text/roman/65","text/roman/86"]
+    values:["{\"size\":10,\"spaces\":{\"space\":3,\"slant\":0}}","{\"key\":\"A\",\"advance\":7,\"height\":8,\"depth\":0}","{\"key\":\"V\",\"advance\":8,\"height\":9,\"depth\":1}"]
+    @:fonts_import.load(font_data.pack(keys,values))
+links:.text_link_context
+origin:.latex_link_provenance
+spans:.text_link_spans
+legacy:.paragraph_scene_legacy
+one(source:str,width:num)->bit:
+    f:fonts()
+    context:parser.context("roman",["roman"],false,true)
+    parsed:parser.parse(source,f,context)
+    linked:links.build(parsed.stream,"{}",true)
+    options:breaks.options(width)
+    options.justify:false
+    options.hyphens:false
+    packet:q.position_with_link_events(source,parsed.stream,f,hyph.load(asset.source()),hyph.strings(0),options,nodes.text_options(),linked.provider,linked.operation_scopes,linked.scopes_json,linked.anchor_operations,linked.anchor_ids,linked.close_operations,linked.close_scope_first,linked.close_scope_last,linked.a268_scope_owners)
+    emitted:merge.from_paragraph_owned(packet,"owner-link-paragraph")
+    [int] parts:[0:parsed.stream.count]
+    count:0
+    i:0
+    i<emitted.arena.count?>
+        emitted.arena.kinds.(i)=3?
+            owner:emitted.arena.a260_operations.(i)
+            owner>=0?! "generated link rectangle has actual parser command owner"
+            ops.value(parsed.stream,owner,"value")="hyperlink"?! "origin is command, not target or ordinal"
+            (emitted.arena.a260_starts.(i)=pages.integer(parsed.stream.starts,owner) /\ emitted.arena.a260_stops.(i)=pages.integer(parsed.stream.stops,owner))?! "exact command span"
+            emitted.arena.a260_parts.(i)=parts.(owner)?! "multi-line link emissions have distinct local parts"
+            parts.(owner):parts.(owner)+1
+            .count:count+1
+        .i:i+1
+    count>0?! "source exercises generated link annotation"
+    # Default direct caller must still be unknown, never guessed from targets.
+    old:q.position_with_link_events(source,parsed.stream,f,hyph.load(asset.source()),hyph.strings(0),options,nodes.text_options(),linked.provider,linked.operation_scopes,linked.scopes_json,linked.anchor_operations,linked.anchor_ids,linked.close_operations,linked.close_scope_first,linked.close_scope_last)
+    prior:merge.from_paragraph_owned(old,"owner-link-paragraph")
+    emitted.arena.count=prior.arena.count?! "same geometry cardinality"
+    .i:0
+    i<emitted.arena.count?>
+        (emitted.arena.xs.(i)=prior.arena.xs.(i) /\ emitted.arena.ys.(i)=prior.arena.ys.(i) /\ emitted.arena.widths.(i)=prior.arena.widths.(i))?! "provenance leaves geometry unchanged"
+        prior.arena.kinds.(i)=3? prior.arena.a260_operations.(i)= -1?! "unbound legacy link stays unknown"
+        .i:i+1
+    @:true
+renderer_tests()->bit:
+    one("A \\hyperlink{k}{V A} V",100)?! "body link"
+    one("\\hyperlink{k}{V A V A}",12)?! "split annotation"
+    one("\\hyperlink{k}{A} \\hyperlink{k}{V}",100)?! "equal targets have independent command origins"
+    one("\\hyperlink{k}{V} \\hyperlink{k}{A}",100)?! "reordered same-target operations"
+    @:true
+(renderer_tests())?! "Native gate entry returned false"
