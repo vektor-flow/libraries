@@ -25,7 +25,7 @@
     "remaining_bytes": 1401856,
     "requested_diagnostic_peak_bytes": 20000000,
     "diagnostic": "integration/0.7.4/diagnostics/label-caller.vkf",
-    "diagnostic_status": "prepared, not compiled or established as failing reproducer",
+    "diagnostic_status": "Compiled in A346-01; reproduces original fixed-shape failure",
     "full_save_timing": null,
     "caller_reproduction": {
       "modules": 127,
@@ -72,7 +72,7 @@
     "command": "node --max-old-space-size=512 --test examples/gpu-math/native-vkf/verify_document_host.mjs",
     "raw_log": "/tmp/vkf074-host-registry-20261017.log"
   },
-  "updated_utc": "2026-10-17T06:51:32.736511+00:00",
+  "updated_utc": "2026-10-17T07:12:37.338143+00:00",
   "ui": {
     "passed": 88,
     "files": 9,
@@ -95,9 +95,9 @@
     "rejection_cases_ready": 12
   },
   "native_rejection_results": {
-    "passed": 10,
+    "passed": 12,
     "compile_failures": 0,
-    "not_executed": 2,
+    "not_executed": 0,
     "source_fix": "Escaped native dollar literals verified by document-route positive and4negative cases",
     "root_verified_result_pins": 55,
     "root_verified_receipt_pins": 7
@@ -118,13 +118,16 @@
   ],
   "native_gate_results": {
     "total_cases": 47,
-    "passed": 12,
-    "failed": 1,
-    "not_executed": 34,
-    "passing_positive_cases": 2,
-    "passing_rejection_cases": 10,
-    "failure": "outer routes positive: noncanonical ordinal",
-    "extra_unknown_selector_controls_passed": 2,
-    "root_verified_F356_pins": 133
+    "passed": 15,
+    "failed": 0,
+    "not_executed": 32,
+    "passing_positive_cases": 3,
+    "passing_rejection_cases": 12,
+    "failure": null,
+    "extra_unknown_selector_controls_passed": 3,
+    "root_verified_F356_pins": 133,
+    "root_verified_F357_pins": 215,
+    "outer_fixture_fix": "Parenthesize negated predicates before assertion; dynamic/literal and true/false controls verified",
+    "evidence": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iteration357-grouped04/reviewed-results.json"
   }
 }
