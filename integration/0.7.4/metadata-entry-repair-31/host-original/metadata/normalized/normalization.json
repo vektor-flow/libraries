@@ -1,0 +1,45 @@
+{
+  "baseline": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-entry-repair-31/host-original/metadata/raw",
+  "files": [
+    {
+      "name": "text_chunks.vkf",
+      "beforeSha256": "bf2090bbb16e49f94b603773da6a661fe6f17e89f784da63ec84886b92c7dca3",
+      "imports": [],
+      "afterSha256": "bf2090bbb16e49f94b603773da6a661fe6f17e89f784da63ec84886b92c7dca3",
+      "changed": false
+    },
+    {
+      "name": "metadata.vkf",
+      "beforeSha256": "48a939e9ba6b9298981e9f5bd5393517bf9ae458564d66eb6cd92cfaf920b6fc",
+      "imports": [
+        {
+          "alias": "meta",
+          "target": "scene_metadata.vkf",
+          "canonical": "shared_module_scene_metadata_be88f27c",
+          "calls": 5,
+          "reasons": []
+        }
+      ],
+      "afterSha256": "4dc57008af04ed0c7eca741136a554f377f9ff06301b880d5dd432e19a6c5dc9",
+      "changed": true
+    },
+    {
+      "name": "scene_metadata.vkf",
+      "beforeSha256": "a43a31f35d18946276eac41538cf02c1bfd5d924b63bb753981fbdf8ec5a5983",
+      "imports": [
+        {
+          "alias": "chunks",
+          "target": "text_chunks.vkf",
+          "canonical": "shared_module_text_chunks_3b4ac16d",
+          "calls": 1,
+          "reasons": []
+        }
+      ],
+      "afterSha256": "5ad23ddbfc6667c97f12d33997757cdbf89cab49517f1663ac78c80c0a23d374",
+      "changed": true
+    }
+  ],
+  "changedFiles": 2,
+  "rewrittenCalls": 6,
+  "ambiguousAliases": []
+}

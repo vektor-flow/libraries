@@ -1,0 +1,59 @@
+METADATA ENTRY REPAIR31 — SOURCE-ONLY PROPOSAL COMPLETE; NATIVE UNQUALIFIED
+2026-10-17. Owner 01a14a43-bffc-7221-909a-0cb6a9c1a4cd.
+Coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31.
+Original grant HEAD58b9edb2ea430610397fc606a5f496a9a5f75007;
+root-authorized successor ec06152933f89bee0c25298744a100bdbb3da37a.
+All writes confined to integration/0.7.4/metadata-entry-repair-31.
+
+FINDING AND PATCH
+Retained native29 raw/normalized source and AST retain all six assertions and
+final bare true. Typed IR retains true as an expression statement. Machine entry
+has assertion instructions but output_kind none/output_count0 and returns zero
+values; actual stdout/stderr are empty. Source provenance authenticates driver,
+lexer, parser and relevant lowering objects against actual native17 link inputs.
+Top-level ordinary values are discarded; explicit :: emits io.print. -b controls
+immediate execution, not implicit display. Imported functions following true
+are not the cause. D288's ten successful controls explicitly emit :: expressions.
+
+prepare.py.patch changes only the metadata branch of the source-plan generator:
+require the known final true, then generate ::true after the original six exact
+assertions. Original fixture remains untouched. metadata_actual_lengths.vkf is
+the exact review derivative. No compiler/source binary change, assertion loss,
+weaker oracle or global entry rewrite. Exact true-newline oracle remains five
+bytes 747275650a. Repaired fixture's native behavior remains unqualified.
+
+EVIDENCE AND CHECKS
+FINDINGS.txt/source-proof.json/final-verification.json provide source paths,
+line excerpts and hashes. 62 actual attempt artifact pins and 841 input pins
+verified; native17 ELF unchanged at52116e581d041836505756fcde17d504422429e410f0c84cb353409e121948d9.
+Host regressions:41 substantive checks plus841 posthash checks PASS,0.317s.
+Actual original/candidate generator branches and Python normalizer exercised;
+baseline reproduces all three retained normalized files exactly, candidate
+changes only final two colons. Six assertion bytes/order and production modules
+preserved. Existing oracle rejects empty/missing/extra-newline/false output and
+nonzero exit. Changed fixture tails fail closed. Patch reconstructs exactly.
+Every other generator branch/function remains AST-identical.
+Source proof1.106s; final verification2.964s. Peak RSS145704KiB, VmPeak161564KiB.
+All sequential, <=512MiB address space/60s each. Ten explicitly recorded host
+children plus four synchronous plan git children joined. Overlap0/offload0.
+No native compiler/generated executable/TeX, services, namespaces, live locks,
+operations, native retry, shared write, commit or child agent. Shared tracked
+diff empty at final check. Root successor adds only independent TSL28/TMR30 files
+and evidence; exact original metadata/compiler/normalizer inputs unchanged.
+
+FUTURE WORK / AUTHORITY
+A345 exit/assertion control, F364 dispatcher/unknown-selector control, A347
+report checks and full-app compile plan unchanged; no new credit to any gate.
+ROOT-RECIPE-DELTA.txt is review guidance, not an executable admission packet.
+Host-generated plans are NOT sealed/authorized native recipes. Root must integrate,
+regenerate at final HEAD, reseal and separately admit any actual attempt. Preserve
+preparation27 cwd correction, regular stdlib copies, full-plan equality and guards.
+Preparation27 root_steps still expects D288 sequence14: stale, never reuse.
+Required predecessor is USED A:metadata-native29-01,sequence15,stagejoined,
+owner01a14a3a-d0d8-7a10-a188-717e31a22e31, join SHA
+4a1ed5938463632747f40aba82b60beca7af7de4d676ed7e96ab9b01ea55f002.
+Fresh root admission must verify this exact succession under existing checks.
+Native29 failed1GiB remains; A24159510528/F19821273088 bytes and tiny12/50331648
+unchanged. Retained terminal activeRAM0 is historical evidence, not a new live
+observation. D267/D289 exclusions, dispatcher hold and all accounting/guards stay.
+One current DONE with this ID/result/HANDOFF, then stop. Root alone integrates.

@@ -1,0 +1,81 @@
+SOURCE FINDING: metadata-native29's empty stdout is explained by a missing
+explicit output operation in the focused fixture. A minimal generator repair
+is proposed; no native success or compiler-wide correctness is claimed.
+
+ACTUAL EVIDENCE, NOT A SIMULATED COMPILER RUN
+source-proof.json authenticates 62 retained actual attempt artifact pins,
+841 investigation input pins, the native17 receipt/ELF/link dependencies, and
+the original source-to-object dependency records for driver and core41,48,182,233.
+final-verification.json additionally authenticates core232's lexer provider.
+All those objects appear in native17's ACTUAL link dependencies. Relevant source
+excerpts include exact paths, SHA256 and line numbers. No installed source was
+assumed to represent the linked binary.
+
+Actual raw metadata.vkf equals the original repair02 fixture byte for byte.
+Actual normalized metadata.vkf retains six assertion lines and final true.
+Original re-normalization reproduces all three actual normalized files exactly.
+Actual AST body[8..13] consists of six assertions; body[14] is bool_literal true.
+Actual typed body[10..15] retains assertions; body[16] is expr_stmt const bit true.
+The ten imported functions following it are definitions, not an alternative
+entry. Actual machine entry contains all top-level bindings/calls and ten
+assert_truthy instructions (including generated bounds checks); its data retains
+all six fixture messages. This supports reachability, not new assertion-pass credit.
+Machine output_kind=none, output_count=0, output_tokens/outputs empty, and the
+last instruction returns zero values. Manifest result_transport=none. Actual
+compiler diagnostics say compiled, artifact_fallback=false; run stdout/stderr
+are both zero bytes. The unchanged true-newline oracle correctly failed.
+
+WHY THE SOURCE DOES THIS
+Pinned driver lines3637-3641 and3705: -b selects source and sets run=false.
+Lines4826-4855: ordinary file invocation also compiles with run=false before
+running the artifact through inherited streams. Removing -b introduces an
+immediate run; it is not an implicit-print fix and would change stage execution.
+Core182 dispatch_lower_stmt.cpp lines35-56 handles explicit emit as io.print;
+lines80-86 lowers other expressions as ordinary expr_stmt.
+Core48 support_2.cpp lines750-761 counts explicit print statements; lines1047-1097
+lowers ordinary entry statements with function_tail=false and emits no-output
+return when no print exists. Core41 lower_statements_stages_2.cpp lines176-224
+discards a scalar expression unless it is a function tail. Thus the module's final
+bare true is not a function return and never requests output. This behavior does
+not depend on imported definitions following the expression or a missing main().
+Core232 maps :: to EMIT; core233 parser lines736-746 produces emit; core182 lowers
+it to io.print. Core48 lines1119-1145 selects structured Bit output and appends
+newline. D288's ten successful actual controls all use explicit :: expressions;
+their separate runtime outputs are exactly true-newline. D288 lacks -b and has
+no normalization stage, but its explicit output operation is the material
+distinction. Its historical success is evidence, never succession authority.
+
+MINIMAL PROPOSAL
+prepare.py.patch changes only the metadata branch of compiler-build-preparation-03/
+prepare.py. It reads the unchanged historical fixture, requires its known final
+bare true, and prepends two colons to that last expression in the fresh derivative.
+metadata_actual_lengths.vkf is the exact generated proposal for review.
+No original evidence file, production module, normalizer, compiler source, binary,
+assertion, stage argv/deadline/cwd, or exact true-newline oracle is changed.
+The suffix guard rejects changed/absent/already-emitting tails for review.
+This adds the missing output effect after the unchanged six assertions; it does
+not replace assertions with a constant-output program or accept empty stdout.
+The emitter path is justified by authenticated source and successful D288 evidence,
+but this precise repaired metadata fixture still needs a separately admitted
+native run. These host checks do not prove every metadata operation or assertion.
+
+OTHER PLANS
+A345 has nine original assertions and no success print; its original run oracle
+checks exit0 only. This repair does not add or remove its assertions or alter
+their grouping. Any independent assertion-grouping concern remains separate.
+F364 dispatches through explicit run(); ten positives check exit0/empty stderr
+with stdout unspecified; its unknown selector must exit1 with the exact marker.
+A347 explicitly calls run() and writes reports; existing oracle requires positive
+count and empty diagnostics. Console echo is not its result channel.
+Full-app explicitly calls run() and writes files/reports. The preparation18 plan
+contains normalization and compile only, no run or rendering/PDF qualification.
+All four branches are AST-identical outside the metadata change. Do not globally
+replace -b, wrap every entry in main, or add success output to other plans.
+Those plans remain future separately admitted work, with their original oracles.
+
+SOURCE SUCCESSOR
+Original grant HEAD58b9edb2ea430610397fc606a5f496a9a5f75007.
+Root explicitly authorized successor ec06152933f89bee0c25298744a100bdbb3da37a.
+successor.json records additions only, no overlap with investigation input pins,
+and exact git-show comparisons of generator, fixture, normalizer and both modules.
+No work on TSL28/TMR30 was performed. Its source integration is not native credit.

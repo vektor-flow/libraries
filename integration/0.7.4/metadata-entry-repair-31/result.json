@@ -1,0 +1,83 @@
+{
+  "status": "DONE_SOURCE_REPAIR_PROPOSED_NATIVE_UNQUALIFIED",
+  "owner_thread": "01a14a43-bffc-7221-909a-0cb6a9c1a4cd",
+  "coordinator": "01a14893-cb1e-7203-97dd-de3da44dcf31",
+  "original_grant_head": "58b9edb2ea430610397fc606a5f496a9a5f75007",
+  "authorized_successor_head": "ec06152933f89bee0c25298744a100bdbb3da37a",
+  "finding": "Bare top-level true is discarded; actual machine IR has no output. Explicit ::true is the minimal missing output effect.",
+  "patch": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-entry-repair-31/prepare.py.patch",
+  "patch_scope": "Only metadata source-generation branch; preserve historical fixture and all six assertions.",
+  "assertions_unchanged": 6,
+  "oracle_hex": "747275650a",
+  "fixture_native_qualified": false,
+  "native17": {
+    "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/compiler-native17-01/compiler/vkf-strict",
+    "sha256": "52116e581d041836505756fcde17d504422429e410f0c84cb353409e121948d9"
+  },
+  "native17_unchanged": true,
+  "native29_remains_failed": true,
+  "permanent_failed_charge_bytes": 1073741824,
+  "latest_A": {
+    "key": "A:metadata-native29-01",
+    "owner": "01a14a3a-d0d8-7a10-a188-717e31a22e31",
+    "sequence": 15,
+    "stage": "joined",
+    "join": {
+      "path": "/mnt/development/CompilerOptimization/owner-01a14893-cb1e-7203-97dd-de3da44dcf31/A/direct-v2-20261017/metadata-native29-01/receipts/service-join.json",
+      "sha256": "4a1ed5938463632747f40aba82b60beca7af7de4d676ed7e96ab9b01ea55f002"
+    },
+    "phase_bytes": 1073741824
+  },
+  "charges": {
+    "A": 24159510528,
+    "F": 19821273088
+  },
+  "tiny": {
+    "attempts": 12,
+    "bytes": 50331648
+  },
+  "future_admission": "Fresh root-only admission must bind exact joined metadata29 sequence15 and current successor source; old D288 succession invalid.",
+  "historical_attempt_pins_verified": 62,
+  "investigation_input_pins_verified": 841,
+  "host_validation": {
+    "checks": 882,
+    "substantive_checks": 41,
+    "posthash_checks": 841,
+    "normalizer_runs": 2,
+    "seconds": 0.31679546704981476,
+    "source_proof_seconds": 1.103726248955354,
+    "final_verification_seconds": 2.9631734819849953,
+    "max_rss_kib": 145704,
+    "max_vmpeak_kib": 161564,
+    "address_space_limit_bytes": 536870912,
+    "per_runner_wall_limit_seconds": 60,
+    "all_children_joined": true,
+    "explicit_host_children": 10,
+    "synchronous_plan_git_children": 4,
+    "overlap": 0
+  },
+  "native_execution": false,
+  "generated_executable_execution": false,
+  "operational_mutation": false,
+  "live_locks": false,
+  "services": false,
+  "namespaces": false,
+  "shared_source_writes": false,
+  "commits": 0,
+  "child_agents": 0,
+  "offload": 0,
+  "excluded": [
+    "D267",
+    "D289"
+  ],
+  "dispatcher_hold_preserved": true,
+  "counts_credit": 0,
+  "findings": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-entry-repair-31/FINDINGS.txt",
+  "root_recipe_delta": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-entry-repair-31/ROOT-RECIPE-DELTA.txt",
+  "handoff": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/metadata-entry-repair-31/HANDOFF.txt",
+  "limitations": [
+    "Source/provenance plus host regressions only; repaired metadata fixture not compiled or run.",
+    "No new live ledger/service observation; succession uses authenticated retained native29 terminal evidence and requires fresh root recheck.",
+    "All other native/application/PDF/API/readers/release gates remain unqualified."
+  ]
+}
