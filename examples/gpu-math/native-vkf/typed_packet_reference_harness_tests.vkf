@@ -23,6 +23,7 @@ document_scene_export:.document_scene_export
 document_scene:.document_scene
 packet_adapter:.typed_packet_reference_adapter
 metadata_json:.scene_metadata_json
+ordered_json:.test_ordered_json
 Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
 Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
 Paint:(red:num,green:num,blue:num,alpha:num)
@@ -95,7 +96,7 @@ compare(q:Packet)->bit:
         (a.equation_tags.(i)=b.equation_tags.(i))?! "column equation_tags exact"
         (a.tag_widths.(i)=b.tag_widths.(i))?! "column tag_widths exact"
         (a.draws.(i)=b.draws.(i))?! "column draws exact"
-        extra_matches(a.extras.(i),b.metadata,b.metadata_roots.(i))?! "column extras exact"
+        ordered_json.metadata_matches(a.extras.(i),b.metadata,b.metadata_roots.(i))?! "column extras exact"
         (a.flow_xs.(i)=b.flow_xs.(i))?! "column flow_xs exact"
         (a.flow_widths.(i)=b.flow_widths.(i))?! "column flow_widths exact"
         (a.has_flows.(i)=b.has_flows.(i))?! "column has_flows exact"
@@ -108,7 +109,7 @@ compare(q:Packet)->bit:
         (a.footnote_numbers.(i)=b.footnote_numbers.(i))?! "column footnote_numbers exact"
         old_json:reference_export.leaf(a,i,1,1)
         new_json:document_scene_export.leaf(b,i,1,1)
-        (old_json=new_json)?! "debug leaf export exact"
+        ordered_json.json_matches(old_json,new_json)?! "debug leaf export exact"
         .i:i+1
     .i:0
     i<a.destination_ids.length()?>
@@ -409,6 +410,7 @@ renderer_tests()->bit:
     (result4.anchor_count=1)?! "actual JS anchors 4"
     @:true
 extra_contract_tests()?! "Metadata absence boundary contract"
+ordered_json.contract_tests()?! "Independent ordered JSON comparison contract"
 renderer_tests()
 
 # Explicitly exercise the original synthetic cases, including glyphParts case1.

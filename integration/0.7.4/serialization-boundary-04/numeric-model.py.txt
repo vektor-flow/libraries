@@ -1,0 +1,138 @@
+def unit():
+    return 4503599627370496
+def maximum():
+    return 9218868437227405311
+def at(s,i):
+    if vkf_string_eof(s,i): return LITERAL_0
+    return vkf_string_peek_scalar(s,i)
+def size(s):
+    i = 0
+    while not vkf_string_eof(s,i): i = i+1
+    return i
+def code(c):
+    v = 0
+    for scalar_codepoint in map(ord,c):
+        v = int(scalar_codepoint)
+        pass
+    return v
+def char(d):
+    return str(chr(48+d))
+def integer(v):
+    n = v
+    s = LITERAL_1
+    while True:
+        s = char(n%10)+s
+        n = n//10
+        if n==0: return s
+    return s
+def multiply(s,factor):
+    i = size(s)-1
+    carry = 0
+    out = LITERAL_2
+    while i>=0:
+        p = (code(at(s,i))-48)*factor+carry
+        out = char(p%10)+out
+        carry = p//10
+        i = i-1
+    if carry>0: out = char(carry)+out
+    return out
+def dyadic(coefficient,power):
+    digits = integer(coefficient)
+    factor = 2
+    steps = power
+    decimal_power = 0
+    if power<0:
+        factor = 5
+        steps = -power
+        decimal_power = power
+    i = 0
+    while i<steps:
+        digits = multiply(digits,factor)
+        i = i+1
+    return Record(digits=digits,power=decimal_power)
+def decimal(token):
+    i = 0
+    if at(token,0)==LITERAL_3: i = 1
+    digits = LITERAL_4
+    fraction = 0
+    point = False
+    c = at(token,i)
+    while c!=LITERAL_5  and  c!=LITERAL_6  and  c!=LITERAL_7:
+        if c==LITERAL_8: point = True
+        if c!=LITERAL_9:
+            if (digits!=LITERAL_10  or  c!=LITERAL_11): digits = digits+c
+            if point: fraction = fraction+1
+        i = i+1
+        c = at(token,i)
+    exponent = 0
+    sign = 1
+    if c!=LITERAL_12:
+        i = i+1
+        c = at(token,i)
+        if c==LITERAL_13: sign = -1
+        if (c==LITERAL_14  or  c==LITERAL_15): i = i+1
+        cap = size(token)+2000
+        while not vkf_string_eof(token,i):
+            if exponent<cap: exponent = exponent*10+code(at(token,i))-48
+            i = i+1
+    if digits==LITERAL_16: return Record(digits=LITERAL_17,power=0)
+    return Record(digits=digits,power=sign*exponent-fraction)
+def compare(a,b):
+    if a.digits==LITERAL_18  and  b.digits==LITERAL_19: return 0
+    if a.digits==LITERAL_20: return -1
+    if b.digits==LITERAL_21: return 1
+    na = size(a.digits)
+    nb = size(b.digits)
+    if na+a.power<nb+b.power: return -1
+    if na+a.power>nb+b.power: return 1
+    i = 0
+    while i<na  or  i<nb:
+        ca = LITERAL_22
+        cb = LITERAL_23
+        if i<na: ca = at(a.digits,i)
+        if i<nb: cb = at(b.digits,i)
+        if ca<cb: return -1
+        if ca>cb: return 1
+        i = i+1
+    return 0
+def upper(rank):
+    exponent = rank//unit()
+    mantissa = rank%unit()
+    power = -1074
+    if exponent>0:
+        mantissa = mantissa+unit()
+        power = exponent-1075
+    return dyadic(2*mantissa+1,power-1)
+def inside(d,rank):
+    c = compare(d,upper(rank))
+    return c<0  or  (c==0  and  rank%2==0)
+def from_token(token):
+    d = decimal(token)
+    if not inside(d,maximum()): return Record(rank=0,negative=False,valid=False)
+    low = 0
+    high = maximum()
+    while low<high:
+        middle = low+(high-low)//2
+        below = inside(d,middle)
+        if below: high = middle
+        if not below: low = middle+1
+    return Record(rank=low,negative=low>0  and  at(token,0)==LITERAL_24,valid=True)
+def from_number(value):
+    if not (value-value==0): return Record(rank=0,negative=False,valid=False)
+    if value==0: return Record(rank=0,negative=False,valid=True)
+    magnitude = abs(value)
+    exponent = 0
+    while magnitude<1:
+        magnitude = magnitude*2
+        exponent = exponent-1
+    while magnitude>=2:
+        magnitude = magnitude/2
+        exponent = exponent+1
+    mantissa = int(magnitude*num(unit()))
+    while exponent< -1022:
+        mantissa = mantissa//2
+        exponent = exponent+1
+    rank = (exponent+1022)*unit()+mantissa
+    return Record(rank=rank,negative=value<0,valid=True)
+def equal(a,b):
+    return a.valid  and  b.valid  and  a.rank==b.rank  and  a.negative==b.negative

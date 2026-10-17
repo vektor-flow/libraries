@@ -1,0 +1,58 @@
+{
+  "compiler_pin": {
+    "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration288-record01/vkf-strict",
+    "sha256": "18f402a4a6c793c9b18dd7a1679c99a9c7635831ab5947676afb08e9c071c94a"
+  },
+  "identity": "6350842e10d23f4fccc9bc94da661d8c6a6f9c1c00f7c35a3f4be65289889010",
+  "ready_packet": {
+    "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/ready-packet-iteration288.json",
+    "sha256": "f10e8f1cadb5c2c4789195e914e8d14cf4c4e0a8b2b0064cfeb646d80faa9cce",
+    "bytes": 7953
+  },
+  "D288_profile": {
+    "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration288-evidence/ready-delta-profile.json",
+    "sha256": "b4ad2d89663e21d63d260c50ed3b827104e7d58eb5b0c4aec4e55668eec9bbe0",
+    "bytes": 243450
+  },
+  "D285_profile": {
+    "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Proof/tests/independent-worker-D/iteration285-lifetime02/delta-profile.json",
+    "sha256": "0541d3fac0358200f87b644e249745004c1eacec6beca12a9d3317abc458947f",
+    "bytes": 152027
+  },
+  "F303_base_profile": {
+    "path": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iteration303-compose01/native-profile.json",
+    "sha256": "646db3bd165325ce7e859039a972fed28f1b37a1c5ca7dcd3942489fe0e2ffab",
+    "bytes": 42805942
+  },
+  "D288_replaced_indices": [
+    39,
+    42,
+    90
+  ],
+  "D285_replaced_indices": [
+    45,
+    90
+  ],
+  "provenance_note": "Apply D285 replacements over F303, then D288 replacements39/42/90; direct ordered link retains D285 unit45.",
+  "relevant_base_dependencies": [
+    {
+      "index": 169,
+      "dependency": {
+        "nominal": "/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/compiler/native/lowering/record_construction.cpp",
+        "effective": "/home/viktor/.cache/vkf-architecture-0136/integration227-capacity01/volume/combined229/source/compiler/native/lowering/record_construction.cpp",
+        "sha256": "b8e0b8d048654deb219f43e46e22e16f3cb55ecc7bc8d254cea7b25a1bf550b7"
+      }
+    },
+    {
+      "index": 183,
+      "dependency": {
+        "nominal": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter279-clean-production01/function_lowering.cpp",
+        "effective": "/home/viktor/.cache/vkf-s0-runtimes-20261012/Integrator/independent-worker-F/iter279-clean-production01/function_lowering.cpp",
+        "sha256": "1c8bc78071dd51f96104117512acf39f078ba37349ed7fc2c11bdd588800e601"
+      }
+    }
+  ],
+  "candidate_sources_opened": false,
+  "binary_or_object_hashes_recomputed": false,
+  "interpretation": "D288 inherits F303 function-lowering revision 1c8bc780... through D285; D288 changes 39/42/90, D285 preserves the function-lowering entry. Metadata does not import E226/E227/E229 convergence revisions. Absence of these rejected revisions is not missing accepted work. Source-imports records application generation A343-F349-r1 and host E382, not an additional compiler candidate."
+}

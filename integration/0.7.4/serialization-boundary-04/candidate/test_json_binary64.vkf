@@ -1,0 +1,148 @@
+# Test-only independent decimal oracle. No production/frozen parser or formatter.
+# Decimal tokens are grammar-checked by test_ordered_json. Compare exact decimal
+# integers to binary64 rounding-cell midpoints; never parse a token into num.
+# Keys are positive IEEE magnitude ranks, with canonical zero (the codec contract).
+Key:(rank:int,negative:bit,valid:bit)
+Decimal:(digits:str,power:int)
+unit()->int:4503599627370496
+maximum()->int:9218868437227405311
+at(s:str,i:int)->str:
+    vkf_string_eof(s,i)? @:""
+    @:vkf_string_peek_scalar(s,i)
+size(s:str)->int:
+    i:0
+    ~vkf_string_eof(s,i)?> .i:i+1
+    @:i
+code(c:str)->int:
+    v:0
+    c >>
+        .v:int($)
+        $
+    @:v
+char(d:int)->str:str(chr(48+d))
+integer(v:int)->str:
+    n:v
+    s:""
+    true?>
+        .s:char(n%10)&s
+        .n:n//10
+        n=0? @:s
+    @:s
+# All arithmetic here is integer: product<=9*5+4, carry<=4.
+multiply(s:str,factor:int)->str:
+    i:size(s)-1
+    carry:0
+    out:""
+    i>=0?>
+        p:(code(at(s,i))-48)*factor+carry
+        .out:char(p%10)&out
+        .carry:p//10
+        .i:i-1
+    carry>0? .out:char(carry)&out
+    @:out
+# Exact dyadic -> decimal. This is NOT the production 17-digit formatter.
+dyadic(coefficient:int,power:int)->Decimal:
+    digits:integer(coefficient)
+    factor:2
+    steps:power
+    decimal_power:0
+    power<0?
+        .factor:5
+        .steps: -power
+        .decimal_power:power
+    i:0
+    i<steps?>
+        .digits:multiply(digits,factor)
+        .i:i+1
+    @:(digits:digits,power:decimal_power)
+# Valid nonnegative JSON mantissa -> exact decimal (leading zeros removed).
+# Exponents saturate beyond token length+2000: safely beyond every finite cell.
+decimal(token:str)->Decimal:
+    i:0
+    at(token,0)="-"? .i:1
+    digits:""
+    fraction:0
+    point:false
+    c:at(token,i)
+    c~="" /\ c~="e" /\ c~="E"?>
+        c="."? .point:true
+        c~="."?
+            (digits~="" \/ c~="0")? .digits:digits&c
+            point? .fraction:fraction+1
+        .i:i+1
+        .c:at(token,i)
+    exponent:0
+    sign:1
+    c~=""?
+        .i:i+1
+        .c:at(token,i)
+        c="-"? .sign: -1
+        (c="-" \/ c="+")? .i:i+1
+        cap:size(token)+2000
+        ~vkf_string_eof(token,i)?>
+            exponent<cap? .exponent:exponent*10+code(at(token,i))-48
+            .i:i+1
+    digits=""? @:(digits:"0",power:0)
+    @:(digits:digits,power:sign*exponent-fraction)
+compare(a:Decimal,b:Decimal)->int:
+    a.digits="0" /\ b.digits="0"? @:0
+    a.digits="0"? @: -1
+    b.digits="0"? @:1
+    na:size(a.digits)
+    nb:size(b.digits)
+    na+a.power<nb+b.power? @: -1
+    na+a.power>nb+b.power? @:1
+    i:0
+    i<na \/ i<nb?>
+        ca:"0"
+        cb:"0"
+        i<na? .ca:at(a.digits,i)
+        i<nb? .cb:at(b.digits,i)
+        ca<cb? @: -1
+        ca>cb? @:1
+        .i:i+1
+    @:0
+# Midpoint above rank r = (2*m+1)*2^(p-1). At a binade boundary the
+# successor gap is still 2^p. Rank 0 uses half the minimum subnormal.
+upper(rank:int)->Decimal:
+    exponent:rank//unit()
+    mantissa:rank%unit()
+    power: -1074
+    exponent>0?
+        .mantissa:mantissa+unit()
+        .power:exponent-1075
+    @:dyadic(2*mantissa+1,power-1)
+inside(d:Decimal,rank:int)->bit:
+    c:compare(d,upper(rank))
+    @:c<0 \/ (c=0 /\ rank%2=0)
+from_token(token:str)->Key:
+    d:decimal(token)
+    ~inside(d,maximum())? @:(rank:0,negative:false,valid:false)
+    low:0
+    high:maximum()
+    low<high?>
+        middle:low+(high-low)//2
+        below:inside(d,middle)
+        below? .high:middle
+        ~below? .low:middle+1
+    @:(rank:low,negative:low>0 /\ at(token,0)="-",valid:true)
+# Exact power-of-two operations only; no decimal parser or number formatter.
+# Required backend primitives: binary64 num, exact int64, truncating int(num).
+from_number(value:num)->Key:
+    ~(value-value=0)? @:(rank:0,negative:false,valid:false)
+    value=0? @:(rank:0,negative:false,valid:true)
+    magnitude:|value|
+    exponent:0
+    magnitude<1?>
+        .magnitude:magnitude*2
+        .exponent:exponent-1
+    magnitude>=2?>
+        .magnitude:magnitude/2
+        .exponent:exponent+1
+    mantissa:int(magnitude*num(unit()))
+    exponent< -1022?>
+        .mantissa:mantissa//2
+        .exponent:exponent+1
+    rank:(exponent+1022)*unit()+mantissa
+    @:(rank:rank,negative:value<0,valid:true)
+equal(a:Key,b:Key)->bit:a.valid /\ b.valid /\ a.rank=b.rank /\ a.negative=b.negative

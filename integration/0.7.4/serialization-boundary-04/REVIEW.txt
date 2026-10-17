@@ -1,0 +1,126 @@
+SERIALIZATION BOUNDARY 04 — SOURCE/MODEL REVIEW, 2026-10-17
+
+Concrete patch
+Three-file final.patch: add test_json_binary64.vkf (148 lines), add
+ test_ordered_json.vkf (277 lines), change two differential predicates in
+ typed_packet_reference_harness_tests.vkf plus one import and one invocation.
+No production, frozen F303, authored fixture, literal oracle or exporter edit.
+The existing extra_matches helper and its sixteen byte/presence assertions are
+unchanged in full. Those remain explicit independent byte obligations. The two
+old/new representation comparisons now call the independent ordered comparator.
+Names such as "column extras exact" mean exact values/structure at those two
+boundaries, under the coordinator's accepted lexeme-discarding contract.
+The old helper's numeric spelling rejection still checks byte identity separately;
+it is intentionally not the predicate used for the differential metadata gate.
+
+Boundary behavior
+metadata_matches compares original raw JSON directly to typed metadata nodes,
+without encoding typed metadata. Negative root matches ONLY original="";
+positive-root bounds and relative subtree ends are checked. It never consults
+arena count as a substitute for root presence. JSON empty string is a present
+kind3 node and differs from the out-of-band empty legacy string.
+json_matches parses the old/new debug strings separately. Debug exporters remain
+unchanged; the comparator discards spelling/whitespace only. It retains every
+key, duplicate occurrence and order, all array ordering, node kind, exact decoded
+Unicode scalar sequence, relative subtree boundary and binary64 number value.
+Objects are never maps. Object key nodes stay in preorder beside value nodes.
+The count and subtree-end comparisons distinguish shapes with similar tokens.
+This is not the existing document_scene_export_tests epsilon/map comparator.
+
+Independence established from source
+The new reader is a recursive-descent implementation with no live/frozen JSON
+reader, codec, tex_text, resource_numbers, binary_decimal or formatter imports.
+Its only module import is the new numeric oracle. The numeric oracle has no
+module imports and no decimal parsing intrinsic. Its scanner/number conversion
+path therefore cannot call production parsing/encoding on either operand.
+The old frozen reader's number decoder was read and compared with production:
+it uses the same algorithm behind isolated imports. Reusing it would not have
+provided algorithmic independence, so neither frozen reader nor decoder is used
+by the new comparison. Frozen F303 continues to use its authenticated originals.
+Only language primitives (UTF-8 cursor/EOF, scalar chr/int, strings, int64 and
+binary64 arithmetic) are shared. No normalization through an existing codec.
+
+Exact numeric algorithm and source argument
+from_token never constructs a floating-point number. It reads a sign, exact
+integer decimal coefficient as digits and decimal power; irrelevant leading
+zeros are removed. Exponents saturate beyond token byte length+2000, where even
+all mantissa/fraction digits cannot bring a nonzero value into a finite rounding
+boundary. Zero remains zero regardless of exponent. Grammar is validated first.
+Positive finite IEEE magnitude ranks range 0..9218868437227405311. For rank r,
+exponent=floor(r/2^52), significand=r mod 2^52 (+2^52 for normals), dyadic power
+is -1074 for subnormals and exponent-1075 for normals. The midpoint ABOVE r is
+exactly (2*significand+1)*2^(power-1), including binade transitions. Rank zero's
+upper midpoint is 2^-1075. The maximum's upper midpoint is the overflow boundary.
+Repeated integer digit multiplication by 2 or 5 represents that dyadic exactly
+as a decimal integer times 10^power. Products are <=49; coefficient<=2^54-1;
+ranks and midpoint-search arithmetic fit signed int64. Decimal comparison first
+compares digit-length+power, then digits padded on the right with zeros.
+inside includes ties exactly when rank is even (round-to-nearest/ties-to-even).
+Binary search returns the first rank whose upper boundary includes the token.
+The max odd-rank midpoint is excluded, rejecting overflow, not coercing it.
+from_number obtains the exact positive rank from an existing binary64 by exact
+power-of-two normalization, integral significand extraction and integer shifts
+for subnormals. No decimal parse/format occurs. Rank and sign must match exactly.
+No epsilon, truncation to decimal precision, common formatter, or map equality.
+Zero signs canonicalize as in the existing json_numbers roundtrip specification;
+this is numerical binary64 equality, not an added signed-zero bit contract.
+Nonzero adjacent ranks remain distinct, including the two adjacent 0.1 values.
+
+Evidence actually executed
+check.py translates only the explicit small VKF subset used by these modules;
+unknown constructs fail. The emitted models are included for inspection. It
+preserves function/branch/loop bodies, maps strings to Python Unicode+UTF-8 byte
+cursors and num to Python binary64, int to Python exact integers. A pure-function
+LRU memoizes midpoint outputs in the MODEL ONLY; no numeric body is replaced.
+43 candidate-authored assertions execute in that source-derived model. A second
+oracle in check.py uses arbitrary integer rational quotient/remainder rounding,
+not midpoint search or float(token), for 17 exact decimal vectors. These include
+adjacent doubles, integer ties, each midpoint parity, exact half-minsubnormal,
+min-normal vicinity, minsubnormal, maximum finite and overflow. 16 finite results
+also check typed rank extraction against struct IEEE bits.
+72 debug/typed presence-kind matrix comparisons, independent pair-preserving
+input trees and invalid JSON controls execute. Four source mutations fail at
+specific retained controls: ignored text, ignored numeric rank, ignored absence,
+ignored kind. Native-authored controls also reject key/array/object/duplicate
+order changes and duplicate loss at both applicable boundaries.
+All 303 existing assertions are retained byte-for-byte except the TWO declared
+differential predicates; 225 captured literal assertions and five captured
+fixtures are byte-exact. Ten F303 modules match authenticated historical hashes
+and allowed import-target-only renaming. 642 exact inputs are pinned and rechecked.
+Six existing preparation tests pass with their temporary directories redirected
+in memory to this granted directory. No manifest/entry regeneration was run.
+211 source/model checks pass; six preparation tests pass; git apply --check passes.
+Elapsed check.py wall time 52.217s. No native normalization, compile or execution.
+
+Limits and precise next qualification requirement
+This proves source-level algorithm independence and exact arithmetic under the
+stated primitive semantics. It does NOT qualify VKF native behavior. Python ints
+are unbounded; source bounds establish rank arithmetic fits int64 but do not
+prove the backend preserves those types/operations. The precise unverified
+primitive boundary is native signed-int64 rank arithmetic/large literal parsing
+and int(magnitude*num(4503599627370496)) after exact binary64 power-of-two scaling,
+plus UTF-8 scalar cursor/chr/string equality behavior. No call to an unproven
+native decimal-conversion primitive is hidden inside the new oracle.
+The new modules have not been compiled. Recursive Tree return lowering, dynamic
+string-vector construction, and native cost are also unqualified. This candidate
+uses at most 64 midpoint comparisons per token (including overflow), each with bounded decimal
+expansion; it is test-only, not a proposed production hot-path implementation.
+Do not infer native performance or reopen the known from_leaves barrier.
+Root can review/integrate this patch and refresh derivative entry/manifest itself.
+Before gate credit, those primitive semantics and the new native assertions need
+an authorized route beyond the existing compiler barrier. No native retry is
+requested or authorized here. Other literal byte-serialization obligations may
+still fail and must remain independent. Native47=18pass/29unqualified;
+original419=293credited unchanged. acceptance_ready=false.
+
+Session accounting
+Initial check stopped because its whole-native-directory equality check also
+included root's newly committed host atomic-publication files (121914f). Diff
+inspection proved ALL root-level VKF source unchanged since b90d65b; checker now
+requires ancestry and that full VKF source-set identity, with input pins. No
+metadata/source overlap, memory failure, production correction or waiver occurred.
+A first translator smoke test rejected unsupported inline-loop translation;
+that local test utility was corrected before the reported successful run.
+All owned shell/Python/git jobs are joined; zero background/native/service jobs.
+Only serialization-boundary-04 was written. No shared edits, commits, subagents,
+controller/state/ledger/budget/mount changes or excluded-scope work.

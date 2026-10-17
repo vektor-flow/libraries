@@ -1,0 +1,44 @@
+COMPLETED — serialization-boundary-04 — stop for coordinator review
+Owner 01a148fe-2d9a-70c1-9659-7850815be709; coordinator 01a14893-cb1e-7203-97dd-de3da44dcf31.
+Authorized base b90d65bbe8df2ce3110288caf66816a6b150930b.
+Tested observed HEAD 121914f186b4c845e98215cb91b5ee60d9b846ef: root's intervening
+host-publication commit changed NO VKF source. Exact inputs: input-pins.json
+(642 SHA256 entries). Context includes grant, current handovers and metadata03.
+
+Result: final.patch, three files, 429 insertions/2 deletions. New independent
+ordered JSON reader and binary64 rounding-cell oracle; replace only metadata
+and debug-export DIFFERENTIAL comparisons. Metadata compares directly to typed
+nodes; debug strings compare ordered trees. No production/frozen parser or
+formatter dependency. Exact decoded keys/text, numbers, kinds, subtree ends,
+object/array order and duplicate multiplicity retained. Absence helper and all
+sixteen prior assertions unchanged. All 225 literal assertions/five fixtures and
+ten frozen F303 modules preserved. Existing byte expectations remain obligations.
+
+Actual checks: 211 source/model checks PASS; 43 new candidate-authored controls
+executed as source-derived Python models; 17 independent exact-rational decimal
+vectors, 16 binary64 extraction checks; four source mutations caught. Six existing
+preparation tests PASS with temp writes redirected to this grant directory.
+git apply --check PASS, not applied. Successful check elapsed52.217s.
+Reproduce from repo root:
+  python3 -B integration/0.7.4/serialization-boundary-04/check.py
+Proof, boundaries and source-model limitations: REVIEW.txt; raw output/checks:
+check.stdout, check.stderr, checks.json, preparation-tests.txt.
+
+No native normalize/compile/runtime. acceptance_ready=false. Native47 remains
+18pass/29unqualified; original419293credited unchanged. Source arithmetic proof
+assumes native int64 and binary64/Unicode primitives; models do NOT qualify their
+backend implementation. Precise remaining primitive boundary: native int64 rank
+arithmetic/large integer literals and exact int(magnitude*2^52) extraction after
+binary64 scaling, plus UTF-8 scalar cursor/chr/equality semantics. New module
+lowering and cost are uncompiled/unmeasured. Existing from_leaves barrier remains;
+no retry proposed. Byte-literal serialization failures elsewhere may remain.
+
+Next: root reviews/integrates patch, refreshes derivative entry/manifest, and
+keeps gate unqualified pending independently authorized primitive/native evidence.
+Do not infer native credit from host models. Next iteration uses a fresh chat.
+All owned shell/Python/git jobs joined; zero live/background/service/native jobs.
+Writes confined to this grant directory; no commits/shared edits/subagents,
+controllers, ledgers, budget changes, disk/mount changes or excluded-scope work.
+Artifact SHA256s: artifact-pins.json (excludes itself and notification receipt).
+Authorized completion notification uses existing Client once; receipt is
+notification.json. No ambiguous retry.

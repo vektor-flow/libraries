@@ -1,0 +1,467 @@
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/test_json_binary64.vkf
+@@ -0,0 +1,148 @@
++# Test-only independent decimal oracle. No production/frozen parser or formatter.
++# Decimal tokens are grammar-checked by test_ordered_json. Compare exact decimal
++# integers to binary64 rounding-cell midpoints; never parse a token into num.
++# Keys are positive IEEE magnitude ranks, with canonical zero (the codec contract).
++Key:(rank:int,negative:bit,valid:bit)
++Decimal:(digits:str,power:int)
++unit()->int:4503599627370496
++maximum()->int:9218868437227405311
++at(s:str,i:int)->str:
++    vkf_string_eof(s,i)? @:""
++    @:vkf_string_peek_scalar(s,i)
++size(s:str)->int:
++    i:0
++    ~vkf_string_eof(s,i)?> .i:i+1
++    @:i
++code(c:str)->int:
++    v:0
++    c >>
++        .v:int($)
++        $
++    @:v
++char(d:int)->str:str(chr(48+d))
++integer(v:int)->str:
++    n:v
++    s:""
++    true?>
++        .s:char(n%10)&s
++        .n:n//10
++        n=0? @:s
++    @:s
++# All arithmetic here is integer: product<=9*5+4, carry<=4.
++multiply(s:str,factor:int)->str:
++    i:size(s)-1
++    carry:0
++    out:""
++    i>=0?>
++        p:(code(at(s,i))-48)*factor+carry
++        .out:char(p%10)&out
++        .carry:p//10
++        .i:i-1
++    carry>0? .out:char(carry)&out
++    @:out
++# Exact dyadic -> decimal. This is NOT the production 17-digit formatter.
++dyadic(coefficient:int,power:int)->Decimal:
++    digits:integer(coefficient)
++    factor:2
++    steps:power
++    decimal_power:0
++    power<0?
++        .factor:5
++        .steps: -power
++        .decimal_power:power
++    i:0
++    i<steps?>
++        .digits:multiply(digits,factor)
++        .i:i+1
++    @:(digits:digits,power:decimal_power)
++# Valid nonnegative JSON mantissa -> exact decimal (leading zeros removed).
++# Exponents saturate beyond token length+2000: safely beyond every finite cell.
++decimal(token:str)->Decimal:
++    i:0
++    at(token,0)="-"? .i:1
++    digits:""
++    fraction:0
++    point:false
++    c:at(token,i)
++    c~="" /\ c~="e" /\ c~="E"?>
++        c="."? .point:true
++        c~="."?
++            (digits~="" \/ c~="0")? .digits:digits&c
++            point? .fraction:fraction+1
++        .i:i+1
++        .c:at(token,i)
++    exponent:0
++    sign:1
++    c~=""?
++        .i:i+1
++        .c:at(token,i)
++        c="-"? .sign: -1
++        (c="-" \/ c="+")? .i:i+1
++        cap:size(token)+2000
++        ~vkf_string_eof(token,i)?>
++            exponent<cap? .exponent:exponent*10+code(at(token,i))-48
++            .i:i+1
++    digits=""? @:(digits:"0",power:0)
++    @:(digits:digits,power:sign*exponent-fraction)
++compare(a:Decimal,b:Decimal)->int:
++    a.digits="0" /\ b.digits="0"? @:0
++    a.digits="0"? @: -1
++    b.digits="0"? @:1
++    na:size(a.digits)
++    nb:size(b.digits)
++    na+a.power<nb+b.power? @: -1
++    na+a.power>nb+b.power? @:1
++    i:0
++    i<na \/ i<nb?>
++        ca:"0"
++        cb:"0"
++        i<na? .ca:at(a.digits,i)
++        i<nb? .cb:at(b.digits,i)
++        ca<cb? @: -1
++        ca>cb? @:1
++        .i:i+1
++    @:0
++# Midpoint above rank r = (2*m+1)*2^(p-1). At a binade boundary the
++# successor gap is still 2^p. Rank 0 uses half the minimum subnormal.
++upper(rank:int)->Decimal:
++    exponent:rank//unit()
++    mantissa:rank%unit()
++    power: -1074
++    exponent>0?
++        .mantissa:mantissa+unit()
++        .power:exponent-1075
++    @:dyadic(2*mantissa+1,power-1)
++inside(d:Decimal,rank:int)->bit:
++    c:compare(d,upper(rank))
++    @:c<0 \/ (c=0 /\ rank%2=0)
++from_token(token:str)->Key:
++    d:decimal(token)
++    ~inside(d,maximum())? @:(rank:0,negative:false,valid:false)
++    low:0
++    high:maximum()
++    low<high?>
++        middle:low+(high-low)//2
++        below:inside(d,middle)
++        below? .high:middle
++        ~below? .low:middle+1
++    @:(rank:low,negative:low>0 /\ at(token,0)="-",valid:true)
++# Exact power-of-two operations only; no decimal parser or number formatter.
++# Required backend primitives: binary64 num, exact int64, truncating int(num).
++from_number(value:num)->Key:
++    ~(value-value=0)? @:(rank:0,negative:false,valid:false)
++    value=0? @:(rank:0,negative:false,valid:true)
++    magnitude:|value|
++    exponent:0
++    magnitude<1?>
++        .magnitude:magnitude*2
++        .exponent:exponent-1
++    magnitude>=2?>
++        .magnitude:magnitude/2
++        .exponent:exponent+1
++    mantissa:int(magnitude*num(unit()))
++    exponent< -1022?>
++        .mantissa:mantissa//2
++        .exponent:exponent+1
++    rank:(exponent+1022)*unit()+mantissa
++    @:(rank:rank,negative:value<0,valid:true)
++equal(a:Key,b:Key)->bit:a.valid /\ b.valid /\ a.rank=b.rank /\ a.negative=b.negative
+--- /dev/null
++++ b/examples/gpu-math/native-vkf/test_ordered_json.vkf
+@@ -0,0 +1,277 @@
++# Test-only recursive-descent JSON reader, independent of live and F303 readers.
++# Preorder nodes retain container subtree ends, decoded key/string nodes, raw
++# number tokens, all duplicate keys and source order. No object-map conversion.
++n:.test_json_binary64
++Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
++Tree:(source:str,position:int,valid:bit,kinds:[int],ends:[int],texts:[str],count:int)
++StringResult:(value:str,stop:int,valid:bit)
++strings(count:int)->[str]:
++    [str] out:["":count]
++    @:out
++at(s:str,i:int)->str:
++    vkf_string_eof(s,i)? @:""
++    @:vkf_string_peek_scalar(s,i)
++white(c:str)->bit:c=" " \/ c="\t" \/ c="\r" \/ c="\n"
++digit(c:str)->bit:c>="0" /\ c<="9"
++skip(s:str,i:int)->int:
++    p:i
++    white(at(s,p))?> .p:p+1
++    @:p
++hex(c:str)->int:
++    digit(c)? @:n.code(c)-48
++    c>="a" /\ c<="f"? @:n.code(c)-87
++    c>="A" /\ c<="F"? @:n.code(c)-55
++    @: -1
++quad(s:str,p:int)->int:
++    value:0
++    i:0
++    i<4?>
++        d:hex(at(s,p+i))
++        d<0? @: -1
++        .value:value*16+d
++        .i:i+1
++    @:value
++string(s:str,start:int)->StringResult:
++    p:start+1
++    out:""
++    ~vkf_string_eof(s,p)?>
++        c:at(s,p)
++        c="\""? @:(value:out,stop:p+1,valid:true)
++        c<" "? @:(value:out,stop:p,valid:false)
++        c~="\\"?
++            .out:out&c
++            .p:int(vkf_utf8_advance(s,p))
++            @>
++        .p:p+1
++        escape:at(s,p)
++        .p:p+1
++        (escape="\"" \/ escape="\\" \/ escape="/")?
++            .out:out&escape
++            @>
++        escape="b"?
++            .out:out&str(chr(8))
++            @>
++        escape="f"?
++            .out:out&str(chr(12))
++            @>
++        escape="n"?
++            .out:out&"\n"
++            @>
++        escape="r"?
++            .out:out&"\r"
++            @>
++        escape="t"?
++            .out:out&"\t"
++            @>
++        escape~="u"? @:(value:out,stop:p,valid:false)
++        scalar:quad(s,p)
++        (scalar<0 \/ (scalar>=56320 /\ scalar<=57343))? @:(value:out,stop:p,valid:false)
++        .p:p+4
++        scalar>=55296 /\ scalar<=56319?
++            (at(s,p)~="\\" \/ at(s,p+1)~="u")? @:(value:out,stop:p,valid:false)
++            low:quad(s,p+2)
++            (low<56320 \/ low>57343)? @:(value:out,stop:p,valid:false)
++            .scalar:65536+(scalar-55296)*1024+low-56320
++            .p:p+6
++        .out:out&str(chr(scalar))
++    @:(value:out,stop:p,valid:false)
++number_stop(s:str,start:int)->int:
++    p:start
++    at(s,p)="-"? .p:p+1
++    ~digit(at(s,p))? @: -1
++    at(s,p)="0"? .p:p+1
++    at(s,start)="-"? .start:start+1
++    at(s,start)~="0"?
++        digit(at(s,p))?> .p:p+1
++    at(s,p)="."?
++        .p:p+1
++        ~digit(at(s,p))? @: -1
++        digit(at(s,p))?> .p:p+1
++    (at(s,p)="e" \/ at(s,p)="E")?
++        .p:p+1
++        (at(s,p)="+" \/ at(s,p)="-")? .p:p+1
++        ~digit(at(s,p))? @: -1
++        digit(at(s,p))?> .p:p+1
++    @:p
++literal(s:str,p:int,word:str)->bit:
++    i:0
++    ~vkf_string_eof(word,i)?>
++        at(s,p+i)~=at(word,i)? @:false
++        .i:i+1
++    @:true
++value(q:Tree,depth:int)->Tree:
++    ~q.valid? @:q
++    depth>256?
++        q.valid:false
++        @:q
++    q.position:skip(q.source,q.position)
++    c:at(q.source,q.position)
++    root:q.count
++    root>=q.kinds.length()?
++        q.valid:false
++        @:q
++    q.count:root+1
++    q.ends.(root):q.count
++    c="\""?
++        parsed:string(q.source,q.position)
++        q.kinds.(root):3
++        q.texts.(root):parsed.value
++        q.position:parsed.stop
++        q.valid:parsed.valid
++        @:q
++    (c="-" \/ digit(c))?
++        stop:number_stop(q.source,q.position)
++        stop<0?
++            q.valid:false
++            @:q
++        q.kinds.(root):4
++        token:""
++        q.position<stop?>
++            .token:token&at(q.source,q.position)
++            q.position:q.position+1
++        q.texts.(root):token
++        @:q
++    (c="{" \/ c="[")?
++        object:c="{"
++        close:"]"
++        q.kinds.(root):2
++        object?
++            .close:"}"
++            q.kinds.(root):1
++        q.position:skip(q.source,q.position+1)
++        at(q.source,q.position)=close?
++            q.position:q.position+1
++            @:q
++        q.valid?>
++            object?
++                at(q.source,q.position)~="\""?
++                    q.valid:false
++                    @:q
++                .q:value(q,depth+1)
++                q.position:skip(q.source,q.position)
++                (~q.valid \/ at(q.source,q.position)~=":")?
++                    q.valid:false
++                    @:q
++                q.position:q.position+1
++            .q:value(q,depth+1)
++            ~q.valid? @:q
++            q.position:skip(q.source,q.position)
++            .c:at(q.source,q.position)
++            c=close?
++                q.position:q.position+1
++                q.ends.(root):q.count
++                @:q
++            c~=","?
++                q.valid:false
++                @:q
++            q.position:skip(q.source,q.position+1)
++        @:q
++    literal(q.source,q.position,"true")?
++        q.kinds.(root):5
++        q.position:q.position+4
++        @:q
++    literal(q.source,q.position,"false")?
++        q.kinds.(root):6
++        q.position:q.position+5
++        @:q
++    literal(q.source,q.position,"null")?
++        q.kinds.(root):7
++        q.position:q.position+4
++        @:q
++    q.valid:false
++    @:q
++parse(source:str)->Tree:
++    capacity:n.size(source)+1
++    q:(source:source,position:0,valid:true,kinds:[0:capacity],ends:[0:capacity],texts:strings(capacity),count:0)
++    .q:value(q,0)
++    q.position:skip(source,q.position)
++    q.valid:q.valid /\ vkf_string_eof(source,q.position)
++    @:q
++# The flat representation is an ordered tree, not a bag of nodes: ends must
++# match relative to each root as well as kinds, strings/keys and exact numbers.
++metadata_matches(original:str,a:Metadata,root:int)->bit:
++    root<0? @:original=""
++    original=""? @:false
++    (root>=a.count \/ a.count>a.kinds.length() \/ a.count>a.ends.length() \/ a.count>a.texts.length() \/ a.count>a.numbers.length())? @:false
++    stop:a.ends.(root)
++    (stop<=root \/ stop>a.count)? @:false
++    q:parse(original)
++    (~q.valid \/ q.count~=stop-root)? @:false
++    i:0
++    i<q.count?>
++        at:root+i
++        kind:q.kinds.(i)
++        (kind~=a.kinds.(at) \/ q.ends.(i)~=a.ends.(at)-root)? @:false
++        kind=3 /\ q.texts.(i)~=a.texts.(at)? @:false
++        kind=4?
++            (~n.equal(n.from_token(q.texts.(i)),n.from_number(a.numbers.(at))))? @:false
++        .i:i+1
++    @:true
++json_matches(left:str,right:str)->bit:
++    a:parse(left)
++    b:parse(right)
++    (~a.valid \/ ~b.valid \/ a.count~=b.count)? @:false
++    i:0
++    i<a.count?>
++        kind:a.kinds.(i)
++        (kind~=b.kinds.(i) \/ a.ends.(i)~=b.ends.(i))? @:false
++        kind=3 /\ a.texts.(i)~=b.texts.(i)? @:false
++        kind=4?
++            (~n.equal(n.from_token(a.texts.(i)),n.from_token(b.texts.(i))))? @:false
++        .i:i+1
++    @:true
++contract_tests()->bit:
++    # Same binary64, different spelling; decoded strings and keys, not lexemes.
++    json_matches("{\"x\":2,\"s\":\"a\\/b\"}"," { \"\\u0078\" : 2e0, \"s\":\"a/b\" } ")?! "Ordered equivalent spellings"
++    json_matches("0.1","0.10000000000000001")?! "Same binary64 rounding cell"
++    json_matches("-0","0e9")?! "Documented signed zero canonicalization"
++    json_matches("\"\\ud83d\\ude00\"","\"😀\"")?! "Decoded surrogate pair"
++    (~json_matches("1","1.0000000000000002"))?! "Adjacent doubles differ"
++    (~json_matches("0.1","0.10000000000000002"))?! "Adjacent inexact decimal doubles differ"
++    (~json_matches("{\"s\":\"a\"}","{\"s\":\"b\"}"))?! "Changed text rejected"
++    (~json_matches("{\"a\":1}","{\"b\":1}"))?! "Changed key rejected"
++    (~json_matches("[1,2]","[2,1]"))?! "Array order retained"
++    (~json_matches("{\"a\":1,\"b\":2}","{\"b\":2,\"a\":1}"))?! "Object order retained"
++    (~json_matches("{\"a\":1,\"a\":2}","{\"a\":2}"))?! "Duplicate key multiplicity retained"
++    (~json_matches("{\"a\":1,\"a\":2}","{\"a\":2,\"a\":1}"))?! "Duplicate key order retained"
++    (~json_matches("[[],[null]]","[[null],[]]"))?! "Subtree boundaries retained"
++    (~json_matches("true","1"))?! "Kinds retained"
++    (~json_matches("{}","{\"a\":null}"))?! "Missing member differs from null"
++    (~json_matches("null","{}"))?! "Null differs from empty object"
++    (~json_matches("{}","[]"))?! "Empty object differs from empty array"
++    (~json_matches("[]","\"\""))?! "Empty array differs from empty string"
++    (~json_matches("","null"))?! "Missing JSON differs from null"
++    (~json_matches("[1,]","[1]"))?! "Trailing comma rejected"
++    (~json_matches("01","1"))?! "Leading zero rejected"
++    (~json_matches("\"\\ud800\"","\"x\""))?! "Lone surrogate rejected"
++    absent:(kinds:[0:0],ends:[0:0],texts:strings(0),numbers:[0.0:0],count:0)
++    object:(kinds:[1],ends:[1],texts:[""],numbers:[0.0],count:1)
++    null_value:(kinds:[7],ends:[1],texts:[""],numbers:[0.0],count:1)
++    number:(kinds:[4],ends:[1],texts:[""],numbers:[1.0],count:1)
++    next_number:(kinds:[4],ends:[1],texts:[""],numbers:[num(4503599627370497)/4503599627370496],count:1)
++    offset:(kinds:[7,1],ends:[1,2],texts:["",""],numbers:[0.0,0.0],count:2)
++    metadata_matches("",absent,-1)?! "Absent metadata remains absent"
++    metadata_matches("",offset,-1)?! "Absent root in shared arena"
++    metadata_matches("{}",offset,1)?! "Relative subtree ends at nonzero root"
++    metadata_matches("{}",object,0)?! "Present empty object"
++    metadata_matches("null",null_value,0)?! "Present null"
++    (~metadata_matches("{}",absent,-1))?! "Empty object is not absent metadata"
++    (~metadata_matches("null",absent,-1))?! "Null is not absent metadata"
++    (~metadata_matches("",object,0))?! "Missing is not present object"
++    (~metadata_matches("null",object,0))?! "Typed null/object distinction"
++    metadata_matches("1e0",number,0)?! "Typed numeric spelling discarded"
++    (~metadata_matches("1.0000000000000002",number,0))?! "Raw adjacent value rejected"
++    (~metadata_matches("1",next_number,0))?! "Typed adjacent value rejected"
++    metadata_matches("1.0000000000000002",next_number,0)?! "Exact adjacent value accepted"
++    duplicates:(kinds:[1,3,4,3,4],ends:[5,2,3,4,5],texts:["","a","","a",""],numbers:[0.0,0.0,1.0,0.0,2.0],count:5)
++    text_value:(kinds:[1,3,3],ends:[3,2,3],texts:["","key","value"],numbers:[0.0,0.0,0.0],count:3)
++    array:(kinds:[2,4,4],ends:[3,2,3],texts:["","",""],numbers:[0.0,1.0,2.0],count:3)
++    metadata_matches("{\"a\":1,\"a\":2}",duplicates,0)?! "Typed duplicates match in order"
++    (~metadata_matches("{\"a\":2}",duplicates,0))?! "Typed duplicate loss rejected"
++    (~metadata_matches("{\"a\":2,\"a\":1}",duplicates,0))?! "Typed duplicate order rejected"
++    metadata_matches("{\"key\":\"value\"}",text_value,0)?! "Typed text matches"
++    (~metadata_matches("{\"key\":\"changed\"}",text_value,0))?! "Typed changed text rejected"
++    (~metadata_matches("{\"changed\":\"value\"}",text_value,0))?! "Typed changed key rejected"
++    metadata_matches("[1,2]",array,0)?! "Typed array matches"
++    (~metadata_matches("[2,1]",array,0))?! "Typed array order rejected"
++    @:true
+--- a/examples/gpu-math/native-vkf/typed_packet_reference_harness_tests.vkf
++++ b/examples/gpu-math/native-vkf/typed_packet_reference_harness_tests.vkf
+@@ -23,6 +23,7 @@
+ document_scene:.document_scene
+ packet_adapter:.typed_packet_reference_adapter
+ metadata_json:.scene_metadata_json
++ordered_json:.test_ordered_json
+ Packet:(keys:[str],xs:[num],ys:[num],flow_lines:[int],glyph_operations:[int],scenes:[str],scene_xs:[num],scene_ys:[num],scene_lines:[int],scene_operations:[int],scene_count:int,pending:[int],pending_count:int,complete:bit,lowering_complete:bit,glyph_count:int,line_heights:[num],line_depths:[num],line_widths:[num],line_baselines:[num],line_ratios:[num],line_indents:[num],line_flagged:[bit],line_count:int,width:num,height:num,depth:num,measurement_work:int,diagnostics:str,solved:bit,pass:int)
+ Metadata:(kinds:[int],ends:[int],texts:[str],numbers:[num],count:int)
+ Paint:(red:num,green:num,blue:num,alpha:num)
+@@ -95,7 +96,7 @@
+         (a.equation_tags.(i)=b.equation_tags.(i))?! "column equation_tags exact"
+         (a.tag_widths.(i)=b.tag_widths.(i))?! "column tag_widths exact"
+         (a.draws.(i)=b.draws.(i))?! "column draws exact"
+-        extra_matches(a.extras.(i),b.metadata,b.metadata_roots.(i))?! "column extras exact"
++        ordered_json.metadata_matches(a.extras.(i),b.metadata,b.metadata_roots.(i))?! "column extras exact"
+         (a.flow_xs.(i)=b.flow_xs.(i))?! "column flow_xs exact"
+         (a.flow_widths.(i)=b.flow_widths.(i))?! "column flow_widths exact"
+         (a.has_flows.(i)=b.has_flows.(i))?! "column has_flows exact"
+@@ -108,7 +109,7 @@
+         (a.footnote_numbers.(i)=b.footnote_numbers.(i))?! "column footnote_numbers exact"
+         old_json:reference_export.leaf(a,i,1,1)
+         new_json:document_scene_export.leaf(b,i,1,1)
+-        (old_json=new_json)?! "debug leaf export exact"
++        ordered_json.json_matches(old_json,new_json)?! "debug leaf export exact"
+         .i:i+1
+     .i:0
+     i<a.destination_ids.length()?>
+@@ -409,6 +410,7 @@
+     (result4.anchor_count=1)?! "actual JS anchors 4"
+     @:true
+ extra_contract_tests()?! "Metadata absence boundary contract"
++ordered_json.contract_tests()?! "Independent ordered JSON comparison contract"
+ renderer_tests()
+ 
+ # Explicitly exercise the original synthetic cases, including glyphParts case1.

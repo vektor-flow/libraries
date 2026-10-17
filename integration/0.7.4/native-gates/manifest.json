@@ -2688,7 +2688,7 @@
     },
     "typed_packet_reference_harness_tests": {
       "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/typed_packet_reference_harness_tests.vkf",
-      "sha256": "8b6fd12dfaaa149c50eade8a9ca8a964e6dfc4329817e454d52813213291a30a",
+      "sha256": "44bed57e5370f8b0bef790e5accd6ccc5b4816c4b78e50a4aef60e777e00a921",
       "imports": [
         "ref_f303_document_scene_paragraph",
         "ref_f303_document_scene_export",
@@ -2696,7 +2696,8 @@
         "document_scene_export",
         "document_scene",
         "typed_packet_reference_adapter",
-        "scene_metadata_json"
+        "scene_metadata_json",
+        "test_ordered_json"
       ],
       "reference": false
     },
@@ -2804,6 +2805,20 @@
         "paragraph_scene_store",
         "paragraph_scene_legacy"
       ],
+      "reference": false
+    },
+    "test_ordered_json": {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/test_ordered_json.vkf",
+      "sha256": "24da12ba203c8cf5a36d7c8c167e567711c71bd2b9416a711dc57b3efb52cda7",
+      "imports": [
+        "test_json_binary64"
+      ],
+      "reference": false
+    },
+    "test_json_binary64": {
+      "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/examples/gpu-math/native-vkf/test_json_binary64.vkf",
+      "sha256": "e8b11ce95c96163af21564ca7e90bca9fffdf6e975aa876b849ee9e8c4e1b1d1",
+      "imports": [],
       "reference": false
     },
     "typed_provider_prepared_reference_tests": {
@@ -4925,7 +4940,7 @@
       "entry": "renderer_tests()",
       "entry_source": {
         "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/native-gates/entries/typed_packet_reference_harness_tests.vkf",
-        "sha256": "def7f9060724229dff62c722e36b1096d765d016b424ea1b36b15c45950235c4"
+        "sha256": "0233dcd0b7495529240876e720abc03b86d1d77a2f6728366749ce6e5115fd12"
       },
       "closure": [
         "binary_decimal",
@@ -4950,13 +4965,15 @@
         "resource_numbers",
         "scene_metadata",
         "scene_metadata_json",
+        "test_json_binary64",
+        "test_ordered_json",
         "tex_text",
         "text_chunks",
         "typed_packet_reference_adapter",
         "typed_packet_reference_harness_tests"
       ],
       "stdin": "",
-      "assertion_count": 303,
+      "assertion_count": 304,
       "expected_exit": 0,
       "expected_stdout": null,
       "expected_stderr": null,

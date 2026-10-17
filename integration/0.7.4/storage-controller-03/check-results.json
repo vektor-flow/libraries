@@ -1,0 +1,102 @@
+{
+  "started_utc": "2026-10-17T08:44:16.491071+00:00",
+  "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+  "checks": [
+    {
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "candidate-integration.patch"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "apply",
+        "candidate-integration.patch"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "ast_files": [
+    "storage_controller.py",
+    "storage_admission.py",
+    "storage_paths.py",
+    "test_core_regression.py",
+    "test_lifecycle.py"
+  ],
+  "tests": {
+    "exit": 0,
+    "wall_seconds": 1.5667885780567303,
+    "runner": {
+      "pid": 3938001,
+      "starttime": 73917657,
+      "boot": "36e567a7-0fa2-44a9-b95d-d93702c4b628",
+      "joined": true,
+      "returncode": 0
+    }
+  },
+  "patch": {
+    "path": "/home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-controller-03/candidate-integration.patch",
+    "sha256": "a3ef85105fd347a3c0d6227dffaaa7af0ea970f9e04dfcb4ce2d90fb0fe09edd",
+    "files": [
+      "storage_controller.py",
+      "storage_admission.py",
+      "storage_paths.py",
+      "test_core_regression.py",
+      "test_lifecycle.py",
+      "README.txt"
+    ],
+    "installed_bytes_match": true
+  },
+  "race_children": [
+    {
+      "pid": 3923921,
+      "exitcode": 0,
+      "alive": false
+    },
+    {
+      "pid": 3923922,
+      "exitcode": 0,
+      "alive": false
+    },
+    {
+      "pid": 3929053,
+      "exitcode": 0,
+      "alive": false
+    },
+    {
+      "pid": 3929054,
+      "exitcode": 0,
+      "alive": false
+    },
+    {
+      "pid": 3936009,
+      "exitcode": 0,
+      "alive": false
+    },
+    {
+      "pid": 3936010,
+      "exitcode": 0,
+      "alive": false
+    },
+    {
+      "pid": 3938002,
+      "exitcode": 0,
+      "alive": false
+    },
+    {
+      "pid": 3938003,
+      "exitcode": 0,
+      "alive": false
+    }
+  ],
+  "wall_seconds": 1.59193106694147,
+  "ended_utc": "2026-10-17T08:44:18.083001+00:00"
+}

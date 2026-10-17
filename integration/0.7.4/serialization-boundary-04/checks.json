@@ -1,0 +1,1091 @@
+{
+  "base": "b90d65bbe8df2ce3110288caf66816a6b150930b",
+  "observed_head": "121914f186b4c845e98215cb91b5ee60d9b846ef",
+  "checks": [
+    {
+      "check": "authorized base ancestry",
+      "passed": true
+    },
+    {
+      "check": "all native VKF source unchanged since authorized base",
+      "passed": true
+    },
+    {
+      "check": "F303 original SHA256 document_scene_export.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 byte-exact except authenticated import renaming document_scene_export.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original SHA256 document_scene.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 byte-exact except authenticated import renaming document_scene.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original SHA256 text_chunks.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 byte-exact except authenticated import renaming text_chunks.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original SHA256 json_numbers.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 byte-exact except authenticated import renaming json_numbers.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original SHA256 tex_text.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 byte-exact except authenticated import renaming tex_text.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original SHA256 resource_json.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 byte-exact except authenticated import renaming resource_json.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original SHA256 resource_numbers.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 byte-exact except authenticated import renaming resource_numbers.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original SHA256 binary_decimal.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 byte-exact except authenticated import renaming binary_decimal.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original SHA256 document_scene_paragraph.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 byte-exact except authenticated import renaming document_scene_paragraph.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 original SHA256 document_scene_json.vkf",
+      "passed": true
+    },
+    {
+      "check": "F303 byte-exact except authenticated import renaming document_scene_json.vkf",
+      "passed": true
+    },
+    {
+      "check": "harness changes exactly two differential predicates, import and new invocation",
+      "passed": true
+    },
+    {
+      "check": "entire absence helper and all sixteen authored assertions byte-exact",
+      "passed": true
+    },
+    {
+      "check": "all other existing assertions byte-exact",
+      "passed": true
+    },
+    {
+      "check": "225 authored literal assertions byte-exact",
+      "passed": true
+    },
+    {
+      "check": "five captured fixtures byte-exact",
+      "passed": true
+    },
+    {
+      "check": "numeric oracle has no module imports",
+      "passed": true
+    },
+    {
+      "check": "tree reader imports only independent numeric oracle",
+      "passed": true
+    },
+    {
+      "check": "no production/frozen parser encoder decimal intrinsic or tolerance calls",
+      "passed": true
+    },
+    {
+      "check": "numeric max rank and midpoint coefficient fit signed int64",
+      "passed": true
+    },
+    {
+      "check": "43 candidate-authored boundary assertions execute in source-derived model",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Ordered equivalent spellings",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Same binary64 rounding cell",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Documented signed zero canonicalization",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Decoded surrogate pair",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Adjacent doubles differ",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Adjacent inexact decimal doubles differ",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Changed text rejected",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Changed key rejected",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Array order retained",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Object order retained",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Duplicate key multiplicity retained",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Duplicate key order retained",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Subtree boundaries retained",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Kinds retained",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Missing member differs from null",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Null differs from empty object",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Empty object differs from empty array",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Empty array differs from empty string",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Missing JSON differs from null",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Trailing comma rejected",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Leading zero rejected",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Lone surrogate rejected",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Absent metadata remains absent",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Absent root in shared arena",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Relative subtree ends at nonzero root",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Present empty object",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Present null",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Empty object is not absent metadata",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Null is not absent metadata",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Missing is not present object",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Typed null/object distinction",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Typed numeric spelling discarded",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Raw adjacent value rejected",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Typed adjacent value rejected",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Exact adjacent value accepted",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Typed duplicates match in order",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Typed duplicate loss rejected",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Typed duplicate order rejected",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Typed text matches",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Typed changed text rejected",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Typed changed key rejected",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Typed array matches",
+      "passed": true
+    },
+    {
+      "check": "source-derived control: Typed array order rejected",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 0",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction 0",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token -0",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction -0",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 2",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction 2",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 2e0",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction 2e0",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 0.1",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction 0.1",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 0.10000000000000002",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction 0.10000000000000002",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 1.0000000000000002",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction 1.0000000000000002",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 9007199254740993",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction 9007199254740993",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token -2.5",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction -2.5",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 1e300",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction 1e300",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 5e-324",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction 5e-324",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 2.2250738585072014e-308",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction 2.2250738585072014e-308",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 1.7976931348623157e308",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction 1.7976931348623157e308",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 1.8e308",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 24703282292062327208828439643411068618252990130716238221279284125033775363510437593264991818081799618989828234772285886546332835517796989819938739800539093906315035659515570226392290858392449105184435931802849936536152500319370457678249219365623669863658480757001585769269903706311928279558551332927834338409351978015531246597263579574622766465272827220056374006485499977096599470454020828166226237857393450736339007967761930577506740176324673600968951340535537458516661134223766678604162159680461914467291840300530057530849048765391711386591646239524912623653881879636239373280423891018672348497668235089863388587925628302755995657524455507255189313690836254779186948667994968324049705821028513185451396213837722826145437693412532098591327667236328125e-1075",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction 24703282292062327208828439643411068618252990130716238221279284125033775363510437593264991818081799618989828234772285886546332835517796989819938739800539093906315035659515570226392290858392449105184435931802849936536152500319370457678249219365623669863658480757001585769269903706311928279558551332927834338409351978015531246597263579574622766465272827220056374006485499977096599470454020828166226237857393450736339007967761930577506740176324673600968951340535537458516661134223766678604162159680461914467291840300530057530849048765391711386591646239524912623653881879636239373280423891018672348497668235089863388587925628302755995657524455507255189313690836254779186948667994968324049705821028513185451396213837722826145437693412532098591327667236328125e-1075",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 100000000000000011102230246251565404236316680908203125e-53",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction 100000000000000011102230246251565404236316680908203125e-53",
+      "passed": true
+    },
+    {
+      "check": "exact-rational token 100000000000000033306690738754696212708950042724609375e-53",
+      "passed": true
+    },
+    {
+      "check": "typed binary64 extraction 100000000000000033306690738754696212708950042724609375e-53",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug null/null",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed null/null",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug null/{}",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed null/{}",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug null/[]",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed null/[]",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug null/\"\"",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed null/\"\"",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug null/false",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed null/false",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug null/0",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed null/0",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug {}/null",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed {}/null",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug {}/{}",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed {}/{}",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug {}/[]",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed {}/[]",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug {}/\"\"",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed {}/\"\"",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug {}/false",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed {}/false",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug {}/0",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed {}/0",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug []/null",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed []/null",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug []/{}",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed []/{}",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug []/[]",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed []/[]",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug []/\"\"",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed []/\"\"",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug []/false",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed []/false",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug []/0",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed []/0",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug \"\"/null",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed \"\"/null",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug \"\"/{}",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed \"\"/{}",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug \"\"/[]",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed \"\"/[]",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug \"\"/\"\"",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed \"\"/\"\"",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug \"\"/false",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed \"\"/false",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug \"\"/0",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed \"\"/0",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug false/null",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed false/null",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug false/{}",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed false/{}",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug false/[]",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed false/[]",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug false/\"\"",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed false/\"\"",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug false/false",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed false/false",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug false/0",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed false/0",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug 0/null",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed 0/null",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug 0/{}",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed 0/{}",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug 0/[]",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed 0/[]",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug 0/\"\"",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed 0/\"\"",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug 0/false",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed 0/false",
+      "passed": true
+    },
+    {
+      "check": "presence/kind debug 0/0",
+      "passed": true
+    },
+    {
+      "check": "presence/kind typed 0/0",
+      "passed": true
+    },
+    {
+      "check": "independent pair-preserving typed input {\"a\":1,\"a\":2}",
+      "passed": true
+    },
+    {
+      "check": "independent pair-preserving typed input {\"a\":[],\"b\":[null]}",
+      "passed": true
+    },
+    {
+      "check": "independent pair-preserving typed input [\"é\",\"😀\",\"\\u0000\"]",
+      "passed": true
+    },
+    {
+      "check": "independent pair-preserving typed input {\"\\u0061\":\"x\\/y\"}",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed ''",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed ' '",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed '01'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed '-'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed '1.'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed '1e'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed '+1'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed 'NaN'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed 'Infinity'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed '[1,]'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed '{\"a\":1,}'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed '{\"a\" 1}'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed 'true false'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed '\"\\\\x\"'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed '\"\\\\ud800\"'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed '\"\\\\udc00\"'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed '\"\\n\"'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed '[}'",
+      "passed": true
+    },
+    {
+      "check": "invalid JSON fails closed '{\"a\":}'",
+      "passed": true
+    },
+    {
+      "check": "source mutation rejected: ignore decoded text",
+      "passed": true
+    },
+    {
+      "check": "source mutation rejected: ignore exact numeric keys",
+      "passed": true
+    },
+    {
+      "check": "source mutation rejected: erase all presence guards",
+      "passed": true
+    },
+    {
+      "check": "source mutation rejected: ignore kind differences",
+      "passed": true
+    },
+    {
+      "check": "six preparation tests with grant-local temp directories",
+      "passed": true
+    },
+    {
+      "check": "patch exactly equals three candidate files",
+      "passed": true
+    },
+    {
+      "check": "git apply --check only",
+      "passed": true
+    },
+    {
+      "check": "all pinned inputs unchanged",
+      "passed": true
+    }
+  ],
+  "passed": 211,
+  "native_assertions": 43,
+  "existing_assertions": 303,
+  "literal_assertions": 225,
+  "fixtures": 5,
+  "numeric_vectors": [
+    {
+      "token": "0",
+      "expected": [
+        0,
+        false,
+        true
+      ],
+      "actual": [
+        0,
+        false,
+        true
+      ]
+    },
+    {
+      "token": "-0",
+      "expected": [
+        0,
+        false,
+        true
+      ],
+      "actual": [
+        0,
+        false,
+        true
+      ]
+    },
+    {
+      "token": "2",
+      "expected": [
+        4611686018427387904,
+        false,
+        true
+      ],
+      "actual": [
+        4611686018427387904,
+        false,
+        true
+      ]
+    },
+    {
+      "token": "2e0",
+      "expected": [
+        4611686018427387904,
+        false,
+        true
+      ],
+      "actual": [
+        4611686018427387904,
+        false,
+        true
+      ]
+    },
+    {
+      "token": "0.1",
+      "expected": [
+        4591870180066957722,
+        false,
+        true
+      ],
+      "actual": [
+        4591870180066957722,
+        false,
+        true
+      ]
+    },
+    {
+      "token": "0.10000000000000002",
+      "expected": [
+        4591870180066957723,
+        false,
+        true
+      ],
+      "actual": [
+        4591870180066957723,
+        false,
+        true
+      ]
+    },
+    {
+      "token": "1.0000000000000002",
+      "expected": [
+        4607182418800017409,
+        false,
+        true
+      ],
+      "actual": [
+        4607182418800017409,
+        false,
+        true
+      ]
+    },
+    {
+      "token": "9007199254740993",
+      "expected": [
+        4845873199050653696,
+        false,
+        true
+      ],
+      "actual": [
+        4845873199050653696,
+        false,
+        true
+      ]
+    },
+    {
+      "token": "-2.5",
+      "expected": [
+        4612811918334230528,
+        true,
+        true
+      ],
+      "actual": [
+        4612811918334230528,
+        true,
+        true
+      ]
+    },
+    {
+      "token": "1e300",
+      "expected": [
+        9094988921128908188,
+        false,
+        true
+      ],
+      "actual": [
+        9094988921128908188,
+        false,
+        true
+      ]
+    },
+    {
+      "token": "5e-324",
+      "expected": [
+        1,
+        false,
+        true
+      ],
+      "actual": [
+        1,
+        false,
+        true
+      ]
+    },
+    {
+      "token": "2.2250738585072014e-308",
+      "expected": [
+        4503599627370496,
+        false,
+        true
+      ],
+      "actual": [
+        4503599627370496,
+        false,
+        true
+      ]
+    },
+    {
+      "token": "1.7976931348623157e308",
+      "expected": [
+        9218868437227405311,
+        false,
+        true
+      ],
+      "actual": [
+        9218868437227405311,
+        false,
+        true
+      ]
+    },
+    {
+      "token": "1.8e308",
+      "expected": [
+        0,
+        false,
+        false
+      ],
+      "actual": [
+        0,
+        false,
+        false
+      ]
+    },
+    {
+      "token": "24703282292062327208828439643411068618252990130716238221279284125033775363510437593264991818081799618989828234772285886546332835517796989819938739800539093906315035659515570226392290858392449105184435931802849936536152500319370457678249219365623669863658480757001585769269903706311928279558551332927834338409351978015531246597263579574622766465272827220056374006485499977096599470454020828166226237857393450736339007967761930577506740176324673600968951340535537458516661134223766678604162159680461914467291840300530057530849048765391711386591646239524912623653881879636239373280423891018672348497668235089863388587925628302755995657524455507255189313690836254779186948667994968324049705821028513185451396213837722826145437693412532098591327667236328125e-1075",
+      "expected": [
+        0,
+        false,
+        true
+      ],
+      "actual": [
+        0,
+        false,
+        true
+      ]
+    },
+    {
+      "token": "100000000000000011102230246251565404236316680908203125e-53",
+      "expected": [
+        4607182418800017408,
+        false,
+        true
+      ],
+      "actual": [
+        4607182418800017408,
+        false,
+        true
+      ]
+    },
+    {
+      "token": "100000000000000033306690738754696212708950042724609375e-53",
+      "expected": [
+        4607182418800017410,
+        false,
+        true
+      ],
+      "actual": [
+        4607182418800017410,
+        false,
+        true
+      ]
+    }
+  ],
+  "source_mutations_detected": {
+    "ignore decoded text": "Changed text rejected",
+    "ignore exact numeric keys": "Adjacent doubles differ",
+    "erase all presence guards": "Empty object is not absent metadata",
+    "ignore kind differences": "Kinds retained"
+  },
+  "preparation_tests": 6,
+  "elapsed_seconds": 52.11100880603772,
+  "native_execution": false,
+  "acceptance_ready": false,
+  "owned_jobs_joined": true,
+  "outstanding_children": 0,
+  "git_apply_check_stderr": ""
+}

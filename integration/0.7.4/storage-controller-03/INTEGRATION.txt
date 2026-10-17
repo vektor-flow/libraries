@@ -1,0 +1,144 @@
+INACTIVE SUCCESSOR STORAGE CONTROLLER 03 — 2026-10-17
+
+DELIVERY
+candidate-integration.patch adds storage-direct-v2/{storage_controller.py,
+storage_admission.py,storage_paths.py,test_core_regression.py,test_lifecycle.py,
+README.txt} beside the pinned historical controllers. Apply from the protected
+storage20gb directory only after root review. No historical file is patched.
+This output directory contains the complete candidate sources, not an activation.
+No runtime-config.json, active state, policy, budget or operational grant is shipped.
+Old core/controller/ledger remain immutable. No implicit V1-state migration exists.
+
+WHY ONE SUCCESSOR
+The pinned 3GiB and 8GiB predecessors differ only in profile constants. One explicit
+v2 controller selects 3GiB or A-only 8GiB from the grant, pins the corresponding
+predecessor, and retains its resource guards. It rejects legacy/unknown grant
+versions. It never dispatches either old launcher. Mixed live old-controller/direct
+admission is forbidden because the old lock participant cannot count v2 intents.
+The combined registry authenticates frozen legacy records (terminal only), all
+outstanding v2 service records, and the adopted offload (measured 3GiB remainder).
+Unknown worker/legacy services, wrong exact argv, replaced identities, changed
+source/helper/config pins and ambiguous terminal custody stop admission/guard.
+
+ATOMIC STATE / LIFECYCLE
+The fixed direct-state-v2.json is read under the predecessor capacity.lock.
+reserve commits the full disk charge, full RAM intent, owner, exact grant/manifest,
+outer PID/starttime/boot/cgroup/argv, unit, expected service argv/cgroup and config
+pin in ONE file-fsync/replace/parent-fsync transaction. There is no second registry
+save. Same-lane outstanding/reused attempts or reused service names reject.
+Empty attempt directory metadata is permitted before reserve; files are not.
+All logs/receipts/cwd/tmp/cache/ccache/output paths stay inside the charged attempt.
+State/lock/pins/owner state remain outside writable roots.
+
+reserve -> claim_launch -> attach_service -> finish_service -> join
+- A durable claim permits one execution. Failure after claim retains full charge
+  and RAM; restarting outer cannot execute it again.
+- A locked preexec recheck runs after admission receipt, immediately before exec.
+- Service attach authenticates MainPID, configured exact typed D-Bus ExecStart,
+  actual /proc argv/cgroup/boot/starttime, parent controller identity, InvocationID
+  and preserved cgroup profile before any sandbox payload starts.
+- Sandbox has ONE writable artifact bind: the registered attempt. / and /dev/shm
+  stay read-only; private PID/network, die-with-parent, subreaper and exact argv stay.
+- 1s runtime checks revalidate owner, inputs/helpers, root identities, physical
+  accounting/free floors, combined registry and 1GiB host emergency RAM floor.
+- Pinned owned-processes.py provides timeout/guard cleanup and PID/starttime joins.
+- finish_service durably records trusted inner result and observed descendants
+  without releasing RAM. Final join independently checks service invocation,
+  exact ExecStart, terminal state, empty recursive cgroup, inner controller death,
+  observed descendant identities, input pins and receipt/state custody equality.
+- Only join releases RAM liveness; full historical H and ALL P remain forever.
+
+TERMINAL UNIT RETENTION — DELIBERATE STATUS 199
+Successful transient units can be garbage-collected before the outer verifier
+reads their properties, even without --collect (installed systemd-run man page).
+After durable inner finish, the service controller exits CUSTODY_EXIT=199 for BOTH
+successful and failed workloads. This intentionally leaves a failed unit resident.
+The real workload exit is inner_result.exit; outer returns that result only AFTER
+verified join. The verifier requires Result=exit-code, ExecMainCode=1,
+ExecMainStatus=199 and the matching InvocationID. An accidental service failure or
+receipt Boolean cannot impersonate completion. No --collect/reset-failed is used.
+Keep unit metadata through the next owner transition; archive/reset only under
+later coordinator custody. Real systemd/namespace qualification is still required.
+
+OWNER TRANSITION
+Policies remain v1 and keep original owner, history and increments unchanged.
+V2 lane records append transitions; historical phase records are never rewritten.
+Ledger.rotate_owner(pin, verify_join=controller.verify_join) requires no outstanding
+phase and reauthenticates the latest lane phase's terminal join. Transition JSON:
+  version=direct-directory-v2; worker; coordinator; policy={path,sha256};
+  from_owner; to_owner; previous=last transition pin or null;
+  prior_phase=latest phase key; prior_join=its exact receipt pin.
+The new owner must not repeat any owner already in the chain. Policy/coordinator,
+previous link, old owner and joined prior phase are all checked. New grants carry
+owner_transition=the last transition pin (null initially), plus the new owner and
+fresh current state binding. Stale owner grants fail. No owner reset/refund exists.
+Capacity amendments before first rotation remain append-only; amendments AFTER
+rotation are explicitly rejected pending a reviewed capacity-authority extension.
+
+ROOT-REVIEWED CONFIG REQUIRED (NO OPERATIONAL INSTANCE SUPPLIED)
+The controller reads runtime-config.json beside its source; its SHA256 is a required
+CLI argument and appears as grant.runtime_config. Required config fields:
+  version, coordinator, legacy_launchers_held=true;
+  owner_state (protected current coordination state path);
+  source_repository (exact Git HEAD checked against grant.source_commit);
+  approved_policies (exact policy pins; approved development identities);
+  development_uuid, development_root;
+  lane_cgroups mapping A/F to exact existing slice paths;
+  deployed_volumes, legacy_registry, adopted_offload (pins);
+  legacy_cgroups and legacy_joins for any nonempty frozen legacy registry.
+A loaded legacy terminal unit must match exact ExecStart; a collected legacy unit
+needs a pinned root-reviewed terminal receipt in addition to dead outer identity,
+MainPID=0 and independently empty known service cgroup. No live old launcher is
+admitted. Old dispatcher must remain held externally; the config Boolean is not a
+systemd masking mechanism or protection against a malicious same-uid coordinator.
+Existing adopted-offload script, manifest and PID/starttime/cgroup/argv are checked.
+
+V2 grant retains v1 phase fields and replaces helper with helpers=[exact core pin,
+exact paths pin] in that order. It adds runtime_config and owner_transition. Its
+controller pin names this installed storage_controller.py. It pins the predecessor
+for its profile, immutable resource ledger and owned-processes helper at their
+original paths. Inputs must include the absolute executable path, plus the entire
+authorized source/compiler input set. Manifest pins exact grant/controller and
+matches the phase fields, inputs, argv and charged attempt paths. An issuer must
+identify the complete dependency set; Git HEAD alone does not authenticate dirty
+or undeclared inputs. Config/policy/grant issuance is a trusted coordinator act.
+
+PRESERVED LIMITS
+3GiB service/parent or A8GiB service/parent; parent21GiB; swap0; TasksMax128;
+KillMode=control-group; OOMPolicy=kill; TimeoutStopSec10; RuntimeMaxSec=timeout+30;
+owned-child timeout<=3600; host admission2GiB floor; host runtime1GiB floor;
+internal free50GB plus800MB reserve; old backing250GB+10GiB; old loop free>1GiB;
+new backing UUID-deduplicated explicit additions plus250GB+10GiB.
+All outstanding v2 RAM intents count FULL, with no measured-resident credit.
+A8GiB still requires externally prepared parent memory.high=7GiB before payload;
+controller verifies it and restores3GiB only after independently authenticated join,
+before releasing RAM. It does not raise high, alter hard caps or create slices.
+
+RESIDUAL GAPS / REQUIRED REAL QUALIFICATION
+1. No real unit, D-Bus argv, ext4 identity, bwrap namespace, timeout or cgroup run has
+   been qualified. Mocked fixtures validate controller flow, not host integration.
+   Root must qualify tiny storage-only jobs and custody-exit199 retention for both
+   profiles before any native workload; maintain all existing caps and exclusions.
+2. A crash before inner finish, outer transport timeout, failed receipt, changed
+   source, missing/collected unit or ambiguous join holds full disk AND RAM. There
+   is no automatic crash-recovery/force-release API or missing-state initialization.
+   A later reviewed recovery implementation must independently establish terminal
+   custody; never edit away charges or replay an old attempt.
+3. No kernel directory quota/open-unlinked census: st_blocks polling can overshoot
+   and excludes some filesystem metadata/open-unlinked allocation. Keep conservative
+   P overhead, protected ancestors, host/backing floors and the one-attempt sandbox.
+   No remount, quota setup, disk move, RAM flush or capability bypass is provided.
+4. Filesystem/pin checks cannot freeze trees between checks and exec. This is not a
+   security boundary against malicious code running as the controller's same uid
+   outside the sandbox. Deployment must protect authority/state/lock ancestors.
+5. Capacity amendments after owner rotation, cross-version state migration, extra
+   lanes/coordinator enrollment and automatic A high activation are not implemented.
+   They reject or require separate explicit reviewed setup; no reset is substituted.
+
+NEXT CONCRETE STEPS
+Review this patch and exact pins; reproduce python3 -B -m unittest -v
+ test_core_regression test_lifecycle from a disposable candidate copy. Then integrate
+only new versioned sources. Independently prepare config/explicit policies/grants,
+existing slice profiles and tiny storage-only qualification under a fresh chat.
+No current task authorizes those operational actions. Native/API remain unqualified;
+original419 and native47 receive no new credit.

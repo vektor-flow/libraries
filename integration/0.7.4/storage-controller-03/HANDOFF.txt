@@ -1,0 +1,116 @@
+COMPLETED SOURCE ITERATION — STORAGE CONTROLLER 03 — INACTIVE / NOT LAUNCH QUALIFIED
+Owner: 01a148fb-6dd7-7a23-b215-803d3c2f5b65
+Sole coordinator: 01a14893-cb1e-7203-97dd-de3da44dcf31
+Granted base: c7310d4ee3007d198eebc058da9256571064098b
+Branch: consolidate/0.7.4-shared-base-20261017
+Current shared HEAD at sealing: 121914f186b4c845e98215cb91b5ee60d9b846ef
+Output directory: /home/viktor/Projects/Vektor Flow/.worktrees/gpu-math-20261014-libraries/integration/0.7.4/storage-controller-03
+No repository AGENTS.md was present. Read parent instructions, handover, current
+coordinator status, exact grant, storage02 handoff/integration/root review, pinned
+predecessor controllers, ledger, owned-process helper and authorized RPC Client.
+
+ACTUAL DELIVERABLE
+candidate-integration.patch installs six NEW files in storage-direct-v2 beside
+historical controllers: controller, extended core, unchanged path helper, two test
+files and README.txt. Patch remains here for ROOT APPLICATION; no operational
+source, coordination file, controller, ledger, mount, slice or service was changed.
+No commit, active budget, root enrollment, launch grant, source move or cap reset.
+
+The actual controller covers owner/source/config/predecessor pins, preserved 3GiB
+and A8GiB profiles, atomic custody+disk+RAM reservation, combined registry checks,
+one durable launch claim, preexec/runtime checks, one-attempt writable sandbox,
+owned child guard/timeout cleanup and independently authenticated terminal joins.
+Old controllers are never dispatched. Full H+sum(P) remains charged after failure,
+join, deletion, owner transition and restart. Missing/corrupt state never resets.
+Append-only owner transitions reauthenticate the latest joined phase and preserve
+original policy, old owner history, all phases, receipts and cumulative charges.
+A new grant carries the current transition pin and fresh owner state binding.
+
+Terminal service controller exit199 is INTENTIONAL custody retention, not workload
+failure: successful transient units otherwise disappear before join inspection.
+Real workload status is durably recorded in inner_result.exit. Outer returns that
+status after exact ExecStart/InvocationID/exit199, empty cgroup and PID joins.
+This behavior needs tiny real qualification; no service was launched here.
+
+EXACT PINS
+Grant SHA256 49c766234fc382cd71b79077026024c3e1816b6f309783a114671d22b1637ae9
+Patch SHA256 a3ef85105fd347a3c0d6227dffaaa7af0ea970f9e04dfcb4ce2d90fb0fe09edd
+Controller SHA256 351b205d529f25ce4868132e47736645965b2b000504501d51f9cd91e2b69418
+Core SHA256 9b409eb4cf7f0b34b1cf2f17d8e709877878afcb8a116dbe141116160fd4b6a8
+Paths SHA256 3c7eee8d5c96d79fb70641749d6d1daae740578f2cc4666dc2c01d6e71ae1a92
+input-pins.json lists EVERY task/operational source input by full path and SHA256,
+including both old controllers/ledger, storage02 core/tests/reviews and local
+systemd-run manual used to resolve successful-unit garbage collection semantics.
+input-recheck.json: all pinned input bytes unchanged EXCEPT coordinator status.
+Root independently integrated unrelated metadata and atomic-publication work;
+read the newer status tail. No storage overlap or memory blocker was observed.
+output-pins.json hashes final candidate/test/report artifacts (self, handoff and
+notification records excluded to avoid circular/mutable pins).
+
+TESTS / ACTUAL TIMING
+Final command: python3 -B verify_candidate.py
+37/37 tests passed (17 adapted core regressions +20 mocked lifecycle checks).
+Unittest time1.446s; test-runner wall1.566789s;
+complete syntax/test/patch verification wall1.591931s.
+Final verification UTC 2026-10-17T08:44:16.491071+00:00 through 2026-10-17T08:44:18.083001+00:00.
+Work began2026-10-17T08:30:06Z; final source verification ended08:44:18Z (~14m12s).
+Five Python AST checks passed. git apply --check AND actual apply in a disposable
+OWN output fixture exited0; all six installed files byte-matched. Fixture removed.
+See test-results.txt, check-results.json and reproducible verify_candidate.py.
+Preparatory fixture setup issues (relative cwd, v1/v2 fixture marker, multiline
+with syntax) were corrected before final checks; no operational retry occurred.
+
+Coverage includes cross-lane flock/RAM race, additive accounting, crash before/
+after atomic replacement, custody before exec, replay rejection, claim crash,
+receipt failure before exec/after completion, outer transport timeout, inner guard
+cleanup, both cgroup profiles, exact single writable bind, argv with spaces,
+unknown services, measured adopted-offload demand, replaced identities, wrong
+InvocationID/status/argv/cgroup, observed PID remaining, 1GiB runtime/2GiB admission
+floors, append-only fresh-owner grant, old owner rejection and persistent charges.
+Filesystem inventory/service/cgroup/process observations and actual Popen payload
+are MOCKED. Tiny local no-follow scans/flock/fsync and two race children are real.
+These results do not qualify Linux namespaces, services, physical quota or native.
+
+JOINED JOBS
+Final unittest runner PID3938001, starttime73917657,
+boot36e567a7-0fa2-44a9-b95d-d93702c4b628: wait returned0, joined.
+Final race children PID3938002 and3938003: each exit0, joined, alive=false.
+owned-job-joins.json retains eight recorded children from successful development/
+final runs; all exit0 and not alive. test-runner-join.json has the exact final
+runner identity; check-results.json incorporates its receipt and race records.
+All shell/test/patch commands returned. No owned background job or service remains.
+No native/compiler/heavy job, old dispatcher restart or other chat/subagent created.
+
+CONCRETE REMAINING WORK / IMPLEMENTATION LIMITS
+1. Root reviews this patch/raw evidence and integrates NEW versioned files only.
+   Keep predecessor files/ledger/dispatcher hold immutable. No activation here.
+2. A fresh iteration must prepare explicitly authorized config, empty attempt/root
+   metadata, cumulative enrollment and owner-bound grants, then tiny storage-only
+   service/bwrap/timeout/cgroup qualifications for both profiles. Qualify D-Bus argv,
+   exit199 retention, actual joins and crash/receipt failures before native work.
+3. No automatic recovery/force-release exists for crash-before-inner-finish, source
+   mismatch, transport timeout, missing unit or ambiguous receipt/join. Both disk
+   and RAM remain reserved. Recovery needs separately reviewed custody proof; do
+   not edit away charges or rerun the same attempt.
+4. V1-state migration, capacity additions after owner rotation, other lanes and
+   coordinator enrollment are intentionally unsupported and fail closed.
+5. A8GiB requires the previously authorized parent high7GiB to be prepared externally;
+   source verifies it and restores3GiB after independent join. It never raises high
+   or changes hard caps. Config legacy_launchers_held asserts a deployment prerequisite;
+   it does not mask services or prevent a malicious same-uid old launcher itself.
+6. Direct directories still lack a kernel physical quota and open-unlinked census.
+   Polling may overshoot and misses some metadata; protect authority ancestors and
+   retain conservative overhead/floors. Checks do not freeze trees before exec.
+Full runtime/config/transition contract and residual gaps: INTEGRATION.txt.
+
+No D267 allocator/D289 typedArena fixedspread/A333 compiler-body work attempted.
+Native47 remains18passed/29unqualified; original419 remains293credited. Native/API
+and PDF/full-save performance remain unqualified. No new native credit.
+Completed authorized source iteration; stop. Coordinator reviews/integrates/
+archives and supplies essential handoff to any fresh successor. No self-archive.
+
+COORDINATOR NOTIFICATION
+Authorized one-shot Client notification will be recorded in notification-result.json.
+No ambiguous retry. Final completion line follows the user's exact format.
+
+Notification acknowledged via turn/steer; see notification-result.json. No retry.
