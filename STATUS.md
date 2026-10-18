@@ -4,8 +4,8 @@ Two complete sentence sequences now use the same `StateSequence` policy: one
 letter or one word per state. The shared renderer has no per-example acceptance
 gate. Native frames are exported losslessly for time-slider playback; all 984
 MP4/WebM decoded frames match their corresponding render exactly in each format.
-Six shared algorithm regression/property tests pass. Full suite is also running;
-check the final capture receipt before claiming its completion.
+Six targeted shared-algorithm tests and all 56 library tests pass. The full suite
+completed in 158.948 seconds. See the final capture receipt for hosted checks.
 
 Stroke endpoint-detail fragments are capped by scalar reconstruction before area
 calibration. Replica members use that same connectivity operator. Geometry-only
