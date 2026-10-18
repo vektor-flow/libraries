@@ -9,9 +9,23 @@ from scipy import ndimage as ndi
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import dijkstra
 from scipy.spatial.distance import cdist
-from skimage.morphology import skeletonize
+from skimage.morphology import skeletonize,reconstruction
 from field_transport import clock
 from replica_transport import ScalarOutline
+
+def connected_field(field):
+ """Keep the peak-connected scalar field at every coverage level.
+
+ Endpoint residuals can detach a small serif from the moving ribbon. Grayscale
+ reconstruction caps that orphan at its connecting saddle before area solving;
+ this is continuous field geometry, not a binary cleanup of rendered pixels.
+ The same operation applies at all thresholds, so later area calibration cannot
+ reveal a disconnected island again.
+ """
+ seed=np.full_like(field,field.min())
+ peak=np.unravel_index(np.argmax(field),field.shape);seed[peak]=field[peak]
+ return reconstruction(seed,field,method='dilation',footprint=ndi.generate_binary_structure(2,1))
+
 
 def medial_path(field,with_branches=False,spanning_tree=False,cut_hint=None):
  skeleton=skeletonize(field.field>0);yy,xx=np.nonzero(skeleton);count=len(xx)
@@ -117,7 +131,7 @@ class StrokeTransport:
    f+=max(0.,1-(1-v)/.15)**4*(original-tube)
   return f
  def image(self,t):
-  f=self.raw(t);v=clock(t);desired=(1-v)*self.area0+v*self.area1;lo=-20.;hi=20.
+  f=connected_field(self.raw(t));v=clock(t);desired=(1-v)*self.area0+v*self.area1;lo=-20.;hi=20.
   for _ in range(28):
    shift=(lo+hi)/2
    if np.clip(f+shift+.5,0,1).sum()<desired:lo=shift

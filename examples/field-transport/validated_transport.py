@@ -16,10 +16,11 @@ from tree_transport import TreeTransport
 
 def valid_body(plan,a,b,samples=65):
  times=np.linspace(0,1,samples)
- if isinstance(plan,TreeTransport):
+ if isinstance(plan,TreeTransport) or getattr(plan,'kind',None)=='stroke':
   times=np.unique(np.r_[np.linspace(0,1,257),[brentq(lambda t:clock(t)-u,0,1) for u in np.linspace(0,1,51)[1:-1]]])
  for t in times:
   if isinstance(plan,TreeTransport):im,_=plan.image(float(t))
+  elif getattr(plan,'kind',None)=='stroke':im,_=plan.plan.image(float(t))
   else:im=draw_scene([plan.contours(float(t))],ss=8)
   if topology(im>127)!=(1,len(a)-1):return False
   if t in [0,1]:
@@ -47,7 +48,7 @@ class ValidatedBodyPlan(BodyPlan):
        raise ValueError('Thin ribbon widened beyond endpoint envelope')
       self.kind='tree';self.plan=candidate;return
      except ValueError as exc:self.rejected_candidates.append(dict(thin_frame_weight=weight,error=str(exc)))
-  if self.kind!='contour' or len(a)!=1 or valid_body(self,a,b):return
+  if self.kind not in ['contour','stroke'] or len(a)!=1 or valid_body(self,a,b):return
   for weight in [1.,0.,.5]:
    try:
     candidate=TreeTransport(a,b,frame_weight=weight)
@@ -63,7 +64,7 @@ def validated_replica(source,targets,body_factory=ValidatedBodyPlan):
  from scaled_replica_transport import ScaledGroup
  original=Group(source,targets)
  previous=1
- for t in np.linspace(0,1,65):
+ for t in np.linspace(0,1,257):
   im,_=original.image(float(t));n,h=topology(im>127)
   if h or not previous<=n<=len(targets):break
   previous=n

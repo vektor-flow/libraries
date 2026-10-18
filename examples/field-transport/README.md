@@ -1,3 +1,43 @@
+# Shared state-sequence playback — 2026-10-19
+
+`state_sequence.StateSequence` is the single entry point for the text players.
+It takes anonymous geometric states and uses the same fixed correspondence,
+body transport and replica policy for every interval. The first example supplies
+successive one-letter text prefixes; the second supplies one-word prefixes.
+There are no per-example methods or publication acceptance gates.
+
+Every replica member uses peak-connected scalar reconstruction, including
+contour-derived members. The existing split representation and time clock stay
+shared. The player shows the algorithm's actual current output. Some replica
+unions can briefly rejoin; general monotone topology and arbitrary text with
+counters are not established. Historical candidate-selection helpers below
+remain research utilities, not alternative public players.
+
+Shared property/regression tests cover exact key-state silhouettes, complete
+sequence traversal, deterministic replay, invalid time domains and stroke
+connectivity. Codec checks verify that exported videos retain every rendered
+pixel; these checks do not imply a general geometric correctness proof.
+
+# Text-prefix split correction — 2026-10-18
+
+A stroke's endpoint-detail residual could leave a detached foreground fragment
+between the old validation samples. `StrokeTransport.image` now reconstructs the
+peak-connected scalar field before solving coverage area. This caps orphan peaks
+at their connecting saddle at every scalar threshold, so the area solve cannot
+bring a disconnected fragment back. The existing medial trajectory, key-state
+geometry, split/merge representation and time clock remain in use.
+
+`valid_body` now checks stroke candidates with the same dense clock samples as
+medial trees. Replica candidate selection checks the original union at 257 states
+before accepting it, rather than accepting a 65-state result which could fail at
+capture time. Unsupported topology and unrelated-cohort overlap still reject.
+These are sampled guarantees, not a proof for every input or continuous time.
+
+The text demos supply complete successive prefixes: one additional letter per
+state in one sequence, one additional word per state in the other. Rendering is
+the offline CPU reference; this does not complete the separate compiled VKF port.
+The current clock is the reference quintic clock, not a new cubic implementation.
+
 # Varied GPU math and geometry film — 2026-10-14
 
 The current study uses **GPU math**, the independent typesetting runtime and its

@@ -1,3 +1,18 @@
+# Shared text state players — 2026-10-19
+
+Two complete sentence sequences now use the same `StateSequence` policy: one
+letter or one word per state. The shared renderer has no per-example acceptance
+gate. Native frames are exported losslessly for time-slider playback; all 984
+MP4/WebM decoded frames match their corresponding render exactly in each format.
+Six shared algorithm regression/property tests pass. Full suite is also running;
+check the final capture receipt before claiming its completion.
+
+Stroke endpoint-detail fragments are capped by scalar reconstruction before area
+calibration. Replica members use that same connectivity operator. Geometry-only
+ownership, existing body morphs and the reference clock remain. General monotone
+replica component counts, arbitrary counters and compiled VKF integration remain
+unfinished. CPU only; no hardware GPU claim or compiler promotion.
+
 # Thin geometry and monotone ink area — 2026-10-15
 
 Owner's latest rule is to minimize overshoot and reversals in measurable shape

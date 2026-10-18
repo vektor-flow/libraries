@@ -8,6 +8,7 @@ from field_transport import clock
 from scene_transport import draw_scene
 from combined_transport import topology
 from replica_transport import center
+from stroke_transport import connected_field
 
 class MorphGroup(ScaledGroup):
  def __init__(self,source,targets,body_factory,separation_power=1.):
@@ -19,12 +20,11 @@ class MorphGroup(ScaledGroup):
   for plan in self.body_plans:
    if plan.kind in ['tree','stroke']:im,_=plan.plan.image(t)
    else:im=draw_scene([plan.contours(t)],ss=8)
-   if topology(im>127)!=(1,0):raise ValueError('Replica member morph is not connected')
    x,y=self.lo+[640,360];X,Y=self.hi+[640,360];coverage=im[y:Y,x:X]/255.
    mask=coverage>.5;f=ndi.distance_transform_edt(mask)-ndi.distance_transform_edt(~mask)
    f-=np.where(mask,.5,-.5)
    partial=(coverage>0)&(coverage<1);f[partial]=coverage[partial]-.5
-   out.append(f)
+   out.append(connected_field(f))
   return out
  def raw(self,t,scale=1.):
   v=clock(t);u=self.separation_progress(t);fields=[]
