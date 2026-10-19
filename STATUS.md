@@ -1,3 +1,15 @@
+# Selected text unfolding — 2026-10-19
+
+Owner selected Smooth growth: k=4, v=0.54, 32% overshoot, Grow and Loop enabled.
+Added native `morphing/unfold.vkf`, root defaults and indexed GPU channel fixture.
+The module owns the alpha ramp, requested-peak growth and spectral-to-white color.
+Prepared glyph/line indices remain renderer-owned and are reused during playback.
+The website retains one adjustable example and retires the other comparisons.
+Focused native qualification passes 96 independent samples plus indexed row,
+clock, growth endpoint and peak checks. Existing native qualification also passes
+32 curve cases, 2,448 scalar and 816 channel comparisons, and nine rejection
+checks. No compiler release or physical GPU work.
+
 # Shared text state players — 2026-10-19
 
 Two complete sentence sequences now use the same `StateSequence` policy: one

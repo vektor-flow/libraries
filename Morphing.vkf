@@ -223,3 +223,7 @@ sample_geometry(plan:GeometryPlan,measure:Curve,coordinate:num,resolution:int,lo
 presentation:.morphing.presentation
 geometry_row(plan:GeometryPlan,coordinate:num,scale:num,size:int,row:int,lo:[num],hi:[num],extent:num,color:[num])->[num]:
     @:presentation.surface2d_row(plan,coordinate,scale,size,row,lo,hi,extent,color)
+
+# Text unfolding over renderer-owned, pre-indexed glyph/line geometry.
+unfold:.morphing.unfold
+unfold_defaults()->(k:num,velocity:num,overshoot:num,grow:bit,loop:bit):unfold.defaults()

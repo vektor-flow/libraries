@@ -1,0 +1,58 @@
+# A single text-unfolding front in an unwrapped reading coordinate.
+# Renderer-owned glyph/line indices supply this coordinate. No text parsing here.
+Settings:(k:num,velocity:num,overshoot:num,grow:bit,loop:bit)
+defaults()->Settings:(k:4,velocity:0.54,overshoot:0.32,grow:true,loop:true)
+minimum(a:num,b:num)->num:
+    a<b? @:a
+    @:b
+maximum(a:num,b:num)->num:
+    a>b? @:a
+    @:b
+clamp(x:num,a:num,b:num)->num:minimum(b,maximum(a,x))
+ramp_width(k:num)->num:
+    (k>=1 /\ k<=10)?! "unfold k outside 1–10"
+    @:1.5707963267948966/k
+reading_coordinate(offset:num,line:int,local:num,k:num)->num:
+    (line>=0)?! "negative unfold line index"
+    @:offset+num(line)*ramp_width(k)+local
+alpha(distance:num,k:num)->num:
+    q:clamp(k*distance,0,1.5707963267948966)
+    q<=0? @:0
+    q>=1.5707963267948966? @:1
+    # Same bounded degree-13 sine used by the compiled surface library.
+    z:q*q
+    value:q*(1+z*(-1.0/6+z*(1.0/120+z*(-1.0/5040+z*(1.0/362880+z*(-1.0/39916800+z/6227020800.0))))))
+    @:value*value
+# Convert requested peak size excess into the back-ease coefficient once.
+back_coefficient(overshoot:num)->num:
+    (overshoot>=0 /\ overshoot<=0.5)?! "unfold overshoot outside 0–50%"
+    overshoot=0? @:0
+    low:0.0
+    high:16.0
+    i:0
+    i<32?>
+        s:(low+high)/2
+        4*s*s*s/(27*(s+1)*(s+1))<overshoot? .low:s
+        4*s*s*s/(27*(s+1)*(s+1))>=overshoot? .high:s
+        .i:i+1
+    @:(low+high)/2
+growth(a:num,coefficient:num)->num:
+    z:clamp(a,0,1)-1
+    @:1+(coefficient+1)*z*z*z+coefficient*z*z
+color_channel(a:num,channel:int)->num:
+    (channel>=0 /\ channel<3)?! "unfold color channel index"
+    phase:4.5*clamp(a/0.8,0,1)
+    channel=1? .phase:phase+4
+    channel=2? .phase:phase+2
+    phase>=6? .phase:phase-6
+    spectral:clamp(|phase-3|-1,0,1)
+    fade:clamp((a-0.8)/0.2,0,1)
+    white:fade*fade*(3-2*fade)
+    @:spectral+(1-spectral)*white
+travel(path_length:num,lines:int,k:num)->num:
+    (path_length>=0 /\ lines>=0)?! "invalid unfold reading path"
+    @:path_length+maximum(1,num(lines))*ramp_width(k)
+# v=0 holds the coordinate, including the completed state in a looping player.
+advance(front:num,elapsed:num,velocity:num)->num:
+    (elapsed>=0 /\ velocity>=0 /\ velocity<=1)?! "invalid unfold clock"
+    @:front+elapsed*velocity

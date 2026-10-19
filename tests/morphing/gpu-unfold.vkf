@@ -1,0 +1,7 @@
+u:.morphing.unfold
+# Indexed scalar channels: alpha, size, R, G, B. params=[distance/alpha,k/back].
+kernel(index:int,params:[num],values:[num])->num:
+    index=0? @:u.alpha(params.(0),params.(1))
+    index=1? @:u.growth(params.(0),params.(1))
+    @:u.color_channel(params.(0),index-2)
+::kernel(0,[0,4],[0])

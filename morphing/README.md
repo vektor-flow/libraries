@@ -266,3 +266,26 @@ spacing. Browser validation uses SwiftShader, including the live slider, mode
 switching, camera, mobile layout and VKF capture. These checks do not establish
 physical-GPU performance. Source build entry points are in `tests/morphing/` and
 `tests/morphing/examples/`.
+
+## Text unfolding
+
+`unfold.vkf` provides a single quarter-period sin² alpha front, back-ease growth
+with a requested 0–50% size overshoot, and red-to-violet color followed by a white
+finish over alpha 0.8–1. `Morphing.unfold_defaults()` returns the selected settings:
+k=4, velocity=0.54, overshoot=0.32, grow=true and loop=true. Settings remain inputs.
+
+The renderer prepares glyph geometry, row IDs and cumulative row offsets once.
+`reading_coordinate(offset,line,local,k)` consumes those cached indices directly;
+rows are separated by one ramp width. No per-frame text search or typesetting is
+required. `advance` holds the front at velocity zero; `back_coefficient` is prepared
+once when overshoot changes. `alpha`, `growth` and indexed `color_channel` are
+allocation-free scalar functions suitable for the existing compiled field route.
+The adapter still owns layout, glyph coverage, playback and renderer resources.
+
+`python3 tests/morphing/verify_unfold.py` checks the selected defaults, indexed line
+coordinates, zero-speed hold, exact growth endpoints and requested overshoot peaks,
+plus 96 samples against independent numerical references. `gpu-unfold.vkf` exports
+indexed scalar channels for the compiler-owned WGSL candidate. The public example
+uses a mechanical translation of that scalar output to GLSL for WebGL2, tested
+against native VKF output in desktop SwiftShader and software WebKit. This does
+not promote the separately pinned public compiler or claim hardware performance.
