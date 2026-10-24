@@ -301,7 +301,7 @@ function appendVertex(output, primitive) {
   const center = validPoint(primitive.center);
   const radius = Math.max(0, Number(primitive.radius) || 0);
   if (!center || radius <= 0) return;
-  const segments = Math.max(6, Math.min(64, Math.round(Number(primitive.segments) || 16)));
+  const segments = Math.max(6, Math.min(4096, Math.round(Number(primitive.segments) || 16)));
   const color = colorToRgba(primitive.color);
   for (let index = 0; index < segments; index += 1) {
     const start = index / segments * Math.PI * 2;

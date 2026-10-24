@@ -21,13 +21,13 @@ export function textSelectionObjects({elementId,clusters,groups=[],coordinates,c
     if(!parts.has(c.id))parts.set(c.id,[]);parts.get(c.id).push(part);
   }
   const clipCopy=clip&&snapshot(clip);
-  const regions=values=>()=>values.map(p=>({rings:project(p.rings,coordinates),clip:clipCopy&&project(clipCopy,coordinates)}));
+  const regions=values=>()=>values.map(p=>({rings:project(p.rings,coordinates),fillRule:p.fillRule??'evenodd',clip:clipCopy&&project(clipCopy,coordinates)}));
   const all=[...parts.values()].flat(),result=[];
   const make=(key,values,parentId)=>({id:key,parentId,regions:regions(values),detailRegions:regions(values),detailSize:()=>{
     let size=0;for(const p of values){const ys=project(p.rings,coordinates).flat().map(p=>p[1]);if(ys.length)size=Math.max(size,Math.max(...ys)-Math.min(...ys))}return size;
   }});
-  result.push(make(elementId,all,null));
-  for(const g of groupMap.values())result.push(make(g.id,all.filter(p=>p.groupId===g.id),elementId));
+  result.push({...make(elementId,all,null),pickable:false});
+  for(const g of groupMap.values())result.push({...make(g.id,all.filter(p=>p.groupId===g.id),elementId),pickable:false});
   for(const [key,values]of parts){const parent=values[0].groupId??null,object=make(key,values,parent??elementId);
     // Unknown math scope explicitly stays on the logical cluster on double-click.
     object.clickTargets=[key,parent??key,elementId];object.fallback=parent===null?'cluster-no-issued-group':null;

@@ -1,0 +1,96 @@
+import {createPlotDocking} from './vf-plot-docking.mjs';
+import {mountPlotToolbar} from './vf-plot-toolbar.mjs';
+import {mountNativePlotCoordinates} from './vf-native-plot-label-layer.mjs';
+
+/** Composable VKF chrome for an existing application-owned plot surface.
+ * Applications supply state/action contracts, never a second toolbar/readout.
+ * Geometry/camera/physics ownership is unchanged by mounting or docking chrome.
+ */
+export async function mountPlotChrome(root, {
+  plotFrame = root, history, animation, capture, zoom, selection, onView,
+  nativeTypography = null, dimensions = 2, coords = true, values = Array(dimensions).fill(0),
+  toolbarPosition = 'auto', inset = true, onError = () => {}, onDockChange = () => {},
+  onDockGrab = () => {}, onDockPreview = () => {}
+} = {}) {
+  if (!root?.ownerDocument || !root.append) throw TypeError('Plot chrome DOM host required');
+  if (typeof coords !== 'boolean') throw TypeError('coords must be boolean');
+  if (![2,3].includes(dimensions)) throw TypeError('Native coordinates require two or three dimensions');
+  const doc = root.ownerDocument;
+  let panel = null, toolbar = null, closing = null, closed = false;
+  const prior = {dock:root.dataset.toolbarDock,inset:root.dataset.toolbarInset};
+  let currentValues = [...values], visible = coords;
+  const media = doc.defaultView.matchMedia?.('(max-width:480px)');
+  const docking = createPlotDocking({position:toolbarPosition,inset,phone:media?.matches === true,
+    onChange(state) {
+      root.dataset.toolbarDock = state.dock;
+      root.dataset.toolbarInset = String(state.inset);
+      toolbar?.element.setAttribute('aria-orientation', ['left','right'].includes(state.dock)?'vertical':'horizontal');
+      panel?.setPlacement(state.coordinatePlacement);
+      onDockChange(state);
+    }
+  });
+  const phoneChange = event => docking.setPhone(event.matches);
+  const coordinateButton = doc.createElement('button');
+  coordinateButton.type = 'button';
+  coordinateButton.className = 'vf-plot-toolbar__button';
+  coordinateButton.dataset.vfCoordsToggle = '1';
+  coordinateButton.textContent = 'Coords';
+  const unavailable = !nativeTypography;
+  coordinateButton.disabled = unavailable;
+  coordinateButton.title = unavailable ? 'Native coordinates unavailable: VKF typography provider required' : 'Pointer coordinates';
+  coordinateButton.setAttribute('aria-label', unavailable ? coordinateButton.title : 'Hide coordinates');
+  async function setCoordsVisible(value) {
+    if (closed) throw Error('Plot chrome is closed');
+    if (typeof value !== 'boolean') throw TypeError('coords must be boolean');
+    if (value && unavailable) throw Object.assign(Error('PLOT_NATIVE_TYPOGRAPHY_REQUIRED'),{status:'BLOCKED'});
+    visible = value;
+    if (panel) panel.setVisible(value);
+    coordinateButton.setAttribute('aria-pressed',String(value && !!panel));
+    coordinateButton.setAttribute('aria-label',value?'Hide coordinates':'Show coordinates');
+    return value;
+  }
+  const toggle = () => setCoordsVisible(!visible).catch(onError);
+  try {
+    toolbar = mountPlotToolbar(root,{history,animation,capture,zoom,selection,onView,docking,
+      onDockGrab,onDockPreview,onError});
+    coordinateButton.addEventListener('click',toggle);
+    toolbar.element.querySelector('.vf-plot-toolbar__controls').append(coordinateButton);
+    if (!unavailable) {
+      panel = await mountNativePlotCoordinates(plotFrame,{typography:nativeTypography,dimensions,visible:coords,onError});
+      panel.setPlacement(docking.snapshot().coordinatePlacement);
+      panel.update(currentValues);
+      if(coords) await panel.ready;
+    }
+    coordinateButton.setAttribute('aria-pressed',String(coords && !!panel));
+    media?.addEventListener?.('change',phoneChange);
+    await toolbar.fontReady;
+    docking.setToolbarPosition(toolbarPosition);
+  } catch (error) {
+    try {await panel?.close();} finally {await toolbar?.close();}
+    if(prior.dock===undefined)delete root.dataset.toolbarDock;else root.dataset.toolbarDock=prior.dock;
+    if(prior.inset===undefined)delete root.dataset.toolbarInset;else root.dataset.toolbarInset=prior.inset;
+    throw error;
+  }
+  return Object.freeze({toolbar,docking,coordinates:panel,
+    get coordinatesAvailable(){return !!panel;},
+    updateCoordinates(next){
+      if(closed)return;
+      if(!Array.isArray(next)||next.length!==dimensions||!next.every(Number.isFinite))throw TypeError('Finite coordinate vector required');
+      currentValues=[...next];panel?.update(currentValues);
+    },
+    refresh:toolbar.refresh,setCoordsVisible,
+    setToolbarPosition:docking.setToolbarPosition,setInset:docking.setInset,resetToAuto:docking.resetToAuto,
+    close(){
+      if(closing)return closing;closed=true;
+      closing=(async()=>{
+        media?.removeEventListener?.('change',phoneChange);
+        coordinateButton.removeEventListener('click',toggle);
+        const errors=[];
+        for(const close of [()=>toolbar.close(),()=>capture?.video?.recording?capture.video.stop():undefined,()=>panel?.close()])try{await close();}catch(error){errors.push(error);}
+        if(prior.dock===undefined)delete root.dataset.toolbarDock;else root.dataset.toolbarDock=prior.dock;
+        if(prior.inset===undefined)delete root.dataset.toolbarInset;else root.dataset.toolbarInset=prior.inset;
+        if(errors.length)throw new AggregateError(errors,'Plot chrome cleanup failed');
+      })();return closing;
+    }
+  });
+}

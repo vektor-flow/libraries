@@ -1,0 +1,136 @@
+/* 0.7.5 reusable toolbar; all icons share a 24-unit grid and 1.75 stroke. */
+.vf-plot-toolbar{--vf-toolbar-bg:#fff;--vf-toolbar-fg:#25342f;--vf-toolbar-line:#dce3df;--vf-toolbar-hover:#edf3ef;--vf-toolbar-focus:#28755e;display:flex;align-items:center;gap:12px;position:relative;z-index:3;isolation:isolate;flex:0 0 auto;width:100%;touch-action:manipulation;padding:6px 8px;border-bottom:1px solid var(--vf-toolbar-line);background:var(--vf-toolbar-bg);color:var(--vf-toolbar-fg);font:13px/1.4 "Vektor Flow CMR";color-scheme:light;min-height:44px;box-sizing:border-box;flex-wrap:wrap}
+.vf-plot-toolbar [hidden]{display:none!important}
+.vf-plot-toolbar__controls{display:flex;align-items:center;gap:2px;flex-wrap:wrap}
+.vf-plot-toolbar__button{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:34px;min-height:34px;margin:0;padding:7px;border:1px solid transparent;border-radius:7px;background:transparent;color:inherit;cursor:pointer;line-height:1;box-shadow:none}
+.vf-plot-toolbar__button svg{display:block;width:20px;height:20px;flex:none;pointer-events:none}
+.vf-plot-toolbar__button:hover:not(:disabled){background:var(--vf-toolbar-hover)}
+.vf-plot-toolbar__button:active:not(:disabled){border-color:var(--vf-toolbar-line)}
+.vf-plot-toolbar__button:focus-visible,.vf-plot-toolbar__speed:focus-visible{outline:2px solid var(--vf-toolbar-focus);outline-offset:2px}
+.vf-plot-toolbar__button:disabled{opacity:.3;cursor:default}
+.vf-plot-toolbar__capture{position:relative}
+.vf-plot-toolbar__menu{position:absolute;z-index:10;top:calc(100% + 6px);right:0;min-width:210px;padding:5px;border:1px solid var(--vf-toolbar-line);border-radius:10px;background:var(--vf-toolbar-bg);box-shadow:0 8px 24px #0002}
+.vf-plot-toolbar__menu .vf-plot-toolbar__button{display:flex;width:100%;justify-content:flex-start;min-height:38px;font:inherit;text-align:left;white-space:nowrap}
+.vf-plot-toolbar__speed{margin-left:5px;min-height:32px;padding:3px 7px;border:1px solid var(--vf-toolbar-line);border-radius:6px;background:var(--vf-toolbar-bg);color:inherit;font:inherit}
+.vf-plot-toolbar__coordinates{margin-left:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:40%;font-variant-numeric:tabular-nums;opacity:.75}
+.vf-plot-toolbar__status{width:100%;font-size:12px}.vf-plot-toolbar__status:empty{display:none}
+@media(prefers-color-scheme:dark){.vf-plot-toolbar{--vf-toolbar-bg:#151a20;--vf-toolbar-fg:#e2e9e5;--vf-toolbar-line:#343e46;--vf-toolbar-hover:#263039;--vf-toolbar-focus:#8bd5b6;color-scheme:dark}}
+[data-vf-theme=light] .vf-plot-toolbar,.vf-plot-toolbar[data-theme=light]{--vf-toolbar-bg:#fff;--vf-toolbar-fg:#25342f;--vf-toolbar-line:#dce3df;--vf-toolbar-hover:#edf3ef;--vf-toolbar-focus:#28755e;color-scheme:light}
+[data-vf-theme=dark] .vf-plot-toolbar,.vf-plot-toolbar[data-theme=dark]{--vf-toolbar-bg:#151a20;--vf-toolbar-fg:#e2e9e5;--vf-toolbar-line:#343e46;--vf-toolbar-hover:#263039;--vf-toolbar-focus:#8bd5b6;color-scheme:dark}
+@media(pointer:coarse){.vf-plot-toolbar__button{min-width:44px;min-height:44px}}
+@media(prefers-reduced-motion:no-preference){.vf-plot-toolbar__button{transition:background-color .12s,border-color .12s}}
+
+/* Existing seed frame placement without borrowing its old icon/style classes. */
+.vf-frame--toolbar-bottom>.vf-plot-toolbar{order:3;border-bottom:0;border-top:1px solid var(--vf-toolbar-line)}
+.vf-frame--toolbar-left>.vf-plot-toolbar,.vf-frame--toolbar-right>.vf-plot-toolbar{grid-row:2;width:96px;min-width:96px;height:100%;flex-direction:column;align-items:stretch;justify-content:flex-start;padding:6px 4px}
+.vf-frame--toolbar-left>.vf-plot-toolbar{grid-column:1;border-right:1px solid var(--vf-toolbar-line)}
+.vf-frame--toolbar-right>.vf-plot-toolbar{grid-column:2;border-left:1px solid var(--vf-toolbar-line)}
+.vf-frame--toolbar-left .vf-plot-toolbar__coordinates,.vf-frame--toolbar-right .vf-plot-toolbar__coordinates{max-width:100%;margin-left:0}
+.vf-frame--toolbar-left .vf-plot-toolbar__menu{left:0;right:auto}.vf-frame--toolbar-right .vf-plot-toolbar__menu{left:auto;right:0}
+.vf-plot-host{display:flex;flex-direction:column;min-height:0}.vf-plot-host>canvas{flex:1;min-height:0}
+
+/* Narrow plot chrome: one primary row; secondary details never reserve a row. */
+.vf-plot-toolbar__details{position:relative}
+.vf-plot-toolbar__details>summary{list-style:none;cursor:pointer}
+.vf-plot-toolbar__details>summary::-webkit-details-marker{display:none}
+.vf-plot-toolbar__detail-panel{position:absolute;right:0;top:calc(100% + 4px);z-index:11;min-width:170px;padding:10px;border:1px solid var(--vf-toolbar-line);border-radius:8px;background:var(--vf-toolbar-bg);box-shadow:0 6px 20px #0002}
+@media(max-width:480px){
+ .vf-plot-toolbar{gap:0;padding:2px 4px;min-height:44px;min-width:0;max-width:100%;flex-wrap:nowrap}
+ .vf-plot-toolbar__controls{flex:1 1 auto;min-width:0;width:100%;gap:2px;flex-wrap:nowrap}
+ .vf-plot-toolbar__controls>button[data-vf-toolbar-action=first],
+ .vf-plot-toolbar__controls>button[data-vf-toolbar-action=last]{display:none}
+ .vf-plot-toolbar__button{min-width:clamp(38px,10vw,44px);min-height:40px;padding:8px;box-sizing:border-box;flex:0 0 auto}
+ .vf-plot-toolbar__button svg{width:18px;height:18px}
+ .vf-plot-toolbar__capture{position:static;flex:0 0 auto}
+ .vf-plot-toolbar__menu{left:4px;right:4px;top:calc(100% + 3px);width:auto;min-width:0;max-width:calc(100% - 8px);max-height:min(55vh,240px);overflow-y:auto;box-sizing:border-box}
+ .vf-plot-toolbar__menu .vf-plot-toolbar__button{min-height:44px;white-space:normal;line-height:1.4;overflow-wrap:anywhere}
+ .vf-plot-toolbar__details{margin-left:auto;flex:0 0 auto}
+ .vf-plot-toolbar__details>summary{min-width:32px;padding:6px}
+ .vf-plot-toolbar__detail-panel{right:0;min-width:176px;max-width:calc(100vw - 40px);box-sizing:border-box}
+ .vf-plot-toolbar__detail-panel .vf-plot-toolbar__speed{margin:0 0 8px;min-height:40px;width:100%;max-width:none}
+ .vf-plot-toolbar__detail-panel .vf-plot-toolbar__coordinates{display:block;max-width:100%;margin:0;font-size:12px}
+ .vf-plot-toolbar__status:not(:empty){position:absolute;top:100%;left:4px;right:4px;width:auto;padding:6px;background:var(--vf-toolbar-bg);box-sizing:border-box}
+}
+
+.vf-plot-toolbar__details:not([open])>.vf-plot-toolbar__detail-panel{display:none}
+
+/* Signed live rate:81 positions, all nine integer native range ticks. */
+.vf-plot-toolbar__rate{display:grid;grid-template-columns:minmax(0,1fr) 46px;grid-template-rows:26px 11px;column-gap:6px;align-items:center;width:180px;min-width:150px;flex:0 0 auto;padding:0 4px;box-sizing:border-box}
+.vf-plot-toolbar__rate .vf-plot-toolbar__speed{grid-column:1;grid-row:1;width:100%;min-width:0;min-height:26px;max-width:none;margin:0;padding:0;border:0;background:transparent;accent-color:var(--vf-toolbar-focus)}
+.vf-plot-toolbar__rate-value{grid-column:2;grid-row:1;text-align:right;white-space:nowrap;font-size:12px;font-variant-numeric:tabular-nums}
+.vf-plot-toolbar__rate-ticks{grid-column:1;grid-row:2;position:relative;height:11px;font-size:9px;line-height:10px}
+.vf-plot-toolbar__rate-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.vf-plot-toolbar__rate-ticks span:first-child{transform:none}
+.vf-plot-toolbar__rate-ticks span:last-child{transform:translateX(-100%)}
+@media(max-width:480px){
+ .vf-plot-toolbar{flex-wrap:wrap}
+ .vf-plot-toolbar__controls{flex:1 1 100%}
+ .vf-plot-toolbar>.vf-plot-toolbar__rate{flex:1 1 100%;width:100%;max-width:100%;min-width:0;margin-top:2px;padding:0 5px;grid-template-rows:26px 11px}
+}
+
+/* The native canvas always occupies the complete actual plot frame. Floating
+ * chrome never contributes a row/column/padding to that frame. Explicit false
+ * is a true grid row/column outside the remaining plot frame. */
+@font-face{font-family:"Vektor Flow CMR";src:url('./fonts/vf-cmr10.otf') format('opentype');font-style:normal;font-weight:400;font-display:block}
+.vf-plot-host{--vf-plot-inset:8px;position:relative;display:grid;grid-template: minmax(0,1fr) / minmax(0,1fr);overflow:hidden;min-width:0;padding:0}
+.vf-plot-frame{position:relative;min-width:0;min-height:0;width:100%;height:100%;padding:0;margin:0;border:0;border-radius:0;overflow:hidden;grid-row:1;grid-column:1}
+.vf-plot-frame>canvas{display:block;position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.vf-plot-host[data-toolbar-inset=true]>.vf-plot-toolbar{position:absolute;width:max-content;max-width:calc(100% - 2 * var(--vf-plot-inset));min-height:0;border:1px solid var(--vf-toolbar-line);border-radius:11px;box-shadow:0 2px 9px #0002;margin:0;flex-wrap:wrap;padding:4px;gap:4px}
+.vf-plot-host[data-toolbar-inset=true][data-toolbar-dock=top]>.vf-plot-toolbar{top:max(var(--vf-plot-inset),env(safe-area-inset-top));left:var(--vf-plot-inset)}
+.vf-plot-host[data-toolbar-inset=true][data-toolbar-dock=bottom]>.vf-plot-toolbar{bottom:max(var(--vf-plot-inset),env(safe-area-inset-bottom));left:var(--vf-plot-inset)}
+.vf-plot-host[data-toolbar-inset=true][data-toolbar-dock=left]>.vf-plot-toolbar{top:var(--vf-plot-inset);left:max(var(--vf-plot-inset),env(safe-area-inset-left))}
+.vf-plot-host[data-toolbar-inset=true][data-toolbar-dock=right]>.vf-plot-toolbar{top:var(--vf-plot-inset);right:max(var(--vf-plot-inset),env(safe-area-inset-right))}
+.vf-plot-toolbar,.vf-plot-toolbar *{font-family:"Vektor Flow CMR";font-style:normal;font-weight:400;font-synthesis:none}
+.vf-plot-toolbar button,.vf-plot-toolbar input,.vf-plot-toolbar output{font:inherit}
+.vf-plot-toolbar[data-font-status=pending]{visibility:hidden;pointer-events:none}
+.vf-plot-toolbar[data-font-status=FAIL] .vf-plot-toolbar__controls{visibility:hidden;pointer-events:none}
+.vf-plot-toolbar__controls{width:auto;flex:0 1 auto;max-width:100%}
+.vf-plot-toolbar__grip{display:inline-flex;align-items:center;justify-content:center;flex:0 0 18px;width:18px;align-self:stretch;min-height:34px;border:0;border-radius:5px;padding:2px;color:inherit;background:transparent;cursor:grab;touch-action:none}
+.vf-plot-toolbar__grip[aria-grabbed=true]{cursor:grabbing;background:var(--vf-toolbar-hover)}
+.vf-plot-toolbar__grip svg{width:10px;height:24px;pointer-events:none}
+.vf-plot-toolbar__grip:focus-visible{outline:2px solid var(--vf-toolbar-focus);outline-offset:-2px}
+.vf-plot-host[data-toolbar-dock=bottom] .vf-plot-toolbar__menu{top:auto;bottom:calc(100% + 6px)}
+.vf-plot-host[data-toolbar-dock=left]>.vf-plot-toolbar,.vf-plot-host[data-toolbar-dock=right]>.vf-plot-toolbar{flex-direction:column;align-items:stretch;max-height:calc(100% - 2 * var(--vf-plot-inset));width:174px;box-sizing:border-box}
+.vf-plot-host[data-toolbar-dock=left] .vf-plot-toolbar__controls,.vf-plot-host[data-toolbar-dock=right] .vf-plot-toolbar__controls{flex-direction:column;flex-wrap:nowrap;overflow-y:auto;overflow-x:hidden;min-height:0;width:100%;max-height:100%;gap:2px}
+.vf-plot-host[data-toolbar-dock=left] .vf-plot-toolbar__grip,.vf-plot-host[data-toolbar-dock=right] .vf-plot-toolbar__grip{width:100%;height:18px;min-height:18px;flex-basis:18px}
+.vf-plot-host[data-toolbar-dock=left] .vf-plot-toolbar__grip svg,.vf-plot-host[data-toolbar-dock=right] .vf-plot-toolbar__grip svg{transform:rotate(90deg)}
+.vf-plot-host[data-toolbar-dock=left] .vf-plot-toolbar__rate,.vf-plot-host[data-toolbar-dock=right] .vf-plot-toolbar__rate{width:100%;min-width:0;grid-template-columns:minmax(0,1fr);grid-template-rows:26px 14px 18px;gap:0;padding:0 5px}
+.vf-plot-host[data-toolbar-dock=left] .vf-plot-toolbar__rate-value,.vf-plot-host[data-toolbar-dock=right] .vf-plot-toolbar__rate-value{grid-column:1;grid-row:3;text-align:center}
+.vf-plot-host[data-toolbar-dock=left] .vf-plot-toolbar__rate-ticks,.vf-plot-host[data-toolbar-dock=right] .vf-plot-toolbar__rate-ticks{grid-column:1;grid-row:2}
+.vf-plot-host[data-toolbar-inset=false]>.vf-plot-toolbar{position:relative;inset:auto;width:100%;max-width:none;max-height:none;margin:0;border:0;border-radius:0;box-shadow:none;min-width:0;box-sizing:border-box}
+.vf-plot-host[data-toolbar-inset=false][data-toolbar-dock=top]{grid-template-rows:auto minmax(0,1fr)}
+.vf-plot-host[data-toolbar-inset=false][data-toolbar-dock=top]>.vf-plot-toolbar{grid-row:1;grid-column:1}
+.vf-plot-host[data-toolbar-inset=false][data-toolbar-dock=top]>.vf-plot-frame{grid-row:2;grid-column:1}
+.vf-plot-host[data-toolbar-inset=false][data-toolbar-dock=bottom]{grid-template-rows:minmax(0,1fr) auto}
+.vf-plot-host[data-toolbar-inset=false][data-toolbar-dock=bottom]>.vf-plot-toolbar{grid-row:2;grid-column:1}
+.vf-plot-host[data-toolbar-inset=false][data-toolbar-dock=left]{grid-template-columns:auto minmax(0,1fr)}
+.vf-plot-host[data-toolbar-inset=false][data-toolbar-dock=left]>.vf-plot-toolbar{grid-row:1;grid-column:1;width:174px;height:100%}
+.vf-plot-host[data-toolbar-inset=false][data-toolbar-dock=left]>.vf-plot-frame{grid-row:1;grid-column:2}
+.vf-plot-host[data-toolbar-inset=false][data-toolbar-dock=right]{grid-template-columns:minmax(0,1fr) auto}
+.vf-plot-host[data-toolbar-inset=false][data-toolbar-dock=right]>.vf-plot-toolbar{grid-row:1;grid-column:2;width:174px;height:100%}
+.vf-plot-native-coordinates{position:absolute;z-index:2;pointer-events:none;padding:0;margin:0;line-height:0;max-width:calc(100% - 16px);max-height:calc(100% - 16px);overflow:hidden;background:#fff;border-radius:5px;color:#000}
+.vf-plot-native-coordinates[data-coordinate-edge=right]{right:var(--vf-plot-inset,8px)}
+.vf-plot-native-coordinates[data-coordinate-edge=right][data-coordinate-align=top]{top:var(--vf-plot-inset,8px)}
+.vf-plot-native-coordinates[data-coordinate-edge=right][data-coordinate-align=bottom]{bottom:var(--vf-plot-inset,8px)}
+.vf-plot-native-coordinates[data-coordinate-edge=top]{top:var(--vf-plot-inset,8px)}
+.vf-plot-native-coordinates[data-coordinate-edge=top][data-coordinate-align=right]{right:var(--vf-plot-inset,8px)}
+.vf-plot-native-coordinates[data-coordinate-edge=top][data-coordinate-align=left]{left:var(--vf-plot-inset,8px)}
+.vf-plot-native-coordinates>canvas{display:block;width:100%;height:100%}
+.vf-plot-host[data-dock-preview]::after{content:'';position:absolute;z-index:5;pointer-events:none;border:2px solid #28755e;background:#28755e22;border-radius:8px}
+.vf-plot-host[data-dock-preview=top]::after{left:4px;right:4px;top:4px;height:16px}
+.vf-plot-host[data-dock-preview=bottom]::after{left:4px;right:4px;bottom:4px;height:16px}
+.vf-plot-host[data-dock-preview=left]::after{left:4px;top:4px;bottom:4px;width:16px}
+.vf-plot-host[data-dock-preview=right]::after{right:4px;top:4px;bottom:4px;width:16px}
+@media(max-width:480px){
+ .vf-plot-host{--vf-plot-inset:6px}
+ .vf-plot-toolbar__controls{width:auto;flex:0 1 auto;flex-wrap:wrap}
+ .vf-plot-toolbar__button{min-width:34px;min-height:40px;padding:6px}
+ .vf-plot-toolbar>.vf-plot-toolbar__rate{margin:0;grid-template-rows:26px 13px}
+ .vf-plot-toolbar__controls>.vf-plot-toolbar__rate{flex-basis:100%;width:100%;min-width:0;grid-template-columns:minmax(0,1fr) 46px;grid-template-rows:26px 13px}
+ .vf-plot-toolbar__rate-ticks{font-size:10px}
+ .vf-plot-host[data-toolbar-dock=left]>.vf-plot-toolbar,.vf-plot-host[data-toolbar-dock=right]>.vf-plot-toolbar{width:156px}
+ .vf-plot-host[data-toolbar-inset=false][data-toolbar-dock=left]>.vf-plot-toolbar,.vf-plot-host[data-toolbar-inset=false][data-toolbar-dock=right]>.vf-plot-toolbar{width:156px}
+}
+
+.vf-plot-host[data-toolbar-dock=left] .vf-plot-toolbar__capture,.vf-plot-host[data-toolbar-dock=right] .vf-plot-toolbar__capture{position:static;width:100%}
+.vf-plot-host[data-toolbar-dock=left] .vf-plot-toolbar__menu,.vf-plot-host[data-toolbar-dock=right] .vf-plot-toolbar__menu{position:static;width:100%;min-width:0;max-width:100%;box-sizing:border-box;box-shadow:none}
