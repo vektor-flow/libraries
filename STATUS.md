@@ -17,3 +17,9 @@ correctly requires focusedplot; actualPPcanvas nowfocused on pointerdown. Newchr
 closes toolbar jobs and active recording before coordinate panel teardown. Root
 943 source closure remains byteidentical; new module public ./plot-chrome added.
 Next consumer exactcommit pin and actualcanvas staging; no compilerrelease claim.
+
+Follow-up in same task: composable native axis labels use the same VKF native
+label layer and accepted glyph triangles, with CSS->device-pixel conversion in
+VKF. App supplies declared labels/anchors only. No PP KaTeX coordinate fallback.
+Provider absence leaves coordinate control unavailable rather than fabricating
+native layout. Actual native glyph execution/phone acceptance remains unqualified.
