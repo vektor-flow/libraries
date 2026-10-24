@@ -1,5 +1,5 @@
 import {createPlotDocking} from './vf-plot-docking.mjs';
-import {mountPlotToolbar} from './vf-plot-toolbar.mjs';
+import {mountPlotToolbar,createPlotViewHistory} from './vf-plot-toolbar.mjs';
 import {mountNativePlotCoordinates,createNativePlotLabelLayer} from './vf-native-plot-label-layer.mjs';
 
 /** Composable VKF chrome for an existing application-owned plot surface.
@@ -7,7 +7,7 @@ import {mountNativePlotCoordinates,createNativePlotLabelLayer} from './vf-native
  * Geometry/camera/physics ownership is unchanged by mounting or docking chrome.
  */
 export async function mountPlotChrome(root, {
-  plotFrame = root, history, animation, capture, zoom, selection, onView,
+  plotFrame = root, history = null, getView = null, animation, capture, zoom, selection, onView = () => {},
   nativeTypography = null, labelCoordinates = null, onLabelsChanged = () => {}, dimensions = 2, coords = true, values = Array(dimensions).fill(0),
   toolbarPosition = 'auto', inset = true, onError = () => {}, onDockChange = () => {},
   onDockGrab = () => {}, onDockPreview = () => {}
@@ -18,6 +18,21 @@ export async function mountPlotChrome(root, {
   const doc = root.ownerDocument;
   let labels = null;
   let panel = null, toolbar = null, closing = null, closed = false;
+  const ownedHistory = history ?? (getView ? createPlotViewHistory() : null);
+  if(!history && getView)ownedHistory.reset(getView());
+  let viewTimer=null,queuedView=null,restoring=false,lastView=getView?JSON.stringify(getView()):null;
+  function flushView(){
+    if(viewTimer!==null)clearTimeout(viewTimer);viewTimer=null;
+    if(queuedView){ownedHistory?.commit(queuedView);queuedView=null;}
+  }
+  const viewHistory=ownedHistory&&Object.freeze({...ownedHistory,...Object.fromEntries(
+    ['first','back','forward','last'].map(name=>[name,()=>{flushView();return ownedHistory[name]();}]))});
+  function commitView(){
+    if(closed||restoring||!getView)return false;
+    const next=getView(),key=JSON.stringify(next);if(key===lastView)return false;
+    lastView=key;queuedView=structuredClone(next);
+    if(viewTimer!==null)clearTimeout(viewTimer);viewTimer=setTimeout(flushView,140);return true;
+  }
   const prior = {dock:root.dataset.toolbarDock,inset:root.dataset.toolbarInset};
   let currentValues = [...values], visible = coords;
   const media = doc.defaultView.matchMedia?.('(max-width:480px)');
@@ -52,7 +67,9 @@ export async function mountPlotChrome(root, {
   }
   const toggle = () => setCoordsVisible(!visible).catch(onError);
   try {
-    toolbar = mountPlotToolbar(root,{history,animation,capture,zoom,selection,onView,docking,
+    toolbar = mountPlotToolbar(root,{history:viewHistory,animation,capture,
+      zoom:typeof zoom==='function'?async factor=>{flushView();await zoom(factor);if(getView){const view=getView();lastView=JSON.stringify(view);ownedHistory?.commit(view);}}:undefined,
+      selection,async onView(view){restoring=true;try{await onView(view);}finally{restoring=false;if(getView)lastView=JSON.stringify(getView());}},docking,
       onDockGrab,onDockPreview,onError});
     coordinateButton.addEventListener('click',toggle);
     toolbar.element.querySelector('.vf-plot-toolbar__controls').append(coordinateButton);
@@ -73,7 +90,7 @@ export async function mountPlotChrome(root, {
     if(prior.inset===undefined)delete root.dataset.toolbarInset;else root.dataset.toolbarInset=prior.inset;
     throw error;
   }
-  return Object.freeze({toolbar,docking,coordinates:panel,
+  return Object.freeze({toolbar,docking,coordinates:panel,history:viewHistory,commitView,
     get coordinatesAvailable(){return !!panel;},
     updateCoordinates(next){
       if(closed)return;
@@ -91,6 +108,7 @@ export async function mountPlotChrome(root, {
     setToolbarPosition:docking.setToolbarPosition,setInset:docking.setInset,resetToAuto:docking.resetToAuto,
     close(){
       if(closing)return closing;closed=true;
+      if(viewTimer!==null)clearTimeout(viewTimer);viewTimer=null;queuedView=null;
       closing=(async()=>{
         media?.removeEventListener?.('change',phoneChange);
         coordinateButton.removeEventListener('click',toggle);
