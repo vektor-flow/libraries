@@ -18,6 +18,9 @@ triangles(values:[num],size:int,extent:num,color:[num])->[num]:
         .cell:cell+1
     [num] storage:[0:capacity]
     count:0
+    [num] rectangle:[0:12]
+    [int] corners:[0:6]
+    [num] polygon:[0:8]
     y:0
     y<height-1?>
         x:0
@@ -39,7 +42,18 @@ triangles(values:[num],size:int,extent:num,color:[num])->[num]:
                     ~(values.(at)>=0 /\ values.(at+1)>=0 /\ values.(at+size)>=0 /\ values.(at+size+1)>=0)? .filling:false
                 full:stop>x
                 full?
-                    [num] rectangle:[num(x),num(y),num(stop),num(y),num(stop),num(y+1),num(x),num(y),num(stop),num(y+1),num(x),num(y+1)]
+                    rectangle.(0):num(x)
+                    rectangle.(1):num(y)
+                    rectangle.(2):num(stop)
+                    rectangle.(3):num(y)
+                    rectangle.(4):num(stop)
+                    rectangle.(5):num(y+1)
+                    rectangle.(6):num(x)
+                    rectangle.(7):num(y)
+                    rectangle.(8):num(stop)
+                    rectangle.(9):num(y+1)
+                    rectangle.(10):num(x)
+                    rectangle.(11):num(y+1)
                     vertex:0
                     vertex<6?>
                         storage.(count):rectangle.(2*vertex)*extent/(size-1)
@@ -52,10 +66,14 @@ triangles(values:[num],size:int,extent:num,color:[num])->[num]:
                         .vertex:vertex+1
                     .x:stop
                 ~full?
-                    [int] corners:[y*size+x,y*size+x+1,(y+1)*size+x+1,y*size+x,(y+1)*size+x+1,(y+1)*size+x]
+                    corners.(0):y*size+x
+                    corners.(1):y*size+x+1
+                    corners.(2):(y+1)*size+x+1
+                    corners.(3):y*size+x
+                    corners.(4):(y+1)*size+x+1
+                    corners.(5):(y+1)*size+x
                     half:0
                     half<2?>
-                        [num] polygon:[0:8]
                         n:0
                         edge:0
                         edge<3?>
@@ -76,10 +94,11 @@ triangles(values:[num],size:int,extent:num,color:[num])->[num]:
                             .edge:edge+1
                         fan:1
                         fan<n-1?>
-                            [int] indices:[0,fan,fan+1]
                             vertex:0
                             vertex<3?>
-                                at:indices.(vertex)
+                                at:0
+                                vertex=1? .at:fan
+                                vertex=2? .at:fan+1
                                 storage.(count):polygon.(2*at)
                                 storage.(count+1):polygon.(2*at+1)
                                 channel:0
