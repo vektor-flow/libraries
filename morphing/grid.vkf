@@ -34,15 +34,15 @@ sample(values:[num],size:int,stride:int,carriers:int,xs:[num],ys:[num],scale:num
         y<ny?>
             iy:int(ay.(3*y))
             fy:ay.(3*y+1)
-            outside_y:ay.(3*y+2)
+            outside_row:ay.(3*y+2)
             row:base+4+iy*size
             x:0
             x<nx?>
                 ix:int(ax.(3*x))
                 fx:ax.(3*x+1)
-                outside:outside_y
-                outside_x:ax.(3*x+2)
-                outside_x>outside_y? .outside:outside_x
+                outside:outside_row
+                outside_column:ax.(3*x+2)
+                outside_column>outside_row? .outside:outside_column
                 ~(outside> -1)? .outside: -1
                 positive_outside:0.0
                 outside>0? .positive_outside:outside

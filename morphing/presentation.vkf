@@ -19,21 +19,21 @@ clip(values:[num],size:int,extent:num,color:[num],attributes:int)->[num]:
     (size>=3 /\ values.length()%size=0 /\ values.length()>=2*size /\ extent>0 /\ color.length()=4)?! "invalid presentation lattice"
     height:values.length()//size
     capacity:0
-    capacity_y:0
-    capacity_y<height-1?>
-        capacity_x:0
-        capacity_x<size-1?>
-            origin:capacity_y*size+capacity_x
+    capacity_row:0
+    capacity_row<height-1?>
+        capacity_column:0
+        capacity_column<size-1?>
+            origin:capacity_row*size+capacity_column
             values.(origin)>=0 \/ values.(origin+1)>=0 \/ values.(origin+size)>=0 \/ values.(origin+size+1)>=0? .capacity:capacity+12*attributes
-            .capacity_x:capacity_x+1
-        .capacity_y:capacity_y+1
+            .capacity_column:capacity_column+1
+        .capacity_row:capacity_row+1
     [num] storage:[0:capacity]
     count:0
     [num] rectangle:[0:12]
     [int] corners:[0:6]
     [num] polygon:[0:8]
-    [num] corner_x:[0:6]
-    [num] corner_y:[0:6]
+    [num] corner_columns:[0:6]
+    [num] corner_rows:[0:6]
     y:0
     y<height-1?>
         x:0
@@ -85,18 +85,18 @@ clip(values:[num],size:int,extent:num,color:[num],attributes:int)->[num]:
                     corners.(3):y*size+x
                     corners.(4):(y+1)*size+x+1
                     corners.(5):(y+1)*size+x
-                    corner_x.(0):num(x)
-                    corner_x.(1):num(x+1)
-                    corner_x.(2):num(x+1)
-                    corner_x.(3):num(x)
-                    corner_x.(4):num(x+1)
-                    corner_x.(5):num(x)
-                    corner_y.(0):num(y)
-                    corner_y.(1):num(y)
-                    corner_y.(2):num(y+1)
-                    corner_y.(3):num(y)
-                    corner_y.(4):num(y+1)
-                    corner_y.(5):num(y+1)
+                    corner_columns.(0):num(x)
+                    corner_columns.(1):num(x+1)
+                    corner_columns.(2):num(x+1)
+                    corner_columns.(3):num(x)
+                    corner_columns.(4):num(x+1)
+                    corner_columns.(5):num(x)
+                    corner_rows.(0):num(y)
+                    corner_rows.(1):num(y)
+                    corner_rows.(2):num(y+1)
+                    corner_rows.(3):num(y)
+                    corner_rows.(4):num(y+1)
+                    corner_rows.(5):num(y+1)
                     half:0
                     half<2?>
                         n:0
@@ -110,13 +110,13 @@ clip(values:[num],size:int,extent:num,color:[num],attributes:int)->[num]:
                             vc:values.(c)
                             (|va|<10^100 /\ |vc|<10^100)?! "nonfinite presentation field"
                             va>=0?
-                                polygon.(2*n):corner_x.(ia)*extent/(size-1)
-                                polygon.(2*n+1):corner_y.(ia)*extent/(size-1)
+                                polygon.(2*n):corner_columns.(ia)*extent/(size-1)
+                                polygon.(2*n+1):corner_rows.(ia)*extent/(size-1)
                                 .n:n+1
                             (va<0 /\ vc>0) \/ (va>0 /\ vc<0)?
                                 t:va/(va-vc)
-                                polygon.(2*n):(corner_x.(ia)+t*(corner_x.(ic)-corner_x.(ia)))*extent/(size-1)
-                                polygon.(2*n+1):(corner_y.(ia)+t*(corner_y.(ic)-corner_y.(ia)))*extent/(size-1)
+                                polygon.(2*n):(corner_columns.(ia)+t*(corner_columns.(ic)-corner_columns.(ia)))*extent/(size-1)
+                                polygon.(2*n+1):(corner_rows.(ia)+t*(corner_rows.(ic)-corner_rows.(ia)))*extent/(size-1)
                                 .n:n+1
                             .edge:edge+1
                         fan:1
