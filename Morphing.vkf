@@ -227,3 +227,8 @@ geometry_row(plan:GeometryPlan,coordinate:num,scale:num,size:int,row:int,lo:[num
 # Text unfolding over renderer-owned, pre-indexed glyph/line geometry.
 unfold:.morphing.unfold
 unfold_defaults()->(k:num,velocity:num,overshoot:num,grow:bit,loop:bit):unfold.defaults()
+
+# Prepared-axis bulk sampling of the existing 2D implicit field kernel.
+field_grid:.morphing.grid
+field_grid2(values:[num],size:int,stride:int,carriers:int,xs:[num],ys:[num],scale:num,neck:num)->[num]:
+    @:field_grid.sample(values,size,stride,carriers,xs,ys,scale,neck)

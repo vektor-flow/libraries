@@ -7,6 +7,12 @@ maximum(a:num,b:num)->num:
     @:b
 clamp(x:num,a:num,b:num)->num:minimum(b,maximum(a,x))
 
+bilinear2(a:num,b:num,c:num,d:num,fx:num,fy:num)->num:
+    value:(1-fx)*(1-fy)*a
+    .value:value+fx*(1-fy)*b
+    .value:value+(1-fx)*fy*c
+    .value:value+fx*fy*d
+    @:value
 
 # Multilinear field lookup in the object's own moving coordinates.
 field(values:[num],dimension:int,size:int,stride:int,carrier:int,x:num,y:num,z:num,scale:num)->num:
@@ -38,10 +44,7 @@ field(values:[num],dimension:int,size:int,stride:int,carrier:int,x:num,y:num,z:n
     # avoiding nested dynamic loops in every 2D GPU field invocation.
     dimension=2?
         at:base+2*dimension+iy*size+ix
-        value:(1-fx)*(1-fy)*values.(at)
-        .value:value+fx*(1-fy)*values.(at+1)
-        .value:value+(1-fx)*fy*values.(at+size)
-        .value:value+fx*fy*values.(at+size+1)
+        value:bilinear2(values.(at),values.(at+1),values.(at+size),values.(at+size+1),fx,fy)
         @:(value-maximum(outside,0))*extent
     layers:1
     dimension=3? .layers:2
