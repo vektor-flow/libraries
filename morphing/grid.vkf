@@ -40,13 +40,33 @@ sample(values:[num],size:int,stride:int,carriers:int,xs:[num],ys:[num],scale:num
             x<nx?>
                 ix:int(ax.(3*x))
                 fx:ax.(3*x+1)
-                outside:f.maximum(f.maximum(ax.(3*x+2),outside_y),-1)
+                outside:outside_y
+                outside_x:ax.(3*x+2)
+                outside_x>outside_y? .outside:outside_x
+                ~(outside> -1)? .outside: -1
+                positive_outside:0.0
+                outside>0? .positive_outside:outside
                 at:row+ix
-                value:f.bilinear2(values.(at),values.(at+1),values.(at+size),values.(at+size+1),fx,fy)
-                .value:(value-f.maximum(outside,0))*extent
+                # Scalar kernel operation order, inlined inside the batch.
+                value:(1-fx)*(1-fy)*values.(at)
+                .value:value+fx*(1-fy)*values.(at+1)
+                .value:value+(1-fx)*fy*values.(at+size)
+                .value:value+fx*fy*values.(at+size+1)
+                .value:(value-positive_outside)*extent
                 target:y*nx+x
                 carrier=0? result.(target):value
-                carrier>0? result.(target):f.union(result.(target),value,neck)
+                carrier>0?
+                    previous:result.(target)
+                    largest:value
+                    previous>value? .largest:previous
+                    neck<=0? .value:largest
+                    neck>0?
+                        difference:neck-|previous-value|
+                        positive_difference:0.0
+                        difference>0? .positive_difference:difference
+                        h:positive_difference/neck
+                        .value:largest+neck*h*h/4
+                    result.(target):value
                 .x:x+1
             .y:y+1
         .carrier:carrier+1
