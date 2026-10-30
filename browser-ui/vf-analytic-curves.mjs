@@ -26,7 +26,7 @@ function distance(p,a,b) {
   const ux=dx/l,uy=dy/l,t=Math.max(0,Math.min(l,(p[0]-a[0])*ux+(p[1]-a[1])*uy));
   return Math.hypot(p[0]-a[0]-t*ux,p[1]-a[1]-t*uy);
 }
-export function projectCurves(contract,{matrix,pixelRatio=1,tolerance=.25,maxSegments=65536}={}) {
+export function projectCurves(contract,{matrix,pixelRatio=1,devicePixelRatio=pixelRatio,tolerance=.125/devicePixelRatio,maxSegments=65536}={}) {
   if(!finite(matrix,8)||!Number.isFinite(pixelRatio)||pixelRatio<=0||!Number.isFinite(tolerance)||tolerance<=0||!Number.isSafeInteger(maxSegments)||maxSegments<1||maxSegments>65536)throw TypeError('finite affine projection/budget required');
   const project=p=>[matrix[0]*p[0]+matrix[1]*p[1]+matrix[2]*p[2]+matrix[3],matrix[4]*p[0]+matrix[5]*p[1]+matrix[6]*p[2]+matrix[7]].map(v=>v*pixelRatio);
   let count=0;

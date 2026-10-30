@@ -1,3 +1,4 @@
+import {circleSegments,strokeContext} from './vf-stroke-contract.mjs';
 import {
   colorToRgba
 } from 'vektor-flow/screen-simplex-renderer';
@@ -8,7 +9,7 @@ export function createRetainedGeometryScene() {
 
   // Keep only the preceding/current frame's privately owned contour records.
   // Caller geometry is compared by value every time, including mutable arrays.
-  let previousContours = new Map(), currentContours = new Map(), recording = null;
+  let previousContours = new Map(), currentContours = new Map(), recording = null,recordingCoveragePixelRatio=1;
   const own = value => Array.isArray(value) ? Object.freeze(value.map(own))
     : value && typeof value === 'object'
       ? Object.freeze(Object.fromEntries(Object.entries(value).map(([key, item]) => [key, own(item)])))
@@ -122,17 +123,17 @@ export function createRetainedGeometryScene() {
     const prior = currentContours.get(key) || previousContours.get(key);
     if (prior && Object.is(prior.pixelRatio, pixelRatio)
       && Object.is(prior.radius, metrics.selectionRadius)
-      && Object.is(prior.width, metrics.ringWidth)
+      && Object.is(prior.width, metrics.ringWidth) && Object.is(prior.coveragePixelRatio,metrics.coveragePixelRatio??1)
       && samePoints([prior.color], [rgba]) && samePoints(prior.points, points)) {
       currentContours.set(key, prior);
       for (const item of prior.primitives) scene.primitive(item.scope, item.id, item.value, item);
       return;
     }
     const entry = {points:own(points), color:own(rgba), pixelRatio,
-      radius:metrics.selectionRadius, width:metrics.ringWidth, primitives:[]};
-    recording = entry.primitives;
+      radius:metrics.selectionRadius, width:metrics.ringWidth, coveragePixelRatio:metrics.coveragePixelRatio??1, primitives:[]};
+    recording = entry.primitives;recordingCoveragePixelRatio=entry.coveragePixelRatio;
     try { buildSelectionContour(scope, id, points, rgba, pixelRatio, metrics); }
-    finally { recording = null; }
+    finally { recording = null;recordingCoveragePixelRatio=1; }
     currentContours.set(key, entry);
   }
 
@@ -218,7 +219,12 @@ export function createRetainedGeometryScene() {
   ) {
     // Radius zero creates only zero-length edges, which the packed backend
     // discards. Avoid allocating those empty primitives in the first place.
-    if (radius === 0) return;
+    if (radius === 0) {
+      // Offset outlines already describe the physical selection centerline.
+      // Butt segment quads alone leave corner cracks: add a genuine round join
+      // using the same projected ring width, not an independent CSS radius.
+      primitive(scope,id,{kind:'vertex',center,radius:width/2,segments:circleSegments(width/2,strokeContext({pixelRatio:recordingCoveragePixelRatio})),color},{selection:true});return;
+    }
     const incoming = unitVector(center[0] - previous[0], center[1] - previous[1]);
     const outgoing = unitVector(next[0] - center[0], next[1] - center[1]);
     if (!incoming || !outgoing) return;
@@ -251,7 +257,12 @@ export function createRetainedGeometryScene() {
   }
 
   function addSelectionEndCap(scope, id, center, inside, outwardSign, radius, width, color) {
-    if (radius === 0) return;
+    if (radius === 0) {
+      // Offset outlines already describe the physical selection centerline.
+      // Butt segment quads alone leave corner cracks: add a genuine round join
+      // using the same projected ring width, not an independent CSS radius.
+      primitive(scope,id,{kind:'vertex',center,radius:width/2,segments:circleSegments(width/2,strokeContext({pixelRatio:recordingCoveragePixelRatio})),color},{selection:true});return;
+    }
     const inwardX = inside[0] - center[0];
     const inwardY = inside[1] - center[1];
     const length = Math.hypot(inwardX, inwardY);

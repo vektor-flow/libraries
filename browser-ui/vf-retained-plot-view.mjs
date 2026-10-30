@@ -1,19 +1,29 @@
+import {strokeContext,resolveStroke,circleSegments,DEFAULT_PLOT_STROKE} from './vf-stroke-contract.mjs';
 import {curveContract,drawCurves} from './vf-analytic-curves.mjs';
 import {createSelectionController} from './vf-selection-controller.mjs';
 import {nativeGeometrySelectionObject} from './vf-selection-adapters.mjs';
 import { createRetainedGeometryScene } from './vf-retained-geometry-scene.mjs';
-import { materializeRetainedSceneArena } from './vf-retained-scene-arena.mjs';
+import {createRetainedTimeProjection} from './vf-retained-layer-time.mjs';
 
 // Presentation of compiler-owned field_mesh values. Geometry and physics are
 // supplied by Frame.add/World; this view never evaluates source or steps a World.
-export function createRetainedPlotView({ coordinates, renderer, pixelRatio = globalThis.devicePixelRatio || 1,
-  selectionColor = '#00ffff', selectionRadius = 4, ringWidth = 2 } = {}) {
+export function createRetainedPlotView({ coordinates, renderer, pixelRatio = ()=>globalThis.devicePixelRatio || 1,
+  selectionColor = '#00ffff', selectionRadius = DEFAULT_PLOT_STROKE.gap+DEFAULT_PLOT_STROKE.width/2, ringWidth = DEFAULT_PLOT_STROKE.width, selectionStroke = null } = {}) {
   if (typeof coordinates?.worldToScreen !== 'function') throw new TypeError('coordinates must project world positions');
-  if (!(Number.isFinite(pixelRatio) && pixelRatio > 0)) throw new RangeError('pixelRatio must be positive');
+  const deviceRatio=()=>{const r=typeof pixelRatio==='function'?pixelRatio():pixelRatio;if(!Number.isFinite(r)||r<=0)throw RangeError('pixelRatio must be positive');return r};deviceRatio();
   const scene = createRetainedGeometryScene();
   let frame = null;
   let meshes = [];
-  const selectionController=createSelectionController({selectionColor,selectionRadius,ringWidth});
+  let nativeLabelLayer=null,labelObjects=[];
+  function syncNativeLabels(){const objects=nativeLabelLayer?.selectionObjects()??[];if(objects.length===labelObjects.length&&objects.every((v,i)=>v===labelObjects[i]))return;labelObjects=objects;selectionController.registerObjects("native-label-layer",objects);}
+  let arenaProjection = null,coordinateRevision=null;
+  function replaceArena(packet,{elapsedSeconds=0,layerTimeOffsets={}}={}) {
+    const projection=arenaProjection?.packet===packet?arenaProjection:createRetainedTimeProjection(packet);
+    const projected=projection.at(elapsedSeconds,{layerTimeOffsets});
+    replace(projected.scene);arenaProjection=projection;
+  }
+  const getStrokeContext=()=>strokeContext({coordinates,pixelRatio:deviceRatio()});
+  const selectionController=createSelectionController({selectionColor,selectionRadius,ringWidth,stroke:selectionStroke,getStrokeContext});
 
   function replace(next) {
     if (!next || typeof next.frame !== 'string' || !Array.isArray(next.meshes)) throw new TypeError('retained scene requires a frame and meshes');
@@ -42,24 +52,20 @@ export function createRetainedPlotView({ coordinates, renderer, pixelRatio = glo
     meshes = values;
     selectionController.replace(frame, values.filter(mesh=>mesh.pickable&&mesh.selectable).map(mesh=>({
       ...nativeGeometrySelectionObject({objectId:mesh.id,points:mesh.points,indices:mesh.indices,topology:mesh.topology,coordinates,
-        width:()=>pixelSize(mesh,mesh.width)/pixelRatio,radius:()=>pixelSize(mesh,mesh.radius)/pixelRatio}),
+        width:()=>pixelSize(mesh,mesh.width),radius:()=>pixelSize(mesh,mesh.radius)}),
+      pickable:mesh.pickable,selectable:mesh.selectable,
       // Preserve the retained picker's nearest/tie/tolerance semantics.
       hitTest:(point,options)=>hitTest(point,options)?.id===mesh.id
     })));
   }
 
   function projected(mesh) {
-    return mesh.points.map(point => coordinates.worldToScreen(point).map(value => value * pixelRatio));
+    return mesh.points.map(point => coordinates.worldToScreen(point));
   }
 
-  function pixelSize(mesh, size) {
-    if (mesh.sizeSpace !== 'world') return size * pixelRatio;
-    const state = coordinates.snapshot?.();
-    const scale = state?.transform?.scale;
-    const pixelsPerUnit = scale ? Math.sqrt(Math.abs(scale[0] * scale[1]))
-      : state?.camera?.ortho_scale ? state.viewport.height / (2 * state.camera.ortho_scale) : null;
-    if (!(Number.isFinite(pixelsPerUnit) && pixelsPerUnit > 0)) throw new TypeError('world marker size requires a supported coordinate view');
-    return size * pixelsPerUnit * pixelRatio;
+  function pixelSize(mesh,size) {
+    if(size===0)return 0;
+    return resolveStroke({width:size,units:mesh.sizeSpace==='world'?'world':'css-pixel'},getStrokeContext()).cssWidth;
   }
 
   function segments(mesh) {
@@ -71,11 +77,13 @@ export function createRetainedPlotView({ coordinates, renderer, pixelRatio = glo
   }
 
   function render() {
-    scene.beginFrame();
+    const revision=JSON.stringify([coordinates.snapshot?.()??coordinates.affineWorldToScreen?.()??null,deviceRatio()]);
+    if(coordinateRevision!==null&&revision!==coordinateRevision)selectionController.invalidateCoordinates();
+    coordinateRevision=revision;scene.beginFrame();
     for (const mesh of meshes) {
       const points = projected(mesh);
       if (mesh.curve) {
-        drawCurves(scene,frame,mesh.id,mesh.curve,{matrix:coordinates.affineWorldToScreen?.(),pixelRatio},pixelSize(mesh,mesh.width));
+        drawCurves(scene,frame,mesh.id,mesh.curve,{matrix:coordinates.affineWorldToScreen?.(),pixelRatio:1,devicePixelRatio:deviceRatio()},pixelSize(mesh,mesh.width));
         continue;
       }
       for (const [index, [from, to]] of segments(mesh).entries()) {
@@ -88,20 +96,21 @@ export function createRetainedPlotView({ coordinates, renderer, pixelRatio = glo
         scene.primitive(frame, `${mesh.id}:${i}`, {kind:'face', points:triangle, colors:indices.map(index => mesh.colors[index])});
       }
       if (mesh.topology === 'point-list') for (const index of mesh.indices) {
-        scene.primitive(frame, `${mesh.id}:${index}`, {kind:'vertex',center:points[index],radius:pixelSize(mesh,mesh.radius),color:mesh.colors[index]});
+        scene.primitive(frame, `${mesh.id}:${index}`, {kind:'vertex',center:points[index],radius:pixelSize(mesh,mesh.radius),segments:circleSegments(pixelSize(mesh,mesh.radius),getStrokeContext()),color:mesh.colors[index]});
 
       }
     }
-    selectionController.render(scene,{pixelRatio});
+    nativeLabelLayer?.render(scene,frame);syncNativeLabels();
+    selectionController.render(scene,{pixelRatio:deviceRatio(),coordinateSpace:'css-pixel'});
     return scene.commit(renderer);
   }
 
   function hitTest(point, { tolerance = 7, capability = 'selectable' } = {}) {
     if (!Array.isArray(point) || point.length !== 2 || !point.every(Number.isFinite) || !Number.isFinite(tolerance) || tolerance < 0) throw new TypeError('selection needs a finite screen point and nonnegative tolerance');
     if (!['selectable','draggable'].includes(capability)) throw new TypeError('hit capability must be selectable or draggable');
-    const screen = point.map(value => value * pixelRatio);
+    const screen = point;
     let hit = null;
-    let best = tolerance * pixelRatio;
+    let best = tolerance;
     for (const mesh of meshes) {
       if (!mesh.pickable || !mesh[capability]) continue;
       const points = projected(mesh);
@@ -117,8 +126,8 @@ export function createRetainedPlotView({ coordinates, renderer, pixelRatio = glo
     return hit ? Object.freeze({id:hit.id,selectable:hit.selectable,draggable:hit.draggable}) : null;
   }
 
-  const {selectAt,selection,clearSelection}=selectionController;
-  return Object.freeze({replace, replaceArena: packet => replace(materializeRetainedSceneArena(packet)), render, hitTest, selectAt, selection, clearSelection, selectionController, dispose:selectionController.dispose, invalidate:scene.invalidate});
+  const {selectAt,selectRectangle,selection,clearSelection}=selectionController;
+  return Object.freeze({setNativeLabelLayer(layer){nativeLabelLayer=layer;syncNativeLabels();},replace, replaceArena, render, hitTest, selectAt, selectRectangle, selection, clearSelection, selectionController, registerSelectionObjects:selectionController.registerObjects, removeSelectionObjects:selectionController.removeObjects, strokeContext:getStrokeContext, dispose:selectionController.dispose, invalidate(){selectionController.invalidateCoordinates();scene.invalidate()}});
 }
 
 function distanceToSegment(point, from, to) {
