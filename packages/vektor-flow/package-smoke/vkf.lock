@@ -1,0 +1,17 @@
+{
+  "schema": 3,
+  "settings": {
+    "name": "vektor-flow/package-smoke",
+    "entry": "src/package_smoke.vkf",
+    "compiler": ">=0.7.5 <0.8.0",
+    "targets": [
+      "wasm",
+      "native"
+    ],
+    "dependencies": {},
+    "exports": {
+      "package_smoke": "src/package_smoke.vkf",
+      "package_smoke_extra": "src/extra.vkf"
+    }
+  }
+}
