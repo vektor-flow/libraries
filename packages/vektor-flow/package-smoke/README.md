@@ -1,3 +1,3 @@
 Package smoke source
 
-One maintained folder; merged Git commit is the version. vkf.lock holds package settings and build-derived address pins. Entry src/package_smoke.vkf imports its private sibling and returns 7. This local source fixture is UNRUN and unpublished. Use the normal VKF runner with a GitHub tree/file string address; no required pkg.publisher prefix.
+One maintained folder; Git commits version the complete source. The ordinary VKF runner proposes updates; a trusted maintainer inspects and merges the current head. The entry imports its private sibling and returns 7. The single vkf.lock holds settings and build-maintained pins.
