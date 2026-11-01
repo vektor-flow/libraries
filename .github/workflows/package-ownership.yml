@@ -1,23 +1,26 @@
-name: Trusted package ownership
+name: Package ownership advisory
 on:
   pull_request_target:
     branches: [main]
-    types: [opened, synchronize, reopened, edited, ready_for_review]
+    types: [opened, synchronize]
+# A PR workflow can emit an identically named GitHub Actions check. Never use
+# this job/context/app as the server's ownership authorization requirement.
+# The protected main branch permits only trusted maintainers to merge PRs.
 permissions:
   contents: read
   pull-requests: read
-  statuses: write
 jobs:
-  validate-owner:
+  inspect-owner:
+    name: Package ownership advisory
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Check out trusted base policy only
+      - name: Check out exact trusted workflow base only
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: ${{ github.event.pull_request.base.sha }}
+          ref: ${{ github.sha }}
           persist-credentials: false
-      - name: Validate PR metadata against current trusted owners
+      - name: Inspect authenticated current-head event against trusted owners
         env:
           GH_TOKEN: ${{ github.token }}
         run: node .github/package-policy/check.mjs
