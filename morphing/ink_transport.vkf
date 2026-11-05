@@ -1,0 +1,87 @@
+# One native material carrier evaluator shared by CPU and compiled GPU dispatch.
+segment:.segment
+math:.math
+clamp(x:num,lo:num,hi:num)->num:
+    x<lo? @:lo
+    x>hi? @:hi
+    @:x
+# params q/release/temperature/spread/lift/footprint/width/windx/windy/front/N/ng/exchange.
+# values source7*N, target7*N; dense dispatch appends native glyph7*ng.
+carrier(index:int,params:[num],values:[num],glyph:int,reading:num)->[num]:
+    q:params.(0)
+    release:params.(1)
+    count:int(params.(10))
+    width:params.(6)
+    lead:1.5*width
+    a:clamp((params.(9)-reading)/width,0,1)
+    progress:clamp((params.(9)-reading+lead)/lead,0,1)
+    q=0?
+        .a:0
+        .progress:0
+    q=1?
+        .a:1
+        .progress:1
+    [num] channels:[0:7]
+    j:0
+    j<7?>
+        start:values.(7*index+j)
+        finish:values.(7*count+7*index+j)
+        params.(12)=1 /\ j=1? .start:start-0.08*params.(4)
+        params.(12)=2 /\ j=1? .finish:finish+0.35+0.1*params.(4)
+        channels.(j):segment.value(start,finish,0,0,1,progress)
+        .j:j+1
+    envelope:release*(1-progress)*params.(2)
+    phase:8*(values.(7*index)+values.(7*index+1))+6*q
+    params.(12)=1? .phase:phase-8*0.08*params.(4)
+    channels.(0):channels.(0)+0.15*params.(3)*envelope*(0.8*math.sin(phase)+0.12*params.(7))
+    channels.(1):channels.(1)+0.15*params.(4)*envelope*(1+0.2*math.cos(phase)+0.08*params.(8))
+    q=1?
+        channels.(0):values.(7*count+7*index)
+        channels.(1):values.(7*count+7*index+1)
+        params.(12)=2? channels.(1):channels.(1)+0.35+0.1*params.(4)
+    @:[channels.(0),channels.(1),channels.(5)*release*(1-a),params.(5),channels.(2),channels.(3),channels.(4),1/num(count),a,num(glyph),channels.(5)]
+
+# Equal dyadic source/target partitions have the identical ordered material owner
+# index. No host correspondence or numerical trajectory is introduced here.
+dense(index:int,params:[num],values:[num])->[num]:
+    count:int(params.(10))
+    ng:int(params.(11))
+    (index>=0 /\ index<count /\ count<=65536 /\ ng>0 /\ ng<=4096 /\ values.length()=14*count+7*ng)?! "dense native material storage"
+    px:values.(7*count+7*index)
+    py:values.(7*count+7*index+1)
+    nearest:0
+    best:10^20
+    j:0
+    j<ng?>
+        dx:px-values.(14*count+7*j)
+        dy:py-values.(14*count+7*j+1)
+        distance:dx*dx+dy*dy
+        distance<best?
+            .nearest:j
+            .best:distance
+        .j:j+1
+    @:carrier(index,params,values,nearest,values.(14*count+7*nearest+2))
+
+# Native GPU reduction reads actual assigned carrier mass before displaying ink.
+# Output: target alpha/scale/RGB, gas/captured/assigned normalized mass, optical gas.
+capture(glyph:int,params:[num],values:[num])->[num]:
+    count:int(params.(10))
+    ng:int(params.(11))
+    (glyph>=0 /\ glyph<ng /\ values.length()=11*count+7*ng)?! "dense native capture storage"
+    gas:0.0
+    captured:0.0
+    assigned:0.0
+    optical:0.0
+    i:0
+    i<count?>
+        int(values.(11*i+9))=glyph?
+            mass:values.(11*i+7)
+            a:values.(11*i+8)
+            .assigned:assigned+mass
+            .gas:gas+mass*params.(1)*(1-a)
+            .captured:captured+mass*params.(1)*a
+            .optical:optical+values.(11*i+2)*values.(11*i+3)^2
+        .i:i+1
+    alpha:0.0
+    assigned>0? .alpha:captured/assigned*values.(11*count+7*glyph+6)
+    @:[alpha,1,values.(11*count+7*glyph+3),values.(11*count+7*glyph+4),values.(11*count+7*glyph+5),gas,captured,assigned,optical]

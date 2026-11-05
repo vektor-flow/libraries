@@ -148,6 +148,7 @@ text_frame(value:Interp,q:num,source_ink:[num],target_reading:[num],front:num)->
 ink_state:.morphing.state
 ink_segment:.morphing.segment
 ink_math:.math
+ink_transport:.morphing.ink_transport
 MaterialPlan:(state:Plan,weights:[num],owners:[int],dimension:int,carriers:int,states:int)
 VaporTransport:(material:MaterialPlan,turbulence:Plan,glyphs:[num],glyph_owners:[int],settings:Interp,source_count:int,target_count:int,exchange:int)
 MaterialLedger:(source:num,gas:num,target:num,reservoir:num,emitted:num,exited:num)
@@ -286,17 +287,7 @@ prepare_vapor_transport(value:Interp,source:[num],destination:[num],glyphs:[num]
     material:m.prepare_material([0,1],[0,n,n+mcount],weights,positions,7,0,false,false)
     count:material.carriers
     (count<=65536)?! "material vapor carrier cap exceeded"
-    seed:0
-    value.vapor.length()=1? .seed:value.vapor.(0).seed
-    [num] knots:[0:13]
-    [num] fluctuations:[0:13*2]
-    tick:0
-    tick<13?>
-        knots.(tick):num(tick)/12
-        fluctuations.(tick*2):2*noise(0,seed,2*tick)-1
-        fluctuations.(tick*2+1):2*noise(0,seed,2*tick+1)-1
-        .tick:tick+1
-    turbulence:m.prepare(knots,fluctuations,2,1,false,false)
+    turbulence:vapor_turbulence(value)
     @:(material:material,turbulence:turbulence,glyphs:glyphs,glyph_owners:owners,settings:value,source_count:actual_source,target_count:actual_target,exchange:exchange)
 
 # Delayed row front: material first dissolves/lifts, then the front captures it.
@@ -374,6 +365,7 @@ sample_vapor_transport(plan:VaporTransport,q:num,front:num)->VaporFrame:
     local:(q-knots.(segment))/h
     wind_x:ink_segment.value(fluctuations.(segment*2),fluctuations.(segment*2+2),fluctuation_second.(segment*2),fluctuation_second.(segment*2+2),h,local)
     wind_y:ink_segment.value(fluctuations.(segment*2+1),fluctuations.(segment*2+3),fluctuation_second.(segment*2+1),fluctuation_second.(segment*2+3),h,local)
+    carrier_params:[q,release,temperature,spread,lift,footprint,width,wind_x,wind_y,front,num(count),num(ng),0]
     gas_mass:0.0
     captured_mass:0.0
     .i:0
@@ -384,36 +376,13 @@ sample_vapor_transport(plan:VaporTransport,q:num,front:num)->VaporFrame:
         progress:u.clamp((front-glyphs.(7*glyph+2)+lead)/lead,0,1)
         q=0? .progress:0
         q=1? .progress:1
-        # Same prepared state-segment kernel, evaluated at carrier capture phase.
-        j:0
-        [num] channels:[0:7]
-        j<7?>
-            index:7*i+j
-            start:values.(index)
-            finish:values.(7*count+index)
-            channels.(j):ink_segment.value(start,finish,0,0,1,progress)
-            .j:j+1
-        px:values.(7*count+7*i)
-        py:values.(7*count+7*i+1)
-        envelope:release*(1-progress)*temperature
-        phase:8*(values.(7*i)+values.(7*i+1))+6*q
-        swirl_x:ink_math.sin(phase)
-        swirl_y:ink_math.cos(phase)
-        channels.(0):channels.(0)+0.15*spread*envelope*(0.8*swirl_x+0.12*wind_x)
-        channels.(1):channels.(1)+0.15*lift*envelope*(1+0.2*swirl_y+0.08*wind_y)
-        q=1?
-            channels.(0):px
-            channels.(1):py
+        channels:ink_transport.carrier(i,carrier_params,values,glyph,glyphs.(7*glyph+2))
         fraction:release*(1-a)
         mass:weights.(i)
-        gas.(9*i):channels.(0)
-        gas.(9*i+1):channels.(1)
-        gas.(9*i+2):channels.(5)*fraction
-        # Splitting a carrier partitions its presentation area, not its ledger.
-        gas.(9*i+3):footprint
-        gas.(9*i+4):channels.(2)
-        gas.(9*i+5):channels.(3)
-        gas.(9*i+6):channels.(4)
+        j:0
+        j<7?>
+            gas.(9*i+j):channels.(j)
+            .j:j+1
         gas.(9*i+7):mass
         gas.(9*i+8):a
         target_mass.(glyph):target_mass.(glyph)+mass
@@ -567,3 +536,95 @@ sample_text_rows(rows:[TextRowPlan],q:num,fronts:[num])->TextBatchFrame:
         .frames:frames & [(poses:poses,source_alpha:source,gas:gas,target:target,ledger:ledger)]
         .i:i+1
     @:(coordinate:coordinate,rows:frames)
+
+# Shared seeded field, independent of raster/carrier count.
+vapor_turbulence(value:Interp)->Plan:
+    seed:0
+    value.vapor.length()=1? .seed:value.vapor.(0).seed
+    [num] knots:[0:13]
+    [num] fluctuations:[0:13*2]
+    tick:0
+    tick<13?>
+        knots.(tick):num(tick)/12
+        fluctuations.(tick*2):2*noise(0,seed,2*tick)-1
+        fluctuations.(tick*2+1):2*noise(0,seed,2*tick+1)-1
+        .tick:tick+1
+    @:m.prepare(knots,fluctuations,2,1,false,false)
+
+# Bounded native dense specialization: equal dyadic endpoint partitions have
+# owner(i)=i and mass(i)=1/N, exactly the prepare_material equal-weight case.
+# Ink remains external renderer data consumed by compiler-owned field dispatch.
+DenseVaporPlan:(settings:Interp,turbulence:Plan,count:int,glyphs:[num],exchange:int)
+DenseVaporFrame:(params:[num],source_alpha:num)
+prepare_dense_vapor(value:Interp,count:int,source_present:bit,target_present:bit,glyphs:[num])->DenseVaporPlan:
+    valid(value)?! "invalid dense Interp settings"
+    (value.mode=2 /\ count>0 /\ count<=65536 /\ (source_present \/ target_present) /\ glyphs.length()>0 /\ glyphs.length()%7=0 /\ glyphs.length()<=28672)?! "invalid dense material plan"
+    n:count
+    n>1 /\ n%2=0?> .n:n//2
+    (n=1)?! "dense material requires dyadic count"
+    boundary:3
+    value.vapor.length()=1? .boundary:value.vapor.(0).boundary
+    exchange:0
+    ~source_present?
+        (boundary=1 \/ boundary=3)?! "material emission requires declared boundary"
+        .exchange:1
+    ~target_present?
+        (boundary=2 \/ boundary=3)?! "material exit requires declared boundary"
+        .exchange:2
+    @:(settings:value,turbulence:vapor_turbulence(value),count:count,glyphs:glyphs,exchange:exchange)
+
+# coordinate has ALREADY passed the single shared text batch clock.
+dense_vapor_frame(plan:DenseVaporPlan,coordinate:num,travel:num,front_override:[num])->DenseVaporFrame:
+    (coordinate>=0 /\ coordinate<=1 /\ front_override.length()<=1)?! "invalid dense frame coordinate"
+    value:plan.settings
+    front:vapor_front(value,coordinate,travel)
+    front_override.length()=1? .front:front_override.(0)
+    width:0.45
+    temperature:1.0
+    spread:0.35
+    lift:0.65
+    footprint:0.45
+    value.capture.length()=1? .width:value.capture.(0).width
+    value.vapor.length()=1?
+        .temperature:value.vapor.(0).temperature
+        .spread:value.vapor.(0).spread
+        .lift:value.vapor.(0).lift
+        .footprint:value.vapor.(0).footprint
+    wind:m.sample(plan.turbulence,coordinate).value
+    release:u.clamp(coordinate/0.25,0,1)
+    source:1-release
+    plan.exchange=1? .source:0
+    @:(params:[coordinate,release,temperature,spread,lift,footprint,width,wind.(0),wind.(1),front,num(plan.count),num(plan.glyphs.length()//7),num(plan.exchange)],source_alpha:source)
+
+finish_dense_capture(plan:DenseVaporPlan,controls:DenseVaporFrame,summary:[num])->VaporFrame:
+    ng:plan.glyphs.length()//7
+    (summary.length()=9*ng)?! "invalid dense capture summary"
+    [num] target:[0:5*ng]
+    gas:0.0
+    captured:0.0
+    assigned:0.0
+    i:0
+    i<ng?>
+        j:0
+        j<5?>
+            target.(5*i+j):summary.(9*i+j)
+            .j:j+1
+        .gas:gas+summary.(9*i+5)
+        .captured:captured+summary.(9*i+6)
+        .assigned:assigned+summary.(9*i+7)
+        .i:i+1
+    (|assigned-1|<0.001)?! "dense carrier mass not assigned"
+    release:controls.params.(1)
+    source:1-release
+    reservoir:0.0
+    emitted:0.0
+    exited:0.0
+    plan.exchange=1?
+        .source:0
+        .reservoir:1-release
+        .emitted:release
+    plan.exchange=2?
+        .exited:captured
+        .captured:0
+        .target:[]
+    @:(source_alpha:controls.source_alpha,gas:[],target:target,ledger:(source:source,gas:gas,target:captured,reservoir:reservoir,emitted:emitted,exited:exited))
