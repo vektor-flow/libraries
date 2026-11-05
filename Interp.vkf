@@ -197,12 +197,14 @@ prepare_vapor_transport(value:Interp,source:[num],destination:[num],glyphs:[num]
         j<7?>
             positions.(7*(n+i)+j):destination.(7*i+j)
             .j:j+1
+        destination_x:destination.(7*i)
+        destination_y:destination.(7*i+1)
         nearest:0
         best:10^100
         .j:0
         j<ng?>
-            dx:destination.(7*i)-glyphs.(7*j)
-            dy:destination.(7*i+1)-glyphs.(7*j+1)
+            dx:destination_x-glyphs.(7*j)
+            dy:destination_y-glyphs.(7*j+1)
             distance:dx*dx+dy*dy
             distance<best?
                 .best:distance
