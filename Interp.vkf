@@ -3,38 +3,44 @@ u:.morphing.unfold
 m:.Morphing
 StateSettings:(path:int)
 RevealSettings:(k:num,velocity:num,overshoot:num,grow:bit)
-VaporSettings:(temperature:num,spread:num,lift:num,seed:int)
+VaporSettings:(temperature:num,spread:num,lift:num,seed:int,footprint:num,boundary:int)
+CaptureSettings:(width:num,velocity:num)
 # Optional groups contain zero or one NAMED typed record. No positional numeric
 # payloads, nullable syntax or implicit field/mode inference.
-Interp:(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings])
+Interp:(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings],capture:[CaptureSettings])
 Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
 Plan:(curve:Curve,smooth_start:bit,smooth_end:bit)
 
-settings(mode:int=0,state:[StateSettings]=[],reveal:[RevealSettings]=[],vapor:[VaporSettings]=[])->Interp:
-    value:(mode:mode,state:state,reveal:reveal,vapor:vapor)
+settings(mode:int=0,state:[StateSettings]=[],reveal:[RevealSettings]=[],vapor:[VaporSettings]=[],capture:[CaptureSettings]=[])->Interp:
+    value:(mode:mode,state:state,reveal:reveal,vapor:vapor,capture:capture)
     valid(value)?! "invalid Interp settings"
     @:value
 
 valid(value:Interp)->bit:
     (value.mode>=0 /\ value.mode<=2)?! "unsupported Interp mode"
-    (value.state.length()<=1 /\ value.reveal.length()<=1 /\ value.vapor.length()<=1)?! "Interp optional group must contain zero or one record"
+    (value.state.length()<=1 /\ value.reveal.length()<=1 /\ value.vapor.length()<=1 /\ value.capture.length()<=1)?! "Interp optional group must contain zero or one record"
     value.mode=0?
-        (value.reveal.length()=0 /\ value.vapor.length()=0)?! "text settings on state Interp"
+        (value.reveal.length()=0 /\ value.vapor.length()=0 /\ value.capture.length()=0)?! "text settings on state Interp"
         value.state.length()=1?
             (value.state.(0).path>=0 /\ value.state.(0).path<=1)?! "unsupported Interp state path"
     value.mode>0?
         (value.state.length()=0)?! "state settings on text Interp"
-        value.reveal.length()=1?
+        value.mode=1 /\ value.reveal.length()=1?
             r:value.reveal.(0)
             (r.velocity>=0 /\ r.velocity<=1)?! "reveal velocity outside 0–1"
             (r.k>=1 /\ r.k<=10)?! "reveal k outside 1–10"
             (r.overshoot>=0 /\ r.overshoot<=0.5)?! "reveal overshoot outside 0–0.5"
-    value.mode=1? (value.vapor.length()=0)?! "vapor settings on spectral Interp"
+    value.mode=1? (value.vapor.length()=0 /\ value.capture.length()=0)?! "vapor settings on spectral Interp"
     value.mode=2?
+        (value.reveal.length()=0)?! "spectral reveal settings on material capture"
+        value.capture.length()=1?
+            c:value.capture.(0)
+            (c.width>0 /\ c.width<=4 /\ c.velocity>=0 /\ c.velocity<=1)?! "invalid material capture parameters"
         value.vapor.length()=1?
             v:value.vapor.(0)
             (v.temperature>=0 /\ v.temperature<=1)?! "vapor temperature outside 0–1"
             (v.spread>=0 /\ v.spread<=4 /\ v.lift>=0 /\ v.lift<=4)?! "vapor extent outside 0–4"
+            (v.footprint>=0.05 /\ v.footprint<=1 /\ v.boundary>=0 /\ v.boundary<=3)?! "invalid material footprint or boundary"
             (v.seed>=0 /\ v.seed<=65535)?! "vapor seed must be integer 0–65535"
     @:true
 
@@ -54,7 +60,7 @@ prepare(value:Interp,coordinates:[num],states:[num],width:int)->Plan:
 # Renderer supplies cached reading coordinates. Returns alpha,growth,r,g,b.
 reveal_channel(value:Interp,distance:num,channel:int)->num:
     valid(value)?! "invalid Interp settings"
-    (value.mode>0 /\ channel>=0 /\ channel<=4)?! "invalid Interp reveal channel"
+    (value.mode=1 /\ channel>=0 /\ channel<=4)?! "invalid Interp reveal channel"
     (|distance|<10^10)?! "invalid Interp reading distance"
     k:4.0
     overshoot:0.32
@@ -87,13 +93,15 @@ state(path:int=0)->Interp:
     @:settings(0,[(path:path,)],[],[])
 spectral(k:num=4,velocity:num=0.54,overshoot:num=0.32,grow:bit=true)->Interp:
     @:settings(1,[],[(k:k,velocity:velocity,overshoot:overshoot,grow:grow)],[])
-evaporate(temperature:num=1,spread:num=0.35,lift:num=0.65,seed:int=0,k:num=4,velocity:num=0.54,overshoot:num=0.32,grow:bit=true)->Interp:
-    @:settings(2,[],[(k:k,velocity:velocity,overshoot:overshoot,grow:grow)],[(temperature:temperature,spread:spread,lift:lift,seed:seed)])
+evaporate(temperature:num=1,spread:num=0.35,lift:num=0.65,seed:int=0,footprint:num=0.45,captureWidth:num=0.45,velocity:num=0.54,boundary:int=3)->Interp:
+    @:settings(2,[],[],[(temperature:temperature,spread:spread,lift:lift,seed:seed,footprint:footprint,boundary:boundary)],[(width:captureWidth,velocity:velocity)])
+
 reveal_advance(value:Interp,front:num,elapsed:num)->num:
     valid(value)?! "invalid Interp settings"
     (value.mode>0 /\ |front|<10^10)?! "reveal advance requires finite text coordinate"
     velocity:0.54
     value.reveal.length()=1? .velocity:value.reveal.(0).velocity
+    value.capture.length()=1? .velocity:value.capture.(0).velocity
     @:u.advance(front,elapsed,velocity)
 
 TextFrame:(source_alpha:num,gas:[num],target:[num])
@@ -141,8 +149,9 @@ ink_state:.morphing.state
 ink_segment:.morphing.segment
 ink_math:.math
 MaterialPlan:(state:Plan,weights:[num],owners:[int],dimension:int,carriers:int,states:int)
-VaporTransport:(material:MaterialPlan,turbulence:Plan,glyphs:[num],glyph_owners:[int],settings:Interp,source_count:int,target_count:int)
-VaporFrame:(source_alpha:num,gas:[num],target:[num],ledger:[num])
+VaporTransport:(material:MaterialPlan,turbulence:Plan,glyphs:[num],glyph_owners:[int],settings:Interp,source_count:int,target_count:int,exchange:int)
+MaterialLedger:(source:num,gas:num,target:num,reservoir:num,emitted:num,exited:num)
+VaporFrame:(source_alpha:num,gas:[num],target:[num],ledger:MaterialLedger)
 
 ink_count(ink:[num])->int:
     (ink.length()>0 /\ ink.length()%7=0 /\ ink.length()<=28672)?! "material vapor needs nonempty bounded ink endpoints"
@@ -167,9 +176,43 @@ ink_count(ink:[num])->int:
 prepare_vapor_transport(value:Interp,source:[num],destination:[num],glyphs:[num])->VaporTransport:
     valid(value)?! "invalid Interp settings"
     (value.mode=2)?! "material transport requires vapor Interp"
+    boundary:3
+    lift:0.65
+    value.vapor.length()=1?
+        .boundary:value.vapor.(0).boundary
+        .lift:value.vapor.(0).lift
+    (source.length()%7=0 /\ destination.length()%7=0)?! "invalid material exchange sample stride"
+    actual_source:source.length()//7
+    actual_target:destination.length()//7
+    (actual_source>0 \/ actual_target>0)?! "empty material exchange"
+    exchange:0
+    actual_source=0?
+        (boundary=1 \/ boundary=3)?! "material emission requires declared boundary"
+        .exchange:1
+        .source:[0:destination.length()]
+        i:0
+        i<destination.length()?>
+            source.(i):destination.(i)
+            .i:i+1
+        .i:0
+        i<actual_target?>
+            source.(7*i+1):source.(7*i+1)-0.08*lift
+            .i:i+1
+    actual_target=0?
+        (boundary=2 \/ boundary=3)?! "material exit requires declared boundary"
+        .exchange:2
+        .destination:[0:source.length()]
+        i:0
+        i<source.length()?>
+            destination.(i):source.(i)
+            .i:i+1
+        .i:0
+        i<actual_source?>
+            destination.(7*i+1):destination.(7*i+1)+0.35+0.1*lift
+            .i:i+1
+        .glyphs:[0,1.2,0,0,0,0,0]
     n:ink_count(source)
     mcount:ink_count(destination)
-    (glyphs.length()>0 /\ glyphs.length()%7=0 /\ glyphs.length()<=28672)?! "material vapor requires target native glyphs"
     ng:glyphs.length()//7
     i:0
     i<ng?>
@@ -212,39 +255,59 @@ prepare_vapor_transport(value:Interp,source:[num],destination:[num],glyphs:[num]
             .j:j+1
         owners.(i):nearest
         .i:i+1
+    # Give every glyph capture control a positive assigned carrier when the
+    # declared budget permits it. These are timing groups, not semantic IDs.
+    (mcount>=ng)?! "material carrier budget below native glyph count"
+    [int] assigned:[0:ng]
+    .i:0
+    i<mcount?>
+        assigned.(owners.(i)):assigned.(owners.(i))+1
+        .i:i+1
+    .i:0
+    i<ng?>
+        assigned.(i)=0?
+            candidate:-1
+            best:10^100
+            j:0
+            j<mcount?>
+                assigned.(owners.(j))>1?
+                    dx:destination.(7*j)-glyphs.(7*i)
+                    dy:destination.(7*j+1)-glyphs.(7*i+1)
+                    distance:dx*dx+dy*dy
+                    distance<best?
+                        .best:distance
+                        .candidate:j
+                .j:j+1
+            (candidate>=0)?! "unassigned native capture control"
+            assigned.(owners.(candidate)):assigned.(owners.(candidate))-1
+            owners.(candidate):i
+            assigned.(i):1
+        .i:i+1
     material:m.prepare_material([0,1],[0,n,n+mcount],weights,positions,7,0,false,false)
     count:material.carriers
     (count<=4096)?! "material vapor carrier cap exceeded"
     seed:0
     value.vapor.length()=1? .seed:value.vapor.(0).seed
     [num] knots:[0:13]
-    [num] fluctuations:[0:13*2*count]
+    [num] fluctuations:[0:13*2]
     tick:0
     tick<13?>
         knots.(tick):num(tick)/12
-        .i:0
-        i<count?>
-            fluctuations.(tick*2*count+2*i):2*noise(i,seed,2*tick)-1
-            fluctuations.(tick*2*count+2*i+1):2*noise(i,seed,2*tick+1)-1
-            .i:i+1
+        fluctuations.(tick*2):2*noise(0,seed,2*tick)-1
+        fluctuations.(tick*2+1):2*noise(0,seed,2*tick+1)-1
         .tick:tick+1
-    turbulence:m.prepare(knots,fluctuations,2*count,1,false,false)
-    @:(material:material,turbulence:turbulence,glyphs:glyphs,glyph_owners:owners,settings:value,source_count:n,target_count:mcount)
+    turbulence:m.prepare(knots,fluctuations,2,1,false,false)
+    @:(material:material,turbulence:turbulence,glyphs:glyphs,glyph_owners:owners,settings:value,source_count:actual_source,target_count:actual_target,exchange:exchange)
 
 # Delayed row front: material first dissolves/lifts, then the front captures it.
 # q is already the shared eased coordinate, not another time easing.
 vapor_front(value:Interp,q:num,travel:num)->num:
     valid(value)?! "invalid Interp settings"
     (value.mode=2 /\ q>=0 /\ q<=1 /\ travel>=0 /\ travel<10^10)?! "invalid material vapor front"
-    k:4.0
-    value.reveal.length()=1? .k:value.reveal.(0).k
-    lead:1.5*u.ramp_width(k)
-    @: -lead+u.clamp((q-0.25)/0.75,0,1)*(travel+lead)
-
-ink_finish(a:num,channel:int,authored:num)->num:
-    color:u.color_channel(a,channel)
-    a<=0.8? @:color
-    @:color+(authored-1)*u.color_channel(a,1)
+    width:0.45
+    value.capture.length()=1? .width:value.capture.(0).width
+    lead:1.5*width
+    @: -lead+u.clamp((q-0.25)/0.75,0,1)*(travel+lead+width)
 
 # Source mass / gas mass / captured mass sum to one. These are normalized
 # material weights, not raster coverage or a claim of physical ink-area balance.
@@ -265,49 +328,46 @@ sample_vapor_transport(plan:VaporTransport,q:num,front:num)->VaporFrame:
     knots:turbulence.knots
     fluctuations:turbulence.values
     fluctuation_second:turbulence.second
-    k:4.0
-    overshoot:0.32
-    grow:true
-    value.reveal.length()=1?
-        .k:value.reveal.(0).k
-        .overshoot:value.reveal.(0).overshoot
-        .grow:value.reveal.(0).grow
+    width:0.45
+    value.capture.length()=1? .width:value.capture.(0).width
     temperature:1.0
     spread:0.35
     lift:0.65
+    footprint:0.45
     value.vapor.length()=1?
         .temperature:value.vapor.(0).temperature
         .spread:value.vapor.(0).spread
         .lift:value.vapor.(0).lift
-    release:u.clamp(u.alpha(q*1.5707963267948966/(0.22+0.08*(1-temperature)),1),0,1)
-    lead:1.5*u.ramp_width(k)
-    coefficient:u.back_coefficient(overshoot)
+        .footprint:value.vapor.(0).footprint
+    release:u.clamp(q/0.25,0,1)
+    lead:1.5*width
     count:material.carriers
+    destination_count:plan.target_count
+    plan.exchange=2? .destination_count:plan.source_count
     ng:glyphs.length()//7
-    (count>0 /\ count<=4096 /\ ng>0 /\ ng<=4096 /\ weights.length()=count /\ owners.length()=2*count /\ values.length()=14*count /\ glyph_owners.length()=plan.target_count)?! "invalid bounded prepared material layout"
+    (count>0 /\ count<=4096 /\ ng>0 /\ ng<=4096 /\ weights.length()=count /\ owners.length()=2*count /\ values.length()=14*count /\ glyph_owners.length()=destination_count)?! "invalid bounded prepared material layout"
     [num] gas:[0:9*count]
     [num] target:[0:5*ng]
     [num] captures:[0:ng]
+    [num] target_mass:[0:ng]
+    [num] captured:[0:ng]
     i:0
     i<ng?>
-        a:u.clamp(u.alpha(front-glyphs.(7*i+2),k),0,1)
+        a:u.clamp((front-glyphs.(7*i+2))/width,0,1)
         q=0? .a:0
         q=1? .a:1
         captures.(i):a
-        size:1.0
-        grow? .size:u.growth(a,coefficient)
-        target.(5*i):release*a*glyphs.(7*i+6)
-        target.(5*i+1):size
+        target.(5*i+1):1
         j:0
         j<3?>
-            target.(5*i+2+j):ink_finish(a,j,glyphs.(7*i+3+j))
+            target.(5*i+2+j):glyphs.(7*i+3+j)
             .j:j+1
         .i:i+1
     segment:ink_state.interval(knots,q)
     h:knots.(segment+1)-knots.(segment)
     local:(q-knots.(segment))/h
-    source_ratio:ink_math.sqrt(num(plan.source_count)/num(count))
-    target_ratio:ink_math.sqrt(num(plan.target_count)/num(count))
+    wind_x:ink_segment.value(fluctuations.(segment*2),fluctuations.(segment*2+2),fluctuation_second.(segment*2),fluctuation_second.(segment*2+2),h,local)
+    wind_y:ink_segment.value(fluctuations.(segment*2+1),fluctuations.(segment*2+3),fluctuation_second.(segment*2+1),fluctuation_second.(segment*2+3),h,local)
     gas_mass:0.0
     captured_mass:0.0
     .i:0
@@ -327,28 +387,14 @@ sample_vapor_transport(plan:VaporTransport,q:num,front:num)->VaporFrame:
             finish:values.(7*count+index)
             channels.(j):ink_segment.value(start,finish,0,0,1,progress)
             .j:j+1
-        size:target.(5*glyph+1)
-        gx:glyphs.(7*glyph)
-        gy:glyphs.(7*glyph+1)
         px:values.(7*count+7*i)
         py:values.(7*count+7*i+1)
-        # The sink follows the actual native glyph's current growth transform.
-        channels.(0):channels.(0)+progress*((gx+(px-gx)*size)-px)
-        channels.(1):channels.(1)+progress*((gy+(py-gy)*size)-py)
-        q=0?
-            channels.(0):values.(7*i)
-            channels.(1):values.(7*i+1)
         envelope:release*(1-progress)*temperature
-        .j:0
-        j<2?>
-            component:2*i+j
-            offset:segment*2*count+component
-            next:offset+2*count
-            fluctuation:ink_segment.value(fluctuations.(offset),fluctuations.(next),fluctuation_second.(offset),fluctuation_second.(next),h,local)
-            .fluctuation:u.clamp(fluctuation,-1,1)
-            j=0? channels.(0):channels.(0)+0.15*spread*envelope*fluctuation
-            j=1? channels.(1):channels.(1)+0.15*lift*envelope*(1+0.4*fluctuation)
-            .j:j+1
+        phase:8*(values.(7*i)+values.(7*i+1))+6*q
+        swirl_x:ink_math.sin(phase)
+        swirl_y:ink_math.cos(phase)
+        channels.(0):channels.(0)+0.15*spread*envelope*(0.8*swirl_x+0.12*wind_x)
+        channels.(1):channels.(1)+0.15*lift*envelope*(1+0.2*swirl_y+0.08*wind_y)
         q=1?
             channels.(0):px
             channels.(1):py
@@ -358,13 +404,152 @@ sample_vapor_transport(plan:VaporTransport,q:num,front:num)->VaporFrame:
         gas.(9*i+1):channels.(1)
         gas.(9*i+2):channels.(5)*fraction
         # Splitting a carrier partitions its presentation area, not its ledger.
-        gas.(9*i+3):channels.(6)*ink_segment.value(source_ratio,target_ratio,0,0,1,progress)
+        gas.(9*i+3):footprint
         gas.(9*i+4):channels.(2)
         gas.(9*i+5):channels.(3)
         gas.(9*i+6):channels.(4)
         gas.(9*i+7):mass
         gas.(9*i+8):a
+        target_mass.(glyph):target_mass.(glyph)+mass
+        captured.(glyph):captured.(glyph)+mass*release*a
         .gas_mass:gas_mass+mass*fraction
         .captured_mass:captured_mass+mass*release*a
         .i:i+1
-    @:(source_alpha:1-release,gas:gas,target:target,ledger:[1-release,gas_mass,captured_mass])
+    .i:0
+    i<ng?>
+        target_mass.(i)>0? target.(5*i):captured.(i)/target_mass.(i)*glyphs.(7*i+6)
+        .i:i+1
+    source:1-release
+    reservoir:0.0
+    emitted:0.0
+    exited:0.0
+    plan.exchange=1?
+        .source:0
+        .reservoir:1-release
+        .emitted:release
+    plan.exchange=2?
+        .exited:captured_mass
+        .captured_mass:0
+    @:(source_alpha:source,gas:gas,target:target,ledger:(source:source,gas:gas_mass,target:captured_mass,reservoir:reservoir,emitted:emitted,exited:exited))
+
+# Related rows explicitly supplied by the author. Identity integers denote exact
+# native physical glyph/rule sources, not semantic characters or triangle meshes.
+GlyphEndpoint:(identity:[int],matrix:[num],color:[num])
+GlyphStatePlan:(state:Plan,source_indices:[int],target_indices:[int],count:int)
+prepare_glyph_state(value:Interp,source:GlyphEndpoint,target:GlyphEndpoint)->GlyphStatePlan:
+    valid(value)?! "invalid glyph state settings"
+    (value.mode=0)?! "glyph pose interpolation requires state mode"
+    a:source.identity
+    b:target.identity
+    n:a.length()
+    k:b.length()
+    (n<=256 /\ k<=256 /\ source.matrix.length()=6*n /\ source.color.length()=4*n /\ target.matrix.length()=6*k /\ target.color.length()=4*k)?! "bounded native glyph row storage"
+    [int] scores:[0:(n+1)*(k+1)]
+    i:n-1
+    i>=0?>
+        j:k-1
+        j>=0?>
+            at:i*(k+1)+j
+            a.(i)=b.(j)? scores.(at):1+scores.((i+1)*(k+1)+j+1)
+            a.(i)!=b.(j)?
+                below:scores.((i+1)*(k+1)+j)
+                right:scores.(i*(k+1)+j+1)
+                scores.(at):below
+                right>below? scores.(at):right
+            .j:j-1
+        .i:i-1
+    [int] origins:[-1:k]
+    [int] destinations:[-1:n]
+    .i:0
+    j:0
+    i<n /\ j<k?>
+        same:a.(i)=b.(j)
+        same?
+            origins.(j):i
+            destinations.(i):j
+            .i:i+1
+            .j:j+1
+        same=false?
+            below:scores.((i+1)*(k+1)+j)
+            right:scores.(i*(k+1)+j+1)
+            below>=right? .i:i+1
+            below<right? .j:j+1
+    count:k
+    .i:0
+    i<n?>
+        destinations.(i)<0? .count:count+1
+        .i:i+1
+    [int] from:[-1:count]
+    [int] to:[-1:count]
+    .j:0
+    j<k?>
+        from.(j):origins.(j)
+        to.(j):j
+        .j:j+1
+    at:k
+    .i:0
+    i<n?>
+        destinations.(i)<0?
+            from.(at):i
+            .at:at+1
+        .i:i+1
+    width:10*count
+    width=0? @:(state:m.prepare([0,1],[0,0],1,0,false,false),source_indices:from,target_indices:to,count:0)
+    [num] states:[0:2*width]
+    .i:0
+    i<count?>
+        fi:from.(i)
+        ti:to.(i)
+        .j:0
+        j<6?>
+            fi>=0? states.(10*i+j):source.matrix.(6*fi+j)
+            fi<0? states.(10*i+j):target.matrix.(6*ti+j)
+            ti>=0? states.(width+10*i+j):target.matrix.(6*ti+j)
+            ti<0? states.(width+10*i+j):source.matrix.(6*fi+j)
+            .j:j+1
+        .j:0
+        j<4?>
+            fi>=0? states.(10*i+6+j):source.color.(4*fi+j)
+            fi<0? states.(10*i+6+j):target.color.(4*ti+j)
+            ti>=0? states.(width+10*i+6+j):target.color.(4*ti+j)
+            ti<0? states.(width+10*i+6+j):source.color.(4*fi+j)
+            .j:j+1
+        fi<0? states.(10*i+9):0
+        ti<0? states.(width+10*i+9):0
+        .i:i+1
+    @:(state:prepare(value,[0,1],states,width),source_indices:from,target_indices:to,count:count)
+
+TextRowPlan:(mode:int,state:[GlyphStatePlan],vapor:[VaporTransport],travel:num)
+TextRowFrame:(poses:[num],source_alpha:num,gas:[num],target:[num],ledger:MaterialLedger)
+TextBatchFrame:(coordinate:num,rows:[TextRowFrame])
+# The shared global clock is applied exactly once for the entire prepared list.
+sample_text_rows(rows:[TextRowPlan],q:num,fronts:[num])->TextBatchFrame:
+    (rows.length()<=128 /\ (fronts.length()=0 \/ fronts.length()=rows.length()))?! "bounded text row batch"
+    coordinate:time_coordinate(q)
+    [TextRowFrame] frames:[]
+    i:0
+    i<rows.length()?>
+        row:rows.(i)
+        [num] poses:[]
+        [num] gas:[]
+        [num] target:[]
+        source:0.0
+        ledger:(source:0.0,gas:0.0,target:0.0,reservoir:0.0,emitted:0.0,exited:0.0)
+        row.mode=0?
+            (row.state.length()=1 /\ row.vapor.length()=0)?! "invalid prepared state row"
+            state_plan:row.state.(0)
+            state_plan.count>0? .poses:m.sample(state_plan.state,coordinate).value
+        row.mode=2?
+            (row.state.length()=0 /\ row.vapor.length()=1)?! "invalid prepared material row"
+            vapor_plan:row.vapor.(0)
+            front:vapor_front(vapor_plan.settings,coordinate,row.travel)
+            fronts.length()>0? .front:fronts.(i)
+            sampled:sample_vapor_transport(vapor_plan,coordinate,front)
+            .source:sampled.source_alpha
+            .gas:sampled.gas
+            .target:sampled.target
+            .ledger:sampled.ledger
+        (row.mode=0 \/ row.mode=2)?! "unsupported prepared text row"
+        .frames:frames & [(poses:poses,source_alpha:source,gas:gas,target:target,ledger:ledger)]
+        .i:i+1
+    @:(coordinate:coordinate,rows:frames)

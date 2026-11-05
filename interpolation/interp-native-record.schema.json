@@ -1,14 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://vektor-flow.org/contracts/interp-native-record-v2.schema.json",
-  "title": "Native Interp structural record ABI2",
+  "$id": "https://vektor-flow.org/contracts/interp-native-record-v3.schema.json",
+  "title": "Native Interp typed record ABI3",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "mode",
     "state",
     "reveal",
-    "vapor"
+    "vapor",
+    "capture"
   ],
   "properties": {
     "mode": {
@@ -87,7 +88,9 @@
           "temperature",
           "spread",
           "lift",
-          "seed"
+          "seed",
+          "footprint",
+          "boundary"
         ],
         "properties": {
           "temperature": {
@@ -113,6 +116,40 @@
             "minimum": 0,
             "maximum": 65535,
             "default": 0
+          },
+          "footprint": {
+            "type": "number",
+            "minimum": 0.05,
+            "maximum": 1
+          },
+          "boundary": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          }
+        }
+      }
+    },
+    "capture": {
+      "type": "array",
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "width",
+          "velocity"
+        ],
+        "properties": {
+          "width": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 4
+          },
+          "velocity": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
           }
         }
       }
@@ -134,6 +171,9 @@
           },
           "vapor": {
             "maxItems": 0
+          },
+          "capture": {
+            "maxItems": 0
           }
         }
       }
@@ -153,6 +193,9 @@
           },
           "vapor": {
             "maxItems": 0
+          },
+          "capture": {
+            "maxItems": 0
           }
         }
       }
@@ -168,6 +211,9 @@
       "then": {
         "properties": {
           "state": {
+            "maxItems": 0
+          },
+          "reveal": {
             "maxItems": 0
           }
         }

@@ -84,3 +84,47 @@ uses existing native fonts/simplex rendering; compute remains canonical WASM CPU
 Native/WASM finite tests, actual decoded clip and route details are recorded
 separately. No physical GPU, universal conservation/topology/collision guarantee
 or general source-event solver is claimed.
+
+## Refined state/material row ABI3
+
+Interp adds optional `capture:[CaptureSettings]`; CaptureSettings is named
+`(width:num,velocity:num)`. State keeps `state(path=0)`; legacy spectral keeps its
+own reveal group. Vapor now rejects reveal fields and uses
+`evaporate(temperature=1,spread=.35,lift=.65,seed=0,footprint=.45,
+captureWidth=.45,velocity=.54,boundary=3)`. VaporSettings includes named footprint
+and boundary. Boundary0closed,1emit,2exit,3exchange; native schema describes all
+applicable fields. Overshoot/grow/spectral RGB are absent from material capture.
+
+`GlyphEndpoint:(identity:[int],matrix:[num],color:[num])` contains exact physical
+font/rule IDs supplied by native layout, six affine coefficients and four RGBA
+components per glyph. `prepare_glyph_state` performs bounded monotone exact-ID
+matching within ONE explicitly authored related row (<=256glyphs/endpoint), then
+uses existing state prepare/sample for pose+color. It is a bounded new address
+adapter, not a semantic equation matcher or universal correspondence theorem.
+Unmatched insertions/removals use declared zero-opacity state endpoints; retained
+physical glyphs preserve their authentic paths. No renderer triangles interpolate.
+
+`sample_text_rows(rows,q,fronts)` applies time_coordinate once to the entire
+state/material batch. TextRowPlan contains mode, optional state/vapor prepared
+groups and native travel. Output rows contain native poses, source ownership,
+carrier channels, target channels and named MaterialLedger.
+
+MaterialLedger is `(source,gas,target,reservoir,emitted,exited)`, normalized in
+one row unit. Closed transfer retains source+gas+target=1. Birth has no source
+ink: declared external reservoir1 is released into gas and captured target;
+reservoir+gas+target=1 while visible gas+target=emitted grows0→1. Exit records
+source→gas→exited. No closed-system conservation claim is made for external
+emission, or for physical raster area/density. Both-empty material has no event.
+Research policy_algebra_1/principles80–86 distinguishes explicit external source
+creation from redistribution; its proposal is not an existing general source
+solver. This implementation is the bounded declared boundary adapter above.
+
+Capture width sets the native arrival interval. Target alpha is the accumulated
+captured carrier weight assigned to its native glyph control divided by that
+control's weight, multiplied by authored alpha. RGB stays authored, growth1.
+Gas RGB follows source→target native state interpolation. Carrier destination
+positions are actual native ink samples; nearest-anchor capture controls and
+positive coverage assignment are explicit timing controls, not semantic identity.
+The budget must address every target native glyph. Coherent rising/convection
+motion and a mild shared seeded cubic field replace independent Brownian paths.
+This is deterministic finite flow, not CFD or physical thermodynamics.

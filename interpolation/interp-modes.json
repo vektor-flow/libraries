@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "settingsSchema": "interp-settings.schema.json",
   "nativeModule": "Interp.vkf",
   "facadeModule": "Interpolation.vkf",
@@ -55,10 +55,10 @@
         "spread",
         "lift",
         "seed",
-        "k",
+        "footprint",
+        "captureWidth",
         "velocity",
-        "overshoot",
-        "grow"
+        "boundary"
       ],
       "channels": {
         "sample_vapor_transport.gas": [
@@ -93,7 +93,7 @@
       "source": "actual native ink dyadic equal-weight samples; persistent positive normalized material",
       "target": "actual native target ink + declared nearest native anchor capture control",
       "semantics": "conserved normalized material ledger; finite seeded cubic noise field, not physical Brownian/thermal dynamics; no raster area conservation claim",
-      "implementation": "Morphing.prepare_material + existing state/segment kernels; prepared native ink transport",
+      "implementation": "same native material/state backend; explicit exchange reservoir and accumulated capture, authored RGB, coherent convection; no spectral growth/color",
       "emptyEndpoints": "explicitly unsupported conserved transport; spectral appearance/removal remains separate"
     }
   ],
@@ -131,9 +131,9 @@
     "numeric": "same native state/prepare plus renderer forwarding sample_state; one time_coordinate"
   },
   "nativeRecordABI": {
-    "version": 2,
+    "version": 3,
     "kind": "typed structural record",
-    "type": "Interp:(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings])",
+    "type": "Interp:(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings],capture:[CaptureSettings])",
     "optionalEncoding": "zero-or-one typed named record per applicable group; [] absent",
     "groups": {
       "state": {
@@ -149,7 +149,13 @@
         "temperature": "num",
         "spread": "num",
         "lift": "num",
-        "seed": "int"
+        "seed": "int",
+        "footprint": "num",
+        "boundary": "int"
+      },
+      "capture": {
+        "width": "num",
+        "velocity": "num"
       }
     },
     "allowedGroups": {
@@ -160,12 +166,33 @@
         "reveal"
       ],
       "2": [
-        "reveal",
-        "vapor"
+        "vapor",
+        "capture"
       ]
     },
     "positionalNumericSettingsPayloads": false,
-    "namedFactoryAPI": "unchanged from d2952a9",
+    "namedFactoryAPI": "state/spectral unchanged; vapor uses explicit capture and boundary fields",
     "schema": "interp-native-record.schema.json"
+  },
+  "browserTextBatch": {
+    "prepareGlyph": "prepare_glyph_state(settings,source:GlyphEndpoint,target:GlyphEndpoint)",
+    "sample": "sample_text_rows(rows,q,fronts)",
+    "clock": "one shared time_coordinate for complete batch",
+    "identity": "exact physical IDs, native bounded monotone correspondence inside explicitly paired authored rows",
+    "ledger": [
+      "source",
+      "gas",
+      "target",
+      "reservoir",
+      "emitted",
+      "exited"
+    ],
+    "boundary": {
+      "closed": 0,
+      "emit": 1,
+      "exit": 2,
+      "exchange": 3
+    },
+    "scope": "native state pose/color interpolation; declared external material events, not semantic identity proof or physical CFD"
   }
 }

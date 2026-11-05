@@ -650,3 +650,17 @@ measurements, exact hashes and actual authored fixture live in owned renderer
 branch commit618b30a docs/text-modes/MATERIAL-PERFORMANCE.md and qualification
 JSON. Parent chooses existing1024client budget only after exact native fix and
 owns final decoded visual-density/full24fps movie. No PP changes or publication.
+
+## Native related rows / material exchange refinement — 2026-11-05
+
+Current refined native tests GREEN: exact physical-ID monotone matching/state
+poses, fixed retained glyph, one batch clock, empty-source declared reservoir
+emission and source-only exit, closed-boundary refusal, authored RGB/no growth,
+subpixel footprint and deterministic seeking. New Interp capture group ABI3;
+legacy spectral remains separate, presentation state/material path has no color
+wave/growth fields. Same canonical Morphing state/material/segment backend.
+Research external source distinction policy_algebra_1/principles80–86 retained;
+normalized reservoir ledger is not a physical conservation/source solver claim.
+New native methods prepare_glyph_state and sample_text_rows. Renderer adapter,
+GPU subpixel coverage and decoded mixed appended-row proof are next; root owns
+PP authoring, no product edits here. Numerical library source only own branch.
