@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "settingsSchema": "interp-settings.schema.json",
   "nativeModule": "Interp.vkf",
   "facadeModule": "Interpolation.vkf",
@@ -97,6 +97,17 @@
       "semantics": "conserved normalized material ledger; finite seeded cubic noise field, not physical Brownian/thermal dynamics; no raster area conservation claim",
       "implementation": "same native material/state backend; explicit exchange reservoir and accumulated capture, authored RGB, coherent convection; no spectral growth/color",
       "emptyEndpoints": "explicitly unsupported conserved transport; spectral appearance/removal remains separate"
+    },
+    {
+      "id": "wave",
+      "nativeMode": 3,
+      "factory": "wave_interp",
+      "parameters": {
+        "k": 4,
+        "start": 0,
+        "finish": 1
+      },
+      "qualification": "plain native alpha front, authored RGB and unit growth; no spectral color or material source"
     }
   ],
   "routeStatus": {

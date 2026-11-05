@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://vektor-flow.org/contracts/interp-settings-v4.schema.json",
+  "$id": "https://vektor-flow.org/contracts/interp-settings-v5.schema.json",
   "title": "Interp mode-specific settings",
   "description": "Named client settings mapped to native VKF named factories. Defaults are resolved by native factory; schema presence alone never grants capability.",
   "oneOf": [
@@ -134,6 +134,37 @@
         }
       },
       "description": "Native material capture; captureStart < captureEnd enforced by native factory. Fractions refer to raw normalized playback time."
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode"
+      ],
+      "properties": {
+        "mode": {
+          "const": "wave"
+        },
+        "k": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 4
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 1,
+          "default": 0
+        },
+        "finish": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "default": 1
+        }
+      },
+      "description": "Native authored-color alpha front only; start<finish, raw fractions; no growth or RGB pulse."
     }
   ]
 }

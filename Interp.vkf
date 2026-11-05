@@ -5,20 +5,27 @@ StateSettings:(path:int)
 RevealSettings:(k:num,velocity:num,overshoot:num,grow:bit)
 VaporSettings:(temperature:num,spread:num,lift:num,seed:int,footprint:num,boundary:int)
 CaptureSettings:(width:num,velocity:num,start_coordinate:num,finish_coordinate:num)
+WaveSettings:(k:num,start_coordinate:num,finish_coordinate:num)
 # Optional groups contain zero or one NAMED typed record. No positional numeric
 # payloads, nullable syntax or implicit field/mode inference.
-Interp:(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings],capture:[CaptureSettings])
+Interp:(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings],capture:[CaptureSettings],wave:[WaveSettings])
 Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
 Plan:(curve:Curve,smooth_start:bit,smooth_end:bit)
 
-settings(mode:int=0,state:[StateSettings]=[],reveal:[RevealSettings]=[],vapor:[VaporSettings]=[],capture:[CaptureSettings]=[])->Interp:
-    value:(mode:mode,state:state,reveal:reveal,vapor:vapor,capture:capture)
+settings(mode:int=0,state:[StateSettings]=[],reveal:[RevealSettings]=[],vapor:[VaporSettings]=[],capture:[CaptureSettings]=[],wave:[WaveSettings]=[])->Interp:
+    value:(mode:mode,state:state,reveal:reveal,vapor:vapor,capture:capture,wave:wave)
     valid(value)?! "invalid Interp settings"
     @:value
 
 valid(value:Interp)->bit:
-    (value.mode>=0 /\ value.mode<=2)?! "unsupported Interp mode"
-    (value.state.length()<=1 /\ value.reveal.length()<=1 /\ value.vapor.length()<=1 /\ value.capture.length()<=1)?! "Interp optional group must contain zero or one record"
+    (value.mode>=0 /\ value.mode<=3)?! "unsupported Interp mode"
+    (value.state.length()<=1 /\ value.reveal.length()<=1 /\ value.vapor.length()<=1 /\ value.capture.length()<=1 /\ value.wave.length()<=1)?! "Interp optional group must contain zero or one record"
+    value.mode<3? (value.wave.length()=0)?! "wave settings on another Interp mode"
+    value.mode=3?
+        (value.state.length()=0 /\ value.reveal.length()=0 /\ value.vapor.length()=0 /\ value.capture.length()=0)?! "irrelevant settings on plain wave Interp"
+        value.wave.length()=1?
+            w:value.wave.(0)
+            (w.k>=1 /\ w.k<=10 /\ w.start_coordinate>=0 /\ w.start_coordinate<w.finish_coordinate /\ w.finish_coordinate<=1)?! "invalid plain wave settings"
     value.mode=0?
         (value.reveal.length()=0 /\ value.vapor.length()=0 /\ value.capture.length()=0)?! "text settings on state Interp"
         value.state.length()=1?
@@ -554,7 +561,8 @@ vapor_turbulence(value:Interp)->Plan:
 # Bounded native dense specialization: equal dyadic endpoint partitions have
 # owner(i)=i and mass(i)=1/N, exactly the prepare_material equal-weight case.
 # Ink remains external renderer data consumed by compiler-owned field dispatch.
-DenseVaporPlan:(settings:Interp,turbulence:Plan,count:int,glyphs:[num],exchange:int)
+MomentumEndpoints:(source:[num],target:[num])
+DenseVaporPlan:(settings:Interp,turbulence:Plan,count:int,glyphs:[num],exchange:int,momentum:MomentumEndpoints)
 DenseVaporFrame:(params:[num],source_alpha:num)
 prepare_dense_vapor(value:Interp,count:int,source_present:bit,target_present:bit,glyphs:[num])->DenseVaporPlan:
     valid(value)?! "invalid dense Interp settings"
@@ -571,7 +579,7 @@ prepare_dense_vapor(value:Interp,count:int,source_present:bit,target_present:bit
     ~target_present?
         (boundary=2 \/ boundary=3)?! "material exit requires declared boundary"
         .exchange:2
-    @:(settings:value,turbulence:vapor_turbulence(value),count:count,glyphs:glyphs,exchange:exchange)
+    @:(settings:value,turbulence:vapor_turbulence(value),count:count,glyphs:glyphs,exchange:exchange,momentum:(source:[0,0],target:[0,0]))
 
 # coordinate has ALREADY passed the single shared text batch clock.
 dense_vapor_frame(plan:DenseVaporPlan,coordinate:num,travel:num,front_override:[num])->DenseVaporFrame:
@@ -592,31 +600,40 @@ dense_vapor_frame(plan:DenseVaporPlan,coordinate:num,travel:num,front_override:[
         .footprint:value.vapor.(0).footprint
     wind:m.sample(plan.turbulence,coordinate).value
     release:u.clamp(coordinate/0.25,0,1)
+    value.vapor.length()=1 /\ value.vapor.(0).boundary=0 /\ value.capture.length()=1? .release:u.clamp(coordinate/u.maximum(0.000001,value.capture.(0).start_coordinate),0,1)
     source:1-release
     plan.exchange=1? .source:0
-    @:(params:[coordinate,release,temperature,spread,lift,footprint,width,wind.(0),wind.(1),front,num(plan.count),num(plan.glyphs.length()//7),num(plan.exchange),1],source_alpha:source)
+    @:(params:[coordinate,release,temperature,spread,lift,footprint,width,wind.(0),wind.(1),front,num(plan.count),num(plan.glyphs.length()//7),num(plan.exchange),1,1,u.clamp(coordinate/u.maximum(0.000001,value.capture.(0).finish_coordinate),0,1),plan.momentum.source.(0),plan.momentum.source.(1),plan.momentum.target.(0),plan.momentum.target.(1)],source_alpha:source)
 
-DenseCaptureFrame:(source_alpha:num,gas:[num],target:[num],ledger:MaterialLedger,mass_residual:num,assigned_mass:num,optical_gas_coverage:num,raw_coverage:num)
+DenseCaptureFrame:(source_alpha:num,gas:[num],target:[num],ledger:MaterialLedger,mass_residual:num,assigned_mass:num,optical_gas_coverage:num,raw_coverage:num,raw_gas_mass:num,raw_captured_mass:num,momentum:[num])
 finish_dense_capture(plan:DenseVaporPlan,controls:DenseVaporFrame,summary:[num])->DenseCaptureFrame:
     ng:plan.glyphs.length()//7
-    (summary.length()=10*ng)?! "invalid dense capture summary"
+    (summary.length()=14*ng)?! "invalid dense capture summary"
     [num] target:[0:5*ng]
     gas:0.0
     captured:0.0
     assigned:0.0
     optical:0.0
     raw:0.0
+    raw_gas:0.0
+    raw_captured:0.0
+    px:0.0
+    py:0.0
     i:0
     i<ng?>
         j:0
         j<5?>
-            target.(5*i+j):summary.(10*i+j)
+            target.(5*i+j):summary.(14*i+j)
             .j:j+1
-        .gas:gas+summary.(10*i+5)
-        .captured:captured+summary.(10*i+6)
-        .assigned:assigned+summary.(10*i+7)
-        .optical:optical+summary.(10*i+8)
-        .raw:raw+summary.(10*i+9)
+        .gas:gas+summary.(14*i+5)
+        .captured:captured+summary.(14*i+6)
+        .assigned:assigned+summary.(14*i+7)
+        .optical:optical+summary.(14*i+8)
+        .raw:raw+summary.(14*i+9)
+        .raw_gas:raw_gas+summary.(14*i+10)
+        .raw_captured:raw_captured+summary.(14*i+11)
+        .px:px+summary.(14*i+12)
+        .py:py+summary.(14*i+13)
         .i:i+1
     (|assigned-1|<0.001)?! "dense carrier mass not assigned"
     release:controls.params.(1)
@@ -638,4 +655,41 @@ finish_dense_capture(plan:DenseVaporPlan,controls:DenseVaporFrame,summary:[num])
         .exited:captured
         .captured:0
         .target:[]
-    @:(source_alpha:controls.source_alpha,gas:[],target:target,ledger:(source:source,gas:gas,target:captured,reservoir:reservoir,emitted:emitted,exited:exited),mass_residual:residual,assigned_mass:assigned,optical_gas_coverage:optical,raw_coverage:raw)
+    @:(source_alpha:controls.source_alpha,gas:[],target:target,ledger:(source:source,gas:gas,target:captured,reservoir:reservoir,emitted:emitted,exited:exited),mass_residual:residual,assigned_mass:assigned,optical_gas_coverage:optical,raw_coverage:raw,raw_gas_mass:raw_gas,raw_captured_mass:raw_captured,momentum:[px,py])
+
+# Plain authored-color front. No spectral RGB, growth or overshoot settings.
+wave(k:num=4,start:num=0,finish:num=1)->Interp:
+    @:settings(3,[],[],[],[],[(k:k,start_coordinate:time_coordinate(start),finish_coordinate:time_coordinate(finish))])
+plain_wave_frame(value:Interp,coordinate:num,reading:[num],colors:[num],travel:num)->[num]:
+    valid(value)?! "invalid plain wave Interp"
+    (value.mode=3 /\ coordinate>=0 /\ coordinate<=1 /\ reading.length()<=4096 /\ colors.length()=4*reading.length() /\ travel>0)?! "invalid plain wave frame"
+    k:4.0
+    start:0.0
+    finish:1.0
+    value.wave.length()=1?
+        .k:value.wave.(0).k
+        .start:value.wave.(0).start_coordinate
+        .finish:value.wave.(0).finish_coordinate
+    front:u.clamp((coordinate-start)/(finish-start),0,1)*travel
+    [num] result:[0:5*reading.length()]
+    i:0
+    i<reading.length()?>
+        result.(5*i):u.alpha(front-reading.(i),k)*colors.(4*i+3)
+        result.(5*i+1):1
+        j:0
+        j<3?>
+            result.(5*i+2+j):colors.(4*i+j)
+            .j:j+1
+        .i:i+1
+    @:result
+
+# Explicit nonempty closed old-list pool. No birth/reservoir/exit permission.
+prepare_list_material(value:Interp,count:int,glyphs:[num],momentum:MomentumEndpoints)->DenseVaporPlan:
+    valid(value)?! "invalid list material settings"
+    (value.mode=2 /\ value.vapor.length()=1 /\ value.vapor.(0).boundary=0 /\ value.capture.length()=1 /\ momentum.source.length()=2 /\ momentum.target.length()=2)?! "list material requires closed source pool"
+    i:0
+    i<2?>
+        (|momentum.source.(i)|<10^10 /\ |momentum.target.(i)|<10^10)?! "invalid native momentum endpoint"
+        .i:i+1
+    plan:prepare_dense_vapor(value,count,true,true,glyphs)
+    @:(settings:plan.settings,turbulence:plan.turbulence,count:plan.count,glyphs:plan.glyphs,exchange:0,momentum:momentum)

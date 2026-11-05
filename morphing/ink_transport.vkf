@@ -1,12 +1,37 @@
-# One native material carrier evaluator shared by CPU and compiled GPU dispatch.
+# Canonical material carrier evaluator: state interpolation + prepared random bridge.
 segment:.segment
 math:.math
 clamp(x:num,lo:num,hi:num)->num:
     x<lo? @:lo
     x>hi? @:hi
     @:x
-# params q/release/temperature/spread/lift/footprint/width/windx/windy/front/N/ng/exchange.
-# values source7*N, target7*N; dense dispatch appends native glyph7*ng.
+
+# Independent Uint16 entropy increments are supplied ONCE as source data.
+# Finite uniform-increment random walk pinned to zero at both endpoints.
+# This is not an exact Gaussian Wiener process or a fluid solver.
+diffusion(index:int,params:[num],values:[num])->[num]:
+    count:int(params.(10))
+    (index>=0 /\ index<count /\ values.length()=32*count)?! "invalid random bridge storage"
+    [num] walk:[0:34]
+    i:1
+    i<=16?>
+        ux:values.(32*index+2*(i-1))
+        uy:values.(32*index+2*(i-1)+1)
+        (ux>=0 /\ ux<=65535 /\ uy>=0 /\ uy<=65535)?! "invalid native random entropy"
+        walk.(2*i):walk.(2*i-2)+(ux/65535-0.5)*0.8660254037844386
+        walk.(2*i+1):walk.(2*i-1)+(uy/65535-0.5)*0.8660254037844386
+        .i:i+1
+    endx:walk.(32)
+    endy:walk.(33)
+    .i:0
+    i<=16?>
+        walk.(2*i):walk.(2*i)-num(i)/16*endx
+        walk.(2*i+1):walk.(2*i+1)-num(i)/16*endy
+        .i:i+1
+    @:walk
+
+# params q/release/temperature/spread/lift/footprint/width/unused/unused/front/N/ng/
+# exchange/dense/random/bridgeTime/sourceMomentumX/Y/targetMomentumX/Y.
 carrier(index:int,params:[num],values:[num],glyph:int,reading:num)->[num]:
     q:params.(0)
     release:params.(1)
@@ -31,33 +56,41 @@ carrier(index:int,params:[num],values:[num],glyph:int,reading:num)->[num]:
         channels.(j):segment.value(start,finish,0,0,1,progress)
         .j:j+1
     envelope:release*(1-progress)*params.(2)
-    phase:8*(values.(7*index)+values.(7*index+1))+6*q
-    params.(12)=1? .phase:phase-8*0.08*params.(4)
-    channels.(0):channels.(0)+0.15*params.(3)*envelope*(0.8*math.sin(phase)+0.12*params.(7))
-    channels.(1):channels.(1)+0.15*params.(4)*envelope*(1+0.2*math.cos(phase)+0.08*params.(8))
-    # Coherent convection at glyph and subglyph spatial scales. Adjacent ink
-    # pixels share one deterministic field; there is no independent jitter.
-    field_x:values.(7*index)
-    field_y:values.(7*index+1)
-    params.(12)=1? .field_y:field_y-0.08*params.(4)
-    roll:64*field_x+37*field_y+3*q+0.2*params.(7)
-    curl:512*field_x-383*field_y-4*q+0.2*params.(8)
-    channels.(0):channels.(0)+params.(3)*envelope*(0.06*math.sin(roll)+0.025*math.sin(curl))
-    channels.(1):channels.(1)+params.(4)*envelope*(0.035*math.cos(roll)+0.012*math.cos(curl))
+    bx:0.0
+    by:0.0
+    params.length()>=20 /\ params.(14)=1?
+        at:clamp(params.(15),0,1)*16
+        knot:int(at)
+        knot=16? .knot:15
+        local:at-num(knot)
+        base:14*count+7*int(params.(11))+34*index
+        .bx:segment.value(values.(base+2*knot),values.(base+2*knot+2),0,0,1,local)
+        .by:segment.value(values.(base+2*knot+1),values.(base+2*knot+3),0,0,1,local)
+        channels.(0):channels.(0)+0.20*params.(3)*envelope*bx
+        channels.(1):channels.(1)+0.14*params.(4)*envelope*by
+    channels.(1):channels.(1)+0.15*params.(4)*envelope
     size:params.(5)
-    params.(13)=1? .size:channels.(6)
-    q=1?
-        channels.(0):values.(7*count+7*index)
-        channels.(1):values.(7*count+7*index+1)
-        params.(12)=2? channels.(1):channels.(1)+0.35+0.1*params.(4)
-    @:[channels.(0),channels.(1),channels.(5)*release*(1-a),size,channels.(2),channels.(3),channels.(4),1/num(count),a,num(glyph),channels.(5)]
+    mass:channels.(5)*size*size
+    params.(13)=1?
+        start_size:values.(7*index+6)
+        finish_size:values.(7*count+7*index+6)
+        start_area:start_size*start_size
+        finish_area:finish_size*finish_size
+        area:segment.value(start_area,finish_area,0,0,1,progress)
+        .mass:segment.value(values.(7*index+5)*start_area,values.(7*count+7*index+5)*finish_area,0,0,1,progress)
+        .size:math.sqrt(area)
+        channels.(5):mass/area
+    px:0.0
+    py:0.0
+    params.length()>=20?
+        .px:segment.value(params.(16),params.(18),0,0,1,progress)/num(count)
+        .py:segment.value(params.(17),params.(19),0,0,1,progress)/num(count)
+    @:[channels.(0),channels.(1),channels.(5)*release*(1-a),size,channels.(2),channels.(3),channels.(4),1/num(count),a,num(glyph),channels.(5),mass,px,py]
 
-# Equal dyadic source/target partitions have the identical ordered material owner
-# index. No host correspondence or numerical trajectory is introduced here.
 dense(index:int,params:[num],values:[num])->[num]:
     count:int(params.(10))
     ng:int(params.(11))
-    (index>=0 /\ index<count /\ count<=65536 /\ ng>0 /\ ng<=4096 /\ values.length()=14*count+7*ng)?! "dense native material storage"
+    (index>=0 /\ index<count /\ count<=65536 /\ ng>0 /\ ng<=4096 /\ values.length()=48*count+7*ng)?! "dense native material storage"
     px:values.(7*count+7*index)
     py:values.(7*count+7*index+1)
     nearest:0
@@ -73,28 +106,36 @@ dense(index:int,params:[num],values:[num])->[num]:
         .j:j+1
     @:carrier(index,params,values,nearest,values.(14*count+7*nearest+2))
 
-# Native GPU reduction reads actual assigned carrier mass before displaying ink.
-# Output: target alpha/scale/RGB, gas/captured/assigned normalized mass, optical gas.
+# Assigned material is captured only by its first-row glyph's moving front.
 capture(glyph:int,params:[num],values:[num])->[num]:
     count:int(params.(10))
     ng:int(params.(11))
-    (glyph>=0 /\ glyph<ng /\ values.length()=11*count+7*ng)?! "dense native capture storage"
+    (glyph>=0 /\ glyph<ng /\ values.length()=14*count+7*ng)?! "dense native capture storage"
     gas:0.0
     captured:0.0
     assigned:0.0
     optical:0.0
     raw:0.0
+    raw_gas:0.0
+    raw_captured:0.0
+    px:0.0
+    py:0.0
     i:0
     i<count?>
-        int(values.(11*i+9))=glyph?
-            mass:values.(11*i+7)
-            a:values.(11*i+8)
-            .assigned:assigned+mass
-            .gas:gas+mass*params.(1)*(1-a)
-            .captured:captured+mass*params.(1)*a
-            .optical:optical+values.(11*i+2)*values.(11*i+3)^2
-            .raw:raw+values.(11*i+10)*values.(11*i+3)^2
+        int(values.(14*i+9))=glyph?
+            weight:values.(14*i+7)
+            a:values.(14*i+8)
+            mass:values.(14*i+11)
+            .assigned:assigned+weight
+            .gas:gas+weight*params.(1)*(1-a)
+            .captured:captured+weight*params.(1)*a
+            .optical:optical+values.(14*i+2)*values.(14*i+3)^2
+            .raw:raw+mass
+            .raw_gas:raw_gas+mass*params.(1)*(1-a)
+            .raw_captured:raw_captured+mass*params.(1)*a
+            .px:px+values.(14*i+12)
+            .py:py+values.(14*i+13)
         .i:i+1
     alpha:0.0
-    assigned>0? .alpha:captured/assigned*values.(11*count+7*glyph+6)
-    @:[alpha,1,values.(11*count+7*glyph+3),values.(11*count+7*glyph+4),values.(11*count+7*glyph+5),gas,captured,assigned,optical,raw]
+    assigned>0? .alpha:captured/assigned*values.(14*count+7*glyph+6)
+    @:[alpha,1,values.(14*count+7*glyph+3),values.(14*count+7*glyph+4),values.(14*count+7*glyph+5),gas,captured,assigned,optical,raw,raw_gas,raw_captured,px,py]
