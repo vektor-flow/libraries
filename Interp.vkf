@@ -154,7 +154,7 @@ MaterialLedger:(source:num,gas:num,target:num,reservoir:num,emitted:num,exited:n
 VaporFrame:(source_alpha:num,gas:[num],target:[num],ledger:MaterialLedger)
 
 ink_count(ink:[num])->int:
-    (ink.length()>0 /\ ink.length()%7=0 /\ ink.length()<=28672)?! "material vapor needs nonempty bounded ink endpoints"
+    (ink.length()>0 /\ ink.length()%7=0 /\ ink.length()<=458752)?! "material vapor needs nonempty bounded ink endpoints"
     count:ink.length()//7
     remaining:count
     remaining>1 /\ remaining%2=0?> .remaining:remaining//2
@@ -285,7 +285,7 @@ prepare_vapor_transport(value:Interp,source:[num],destination:[num],glyphs:[num]
         .i:i+1
     material:m.prepare_material([0,1],[0,n,n+mcount],weights,positions,7,0,false,false)
     count:material.carriers
-    (count<=4096)?! "material vapor carrier cap exceeded"
+    (count<=65536)?! "material vapor carrier cap exceeded"
     seed:0
     value.vapor.length()=1? .seed:value.vapor.(0).seed
     [num] knots:[0:13]
@@ -351,7 +351,7 @@ sample_vapor_transport(plan:VaporTransport,q:num,front:num)->VaporFrame:
     destination_count:plan.target_count
     plan.exchange=2? .destination_count:plan.source_count
     ng:glyphs.length()//7
-    (count>0 /\ count<=4096 /\ ng>0 /\ ng<=4096 /\ weights.length()=count /\ owners.length()=2*count /\ values.length()=14*count /\ glyph_owners.length()=destination_count)?! "invalid bounded prepared material layout"
+    (count>0 /\ count<=65536 /\ ng>0 /\ ng<=4096 /\ weights.length()=count /\ owners.length()=2*count /\ values.length()=14*count /\ glyph_owners.length()=destination_count)?! "invalid bounded prepared material layout"
     [num] gas:[0:9*count]
     [num] target:[0:5*ng]
     [num] captures:[0:ng]
