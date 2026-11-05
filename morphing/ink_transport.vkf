@@ -6,12 +6,23 @@ clamp(x:num,lo:num,hi:num)->num:
     x>hi? @:hi
     @:x
 # Address-only material refinement: every input lineage receives positive children.
-owner(index:int,total:int,raw:int)->[int]:
+owner(index:int,total:int,raw:int)->int:
     base:total//raw
     extra:total%raw
     split:extra*(base+1)
-    index<split? @:[index//(base+1),index%(base+1),base+1]
-    @:[extra+(index-split)//base,(index-split)%base,base]
+    index<split? @:index//(base+1)
+    @:extra+(index-split)//base
+child(index:int,total:int,raw:int)->int:
+    base:total//raw
+    extra:total%raw
+    split:extra*(base+1)
+    index<split? @:index%(base+1)
+    @:(index-split)%base
+copies(index:int,total:int,raw:int)->int:
+    base:total//raw
+    extra:total%raw
+    index<extra*(base+1)? @:base+1
+    @:base
 # Raw input is the current native particle packet16. Fresh ink uses mass=-1.
 # Output source state13: position/RGB/coverage/size/mass/momentum/weight/gas/phase.
 restore(index:int,p:[num],v:[num])->[num]:
@@ -19,17 +30,16 @@ restore(index:int,p:[num],v:[num])->[num]:
     raw:int(p.(24))
     fresh:int(p.(25))
     (raw>0 /\ count>=raw /\ count<=131072 /\ v.length()=16*raw)?! "invalid material refinement"
-    address:owner(index,count,raw)
-    i:address.(0)
-    child:address.(1)
-    copies:address.(2)
+    i:owner(index,count,raw)
+    ordinal:child(index,count,raw)
+    repeats:copies(index,count,raw)
     size:v.(16*i+3)
     area:size*size
-    columns:int(math.sqrt(num(copies)))
-    columns*columns<copies? .columns:columns+1
-    rows:(copies+columns-1)//columns
-    dx:((num(child%columns)+0.5)/num(columns)-0.5)*size/p.(23)
-    dy:((num(child//columns)+0.5)/num(rows)-0.5)*size/p.(23)
+    columns:int(math.sqrt(num(repeats)))
+    columns*columns<repeats? .columns:columns+1
+    rows:(repeats+columns-1)//columns
+    dx:((num(ordinal%columns)+0.5)/num(columns)-0.5)*size/p.(23)
+    dy:((num(ordinal//columns)+0.5)/num(rows)-0.5)*size/p.(23)
     mass:v.(16*i+11)
     px:v.(16*i+12)
     py:v.(16*i+13)
@@ -46,13 +56,12 @@ restore(index:int,p:[num],v:[num])->[num]:
     phase>0.5? .phase:0
     parts:1.0
     fresh>0 /\ fresh<raw? .parts:2
-    @:[v.(16*i)+dx,v.(16*i+1)+dy,v.(16*i+4),v.(16*i+5),v.(16*i+6),v.(16*i+10),math.sqrt(area/num(copies)),mass/num(copies),px/num(copies),py/num(copies),weight/(parts*num(copies)),gas,phase]
+    @:[v.(16*i)+dx,v.(16*i+1)+dy,v.(16*i+4),v.(16*i+5),v.(16*i+6),v.(16*i+10),math.sqrt(area/num(repeats)),mass/num(repeats),px/num(repeats),py/num(repeats),weight/(parts*num(repeats)),gas,phase]
 # Native finite walk:32 independent uniform increments, no sine/cosine curls.
 # Held coefficients are reused; only future windows beyond the held horizon append.
 diffusion(index:int,p:[num],v:[num])->[num]:
     raw:int(p.(24))
-    address:owner(index,int(p.(10)),raw)
-    i:address.(0)
+    i:owner(index,int(p.(10)),raw)
     (v.length()=82*raw)?! "invalid stochastic source storage"
     [num] walk:[0:66]
     fresh:v.(16*i+11)<0 \/ v.(16*i+15)>0.5
