@@ -450,6 +450,14 @@ prepare_glyph_state(value:Interp,source:GlyphEndpoint,target:GlyphEndpoint)->Gly
     n:a.length()
     k:b.length()
     (n<=256 /\ k<=256 /\ source.matrix.length()=6*n /\ source.color.length()=4*n /\ target.matrix.length()=6*k /\ target.color.length()=4*k)?! "bounded native glyph row storage"
+    c:0
+    c<source.color.length()?>
+        (source.color.(c)>=0 /\ source.color.(c)<=1)?! "invalid native source glyph RGBA"
+        .c:c+1
+    .c:0
+    c<target.color.length()?>
+        (target.color.(c)>=0 /\ target.color.(c)<=1)?! "invalid native target glyph RGBA"
+        .c:c+1
     [int] scores:[0:(n+1)*(k+1)]
     i:n-1
     i>=0?>
