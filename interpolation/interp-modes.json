@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "settingsSchema": "interp-settings.schema.json",
   "nativeModule": "Interp.vkf",
   "facadeModule": "Interpolation.vkf",
@@ -61,31 +61,40 @@
         "grow"
       ],
       "channels": {
-        "vapor_channel": [
-          "dx",
-          "dy",
+        "sample_vapor_transport.gas": [
+          "x",
+          "y",
           "alpha",
-          "size"
+          "footprint",
+          "r",
+          "g",
+          "b",
+          "materialWeight",
+          "capture"
         ],
-        "reveal_channel": [
+        "target": [
           "alpha",
           "growth",
-          "red",
-          "green",
-          "blue"
+          "r",
+          "g",
+          "b"
         ],
-        "source_alpha": [
-          "alpha"
+        "ledger": [
+          "attachedSource",
+          "gas",
+          "capturedTarget"
         ]
       },
-      "carrierLimit": 65536,
+      "carrierLimit": 4096,
       "seedDomain": [
         0,
         65535
       ],
-      "source": "fixed cached samples from actual native source glyph ink; no body or shape editor entities",
-      "target": "separate row reading front into reveal_channel; final authored glyph ink color supplied by native renderer",
-      "semantics": "dimensionless maximum activation style, intentional alpha fade, not thermodynamic simulation or material conservation"
+      "source": "actual native ink dyadic equal-weight samples; persistent positive normalized material",
+      "target": "actual native target ink + declared nearest native anchor capture control",
+      "semantics": "conserved normalized material ledger; finite seeded cubic noise field, not physical Brownian/thermal dynamics; no raster area conservation claim",
+      "implementation": "Morphing.prepare_material + existing state/segment kernels; prepared native ink transport",
+      "emptyEndpoints": "explicitly unsupported conserved transport; spectral appearance/removal remains separate"
     }
   ],
   "routeStatus": {
@@ -95,26 +104,31 @@
     "renderer": "not yet integrated or visually qualified"
   },
   "batch": {
-    "function": "text_frame",
-    "arguments": [
-      "settings:Interp",
-      "q:num",
-      "source_ink:[num]",
-      "target_reading:[num]",
-      "front:num"
+    "prepare": "prepare_vapor_transport(settings,sourceInk,targetInk,glyphs)",
+    "sample": "sample_vapor_transport(plan,q,front)",
+    "front": "vapor_front(settings,q,travel)",
+    "inkLayout": [
+      "x",
+      "y",
+      "r",
+      "g",
+      "b",
+      "coverage",
+      "footprint"
     ],
-    "result": {
-      "source_alpha": "num",
-      "gas": "[x,y,alpha,size]*source_count",
-      "target": "[alpha,growth,red,green,blue]*target_count"
-    },
-    "sourceInput": "[local_x,local_y,native_ink_coverage]*source_count",
-    "targetInput": "cached reading coordinate per native glyph",
-    "sourceLimit": 65536,
-    "targetLimit": 65536,
-    "callsPerFrame": 1,
-    "endpointPolicy": "q0 source exact and target invisible; q1 target exact and source/gas invisible; front travel must be budgeted to avoid final-front snap",
-    "cancellation": "bounded synchronous guest call; cancel/drop before dispatch or discard superseded result, no cooperative in-call cancellation ABI"
+    "glyphLayout": [
+      "x",
+      "y",
+      "reading",
+      "r",
+      "g",
+      "b",
+      "alpha"
+    ],
+    "coordinateChart": "common CSS-height units; native y up",
+    "sampleCounts": "positive powers of two <=4096 at each endpoint, yielding at most4096 carriers",
+    "legacyUnpreparedVapor": "removed; text_frame accepts spectral mode only",
+    "numeric": "same native state/prepare plus renderer forwarding sample_state; one time_coordinate"
   },
   "nativeRecordABI": {
     "version": 2,

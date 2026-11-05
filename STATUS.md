@@ -585,3 +585,33 @@ runtime-argument tests avoid expensive compile-time tiny rational expressions.
 Renderer exact-zero-area admission fix remains independently valid268c453.
 Next rebuild owned renderer kernel from this immutable source and rerun genuine
 153-glyph oscillator playback regression. Root owns PP UI/video; no edits there.
+
+# Material-carrying ink interpolation — 2026-11-05
+
+Owner rejected outward-only drift+fade+independent reveal. Replaced active vapor
+with prepared native source/target ink transport. Existing Morphing.prepare_material
+owns positive normalized dyadic carrier weights and split/merge lineage; existing
+state/segment kernels own endpoint RGB/coverage/footprint channels and seeded
+finite cubic noise field. No independent interpolation implementation.
+
+Native front first dissolves/lifts, then pulls material on non-direct noisy paths
+into actual target ink/current native glyph transform before spectral capture.
+Ledger attached+gas+captured sums1 (finite numerical checks); normalized material
+is distinct from optical area/density, not a raster-mass theorem. Temperature is
+activation0–1, not physical energy. Nearest native anchor is an explicit capture
+control, not semantic identity. Empty changed endpoints explicitly reject
+conserved vapor; separate spectral creation/removal remains available. Unchanged
+exact native specs are fixed in renderer integration; no needless dissolution.
+
+New API prepare_vapor_transport/vapor_front/sample_vapor_transport. Removed old
+unprepared vapor_channel; text_frame now spectral-only. Native tests pass actual
+endpoint/color convergence, lifted paths, ledger, capture coupling, arbitrary
+seek determinism, differing endpoint counts and explicit empty rejection.
+Old outward/batch receipts remain historical source-pinned evidence, superseded
+by transport-qualification.json. Docs/schema/descriptor now describe corrected
+material behavior. Source inspection caught one duplicate local declaration;
+fixed before successful canonical native WASM qualification.
+
+Next owned renderer builds exact new commit, consumes real native endpoint
+raster ink with4kcap, strict unchanged matching, short decoded native clip, and
+same-artifact numeric state forwarding. Root owns PP UI/timings/world edits.

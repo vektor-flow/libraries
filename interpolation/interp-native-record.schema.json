@@ -92,7 +92,8 @@
         "properties": {
           "temperature": {
             "type": "number",
-            "const": 1,
+            "minimum": 0,
+            "maximum": 1,
             "default": 1
           },
           "spread": {

@@ -20,7 +20,7 @@ lines.push('    (state.state.length()=1 /\\ state.reveal.length()=0 /\\ state.va
  '    (hot.vapor.(0).temperature=1 /\\ hot.vapor.(0).spread=2 /\\ hot.vapor.(0).lift=3 /\\ hot.vapor.(0).seed=42 /\\ hot.reveal.(0).k=2 /\\ hot.reveal.(0).grow=false)?! "named vapor fields"',
  '    omitted:i.interp(mode:2)',
  '    (omitted.state.length()=0 /\\ omitted.reveal.length()=0 /\\ omitted.vapor.length()=0)?! "absent named optional groups"',
- '    (i.vapor_channel(omitted,0.5,17,0)=i.vapor_channel(i.vapor_interp(),0.5,17,0))?! "omitted optional groups resolve native defaults"');
+ '    (i.vapor_interp(temperature:0.5).vapor.(0).temperature=0.5)?! "dimensionless temperature control"');
 let checks=9;
 const assertNear=(actual,expected,label)=>{lines.push(`    (|${actual}-(${Number(expected).toPrecision(17)})|<0.00000001)?! "${label}"`);checks++;};
 for(let j=0;j<=16;j++){
@@ -28,11 +28,6 @@ for(let j=0;j<=16;j++){
  assertNear(`i.time_coordinate(${t})`,q,'shared clock');
  assertNear(`i.sample(p,${t}).value.(0)`,2+4*t,'linear state');
  assertNear(`i.source_alpha(${t})`,(1-t)**2,'source alpha');
- for(let ch=0;ch<4;ch++){
-  const noise=lane=>((((j*251+127*199+lane*101+17)%65521)*251+37)%65521)/65520;
-  const expected=[.35*t*(2*noise(0)-1),.65*t*(.5+noise(1)),4*t*(1-t)**2,1+3*t*noise(2)][ch];
-  assertNear(`i.vapor_channel(gas,${t},${j},${ch})`,expected,'seeded gas oracle');
- }
  const distance=t*.5,a=Math.sin(Math.min(Math.PI/2,4*distance))**2;
  assertNear(`i.reveal_channel(reveal,${distance},0)`,a,'native spectral alpha');
  for(let ch=0;ch<3;ch++){
@@ -45,7 +40,7 @@ for(let j=0;j<=16;j++){
 lines.push('    @:true','::check()');
 const cases=[{name:'positive-oracles',source:lines.join('\n')+'\n',pass:true},
  {name:'irrelevant-payload',source:'i:.Interp\n::i.settings(0,reveal:[(k:4,velocity:0.54,overshoot:0.32,grow:true)])\n',pass:false},
- {name:'invalid-temperature',source:'i:.Interp\n::i.evaporate(temperature:0.5)\n',pass:false},
+ {name:'invalid-temperature',source:'i:.Interp\n::i.evaporate(temperature:1.1)\n',pass:false},
  {name:'text-cubic-path',source:'i:.Interp\n::i.settings(1,state:[(path:0,)])\n',pass:false},
  {name:'invalid-seed',source:'i:.Interp\n::i.evaporate(seed:65536)\n',pass:false},
  {name:'duplicate-optional-group',source:'i:.Interp\n::i.settings(0,state:[(path:0,),(path:1,)])\n',pass:false},
@@ -55,7 +50,7 @@ const cases=[{name:'positive-oracles',source:lines.join('\n')+'\n',pass:true},
  {name:'invalid-spread',source:'i:.Interp\n::i.evaporate(spread:5)\n',pass:false},
  {name:'inapplicable-named-factory-field',source:'i:.Interp\n::i.spectral(seed:1)\n',pass:false},
  {name:'opaque-positional-settings-rejected',source:'i:.Interp\n::i.settings(1,[],[4,0.54,0.32,1],[])\n',pass:false},
- {name:'carrier-bound',source:'i:.Interp\nv:i.evaporate()\n::i.vapor_channel(v,0.5,65536,0)\n',pass:false}];
+ {name:'carrier-bound',source:'i:.Interp\nv:i.evaporate()\n::i.text_frame(v,0.5,[],[],0)\n',pass:false}];
 const results=[];
 for(const test of cases){
  await writeFile(path.join(dir,'main.vkf'),test.source);const start=Date.now();

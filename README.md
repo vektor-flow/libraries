@@ -88,7 +88,7 @@ Historical Python research is porting/qualification reference, not the library.
 
 `Interpolation.vkf` is the public state interpolation entry; `Interp.vkf` owns
 typed settings with mode-specific named/default factories for state paths,
-spectral text/list reveal and maximum-temperature vapor render carriers. State
+spectral text/list reveal and material-carrying vapor with prepared native ink endpoints. State
 paths delegate to the existing Morphing numerical backend. See
 [the native contract](interpolation/INTERP-CONTRACT.md),
 [canonical mode metadata](interpolation/interp-modes.json) and

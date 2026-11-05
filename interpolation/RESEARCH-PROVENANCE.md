@@ -50,3 +50,17 @@ zero-or-one vectors of named typed records; ABI2 uses that existing syntax for
 optional StateSettings/RevealSettings/VaporSettings. Native factories preserve
 named optional parameters and defaults. No mathematical family, policy solver,
 thermodynamics or new language optional/union syntax is inferred from this change.
+
+## Material transport correction — 2026-11-05
+
+Owner rejected independent outward gas+fade+target reveal. Current vapor now
+reuses Morphing.prepare_material's positive persistent carrier and explicit
+ordered lineage. Normalized dyadic sample weights separate material accounting
+from observable raster area/coverage, consistent with core_contract's carrier vs
+view distinction. Existing state/segment and natural-cubic kernels own both
+endpoint channels and seeded finite turbulence controls. No second interpolation
+engine, host trajectory formula, triangle objects or thermodynamic claim.
+Nearest native anchor is a declared capture control, not semantic identity proof.
+Empty changed endpoints remain an explicit unsupported conservation case; birth,
+removal and reservoirs require their own source/accounting policy. Earlier
+outward-only receipts are historical and do not qualify this corrected behavior.

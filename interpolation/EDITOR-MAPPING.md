@@ -21,7 +21,7 @@ and expose unsupported choices honestly until their route is qualified.
 | Fractal controls | Refinement/convergence research is distinct from interpolation coordinate | no native implementation/editor contract migrated; unavailable |
 | Graph face fill | Authored selected bounded faces and harmonic polynomial illustration | research only; no automatic extraction/PDE/native solver claim |
 | Spectral text/list reveal | `spectral_interp` + cached row/glyph reading indices | native unfolded channels qualified in client WASM; compositor integration pending |
-| Maximum-temperature evaporation | `vapor_interp` + actual source-ink samples + target row reveal | deterministic native scalar channel qualification; native font/compositor and visual verification pending |
+| Material-carrying vapor | `vapor_interp` + `prepare_vapor_transport/sample_vapor_transport` over actual source/target ink | persistent Morphing material + seeded cubic noise; finite native transport qualification; browser/decoded clip recorded separately |
 
 Polynomial/tensor, conic, graph and rounding source is intentionally migrated
 from the read-only owner worktree, with file hashes in

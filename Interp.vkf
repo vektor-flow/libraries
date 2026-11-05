@@ -33,7 +33,7 @@ valid(value:Interp)->bit:
     value.mode=2?
         value.vapor.length()=1?
             v:value.vapor.(0)
-            (v.temperature=1)?! "only maximum-temperature vapor is implemented"
+            (v.temperature>=0 /\ v.temperature<=1)?! "vapor temperature outside 0–1"
             (v.spread>=0 /\ v.spread<=4 /\ v.lift>=0 /\ v.lift<=4)?! "vapor extent outside 0–4"
             (v.seed>=0 /\ v.seed<=65535)?! "vapor seed must be integer 0–65535"
     @:true
@@ -70,33 +70,10 @@ reveal_channel(value:Interp,distance:num,channel:int)->num:
         @:u.growth(a,u.back_coefficient(overshoot))
     @:u.color_channel(a,channel-2)
 
-# Indexed deterministic carrier noise; no mutable PRNG, frame stepping or state.
-# Bounded integer arithmetic remains below 2^31, also exact in f64 WASM.
 noise(index:int,seed:int,lane:int)->num:
     n:(index*251+seed*199+lane*101+17)%65521
     .n:(n*251+37)%65521
     @:num(n)/65520
-
-# q is already the shared eased coordinate. Input index identifies a cached
-# source-ink sample, never an authorable body. Channels: dx,dy,alpha,size.
-# Source/target glyph fields and their exact endpoint rendering remain native.
-vapor_channel(value:Interp,q:num,index:int,channel:int)->num:
-    valid(value)?! "invalid Interp settings"
-    (value.mode=2 /\ q>=0 /\ q<=1)?! "vapor channel requires vapor Interp and coordinate 0–1"
-    (index>=0 /\ index<65536 /\ channel>=0 /\ channel<=3)?! "vapor carrier/channel outside bounded layout"
-    spread:0.35
-    lift:0.65
-    seed:0
-    value.vapor.length()=1?
-        .spread:value.vapor.(0).spread
-        .lift:value.vapor.(0).lift
-        .seed:value.vapor.(0).seed
-    # Gas develops from actual ink as the source dissolves, then fades entirely.
-    envelope:4*q*(1-q)
-    channel=0? @:spread*q*(2*noise(index,seed,0)-1)
-    channel=1? @:lift*q*(0.5+noise(index,seed,1))
-    channel=2? @:envelope*(1-q)
-    @:1+3*q*noise(index,seed,2)
 
 # Source field alpha; target reveal should receive its own row reading front.
 source_alpha(q:num)->num:
@@ -124,11 +101,10 @@ TextFrame:(source_alpha:num,gas:[num],target:[num])
 # Gas output is x,y,alpha,size; target output alpha,growth,r,g,b per glyph.
 text_frame(value:Interp,q:num,source_ink:[num],target_reading:[num],front:num)->TextFrame:
     valid(value)?! "invalid Interp settings"
-    (value.mode>0 /\ q>=0 /\ q<=1 /\ |front|<10^10)?! "invalid Interp text frame"
+    (value.mode=1 /\ q>=0 /\ q<=1 /\ |front|<10^10)?! "text frame requires spectral mode; vapor needs prepared material transport"
     (source_ink.length()<=196608 /\ source_ink.length()%3=0 /\ target_reading.length()<=65536)?! "Interp text frame exceeds bounded layout"
-    (value.mode=2 \/ source_ink.length()=0)?! "source ink carriers require vapor mode"
-    count:source_ink.length()//3
-    [num] gas:[0:4*count]
+    (source_ink.length()=0)?! "spectral frames do not accept material carriers"
+    [num] gas:[]
     [num] target:[0:5*target_reading.length()]
     k:4.0
     overshoot:0.32
@@ -138,25 +114,7 @@ text_frame(value:Interp,q:num,source_ink:[num],target_reading:[num],front:num)->
         .overshoot:value.reveal.(0).overshoot
         .grow:value.reveal.(0).grow
     coefficient:u.back_coefficient(overshoot)
-    spread:0.35
-    lift:0.65
-    seed:0
-    value.vapor.length()=1?
-        .spread:value.vapor.(0).spread
-        .lift:value.vapor.(0).lift
-        .seed:value.vapor.(0).seed
-    envelope:4*q*(1-q)*(1-q)
     j:0
-    j<count?>
-        x:source_ink.(3*j)
-        y:source_ink.(3*j+1)
-        coverage:source_ink.(3*j+2)
-        (|x|<10^10 /\ |y|<10^10 /\ coverage>=0 /\ coverage<=1)?! "invalid native ink sample"
-        gas.(4*j):x+spread*q*(2*noise(j,seed,0)-1)
-        gas.(4*j+1):y+lift*q*(0.5+noise(j,seed,1))
-        gas.(4*j+2):coverage*envelope
-        gas.(4*j+3):1+3*q*noise(j,seed,2)
-        .j:j+1
     .j:0
     j<target_reading.length()?>
         (|target_reading.(j)|<10^10)?! "invalid native glyph reading coordinate"
@@ -174,3 +132,222 @@ text_frame(value:Interp,q:num,source_ink:[num],target_reading:[num],front:num)->
         target.(5*j+4):u.color_channel(a,2)
         .j:j+1
     @:(source_alpha:source_alpha(q),gas:gas,target:target)
+
+# Material-carrying ink transport. The existing Morphing carrier ledger and
+# segment evaluator are the ONLY interpolation backend. Noise is a finite
+# seeded cubic field, not an integrated Wiener process or thermodynamic solver.
+ink_state:.morphing.state
+ink_segment:.morphing.segment
+ink_math:.math
+MaterialPlan:(state:Plan,weights:[num],owners:[int],dimension:int,carriers:int,states:int)
+VaporTransport:(material:MaterialPlan,turbulence:Plan,glyphs:[num],glyph_owners:[int],settings:Interp,source_count:int,target_count:int)
+VaporFrame:(source_alpha:num,gas:[num],target:[num],ledger:[num])
+
+ink_count(ink:[num])->int:
+    (ink.length()>0 /\ ink.length()%7=0 /\ ink.length()<=28672)?! "material vapor needs nonempty bounded ink endpoints"
+    count:ink.length()//7
+    remaining:count
+    remaining>1 /\ remaining%2=0?> .remaining:remaining//2
+    (remaining=1)?! "material ink sample counts must be powers of two"
+    i:0
+    i<count?>
+        (|ink.(7*i)|<100 /\ |ink.(7*i+1)|<100)?! "invalid native ink coordinate"
+        j:2
+        j<6?>
+            (ink.(7*i+j)>=0 /\ ink.(7*i+j)<=1)?! "invalid native ink RGB or coverage"
+            .j:j+1
+        (ink.(7*i+5)>0 /\ ink.(7*i+6)>0 /\ ink.(7*i+6)<1000)?! "native ink needs positive coverage and footprint"
+        .i:i+1
+    @:count
+
+# Ink rows: x,y,r,g,b,coverage,footprint; glyph rows: x,y,read,r,g,b,alpha.
+# Positions use one common CSS-height chart, so nearest-anchor distances are
+# actual Euclidean pixel distances up to the same common scale.
+prepare_vapor_transport(value:Interp,source:[num],destination:[num],glyphs:[num])->VaporTransport:
+    valid(value)?! "invalid Interp settings"
+    (value.mode=2)?! "material transport requires vapor Interp"
+    n:ink_count(source)
+    mcount:ink_count(destination)
+    (glyphs.length()>0 /\ glyphs.length()%7=0 /\ glyphs.length()<=28672)?! "material vapor requires target native glyphs"
+    ng:glyphs.length()//7
+    i:0
+    i<ng?>
+        (|glyphs.(7*i)|<100 /\ |glyphs.(7*i+1)|<100 /\ |glyphs.(7*i+2)|<10^10)?! "invalid native target glyph anchor/read coordinate"
+        j:3
+        j<7?>
+            (glyphs.(7*i+j)>=0 /\ glyphs.(7*i+j)<=1)?! "invalid native target authored RGBA"
+            .j:j+1
+        .i:i+1
+    [num] weights:[0:n+mcount]
+    [num] positions:[0:source.length()+destination.length()]
+    .i:0
+    i<n?>
+        weights.(i):1/num(n)
+        j:0
+        j<7?>
+            positions.(7*i+j):source.(7*i+j)
+            .j:j+1
+        .i:i+1
+    .i:0
+    [int] owners:[0:mcount]
+    i<mcount?>
+        weights.(n+i):1/num(mcount)
+        j:0
+        j<7?>
+            positions.(7*(n+i)+j):destination.(7*i+j)
+            .j:j+1
+        nearest:0
+        best:10^100
+        .j:0
+        j<ng?>
+            dx:destination.(7*i)-glyphs.(7*j)
+            dy:destination.(7*i+1)-glyphs.(7*j+1)
+            distance:dx*dx+dy*dy
+            distance<best?
+                .best:distance
+                .nearest:j
+            .j:j+1
+        owners.(i):nearest
+        .i:i+1
+    material:m.prepare_material([0,1],[0,n,n+mcount],weights,positions,7,0,false,false)
+    (material.carriers<=4096)?! "material vapor carrier cap exceeded"
+    seed:0
+    value.vapor.length()=1? .seed:value.vapor.(0).seed
+    [num] knots:[0:13]
+    [num] fluctuations:[0:13*2*material.carriers]
+    tick:0
+    tick<13?>
+        knots.(tick):num(tick)/12
+        .i:0
+        i<material.carriers?>
+            fluctuations.(tick*2*material.carriers+2*i):2*noise(i,seed,2*tick)-1
+            fluctuations.(tick*2*material.carriers+2*i+1):2*noise(i,seed,2*tick+1)-1
+            .i:i+1
+        .tick:tick+1
+    turbulence:m.prepare(knots,fluctuations,2*material.carriers,1,false,false)
+    @:(material:material,turbulence:turbulence,glyphs:glyphs,glyph_owners:owners,settings:value,source_count:n,target_count:mcount)
+
+# Delayed row front: material first dissolves/lifts, then the front captures it.
+# q is already the shared eased coordinate, not another time easing.
+vapor_front(value:Interp,q:num,travel:num)->num:
+    valid(value)?! "invalid Interp settings"
+    (value.mode=2 /\ q>=0 /\ q<=1 /\ travel>=0 /\ travel<10^10)?! "invalid material vapor front"
+    k:4.0
+    value.reveal.length()=1? .k:value.reveal.(0).k
+    lead:1.5*u.ramp_width(k)
+    @: -lead+u.clamp((q-0.25)/0.75,0,1)*(travel+lead)
+
+ink_finish(a:num,channel:int,authored:num)->num:
+    color:u.color_channel(a,channel)
+    a<=0.8? @:color
+    @:color+(authored-1)*u.color_channel(a,1)
+
+# Source mass / gas mass / captured mass sum to one. These are normalized
+# material weights, not raster coverage or a claim of physical ink-area balance.
+# Gas rows: x,y,alpha,footprint,r,g,b,mass,capture.
+sample_vapor_transport(plan:VaporTransport,q:num,front:num)->VaporFrame:
+    (q>=0 /\ q<=1 /\ |front|<10^10)?! "invalid material transport coordinate"
+    value:plan.settings
+    valid(value)?! "invalid material transport settings"
+    k:4.0
+    overshoot:0.32
+    grow:true
+    value.reveal.length()=1?
+        .k:value.reveal.(0).k
+        .overshoot:value.reveal.(0).overshoot
+        .grow:value.reveal.(0).grow
+    temperature:1.0
+    spread:0.35
+    lift:0.65
+    value.vapor.length()=1?
+        .temperature:value.vapor.(0).temperature
+        .spread:value.vapor.(0).spread
+        .lift:value.vapor.(0).lift
+    release:u.alpha(q*1.5707963267948966/(0.22+0.08*(1-temperature)),1)
+    lead:1.5*u.ramp_width(k)
+    coefficient:u.back_coefficient(overshoot)
+    count:plan.material.carriers
+    ng:plan.glyphs.length()//7
+    [num] gas:[0:9*count]
+    [num] target:[0:5*ng]
+    [num] captures:[0:ng]
+    i:0
+    i<ng?>
+        a:u.alpha(front-plan.glyphs.(7*i+2),k)
+        q=0? .a:0
+        q=1? .a:1
+        captures.(i):a
+        size:1.0
+        grow? .size:u.growth(a,coefficient)
+        target.(5*i):release*a*plan.glyphs.(7*i+6)
+        target.(5*i+1):size
+        j:0
+        j<3?>
+            target.(5*i+2+j):ink_finish(a,j,plan.glyphs.(7*i+3+j))
+            .j:j+1
+        .i:i+1
+    segment:ink_state.interval(plan.turbulence.curve.knots,q)
+    h:plan.turbulence.curve.knots.(segment+1)-plan.turbulence.curve.knots.(segment)
+    local:(q-plan.turbulence.curve.knots.(segment))/h
+    source_ratio:ink_math.sqrt(num(plan.source_count)/num(count))
+    target_ratio:ink_math.sqrt(num(plan.target_count)/num(count))
+    gas_mass:0.0
+    captured_mass:0.0
+    .i:0
+    i<count?>
+        destination:plan.material.owners.(count+i)
+        glyph:plan.glyph_owners.(destination)
+        a:captures.(glyph)
+        progress:u.clamp((front-plan.glyphs.(7*glyph+2)+lead)/lead,0,1)
+        q=0? .progress:0
+        q=1? .progress:1
+        # Same prepared state-segment kernel, evaluated at carrier capture phase.
+        j:0
+        [num] channels:[0:7]
+        j<7?>
+            index:7*i+j
+            start:plan.material.state.curve.values.(index)
+            finish:plan.material.state.curve.values.(7*count+index)
+            channels.(j):ink_segment.value(start,finish,0,0,1,progress)
+            .j:j+1
+        size:target.(5*glyph+1)
+        gx:plan.glyphs.(7*glyph)
+        gy:plan.glyphs.(7*glyph+1)
+        px:plan.material.state.curve.values.(7*count+7*i)
+        py:plan.material.state.curve.values.(7*count+7*i+1)
+        # The sink follows the actual native glyph's current growth transform.
+        channels.(0):channels.(0)+progress*((gx+(px-gx)*size)-px)
+        channels.(1):channels.(1)+progress*((gy+(py-gy)*size)-py)
+        q=0?
+            channels.(0):plan.material.state.curve.values.(7*i)
+            channels.(1):plan.material.state.curve.values.(7*i+1)
+        envelope:release*(1-progress)*temperature
+        .j:0
+        j<2?>
+            component:2*i+j
+            offset:segment*2*count+component
+            next:offset+2*count
+            fluctuation:ink_segment.value(plan.turbulence.curve.values.(offset),plan.turbulence.curve.values.(next),plan.turbulence.curve.second.(offset),plan.turbulence.curve.second.(next),h,local)
+            .fluctuation:u.clamp(fluctuation,-1,1)
+            j=0? channels.(0):channels.(0)+0.15*spread*envelope*fluctuation
+            j=1? channels.(1):channels.(1)+0.15*lift*envelope*(1+0.4*fluctuation)
+            .j:j+1
+        q=1?
+            channels.(0):px
+            channels.(1):py
+        fraction:release*(1-a)
+        mass:plan.material.weights.(i)
+        gas.(9*i):channels.(0)
+        gas.(9*i+1):channels.(1)
+        gas.(9*i+2):channels.(5)*fraction
+        # Splitting a carrier partitions its presentation area, not its ledger.
+        gas.(9*i+3):channels.(6)*ink_segment.value(source_ratio,target_ratio,0,0,1,progress)
+        gas.(9*i+4):channels.(2)
+        gas.(9*i+5):channels.(3)
+        gas.(9*i+6):channels.(4)
+        gas.(9*i+7):mass
+        gas.(9*i+8):a
+        .gas_mass:gas_mass+mass*fraction
+        .captured_mass:captured_mass+mass*release*a
+        .i:i+1
+    @:(source_alpha:1-release,gas:gas,target:target,ledger:[1-release,gas_mass,captured_mass])
