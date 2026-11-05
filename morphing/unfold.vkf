@@ -37,8 +37,11 @@ back_coefficient(overshoot:num)->num:
         .i:i+1
     @:(low+high)/2
 growth(a:num,coefficient:num)->num:
-    z:clamp(a,0,1)-1
-    @:1+(coefficient+1)*z*z*z+coefficient*z*z
+    progress:clamp(a,0,1)
+    remaining:1-progress
+    # Same back-ease polynomial factored by progress. All terms are positive
+    # for prepared coefficients: tiny positive alpha cannot cancel to zero.
+    @:progress*(1+remaining+(coefficient+1)*remaining*remaining)
 color_channel(a:num,channel:int)->num:
     (channel>=0 /\ channel<3)?! "unfold color channel index"
     phase:4.5*clamp(a/0.8,0,1)

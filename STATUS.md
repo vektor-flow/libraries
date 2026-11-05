@@ -567,3 +567,21 @@ Renderer code must rebuild/re-pin before consuming ABI2 records; older d2952a9
 artifact is intentionally a separate immutable ABI1 build. Owned renderer branch
 codex/pp-text-modes-renderer-20261105 will be rebuilt/tested next. No PP UI/video
 changes, push/publication or original research worktree edits in this audit.
+
+# Numerically stable native text growth — 2026-11-05
+
+Actual Product long-list reveal exposed cancellation in existing back-ease:
+1+(s+1)*(a-1)^3+s*(a-1)^2 can round to0 for positive tiny a. Rewrote the SAME
+polynomial as a*(1+(1-a)+(s+1)*(1-a)^2), retaining clamp, exact0/1 endpoints,
+coefficient preparation and requested overshoot. For prepared s>=0 all inner
+terms are nonnegative and the factor is>=1, avoiding tiny-positive cancellation.
+No alternative interpolation/morphing algorithm or runtime backend introduced.
+
+Actual canonical075 WASM runtime probes test positive subnormal/tiny/ordinary
+alpha, exact endpoints, relative expanded-polynomial agreement, clamp behavior
+and requested overshoot peaks. Receipt tests/interp/evidence/growth-qualification.json.
+Initial constant-expanded assertion compilation was stopped in own process;
+runtime-argument tests avoid expensive compile-time tiny rational expressions.
+Renderer exact-zero-area admission fix remains independently valid268c453.
+Next rebuild owned renderer kernel from this immutable source and rerun genuine
+153-glyph oscillator playback regression. Root owns PP UI/video; no edits there.
