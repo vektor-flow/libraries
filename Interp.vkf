@@ -211,21 +211,22 @@ prepare_vapor_transport(value:Interp,source:[num],destination:[num],glyphs:[num]
         owners.(i):nearest
         .i:i+1
     material:m.prepare_material([0,1],[0,n,n+mcount],weights,positions,7,0,false,false)
-    (material.carriers<=4096)?! "material vapor carrier cap exceeded"
+    count:material.carriers
+    (count<=4096)?! "material vapor carrier cap exceeded"
     seed:0
     value.vapor.length()=1? .seed:value.vapor.(0).seed
     [num] knots:[0:13]
-    [num] fluctuations:[0:13*2*material.carriers]
+    [num] fluctuations:[0:13*2*count]
     tick:0
     tick<13?>
         knots.(tick):num(tick)/12
         .i:0
-        i<material.carriers?>
-            fluctuations.(tick*2*material.carriers+2*i):2*noise(i,seed,2*tick)-1
-            fluctuations.(tick*2*material.carriers+2*i+1):2*noise(i,seed,2*tick+1)-1
+        i<count?>
+            fluctuations.(tick*2*count+2*i):2*noise(i,seed,2*tick)-1
+            fluctuations.(tick*2*count+2*i+1):2*noise(i,seed,2*tick+1)-1
             .i:i+1
         .tick:tick+1
-    turbulence:m.prepare(knots,fluctuations,2*material.carriers,1,false,false)
+    turbulence:m.prepare(knots,fluctuations,2*count,1,false,false)
     @:(material:material,turbulence:turbulence,glyphs:glyphs,glyph_owners:owners,settings:value,source_count:n,target_count:mcount)
 
 # Delayed row front: material first dissolves/lifts, then the front captures it.
