@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vektor-flow.org/contracts/interp-native-record-v2.schema.json",
+  "title": "Native Interp structural record ABI2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "mode",
+    "state",
+    "reveal",
+    "vapor"
+  ],
+  "properties": {
+    "mode": {
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2
+      ]
+    },
+    "state": {
+      "type": "array",
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          }
+        }
+      }
+    },
+    "reveal": {
+      "type": "array",
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "k",
+          "velocity",
+          "overshoot",
+          "grow"
+        ],
+        "properties": {
+          "k": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10,
+            "default": 4
+          },
+          "velocity": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.54
+          },
+          "overshoot": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 0.5,
+            "default": 0.32
+          },
+          "grow": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      }
+    },
+    "vapor": {
+      "type": "array",
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "temperature",
+          "spread",
+          "lift",
+          "seed"
+        ],
+        "properties": {
+          "temperature": {
+            "type": "number",
+            "const": 1,
+            "default": 1
+          },
+          "spread": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 4,
+            "default": 0.35
+          },
+          "lift": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 4,
+            "default": 0.65
+          },
+          "seed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535,
+            "default": 0
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": 0
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "reveal": {
+            "maxItems": 0
+          },
+          "vapor": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": 1
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "state": {
+            "maxItems": 0
+          },
+          "vapor": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": 2
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "state": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ]
+}

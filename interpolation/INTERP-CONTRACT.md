@@ -36,14 +36,49 @@ solver. Spread/lift lie in `[0,4]` in the chosen renderer-local coordinate units
 seed is an integer in `[0,65535]`. Reveal uses k `[1,10]`, velocity `[0,1]`,
 overshoot `[0,0.5]`, and boolean grow. Velocity zero holds the reading front.
 
-The current finite record ABI is `Interp:(mode:int,path:int,reveal:[num],vapor:[num])`.
-Mode tags are 0 state, 1 spectral, 2 vapor. Absent payloads are `[]`; reveal's
-internal layout is `[k,velocity,overshoot,grow_as_0_or_1]` and vapor's is
-`[temperature,spread,lift,seed]`. Empty payloads resolve to named defaults.
-This representation needs no unverified optional/union record syntax. Native
-`settings` validates supplied payloads, including irrelevant-mode rejection.
-Editors should expose named parameters, never these positional arrays. A future
-nominal optional-record ABI can replace this storage after compiler qualification.
+The public **typed structural record** (ABI 2) is:
+
+```vkf
+StateSettings:(path:int)
+RevealSettings:(k:num,velocity:num,overshoot:num,grow:bit)
+VaporSettings:(temperature:num,spread:num,lift:num,seed:int)
+Interp:(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings])
+```
+
+Each optional group holds zero or one typed named record; `[]` means absent.
+This is the actually qualified finite native encoding, not invented nullable,
+union, dependent-field or record-default language syntax. These are structural
+record types, not a claim of nominal constructor identity. Mode tags are 0
+state, 1 spectral, 2 vapor. Omitted groups retain native defaults on evaluation.
+Mode0 permits only `state`; mode1 permits only `reveal`; mode2 permits `reveal`
+and `vapor`. Any inapplicable group rejects, even a text-mode state group with
+`path:0`. More than one record in a group rejects. Every present setting is
+accessible by its actual name, including native boolean `grow` and integer `seed`.
+There are **no positional numeric settings payloads** in this public ABI.
+
+```vkf
+i:.Interpolation
+config:i.spectral_interp(k:7,grow:false)
+::config.reveal.(0).k
+::config.reveal.(0).grow
+# Advanced direct construction with a complete named typed group:
+manual:i.interp(mode:0,state:[(path:1,)])
+```
+
+Primary callers use the named factories, whose omitted parameters apply actual
+native defaults. The low-level `interp(mode,state,reveal,vapor)` facade, or
+`Interp.settings`, accepts named typed optional groups for inspection/advanced
+construction; partially specified record literals are not a supported syntax.
+A caller that wants only `k` to change uses `spectral_interp(k:...)`, rather than
+inventing `k?`, nulls or partial records. The native record schema is `interp-native-record.schema.json`; it enforces
+the same named fields/cardinalities/mode groups for host ABI transport. The
+strict named factory JSON schema remains unchanged: it already separates the three modes with `additionalProperties:false`.
+
+ABI2 replaces d2952a9's earlier opaque numeric record payloads. This is a
+source/record-ABI correction, not another interpolation engine. Native factory
+names, arguments and numerical behavior remain compatible. Previously emitted
+renderer artifacts remain pinned to their old source until explicitly rebuilt;
+never pass a new-ABI record into an old-ABI WASM kernel or vice versa.
 
 `prepare_interp(settings,coordinates,states,width)` accepts only state mode.
 It returns the existing Plan, with the legacy endpoint-map flags off. Apply the

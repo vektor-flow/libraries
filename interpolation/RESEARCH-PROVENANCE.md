@@ -34,3 +34,19 @@ mass/material conservation claim. Canonical client WASM tests qualify only
 specific numeric channels and rejection contracts, not the source-only geometry
 methods or renderer visual quality. Native CPU evidence is historical and
 separately pinned; no release or physical-GPU evidence is inherited.
+
+## Typed struct audit, 2026-11-05
+
+Rechecked `generalization/working_reference.txt`,
+`core_sugar_1/minimal_core.txt` and `sugar_lowerings.txt`: these explicitly label
+their language-neutral constructor notation as pseudocode, keep constructor
+named inputs separate from representation/evaluation, and reject a universal
+interpolate(anything) capability. Research justifies mode-local controls and
+explicit evaluator scope; it does not adopt a native struct syntax.
+
+The first public Interp wrapper used opaque numeric vectors internally. Audit
+found that insufficient as a typed public struct. Canonical075 actually supports
+zero-or-one vectors of named typed records; ABI2 uses that existing syntax for
+optional StateSettings/RevealSettings/VaporSettings. Native factories preserve
+named optional parameters and defaults. No mathematical family, policy solver,
+thermodynamics or new language optional/union syntax is inferred from this change.

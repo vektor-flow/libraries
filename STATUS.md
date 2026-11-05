@@ -537,3 +537,33 @@ reveal channels from bounded ink triples/read coordinates. It prepares growth
 once per frame and preserves exact scene endpoints. Native WASM guest ABI is
 synchronous: no in-call cancel hook; discard superseded generations. Bulk renderer
 performance and GPU lowering remain unqualified. See batch-qualification.json.
+
+# Interp typed public struct audit — 2026-11-05
+
+Audit confirmed first d2952a9 native record exposed opaque numeric parameter
+vectors despite strict named factories/schema. Corrected public record ABI2 to
+StateSettings(path:int), RevealSettings(k:num,velocity:num,overshoot:num,grow:bit),
+VaporSettings(temperature:num,spread:num,lift:num,seed:int), and
+Interp(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings]).
+Each applicable optional group holds zero or one named typed record; [] absent.
+No positional numeric settings payload remains. Native factories retain optional
+named/default arguments. Generic settings/interp accepts typed named groups and
+rejects duplicates/inapplicable groups, including path0 on any text mode.
+
+Research minimal_core/sugar_lowerings/working_reference rechecked: pseudocode
+constructors, not adopted syntax; representation/evaluation remain independent,
+optional policies stay local, no universal state/thermodynamics solver is claimed.
+Research provenance and INTERP-CONTRACT document precise structural-record ABI,
+not nominal/dependent/nullable language claims. Numerical Morphing unchanged.
+
+Actual canonical075 probe and final batch qualify named record vectors, native
+boolean grow/integer seed, endpoints, coverage/scalar parity, seek determinism.
+Extended numerical/defaults/overrides/invalid-combination and JSON-schema receipts
+are tests/interp/evidence/. Initial audit probes rejected unsupported prefix !
+and single-field record literal ambiguity; use boolean equality and explicit
+single-field record trailing comma. No compiler modifications or invented syntax.
+
+Renderer code must rebuild/re-pin before consuming ABI2 records; older d2952a9
+artifact is intentionally a separate immutable ABI1 build. Owned renderer branch
+codex/pp-text-modes-renderer-20261105 will be rebuilt/tested next. No PP UI/video
+changes, push/publication or original research worktree edits in this audit.

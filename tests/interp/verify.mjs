@@ -12,7 +12,16 @@ for(const name of ['Morphing.vkf','Interpolation.vkf','Interp.vkf','morphing','i
 for(const name of ['Morphing.vkf','Interpolation.vkf','Interp.vkf','morphing/state.vkf','morphing/unfold.vkf'])sources[name]=createHash('sha256').update(await readFile(name)).digest('hex');
 const c=await createProjectCompiler({compilerModule:path.join(base,'compiler.mjs'),compilerOptions:{printErr:()=>{}}});
 const lines=['i:.Interpolation','check()->bit:', '    state:i.state_interp()', '    cubic:i.state_interp(1)', '    reveal:i.spectral_interp()', '    still:i.spectral_interp(velocity:0,grow:false)', '    gas:i.vapor_interp(seed:127)', '    p:i.prepare_interp(state,[0,1],[2,6],1)', '    cp:i.prepare_interp(cubic,[0,1,2],[0,1,0],1)', '    (i.sample(cp,0.5).value.(0)=0.6875)?! "natural cubic delegates same backend"', '    (i.reveal_advance(still,3,17)=3)?! "zero velocity holds"', '    (i.reveal_channel(still,0.2,1)=1)?! "grow false"'];
-let checks=3;
+lines.push('    (state.state.length()=1 /\\ state.reveal.length()=0 /\\ state.vapor.length()=0 /\\ state.state.(0).path=0)?! "typed state defaults"',
+ '    (reveal.reveal.(0).k=4 /\\ reveal.reveal.(0).velocity=0.54 /\\ reveal.reveal.(0).overshoot=0.32 /\\ reveal.reveal.(0).grow)?! "typed reveal defaults"',
+ '    tuned:i.spectral_interp(k:7,velocity:0.25,overshoot:0.1,grow:false)',
+ '    (tuned.state.length()=0 /\\ tuned.vapor.length()=0 /\\ tuned.reveal.(0).k=7 /\\ tuned.reveal.(0).velocity=0.25 /\\ tuned.reveal.(0).overshoot=0.1 /\\ tuned.reveal.(0).grow=false)?! "named optional reveal overrides"',
+ '    hot:i.vapor_interp(spread:2,lift:3,seed:42,k:2,velocity:0,overshoot:0,grow:false)',
+ '    (hot.vapor.(0).temperature=1 /\\ hot.vapor.(0).spread=2 /\\ hot.vapor.(0).lift=3 /\\ hot.vapor.(0).seed=42 /\\ hot.reveal.(0).k=2 /\\ hot.reveal.(0).grow=false)?! "named vapor fields"',
+ '    omitted:i.interp(mode:2)',
+ '    (omitted.state.length()=0 /\\ omitted.reveal.length()=0 /\\ omitted.vapor.length()=0)?! "absent named optional groups"',
+ '    (i.vapor_channel(omitted,0.5,17,0)=i.vapor_channel(i.vapor_interp(),0.5,17,0))?! "omitted optional groups resolve native defaults"');
+let checks=9;
 const assertNear=(actual,expected,label)=>{lines.push(`    (|${actual}-(${Number(expected).toPrecision(17)})|<0.00000001)?! "${label}"`);checks++;};
 for(let j=0;j<=16;j++){
  const t=j/16,q=t<.5?2*t*t:1-2*(1-t)**2;
@@ -35,10 +44,17 @@ for(let j=0;j<=16;j++){
 }
 lines.push('    @:true','::check()');
 const cases=[{name:'positive-oracles',source:lines.join('\n')+'\n',pass:true},
- {name:'irrelevant-payload',source:'i:.Interp\n::i.settings(0,0,[4,0.54,0.32,1],[])\n',pass:false},
+ {name:'irrelevant-payload',source:'i:.Interp\n::i.settings(0,reveal:[(k:4,velocity:0.54,overshoot:0.32,grow:true)])\n',pass:false},
  {name:'invalid-temperature',source:'i:.Interp\n::i.evaporate(temperature:0.5)\n',pass:false},
- {name:'text-cubic-path',source:'i:.Interp\n::i.settings(1,1)\n',pass:false},
+ {name:'text-cubic-path',source:'i:.Interp\n::i.settings(1,state:[(path:0,)])\n',pass:false},
  {name:'invalid-seed',source:'i:.Interp\n::i.evaporate(seed:65536)\n',pass:false},
+ {name:'duplicate-optional-group',source:'i:.Interp\n::i.settings(0,state:[(path:0,),(path:1,)])\n',pass:false},
+ {name:'invalid-reveal-default-override',source:'i:.Interp\n::i.spectral(k:11)\n',pass:false},
+ {name:'invalid-state-path',source:'i:.Interp\n::i.state(path:2)\n',pass:false},
+ {name:'invalid-velocity',source:'i:.Interp\n::i.spectral(velocity:2)\n',pass:false},
+ {name:'invalid-spread',source:'i:.Interp\n::i.evaporate(spread:5)\n',pass:false},
+ {name:'inapplicable-named-factory-field',source:'i:.Interp\n::i.spectral(seed:1)\n',pass:false},
+ {name:'opaque-positional-settings-rejected',source:'i:.Interp\n::i.settings(1,[],[4,0.54,0.32,1],[])\n',pass:false},
  {name:'carrier-bound',source:'i:.Interp\nv:i.evaporate()\n::i.vapor_channel(v,0.5,65536,0)\n',pass:false}];
 const results=[];
 for(const test of cases){

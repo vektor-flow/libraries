@@ -1,0 +1,97 @@
+{
+  "passed": true,
+  "valid": [
+    {
+      "mode": 0,
+      "state": [],
+      "reveal": [],
+      "vapor": []
+    },
+    {
+      "mode": 0,
+      "state": [
+        {
+          "path": 1
+        }
+      ],
+      "reveal": [],
+      "vapor": []
+    },
+    {
+      "mode": 1,
+      "state": [],
+      "reveal": [
+        {
+          "k": 4,
+          "velocity": 0.54,
+          "overshoot": 0.32,
+          "grow": true
+        }
+      ],
+      "vapor": []
+    },
+    {
+      "mode": 2,
+      "state": [],
+      "reveal": [],
+      "vapor": [
+        {
+          "temperature": 1,
+          "spread": 0.35,
+          "lift": 0.65,
+          "seed": 42
+        }
+      ]
+    }
+  ],
+  "invalid": [
+    {
+      "mode": 1,
+      "state": [],
+      "reveal": [
+        4,
+        0.54,
+        0.32,
+        1
+      ],
+      "vapor": []
+    },
+    {
+      "mode": 1,
+      "state": [
+        {
+          "path": 0
+        }
+      ],
+      "reveal": [],
+      "vapor": []
+    },
+    {
+      "mode": 0,
+      "state": [
+        {
+          "path": 0
+        },
+        {
+          "path": 1
+        }
+      ],
+      "reveal": [],
+      "vapor": []
+    },
+    {
+      "mode": 2,
+      "state": [],
+      "reveal": [],
+      "vapor": [
+        {
+          "temperature": 1,
+          "spread": 0.35,
+          "lift": 0.65,
+          "seed": 0.5
+        }
+      ]
+    }
+  ],
+  "schema": "interpolation/interp-native-record.schema.json"
+}

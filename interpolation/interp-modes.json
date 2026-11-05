@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "settingsSchema": "interp-settings.schema.json",
   "nativeModule": "Interp.vkf",
   "facadeModule": "Interpolation.vkf",
@@ -115,5 +115,43 @@
     "callsPerFrame": 1,
     "endpointPolicy": "q0 source exact and target invisible; q1 target exact and source/gas invisible; front travel must be budgeted to avoid final-front snap",
     "cancellation": "bounded synchronous guest call; cancel/drop before dispatch or discard superseded result, no cooperative in-call cancellation ABI"
+  },
+  "nativeRecordABI": {
+    "version": 2,
+    "kind": "typed structural record",
+    "type": "Interp:(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings])",
+    "optionalEncoding": "zero-or-one typed named record per applicable group; [] absent",
+    "groups": {
+      "state": {
+        "path": "int"
+      },
+      "reveal": {
+        "k": "num",
+        "velocity": "num",
+        "overshoot": "num",
+        "grow": "bit"
+      },
+      "vapor": {
+        "temperature": "num",
+        "spread": "num",
+        "lift": "num",
+        "seed": "int"
+      }
+    },
+    "allowedGroups": {
+      "0": [
+        "state"
+      ],
+      "1": [
+        "reveal"
+      ],
+      "2": [
+        "reveal",
+        "vapor"
+      ]
+    },
+    "positionalNumericSettingsPayloads": false,
+    "namedFactoryAPI": "unchanged from d2952a9",
+    "schema": "interp-native-record.schema.json"
   }
 }

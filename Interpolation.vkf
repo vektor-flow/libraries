@@ -92,10 +92,13 @@ sample_polynomial(plan:Polynomial,coordinate:num)->Sample:p.evaluate(plan,coordi
 prepare_patch(controls:[num],width:int,u_count:int,v_count:int)->Patch:t.prepare(controls,width,u_count,v_count)
 sample_patch(plan:Patch,u:num,v:num)->PatchSample:t.evaluate(plan,u,v)
 
-# Public mode-specific settings; empty payloads are absent optional parameters.
+# Public typed mode-specific settings. Optional groups hold zero/one records.
 interp_backend:.Interp
-Interp:(mode:int,path:int,reveal:[num],vapor:[num])
-interp(mode:int=0,path:int=0,reveal:[num]=[],vapor:[num]=[])->Interp:interp_backend.settings(mode,path,reveal,vapor)
+StateSettings:(path:int)
+RevealSettings:(k:num,velocity:num,overshoot:num,grow:bit)
+VaporSettings:(temperature:num,spread:num,lift:num,seed:int)
+Interp:(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings])
+interp(mode:int=0,state:[StateSettings]=[],reveal:[RevealSettings]=[],vapor:[VaporSettings]=[])->Interp:interp_backend.settings(mode,state,reveal,vapor)
 prepare_interp(settings:Interp,coordinates:[num],states:[num],width:int)->Plan:interp_backend.prepare(settings,coordinates,states,width)
 time_coordinate(q:num)->num:interp_backend.time_coordinate(q)
 reveal_channel(settings:Interp,distance:num,channel:int)->num:interp_backend.reveal_channel(settings,distance,channel)

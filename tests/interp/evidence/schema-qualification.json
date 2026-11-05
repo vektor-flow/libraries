@@ -1,0 +1,70 @@
+{
+  "schema": "interpolation/interp-settings.schema.json",
+  "valid": [
+    {
+      "mode": "state"
+    },
+    {
+      "mode": "state",
+      "path": "natural-cubic"
+    },
+    {
+      "mode": "spectral",
+      "k": 7,
+      "grow": false
+    },
+    {
+      "mode": "vapor",
+      "seed": 42,
+      "spread": 2,
+      "lift": 3,
+      "velocity": 0,
+      "overshoot": 0,
+      "grow": false
+    }
+  ],
+  "invalid": [
+    {
+      "mode": "state",
+      "k": 4
+    },
+    {
+      "mode": "state",
+      "seed": 0
+    },
+    {
+      "mode": "spectral",
+      "path": "linear"
+    },
+    {
+      "mode": "spectral",
+      "seed": 0
+    },
+    {
+      "mode": "vapor",
+      "temperature": 0.5
+    },
+    {
+      "mode": "vapor",
+      "seed": 0.5
+    },
+    {
+      "mode": "vapor",
+      "seed": 65536
+    },
+    {
+      "mode": "spectral",
+      "grow": 1
+    },
+    {
+      "mode": "spectral",
+      "k": null
+    },
+    {
+      "mode": "state",
+      "surprise": 1
+    }
+  ],
+  "passed": true,
+  "scope": "strict named mode-specific JSON settings, schema only"
+}

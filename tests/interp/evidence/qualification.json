@@ -3,56 +3,105 @@
   "binding": "ffcaeaae67079c714583d5487f3452a9ed4107abf14204a512f647400473c71f",
   "sourceHashes": {
     "Morphing.vkf": "f2c27cd0bccba5050657cc24f184f6469d43bc8b82623a765ae3a0422f36fc8f",
-    "Interpolation.vkf": "b856d1ba81c10ed576ed1b6924a81a8c5e61563976a6a39e119a296c04634b0a",
-    "Interp.vkf": "56e359629ed900f7bb974f747d260188bbb776140f5a1d8d1a2c3bfcbcbbe1fb",
+    "Interpolation.vkf": "f08290f25f607439e5f0e4269c6b95ed89720cb3a2832ad6e81a5b534f8fd371",
+    "Interp.vkf": "90e75b3b76a55d110bc9b6a9a5e63ea0b131734a29ca014e4def2bacd4b3e434",
     "morphing/state.vkf": "ea2e9d1dd2d255e1390791797c67dd627b4202adf63908d906a4279d5edcc85a",
     "morphing/unfold.vkf": "39e00e232a37e1e895160588006c2b9d60ddd165d3e7ff8c6ef98e5aecae9e11"
   },
-  "checks": 190,
+  "checks": 196,
   "results": [
     {
       "name": "positive-oracles",
       "passed": true,
       "stdout": "true\n",
-      "ms": 36025,
-      "sourceSha256": "b2b3b3918dcdb0c0e585a5c3dfe2b2f2d260a8f68ee9d8212c27031064da79db"
+      "ms": 40914,
+      "sourceSha256": "645a2882e6c578de5837acf3242c02e1ec53a821f4e9ed38be4f13f6d3dd9a06"
     },
     {
       "name": "irrelevant-payload",
       "passed": true,
       "expectedRejection": "RuntimeError: unreachable",
-      "ms": 15832,
-      "sourceSha256": "2f34abcc21a5b9d9b9ded8be9fda99f660705dc31ea1549bdd2397c0dc85757c"
+      "ms": 16328,
+      "sourceSha256": "8ff7e19671247a9b64e11195673d66bcf0cf2ed87ae2216e17b4e51f5cdfd259"
     },
     {
       "name": "invalid-temperature",
       "passed": true,
       "expectedRejection": "RuntimeError: unreachable",
-      "ms": 15953,
+      "ms": 16148,
       "sourceSha256": "efcce50034873946985043d0fbb893b1eff3e36838d1838b33b08b018db4797b"
     },
     {
       "name": "text-cubic-path",
       "passed": true,
       "expectedRejection": "RuntimeError: unreachable",
-      "ms": 15771,
-      "sourceSha256": "c9b4092632093f64893483b1ab2b9e44dc304f6918cf3d04af0e64f120dd2207"
+      "ms": 16923,
+      "sourceSha256": "03b96c996aaf9bb0c65c500703b38d38c5574bbed1a396479543b709202601d8"
     },
     {
       "name": "invalid-seed",
       "passed": true,
       "expectedRejection": "RuntimeError: unreachable",
-      "ms": 15979,
+      "ms": 16364,
       "sourceSha256": "0d27ac5d60f53079b395d5c15bedaa1464965d3fd3541e0e83424f69a60d3985"
+    },
+    {
+      "name": "duplicate-optional-group",
+      "passed": true,
+      "expectedRejection": "RuntimeError: unreachable",
+      "ms": 15803,
+      "sourceSha256": "e21700d44bc26988e4c4d1ba018baaf625471cd3a45f39bedba7af0fbd4d4a98"
+    },
+    {
+      "name": "invalid-reveal-default-override",
+      "passed": true,
+      "expectedRejection": "RuntimeError: unreachable",
+      "ms": 15919,
+      "sourceSha256": "2802879bac1014fdfbf818d02cea819a3730523db0cb656791844d450cb2e217"
+    },
+    {
+      "name": "invalid-state-path",
+      "passed": true,
+      "expectedRejection": "RuntimeError: unreachable",
+      "ms": 15774,
+      "sourceSha256": "e2919c0467719acda70f1fd6952dfc4cceae8fd1a994b7b80f8d8c6f385734a3"
+    },
+    {
+      "name": "invalid-velocity",
+      "passed": true,
+      "expectedRejection": "RuntimeError: unreachable",
+      "ms": 15748,
+      "sourceSha256": "13d8710036a14ec0797631523bee8d8c51a8f033fc9f98c30e5fa612b952fda6"
+    },
+    {
+      "name": "invalid-spread",
+      "passed": true,
+      "expectedRejection": "RuntimeError: unreachable",
+      "ms": 15917,
+      "sourceSha256": "1e4bdb39eae1c2efb5960d323e2e4c58eb83c39223a9cea3a437a03e8d54eb4b"
+    },
+    {
+      "name": "inapplicable-named-factory-field",
+      "passed": true,
+      "expectedRejection": "Error: VKF packages: compile/source-semantic-lower: unknown named argument seed for i.spectral",
+      "ms": 10145,
+      "sourceSha256": "bde8c58ad16340646ab1e0ca45cdf79e0c3bfac456e3d0fc70de3c02819fa909"
+    },
+    {
+      "name": "opaque-positional-settings-rejected",
+      "passed": true,
+      "expectedRejection": "Error: VKF packages: compile/source-semantic-lower: automatic function broadcasting requires a compatible vector element type: got [num:4] for [record{k:num,velocity:num,overshoot:num,grow:bit}]",
+      "ms": 9954,
+      "sourceSha256": "36fe6cf7e64ecf66f395494723dfb8bed8850c2c10b03c8a149ac9edbd3acf2f"
     },
     {
       "name": "carrier-bound",
       "passed": true,
       "expectedRejection": "RuntimeError: unreachable",
-      "ms": 17678,
+      "ms": 17244,
       "sourceSha256": "f24cddf8783bba063f3c67ae010f35d7fdfff1d5d37e8d8b91fb462ee3cdc783"
     }
   ],
-  "dir": "/tmp/vkf-interp-verify-0wzsjf",
+  "dir": "/tmp/vkf-interp-verify-bq3AFh",
   "scope": "canonical client WASM execution only; no native ELF, GPU, renderer or visual qualification"
 }

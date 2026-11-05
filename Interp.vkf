@@ -1,36 +1,41 @@
-# Public state-interpolation settings. Empty vectors represent absent optional
-# payloads; no fictitious nullable/union syntax or hidden mode inference.
+# Public typed state-interpolation settings with optional named mode groups.
 u:.morphing.unfold
 m:.Morphing
-Interp:(mode:int,path:int,reveal:[num],vapor:[num])
+StateSettings:(path:int)
+RevealSettings:(k:num,velocity:num,overshoot:num,grow:bit)
+VaporSettings:(temperature:num,spread:num,lift:num,seed:int)
+# Optional groups contain zero or one NAMED typed record. No positional numeric
+# payloads, nullable syntax or implicit field/mode inference.
+Interp:(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings])
 Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
 Plan:(curve:Curve,smooth_start:bit,smooth_end:bit)
 
-settings(mode:int=0,path:int=0,reveal:[num]=[],vapor:[num]=[])->Interp:
-    value:(mode:mode,path:path,reveal:reveal,vapor:vapor)
+settings(mode:int=0,state:[StateSettings]=[],reveal:[RevealSettings]=[],vapor:[VaporSettings]=[])->Interp:
+    value:(mode:mode,state:state,reveal:reveal,vapor:vapor)
     valid(value)?! "invalid Interp settings"
     @:value
 
 valid(value:Interp)->bit:
     (value.mode>=0 /\ value.mode<=2)?! "unsupported Interp mode"
-    (value.path>=0 /\ value.path<=1)?! "unsupported Interp state path"
+    (value.state.length()<=1 /\ value.reveal.length()<=1 /\ value.vapor.length()<=1)?! "Interp optional group must contain zero or one record"
     value.mode=0?
-        (value.reveal.length()=0 /\ value.vapor.length()=0)?! "text payload on state Interp"
+        (value.reveal.length()=0 /\ value.vapor.length()=0)?! "text settings on state Interp"
+        value.state.length()=1?
+            (value.state.(0).path>=0 /\ value.state.(0).path<=1)?! "unsupported Interp state path"
     value.mode>0?
-        (value.path=0)?! "state path on text Interp"
-        (value.reveal.length()=0 \/ value.reveal.length()=4)?! "reveal payload is k,velocity,overshoot,grow"
-        value.reveal.length()=4?
-            (value.reveal.(1)>=0 /\ value.reveal.(1)<=1)?! "reveal velocity outside 0–1"
-            (value.reveal.(0)>=1 /\ value.reveal.(0)<=10)?! "reveal k outside 1–10"
-            (value.reveal.(2)>=0 /\ value.reveal.(2)<=0.5)?! "reveal overshoot outside 0–0.5"
-            (value.reveal.(3)=0 \/ value.reveal.(3)=1)?! "reveal grow must be 0 or 1"
-    value.mode=1? (value.vapor.length()=0)?! "vapor payload on spectral Interp"
+        (value.state.length()=0)?! "state settings on text Interp"
+        value.reveal.length()=1?
+            r:value.reveal.(0)
+            (r.velocity>=0 /\ r.velocity<=1)?! "reveal velocity outside 0–1"
+            (r.k>=1 /\ r.k<=10)?! "reveal k outside 1–10"
+            (r.overshoot>=0 /\ r.overshoot<=0.5)?! "reveal overshoot outside 0–0.5"
+    value.mode=1? (value.vapor.length()=0)?! "vapor settings on spectral Interp"
     value.mode=2?
-        (value.vapor.length()=0 \/ value.vapor.length()=4)?! "vapor payload is temperature,spread,lift,seed"
-        value.vapor.length()=4?
-            (value.vapor.(0)=1)?! "only maximum-temperature vapor is implemented"
-            (value.vapor.(1)>=0 /\ value.vapor.(1)<=4 /\ value.vapor.(2)>=0 /\ value.vapor.(2)<=4)?! "vapor extent outside 0–4"
-            (value.vapor.(3)>=0 /\ value.vapor.(3)<=65535 /\ value.vapor.(3)=num(int(value.vapor.(3))))?! "vapor seed must be integer 0–65535"
+        value.vapor.length()=1?
+            v:value.vapor.(0)
+            (v.temperature=1)?! "only maximum-temperature vapor is implemented"
+            (v.spread>=0 /\ v.spread<=4 /\ v.lift>=0 /\ v.lift<=4)?! "vapor extent outside 0–4"
+            (v.seed>=0 /\ v.seed<=65535)?! "vapor seed must be integer 0–65535"
     @:true
 
 # Independent two-piece quadratic clock, shared by all modes.
@@ -42,7 +47,9 @@ time_coordinate(q:num)->num:
 prepare(value:Interp,coordinates:[num],states:[num],width:int)->Plan:
     valid(value)?! "invalid Interp settings"
     (value.mode=0)?! "numeric state preparation requires state Interp"
-    @:m.prepare(coordinates,states,width,value.path,false,false)
+    path:0
+    value.state.length()=1? .path:value.state.(0).path
+    @:m.prepare(coordinates,states,width,path,false,false)
 
 # Renderer supplies cached reading coordinates. Returns alpha,growth,r,g,b.
 reveal_channel(value:Interp,distance:num,channel:int)->num:
@@ -51,15 +58,15 @@ reveal_channel(value:Interp,distance:num,channel:int)->num:
     (|distance|<10^10)?! "invalid Interp reading distance"
     k:4.0
     overshoot:0.32
-    grow:1.0
-    value.reveal.length()=4?
-        .k:value.reveal.(0)
-        .overshoot:value.reveal.(2)
-        .grow:value.reveal.(3)
+    grow:true
+    value.reveal.length()=1?
+        .k:value.reveal.(0).k
+        .overshoot:value.reveal.(0).overshoot
+        .grow:value.reveal.(0).grow
     a:u.alpha(distance,k)
     channel=0? @:a
     channel=1?
-        grow=0? @:1
+        grow=false? @:1
         @:u.growth(a,u.back_coefficient(overshoot))
     @:u.color_channel(a,channel-2)
 
@@ -80,10 +87,10 @@ vapor_channel(value:Interp,q:num,index:int,channel:int)->num:
     spread:0.35
     lift:0.65
     seed:0
-    value.vapor.length()=4?
-        .spread:value.vapor.(1)
-        .lift:value.vapor.(2)
-        .seed:int(value.vapor.(3))
+    value.vapor.length()=1?
+        .spread:value.vapor.(0).spread
+        .lift:value.vapor.(0).lift
+        .seed:value.vapor.(0).seed
     # Gas develops from actual ink as the source dissolves, then fades entirely.
     envelope:4*q*(1-q)
     channel=0? @:spread*q*(2*noise(index,seed,0)-1)
@@ -96,22 +103,19 @@ source_alpha(q:num)->num:
     (q>=0 /\ q<=1)?! "Interp coordinate outside 0–1"
     @:(1-q)*(1-q)
 
-# Named factories are the public construction API. Optional payload vectors are
-# internal ABI storage, not a positional settings form an editor should expose.
-state(path:int=0)->Interp:settings(0,path,[],[])
+# Named factories are the primary public construction API. Only applicable
+# parameters exist in each signature; omitted values use native defaults.
+state(path:int=0)->Interp:
+    @:settings(0,[(path:path,)],[],[])
 spectral(k:num=4,velocity:num=0.54,overshoot:num=0.32,grow:bit=true)->Interp:
-    growth_flag:0.0
-    grow? .growth_flag:1
-    @:settings(1,0,[k,velocity,overshoot,growth_flag],[])
+    @:settings(1,[],[(k:k,velocity:velocity,overshoot:overshoot,grow:grow)],[])
 evaporate(temperature:num=1,spread:num=0.35,lift:num=0.65,seed:int=0,k:num=4,velocity:num=0.54,overshoot:num=0.32,grow:bit=true)->Interp:
-    growth_flag:0.0
-    grow? .growth_flag:1
-    @:settings(2,0,[k,velocity,overshoot,growth_flag],[temperature,spread,lift,num(seed)])
+    @:settings(2,[],[(k:k,velocity:velocity,overshoot:overshoot,grow:grow)],[(temperature:temperature,spread:spread,lift:lift,seed:seed)])
 reveal_advance(value:Interp,front:num,elapsed:num)->num:
     valid(value)?! "invalid Interp settings"
     (value.mode>0 /\ |front|<10^10)?! "reveal advance requires finite text coordinate"
     velocity:0.54
-    value.reveal.length()=4? .velocity:value.reveal.(1)
+    value.reveal.length()=1? .velocity:value.reveal.(0).velocity
     @:u.advance(front,elapsed,velocity)
 
 TextFrame:(source_alpha:num,gas:[num],target:[num])
@@ -128,19 +132,19 @@ text_frame(value:Interp,q:num,source_ink:[num],target_reading:[num],front:num)->
     [num] target:[0:5*target_reading.length()]
     k:4.0
     overshoot:0.32
-    grow:1.0
-    value.reveal.length()=4?
-        .k:value.reveal.(0)
-        .overshoot:value.reveal.(2)
-        .grow:value.reveal.(3)
+    grow:true
+    value.reveal.length()=1?
+        .k:value.reveal.(0).k
+        .overshoot:value.reveal.(0).overshoot
+        .grow:value.reveal.(0).grow
     coefficient:u.back_coefficient(overshoot)
     spread:0.35
     lift:0.65
     seed:0
-    value.vapor.length()=4?
-        .spread:value.vapor.(1)
-        .lift:value.vapor.(2)
-        .seed:int(value.vapor.(3))
+    value.vapor.length()=1?
+        .spread:value.vapor.(0).spread
+        .lift:value.vapor.(0).lift
+        .seed:value.vapor.(0).seed
     envelope:4*q*(1-q)*(1-q)
     j:0
     j<count?>
@@ -162,7 +166,7 @@ text_frame(value:Interp,q:num,source_ink:[num],target_reading:[num],front:num)->
         q=0? .a:0
         q=1? .a:1
         size:1.0
-        grow=1? .size:u.growth(a,coefficient)
+        grow? .size:u.growth(a,coefficient)
         target.(5*j):a
         target.(5*j+1):size
         target.(5*j+2):u.color_channel(a,0)
