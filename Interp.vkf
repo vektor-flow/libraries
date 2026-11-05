@@ -603,9 +603,11 @@ dense_vapor_frame(plan:DenseVaporPlan,coordinate:num,travel:num,front_override:[
     value.vapor.length()=1 /\ value.vapor.(0).boundary=0 /\ value.capture.length()=1? .release:u.clamp(coordinate/u.maximum(0.000001,value.capture.(0).start_coordinate),0,1)
     source:1-release
     plan.exchange=1? .source:0
-    @:(params:[coordinate,release,temperature,spread,lift,footprint,width,wind.(0),wind.(1),front,num(plan.count),num(plan.glyphs.length()//7),num(plan.exchange),1,1,u.clamp(coordinate/u.maximum(0.000001,value.capture.(0).finish_coordinate),0,1),plan.momentum.source.(0),plan.momentum.source.(1),plan.momentum.target.(0),plan.momentum.target.(1)],source_alpha:source)
+    complete:0.0
+    coordinate>=value.capture.(0).finish_coordinate? .complete:1
+    @:(params:[coordinate,release,temperature,spread,lift,footprint,width,wind.(0),wind.(1),front,num(plan.count),num(plan.glyphs.length()//7),num(plan.exchange),1,1,u.clamp(coordinate/u.maximum(0.000001,value.capture.(0).finish_coordinate),0,1),plan.momentum.source.(0),plan.momentum.source.(1),plan.momentum.target.(0),plan.momentum.target.(1),complete],source_alpha:source)
 
-DenseCaptureFrame:(source_alpha:num,gas:[num],target:[num],ledger:MaterialLedger,mass_residual:num,assigned_mass:num,optical_gas_coverage:num,raw_coverage:num,raw_gas_mass:num,raw_captured_mass:num,momentum:[num])
+DenseCaptureFrame:(source_alpha:num,gas:[num],target:[num],ledger:MaterialLedger,mass_residual:num,assigned_mass:num,optical_gas_coverage:num,raw_coverage:num,raw_gas_mass:num,raw_captured_mass:num,momentum:[num],raw_source_mass:num)
 finish_dense_capture(plan:DenseVaporPlan,controls:DenseVaporFrame,summary:[num])->DenseCaptureFrame:
     ng:plan.glyphs.length()//7
     (summary.length()=14*ng)?! "invalid dense capture summary"
@@ -655,7 +657,7 @@ finish_dense_capture(plan:DenseVaporPlan,controls:DenseVaporFrame,summary:[num])
         .exited:captured
         .captured:0
         .target:[]
-    @:(source_alpha:controls.source_alpha,gas:[],target:target,ledger:(source:source,gas:gas,target:captured,reservoir:reservoir,emitted:emitted,exited:exited),mass_residual:residual,assigned_mass:assigned,optical_gas_coverage:optical,raw_coverage:raw,raw_gas_mass:raw_gas,raw_captured_mass:raw_captured,momentum:[px,py])
+    @:(source_alpha:controls.source_alpha,gas:[],target:target,ledger:(source:source,gas:gas,target:captured,reservoir:reservoir,emitted:emitted,exited:exited),mass_residual:residual,assigned_mass:assigned,optical_gas_coverage:optical,raw_coverage:raw,raw_gas_mass:raw_gas,raw_captured_mass:raw_captured,momentum:[px,py],raw_source_mass:(1-release)*raw)
 
 # Plain authored-color front. No spectral RGB, growth or overshoot settings.
 wave(k:num=4,start:num=0,finish:num=1)->Interp:

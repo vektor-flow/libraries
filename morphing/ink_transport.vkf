@@ -46,6 +46,9 @@ carrier(index:int,params:[num],values:[num],glyph:int,reading:num)->[num]:
     q=1?
         .a:1
         .progress:1
+    params.length()>=21 /\ params.(20)=1?
+        .a:1
+        .progress:1
     [num] channels:[0:7]
     j:0
     j<7?>
