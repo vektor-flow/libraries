@@ -679,3 +679,14 @@ Current old verify/verify-transport scripts predate new vapor recordABI and are
 not claimed as passing current coverage; current ABI qualification is the new
 material-state/capture-window suites. No general compiler, physicalCFD, universal
 semanticcorrespondence orGPUcompute claim. Parent owns actualPP14view/video.
+
+## Dense native source frozen — 2026-11-05
+
+Functional source31decf4; owned renderer2766dd4 committed/intaken by parent.
+CurrenttypedIR GPU shares canonical ink_transport evaluator, actualpixel intake
+neverthins, normalizedmass/capture plusrawopticalcoverage diagnostics qualified.
+49decodedframes +24native/GPUparitycases +actualPP7changingrows45056carriers
+273ms +zero-carrierregularcalculation PASS. Parent assetguard268PASS, actual
+4viewcapture running; no more functional changes. See interpolation/DENSE_MATERIAL.md.
+Parent-observed negativeoddpower (6*x-3)^3 gap recorded only; Horner authored
+throughordinaryeditor is parent demonstration expression, no enginefix here.
