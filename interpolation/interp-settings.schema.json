@@ -117,8 +117,21 @@
             "exchange"
           ],
           "default": "exchange"
+        },
+        "captureStart": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 1,
+          "default": 0.35
+        },
+        "captureEnd": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "default": 0.85
         }
-      }
+      },
+      "description": "Native material capture; captureStart < captureEnd enforced by native factory. Fractions refer to raw normalized playback time."
     }
   ]
 }

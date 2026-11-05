@@ -128,3 +128,13 @@ positive coverage assignment are explicit timing controls, not semantic identity
 The budget must address every target native glyph. Coherent rising/convection
 motion and a mild shared seeded cubic field replace independent Brownian paths.
 This is deterministic finite flow, not CFD or physical thermodynamics.
+
+ABI4 adds CaptureSettings.start_coordinate/finish_coordinate. The named vapor
+factory accepts raw captureStart=.35/captureEnd=.85, converts those constants
+through time_coordinate during preparation, and rejects invalid order. Playback
+still clocks the requested q once. The active incoming row chart excludes fixed/
+calculation rows. Front reaches first active ink atcaptureStart and completes
+last active ink atcaptureEnd; width controls per-glyph spatial capture softness.
+Velocity is the absolute-coordinate advance/duration contract, not another warp
+of an explicitly normalized q. Presentation profile being qualified is footprint
+.75CSS (still subpixel), captureWidth.25, captureStart.35/end.85, temperature1.

@@ -4,7 +4,7 @@ m:.Morphing
 StateSettings:(path:int)
 RevealSettings:(k:num,velocity:num,overshoot:num,grow:bit)
 VaporSettings:(temperature:num,spread:num,lift:num,seed:int,footprint:num,boundary:int)
-CaptureSettings:(width:num,velocity:num)
+CaptureSettings:(width:num,velocity:num,start_coordinate:num,finish_coordinate:num)
 # Optional groups contain zero or one NAMED typed record. No positional numeric
 # payloads, nullable syntax or implicit field/mode inference.
 Interp:(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings],capture:[CaptureSettings])
@@ -35,7 +35,7 @@ valid(value:Interp)->bit:
         (value.reveal.length()=0)?! "spectral reveal settings on material capture"
         value.capture.length()=1?
             c:value.capture.(0)
-            (c.width>0 /\ c.width<=4 /\ c.velocity>=0 /\ c.velocity<=1)?! "invalid material capture parameters"
+            (c.width>0 /\ c.width<=4 /\ c.velocity>=0 /\ c.velocity<=1 /\ c.start_coordinate>=0 /\ c.start_coordinate<c.finish_coordinate /\ c.finish_coordinate<=1)?! "invalid material capture parameters"
         value.vapor.length()=1?
             v:value.vapor.(0)
             (v.temperature>=0 /\ v.temperature<=1)?! "vapor temperature outside 0–1"
@@ -93,8 +93,8 @@ state(path:int=0)->Interp:
     @:settings(0,[(path:path,)],[],[])
 spectral(k:num=4,velocity:num=0.54,overshoot:num=0.32,grow:bit=true)->Interp:
     @:settings(1,[],[(k:k,velocity:velocity,overshoot:overshoot,grow:grow)],[])
-evaporate(temperature:num=1,spread:num=0.35,lift:num=0.65,seed:int=0,footprint:num=0.45,captureWidth:num=0.45,velocity:num=0.54,boundary:int=3)->Interp:
-    @:settings(2,[],[],[(temperature:temperature,spread:spread,lift:lift,seed:seed,footprint:footprint,boundary:boundary)],[(width:captureWidth,velocity:velocity)])
+evaporate(temperature:num=1,spread:num=0.35,lift:num=0.65,seed:int=0,footprint:num=0.45,captureWidth:num=0.45,velocity:num=0.54,boundary:int=3,captureStart:num=0.35,captureEnd:num=0.85)->Interp:
+    @:settings(2,[],[],[(temperature:temperature,spread:spread,lift:lift,seed:seed,footprint:footprint,boundary:boundary)],[(width:captureWidth,velocity:velocity,start_coordinate:time_coordinate(captureStart),finish_coordinate:time_coordinate(captureEnd))])
 
 reveal_advance(value:Interp,front:num,elapsed:num)->num:
     valid(value)?! "invalid Interp settings"
@@ -305,9 +305,15 @@ vapor_front(value:Interp,q:num,travel:num)->num:
     valid(value)?! "invalid Interp settings"
     (value.mode=2 /\ q>=0 /\ q<=1 /\ travel>=0 /\ travel<10^10)?! "invalid material vapor front"
     width:0.45
-    value.capture.length()=1? .width:value.capture.(0).width
+    start:0.245
+    finish:0.955
+    value.capture.length()=1?
+        .width:value.capture.(0).width
+        .start:value.capture.(0).start_coordinate
+        .finish:value.capture.(0).finish_coordinate
     lead:1.5*width
-    @: -lead+u.clamp((q-0.25)/0.75,0,1)*(travel+lead+width)
+    q<start? @: -lead+q/start*lead
+    @:u.clamp((q-start)/(finish-start),0,1)*travel
 
 # Source mass / gas mass / captured mass sum to one. These are normalized
 # material weights, not raster coverage or a claim of physical ink-area balance.

@@ -58,7 +58,9 @@
         "footprint",
         "captureWidth",
         "velocity",
-        "boundary"
+        "boundary",
+        "captureStart",
+        "captureEnd"
       ],
       "channels": {
         "sample_vapor_transport.gas": [
@@ -131,7 +133,7 @@
     "numeric": "same native state/prepare plus renderer forwarding sample_state; one time_coordinate"
   },
   "nativeRecordABI": {
-    "version": 3,
+    "version": 4,
     "kind": "typed structural record",
     "type": "Interp:(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings],capture:[CaptureSettings])",
     "optionalEncoding": "zero-or-one typed named record per applicable group; [] absent",
@@ -155,7 +157,9 @@
       },
       "capture": {
         "width": "num",
-        "velocity": "num"
+        "velocity": "num",
+        "start_coordinate": "num",
+        "finish_coordinate": "num"
       }
     },
     "allowedGroups": {
@@ -193,6 +197,7 @@
       "exit": 2,
       "exchange": 3
     },
-    "scope": "native state pose/color interpolation; declared external material events, not semantic identity proof or physical CFD"
+    "scope": "native state pose/color interpolation; declared external material events, not semantic identity proof or physical CFD",
+    "captureWindow": "raw captureStart/End default .35/.85, converted to shared-clock constants at preparation; only active incoming rows consume reading distance"
   }
 }
