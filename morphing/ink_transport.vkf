@@ -35,11 +35,22 @@ carrier(index:int,params:[num],values:[num],glyph:int,reading:num)->[num]:
     params.(12)=1? .phase:phase-8*0.08*params.(4)
     channels.(0):channels.(0)+0.15*params.(3)*envelope*(0.8*math.sin(phase)+0.12*params.(7))
     channels.(1):channels.(1)+0.15*params.(4)*envelope*(1+0.2*math.cos(phase)+0.08*params.(8))
+    # Coherent convection at glyph and subglyph spatial scales. Adjacent ink
+    # pixels share one deterministic field; there is no independent jitter.
+    field_x:values.(7*index)
+    field_y:values.(7*index+1)
+    params.(12)=1? .field_y:field_y-0.08*params.(4)
+    roll:64*field_x+37*field_y+3*q+0.2*params.(7)
+    curl:512*field_x-383*field_y-4*q+0.2*params.(8)
+    channels.(0):channels.(0)+params.(3)*envelope*(0.06*math.sin(roll)+0.025*math.sin(curl))
+    channels.(1):channels.(1)+params.(4)*envelope*(0.035*math.cos(roll)+0.012*math.cos(curl))
+    size:params.(5)
+    params.(13)=1? .size:channels.(6)
     q=1?
         channels.(0):values.(7*count+7*index)
         channels.(1):values.(7*count+7*index+1)
         params.(12)=2? channels.(1):channels.(1)+0.35+0.1*params.(4)
-    @:[channels.(0),channels.(1),channels.(5)*release*(1-a),params.(5),channels.(2),channels.(3),channels.(4),1/num(count),a,num(glyph),channels.(5)]
+    @:[channels.(0),channels.(1),channels.(5)*release*(1-a),size,channels.(2),channels.(3),channels.(4),1/num(count),a,num(glyph),channels.(5)]
 
 # Equal dyadic source/target partitions have the identical ordered material owner
 # index. No host correspondence or numerical trajectory is introduced here.

@@ -365,7 +365,7 @@ sample_vapor_transport(plan:VaporTransport,q:num,front:num)->VaporFrame:
     local:(q-knots.(segment))/h
     wind_x:ink_segment.value(fluctuations.(segment*2),fluctuations.(segment*2+2),fluctuation_second.(segment*2),fluctuation_second.(segment*2+2),h,local)
     wind_y:ink_segment.value(fluctuations.(segment*2+1),fluctuations.(segment*2+3),fluctuation_second.(segment*2+1),fluctuation_second.(segment*2+3),h,local)
-    carrier_params:[q,release,temperature,spread,lift,footprint,width,wind_x,wind_y,front,num(count),num(ng),0]
+    carrier_params:[q,release,temperature,spread,lift,footprint,width,wind_x,wind_y,front,num(count),num(ng),0,0]
     gas_mass:0.0
     captured_mass:0.0
     .i:0
@@ -594,15 +594,17 @@ dense_vapor_frame(plan:DenseVaporPlan,coordinate:num,travel:num,front_override:[
     release:u.clamp(coordinate/0.25,0,1)
     source:1-release
     plan.exchange=1? .source:0
-    @:(params:[coordinate,release,temperature,spread,lift,footprint,width,wind.(0),wind.(1),front,num(plan.count),num(plan.glyphs.length()//7),num(plan.exchange)],source_alpha:source)
+    @:(params:[coordinate,release,temperature,spread,lift,footprint,width,wind.(0),wind.(1),front,num(plan.count),num(plan.glyphs.length()//7),num(plan.exchange),1],source_alpha:source)
 
-finish_dense_capture(plan:DenseVaporPlan,controls:DenseVaporFrame,summary:[num])->VaporFrame:
+DenseCaptureFrame:(source_alpha:num,gas:[num],target:[num],ledger:MaterialLedger,mass_residual:num,assigned_mass:num,optical_gas_coverage:num)
+finish_dense_capture(plan:DenseVaporPlan,controls:DenseVaporFrame,summary:[num])->DenseCaptureFrame:
     ng:plan.glyphs.length()//7
     (summary.length()=9*ng)?! "invalid dense capture summary"
     [num] target:[0:5*ng]
     gas:0.0
     captured:0.0
     assigned:0.0
+    optical:0.0
     i:0
     i<ng?>
         j:0
@@ -612,9 +614,16 @@ finish_dense_capture(plan:DenseVaporPlan,controls:DenseVaporFrame,summary:[num])
         .gas:gas+summary.(9*i+5)
         .captured:captured+summary.(9*i+6)
         .assigned:assigned+summary.(9*i+7)
+        .optical:optical+summary.(9*i+8)
         .i:i+1
     (|assigned-1|<0.001)?! "dense carrier mass not assigned"
     release:controls.params.(1)
+    residual:gas+captured-release
+    (|residual|<0.001)?! "dense GPU mass reduction exceeds real-f32 tolerance"
+    # Restore the exact complementary partition after observed f32 reduction;
+    # preserve the measured rounding residual separately, never hide a failure.
+    .captured:u.clamp(captured,0,release)
+    .gas:release-captured
     source:1-release
     reservoir:0.0
     emitted:0.0
@@ -627,4 +636,4 @@ finish_dense_capture(plan:DenseVaporPlan,controls:DenseVaporFrame,summary:[num])
         .exited:captured
         .captured:0
         .target:[]
-    @:(source_alpha:controls.source_alpha,gas:[],target:target,ledger:(source:source,gas:gas,target:captured,reservoir:reservoir,emitted:emitted,exited:exited))
+    @:(source_alpha:controls.source_alpha,gas:[],target:target,ledger:(source:source,gas:gas,target:captured,reservoir:reservoir,emitted:emitted,exited:exited),mass_residual:residual,assigned_mass:assigned,optical_gas_coverage:optical)
