@@ -664,3 +664,18 @@ normalized reservoir ledger is not a physical conservation/source solver claim.
 New native methods prepare_glyph_state and sample_text_rows. Renderer adapter,
 GPU subpixel coverage and decoded mixed appended-row proof are next; root owns
 PP authoring, no product edits here. Numerical library source only own branch.
+
+## Refined canonical delivery — 2026-11-05
+
+Functional source frozen atc9e70dd879517e2cb0ca893339e092d426a1be83. Renderer
+4034401 pins exact source hashes/current075compiler and parent has intaken8assets.
+Nativecapturewindow .35–.85 raw fractions compiled once; strict sourceRGBA and
+state aliases0/1 qualified. Native verify-material-state and capture-window
+evidence PASS. Browser49decoded nativeGPU frames at1024budget: fixed heading/
+oldrow/equationprefix exact; reservoir capture progresses left-to-right; exact
+endpoints/reseek and subpixelGPUcoverage PASS. Renderer docs/text-modes-refined
+contains full evidence/API; optional legacy spectral remains outsidepresentation.
+Current old verify/verify-transport scripts predate new vapor recordABI and are
+not claimed as passing current coverage; current ABI qualification is the new
+material-state/capture-window suites. No general compiler, physicalCFD, universal
+semanticcorrespondence orGPUcompute claim. Parent owns actualPP14view/video.
