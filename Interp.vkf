@@ -250,6 +250,18 @@ sample_vapor_transport(plan:VaporTransport,q:num,front:num)->VaporFrame:
     (q>=0 /\ q<=1 /\ |front|<10^10)?! "invalid material transport coordinate"
     value:plan.settings
     valid(value)?! "invalid material transport settings"
+    # Project immutable prepared arrays once. Repeating nested record projection
+    # inside the carrier loop needlessly traverses/copies the same large plans.
+    material:plan.material
+    values:material.state.curve.values
+    owners:material.owners
+    weights:material.weights
+    glyphs:plan.glyphs
+    glyph_owners:plan.glyph_owners
+    turbulence:plan.turbulence.curve
+    knots:turbulence.knots
+    fluctuations:turbulence.values
+    fluctuation_second:turbulence.second
     k:4.0
     overshoot:0.32
     grow:true
@@ -267,40 +279,40 @@ sample_vapor_transport(plan:VaporTransport,q:num,front:num)->VaporFrame:
     release:u.clamp(u.alpha(q*1.5707963267948966/(0.22+0.08*(1-temperature)),1),0,1)
     lead:1.5*u.ramp_width(k)
     coefficient:u.back_coefficient(overshoot)
-    count:plan.material.carriers
-    ng:plan.glyphs.length()//7
-    (count>0 /\ count<=4096 /\ ng>0 /\ ng<=4096 /\ plan.material.weights.length()=count /\ plan.material.owners.length()=2*count /\ plan.material.state.curve.values.length()=14*count /\ plan.glyph_owners.length()=plan.target_count)?! "invalid bounded prepared material layout"
+    count:material.carriers
+    ng:glyphs.length()//7
+    (count>0 /\ count<=4096 /\ ng>0 /\ ng<=4096 /\ weights.length()=count /\ owners.length()=2*count /\ values.length()=14*count /\ glyph_owners.length()=plan.target_count)?! "invalid bounded prepared material layout"
     [num] gas:[0:9*count]
     [num] target:[0:5*ng]
     [num] captures:[0:ng]
     i:0
     i<ng?>
-        a:u.clamp(u.alpha(front-plan.glyphs.(7*i+2),k),0,1)
+        a:u.clamp(u.alpha(front-glyphs.(7*i+2),k),0,1)
         q=0? .a:0
         q=1? .a:1
         captures.(i):a
         size:1.0
         grow? .size:u.growth(a,coefficient)
-        target.(5*i):release*a*plan.glyphs.(7*i+6)
+        target.(5*i):release*a*glyphs.(7*i+6)
         target.(5*i+1):size
         j:0
         j<3?>
-            target.(5*i+2+j):ink_finish(a,j,plan.glyphs.(7*i+3+j))
+            target.(5*i+2+j):ink_finish(a,j,glyphs.(7*i+3+j))
             .j:j+1
         .i:i+1
-    segment:ink_state.interval(plan.turbulence.curve.knots,q)
-    h:plan.turbulence.curve.knots.(segment+1)-plan.turbulence.curve.knots.(segment)
-    local:(q-plan.turbulence.curve.knots.(segment))/h
+    segment:ink_state.interval(knots,q)
+    h:knots.(segment+1)-knots.(segment)
+    local:(q-knots.(segment))/h
     source_ratio:ink_math.sqrt(num(plan.source_count)/num(count))
     target_ratio:ink_math.sqrt(num(plan.target_count)/num(count))
     gas_mass:0.0
     captured_mass:0.0
     .i:0
     i<count?>
-        destination:plan.material.owners.(count+i)
-        glyph:plan.glyph_owners.(destination)
+        destination:owners.(count+i)
+        glyph:glyph_owners.(destination)
         a:captures.(glyph)
-        progress:u.clamp((front-plan.glyphs.(7*glyph+2)+lead)/lead,0,1)
+        progress:u.clamp((front-glyphs.(7*glyph+2)+lead)/lead,0,1)
         q=0? .progress:0
         q=1? .progress:1
         # Same prepared state-segment kernel, evaluated at carrier capture phase.
@@ -308,28 +320,28 @@ sample_vapor_transport(plan:VaporTransport,q:num,front:num)->VaporFrame:
         [num] channels:[0:7]
         j<7?>
             index:7*i+j
-            start:plan.material.state.curve.values.(index)
-            finish:plan.material.state.curve.values.(7*count+index)
+            start:values.(index)
+            finish:values.(7*count+index)
             channels.(j):ink_segment.value(start,finish,0,0,1,progress)
             .j:j+1
         size:target.(5*glyph+1)
-        gx:plan.glyphs.(7*glyph)
-        gy:plan.glyphs.(7*glyph+1)
-        px:plan.material.state.curve.values.(7*count+7*i)
-        py:plan.material.state.curve.values.(7*count+7*i+1)
+        gx:glyphs.(7*glyph)
+        gy:glyphs.(7*glyph+1)
+        px:values.(7*count+7*i)
+        py:values.(7*count+7*i+1)
         # The sink follows the actual native glyph's current growth transform.
         channels.(0):channels.(0)+progress*((gx+(px-gx)*size)-px)
         channels.(1):channels.(1)+progress*((gy+(py-gy)*size)-py)
         q=0?
-            channels.(0):plan.material.state.curve.values.(7*i)
-            channels.(1):plan.material.state.curve.values.(7*i+1)
+            channels.(0):values.(7*i)
+            channels.(1):values.(7*i+1)
         envelope:release*(1-progress)*temperature
         .j:0
         j<2?>
             component:2*i+j
             offset:segment*2*count+component
             next:offset+2*count
-            fluctuation:ink_segment.value(plan.turbulence.curve.values.(offset),plan.turbulence.curve.values.(next),plan.turbulence.curve.second.(offset),plan.turbulence.curve.second.(next),h,local)
+            fluctuation:ink_segment.value(fluctuations.(offset),fluctuations.(next),fluctuation_second.(offset),fluctuation_second.(next),h,local)
             .fluctuation:u.clamp(fluctuation,-1,1)
             j=0? channels.(0):channels.(0)+0.15*spread*envelope*fluctuation
             j=1? channels.(1):channels.(1)+0.15*lift*envelope*(1+0.4*fluctuation)
@@ -338,7 +350,7 @@ sample_vapor_transport(plan:VaporTransport,q:num,front:num)->VaporFrame:
             channels.(0):px
             channels.(1):py
         fraction:release*(1-a)
-        mass:plan.material.weights.(i)
+        mass:weights.(i)
         gas.(9*i):channels.(0)
         gas.(9*i+1):channels.(1)
         gas.(9*i+2):channels.(5)*fraction
