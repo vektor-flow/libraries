@@ -83,10 +83,10 @@ prepare_material(coordinates:[num],offsets:[int],weights:[num],positions:[num],d
     .state:0
     state<count?>
         i:offsets.(state)
+        slot:0
         i<offsets.(state+1)?>
             at:ends.(i)*totals.(0)/totals.(state)
             ends.(i):at
-            slot:0
             slot<used /\ cuts.(slot)<at?> .slot:slot+1
             exists:false
             slot<used? .exists:cuts.(slot)=at
@@ -103,6 +103,13 @@ prepare_material(coordinates:[num],offsets:[int],weights:[num],positions:[num],d
     [num] mass:[0:carriers]
     [int] owners:[0:count*carriers]
     [num] values:[0:count*carriers*dimension]
+    # Positive sorted carrier midpoints never move backwards in any state's
+    # cumulative owner intervals. Reuse cursors instead of rescanning owners.
+    [int] owner_cursors:[0:count]
+    .state:0
+    state<count?>
+        owner_cursors.(state):offsets.(state)
+        .state:state+1
     k:0
     k<carriers?>
         mass.(k):cuts.(k+1)-cuts.(k)
@@ -110,8 +117,9 @@ prepare_material(coordinates:[num],offsets:[int],weights:[num],positions:[num],d
         (midpoint>cuts.(k) /\ midpoint<cuts.(k+1))?! "Morphing material interval is below numeric resolution"
         .state:0
         state<count?>
-            owner:offsets.(state)
+            owner:owner_cursors.(state)
             owner<offsets.(state+1)-1 /\ ends.(owner)<=midpoint?> .owner:owner+1
+            owner_cursors.(state):owner
             owners.(state*carriers+k):owner-offsets.(state)
             d:0
             d<dimension?>

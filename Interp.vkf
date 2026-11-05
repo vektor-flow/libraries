@@ -72,7 +72,8 @@ reveal_channel(value:Interp,distance:num,channel:int)->num:
 
 noise(index:int,seed:int,lane:int)->num:
     n:(index*251+seed*199+lane*101+17)%65521
-    .n:(n*251+37)%65521
+    .n:(n*251+(n%251)*(n%251)*97+37)%65521
+    .n:(n*127+(n%257)*(n%257)*53+19)%65521
     @:num(n)/65520
 
 # Source field alpha; target reveal should receive its own row reading front.
@@ -263,17 +264,18 @@ sample_vapor_transport(plan:VaporTransport,q:num,front:num)->VaporFrame:
         .temperature:value.vapor.(0).temperature
         .spread:value.vapor.(0).spread
         .lift:value.vapor.(0).lift
-    release:u.alpha(q*1.5707963267948966/(0.22+0.08*(1-temperature)),1)
+    release:u.clamp(u.alpha(q*1.5707963267948966/(0.22+0.08*(1-temperature)),1),0,1)
     lead:1.5*u.ramp_width(k)
     coefficient:u.back_coefficient(overshoot)
     count:plan.material.carriers
     ng:plan.glyphs.length()//7
+    (count>0 /\ count<=4096 /\ ng>0 /\ ng<=4096 /\ plan.material.weights.length()=count /\ plan.material.owners.length()=2*count /\ plan.material.state.curve.values.length()=14*count /\ plan.glyph_owners.length()=plan.target_count)?! "invalid bounded prepared material layout"
     [num] gas:[0:9*count]
     [num] target:[0:5*ng]
     [num] captures:[0:ng]
     i:0
     i<ng?>
-        a:u.alpha(front-plan.glyphs.(7*i+2),k)
+        a:u.clamp(u.alpha(front-plan.glyphs.(7*i+2),k),0,1)
         q=0? .a:0
         q=1? .a:1
         captures.(i):a

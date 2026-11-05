@@ -615,3 +615,12 @@ fixed before successful canonical native WASM qualification.
 Next owned renderer builds exact new commit, consumes real native endpoint
 raster ink with4kcap, strict unchanged matching, short decoded native clip, and
 same-artifact numeric state forwarding. Root owns PP UI/timings/world edits.
+
+Material qualification completion: release/capture are clamped to [0,1] against
+native trigonometric rounding; prepared layout sizes are checked. Seeded cubic
+noise uses nonlinear bounded integer mixing, preserving arbitrary seeking.
+Existing prepare_material now reuses monotone cumulative-cut and owner cursors;
+no curve mathematics changes. Original nonuniform three/four-state material
+fixture passes alongside transport endpoints/colors/positive conserved ledger,
+capture coupling, changed counts and empty-endpoint refusal. Evidence includes
+exact current Interp and Morphing source hashes.
