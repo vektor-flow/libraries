@@ -1,119 +1,166 @@
-# Canonical material carrier evaluator: state interpolation + prepared random bridge.
+# Canonical particle state interpolation, entropy-driven walk and capture stock.
 segment:.segment
 math:.math
 clamp(x:num,lo:num,hi:num)->num:
     x<lo? @:lo
     x>hi? @:hi
     @:x
-
-# Independent Uint16 entropy increments are supplied ONCE as source data.
-# Finite uniform-increment random walk pinned to zero at both endpoints.
-# This is not an exact Gaussian Wiener process or a fluid solver.
-diffusion(index:int,params:[num],values:[num])->[num]:
-    count:int(params.(10))
-    (index>=0 /\ index<count /\ values.length()=32*count)?! "invalid random bridge storage"
-    [num] walk:[0:34]
-    i:1
-    i<=16?>
-        ux:values.(32*index+2*(i-1))
-        uy:values.(32*index+2*(i-1)+1)
-        (ux>=0 /\ ux<=65535 /\ uy>=0 /\ uy<=65535)?! "invalid native random entropy"
-        walk.(2*i):walk.(2*i-2)+(ux/65535-0.5)*0.8660254037844386
-        walk.(2*i+1):walk.(2*i-1)+(uy/65535-0.5)*0.8660254037844386
-        .i:i+1
-    endx:walk.(32)
-    endy:walk.(33)
-    .i:0
-    i<=16?>
-        walk.(2*i):walk.(2*i)-num(i)/16*endx
-        walk.(2*i+1):walk.(2*i+1)-num(i)/16*endy
-        .i:i+1
+# Address-only material refinement: every input lineage receives positive children.
+owner(index:int,total:int,raw:int)->[int]:
+    base:total//raw
+    extra:total%raw
+    split:extra*(base+1)
+    index<split? @:[index//(base+1),index%(base+1),base+1]
+    @:[extra+(index-split)//base,(index-split)%base,base]
+# Raw input is the current native particle packet16. Fresh ink uses mass=-1.
+# Output source state13: position/RGB/coverage/size/mass/momentum/weight/gas/phase.
+restore(index:int,p:[num],v:[num])->[num]:
+    count:int(p.(10))
+    raw:int(p.(24))
+    fresh:int(p.(25))
+    (raw>0 /\ count>=raw /\ count<=131072 /\ v.length()=16*raw)?! "invalid material refinement"
+    address:owner(index,count,raw)
+    i:address.(0)
+    child:address.(1)
+    copies:address.(2)
+    size:v.(16*i+3)
+    area:size*size
+    columns:int(math.sqrt(num(copies)))
+    columns*columns<copies? .columns:columns+1
+    rows:(copies+columns-1)//columns
+    dx:((num(child%columns)+0.5)/num(columns)-0.5)*size/p.(23)
+    dy:((num(child//columns)+0.5)/num(rows)-0.5)*size/p.(23)
+    mass:v.(16*i+11)
+    px:v.(16*i+12)
+    py:v.(16*i+13)
+    weight:v.(16*i+7)
+    gas:1.0
+    phase:v.(16*i+15)
+    mass<0?
+        .mass:v.(16*i+10)*area
+        .px:p.(16)/num(fresh)
+        .py:p.(17)/num(fresh)
+        .weight:1/num(fresh)
+        .gas:0
+        .phase:0
+    phase>0.5? .phase:0
+    parts:1.0
+    fresh>0 /\ fresh<raw? .parts:2
+    @:[v.(16*i)+dx,v.(16*i+1)+dy,v.(16*i+4),v.(16*i+5),v.(16*i+6),v.(16*i+10),math.sqrt(area/num(copies)),mass/num(copies),px/num(copies),py/num(copies),weight/(parts*num(copies)),gas,phase]
+# Native finite walk:32 independent uniform increments, no sine/cosine curls.
+# Held coefficients are reused; only future windows beyond the held horizon append.
+diffusion(index:int,p:[num],v:[num])->[num]:
+    raw:int(p.(24))
+    address:owner(index,int(p.(10)),raw)
+    i:address.(0)
+    (v.length()=82*raw)?! "invalid stochastic source storage"
+    [num] walk:[0:66]
+    fresh:v.(16*i+11)<0 \/ v.(16*i+15)>0.5
+    ~fresh?
+        j:0
+        j<66?>
+            walk.(j):v.(16*raw+66*i+j)
+            .j:j+1
+        @:walk
+    j:1
+    j<=32?>
+        ux:v.(16*raw+66*i+2*(j-1))
+        uy:v.(16*raw+66*i+2*(j-1)+1)
+        (ux>=0 /\ ux<=65535 /\ uy>=0 /\ uy<=65535)?! "invalid native entropy"
+        walk.(2*j):walk.(2*j-2)+(ux/65535-0.5)*0.8660254037844386
+        walk.(2*j+1):walk.(2*j-1)+(uy/65535-0.5)*0.8660254037844386
+        .j:j+1
     @:walk
-
-# params q/release/temperature/spread/lift/footprint/width/unused/unused/front/N/ng/
-# exchange/dense/random/bridgeTime/sourceMomentumX/Y/targetMomentumX/Y.
-carrier(index:int,params:[num],values:[num],glyph:int,reading:num)->[num]:
-    q:params.(0)
-    release:params.(1)
-    count:int(params.(10))
-    width:params.(6)
-    lead:1.5*width
-    a:clamp((params.(9)-reading)/width,0,1)
-    progress:clamp((params.(9)-reading+lead)/lead,0,1)
-    q=0?
+walk_component(v:[num],base:int,t:num,lane:int)->num:
+    at:clamp(t,0,1)*32
+    knot:int(at)
+    knot=32? .knot:31
+    @:segment.value(v.(base+2*knot+lane),v.(base+2*knot+2+lane),0,0,1,at-num(knot))
+carrier(index:int,p:[num],v:[num],glyph:int,reading:num)->[num]:
+    count:int(p.(10))
+    native:p.length()>=26
+    stride:7
+    native? .stride:13
+    source:stride*index
+    target:stride*count+7*index
+    release:p.(1)
+    initial:0.0
+    phase:0.0
+    native?
+        .initial:v.(source+11)
+        .phase:v.(source+12)
+        initial=1? .release:1
+    lead:1.5*p.(6)
+    a:clamp((p.(9)-reading)/p.(6),0,1)
+    progress:clamp((p.(9)-reading+lead)/lead,0,1)
+    p.(0)=0?
         .a:0
         .progress:0
-    q=1?
+    p.(0)=1?
         .a:1
         .progress:1
-    params.length()>=21 /\ params.(20)=1?
+    p.length()>=21 /\ p.(20)=1?
         .a:1
         .progress:1
+    native /\ p.(21)=1?
+        .a:0
+        .progress:0
     [num] channels:[0:7]
     j:0
     j<7?>
-        start:values.(7*index+j)
-        finish:values.(7*count+7*index+j)
-        params.(12)=1 /\ j=1? .start:start-0.08*params.(4)
-        params.(12)=2 /\ j=1? .finish:finish+0.35+0.1*params.(4)
-        channels.(j):segment.value(start,finish,0,0,1,progress)
+        channels.(j):segment.value(v.(source+j),v.(target+j),0,0,1,progress)
         .j:j+1
-    envelope:release*(1-progress)*params.(2)
-    bx:0.0
-    by:0.0
-    params.length()>=20 /\ params.(14)=1?
-        at:clamp(params.(15),0,1)*16
-        knot:int(at)
-        knot=16? .knot:15
-        local:at-num(knot)
-        base:14*count+7*int(params.(11))+34*index
-        .bx:segment.value(values.(base+2*knot),values.(base+2*knot+2),0,0,1,local)
-        .by:segment.value(values.(base+2*knot+1),values.(base+2*knot+3),0,0,1,local)
-        channels.(0):channels.(0)+0.20*params.(3)*envelope*bx
-        channels.(1):channels.(1)+0.14*params.(4)*envelope*by
-    channels.(1):channels.(1)+0.15*params.(4)*envelope
-    size:params.(5)
+    size:p.(5)
     mass:channels.(5)*size*size
-    params.(13)=1?
-        start_size:values.(7*index+6)
-        finish_size:values.(7*count+7*index+6)
-        start_area:start_size*start_size
-        finish_area:finish_size*finish_size
-        area:segment.value(start_area,finish_area,0,0,1,progress)
-        .mass:segment.value(values.(7*index+5)*start_area,values.(7*count+7*index+5)*finish_area,0,0,1,progress)
-        .size:math.sqrt(area)
-        channels.(5):mass/area
     px:0.0
     py:0.0
-    params.length()>=20?
-        .px:segment.value(params.(16),params.(18),0,0,1,progress)/num(count)
-        .py:segment.value(params.(17),params.(19),0,0,1,progress)/num(count)
-    @:[channels.(0),channels.(1),channels.(5)*release*(1-a),size,channels.(2),channels.(3),channels.(4),1/num(count),a,num(glyph),channels.(5),mass,px,py]
-
-dense(index:int,params:[num],values:[num])->[num]:
-    count:int(params.(10))
-    ng:int(params.(11))
-    (index>=0 /\ index<count /\ count<=65536 /\ ng>0 /\ ng<=4096 /\ values.length()=48*count+7*ng)?! "dense native material storage"
-    px:values.(7*count+7*index)
-    py:values.(7*count+7*index+1)
+    weight:1/num(count)
+    noise_time:phase
+    native?
+        source_area:v.(source+6)^2
+        target_area:v.(target+6)^2
+        area:segment.value(source_area,target_area,0,0,1,progress)
+        .mass:segment.value(v.(source+7),v.(target+5)*target_area,0,0,1,progress)
+        .size:math.sqrt(area)
+        channels.(5):clamp(mass/area,0,1)
+        .px:segment.value(v.(source+8),p.(18)/num(count),0,0,1,progress)
+        .py:segment.value(v.(source+9),p.(19)/num(count),0,0,1,progress)
+        .weight:v.(source+10)
+        .noise_time:clamp(phase+0.5*p.(15),0,1)
+        base:20*count+7*int(p.(11))+66*index
+        bx:walk_component(v,base,noise_time,0)-walk_component(v,base,phase,0)
+        by:walk_component(v,base,noise_time,1)-walk_component(v,base,phase,1)
+        envelope:release*(1-progress)*p.(2)
+        lift_phase:1.0
+        initial=1? .lift_phase:p.(15)
+        channels.(0):channels.(0)+0.20*p.(3)*envelope*bx
+        channels.(1):channels.(1)+p.(4)*envelope*(0.14*by+0.15*lift_phase)
+    @:[channels.(0),channels.(1),channels.(5)*release*(1-a),size,channels.(2),channels.(3),channels.(4),weight,a,num(glyph),channels.(5),mass,px,py,release,noise_time]
+dense(index:int,p:[num],v:[num])->[num]:
+    count:int(p.(10))
+    ng:int(p.(11))
+    (index>=0 /\ index<count /\ count<=131072 /\ ng>0 /\ ng<=4096 /\ v.length()=86*count+7*ng)?! "dense native material storage"
+    px:v.(13*count+7*index)
+    py:v.(13*count+7*index+1)
     nearest:0
     best:10^20
     j:0
     j<ng?>
-        dx:px-values.(14*count+7*j)
-        dy:py-values.(14*count+7*j+1)
-        distance:dx*dx+dy*dy
-        distance<best?
+        dx:px-v.(20*count+7*j)
+        dy:py-v.(20*count+7*j+1)
+        d:dx*dx+dy*dy
+        d<best?
             .nearest:j
-            .best:distance
+            .best:d
         .j:j+1
-    @:carrier(index,params,values,nearest,values.(14*count+7*nearest+2))
-
-# Assigned material is captured only by its first-row glyph's moving front.
-capture(glyph:int,params:[num],values:[num])->[num]:
-    count:int(params.(10))
-    ng:int(params.(11))
-    (glyph>=0 /\ glyph<ng /\ values.length()=14*count+7*ng)?! "dense native capture storage"
+    @:carrier(index,p,v,nearest,v.(20*count+7*nearest+2))
+# Bounded chunks preserve the existing compiler field's65536 iteration budget.
+capture(index:int,p:[num],v:[num])->[num]:
+    count:int(p.(10))
+    ng:int(p.(11))
+    glyph:index%ng
+    chunk:index//ng
+    (v.length()=16*count+7*ng)?! "dense native capture storage"
     gas:0.0
     captured:0.0
     assigned:0.0
@@ -123,22 +170,29 @@ capture(glyph:int,params:[num],values:[num])->[num]:
     raw_captured:0.0
     px:0.0
     py:0.0
-    i:0
-    i<count?>
-        int(values.(14*i+9))=glyph?
-            weight:values.(14*i+7)
-            a:values.(14*i+8)
-            mass:values.(14*i+11)
+    source:0.0
+    raw_source:0.0
+    i:chunk*65536
+    end:count
+    end>(chunk+1)*65536? .end:(chunk+1)*65536
+    i<end?>
+        int(v.(16*i+9))=glyph?
+            weight:v.(16*i+7)
+            a:v.(16*i+8)
+            mass:v.(16*i+11)
+            release:v.(16*i+14)
             .assigned:assigned+weight
-            .gas:gas+weight*params.(1)*(1-a)
-            .captured:captured+weight*params.(1)*a
-            .optical:optical+values.(14*i+2)*values.(14*i+3)^2
+            .source:source+weight*(1-release)
+            .gas:gas+weight*release*(1-a)
+            .captured:captured+weight*release*a
+            .optical:optical+v.(16*i+2)*v.(16*i+3)^2
             .raw:raw+mass
-            .raw_gas:raw_gas+mass*params.(1)*(1-a)
-            .raw_captured:raw_captured+mass*params.(1)*a
-            .px:px+values.(14*i+12)
-            .py:py+values.(14*i+13)
+            .raw_source:raw_source+mass*(1-release)
+            .raw_gas:raw_gas+mass*release*(1-a)
+            .raw_captured:raw_captured+mass*release*a
+            .px:px+v.(16*i+12)
+            .py:py+v.(16*i+13)
         .i:i+1
     alpha:0.0
-    assigned>0? .alpha:captured/assigned*values.(14*count+7*glyph+6)
-    @:[alpha,1,values.(14*count+7*glyph+3),values.(14*count+7*glyph+4),values.(14*count+7*glyph+5),gas,captured,assigned,optical,raw,raw_gas,raw_captured,px,py]
+    assigned>0? .alpha:captured/assigned*v.(16*count+7*glyph+6)
+    @:[alpha,1,v.(16*count+7*glyph+3),v.(16*count+7*glyph+4),v.(16*count+7*glyph+5),gas,captured,assigned,optical,raw,raw_gas,raw_captured,px,py,source,raw_source]

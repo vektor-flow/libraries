@@ -562,11 +562,11 @@ vapor_turbulence(value:Interp)->Plan:
 # owner(i)=i and mass(i)=1/N, exactly the prepare_material equal-weight case.
 # Ink remains external renderer data consumed by compiler-owned field dispatch.
 MomentumEndpoints:(source:[num],target:[num])
-DenseVaporPlan:(settings:Interp,turbulence:Plan,count:int,glyphs:[num],exchange:int,momentum:MomentumEndpoints)
+DenseVaporPlan:(settings:Interp,turbulence:Plan,count:int,glyphs:[num],exchange:int,momentum:MomentumEndpoints,unclaimed:bit,raw_count:int,fresh_count:int,height:num)
 DenseVaporFrame:(params:[num],source_alpha:num)
 prepare_dense_vapor(value:Interp,count:int,source_present:bit,target_present:bit,glyphs:[num])->DenseVaporPlan:
     valid(value)?! "invalid dense Interp settings"
-    (value.mode=2 /\ count>0 /\ count<=65536 /\ (source_present \/ target_present) /\ glyphs.length()>0 /\ glyphs.length()%7=0 /\ glyphs.length()<=28672)?! "invalid dense material plan"
+    (value.mode=2 /\ count>0 /\ count<=131072 /\ (source_present \/ target_present) /\ glyphs.length()>0 /\ glyphs.length()%7=0 /\ glyphs.length()<=28672)?! "invalid dense material plan"
     n:count
     n>1 /\ n%2=0?> .n:n//2
     (n=1)?! "dense material requires dyadic count"
@@ -579,7 +579,7 @@ prepare_dense_vapor(value:Interp,count:int,source_present:bit,target_present:bit
     ~target_present?
         (boundary=2 \/ boundary=3)?! "material exit requires declared boundary"
         .exchange:2
-    @:(settings:value,turbulence:vapor_turbulence(value),count:count,glyphs:glyphs,exchange:exchange,momentum:(source:[0,0],target:[0,0]))
+    @:(settings:value,turbulence:vapor_turbulence(value),count:count,glyphs:glyphs,exchange:exchange,momentum:(source:[0,0],target:[0,0]),unclaimed:false,raw_count:count,fresh_count:count,height:1)
 
 # coordinate has ALREADY passed the single shared text batch clock.
 dense_vapor_frame(plan:DenseVaporPlan,coordinate:num,travel:num,front_override:[num])->DenseVaporFrame:
@@ -604,13 +604,18 @@ dense_vapor_frame(plan:DenseVaporPlan,coordinate:num,travel:num,front_override:[
     source:1-release
     plan.exchange=1? .source:0
     complete:0.0
-    coordinate>=value.capture.(0).finish_coordinate? .complete:1
-    @:(params:[coordinate,release,temperature,spread,lift,footprint,width,wind.(0),wind.(1),front,num(plan.count),num(plan.glyphs.length()//7),num(plan.exchange),1,1,u.clamp(coordinate/u.maximum(0.000001,value.capture.(0).finish_coordinate),0,1),plan.momentum.source.(0),plan.momentum.source.(1),plan.momentum.target.(0),plan.momentum.target.(1),complete],source_alpha:source)
+    ~plan.unclaimed /\ coordinate>=value.capture.(0).finish_coordinate? .complete:1
+    role:0.0
+    plan.unclaimed? .role:1
+    local_time:coordinate
+    ~plan.unclaimed? .local_time:u.clamp(coordinate/u.maximum(0.000001,value.capture.(0).finish_coordinate),0,1)
+    @:(params:[coordinate,release,temperature,spread,lift,footprint,width,wind.(0),wind.(1),front,num(plan.count),num(plan.glyphs.length()//7),num(plan.exchange),1,1,local_time,plan.momentum.source.(0),plan.momentum.source.(1),plan.momentum.target.(0),plan.momentum.target.(1),complete,role,0,plan.height,num(plan.raw_count),num(plan.fresh_count)],source_alpha:source)
 
 DenseCaptureFrame:(source_alpha:num,gas:[num],target:[num],ledger:MaterialLedger,mass_residual:num,assigned_mass:num,optical_gas_coverage:num,raw_coverage:num,raw_gas_mass:num,raw_captured_mass:num,momentum:[num],raw_source_mass:num)
 finish_dense_capture(plan:DenseVaporPlan,controls:DenseVaporFrame,summary:[num])->DenseCaptureFrame:
     ng:plan.glyphs.length()//7
-    (summary.length()=14*ng)?! "invalid dense capture summary"
+    chunks:(plan.count+65535)//65536
+    (summary.length()=16*ng*chunks)?! "invalid material capture summary"
     [num] target:[0:5*ng]
     gas:0.0
     captured:0.0
@@ -621,43 +626,50 @@ finish_dense_capture(plan:DenseVaporPlan,controls:DenseVaporFrame,summary:[num])
     raw_captured:0.0
     px:0.0
     py:0.0
+    source:0.0
+    raw_source:0.0
     i:0
     i<ng?>
+        local_assigned:0.0
+        local_captured:0.0
         j:0
-        j<5?>
-            target.(5*i+j):summary.(14*i+j)
+        j<chunks?>
+            at:16*(j*ng+i)
+            .gas:gas+summary.(at+5)
+            .captured:captured+summary.(at+6)
+            .assigned:assigned+summary.(at+7)
+            .local_assigned:local_assigned+summary.(at+7)
+            .local_captured:local_captured+summary.(at+6)
+            .optical:optical+summary.(at+8)
+            .raw:raw+summary.(at+9)
+            .raw_gas:raw_gas+summary.(at+10)
+            .raw_captured:raw_captured+summary.(at+11)
+            .px:px+summary.(at+12)
+            .py:py+summary.(at+13)
+            .source:source+summary.(at+14)
+            .raw_source:raw_source+summary.(at+15)
             .j:j+1
-        .gas:gas+summary.(14*i+5)
-        .captured:captured+summary.(14*i+6)
-        .assigned:assigned+summary.(14*i+7)
-        .optical:optical+summary.(14*i+8)
-        .raw:raw+summary.(14*i+9)
-        .raw_gas:raw_gas+summary.(14*i+10)
-        .raw_captured:raw_captured+summary.(14*i+11)
-        .px:px+summary.(14*i+12)
-        .py:py+summary.(14*i+13)
+        local_assigned>0? target.(5*i):local_captured/local_assigned*plan.glyphs.(7*i+6)
+        target.(5*i+1):1
+        .j:0
+        j<3?>
+            target.(5*i+2+j):plan.glyphs.(7*i+3+j)
+            .j:j+1
         .i:i+1
-    (|assigned-1|<0.001)?! "dense carrier mass not assigned"
-    release:controls.params.(1)
-    residual:gas+captured-release
-    (|residual|<0.001)?! "dense GPU mass reduction exceeds real-f32 tolerance"
-    # Restore the exact complementary partition after observed f32 reduction;
-    # preserve the measured rounding residual separately, never hide a failure.
-    .captured:u.clamp(captured,0,release)
-    .gas:release-captured
-    source:1-release
-    reservoir:0.0
-    emitted:0.0
-    exited:0.0
-    plan.exchange=1?
+    (|assigned-1|<0.001)?! "material pool lineage not assigned"
+    residual:source+gas+captured-assigned
+    (|residual|<0.001)?! "material stock reduction exceeds real-f32 tolerance"
+    .source:u.clamp(source,0,1)
+    .captured:u.clamp(captured,0,1-source)
+    .gas:1-source-captured
+    controls.params.(20)=1 /\ ~plan.unclaimed?
         .source:0
-        .reservoir:1-release
-        .emitted:release
-    plan.exchange=2?
-        .exited:captured
+        .gas:0
+        .captured:1
+    plan.unclaimed?
         .captured:0
-        .target:[]
-    @:(source_alpha:controls.source_alpha,gas:[],target:target,ledger:(source:source,gas:gas,target:captured,reservoir:reservoir,emitted:emitted,exited:exited),mass_residual:residual,assigned_mass:assigned,optical_gas_coverage:optical,raw_coverage:raw,raw_gas_mass:raw_gas,raw_captured_mass:raw_captured,momentum:[px,py],raw_source_mass:(1-release)*raw)
+        .gas:1-source
+    @:(source_alpha:controls.source_alpha,gas:[],target:target,ledger:(source:source,gas:gas,target:captured,reservoir:0,emitted:0,exited:0),mass_residual:residual,assigned_mass:assigned,optical_gas_coverage:optical,raw_coverage:raw,raw_gas_mass:raw_gas,raw_captured_mass:raw_captured,momentum:[px,py],raw_source_mass:raw_source)
 
 # Plain authored-color front. No spectral RGB, growth or overshoot settings.
 wave(k:num=4,start:num=0,finish:num=1)->Interp:
@@ -685,13 +697,16 @@ plain_wave_frame(value:Interp,coordinate:num,reading:[num],colors:[num],travel:n
         .i:i+1
     @:result
 
-# Explicit nonempty closed old-list pool. No birth/reservoir/exit permission.
-prepare_list_material(value:Interp,count:int,glyphs:[num],momentum:MomentumEndpoints)->DenseVaporPlan:
-    valid(value)?! "invalid list material settings"
-    (value.mode=2 /\ value.vapor.length()=1 /\ value.vapor.(0).boundary=0 /\ value.capture.length()=1 /\ momentum.source.length()=2 /\ momentum.target.length()=2)?! "list material requires closed source pool"
+# Generic native removed-ink pool; caller identities are renderer-owned data.
+prepare_material_pool(value:Interp,count:int,glyphs:[num],momentum:MomentumEndpoints,unclaimed:bit,raw_count:int,fresh_count:int,height:num)->DenseVaporPlan:
+    valid(value)?! "invalid material pool settings"
+    (value.mode=2 /\ value.vapor.length()=1 /\ value.vapor.(0).boundary=0 /\ value.capture.length()=1 /\ momentum.source.length()=2 /\ momentum.target.length()=2 /\ raw_count>0 /\ raw_count<=count /\ fresh_count>=0 /\ fresh_count<=raw_count /\ height>0 /\ height<=4096)?! "material pool requires closed native sources"
     i:0
     i<2?>
         (|momentum.source.(i)|<10^10 /\ |momentum.target.(i)|<10^10)?! "invalid native momentum endpoint"
         .i:i+1
     plan:prepare_dense_vapor(value,count,true,true,glyphs)
-    @:(settings:plan.settings,turbulence:plan.turbulence,count:plan.count,glyphs:plan.glyphs,exchange:0,momentum:momentum)
+    @:(settings:plan.settings,turbulence:plan.turbulence,count:plan.count,glyphs:plan.glyphs,exchange:0,momentum:momentum,unclaimed:unclaimed,raw_count:raw_count,fresh_count:fresh_count,height:height)
+material_pool_time(previous:num,coordinate:num)->num:
+    (previous>=0 /\ previous<10^10 /\ coordinate>=0 /\ coordinate<=1)?! "invalid material pool clock"
+    @:previous+coordinate
