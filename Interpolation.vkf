@@ -1,0 +1,110 @@
+# Interpolation: public entry for shared state interpolation and geometric methods.
+# Existing state/material/view adapters delegate to the SAME Morphing implementation.
+# See interpolation/README.md for finite method and qualification contracts.
+interpolation_morphing_backend:.Morphing
+p:.interpolation.polynomial
+t:.interpolation.tensor
+
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+Sample:(value:[num],first:[num],second:[num])
+Plan:(curve:Curve,smooth_start:bit,smooth_end:bit)
+EmbeddingPlan:(state:Plan,embedding:Plan,input_width:int,output_width:int)
+MaterialPlan:(state:Plan,weights:[num],owners:[int],dimension:int,carriers:int,states:int)
+ViewBinding:(view_id:str,layer_ids:[str],offsets:[int],state:Plan)
+ViewSample:(view_id:str,layer_ids:[str],offsets:[int],value:[num],first:[num],second:[num])
+GeometryPlan:(curve:Curve,dimension:int,size:int,cells:int,carriers:int,stride:int,smooth_start:bit,smooth_end:bit,join:num)
+GeometryFrame:(coverage:[num],measure:num,scale:num)
+
+prepare(coordinates:[num],states:[num],width:int,mode:int,smooth_start:bit,smooth_end:bit)->Plan:
+    @:interpolation_morphing_backend.prepare(coordinates,states,width,mode,smooth_start,smooth_end)
+
+sample(plan:Plan,coordinate:num)->Sample:
+    @:interpolation_morphing_backend.sample(plan,coordinate)
+
+weights(plan:Plan,coordinate:num)->[num]:
+    @:interpolation_morphing_backend.weights(plan,coordinate)
+
+channel(plan:Plan,coordinates:[num],component:int)->[num]:
+    @:interpolation_morphing_backend.channel(plan,coordinates,component)
+
+prepare_affine_embedding(coordinates:[num],states:[num],input_width:int,embeddings:[num],output_width:int,mode:int,smooth_start:bit,smooth_end:bit)->EmbeddingPlan:
+    @:interpolation_morphing_backend.prepare_affine_embedding(coordinates,states,input_width,embeddings,output_width,mode,smooth_start,smooth_end)
+
+sample_embedding(plan:EmbeddingPlan,coordinate:num)->Sample:
+    @:interpolation_morphing_backend.sample_embedding(plan,coordinate)
+
+prepare_material(coordinates:[num],offsets:[int],weights:[num],positions:[num],dimension:int,mode:int,smooth_start:bit,smooth_end:bit)->MaterialPlan:
+    @:interpolation_morphing_backend.prepare_material(coordinates,offsets,weights,positions,dimension,mode,smooth_start,smooth_end)
+
+bind_view(view_id:str,layer_ids:[str],offsets:[int],state:Plan)->ViewBinding:
+    @:interpolation_morphing_backend.bind_view(view_id,layer_ids,offsets,state)
+
+sample_view(view:ViewBinding,coordinate:num)->ViewSample:
+    @:interpolation_morphing_backend.sample_view(view,coordinate)
+
+reserve_groups(source_count:int,target_count:int,source_groups:[int],target_groups:[int],costs:[num])->[int]:
+    @:interpolation_morphing_backend.reserve_groups(source_count,target_count,source_groups,target_groups,costs)
+
+prepare_geometry(coordinates:[num],offsets:[int],owners:[int],carriers:int,centers:[num],extents:[num],fields:[num],size:int,dimension:int,mode:int,smooth_start:bit,smooth_end:bit,join:num)->GeometryPlan:
+    @:interpolation_morphing_backend.prepare_geometry(coordinates,offsets,owners,carriers,centers,extents,fields,size,dimension,mode,smooth_start,smooth_end,join)
+
+geometry_measure(plan:GeometryPlan,resolution:int,lo:[num],hi:[num])->Curve:
+    @:interpolation_morphing_backend.geometry_measure(plan,resolution,lo,hi)
+
+sample_geometry(plan:GeometryPlan,measure:Curve,coordinate:num,resolution:int,lo:[num],hi:[num],tolerance:num)->GeometryFrame:
+    @:interpolation_morphing_backend.sample_geometry(plan,measure,coordinate,resolution,lo,hi,tolerance)
+
+geometry_row(plan:GeometryPlan,coordinate:num,scale:num,size:int,row:int,lo:[num],hi:[num],extent:num,color:[num])->[num]:
+    @:interpolation_morphing_backend.geometry_row(plan,coordinate,scale,size,row,lo,hi,extent,color)
+
+unfold_defaults()->(k:num,velocity:num,overshoot:num,grow:bit,loop:bit):
+    @:interpolation_morphing_backend.unfold_defaults()
+
+field_grid2(values:[num],size:int,stride:int,carriers:int,xs:[num],ys:[num],scale:num,neck:num)->[num]:
+    @:interpolation_morphing_backend.field_grid2(values,size,stride,carriers,xs,ys,scale,neck)
+
+# Flat vector entry points. Normalized coordinates are independent of time.
+Polynomial:(controls:[num],width:int,count:int)
+Patch:(controls:[num],width:int,u_count:int,v_count:int)
+PatchSample:(value:[num],du:[num],dv:[num],duu:[num],duv:[num],dvv:[num])
+
+lerp(start:num,finish:num,coordinate:num)->num:
+    (coordinate>=0 /\ coordinate<=1)?! "coordinate outside lerp domain"
+    (|start|<10^100 /\ |finish|<10^100)?! "nonfinite or excessive lerp value"
+    value:(1-coordinate)*start+coordinate*finish
+    coordinate=0? .value:start
+    coordinate=1? .value:finish
+    @:value
+
+blend(start:[num],finish:[num],coordinate:num)->[num]:
+    (start.length()>0 /\ start.length()=finish.length())?! "invalid blend dimensions"
+    (coordinate>=0 /\ coordinate<=1)?! "coordinate outside blend domain"
+    [num] value:[0:start.length()]
+    i:0
+    i<start.length()?>
+        value.(i):lerp(start.(i),finish.(i),coordinate)
+        .i:i+1
+    @:value
+
+prepare_bezier(controls:[num],width:int)->Polynomial:p.prepare_bezier(controls,width)
+prepare_hermite(start:[num],finish:[num],start_derivative:[num],finish_derivative:[num])->Polynomial:p.prepare_hermite(start,finish,start_derivative,finish_derivative)
+sample_polynomial(plan:Polynomial,coordinate:num)->Sample:p.evaluate(plan,coordinate)
+prepare_patch(controls:[num],width:int,u_count:int,v_count:int)->Patch:t.prepare(controls,width,u_count,v_count)
+sample_patch(plan:Patch,u:num,v:num)->PatchSample:t.evaluate(plan,u,v)
+
+# Public mode-specific settings; empty payloads are absent optional parameters.
+interp_backend:.Interp
+Interp:(mode:int,path:int,reveal:[num],vapor:[num])
+interp(mode:int=0,path:int=0,reveal:[num]=[],vapor:[num]=[])->Interp:interp_backend.settings(mode,path,reveal,vapor)
+prepare_interp(settings:Interp,coordinates:[num],states:[num],width:int)->Plan:interp_backend.prepare(settings,coordinates,states,width)
+time_coordinate(q:num)->num:interp_backend.time_coordinate(q)
+reveal_channel(settings:Interp,distance:num,channel:int)->num:interp_backend.reveal_channel(settings,distance,channel)
+vapor_channel(settings:Interp,q:num,index:int,channel:int)->num:interp_backend.vapor_channel(settings,q,index,channel)
+source_alpha(q:num)->num:interp_backend.source_alpha(q)
+
+state_interp(path:int=0)->Interp:interp_backend.state(path)
+spectral_interp(k:num=4,velocity:num=0.54,overshoot:num=0.32,grow:bit=true)->Interp:interp_backend.spectral(k,velocity,overshoot,grow)
+vapor_interp(temperature:num=1,spread:num=0.35,lift:num=0.65,seed:int=0,k:num=4,velocity:num=0.54,overshoot:num=0.32,grow:bit=true)->Interp:interp_backend.evaporate(temperature,spread,lift,seed,k,velocity,overshoot,grow)
+reveal_advance(settings:Interp,front:num,elapsed:num)->num:interp_backend.reveal_advance(settings,front,elapsed)
+TextFrame:(source_alpha:num,gas:[num],target:[num])
+text_frame(settings:Interp,q:num,source_ink:[num],target_reading:[num],front:num)->TextFrame:interp_backend.text_frame(settings,q,source_ink,target_reading,front)

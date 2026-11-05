@@ -1,0 +1,22 @@
+i:.Interpolation
+m:.Morphing
+
+tests()->bit:
+    a:i.prepare([0,1,2],[0,2,1,4,0,6],2,1,false,false)
+    b:m.prepare([0,1,2],[0,2,1,4,0,6],2,1,false,false)
+    x:i.sample(a,0.5)
+    y:m.sample(b,0.5)
+    old_from_new:m.sample(a,0.5)
+    new_from_old:i.sample(b,0.5)
+    (x.value==y.value /\ x.first==y.first /\ x.second==y.second)?! "same implementation across entries"
+    (old_from_new.value==x.value /\ new_from_old.value==x.value)?! "cross-entry plan compatibility"
+    callable:i.sample[plan:a]
+    (callable(0.5).value==x.value)?! "prepared callable"
+    ::x.value
+    material:i.prepare_material([0,1,2],[0,1,3,4],[2,1,1,2],[0,0,-1,1,1,1,0,2],2,1,true,true)
+    (material.carriers=2 /\ material.weights.(0)=1 /\ material.weights.(1)=1)?! "same material core"
+    (i.sample(material.state,1).value==m.sample(material.state,1).value)?! "nested material state compatibility"
+    binding:i.bind_view("main",["layer"],[0,2],a)
+    (i.sample_view(binding,1).value==m.sample_view(binding,1).value)?! "same view adapter"
+    @:true
+::tests()

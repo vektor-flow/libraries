@@ -1,0 +1,58 @@
+{
+  "version": "0.7.5",
+  "binding": "ffcaeaae67079c714583d5487f3452a9ed4107abf14204a512f647400473c71f",
+  "sourceHashes": {
+    "Morphing.vkf": "f2c27cd0bccba5050657cc24f184f6469d43bc8b82623a765ae3a0422f36fc8f",
+    "Interpolation.vkf": "b856d1ba81c10ed576ed1b6924a81a8c5e61563976a6a39e119a296c04634b0a",
+    "Interp.vkf": "56e359629ed900f7bb974f747d260188bbb776140f5a1d8d1a2c3bfcbcbbe1fb",
+    "morphing/state.vkf": "ea2e9d1dd2d255e1390791797c67dd627b4202adf63908d906a4279d5edcc85a",
+    "morphing/unfold.vkf": "39e00e232a37e1e895160588006c2b9d60ddd165d3e7ff8c6ef98e5aecae9e11"
+  },
+  "checks": 190,
+  "results": [
+    {
+      "name": "positive-oracles",
+      "passed": true,
+      "stdout": "true\n",
+      "ms": 36025,
+      "sourceSha256": "b2b3b3918dcdb0c0e585a5c3dfe2b2f2d260a8f68ee9d8212c27031064da79db"
+    },
+    {
+      "name": "irrelevant-payload",
+      "passed": true,
+      "expectedRejection": "RuntimeError: unreachable",
+      "ms": 15832,
+      "sourceSha256": "2f34abcc21a5b9d9b9ded8be9fda99f660705dc31ea1549bdd2397c0dc85757c"
+    },
+    {
+      "name": "invalid-temperature",
+      "passed": true,
+      "expectedRejection": "RuntimeError: unreachable",
+      "ms": 15953,
+      "sourceSha256": "efcce50034873946985043d0fbb893b1eff3e36838d1838b33b08b018db4797b"
+    },
+    {
+      "name": "text-cubic-path",
+      "passed": true,
+      "expectedRejection": "RuntimeError: unreachable",
+      "ms": 15771,
+      "sourceSha256": "c9b4092632093f64893483b1ab2b9e44dc304f6918cf3d04af0e64f120dd2207"
+    },
+    {
+      "name": "invalid-seed",
+      "passed": true,
+      "expectedRejection": "RuntimeError: unreachable",
+      "ms": 15979,
+      "sourceSha256": "0d27ac5d60f53079b395d5c15bedaa1464965d3fd3541e0e83424f69a60d3985"
+    },
+    {
+      "name": "carrier-bound",
+      "passed": true,
+      "expectedRejection": "RuntimeError: unreachable",
+      "ms": 17678,
+      "sourceSha256": "f24cddf8783bba063f3c67ae010f35d7fdfff1d5d37e8d8b91fb462ee3cdc783"
+    }
+  ],
+  "dir": "/tmp/vkf-interp-verify-0wzsjf",
+  "scope": "canonical client WASM execution only; no native ELF, GPU, renderer or visual qualification"
+}

@@ -1,0 +1,35 @@
+# Actual VKF evaluator output for a coupled bicubic patch, for an offline figure.
+i:.Interpolation
+
+surface()->[num]:
+    [num] controls:[0:48]
+    row:0
+    row<4?>
+        column:0
+        column<4?>
+            at:(row*4+column)*3
+            x:column-1.5
+            y:row-1.5
+            controls.(at):x
+            controls.(at+1):y
+            controls.(at+2):0.4*x*y
+            row=1 /\ column=1? controls.(at+2):controls.(at+2)+1
+            row=2 /\ column=2? controls.(at+2):controls.(at+2)-1
+            .column:column+1
+        .row:row+1
+    plan:i.prepare_patch(controls,3,4,4)
+    [num] data:[0:21*21*3]
+    .row:0
+    row<21?>
+        column:0
+        column<21?>
+            sampled:i.sample_patch(plan,column/20,row/20)
+            at:(row*21+column)*3
+            data.(at):sampled.value.(0)
+            data.(at+1):sampled.value.(1)
+            data.(at+2):sampled.value.(2)
+            .column:column+1
+        .row:row+1
+    ::controls
+    @:data
+::surface()

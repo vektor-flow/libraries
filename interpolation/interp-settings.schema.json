@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vektor-flow.org/contracts/interp-settings-v1.schema.json",
+  "title": "Interp mode-specific settings",
+  "description": "Named client settings mapped to native VKF named factories. Defaults are resolved by native factory; schema presence alone never grants capability.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode"
+      ],
+      "properties": {
+        "mode": {
+          "const": "state"
+        },
+        "path": {
+          "enum": [
+            "linear",
+            "natural-cubic"
+          ],
+          "default": "linear"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode"
+      ],
+      "properties": {
+        "mode": {
+          "const": "spectral"
+        },
+        "k": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 4
+        },
+        "velocity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.54
+        },
+        "overshoot": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.5,
+          "default": 0.32
+        },
+        "grow": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode"
+      ],
+      "properties": {
+        "mode": {
+          "const": "vapor"
+        },
+        "k": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 4
+        },
+        "velocity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.54
+        },
+        "overshoot": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.5,
+          "default": 0.32
+        },
+        "grow": {
+          "type": "boolean",
+          "default": true
+        },
+        "temperature": {
+          "type": "number",
+          "const": 1,
+          "default": 1
+        },
+        "spread": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 4,
+          "default": 0.35
+        },
+        "lift": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 4,
+          "default": 0.65
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535,
+          "default": 0
+        }
+      }
+    }
+  ]
+}

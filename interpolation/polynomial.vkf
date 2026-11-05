@@ -1,0 +1,98 @@
+# Point-major Bernstein controls on the normalized coordinate [0,1].
+Polynomial:(controls:[num],width:int,count:int)
+Sample:(value:[num],first:[num],second:[num])
+
+# Internal validation: divide before multiplying to reject malformed dimensions.
+valid_controls(controls:[num],width:int,count:int)->bit:
+    (width>0 /\ count>0)?! "invalid polynomial dimensions"
+    (count=controls.length()//width)?! "invalid polynomial layout"
+    (controls.length()=count*width)?! "invalid polynomial layout"
+    i:0
+    i<controls.length()?>
+        (|controls.(i)|<10^100)?! "nonfinite or excessive polynomial control"
+        .i:i+1
+    @:true
+
+prepare_bezier(controls:[num],width:int)->Polynomial:
+    (width>0)?! "polynomial width must be positive"
+    count:controls.length()//width
+    valid_controls(controls,width,count)?! "invalid polynomial controls"
+    [num] stored:[0:controls.length()]
+    i:0
+    i<controls.length()?>
+        stored.(i):controls.(i)
+        .i:i+1
+    @:(controls:stored,width:width,count:count)
+
+# Endpoint derivatives are with respect to this same normalized coordinate.
+prepare_hermite(start:[num],finish:[num],start_derivative:[num],finish_derivative:[num])->Polynomial:
+    width:start.length()
+    (width>0 /\ finish.length()=width /\ start_derivative.length()=width /\ finish_derivative.length()=width)?! "invalid Hermite dimensions"
+    [num] controls:[0:4*width]
+    i:0
+    i<width?>
+        (|start.(i)|<10^100 /\ |finish.(i)|<10^100 /\ |start_derivative.(i)|<10^100 /\ |finish_derivative.(i)|<10^100)?! "nonfinite or excessive Hermite input"
+        controls.(i):start.(i)
+        controls.(width+i):start.(i)+start_derivative.(i)/3
+        controls.(2*width+i):finish.(i)-finish_derivative.(i)/3
+        controls.(3*width+i):finish.(i)
+        .i:i+1
+    @:prepare_bezier(controls,width)
+
+# Internal reduction also accepts derivative nets outside the input-control bound.
+# Always copy: the caller's prepared controls must never become scratch storage.
+net_value(controls:[num],width:int,count:int,coordinate:num)->[num]:
+    [num] scratch:[0:count*width]
+    i:0
+    i<count*width?>
+        scratch.(i):controls.(i)
+        .i:i+1
+    remaining:count-1
+    remaining>0?>
+        .i:0
+        i<remaining*width?>
+            scratch.(i):(1-coordinate)*scratch.(i)+coordinate*scratch.(i+width)
+            .i:i+1
+        .remaining:remaining-1
+    [num] value:[0:width]
+    .i:0
+    i<width?>
+        value.(i):scratch.(i)
+        coordinate=0? value.(i):controls.(i)
+        coordinate=1? value.(i):controls.((count-1)*width+i)
+        .i:i+1
+    @:value
+
+# Internal sampling of validated original controls or finite intermediate nets.
+net_sample(controls:[num],width:int,count:int,coordinate:num)->Sample:
+    value:net_value(controls,width,count,coordinate)
+    [num] first:[0:width]
+    [num] second:[0:width]
+    count>1?
+        [num] derivative:[0:(count-1)*width]
+        i:0
+        i<(count-1)*width?>
+            derivative.(i):(count-1)*(controls.(i+width)-controls.(i))
+            .i:i+1
+        sampled:net_value(derivative,width,count-1,coordinate)
+        .i:0
+        i<width?>
+            first.(i):sampled.(i)
+            .i:i+1
+        count>2?
+            [num] curvature:[0:(count-2)*width]
+            .i:0
+            i<(count-2)*width?>
+                curvature.(i):(count-2)*(derivative.(i+width)-derivative.(i))
+                .i:i+1
+            sampled_second:net_value(curvature,width,count-2,coordinate)
+            .i:0
+            i<width?>
+                second.(i):sampled_second.(i)
+                .i:i+1
+    @:(value:value,first:first,second:second)
+
+evaluate(plan:Polynomial,coordinate:num)->Sample:
+    (coordinate>=0 /\ coordinate<=1)?! "coordinate outside polynomial domain"
+    valid_controls(plan.controls,plan.width,plan.count)?! "invalid polynomial controls"
+    @:net_sample(plan.controls,plan.width,plan.count,coordinate)

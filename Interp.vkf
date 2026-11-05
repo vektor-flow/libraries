@@ -1,0 +1,172 @@
+# Public state-interpolation settings. Empty vectors represent absent optional
+# payloads; no fictitious nullable/union syntax or hidden mode inference.
+u:.morphing.unfold
+m:.Morphing
+Interp:(mode:int,path:int,reveal:[num],vapor:[num])
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+Plan:(curve:Curve,smooth_start:bit,smooth_end:bit)
+
+settings(mode:int=0,path:int=0,reveal:[num]=[],vapor:[num]=[])->Interp:
+    value:(mode:mode,path:path,reveal:reveal,vapor:vapor)
+    valid(value)?! "invalid Interp settings"
+    @:value
+
+valid(value:Interp)->bit:
+    (value.mode>=0 /\ value.mode<=2)?! "unsupported Interp mode"
+    (value.path>=0 /\ value.path<=1)?! "unsupported Interp state path"
+    value.mode=0?
+        (value.reveal.length()=0 /\ value.vapor.length()=0)?! "text payload on state Interp"
+    value.mode>0?
+        (value.path=0)?! "state path on text Interp"
+        (value.reveal.length()=0 \/ value.reveal.length()=4)?! "reveal payload is k,velocity,overshoot,grow"
+        value.reveal.length()=4?
+            (value.reveal.(1)>=0 /\ value.reveal.(1)<=1)?! "reveal velocity outside 0–1"
+            (value.reveal.(0)>=1 /\ value.reveal.(0)<=10)?! "reveal k outside 1–10"
+            (value.reveal.(2)>=0 /\ value.reveal.(2)<=0.5)?! "reveal overshoot outside 0–0.5"
+            (value.reveal.(3)=0 \/ value.reveal.(3)=1)?! "reveal grow must be 0 or 1"
+    value.mode=1? (value.vapor.length()=0)?! "vapor payload on spectral Interp"
+    value.mode=2?
+        (value.vapor.length()=0 \/ value.vapor.length()=4)?! "vapor payload is temperature,spread,lift,seed"
+        value.vapor.length()=4?
+            (value.vapor.(0)=1)?! "only maximum-temperature vapor is implemented"
+            (value.vapor.(1)>=0 /\ value.vapor.(1)<=4 /\ value.vapor.(2)>=0 /\ value.vapor.(2)<=4)?! "vapor extent outside 0–4"
+            (value.vapor.(3)>=0 /\ value.vapor.(3)<=65535 /\ value.vapor.(3)=num(int(value.vapor.(3))))?! "vapor seed must be integer 0–65535"
+    @:true
+
+# Independent two-piece quadratic clock, shared by all modes.
+time_coordinate(q:num)->num:
+    (q>=0 /\ q<=1)?! "Interp coordinate outside 0–1"
+    q<0.5? @:2*q*q
+    @:1-2*(1-q)*(1-q)
+
+prepare(value:Interp,coordinates:[num],states:[num],width:int)->Plan:
+    valid(value)?! "invalid Interp settings"
+    (value.mode=0)?! "numeric state preparation requires state Interp"
+    @:m.prepare(coordinates,states,width,value.path,false,false)
+
+# Renderer supplies cached reading coordinates. Returns alpha,growth,r,g,b.
+reveal_channel(value:Interp,distance:num,channel:int)->num:
+    valid(value)?! "invalid Interp settings"
+    (value.mode>0 /\ channel>=0 /\ channel<=4)?! "invalid Interp reveal channel"
+    (|distance|<10^10)?! "invalid Interp reading distance"
+    k:4.0
+    overshoot:0.32
+    grow:1.0
+    value.reveal.length()=4?
+        .k:value.reveal.(0)
+        .overshoot:value.reveal.(2)
+        .grow:value.reveal.(3)
+    a:u.alpha(distance,k)
+    channel=0? @:a
+    channel=1?
+        grow=0? @:1
+        @:u.growth(a,u.back_coefficient(overshoot))
+    @:u.color_channel(a,channel-2)
+
+# Indexed deterministic carrier noise; no mutable PRNG, frame stepping or state.
+# Bounded integer arithmetic remains below 2^31, also exact in f64 WASM.
+noise(index:int,seed:int,lane:int)->num:
+    n:(index*251+seed*199+lane*101+17)%65521
+    .n:(n*251+37)%65521
+    @:num(n)/65520
+
+# q is already the shared eased coordinate. Input index identifies a cached
+# source-ink sample, never an authorable body. Channels: dx,dy,alpha,size.
+# Source/target glyph fields and their exact endpoint rendering remain native.
+vapor_channel(value:Interp,q:num,index:int,channel:int)->num:
+    valid(value)?! "invalid Interp settings"
+    (value.mode=2 /\ q>=0 /\ q<=1)?! "vapor channel requires vapor Interp and coordinate 0–1"
+    (index>=0 /\ index<65536 /\ channel>=0 /\ channel<=3)?! "vapor carrier/channel outside bounded layout"
+    spread:0.35
+    lift:0.65
+    seed:0
+    value.vapor.length()=4?
+        .spread:value.vapor.(1)
+        .lift:value.vapor.(2)
+        .seed:int(value.vapor.(3))
+    # Gas develops from actual ink as the source dissolves, then fades entirely.
+    envelope:4*q*(1-q)
+    channel=0? @:spread*q*(2*noise(index,seed,0)-1)
+    channel=1? @:lift*q*(0.5+noise(index,seed,1))
+    channel=2? @:envelope*(1-q)
+    @:1+3*q*noise(index,seed,2)
+
+# Source field alpha; target reveal should receive its own row reading front.
+source_alpha(q:num)->num:
+    (q>=0 /\ q<=1)?! "Interp coordinate outside 0–1"
+    @:(1-q)*(1-q)
+
+# Named factories are the public construction API. Optional payload vectors are
+# internal ABI storage, not a positional settings form an editor should expose.
+state(path:int=0)->Interp:settings(0,path,[],[])
+spectral(k:num=4,velocity:num=0.54,overshoot:num=0.32,grow:bit=true)->Interp:
+    growth_flag:0.0
+    grow? .growth_flag:1
+    @:settings(1,0,[k,velocity,overshoot,growth_flag],[])
+evaporate(temperature:num=1,spread:num=0.35,lift:num=0.65,seed:int=0,k:num=4,velocity:num=0.54,overshoot:num=0.32,grow:bit=true)->Interp:
+    growth_flag:0.0
+    grow? .growth_flag:1
+    @:settings(2,0,[k,velocity,overshoot,growth_flag],[temperature,spread,lift,num(seed)])
+reveal_advance(value:Interp,front:num,elapsed:num)->num:
+    valid(value)?! "invalid Interp settings"
+    (value.mode>0 /\ |front|<10^10)?! "reveal advance requires finite text coordinate"
+    velocity:0.54
+    value.reveal.length()=4? .velocity:value.reveal.(1)
+    @:u.advance(front,elapsed,velocity)
+
+TextFrame:(source_alpha:num,gas:[num],target:[num])
+# One call per requested frame. Input ink triples are local x,y,coverage; target
+# reading coordinates are cached native glyph order, not text or glyph bodies.
+# Gas output is x,y,alpha,size; target output alpha,growth,r,g,b per glyph.
+text_frame(value:Interp,q:num,source_ink:[num],target_reading:[num],front:num)->TextFrame:
+    valid(value)?! "invalid Interp settings"
+    (value.mode>0 /\ q>=0 /\ q<=1 /\ |front|<10^10)?! "invalid Interp text frame"
+    (source_ink.length()<=196608 /\ source_ink.length()%3=0 /\ target_reading.length()<=65536)?! "Interp text frame exceeds bounded layout"
+    (value.mode=2 \/ source_ink.length()=0)?! "source ink carriers require vapor mode"
+    count:source_ink.length()//3
+    [num] gas:[0:4*count]
+    [num] target:[0:5*target_reading.length()]
+    k:4.0
+    overshoot:0.32
+    grow:1.0
+    value.reveal.length()=4?
+        .k:value.reveal.(0)
+        .overshoot:value.reveal.(2)
+        .grow:value.reveal.(3)
+    coefficient:u.back_coefficient(overshoot)
+    spread:0.35
+    lift:0.65
+    seed:0
+    value.vapor.length()=4?
+        .spread:value.vapor.(1)
+        .lift:value.vapor.(2)
+        .seed:int(value.vapor.(3))
+    envelope:4*q*(1-q)*(1-q)
+    j:0
+    j<count?>
+        x:source_ink.(3*j)
+        y:source_ink.(3*j+1)
+        coverage:source_ink.(3*j+2)
+        (|x|<10^10 /\ |y|<10^10 /\ coverage>=0 /\ coverage<=1)?! "invalid native ink sample"
+        gas.(4*j):x+spread*q*(2*noise(j,seed,0)-1)
+        gas.(4*j+1):y+lift*q*(0.5+noise(j,seed,1))
+        gas.(4*j+2):coverage*envelope
+        gas.(4*j+3):1+3*q*noise(j,seed,2)
+        .j:j+1
+    .j:0
+    j<target_reading.length()?>
+        (|target_reading.(j)|<10^10)?! "invalid native glyph reading coordinate"
+        a:u.alpha(front-target_reading.(j),k)
+        # Endpoint packets are exact; the caller budgets front travel to avoid
+        # an incomplete reading front jumping on the final endpoint.
+        q=0? .a:0
+        q=1? .a:1
+        size:1.0
+        grow=1? .size:u.growth(a,coefficient)
+        target.(5*j):a
+        target.(5*j+1):size
+        target.(5*j+2):u.color_channel(a,0)
+        target.(5*j+3):u.color_channel(a,1)
+        target.(5*j+4):u.color_channel(a,2)
+        .j:j+1
+    @:(source_alpha:source_alpha(q),gas:gas,target:target)

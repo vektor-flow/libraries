@@ -500,3 +500,40 @@ rejects updates. No JS page errors. Tests use explicitly forced SwiftShader and
 preserve the upstream physical GPU STOP. Public syntax and the compiler arena ABI
 are unchanged. Product integration remains eight thin re-exports; its main bundle
 does not include this optional native mount until requested by a consumer.
+
+# Interp mode settings and native vapor channels — 2026-11-05
+
+Objective: canonical VKF Interp settings with mode-specific optional parameters;
+retain the mathematical research and existing Morphing numerical implementation.
+Owned branch codex/presentation-vapor-20261105, base b1c40844. No push/release.
+
+Added Interp typed record, named/default state/spectral/vapor factories, strict
+mode payload checks, shared two-piece quadratic clock, existing native unfolding
+channels, bounded deterministic native ink-carrier displacement/fade channels.
+Named JSON Schema + mode metadata are canonical PP integration inputs. Gas is a
+render carrier sampled from genuine native source ink, not an authorable body.
+
+Migrated the read-only interpolation-20261031 source snapshot with per-file SHA
+provenance. Polynomial/tensor historical native CPU qualification is retained;
+conic/graph/rounding source remains unqualified. Mathematical policy/temperature
+and graph-fill illustrations retain their research-only limitations. Source
+Morphing and morphing/ are unchanged. The existing PP editor mapping explicitly
+leaves tension/radius/fractal and native geometry adapter gaps unresolved.
+
+Verification: bounded canonical 0.7.5 client WASM compiler/guest tests, no native
+ELF compilation or physical GPU. See tests/interp/evidence/qualification.json.
+Initial probe failed a nested relative import; moving Interp.vkf to root uses
+existing source-address semantics and passed fresh compiler execution. No compiler
+change was necessary for named/default factory parameters or finite record ABI.
+
+Next: root integrates scalar channels with prepared native glyph ink samples,
+row reveal, authored color finish, latest-request/cancel and bounded resident
+buffers; qualifies compiler-owned GPU lowering, renderer pixels and PP behavior.
+Use interpolation/INTERP-CONTRACT.md, interp-modes.json, interp-settings.schema.json
+and EDITOR-MAPPING.md. Renderer and PP worktrees were read only for this task.
+
+One-call text_frame now returns packed gas transform/alpha/size and target native
+reveal channels from bounded ink triples/read coordinates. It prepares growth
+once per frame and preserves exact scene endpoints. Native WASM guest ABI is
+synchronous: no in-call cancel hook; discard superseded generations. Bulk renderer
+performance and GPU lowering remain unqualified. See batch-qualification.json.

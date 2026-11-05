@@ -1,0 +1,35 @@
+PI HANDOFF — graph source task — 2026-10-31
+
+Owned source prepared in interpolation/graph.vkf; contract and deferred visual
+specifications in interpolation/graph/README.txt. No facade/test files changed.
+
+Exact Graph shape (no counts): vertices:[num], width:int, starts:[int],
+ends:[int], lengths:[num], targets:[num], weights:[num], fixed:[int],
+joins:[int], jets:[num]. Sample reuses value/first/second:[num].
+Native signatures: prepare(vertices,width,starts,ends,lengths,targets,weights,
+fixed,joins)->Graph; default(vertices,width,starts,ends)->Graph;
+with_joins(plan,joins)->Graph; evaluate(plan,edge,coordinate)->Sample.
+No imports/aliases; root should choose a unique descriptive facade alias.
+
+Implementation: copied canonical hard positions/original proposals; outward
+physical jets; explicit same-vertex incidence joins only; CSR/signed BFS weighted
+projection, exact hard consistency/rejection, odd-cycle zero/rejection; no hidden
+with_joins history. Direct nearer-endpoint local-origin Hermite; exact endpoint
+values and first derivatives returned directly. Physical second derivative only,
+no C2, immersion, topology, unselected-branch smoothing or surface seam solver.
+
+First domain: abs(position/target jet)<1e100, weights [1e-100,1e100], spans
+[1e-50,1e50]; max 1,000,000 input slots, 500,000 edges. No unlimited-resource
+or certified binary64 accuracy claim. default rejects out-of-bound secants.
+
+SOURCE ONLY: no compiler/runtime/test/render/experiment calls; no grant reused.
+No native qualification claimed. Root owns facade/tests and must obtain NEW
+resource-coordinator admission and freeze fixtures before qualification. README
+preregisters scope and provides analytic convex/concave curve plus genuine
+two-parameter sheet specifications; their actual native visuals remain pending.
+Research identities, source contracts and execution evidence remain distinct.
+Preserve all prior artifacts and every later failure/provenance record.
+
+Policy resolved through admin_runtime.connect/PolicyClient: current authority and
+thread metadata gpt-6.1-sol / high (config model_reasoning_effort=high).
+Task complete at source scope; notification only, no self-continuation requested.

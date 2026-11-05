@@ -1,0 +1,262 @@
+# Native vector-valued graph Hermite cubics. SOURCE ONLY; not yet qualified.
+# No imports: avoid caller/facade alias capture (in particular the alias m).
+Graph:(vertices:[num],width:int,starts:[int],ends:[int],lengths:[num],targets:[num],weights:[num],fixed:[int],joins:[int],jets:[num])
+Sample:(value:[num],first:[num],second:[num])
+
+graph_copy_numbers(source:[num])->[num]:
+    [num] stored:[0:source.length()]
+    i:0
+    i<source.length()?>
+        stored.(i):source.(i)
+        .i:i+1
+    @:stored
+
+graph_copy_integers(source:[int])->[int]:
+    [int] stored:[0:source.length()]
+    i:0
+    i<source.length()?>
+        stored.(i):source.(i)
+        .i:i+1
+    @:stored
+
+# Explicit finite first domain: at most 1,000,000 slots in any input array.
+# Bound counts before products, including two incidences per edge and CSR size.
+graph_layout(vertices:[num],width:int,starts:[int],ends:[int])->bit:
+    (width>0 /\ width<=1000000)?! "invalid graph width"
+    (vertices.length()>0 /\ vertices.length()<=1000000)?! "invalid graph vertices"
+    nodes:vertices.length()//width
+    (nodes>0)?! "invalid graph point layout"
+    (nodes*width=vertices.length())?! "invalid graph point layout"
+    (starts.length()<=500000 /\ ends.length()=starts.length())?! "invalid graph edges"
+    i:0
+    i<vertices.length()?>
+        (|vertices.(i)|<10^100)?! "nonfinite or excessive graph position"
+        .i:i+1
+    .i:0
+    i<starts.length()?>
+        (starts.(i)>=0 /\ starts.(i)<nodes /\ ends.(i)>=0 /\ ends.(i)<nodes)?! "invalid graph vertex ID"
+        .i:i+1
+    @:true
+
+graph_node(starts:[int],ends:[int],incidence:int)->int:
+    edge:incidence//2
+    node:starts.(edge)
+    incidence-2*edge=1? .node:ends.(edge)
+    @:node
+
+graph_inputs(vertices:[num],width:int,starts:[int],ends:[int],lengths:[num],targets:[num],weights:[num],fixed:[int],joins:[int])->bit:
+    graph_layout(vertices,width,starts,ends)?! "invalid graph layout"
+    edges:starts.length()
+    incidences:2*edges
+    (lengths.length()=edges /\ weights.length()=incidences /\ fixed.length()=incidences)?! "invalid graph incidence arrays"
+    (targets.length()<=1000000)?! "graph targets exceed finite domain"
+    (targets.length()//width=incidences)?! "invalid graph target layout"
+    (incidences*width=targets.length())?! "invalid graph target layout"
+    (joins.length()<=1000000)?! "graph joins exceed finite domain"
+    pairs:joins.length()//2
+    (2*pairs=joins.length())?! "graph joins require incidence pairs"
+    i:0
+    i<edges?>
+        (lengths.(i)>=1/(10^50) /\ lengths.(i)<=10^50)?! "invalid graph physical span"
+        .i:i+1
+    .i:0
+    i<incidences?>
+        (weights.(i)>=1/(10^100) /\ weights.(i)<=10^100)?! "invalid graph positive weight"
+        (fixed.(i)=0 \/ fixed.(i)=1)?! "graph fixed flags must be zero or one"
+        .i:i+1
+    .i:0
+    i<targets.length()?>
+        (|targets.(i)|<10^100)?! "nonfinite or excessive graph target jet"
+        .i:i+1
+    .i:0
+    i<pairs?>
+        a:joins.(2*i)
+        b:joins.(2*i+1)
+        (a>=0 /\ a<incidences /\ b>=0 /\ b<incidences)?! "invalid graph join incidence ID"
+        (a<b \/ a>b)?! "graph join requires distinct incidences"
+        (graph_node(starts,ends,a)=graph_node(starts,ends,b))?! "graph join must share canonical vertex"
+        .i:i+1
+    @:true
+
+# Minimize sum_i weights_i * ||jet_i-target_i||^2 subject to signed joins
+# and exact marked anchors. Each component has jet_i=sign_i*component_jet.
+prepare(vertices:[num],width:int,starts:[int],ends:[int],lengths:[num],targets:[num],weights:[num],fixed:[int],joins:[int])->Graph:
+    graph_inputs(vertices,width,starts,ends,lengths,targets,weights,fixed,joins)?! "invalid graph inputs"
+    incidences:2*starts.length()
+    pairs:joins.length()//2
+    [int] offsets:[0:incidences+1]
+    i:0
+    i<pairs?>
+        a:joins.(2*i)
+        b:joins.(2*i+1)
+        offsets.(a+1):offsets.(a+1)+1
+        offsets.(b+1):offsets.(b+1)+1
+        .i:i+1
+    .i:0
+    i<incidences?>
+        offsets.(i+1):offsets.(i+1)+offsets.(i)
+        .i:i+1
+    cursor:graph_copy_integers(offsets)
+    [int] adjacent:[0:joins.length()]
+    .i:0
+    i<pairs?>
+        a:joins.(2*i)
+        b:joins.(2*i+1)
+        adjacent.(cursor.(a)):b
+        cursor.(a):cursor.(a)+1
+        adjacent.(cursor.(b)):a
+        cursor.(b):cursor.(b)+1
+        .i:i+1
+    [int] signs:[0:incidences]
+    [int] queue:[0:incidences]
+    [num] resolved:[0:targets.length()]
+    root:0
+    root<incidences?>
+        signs.(root)=0?
+            head:0
+            tail:1
+            queue.(0):root
+            signs.(root):1
+            odd:false
+            anchor:-1
+            total_weight:0.0
+            head<tail?>
+                node:queue.(head)
+                .total_weight:total_weight+weights.(node)
+                fixed.(node)=1?
+                    anchor<0? .anchor:node
+                arc:offsets.(node)
+                arc<offsets.(node+1)?>
+                    neighbor:adjacent.(arc)
+                    signs.(neighbor)=0?
+                        signs.(neighbor):0-signs.(node)
+                        queue.(tail):neighbor
+                        .tail:tail+1
+                    signs.(neighbor)=signs.(node)? .odd:true
+                    .arc:arc+1
+                .head:head+1
+            c:0
+            c<width?>
+                shared:0.0
+                anchor>=0?
+                    .shared:signs.(anchor)*targets.(anchor*width+c)
+                # Check every hard scalar exactly; no epsilon relaxation.
+                .head:0
+                head<tail?>
+                    node:queue.(head)
+                    fixed.(node)=1?
+                        (signs.(node)*targets.(node*width+c)=shared)?! "conflicting hard graph jets"
+                        odd? (targets.(node*width+c)=0)?! "odd graph join cycle conflicts with hard jet"
+                    .head:head+1
+                anchor<0?
+                    odd=false?
+                        numerator:0.0
+                        lower:signs.(root)*targets.(root*width+c)
+                        upper:lower
+                        .head:0
+                        head<tail?>
+                            node:queue.(head)
+                            proposal:signs.(node)*targets.(node*width+c)
+                            proposal<lower? .lower:proposal
+                            proposal>upper? .upper:proposal
+                            .numerator:numerator+weights.(node)*proposal
+                            .head:head+1
+                        .shared:numerator/total_weight
+                        # The exact positive weighted mean is in this interval.
+                        # Repair rounding outside it; hard values never enter this path.
+                        shared<lower? .shared:lower
+                        shared>upper? .shared:upper
+                        # A singleton has exactly its original proposal.
+                        tail=1? .shared:targets.(root*width+c)
+                .head:0
+                head<tail?>
+                    node:queue.(head)
+                    resolved.(node*width+c):signs.(node)*shared
+                    # Preserve hard values directly, including signed zero.
+                    fixed.(node)=1? resolved.(node*width+c):targets.(node*width+c)
+                    .head:head+1
+                .c:c+1
+        .root:root+1
+    @:(vertices:graph_copy_numbers(vertices),width:width,starts:graph_copy_integers(starts),ends:graph_copy_integers(ends),lengths:graph_copy_numbers(lengths),targets:graph_copy_numbers(targets),weights:graph_copy_numbers(weights),fixed:graph_copy_integers(fixed),joins:graph_copy_integers(joins),jets:resolved)
+
+# Sharp C0 default: unit physical spans and outward straight secants.
+default(vertices:[num],width:int,starts:[int],ends:[int])->Graph:
+    graph_layout(vertices,width,starts,ends)?! "invalid default graph layout"
+    incidences:2*starts.length()
+    # Divide before allocating incidence-major targets.
+    (incidences<=1000000//width)?! "default graph targets exceed finite domain"
+    [num] lengths:[0:starts.length()]
+    [num] targets:[0:incidences*width]
+    [num] weights:[0:incidences]
+    [int] fixed:[0:incidences]
+    [int] joins:[0:0]
+    edge:0
+    edge<starts.length()?>
+        lengths.(edge):1
+        weights.(2*edge):1
+        weights.(2*edge+1):1
+        c:0
+        c<width?>
+            secant:vertices.(ends.(edge)*width+c)-vertices.(starts.(edge)*width+c)
+            targets.(2*edge*width+c):secant
+            targets.((2*edge+1)*width+c):0-secant
+            .c:c+1
+        .edge:edge+1
+    @:prepare(vertices,width,starts,ends,lengths,targets,weights,fixed,joins)
+
+# Refit original proposals, never the previous solution: no hidden edit history.
+with_joins(plan:Graph,joins:[int])->Graph:
+    @:prepare(plan.vertices,plan.width,plan.starts,plan.ends,plan.lengths,plan.targets,plan.weights,plan.fixed,joins)
+
+# Direct Hermite evaluation about the nearer original endpoint. No rounded
+# Bezier handles. first/second differentiate physical x, not normalized u=x/h.
+evaluate(plan:Graph,edge:int,coordinate:num)->Sample:
+    graph_layout(plan.vertices,plan.width,plan.starts,plan.ends)?! "invalid graph layout"
+    (edge>=0 /\ edge<plan.starts.length())?! "invalid graph sample edge"
+    (plan.lengths.length()=plan.starts.length())?! "invalid graph span layout"
+    incidences:2*plan.starts.length()
+    (plan.jets.length()<=1000000)?! "graph jets exceed finite domain"
+    (plan.jets.length()//plan.width=incidences)?! "invalid graph jet layout"
+    (incidences*plan.width=plan.jets.length())?! "invalid graph jet layout"
+    h:plan.lengths.(edge)
+    (h>=1/(10^50) /\ h<=10^50)?! "invalid graph physical span"
+    (coordinate>=0 /\ coordinate<=h)?! "coordinate outside graph edge"
+    width:plan.width
+    start:plan.starts.(edge)*width
+    finish:plan.ends.(edge)*width
+    a:2*edge*width
+    b:(2*edge+1)*width
+    u:coordinate/h
+    # A reversed local chart avoids losing small distances near the finish.
+    v:(h-coordinate)/h
+    [num] value:[0:width]
+    [num] first:[0:width]
+    [num] second:[0:width]
+    c:0
+    c<width?>
+        p:plan.vertices.(start+c)
+        q:plan.vertices.(finish+c)
+        ja:plan.jets.(a+c)
+        jb:plan.jets.(b+c)
+        (|ja|<10^100 /\ |jb|<10^100)?! "nonfinite or excessive resolved graph jet"
+        delta:q-p
+        # d/du at finish is -h*jb. Local cubic: p+h*ja*u+A*u^2+B*u^3.
+        aa:3*delta-h*(2*ja-jb)
+        bb:0-2*delta+h*(ja-jb)
+        value.(c):p+u*(h*ja+u*(aa+u*bb))
+        first.(c):ja+(u*(2*aa+3*u*bb))/h
+        second.(c):((2*aa+6*u*bb)/h)/h
+        u>0.5?
+            reverse_aa:0-3*delta-h*(2*jb-ja)
+            reverse_bb:2*delta+h*(jb-ja)
+            value.(c):q+v*(h*jb+v*(reverse_aa+v*reverse_bb))
+            first.(c):0-jb-(v*(2*reverse_aa+3*v*reverse_bb))/h
+            second.(c):((2*reverse_aa+6*v*reverse_bb)/h)/h
+        coordinate=0?
+            value.(c):p
+            first.(c):ja
+        coordinate=h?
+            value.(c):q
+            first.(c):0-jb
+        .c:c+1
+    @:(value:value,first:first,second:second)

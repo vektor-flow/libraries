@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "settingsSchema": "interp-settings.schema.json",
+  "nativeModule": "Interp.vkf",
+  "facadeModule": "Interpolation.vkf",
+  "clock": {
+    "function": "time_coordinate",
+    "domain": [
+      0,
+      1
+    ],
+    "expression": "q<0.5 ? 2*q*q : 1-2*(1-q)*(1-q)",
+    "application": "once before native playback; independent of selected state path"
+  },
+  "modes": [
+    {
+      "id": "state",
+      "nativeMode": 0,
+      "factory": "state_interp",
+      "parameters": {
+        "path": {
+          "linear": 0,
+          "natural-cubic": 1
+        }
+      },
+      "implementation": "same existing Morphing.prepare/sample backend"
+    },
+    {
+      "id": "spectral",
+      "nativeMode": 1,
+      "factory": "spectral_interp",
+      "parameters": [
+        "k",
+        "velocity",
+        "overshoot",
+        "grow"
+      ],
+      "channels": {
+        "reveal_channel": [
+          "alpha",
+          "growth",
+          "red",
+          "green",
+          "blue"
+        ]
+      },
+      "implementation": "existing native morphing/unfold.vkf"
+    },
+    {
+      "id": "vapor",
+      "nativeMode": 2,
+      "factory": "vapor_interp",
+      "parameters": [
+        "temperature",
+        "spread",
+        "lift",
+        "seed",
+        "k",
+        "velocity",
+        "overshoot",
+        "grow"
+      ],
+      "channels": {
+        "vapor_channel": [
+          "dx",
+          "dy",
+          "alpha",
+          "size"
+        ],
+        "reveal_channel": [
+          "alpha",
+          "growth",
+          "red",
+          "green",
+          "blue"
+        ],
+        "source_alpha": [
+          "alpha"
+        ]
+      },
+      "carrierLimit": 65536,
+      "seedDomain": [
+        0,
+        65535
+      ],
+      "source": "fixed cached samples from actual native source glyph ink; no body or shape editor entities",
+      "target": "separate row reading front into reveal_channel; final authored glyph ink color supplied by native renderer",
+      "semantics": "dimensionless maximum activation style, intentional alpha fade, not thermodynamic simulation or material conservation"
+    }
+  ],
+  "routeStatus": {
+    "canonicalWasm": "qualification receipt tests/interp/evidence/qualification.json",
+    "gpu": "not yet qualified",
+    "nativeELF": "not yet qualified",
+    "renderer": "not yet integrated or visually qualified"
+  },
+  "batch": {
+    "function": "text_frame",
+    "arguments": [
+      "settings:Interp",
+      "q:num",
+      "source_ink:[num]",
+      "target_reading:[num]",
+      "front:num"
+    ],
+    "result": {
+      "source_alpha": "num",
+      "gas": "[x,y,alpha,size]*source_count",
+      "target": "[alpha,growth,red,green,blue]*target_count"
+    },
+    "sourceInput": "[local_x,local_y,native_ink_coverage]*source_count",
+    "targetInput": "cached reading coordinate per native glyph",
+    "sourceLimit": 65536,
+    "targetLimit": 65536,
+    "callsPerFrame": 1,
+    "endpointPolicy": "q0 source exact and target invisible; q1 target exact and source/gas invisible; front travel must be budgeted to avoid final-front snap",
+    "cancellation": "bounded synchronous guest call; cancel/drop before dispatch or discard superseded result, no cooperative in-call cancellation ABI"
+  }
+}

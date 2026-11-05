@@ -1,0 +1,63 @@
+# Tensor-product Bernstein patch on [0,1] x [0,1].
+# Storage: ((v*u_count+u)*width+component), with u varying fastest.
+polynomial:.polynomial
+Patch:(controls:[num],width:int,u_count:int,v_count:int)
+PatchSample:(value:[num],du:[num],dv:[num],duu:[num],duv:[num],dvv:[num])
+
+valid_controls(controls:[num],width:int,u_count:int,v_count:int)->bit:
+    (width>0 /\ u_count>0 /\ v_count>0)?! "invalid patch dimensions"
+    points:controls.length()//width
+    (v_count=points//u_count)?! "invalid patch layout"
+    (points=u_count*v_count)?! "invalid patch layout"
+    (controls.length()=points*width)?! "invalid patch layout"
+    i:0
+    i<controls.length()?>
+        (|controls.(i)|<10^100)?! "nonfinite or excessive patch control"
+        .i:i+1
+    @:true
+
+prepare(controls:[num],width:int,u_count:int,v_count:int)->Patch:
+    valid_controls(controls,width,u_count,v_count)?! "invalid patch controls"
+    [num] stored:[0:controls.length()]
+    i:0
+    i<controls.length()?>
+        stored.(i):controls.(i)
+        .i:i+1
+    @:(controls:stored,width:width,u_count:u_count,v_count:v_count)
+
+evaluate(plan:Patch,u:num,v:num)->PatchSample:
+    (u>=0 /\ u<=1 /\ v>=0 /\ v<=1)?! "coordinate outside patch domain"
+    valid_controls(plan.controls,plan.width,plan.u_count,plan.v_count)?! "invalid patch controls"
+    [num] rows:[0:plan.v_count*plan.width]
+    [num] rows_du:[0:plan.v_count*plan.width]
+    [num] rows_duu:[0:plan.v_count*plan.width]
+    row:0
+    row<plan.v_count?>
+        [num] controls:[0:plan.u_count*plan.width]
+        i:0
+        i<plan.u_count*plan.width?>
+            controls.(i):plan.controls.(row*plan.u_count*plan.width+i)
+            .i:i+1
+        sampled:polynomial.net_sample(controls,plan.width,plan.u_count,u)
+        .i:0
+        i<plan.width?>
+            rows.(row*plan.width+i):sampled.value.(i)
+            rows_du.(row*plan.width+i):sampled.first.(i)
+            rows_duu.(row*plan.width+i):sampled.second.(i)
+            .i:i+1
+        .row:row+1
+    along_v:polynomial.net_sample(rows,plan.width,plan.v_count,v)
+    along_du:polynomial.net_sample(rows_du,plan.width,plan.v_count,v)
+    duu:polynomial.net_value(rows_duu,plan.width,plan.v_count,v)
+    # Read the original corner instead of reconstructing an endpoint value.
+    value:along_v.value
+    (u=0 \/ u=1) /\ (v=0 \/ v=1)?
+        corner_u:0
+        corner_v:0
+        u=1? .corner_u:plan.u_count-1
+        v=1? .corner_v:plan.v_count-1
+        i:0
+        i<plan.width?>
+            value.(i):plan.controls.((corner_v*plan.u_count+corner_u)*plan.width+i)
+            .i:i+1
+    @:(value:value,du:along_du.value,dv:along_v.first,duu:duu,duv:along_du.first,dvv:along_v.second)

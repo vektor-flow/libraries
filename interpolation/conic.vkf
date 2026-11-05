@@ -1,0 +1,54 @@
+# Positive rational quadratic arcs. SOURCE ONLY: no native qualification.
+# A representation/evaluator, NOT an ellipse recognizer from input anchors.
+# Long unique import alias avoids caller/facade wrapper alias capture.
+conic_positive_quadratic_homogeneous_polynomial_backend:.polynomial
+
+PositiveQuadratic:(controls:[num],weight:num)
+RationalSample:(value:[num],first:[num],second:[num])
+
+# Euclidean point-major controls [p0x,p0y,handle_x,handle_y,p2x,p2y].
+# Finite first domain: abs(Euclidean component)<=10^20; 10^-12<=weight<=10^12.
+# Positive weight alone does not assert a circle/ellipse or nondegeneracy.
+valid_positive_quadratic(controls:[num],weight:num)->bit:
+    (controls.length()=6)?! "rational quadratic requires three planar controls"
+    (weight>=1/(10^12) /\ weight<=10^12)?! "rational quadratic weight outside positive finite domain"
+    i:0
+    i<6?>
+        (|controls.(i)|<=10^20)?! "rational quadratic control outside finite domain"
+        .i:i+1
+    @:true
+
+prepare_positive_quadratic(start:[num],handle:[num],finish:[num],weight:num)->PositiveQuadratic:
+    (start.length()=2 /\ handle.length()=2 /\ finish.length()=2)?! "rational quadratic requires planar controls"
+    [num] controls:[start.(0),start.(1),handle.(0),handle.(1),finish.(0),finish.(1)]
+    valid_positive_quadratic(controls,weight)?! "invalid rational quadratic"
+    @:(controls:controls,weight:weight)
+
+# Derivatives are with respect to the local normalized parameter, not angle,
+# arclength or physical time. All three homogeneous components use the actual
+# existing polynomial evaluator. The prepared Euclidean endpoints are retained.
+evaluate_positive_quadratic(plan:PositiveQuadratic,coordinate:num)->RationalSample:
+    (coordinate>=0 /\ coordinate<=1)?! "coordinate outside rational quadratic domain"
+    valid_positive_quadratic(plan.controls,plan.weight)?! "invalid rational quadratic"
+    [num] homogeneous_controls:[plan.controls.(0),plan.controls.(1),1,plan.weight*plan.controls.(2),plan.weight*plan.controls.(3),plan.weight,plan.controls.(4),plan.controls.(5),1]
+    homogeneous_plan:conic_positive_quadratic_homogeneous_polynomial_backend.prepare_bezier(homogeneous_controls,3)
+    homogeneous_sample:conic_positive_quadratic_homogeneous_polynomial_backend.evaluate(homogeneous_plan,coordinate)
+    denominator:homogeneous_sample.value.(2)
+    (denominator>0 /\ denominator<10^13)?! "invalid rational quadratic denominator"
+    denominator_first:homogeneous_sample.first.(2)
+    denominator_second:homogeneous_sample.second.(2)
+    [num] value:[0:2]
+    [num] first:[0:2]
+    [num] second:[0:2]
+    i:0
+    i<2?>
+        value.(i):homogeneous_sample.value.(i)/denominator
+        first.(i):(homogeneous_sample.first.(i)-value.(i)*denominator_first)/denominator
+        second.(i):(homogeneous_sample.second.(i)-value.(i)*denominator_second-2*first.(i)*denominator_first)/denominator
+        # Direct endpoint copy preserves the stored endpoint values. Jets above
+        # are quotient-rule jets of the rational representation, not overrides.
+        coordinate=0? value.(i):plan.controls.(i)
+        coordinate=1? value.(i):plan.controls.(4+i)
+        (|value.(i)|<10^100 /\ |first.(i)|<10^100 /\ |second.(i)|<10^100)?! "rational quadratic sample outside finite domain"
+        .i:i+1
+    @:(value:value,first:first,second:second)

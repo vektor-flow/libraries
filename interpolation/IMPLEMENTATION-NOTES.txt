@@ -1,0 +1,36 @@
+Native polynomial/tensor source handoff — 2026-10-31
+
+Owned files: interpolation/polynomial.vkf and interpolation/tensor.vkf only,
+plus this handoff. Public facade, documentation and tests belong to coordinator.
+No Morphing import or host numerical implementation. Signatures match assignment.
+
+Polynomial supports every stored positive control count, including constants.
+Point-major storage; tensor u varies fastest, then v. Both use native de Casteljau
+with first/second difference nets, normalized-chart derivatives, and explicit
+scratch copies. Preparation also copies input controls. Tensor samples u rows,
+then v, carrying u first/second derivatives to obtain du, duu and mixed duv.
+Original endpoint/corner values are read directly; a one-control axis has zero
+derivatives in that axis. Polynomial and Patch records have the assigned shapes.
+
+Input controls and all four Hermite input vectors require abs(x)<10^100; NaN and
+infinity fail comparisons. Hermite conversion is done once to cubic controls;
+those converted controls must also satisfy abs(x)<10^100. Slopes are normalized
+coordinate derivatives. Floating conversion may round interior controls, so exact
+endpoint slopes are not promised bit-for-bit. Original endpoint values survive.
+Evaluation rejects coordinates outside [0,1], including NaN. Public evaluation
+also validates record layout and original control magnitudes. Dimension checks
+divide before multiplying, avoiding unchecked products of arbitrary dimensions.
+Allocation remains limited by actual native runtime memory/index capacity; no
+universal conditioning, approximation-error, or feasible-resource bound is claimed.
+
+net_value/net_sample are internal shared kernels for already validated original
+controls and finite derivative/intermediate nets; they intentionally do not apply
+the input-control magnitude bound to derivative nets. Do not re-export them in
+the facade. There is no implicit physical-axis scaling or inter-patch continuity.
+
+Validation here is source inspection only. No VKF/compiler/runtime execution,
+browser/GPU use, product builds, unrelated tests, commit, push or release.
+Coordinator owns real compiled native qualification under the shared lock.
+Static checks passed: whitespace, balanced delimiter counts, and no Morphing
+imports. These checks do not establish native parse or execution correctness.
+One metadata check confirmed independent gpt-6.1-sol Mathematics project chat.

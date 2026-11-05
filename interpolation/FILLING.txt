@@ -1,0 +1,54 @@
+BOUNDARY INTERPOLATION AND FILLING — PROPOSED CONTRACT, NOT A NEW API
+
+Current capability
+Polynomial evaluators supply boundary positions and derivatives. Existing
+morphing.biological.polygon_field samples signed distance and even-odd
+membership of closed polygon rings. Existing morphing.presentation.positions
+and triangles clip a lattice field into triangle geometry. These source facts
+do not qualify a new Interpolation boundary-to-fill integration.
+
+Coordinate seam
+polygon_field accepts vertex coordinates strictly inside (-1,1)^2 and ring
+offsets measured in vertices, without a duplicated closing vertex. The last
+vertex is connected to the first within each ring. At least three vertices and
+nonzero polygon edges are required. A sampled interpolated curve therefore
+needs an explicit closure/duplicate policy and sampling/error policy.
+The square lattice maps to presentation output [0,extent]^2. Returning to the
+original local frame uses 2*x/extent-1 and 2*y/extent-1. A consumer must declare
+this transform; source coordinates and output positions are not interchangeable.
+
+General graph policy
+1. Declare an embedding/chart or explicit attached faces with owned boundary
+   walks. A graph adjacency list, cycle basis or arbitrary 3D rim is insufficient.
+2. Select filled face IDs, or explicitly request contour even-odd/nonzero winding.
+   Exclude the unbounded face by default. Do not silently turn every cycle into
+   a filled disk; neighboring cycles can share edges, enclose holes or overlap.
+3. Distinguish boundary, internal seam and wire edges. A dangling wire makes no
+   face. A bridge joining outer and inner loops does not erase the hole. Repeated
+   bridge occurrences in a face walk are not independent hole contours.
+4. Classify crossings as junctions or nonconnecting sheet/overpass occurrences.
+   Planar face extraction splits actual crossings. Ambiguous tangencies and
+   coincident edges need explicit ownership/predicates, not guessed topology.
+5. Interior coordinates name a containing face/sheet and a role: sample, hard
+   anchor/jet, soft control or topology vertex. A coordinate does not itself make
+   a hole. Data in a missing face reject or require an explicit cell creation.
+6. Choose an interior extension separately from selecting the filled region.
+   Constant planar color, scalar interpolation and a nonplanar spanning surface
+   are different requests. The latter needs a patch/chart/energy rule; the rim
+   alone cannot choose a unique surface. Neighboring faces reuse an owned C0
+   trace and separately select crease/smooth transported-jet laws.
+7. Track ideal boundary, sampled polygon, selected cells, triangle mesh and
+   rendered output separately. Topology edits invalidate affected face ownership
+   and tessellation. Sampling is not proof of continuous-curve topology.
+
+Implementation status
+No general arrangement/DCEL face extractor, face-policy validator, curved-loop
+sampling adapter, triangulation/error certificate or 3D spanning solver has been
+added by this contract. The new graph module is source-only edge interpolation;
+it does not automatically supply faces or fills. Existing numerical native PASS
+does not qualify these proposed additions or WASM/render integration.
+
+Research design and fixed illustrative request:
+/home/viktor/Projects/Mathematics/interpolation-exploration/research/closed_fill/round_1/fill_policy.txt
+Primary arrangement reference:
+https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html

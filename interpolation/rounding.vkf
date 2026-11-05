@@ -1,0 +1,202 @@
+# SOURCE ONLY. No compile, import or native qualification performed.
+# Bounded planar cyclic-edge policy, including signed major-arc controls.
+cyclic_fixed_anchor_rounding_homogeneous_polynomial_backend:.polynomial
+cyclic_fixed_anchor_rounding_square_root_backend:.math
+
+CyclicPlan:(vertices:[num],target:[num],spans:[num],center:[num],radius_squared:num,tolerance:num,orientation:num)
+RoundingSample:(value:[num],first:[num],second:[num],denominator:num)
+
+# Unsupported/unknown geometry throws explicitly; input is never sorted/clamped.
+# tolerance is an absolute squared-radius residual, in coordinate units squared.
+prepare_cyclic(vertices:[num],tolerance:num)->CyclicPlan:
+    (vertices.length()>=6 /\ vertices.length()<=128)?! "cyclic vertex count outside 3..64"
+    count:vertices.length()//2
+    (vertices.length()=2*count)?! "cyclic planar layout required"
+    (tolerance>=0 /\ tolerance<=1/(10^8))?! "cyclic tolerance outside bounded domain"
+    [num] stored:[0:vertices.length()]
+    i:0
+    i<vertices.length()?>
+        (|vertices.(i)|<=16)?! "cyclic coordinate outside finite domain"
+        stored.(i):vertices.(i)
+        .i:i+1
+    ax:stored.(0)
+    ay:stored.(1)
+    dx:stored.(2)-ax
+    dy:stored.(3)-ay
+    ex:stored.(4)-ax
+    ey:stored.(5)-ay
+    determinant:dx*ey-dy*ex
+    (|determinant|>=1/(10^8))?! "unknown: ill-conditioned first-three circle fit"
+    d2:dx*dx+dy*dy
+    e2:ex*ex+ey*ey
+    ox:(d2*ey-e2*dy)/(2*determinant)
+    oy:(dx*e2-ex*d2)/(2*determinant)
+    cx:ax+ox
+    cy:ay+oy
+    radius_squared:ox*ox+oy*oy
+    (|cx|<=16 /\ |cy|<=16 /\ radius_squared>=1/(10^8) /\ radius_squared<=256)?! "unknown: circle outside bounded domain"
+    radius:cyclic_fixed_anchor_rounding_square_root_backend.sqrt(radius_squared)
+    num sigma:1
+    determinant<0? .sigma: -1
+    # Every anchor must fit the same inferred circle. Nonzero tolerance means
+    # approximate mode; original vertices are never projected to that circle.
+    .i:0
+    i<count?>
+        ux:stored.(2*i)-cx
+        uy:stored.(2*i+1)-cy
+        (|ux*ux+uy*uy-radius_squared|<=tolerance)?! "anchors not concyclic within declared tolerance"
+        .i:i+1
+    # Strict global supporting-chord test catches stars and repeated vertices.
+    .i:0
+    i<count?>
+        next:i+1
+        next=count? .next:0
+        sx:stored.(2*i)
+        sy:stored.(2*i+1)
+        vx:stored.(2*next)-sx
+        vy:stored.(2*next+1)-sy
+        j:0
+        j<count?>
+            (~(j=i) /\ ~(j=next))?
+                side:sigma*(vx*(stored.(2*j+1)-sy)-vy*(stored.(2*j)-sx))
+                (side>=1/(10^10))?! "wrong order, repeated anchor or unknown near-collinearity"
+            .j:j+1
+        .i:i+1
+    [num] target:[0:3*count]
+    [num] spans:[0:count]
+    .i:0
+    i<count?>
+        next:i+1
+        next=count? .next:0
+        pax:stored.(2*i)-cx
+        pay:stored.(2*i+1)-cy
+        pbx:stored.(2*next)-cx
+        pby:stored.(2*next+1)-cy
+        chordx:pbx-pax
+        chordy:pby-pay
+        chord_squared:chordx*chordx+chordy*chordy
+        (chord_squared>=1/(10^8))?! "unknown: tiny cyclic chord"
+        spans.(i):cyclic_fixed_anchor_rounding_square_root_backend.sqrt(chord_squared)
+        dot:(pax*pbx+pay*pby)/radius_squared
+        cross:sigma*(pax*pby-pay*pbx)/radius_squared
+        # No silent clamp of corrupt or roundoff-excursion dot products.
+        (dot>=-1 /\ dot<=1)?! "unknown: half-angle dot outside supported range"
+        num w:0
+        num midx:0
+        num midy:0
+        opposite:(pax+pbx=0 /\ pay+pby=0 /\ dot=-1 /\ tolerance=0)
+        opposite?
+            # Exact symmetric antipodal branch: sigma rotate90(u_A).
+            .midx: -sigma*pay/radius
+            .midy:sigma*pax/radius
+        ~opposite?
+            (1+dot>=1/(10^8) /\ |cross|>=1/(10^10))?! "unknown: near-antipodal or ambiguous gap"
+            .w:cyclic_fixed_anchor_rounding_square_root_backend.sqrt((1+dot)/2)
+            cross<0? .w: -w
+            .midx:(pax+pbx)/(2*w*radius)
+            .midy:(pay+pby)/(2*w*radius)
+        ((1+w)/2>=1/(10^8))?! "unknown: circle denominator conditioning"
+        target.(3*i):w*cx+radius*midx
+        target.(3*i+1):w*cy+radius*midy
+        target.(3*i+2):w
+        (|target.(3*i)|<=10^8 /\ |target.(3*i+1)|<=10^8 /\ w>=-1 /\ w<=1)?! "unknown: target outside finite domain"
+        .i:i+1
+    @:(vertices:stored,target:target,spans:spans,center:[cx,cy],radius_squared:radius_squared,tolerance:tolerance,orientation:sigma)
+
+# Rebuild and compare all scalar caches: public records are forgeable/mutable.
+# This deliberately favors a narrow auditable contract over preparation speed.
+valid_cyclic_plan(plan:CyclicPlan)->bit:
+    canonical:prepare_cyclic(plan.vertices,plan.tolerance)
+    count:canonical.spans.length()
+    (plan.spans.length()=count /\ plan.target.length()=3*count /\ plan.center.length()=2)?! "invalid cyclic plan layout"
+    (plan.radius_squared=canonical.radius_squared /\ plan.orientation=canonical.orientation)?! "invalid cyclic plan scalar cache"
+    (plan.center.(0)=canonical.center.(0) /\ plan.center.(1)=canonical.center.(1))?! "invalid cyclic center cache"
+    i:0
+    i<count?>
+        (plan.spans.(i)=canonical.spans.(i))?! "invalid cyclic span cache"
+        j:0
+        j<3?>
+            (plan.target.(3*i+j)=canonical.target.(3*i+j))?! "invalid cyclic target cache"
+            .j:j+1
+        .i:i+1
+    @:true
+
+# physical_coordinate is edge-local in [0,h_i], with fixed chord span h_i.
+# Same roundness on all edges is necessary for the stated seam-jump theorem.
+sample_reference_rounding(plan:CyclicPlan,edge:int,physical_coordinate:num,roundness:num)->RoundingSample:
+    valid_cyclic_plan(plan)?! "invalid cyclic plan"
+    count:plan.spans.length()
+    (edge>=0 /\ edge<count)?! "cyclic edge index outside plan"
+    (roundness>=0 /\ roundness<=1)?! "roundness outside finite unit interval"
+    span:plan.spans.(edge)
+    (physical_coordinate>=0 /\ physical_coordinate<=span)?! "coordinate outside cyclic chord span"
+    coordinate:physical_coordinate/span
+    next:edge+1
+    next=count? .next:0
+    ax:plan.vertices.(2*edge)
+    ay:plan.vertices.(2*edge+1)
+    bx:plan.vertices.(2*next)
+    by:plan.vertices.(2*next+1)
+    mx:(1-roundness)*(ax/2+bx/2)+roundness*plan.target.(3*edge)
+    my:(1-roundness)*(ay/2+by/2)+roundness*plan.target.(3*edge+1)
+    weight:(1-roundness)+roundness*plan.target.(3*edge+2)
+    [num] controls:[ax,ay,1,mx,my,weight,bx,by,1]
+    polynomial:cyclic_fixed_anchor_rounding_homogeneous_polynomial_backend.prepare_bezier(controls,3)
+    jet:cyclic_fixed_anchor_rounding_homogeneous_polynomial_backend.evaluate(polynomial,coordinate)
+    denominator:jet.value.(2)
+    # Conservative sample gate below the admitted analytic minimum.
+    (denominator>=1/(10^9) /\ denominator<=2)?! "cyclic denominator outside finite domain"
+    [num] value:[0:2]
+    [num] first:[0:2]
+    [num] second:[0:2]
+    i:0
+    i<2?>
+        value.(i):jet.value.(i)/denominator
+        normalized_first:(jet.first.(i)-value.(i)*jet.first.(2))/denominator
+        normalized_second:(jet.second.(i)-value.(i)*jet.second.(2)-2*normalized_first*jet.first.(2))/denominator
+        first.(i):normalized_first/span
+        second.(i):normalized_second/(span*span)
+        coordinate=0? value.(i):plan.vertices.(2*edge+i)
+        coordinate=1? value.(i):plan.vertices.(2*next+i)
+        (|value.(i)|<10^100 /\ |first.(i)|<10^100 /\ |second.(i)|<10^100)?! "cyclic sample outside finite domain"
+        .i:i+1
+    @:(value:value,first:first,second:second,denominator:denominator)
+
+# Frozen cyclic scaffold Q plus independent CURRENT anchors P. No circle fit or
+# incidence check is applied to P. Moving P never changes Q or its chord spans.
+# At r=1 this is a circle plus a quintic cardinal residual, generally not a conic.
+sample_rounding(plan:CyclicPlan,current:[num],edge:int,physical_coordinate:num,roundness:num)->RoundingSample:
+    # The base validates plan, edge, physical coordinate and roundness first.
+    base:sample_reference_rounding(plan,edge,physical_coordinate,roundness)
+    (current.length()=plan.vertices.length())?! "current planar anchor layout differs from scaffold"
+    k:0
+    k<current.length()?>
+        (|current.(k)|<=16)?! "current anchor outside finite domain"
+        .k:k+1
+    count:plan.spans.length()
+    next:edge+1
+    next=count? .next:0
+    span:plan.spans.(edge)
+    s:physical_coordinate/span
+    smooth:s*s*s*(10+s*(-15+6*s))
+    smooth_first:30*s*s*(1-s)*(1-s)
+    smooth_second:60*s*(1-s)*(1-2*s)
+    v:(1-roundness)*s+roundness*smooth
+    v_first:((1-roundness)+roundness*smooth_first)/span
+    v_second:roundness*smooth_second/(span*span)
+    [num] value:[0:2]
+    [num] first:[0:2]
+    [num] second:[0:2]
+    i:0
+    i<2?>
+        da:current.(2*edge+i)-plan.vertices.(2*edge+i)
+        db:current.(2*next+i)-plan.vertices.(2*next+i)
+        value.(i):base.value.(i)+(1-v)*da+v*db
+        first.(i):base.first.(i)+v_first*(db-da)
+        second.(i):base.second.(i)+v_second*(db-da)
+        # Stored CURRENT values, not fitted/projected reference endpoints.
+        s=0? value.(i):current.(2*edge+i)
+        s=1? value.(i):current.(2*next+i)
+        (|value.(i)|<10^100 /\ |first.(i)|<10^100 /\ |second.(i)|<10^100)?! "edited cyclic sample outside finite domain"
+        .i:i+1
+    @:(value:value,first:first,second:second,denominator:base.denominator)
