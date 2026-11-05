@@ -35,8 +35,9 @@ restore(index:int,p:[num],v:[num])->[num]:
     repeats:copies(index,count,raw)
     size:v.(16*i+3)
     area:size*size
-    columns:int(math.sqrt(num(repeats)))
-    columns*columns<repeats? .columns:columns+1
+    columns:1
+    columns*columns<repeats?>
+        .columns:columns+1
     rows:(repeats+columns-1)//columns
     dx:((num(ordinal%columns)+0.5)/num(columns)-0.5)*size/p.(23)
     dy:((num(ordinal//columns)+0.5)/num(rows)-0.5)*size/p.(23)
@@ -97,8 +98,12 @@ diffusion(index:int,p:[num],v:[num])->[num]:
     @:walk
 walk_component(v:[num],base:int,t:num,lane:int)->num:
     at:clamp(t,0,1)*32
-    knot:int(at)
-    knot=32? .knot:31
+    knot:0
+    step:16
+    step>0?>
+        candidate:knot+step
+        candidate<32 /\ num(candidate)<=at? .knot:candidate
+        .step:step//2
     @:segment.value(v.(base+2*knot+lane),v.(base+2*knot+2+lane),0,0,1,at-num(knot))
 carrier(index:int,p:[num],v:[num],glyph:int,reading:num)->[num]:
     count:int(p.(10))
