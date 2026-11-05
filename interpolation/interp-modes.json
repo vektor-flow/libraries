@@ -87,16 +87,16 @@
           "capturedTarget"
         ]
       },
-      "carrierLimit": 4096,
+      "carrierLimit": 131072,
       "seedDomain": [
         0,
         65535
       ],
-      "source": "actual native ink dyadic equal-weight samples; persistent positive normalized material",
-      "target": "actual native target ink + declared nearest native anchor capture control",
-      "semantics": "conserved normalized material ledger; finite seeded cubic noise field, not physical Brownian/thermal dynamics; no raster area conservation claim",
-      "implementation": "same native material/state backend; explicit exchange reservoir and accumulated capture, authored RGB, coherent convection; no spectral growth/color",
-      "emptyEndpoints": "explicitly unsupported conserved transport; spectral appearance/removal remains separate"
+      "source": "all covered native raster pixels partitioned into fine carriers; no probabilistic thinning",
+      "target": "actual native first-born ink; left-to-right capture front consumes entire available scene pool",
+      "semantics": "source-only normalized lineage; actual carrier mass, RGB, position and optional momentum interpolate native endpoints; finite independent uniform-increment random walk, not Gaussian Wiener motion or physical CFD",
+      "implementation": "same canonical native state/material backend; compiled restore/diffusion/carrier/capture GPU programs; no emission, exits, reservoirs or spectral color",
+      "emptyEndpoints": "removal to blank retains unclaimed stock; empty and matched-only views preserve stock; next first birth consumes it; birth without stock uses plain wave"
     },
     {
       "id": "wave",
@@ -111,14 +111,14 @@
     }
   ],
   "routeStatus": {
-    "canonicalWasm": "qualification receipt tests/interp/evidence/qualification.json",
-    "gpu": "not yet qualified",
-    "nativeELF": "not yet qualified",
-    "renderer": "not yet integrated or visually qualified"
+    "canonicalWasm": "current source compiled with pinned canonical075 client compiler",
+    "gpu": "current source typed IR compiled by pinned GPU emitter; real-f32 execution, qualification tests/material-pool",
+    "nativeELF": "not qualified for this scene-pool API",
+    "renderer": "native text binder; generic numerical scene-ink pool; qualification tests/material-pool"
   },
   "batch": {
-    "prepare": "prepare_vapor_transport(settings,sourceInk,targetInk,glyphs)",
-    "sample": "sample_vapor_transport(plan,q,front)",
+    "prepare": "prepare_material_pool(settings,count,glyphs,momentum,unclaimed,raw_count,fresh_count,height)",
+    "sample": "dense_vapor_frame plus compiled native restore/diffusion/carrier/capture and finish_dense_capture",
     "front": "vapor_front(settings,q,travel)",
     "inkLayout": [
       "x",
@@ -139,14 +139,14 @@
       "alpha"
     ],
     "coordinateChart": "common CSS-height units; native y up",
-    "sampleCounts": "positive powers of two <=4096 at each endpoint, yielding at most4096 carriers",
-    "legacyUnpreparedVapor": "removed; text_frame accepts spectral mode only",
+    "sampleCounts": "all raw covered pixels retained; bounded dyadic dispatch <=131072; explicit budget rejection",
+    "legacyUnpreparedVapor": "not used by scene-pool browser adapter",
     "numeric": "same native state/prepare plus renderer forwarding sample_state; one time_coordinate"
   },
   "nativeRecordABI": {
-    "version": 4,
+    "version": 5,
     "kind": "typed structural record",
-    "type": "Interp:(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings],capture:[CaptureSettings])",
+    "type": "Interp:(mode:int,state:[StateSettings],reveal:[RevealSettings],vapor:[VaporSettings],capture:[CaptureSettings],wave:[WaveSettings])",
     "optionalEncoding": "zero-or-one typed named record per applicable group; [] absent",
     "groups": {
       "state": {
@@ -171,6 +171,11 @@
         "velocity": "num",
         "start_coordinate": "num",
         "finish_coordinate": "num"
+      },
+      "wave": {
+        "k": "num",
+        "start_coordinate": "num",
+        "finish_coordinate": "num"
       }
     },
     "allowedGroups": {
@@ -183,10 +188,13 @@
       "2": [
         "vapor",
         "capture"
+      ],
+      "3": [
+        "wave"
       ]
     },
     "positionalNumericSettingsPayloads": false,
-    "namedFactoryAPI": "state/spectral unchanged; vapor uses explicit capture and boundary fields",
+    "namedFactoryAPI": "state/spectral/vapor plus wave(k=4,start=0,finish=1); inapplicable record groups rejected",
     "schema": "interp-native-record.schema.json"
   },
   "browserTextBatch": {
@@ -203,12 +211,21 @@
       "exited"
     ],
     "boundary": {
-      "closed": 0,
-      "emit": 1,
-      "exit": 2,
-      "exchange": 3
+      "closed": 0
     },
-    "scope": "native state pose/color interpolation; declared external material events, not semantic identity proof or physical CFD",
-    "captureWindow": "raw captureStart/End default .35/.85, converted to shared-clock constants at preparation; only active incoming rows consume reading distance"
+    "scope": "explicit removed scene-ink stock only; current binder supplies native text ink; matched IDs use regular state, first born consumes stock, later births plain wave",
+    "captureWindow": "captureStart/End converted once to shared-clock constants at prepare; entire pool captured by first born completion",
+    "continuation": {
+      "export": "exportMaterialPool()",
+      "input": "retainedMaterial",
+      "schema": "vkf-material-pool/1",
+      "semantics": "released unclaimed stock only; opaque immutable snapshot; no-event stock clock paused; same viewport required; no emission/reseed jump"
+    },
+    "randomPlan": {
+      "export": "exportRandomPlan()",
+      "input": "randomPlan",
+      "schema": "vkf-material-random-plan/2",
+      "semantics": "fresh entropy per new plan; immutable coefficients for arbitrary seek and replay"
+    }
   }
 }
