@@ -83,6 +83,7 @@ capture(glyph:int,params:[num],values:[num])->[num]:
     captured:0.0
     assigned:0.0
     optical:0.0
+    raw:0.0
     i:0
     i<count?>
         int(values.(11*i+9))=glyph?
@@ -92,7 +93,8 @@ capture(glyph:int,params:[num],values:[num])->[num]:
             .gas:gas+mass*params.(1)*(1-a)
             .captured:captured+mass*params.(1)*a
             .optical:optical+values.(11*i+2)*values.(11*i+3)^2
+            .raw:raw+values.(11*i+10)*values.(11*i+3)^2
         .i:i+1
     alpha:0.0
     assigned>0? .alpha:captured/assigned*values.(11*count+7*glyph+6)
-    @:[alpha,1,values.(11*count+7*glyph+3),values.(11*count+7*glyph+4),values.(11*count+7*glyph+5),gas,captured,assigned,optical]
+    @:[alpha,1,values.(11*count+7*glyph+3),values.(11*count+7*glyph+4),values.(11*count+7*glyph+5),gas,captured,assigned,optical,raw]

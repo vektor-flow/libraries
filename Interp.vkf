@@ -596,25 +596,27 @@ dense_vapor_frame(plan:DenseVaporPlan,coordinate:num,travel:num,front_override:[
     plan.exchange=1? .source:0
     @:(params:[coordinate,release,temperature,spread,lift,footprint,width,wind.(0),wind.(1),front,num(plan.count),num(plan.glyphs.length()//7),num(plan.exchange),1],source_alpha:source)
 
-DenseCaptureFrame:(source_alpha:num,gas:[num],target:[num],ledger:MaterialLedger,mass_residual:num,assigned_mass:num,optical_gas_coverage:num)
+DenseCaptureFrame:(source_alpha:num,gas:[num],target:[num],ledger:MaterialLedger,mass_residual:num,assigned_mass:num,optical_gas_coverage:num,raw_coverage:num)
 finish_dense_capture(plan:DenseVaporPlan,controls:DenseVaporFrame,summary:[num])->DenseCaptureFrame:
     ng:plan.glyphs.length()//7
-    (summary.length()=9*ng)?! "invalid dense capture summary"
+    (summary.length()=10*ng)?! "invalid dense capture summary"
     [num] target:[0:5*ng]
     gas:0.0
     captured:0.0
     assigned:0.0
     optical:0.0
+    raw:0.0
     i:0
     i<ng?>
         j:0
         j<5?>
-            target.(5*i+j):summary.(9*i+j)
+            target.(5*i+j):summary.(10*i+j)
             .j:j+1
-        .gas:gas+summary.(9*i+5)
-        .captured:captured+summary.(9*i+6)
-        .assigned:assigned+summary.(9*i+7)
-        .optical:optical+summary.(9*i+8)
+        .gas:gas+summary.(10*i+5)
+        .captured:captured+summary.(10*i+6)
+        .assigned:assigned+summary.(10*i+7)
+        .optical:optical+summary.(10*i+8)
+        .raw:raw+summary.(10*i+9)
         .i:i+1
     (|assigned-1|<0.001)?! "dense carrier mass not assigned"
     release:controls.params.(1)
@@ -636,4 +638,4 @@ finish_dense_capture(plan:DenseVaporPlan,controls:DenseVaporFrame,summary:[num])
         .exited:captured
         .captured:0
         .target:[]
-    @:(source_alpha:controls.source_alpha,gas:[],target:target,ledger:(source:source,gas:gas,target:captured,reservoir:reservoir,emitted:emitted,exited:exited),mass_residual:residual,assigned_mass:assigned,optical_gas_coverage:optical)
+    @:(source_alpha:controls.source_alpha,gas:[],target:target,ledger:(source:source,gas:gas,target:captured,reservoir:reservoir,emitted:emitted,exited:exited),mass_residual:residual,assigned_mass:assigned,optical_gas_coverage:optical,raw_coverage:raw)
