@@ -624,3 +624,29 @@ no curve mathematics changes. Original nonuniform three/four-state material
 fixture passes alongside transport endpoints/colors/positive conserved ledger,
 capture coupling, changed counts and empty-endpoint refusal. Evidence includes
 exact current Interp and Morphing source hashes.
+
+## Exact material throughput qualification — 2026-11-05
+
+Runtime source pin0e7ff86041170ef7bcdf7bd56ddbf965d6f2c2e0. Only safe immutable
+array/carrier-count and destination x/y projections hoisted; no math/order,
+settings, correspondence, trajectory, color or carrier-budget changes.
+Sampler native endpoint/ledger/color/seek/empty-refusal + original material
+fixture passed; renderer final same-artifact kernel/scalar checks pass.
+Four complete4096carrier native packets compare exactly against b29; final
+sample function bytes match that qualified hoisted sampler. Actual PP-authored
+163source→180target native-font scene: complete q0,.25,.5,.75,1 RGBA hashes
+match before/after;128Mi renderer cap unchanged. CPU native sampling
+4701–4856ms→1960–2094ms (~2.3x), total prep56784→42649ms. Quick1024carrier/
+170glyph synthetic native full invocation139ms, prep1336ms. No60fps/GPU-compute
+claim; generic tagged-WASM throughput remains a limitation.
+
+Bounded64carrier layout and cached-basis prototypes had exact packets but no
+sampling gain; discarded entirely before final source/artifact commits. Minimal
+record-array mutation controls all pass; do not infer an unisolated general
+compiler defect. Shallow prepared-result handles did not survive subsequent
+general invocations in the tested path; current adapter correctly retains
+immutable host values and invokes through supported tagged ABI. Engine handoff,
+measurements, exact hashes and actual authored fixture live in owned renderer
+branch commit618b30a docs/text-modes/MATERIAL-PERFORMANCE.md and qualification
+JSON. Parent chooses existing1024client budget only after exact native fix and
+owns final decoded visual-density/full24fps movie. No PP changes or publication.
