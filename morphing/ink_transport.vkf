@@ -56,7 +56,22 @@ restore(index:int,p:[num],v:[num])->[num]:
     phase>0.5? .phase:0
     parts:1.0
     fresh>0 /\ fresh<raw? .parts:2
-    @:[v.(16*i)+dx,v.(16*i+1)+dy,v.(16*i+4),v.(16*i+5),v.(16*i+6),v.(16*i+10),math.sqrt(area/num(repeats)),mass/num(repeats),px/num(repeats),py/num(repeats),weight/(parts*num(repeats)),gas,phase]
+    [num] packet:[0:13]
+    packet.(0):v.(16*i)+dx
+    packet.(1):v.(16*i+1)+dy
+    packet.(2):v.(16*i+4)
+    packet.(3):v.(16*i+5)
+    packet.(4):v.(16*i+6)
+    packet.(5):v.(16*i+10)
+    packet.(6):math.sqrt(area/num(repeats))
+    packet.(7):mass/num(repeats)
+    packet.(8):px/num(repeats)
+    packet.(9):py/num(repeats)
+    packet.(10):weight/(parts*num(repeats))
+    packet.(11):gas
+    packet.(12):phase
+    @:packet
+
 # Native finite walk:32 independent uniform increments, no sine/cosine curls.
 # Held coefficients are reused; only future windows beyond the held horizon append.
 diffusion(index:int,p:[num],v:[num])->[num]:
