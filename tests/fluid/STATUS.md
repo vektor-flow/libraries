@@ -109,3 +109,13 @@ Renderer build script can select explicit VKF_FLUID_ENTRIES for an isolated
 partialbuild. Such output updates latest-partial-build.json only; qualified
 latest-build.json/SSPRK.json retain their exact earlier9-entry source evidence.
 Default build emits all10 entries from the same complete current source.
+
+Temporal capture-velocity correction (private ABI supersedes new-air-only helper):
+finalize_receiver now consumes old7N ++ acceptedNew7N ++ AoS25. New capture uses
+fraction21 and samples `(1-f)u_old(x_capture)+f*u_new(x_capture)`, a second-order
+within-step temporal approximation. Gas endpoints usef1; prior inactive remains
+unchanged. This is not an instantaneous re-solve, drag impulse or two-way momentum
+claim. f0/.4/1 and inactive cases pass native f64<=1.39e-17, GPU<=5.69e-8 versus
+CPU and GPU/WASM<=8.8e-9, with exact nonvelocity metadata and replay. Shared GPU
+qualifier advisory lock is /tmp/vkf-qualification-gpu.lock. Source/receiver/session
+coupling and glyph initialization remain separate unavailable gates.

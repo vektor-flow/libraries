@@ -422,23 +422,31 @@ validate_stage(p:[num],chunks:[num])->[num]:
     result.(10):p.(11)*rate
     @:result
 
-# FineReceiver has AoS25 records: first20 marker channels, then capturedNow,
-# fraction,pixelX,pixelY,exposureIncrement. Re-evaluate terminal air velocity at
-# its UPDATED endpoint before any deposited momentum claim. Already inactive
-# records with no new interception remain exactly unchanged. Input accepted7N
-# air/scalars ++ receiver records. Output AoS20 for the next accepted fluid tick.
+# FineReceiver AoS25 appends capturedNow,fraction,pixelX,pixelY,deltaExposure.
+# Input old7N ++ acceptedNew7N ++ receiver records. At a newly captured point,
+# interpolate old/new accepted air at its event fraction (second-order temporal
+# approximation). Gas endpoints use fraction1. Prior inactive/no-new-event stays
+# unchanged. No re-solve, impulse, or two-way momentum claim is implied.
 finalize_receiver(index:int,p:[num],v:[num])->[num]:
-    offset:7*count(p)+25*index
+    n:count(p)
+    offset:14*n+25*index
     [num] result:[0:20]
     channel:0
     channel<20?>
         result.(channel):v.(offset+channel)
         .channel:channel+1
     (v.(offset+16)=0 /\ v.(offset+20)=0)? @:result
+    fraction:1.0
+    v.(offset+20)=1?
+        .fraction:v.(offset+21)
+        (fraction>=0 /\ fraction<=1)?! "invalid native capture time fraction"
     x:v.(offset+3)
     y:v.(offset+4)
     z:v.(offset+5)
-    result.(6):sample_component(v,0,x,y,z,0,p)
-    result.(7):sample_component(v,0,x,y,z,1,p)
-    result.(8):sample_component(v,0,x,y,z,2,p)
+    a:0
+    a<3?>
+        old:sample_component(v,0,x,y,z,a,p)
+        new:sample_component(v,7*n,x,y,z,a,p)
+        result.(6+a):(1-fraction)*old+fraction*new
+        .a:a+1
     @:result
