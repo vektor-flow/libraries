@@ -284,3 +284,140 @@ clock_absolute(seconds:num,epoch:num)->Clock:
     (seconds>=epoch)?! "absolute time precedes bound physical epoch"
     @:clock(seconds-epoch)
 physical_time(epoch:num,ticks:int)->num:epoch+num(ticks)*(1/60)
+
+# Periodic trilinear sampling at actual staggered face locations. This is the
+# accepted overdamped-tracer limit, not a second velocity/trajectory model.
+wrap_position(x:num,length:num)->num:x-length*((x/length)//1)
+sample_component(v:[num],base:int,x:num,y:num,z:num,a:int,p:[num])->num:
+    ox:0.5
+    oy:0.5
+    oz:0.5
+    a=0? .ox:0
+    a=1? .oy:0
+    a=2? .oz:0
+    gx:x/p.(3)-ox
+    gy:y/p.(4)-oy
+    gz:z/p.(5)-oz
+    ix:int(gx//1)
+    iy:int(gy//1)
+    iz:int(gz//1)
+    tx:gx-num(ix)
+    ty:gy-num(iy)
+    tz:gz-num(iz)
+    nx:int(p.(0))
+    ny:int(p.(1))
+    nz:int(p.(2))
+    result:0.0
+    corner:0
+    corner<8?>
+        dx:corner%2
+        dy:(corner//2)%2
+        dz:corner//4
+        wx:1-tx
+        wy:1-ty
+        wz:1-tz
+        dx=1? .wx:tx
+        dy=1? .wy:ty
+        dz=1? .wz:tz
+        cell:wrap(ix+dx,nx)+nx*(wrap(iy+dy,ny)+ny*wrap(iz+dz,nz))
+        address:base+a*count(p)+cell
+        .result:result+wx*wy*wz*v.(address)
+        .corner:corner+1
+    @:result
+sample_mid_component(v:[num],x:num,y:num,z:num,a:int,p:[num])->num:
+    @:(sample_component(v,0,x,y,z,a,p)+sample_component(v,7*count(p),x,y,z,a,p))/2
+
+# Input old7N ++ acceptedNew7N ++ AoS20 segment records. Each output record:
+# startXYZ,endXYZ,terminalVelocityXYZ,mass,RGBA,exposure,threshold,alive,species,
+# lineage,acceptedDt. End is deliberately UNWRAPPED for fine-mask intersection.
+# The next accepted step wraps its starting point; no periodic crossing is lost.
+# Captured/inactive lineages do not move and are not to be drawn as gas.
+marker_segment(index:int,p:[num],v:[num])->[num]:
+    n:count(p)
+    offset:14*n+20*index
+    [num] result:[0:20]
+    channel:0
+    channel<20?>
+        result.(channel):v.(offset+channel)
+        .channel:channel+1
+    v.(offset+16)=0? @:result
+    x:wrap_position(v.(offset+3),p.(3)*p.(0))
+    y:wrap_position(v.(offset+4),p.(4)*p.(1))
+    z:wrap_position(v.(offset+5),p.(5)*p.(2))
+    dt:p.(11)
+    px:x+sample_component(v,0,x,y,z,0,p)*dt/2
+    py:y+sample_component(v,0,x,y,z,1,p)*dt/2
+    pz:z+sample_component(v,0,x,y,z,2,p)*dt/2
+    ex:x+sample_mid_component(v,px,py,pz,0,p)*dt
+    ey:y+sample_mid_component(v,px,py,pz,1,p)*dt
+    ez:z+sample_mid_component(v,px,py,pz,2,p)*dt
+    result.(0):x
+    result.(1):y
+    result.(2):z
+    result.(3):ex
+    result.(4):ey
+    result.(5):ez
+    result.(6):sample_component(v,7*n,ex,ey,ez,0,p)
+    result.(7):sample_component(v,7*n,ex,ey,ez,1,p)
+    result.(8):sample_component(v,7*n,ex,ey,ez,2,p)
+    result.(19):dt
+    @:result
+
+absolute(x:num)->num:
+    x<0? @:0-x
+    @:x
+maximum(a:num,b:num)->num:
+    a>b? @:a
+    @:b
+# Native chunk reduction of a7N state. Small results may be read back for the
+# native f64 acceptance decision; no host numerical diagnostics are required.
+stage_metrics(index:int,p:[num],v:[num])->[num]:
+    n:count(p)
+    [num] result:[0:12]
+    result.(4):1000000000000000000000000000000.0
+    cell:index*64
+    (cell<n /\ cell<(index+1)*64)?>
+        result.(0):maximum(result.(0),absolute(divergence(v,cell,p)))
+        result.(1):maximum(result.(1),absolute(v.(cell)))
+        result.(2):maximum(result.(2),absolute(v.(n+cell)))
+        result.(3):maximum(result.(3),absolute(v.(2*n+cell)))
+        field:0
+        field<7?>
+            value:v.(field*n+cell)
+            ~(value=value /\ absolute(value)<1000000000000000000000000000000.0)? result.(10):result.(10)+1
+            field>=3? result.(4):minimum(result.(4),value)
+            .field:field+1
+        result.(5):result.(5)+v.(4*n+cell)
+        result.(6):result.(6)+v.(5*n+cell)
+        result.(7):result.(7)+v.(6*n+cell)
+        result.(8):result.(8)+v.(3*n+cell)
+        result.(9):result.(9)+v.(cell)^2+v.(n+cell)^2+v.(2*n+cell)^2
+        result.(11):result.(11)+1
+        .cell:cell+1
+    @:result
+validate_stage(p:[num],chunks:[num])->[num]:
+    (p.length()>=24 /\ chunks.length()%12=0)?! "invalid stage diagnostic packet"
+    [num] result:[0:12]
+    result.(4):1000000000000000000000000000000.0
+    i:0
+    i<chunks.length()?>
+        j:0
+        j<4?>
+            result.(j):maximum(result.(j),chunks.(i+j))
+            .j:j+1
+        result.(4):minimum(result.(4),chunks.(i+4))
+        .j:5
+        j<12?>
+            result.(j):result.(j)+chunks.(i+j)
+            .j:j+1
+        .i:i+12
+    (result.(11)=num(count(p)))?! "incomplete stage diagnostics"
+    (result.(10)=0)?! "nonfinite stage rejected"
+    (result.(4)>=0-p.(21))?! "stage positivity rejected"
+    (result.(0)<=p.(22))?! "stage divergence rejected"
+    rate:result.(1)/p.(3)+result.(2)/p.(4)+result.(3)/p.(5)
+    diffusion:maximum(p.(6),maximum(p.(14),p.(16)))
+    .rate:rate+4*diffusion*(1/p.(3)^2+1/p.(4)^2+1/p.(5)^2)+p.(17)
+    (p.(11)>0 /\ p.(11)<=1/60 /\ p.(11)*rate<=p.(12)*1.000001)?! "stage transport CFL rejected"
+    result.(10):p.(11)*rate
+    @:result

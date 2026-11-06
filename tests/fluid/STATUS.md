@@ -58,3 +58,38 @@ receiver coupling are still unavailable. In particular, coarse averaged glyph
 sink was falsified by parent research; its exact area preservation does NOT
 qualify reaction. Parent's later native-pixel DDA interception remains a separate
 model/port gate. No Product/public module was modified by this prototype.
+
+Third gate: accepted shared-flow midpoint marker transport and stage diagnostics
+PASS. Native periodic trilinear MAC sampling uses actual face origins; each
+accepted segment uses old-air midpoint prediction, old/new-air average advection,
+and terminal velocity sampled from accepted new air. No Brownian increment is
+added in this D=Cs=0 profile.8192 probes/seed882 from the accepted CPU fixture
+are initial-condition test data only; native source initialization is pending.
+AoS20 fields are STARTxyz,ENDxyz,terminalVxyz,mass,RGBA,exposure,threshold,alive,
+species,lineage,acceptedDt. END deliberately remains unwrapped until the fine
+receiver handles crossings; the next step wraps its own start. Inactive lineages
+are unchanged. Source mass/RGBA/threshold/IDs pass through exactly.
+
+At24x16x8 after18ticks, marker position/velocity max errors vs accepted ParcelSmoke
+were3.653e-7/1.618e-7. Fields and complete marker packets replay BIT-EXACT under
+all three observation partitions. Existing VKF point-cloud renderer draws only
+alive lineages; full composite pixels are byte-identical on both replays. Native
+f64 sampling first-tick unit errors2.22e-16/1.39e-17, inactive records unchanged.
+
+Native chunk reductions report every RK stage+end finite values, full cellcount,
+positivity, divergence and transport CFL. Rejection tests explicitly force all
+five failures. An unparenthesized comparison guard in the uncommitted draft did
+not reject; `(comparison)?!` form was corrected and all forced-rejection tests
+passed before GPU qualification. A decimal-exponent literal was unsupported by
+this producer; large finite limits use explicit decimal notation. No generic
+engine defect is claimed from these source errors.
+
+Measured191.8ms median physical tick at24x16x8 with8192 probes includes resident
+GPU fields/markers, diagnostic+metric readback and native WASM acceptance. Point
+cloud rendering lies outside that timer. This is NOT realtime60Hz. Owned test
+buffers9.25MB, not whole-browser RSS. Actual PNG evidence and hashes are recorded
+in renderer SSPRK.json. Still missing: public/session clock lifecycle, complete
+snapshots, tentative-state rollback, native initialization, source/receiver
+integration and collector/SGS/pressure lift. FineReceiver output AoS25 is agreed;
+a separate native finalizer must resample accepted air at capture point before
+any physical capture-momentum claim. No glyph-coupling readiness yet.
