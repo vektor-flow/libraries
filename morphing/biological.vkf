@@ -14,6 +14,25 @@ maximum(a:num,b:num)->num:
     @:b
 clamp(x:num,a:num,b:num)->num:minimum(b,maximum(a,x))
 
+# Scalar reads for a single output-sized native comprehension. These preserve
+# the original state/carrier/channel order without retaining growing prefixes.
+geometry_channel(centers:[num],extents:[num],fields:[num],offsets:[int],owners:[int],carriers:int,cells:int,dimension:int,stride:int,index:int)->num:
+    state:index//(carriers*stride)
+    carrier:(index//stride)%carriers
+    channel:index%stride
+    owner:offsets.(state)+owners.(state*carriers+carrier)
+    channel<dimension? @:centers.(owner*dimension+channel)
+    channel<2*dimension? @:extents.(owner*dimension+channel-dimension)
+    @:fields.(owner*cells+channel-2*dimension)
+
+attribute_channel(original:[num],attributes:[num],offsets:[int],owners:[int],carriers:int,old_stride:int,old_width:int,width:int,stride:int,index:int)->num:
+    state:index//(carriers*stride)
+    carrier:(index//stride)%carriers
+    channel:index%stride
+    channel<old_stride? @:original.(state*old_width+carrier*old_stride+channel)
+    object:offsets.(state)+owners.(state*carriers+carrier)
+    @:attributes.(object*width+channel-old_stride)
+
 # Every state object must have at least one persistent carrier. Replicated fields
 # coincide at a split's source and its reverse merge destination; none fade in.
 prepare(knots:[num],offsets:[int],owners:[int],carriers:int,centers:[num],extents:[num],fields:[num],size:int,dimension:int,mode:int,smooth_start:bit,smooth_end:bit,join:num)->Plan:
@@ -88,21 +107,7 @@ prepare(knots:[num],offsets:[int],owners:[int],carriers:int,centers:[num],extent
             .k:k+1
         .state:state+1
     stride:2*dimension+cells
-    [num] values:[]
-    .state:0
-    state<count?>
-        k:0
-        k<carriers?>
-            owner:offsets.(state)+owners.(state*carriers+k)
-            origin:owner*dimension
-            field_origin:owner*cells
-            center:[..dimension-1 >> centers.(origin+int($))]
-            extent:[..dimension-1 >> extents.(origin+int($))]
-            local_field:[..cells-1 >> fields.(field_origin+int($))]
-            packed:center&extent&local_field
-            .values:values&packed
-            .k:k+1
-        .state:state+1
+    values:[..count*carriers*stride-1 >> geometry_channel(centers,extents,fields,offsets,owners,carriers,cells,dimension,stride,int($))]
     @:(curve:s.prepare(knots,values,carriers*stride,mode),dimension:dimension,size:size,cells:cells,carriers:carriers,stride:stride,smooth_start:smooth_start,smooth_end:smooth_end,join:join)
 
 # Append finite per-object attributes to the same persistent carrier states.
@@ -126,7 +131,6 @@ attributes(plan:Plan,offsets:[int],owners:[int],attributes:[num],width:int)->Pla
         .i:i+1
     stride:old_stride+width
     channels:carriers*stride
-    [num] values:[]
     [int] used:[0:objects]
     state:0
     state<count?>
@@ -137,18 +141,13 @@ attributes(plan:Plan,offsets:[int],owners:[int],attributes:[num],width:int)->Pla
             (owner>=0 /\ owner<offsets.(state+1)-offsets.(state))?! "biological attribute owner outside state"
             object:offsets.(state)+owner
             used.(object):1
-            before:state*old_width+k*old_stride
-            attribute_origin:object*width
-            geometry:[..old_stride-1 >> original.(before+int($))]
-            attached:[..width-1 >> attributes.(attribute_origin+int($))]
-            packed:geometry&attached
-            .values:values&packed
             .k:k+1
         .state:state+1
     .i:0
     i<objects?>
         (used.(i)=1)?! "biological attribute object has no lineage"
         .i:i+1
+    values:[..count*channels-1 >> attribute_channel(original,attributes,offsets,owners,carriers,old_stride,old_width,width,stride,int($))]
     @:(curve:s.prepare(curve.knots,values,channels,curve.mode),dimension:plan.dimension,size:plan.size,cells:plan.cells,carriers:carriers,stride:stride,smooth_start:plan.smooth_start,smooth_end:plan.smooth_end,join:plan.join)
 
 # Existing API delegates to the shared allocation-free field kernel.
