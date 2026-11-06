@@ -1,0 +1,7 @@
+t:.morphing.topology
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+Plan:(curve:Curve,dimension:int,size:int,cells:int,carriers:int,stride:int,smooth_start:bit,smooth_end:bit,join:num)
+arrival(values:[num],size:int)->[num]:t.arrival(values,size)
+support(source:[num],target:[num],size:int)->[num]:t.support(source,target,size)
+prepare(plan:Plan)->Plan:t.prepare(plan)
+::arrival([-1,-1,-1,-1,1,-1,-1,-1,-1],3)

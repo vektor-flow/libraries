@@ -1,0 +1,36 @@
+Constructive field-waypoint prototype,2026-11-06
+
+Native morphing/topology.vkf is an internal preparation extension for the SAME
+state/implicit-geometry backend. No separate interpolator/matcher/opacity layer.
+Only two-key,2D,piecewise-linear,join=0 cohorts are admitted. Exact unchanged
+physical glyphs remain the canonical adapter's fixed/native pose matches.
+
+Each source/target signed grid is converted to a geodesic arrival field. Positive
+values and every vertex in a triangle meeting that positive set remain EXACT.
+Thus endpoint zero-contour triangles remain exact. Other negative vertices get
+four-neighbour predecessor distances; the seed ring follows the existing NW--SE
+triangulation. Two native city-block distance sweeps suffice for the admitted
+physical signed-distance inputs. This is a predecessor/support metric, not a
+claim to exact Euclidean SDF at every off-boundary sample.
+
+A common positive-interior/negative-border support is inserted at the midpoint
+of the original native piecewise-linear state curve. Non-field channels use the
+original scalar segment primitive at identical coordinates. Before midpoint the
+field superlevel threshold advances through geodesic arrivals; after midpoint it
+reverses target arrivals. Every added positive vertex attaches to existing stock;
+no spontaneous island. Area calibration must use uniform coordinate scale,
+NEVER an isovalue offset that could sever these supports again.
+
+The current fixture has27 source→one target glyph carriers, whose local sampled
+source components are1or2 and target components1. Actual current075 native prep
+at11coordinates gives summed local components29,29,28,27,...,27 and exact endpoint
+zero-triangle vertex values. These are sums BEFORE carrier union. They are NOT
+semantic object count, a prescribed global count trajectory, or actual rendered
+post-calibration pixel proof. General multi-component↔multi-component needs
+explicit component/event grouping; no universal topology guarantee claimed.
+
+No current public Interp schema/default changed yet. This internal preparation
+policy is NOT active in Product and not ready for intake. Pending post-calibration
+native GPU component/area/colour/endpoint tests and production native GPU coverage
+measurement. tests/morphing/support-topology.mjs compiles exact source and tests
+all28 physical fields in packing-actual27 fixture, plus native preparation shape.
