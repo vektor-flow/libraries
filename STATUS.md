@@ -711,3 +711,14 @@ invalidwidth/storage/owner/finiteguards. Sourcehash/compiler evidence in
  tests/morphing/attributes-qualification.json. No GPUbuild/colorrender claim here;
 parent owns mixedmint/gold/whitefromIdsgroup shader/buffer integration and proof.
 Existing table/nativefont/PP/runtime/glyphpins remain unchanged by these files.
+
+## 2026-11-06: bounded native balanced ports
+
+New FluidPorts.vkf exposes seven finite native port operators, with normalized
+AoS2 and old/newAoS6 ABI agreed with physical-session owner. Exact075/unchanged
+emitter; native WASM accepted-reference parity <=1.39e-17. Renderer branch
+codex/native-balanced-ports-20261106 owns actual GPU native-DFT lift, normalization,
+boundary derivative, reconstruction/drag and explicit failure evidence. Source
+hash2422df3c5eab2dab6a49739447d974b6704afedfe2a24715df2891f716fb8b66;
+full contract/scope in tests/fluid-ports/STATUS.md. Caller supplies native mask
+sums; no full coupled NS session, suction/formation or60Hz readiness follows.
