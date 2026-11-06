@@ -1,0 +1,133 @@
+# Native fine-mask reaction along accepted marker segments; no air/trajectory solver.
+# Controls: width,height,Lx,Ly,Lz,hazardRate,frontEnabled,frontStart,frontEnd,
+# frontWidth,maskOffset,maxSegments,particleCount. Native alpha follows AoS20 input.
+# Output AoS25 preserves start0..2, terminalVelocity6..8,mass/RGBA/identities;
+# updates end3..5,exposure14,alive16; appends captured,fraction,pixelX,pixelY,deltaExposure.
+# Terminal velocity MUST be resampled by the fluid finaliser at a capture point.
+minimum(a:num,b:num)->num:
+    a<b? @:a
+    @:b
+maximum(a:num,b:num)->num:
+    a>b? @:a
+    @:b
+wrapped(x:num,length:num)->num:x-(x/length//1)*length
+wrap_index(i:int,n:int)->int:((i%n)+n)%n
+capture(index:int,p:[num],v:[num])->[num]:
+    w:int(p.(0))
+    h:int(p.(1))
+    limit:int(p.(11))
+    (w>0 /\ w<=4096 /\ h>0 /\ h<=4096 /\ w*h<=4194304 /\ p.(2)>0 /\ p.(3)>0 /\ p.(4)>0 /\ p.(5)>=0 /\ limit>0 /\ limit<=4096)?! "invalid bounded receiver controls"
+    (index>=0 /\ index<int(p.(12)) /\ p.(10)>=20*p.(12) /\ p.(10)+num(w*h)<=num(v.length()))?! "invalid receiver particle/mask storage"
+    (p.(6)=0 \/ (p.(6)=1 /\ p.(9)>0))?! "invalid receiver front"
+    base:index*20
+    [num] result:[0:25]
+    j:0
+    j<20?>
+        result.(j):v.(base+j)
+        .j:j+1
+    result.(21):-1
+    result.(22):-1
+    result.(23):-1
+    (result.(16)=0 \/ result.(16)=1)?! "invalid marker liveness"
+    result.(16)=0? @:result
+    dt:result.(19)
+    (dt>=0 /\ result.(9)>=0 /\ result.(14)>=0 /\ result.(15)>=result.(14))?! "invalid marker material/exposure"
+    result.(3):wrapped(result.(3),p.(2))
+    result.(4):wrapped(result.(4),p.(3))
+    result.(5):wrapped(result.(5),p.(4))
+    dt=0 \/ p.(5)=0? @:result
+    sx:v.(base)
+    sy:v.(base+1)
+    sz:v.(base+2)
+    dx:v.(base+3)-sx
+    dy:v.(base+4)-sy
+    dz:v.(base+5)-sz
+    px:sx*num(w)/p.(2)
+    py:sy*num(h)/p.(3)
+    dpx:dx*num(w)/p.(2)
+    dpy:dy*num(h)/p.(3)
+    ix:int(px//1)
+    iy:int(py//1)
+    step_x:0
+    step_y:0
+    tx:2.0
+    ty:2.0
+    jump_x:2.0
+    jump_y:2.0
+    dpx>0?
+        .step_x:1
+        .jump_x:1/dpx
+        .tx:(num(ix+1)-px)/dpx
+    dpx<0?
+        .step_x:-1
+        .jump_x:-1/dpx
+        .tx:(px-num(ix))/(-dpx)
+        tx=0?
+            .ix:ix-1
+            .tx:jump_x
+    dpy>0?
+        .step_y:1
+        .jump_y:1/dpy
+        .ty:(num(iy+1)-py)/dpy
+    dpy<0?
+        .step_y:-1
+        .jump_y:-1/dpy
+        .ty:(py-num(iy))/(-dpy)
+        ty=0?
+            .iy:iy-1
+            .ty:jump_y
+    needed:maximum(0,result.(15)-result.(14))
+    added:0.0
+    a:0.0
+    steps:0
+    a<1 /\ steps<limit?>
+        b:minimum(1,minimum(tx,ty))
+        entry:a
+        leave:b
+        x:wrap_index(ix,w)
+        y:h-1-wrap_index(iy,h)
+        alpha:v.(int(p.(10))+y*w+x)
+        (alpha>=0 /\ alpha<=1)?! "invalid native mask occupancy"
+        p.(6)=1?
+            cycle:int(num(ix)/num(w)//1)
+            relative:sx-num(cycle)*p.(2)-p.(7)
+            slope:dx-(p.(8)-p.(7))
+            half:p.(9)/2
+            slope=0?
+                |relative|>half? .leave:entry
+            ~(slope=0)?
+                first:(-half-relative)/slope
+                second:(half-relative)/slope
+                .entry:maximum(entry,minimum(first,second))
+                .leave:minimum(leave,maximum(first,second))
+        hazard:p.(5)*alpha
+        hazard>0 /\ leave>entry?
+            amount:hazard*dt*(leave-entry)
+            added+amount>=needed?
+                fraction:entry+(needed-added)/(hazard*dt)
+                result.(3):wrapped(sx+dx*fraction,p.(2))
+                result.(4):wrapped(sy+dy*fraction,p.(3))
+                result.(5):wrapped(sz+dz*fraction,p.(4))
+                result.(14):v.(base+15)
+                result.(16):0
+                result.(20):1
+                result.(21):fraction
+                result.(22):num(x)
+                result.(23):num(y)
+                result.(24):needed
+                @:result
+            .added:added+amount
+        hit_x:tx<=ty
+        hit_y:ty<=tx
+        hit_x?
+            .ix:ix+step_x
+            .tx:tx+jump_x
+        hit_y?
+            .iy:iy+step_y
+            .ty:ty+jump_y
+        .a:b
+        .steps:steps+1
+    (a>=1)?! "fine receiver crossing budget exceeded"
+    result.(14):v.(base+14)+added
+    result.(24):added
+    @:result
