@@ -33,3 +33,28 @@ source/IR/shader hashes, actual f32 accuracy, and diagnostic/readback timing.
 The initial23.5ms operator/29.7ms projection measurements include per-stage test
 readbacks and are NOT a60Hz solver throughput result. No physical CFD, DNS,
 thermal phase change, two-way particle coupling or native glyph SDF is claimed.
+
+Second gate: native resident SSPRK3 and f64 fixed observation clock PASS. The
+baseline advances7 SoA fields (3 MAC velocity, temperature,3 passive species).
+Every RHS uses the accepted MINMOD scalar operator and Leray projection of the
+momentum RHS; coefficients/stage ordering match the reference. At24x16x8 after
+18 ticks (0.3s), max velocity/scalar reference errors were1.104e-7/3.327e-7;
+absolute species mass drift <=7.103e-10 (initial species masses0.001 each).
+Three observation partitions produce byte-identical GPU fields:0.3 once,
+30*0.01, and10*(0.013+0.017). Native WASM/f64 clock tests cover nanosecond ties-even,
+0..1e6 seconds, nonzero absolute epochs and invalid/rewind rejection. A checked
+integer cast initially exposed a missing explicit floor in the clock; corrected
+before this gate. The first draft clock is not a qualified source version.
+
+Software GPU measurement is honest: median161ms per physical1/60s tick at24x16x8,
+including three projections and one diagnostic readback per tick. This direct
+DFT implementation is not a60Hz claim. Owned test GPU buffers7.10MB; this is not
+whole-browser RSS or a deployment memory limit. Smaller8x6x4 median19.2ms.
+
+New evidence: renderer docs/physical-smoke/SSPRK.json and clock.mjs. Native markers,
+rendered fluid playback, runtime stage/CFL rejection policy, snapshots/session,
+variable-viscosity SGS, ports/pressure lift, finite reservoirs and native glyph
+receiver coupling are still unavailable. In particular, coarse averaged glyph
+sink was falsified by parent research; its exact area preservation does NOT
+qualify reaction. Parent's later native-pixel DDA interception remains a separate
+model/port gate. No Product/public module was modified by this prototype.

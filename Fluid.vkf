@@ -198,3 +198,89 @@ project_velocity(index:int,p:[num],v:[num])->num:
     before:shift(cell,axis,-1,p)
     gradient:(v.(3*n+2*cell)-v.(3*n+2*before))/spacing(p,axis)
     @:v.(index)-p.(7)*gradient
+
+# Accepted unforced baseline control preparation. Named public profile wrappers
+# belong to the session adapter; these arrays are only the compiled numeric ABI.
+fluid_only_parameters(nx:int,ny:int,nz:int)->[num]:
+    (nx>=4 /\ ny>=4 /\ nz>=4 /\ nx*ny*nz<=131072)?! "bounded periodic MAC shape required"
+    [num] p:[0:24]
+    p.(0):num(nx)
+    p.(1):num(ny)
+    p.(2):num(nz)
+    p.(3):1.6/nx
+    p.(4):1.0/ny
+    p.(5):0.4/nz
+    p.(6):0.0004
+    p.(7):1
+    p.(11):1/60
+    p.(12):0.3
+    p.(16):0.0002
+    p.(21):0.000001
+    p.(22):0.0001
+    @:p
+
+field_value(v:[num],i:int,field:int,p:[num])->num:v.(field*count(p)+i)
+slope_channel(v:[num],i:int,field:int,a:int,p:[num])->num:
+    @:minmod(field_value(v,i,field,p)-field_value(v,shift(i,a,-1,p),field,p),field_value(v,shift(i,a,1,p),field,p)-field_value(v,i,field,p))
+flux_channel(v:[num],i:int,field:int,a:int,diffusivity:num,p:[num])->num:
+    next:shift(i,a,1,p)
+    speed:velocity(v,next,a,p)
+    transported:field_value(v,i,field,p)+slope_channel(v,i,field,a,p)/2
+    speed<0? .transported:field_value(v,next,field,p)-slope_channel(v,next,field,a,p)/2
+    @:speed*transported-diffusivity*(field_value(v,next,field,p)-field_value(v,i,field,p))/spacing(p,a)
+transport_channel(v:[num],i:int,field:int,diffusivity:num,p:[num])->num:
+    result:0.0
+    a:0
+    a<3?>
+        .result:result-(flux_channel(v,i,field,a,diffusivity,p)-flux_channel(v,shift(i,a,-1,p),field,a,diffusivity,p))/spacing(p,a)
+        .a:a+1
+    @:result
+
+# State SoA: MAC u[3], temperature, three passive species. No hidden forcing,
+# SGS, source/sink or release is enabled by this baseline entry.
+rhs_component(index:int,p:[num],v:[num])->num:
+    n:count(p)
+    field:index//n
+    cell:index%n
+    field<3? @:momentum(v,cell,field,p)+viscous(v,cell,field,p)
+    field=3? @:transport_channel(v,cell,field,p.(16),p)-p.(17)*field_value(v,cell,field,p)
+    @:transport_channel(v,cell,field,p.(14),p)
+ssprk_parameters(parameters:[num],stage:int)->[num]:
+    (stage>=0 /\ stage<3 /\ parameters.length()>=24)?! "invalid SSPRK3 stage"
+    result:[..parameters.length()-1 >> parameters.(int($))]
+    result.(7):1
+    result.(15):num(stage)
+    result.(18):0
+    stage=1? result.(18):1
+    stage=2? result.(18):0.5
+    @:result
+# Input: current7N ++ RHS7N ++ projectedRHS3N ++ initial7N. Projection is of
+# the momentum RHS, exactly as accepted reference, not an Euler-state shortcut.
+ssprk_update(index:int,p:[num],v:[num])->num:
+    n:count(p)
+    rhs:v.(7*n+index)
+    index<3*n? .rhs:v.(14*n+index)
+    euler:v.(index)+p.(11)*rhs
+    stage:int(p.(15))
+    stage=0? @:euler
+    initial:v.(17*n+index)
+    stage=1? @:0.75*initial+0.25*euler
+    @:initial/3+2*euler/3
+
+# Fixed observation clock matches accepted CPU nanosecond/tick partitioning.
+# This uses native f64/WASM, never real-f32 shader nanosecond arithmetic.
+Clock:(observation_ns:int,ticks:int,time:num,max_dt:num)
+clock(seconds:num)->Clock:
+    (seconds>=0 /\ seconds<=1000000)?! "bounded nonnegative observation time required"
+    scaled:seconds*1000000000
+    lower:scaled//1
+    fraction:scaled-lower
+    ns:int(lower)
+    fraction>0.5 \/ (fraction=0.5 /\ ns%2=1)? .ns:ns+1
+    dt:1/60
+    ticks:int((((num(ns)+0.5)/1000000000)/dt)//1)
+    @:(observation_ns:ns,ticks:ticks,time:num(ticks)*dt,max_dt:dt)
+clock_absolute(seconds:num,epoch:num)->Clock:
+    (seconds>=epoch)?! "absolute time precedes bound physical epoch"
+    @:clock(seconds-epoch)
+physical_time(epoch:num,ticks:int)->num:epoch+num(ticks)*(1/60)
