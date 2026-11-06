@@ -1,0 +1,26 @@
+f:.EventFields
+s:.morphing.state
+segment:.morphing.segment
+t:.morphing.topology
+m:.Morphing
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+GeometryPlan:(curve:Curve,dimension:int,size:int,cells:int,carriers:int,stride:int,smooth_start:bit,smooth_end:bit,join:num)
+CurveLayout:(knots:[num],count:int,width:int,mode:int)
+GeometryLayout:(dimension:int,size:int,stride:int,carriers:int,width:int,join:num)
+EventLayout:(source:int,target:int,support:int,grow:int,shrink:int,source_attributes:int,target_attributes:int,weights:int)
+Descriptor:(curve:CurveLayout,geometry:GeometryLayout,density:bit,events:[EventLayout])
+EventPlan:(embedding:Curve,weights:[num],parent:[int],children:[int],coordinates:[num],first_coordinates:[num],root_coordinate:num,centers:[num])
+InputChunk:(offset:int,values:[num])
+Prepared:(chunks:[InputChunk],input_width:int,controls:Descriptor,weights:[num],embedding:Curve,events:EventPlan,event_coordinates:[num],direction:int,source_rgba:[num],target_rgba:[num],identity:bit)
+Sample:(value:[num],first:[num],second:[num])
+prepare(plan:GeometryPlan,sc:int,tc:int,weights:[num])->Prepared:f.prepare(plan,sc,tc,weights)
+sample(curve:Curve,q:num)->Sample:s.evaluate(curve,q,false,false)
+arrival(field:[num],size:int)->[num]:t.arrival(field,size)
+support(source:[num],target:[num],size:int)->[num]:t.support(source,target,size)
+jet_curve(knots:[num],values:[num],first:[num],width:int)->Curve:s.prepare_jets(knots,values,first,width)
+merge(plan:GeometryPlan,coordinate:num,weights:[num])->GeometryPlan:
+    merged:t.prepare_coalescence(plan,coordinate,weights)
+    @:merged.geometry
+geometry(knots:[num],offsets:[int],owners:[int],carriers:int,centers:[num],extents:[num],fields:[num],size:int,dimension:int,mode:int,smooth_start:bit,smooth_end:bit,join:num)->GeometryPlan:m.prepare_geometry(knots,offsets,owners,carriers,centers,extents,fields,size,dimension,mode,smooth_start,smooth_end,join)
+attributes(plan:GeometryPlan,offsets:[int],owners:[int],values:[num],width:int)->GeometryPlan:m.prepare_geometry_attributes(plan,offsets,owners,values,width)
+::arrival([-1,-1,-1,-1,1,-1,-1,-1,-1],3)
