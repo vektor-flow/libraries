@@ -15,7 +15,7 @@ bilinear2(a:num,b:num,c:num,d:num,fx:num,fy:num)->num:
     @:value
 
 # Multilinear field lookup in the object's own moving coordinates.
-field(values:[num],dimension:int,size:int,stride:int,carrier:int,x:num,y:num,z:num,scale:num,offset:int=0)->num:
+field_offset(values:[num],dimension:int,size:int,stride:int,carrier:int,x:num,y:num,z:num,scale:num,offset:int)->num:
     base:offset+carrier*stride
     ex:values.(base+dimension)*scale
     ey:values.(base+dimension+1)*scale
@@ -70,16 +70,21 @@ field(values:[num],dimension:int,size:int,stride:int,carrier:int,x:num,y:num,z:n
         .dz:dz+1
     @:(value-maximum(outside,0))*extent
 
+# Keep the established nine-argument field API. Explicit offset calls also
+# lower on the current GPU emitter, whose helper ABI does not expand defaults.
+field(values:[num],dimension:int,size:int,stride:int,carrier:int,x:num,y:num,z:num,scale:num)->num:
+    @:field_offset(values,dimension,size,stride,carrier,x,y,z,scale,0)
+
 # Native dominant material carrier. This classifies the existing signed fields;
 # it does not alter the union, geometry calibration or attribute interpolation.
 # Equal fields choose the last carrier, matching explicit input paint order.
-dominant(values:[num],dimension:int,size:int,stride:int,carriers:int,x:num,y:num,z:num,scale:num,offset:int=0)->int:
+dominant(values:[num],dimension:int,size:int,stride:int,carriers:int,x:num,y:num,z:num,scale:num,offset:int)->int:
     (carriers>0 /\ offset>=0 /\ values.length()>=offset+carriers*stride)?! "invalid dominant biological field storage"
     winner:0
-    best:field(values,dimension,size,stride,0,x,y,z,scale,offset)
+    best:field_offset(values,dimension,size,stride,0,x,y,z,scale,offset)
     k:1
     k<carriers?>
-        value:field(values,dimension,size,stride,k,x,y,z,scale,offset)
+        value:field_offset(values,dimension,size,stride,k,x,y,z,scale,offset)
         value>=best?
             .winner:k
             .best:value
