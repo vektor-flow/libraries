@@ -119,3 +119,35 @@ claim. f0/.4/1 and inactive cases pass native f64<=1.39e-17, GPU<=5.69e-8 versus
 CPU and GPU/WASM<=8.8e-9, with exact nonvelocity metadata and replay. Shared GPU
 qualifier advisory lock is /tmp/vkf-qualification-gpu.lock. Source/receiver/session
 coupling and glyph initialization remain separate unavailable gates.
+
+Generic ink initial-condition primitives PASS (not coupled session/factory yet).
+Actual current075 native RGBA captures from authored19/23 are losslessly cropped
+with physical-pixel origin/fullSize metadata. GPU occupancy/prefix/select retains
+EVERY covered pixel, without power-of-two refinement or thinning:3000/4138 atDPR1,
+9867 for19 atDPR2. Native coordinates/mass/RGBA/identity/threshold preparation;
+attached alive0/velocity0. Native release samples existing accepted air, sets
+alive1, and transitions typed InkStock from attached to released ONCE. Candidate
+abandonment retains source stock. No air reset, heat, normal impulse or particle
+feedback is added. Fine probes are the authoritative material ledger; C remains
+an independent coarse diagnostic with loading0 and is never added to probe mass.
+
+Current emitter rejects GPU ln. Exponential thresholds are therefore prepared
+once in SAME Fluid native WASM/f64 from independent persisted24-bit platform
+entropy, then uploaded as f32.131072 threshold prep measured316ms. No host ln,
+GPU emitter/IR patch or prescribed trajectories. Snapshot/replay uses prepared
+thresholds, not a seed-only claim. Quantized finite entropy is explicit.
+
+Actual-source GPU errors: coordinates<=5.25e-8,RGBA<=7.39e-8, shared-air initial
+velocity<=2.42e-8 vs accepted CPU oracle. Mass/attributes/IDs remain unchanged by
+release; source debit and abandoned candidate gates pass. Render packet XYZ,
+device-footprint,RGBA has alpha0 for inactive/captured lineages. Prep+test130/223/
+122ms; owned source-probe GPU peak3.79MB on these cropped fixtures, not a whole
+application/maximum-raster memory claim. DPR1 vs2 coverage masses differ0.42%
+from genuine native raster AA; no optical-conservation claim follows from mass.
+
+Missing: continuous-session append/source history snapshots, FineReceiver binding,
+finalizer integration, coupled ledger, balanced collector lift/suction, source
+feedback and first-row formation. Public Product factory stays unavailable.
+Native fine-mask interception alone plus unforced flow does not establish suction
+or materialization. Generic raster maximal dispatch also remains constrained by
+actual device workgroup limits; tested crops are well below those limits.

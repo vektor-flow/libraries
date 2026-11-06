@@ -450,3 +450,171 @@ finalize_receiver(index:int,p:[num],v:[num])->[num]:
         result.(6+a):(1-fraction)*old+fraction*new
         .a:a+1
     @:result
+
+# Generic native raster->attached aerosol data preparation. Raster is genuine
+# RGBA8, losslessly packed as two16-bit words per pixel (RG,BA). No thinning.
+# Image controls16: cropW,H,originX,Y,fullW,H,worldX0,Y0,X1,Y1,z,
+# massPerCSSPixel,pixelRatio,firstLineage,species,count. Count is learned from
+# exact integer prefix scan; field loading/heat feedback is NOT enabled.
+ink_parameters(flow:[num],image:[num])->[num]:
+    (flow.length()>=24 /\ image.length()=16)?! "invalid native ink controls"
+    w:int(image.(0))
+    h:int(image.(1))
+    fw:int(image.(4))
+    fh:int(image.(5))
+    (w>0 /\ h>0 /\ w*h<=4194304 /\ fw>0 /\ fh>0 /\ fw<=4096 /\ fh<=4096 /\ fw*fh<=4194304)?! "bounded native raster required"
+    (image.(2)>=0 /\ image.(3)>=0 /\ image.(2)+w<=fw /\ image.(3)+h<=fh)?! "invalid native raster crop origin"
+    (image.(6)>=0 /\ image.(7)>=0 /\ image.(8)>image.(6) /\ image.(9)>image.(7) /\ image.(8)<=flow.(0)*flow.(3) /\ image.(9)<=flow.(1)*flow.(4))?! "native ink world bounds outside fluid domain"
+    (image.(10)>=0 /\ image.(10)<flow.(2)*flow.(5) /\ image.(11)>0 /\ image.(11)<1000000000000000000000000000000.0)?! "finite source plane/mass required"
+    (image.(12)=1 \/ image.(12)=2 \/ image.(12)=3)?! "native ink density1..3 required"
+    (image.(13)>=0 /\ image.(14)>=0 /\ image.(14)<3 /\ image.(15)>=0 /\ image.(15)<=131072 /\ image.(13)+image.(15)<=16777215)?! "native ink lineage/species budget exceeded"
+    [num] result:[0:41]
+    i:0
+    i<24?>
+        result.(i):flow.(i)
+        .i:i+1
+    .i:0
+    i<16?>
+        result.(24+i):image.(i)
+        .i:i+1
+    result.(40):1
+    @:result
+ink_pixels(p:[num])->int:int(p.(24))*int(p.(25))
+ink_passes(p:[num])->int:
+    span:1
+    passes:0
+    span<ink_pixels(p)?>
+        .span:span*2
+        .passes:passes+1
+    @:passes
+ink_scan_parameters(p:[num],pass:int)->[num]:
+    (pass>=0 /\ pass<22)?! "bounded native prefix pass required"
+    result:[..p.length()-1 >> p.(int($))]
+    span:1
+    i:0
+    i<pass?>
+        .span:span*2
+        .i:i+1
+    result.(40):num(span)
+    @:result
+ink_flag(index:int,p:[num],v:[num])->num:
+    (index>=0 /\ index<ink_pixels(p))?! "native raster index outside source"
+    alpha:v.(2*index+1)//256
+    alpha>0? @:1
+    @:0
+ink_prefix(index:int,p:[num],v:[num])->num:
+    stride:int(p.(40))
+    result:v.(index)
+    index>=stride? .result:result+v.(index-stride)
+    @:result
+ink_budget(count:int,maximum:int)->int:
+    (count>=0 /\ count<=131072 /\ maximum>=0 /\ maximum<=131072 /\ count<=maximum)?! "all-pixel native ink budget exceeded; thinning forbidden"
+    @:count
+ink_initialize(index:int,p:[num],v:[num])->[num]:
+    pixels:ink_pixels(p)
+    number:int(p.(39))
+    (index>=0 /\ index<number /\ number<=131072)?! "invalid native ink lineage"
+    # Binary select from exact integer occupancy prefix, retaining each pixel.
+    low:0
+    high:pixels-1
+    low<high?>
+        middle:(low+high)//2
+        reached:v.(2*pixels+middle)>=num(index+1)
+        reached? .high:middle
+        ~reached? .low:middle+1
+    pixel:low
+    w:int(p.(24))
+    word0:int(v.(2*pixel))
+    word1:int(v.(2*pixel+1))
+    red:word0%256
+    green:word0//256
+    blue:word1%256
+    alpha:word1//256
+    (alpha>0 /\ alpha<=255)?! "native prefix selected uncovered source pixel"
+    x:p.(30)+(p.(26)+num(pixel%w)+0.5)*(p.(32)-p.(30))/p.(28)
+    y:p.(33)-(p.(27)+num(pixel//w)+0.5)*(p.(33)-p.(31))/p.(29)
+    threshold:v.(3*pixels+index)
+    (threshold>0 /\ threshold<1000)?! "invalid native source exponential threshold"
+    [num] result:[0:20]
+    result.(0):x
+    result.(1):y
+    result.(2):p.(34)
+    result.(3):x
+    result.(4):y
+    result.(5):p.(34)
+    result.(9):(num(alpha)/255)*p.(35)/(p.(36)*p.(36))
+    result.(10):num(red)/255
+    result.(11):num(green)/255
+    result.(12):num(blue)/255
+    result.(13):num(alpha)/255
+    result.(15):threshold
+    result.(17):p.(38)
+    result.(18):p.(37)+num(index)
+    @:result
+ink_mass(index:int,p:[num],v:[num])->num:v.(20*index+9)
+sum_mass(v:[num])->num:
+    result:0.0
+    i:0
+    i<v.length()?>
+        (v.(i)>=0 /\ v.(i)<1000000000000000000000000000000.0)?! "invalid native material mass"
+        .result:result+v.(i)
+        .i:i+1
+    @:result
+InkStock:(count:int,mass:num,attached_mass:num,released_mass:num,phase:int)
+ink_stock(count:int,mass:num)->InkStock:
+    (count>=0 /\ count<=131072 /\ mass>=0 /\ mass<1000000000000000000000000000000.0)?! "invalid attached native material stock"
+    @:(count:count,mass:mass,attached_mass:mass,released_mass:0,phase:0)
+release_stock(stock:InkStock)->InkStock:
+    (stock.phase=0)?! "native material source already released"
+    @:(count:stock.count,mass:stock.mass,attached_mass:0,released_mass:stock.mass,phase:1)
+# Native instantaneous initial-condition transfer; sample existing accepted air.
+# Input accepted7N fields ++ attached20N packet; no air reset or heat/normal force.
+release_ink(index:int,p:[num],v:[num])->[num]:
+    offset:7*count(p)+20*index
+    [num] result:[0:20]
+    i:0
+    i<20?>
+        result.(i):v.(offset+i)
+        .i:i+1
+    (result.(16)=0 /\ result.(9)>=0 /\ result.(15)>0)?! "native attached lineage is not releasable"
+    result.(6):sample_component(v,0,result.(3),result.(4),result.(5),0,p)
+    result.(7):sample_component(v,0,result.(3),result.(4),result.(5),1,p)
+    result.(8):sample_component(v,0,result.(3),result.(4),result.(5),2,p)
+    result.(16):1
+    @:result
+
+# Preparation runs once in native WASM/f64: the current GPU emitter does not
+# support ln. Entropy is independent platform randomness, preserved by snapshots.
+ink_threshold_words(low:num,high:num)->num:
+    (low>=0 /\ low<65536 /\ high>=0 /\ high<256)?! "invalid independent native entropy words"
+    uniform:(low+65536*high+0.5)/16777216
+    @:0-math.ln(uniform)
+ink_thresholds(entropy:[num])->[num]:
+    (entropy.length()%2=0 /\ entropy.length()<=262144)?! "bounded independent native entropy required"
+    @:[..entropy.length()//2-1 >> ink_threshold_words(entropy.(2*int($)),entropy.(2*int($)+1))]
+
+render_parameters(flow:[num],footprint:num)->[num]:
+    (flow.length()>=24 /\ footprint>0 /\ footprint<=64)?! "bounded device-pixel carrier footprint required"
+    [num] result:[0:25]
+    i:0
+    i<24?>
+        result.(i):flow.(i)
+        .i:i+1
+    result.(24):footprint
+    @:result
+# Generic renderer data packet XYZ,device-pixel footprint,RGBA. Projection is
+# owned by the existing point renderer. Captured/inactive material has alpha0,
+# so deposited records never appear as frozen gas. No trajectory is added.
+marker_world_ink(index:int,p:[num],v:[num])->[num]:
+    base:20*index
+    [num] result:[0:8]
+    result.(0):wrap_position(v.(base+3),p.(3)*p.(0))
+    result.(1):wrap_position(v.(base+4),p.(4)*p.(1))
+    result.(2):wrap_position(v.(base+5),p.(5)*p.(2))
+    result.(3):p.(24)
+    result.(4):v.(base+10)
+    result.(5):v.(base+11)
+    result.(6):v.(base+12)
+    result.(7):v.(base+13)
+    v.(base+16)=0? result.(7):0
+    @:result
