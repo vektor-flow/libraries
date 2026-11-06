@@ -186,7 +186,7 @@ sample_measured(plan:Plan,measure:Curve,coordinate:num,resolution:int,lo:[num],h
 
 # Exact segment distances and even/odd contour membership, sampled on a local
 # grid. Ring orientation is irrelevant; holes are geometric interior boundaries.
-polygon_field(vertices:[num],rings:[int],size:int)->[num]:
+polygon_field(vertices:[num],rings:[int],size:int,nonzero:bit=false)->[num]:
     (size>=3 /\ vertices.length()%2=0 /\ rings.length()>=2 /\ rings.(0)=0 /\ rings.(rings.length()-1)=vertices.length()//2)?! "invalid polygon field"
     ring:0
     ring<rings.length()-1?>
@@ -203,6 +203,7 @@ polygon_field(vertices:[num],rings:[int],size:int)->[num]:
         y:2*num(i//size)/(size-1)-1
         distance:10^100
         inside:false
+        winding:0
         .ring:0
         ring<rings.length()-1?>
             a:rings.(ring)
@@ -221,9 +222,13 @@ polygon_field(vertices:[num],rings:[int],size:int)->[num]:
                 .distance:minimum(distance,math.sqrt((x-ax-t*dx)^2+(y-ay-t*dy)^2))
                 ((ay>y /\ by<=y) \/ (by>y /\ ay<=y))?
                     crossing:ax+(y-ay)*dx/dy
-                    x<crossing? .inside:~inside
+                    x<crossing?
+                        .inside:~inside
+                        by>ay? .winding:winding+1
+                        by<ay? .winding:winding-1
                 .a:a+1
             .ring:ring+1
+        nonzero? .inside:winding~=0
         inside? fields.(i):distance
         ~inside? fields.(i): -distance
         .i:i+1

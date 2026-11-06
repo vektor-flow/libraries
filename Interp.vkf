@@ -469,6 +469,9 @@ prepare_glyph_state(value:Interp,source:GlyphEndpoint,target:GlyphEndpoint)->Gly
     i<n?>
         destinations.(i)<0? .count:count+1
         .i:i+1
+    # Pose-only interpolation cannot represent a change of physical glyph ink.
+    # Split/merge shapes use the canonical biological signed-field state path.
+    (count=k /\ n=k /\ scores.(0)=n)?! "different glyph material requires native signed-field state interpolation"
     [int] from:[-1:count]
     [int] to:[-1:count]
     .j:0
@@ -504,8 +507,6 @@ prepare_glyph_state(value:Interp,source:GlyphEndpoint,target:GlyphEndpoint)->Gly
             ti>=0? states.(width+10*i+6+j):target.color.(4*ti+j)
             ti<0? states.(width+10*i+6+j):source.color.(4*fi+j)
             .j:j+1
-        fi<0? states.(10*i+9):0
-        ti<0? states.(width+10*i+9):0
         .i:i+1
     @:(state:prepare(value,[0,1],states,width),source_indices:from,target_indices:to,count:count)
 
