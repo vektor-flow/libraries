@@ -1,0 +1,11 @@
+g:.morphing.dispatch
+controls(params:[num])->[num]:g.raster_controls(params)
+step(scale:num)->num:g.raster_scale_step(scale)
+advance(params:[num],area:num)->[num]:
+    [num] result:[0:54]
+    i:0
+    i<54?>
+        result.(i):g.raster_calibrate(i,params,[area])
+        .i:i+1
+    @:result
+::1

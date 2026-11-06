@@ -441,3 +441,69 @@ material_accumulate(index:int,params:[num],values:[num])->[num]:
         output.(channel):left+right
         .channel:channel+1
     @:output
+
+# Resolved raster coverage is quantized even when geometric state is continuous.
+# Keep the ordinary state/measure calibrator unchanged. Its visualization wrapper
+# records BOTH actually measured bracket endpoints and reports a sampling limit
+# instead of repeatedly uploading indistinguishable f32 scales.
+raster_controls(params:[num])->[num]:
+    (params.length()=52)?! "native raster descriptor width"
+    [num] result:[0:54]
+    i:0
+    i<52?>
+        result.(i):params.(i)
+        .i:i+1
+    @:result
+
+raster_scale_step(scale:num)->num:
+    (scale>0 /\ scale<=4)?! "native raster scale range"
+    power:1.0
+    step:0.00000011920928955078125
+    scale<power?>
+        .power:power/2
+        .step:step/2
+    scale>=2*power?>
+        .power:power*2
+        .step:step*2
+    @:step
+
+raster_calibrate(index:int,params:[num],values:[num])->num:
+    (params.length()=54)?! "native raster calibration width"
+    params.(30)=1? @:params.(index)
+    measured:total_measure(params,values)
+    desired:params.(15)
+    phase:int(params.(31))
+    low:params.(17)
+    high:params.(18)
+    low_area:params.(52)
+    high_area:params.(53)
+    phase=1? .low_area:measured
+    phase=2?
+        measured<desired? .low_area:measured
+        measured>=desired? .high_area:measured
+    phase>2?
+        measured<desired?
+            .low:params.(11)
+            .low_area:measured
+        measured>=desired?
+            .high:params.(11)
+            .high_area:measured
+    index=52? @:low_area
+    index=53? @:high_area
+    limited:phase>2 /\ low_area<=desired /\ high_area>=desired /\ high_area>low_area /\ high-low<=raster_scale_step((low+high)/2) /\ |measured-desired|>params.(16)
+    limited?
+        lower:|low_area-desired|<=|high_area-desired|
+        selected:high
+        area:high_area
+        lower?
+            .selected:low
+            .area:low_area
+        index=11? @:selected
+        index=17? @:low
+        index=18? @:high
+        index=30? @:1
+        index=32? @:area
+        index=38? @:1
+        @:params.(index)
+    index=38? @:0
+    @:calibrate(index,params,values)
