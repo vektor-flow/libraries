@@ -1,0 +1,33 @@
+# Sparse channel assembly for the SAME canonical scalar segment and field state.
+# Large endpoint/support grids are stored once; only the small embedding curve
+# carries the laminar coincidence knots. No correspondence or renderer here.
+p:.parallel
+s:.segment
+
+# Event source/target blocks each contain value,m0,m1 grids per carrier.
+# Offsets are transported by the typed StateControls.EventLayout descriptor.
+component(index:int,params:[num],values:[num])->num:
+    stride:int(params.(2))
+    size:int(params.(1))
+    cells:size*size
+    carrier:index//stride
+    channel:index%stride
+    channel<4? @:p.state_component(values,int(params.(39)),int(params.(24)),int(params.(21)),params.(23),params.(22),4*carrier+channel)
+    q:params.(40)
+    channel<4+cells?
+        cell:channel-4
+        support:values.(int(params.(43))+cell)
+        grow:values.(int(params.(44))+carrier)
+        shrink:values.(int(params.(45))+carrier)
+        q<grow?
+            source:int(params.(41))+carrier*3*cells+cell
+            @:s.value(values.(source),support,values.(source+cells),values.(source+2*cells),grow,q/grow)
+        q>shrink?
+            target:int(params.(42))+carrier*3*cells+cell
+            h:1-shrink
+            @:s.value(support,values.(target),values.(target+cells),values.(target+2*cells),h,(q-shrink)/h)
+        @:support
+    attribute:channel-4-cells
+    source_attribute:values.(int(params.(46))+4*carrier+attribute)
+    target_attribute:values.(int(params.(47))+4*carrier+attribute)
+    @:s.value(source_attribute,target_attribute,0,0,1,q)

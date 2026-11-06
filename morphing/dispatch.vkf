@@ -9,8 +9,11 @@
 # 32 measured area/volume, 33 final contour resolution.
 k:.field
 p:.parallel
+e:.event_field
 
 state(index:int,params:[num],values:[num])->num:
+    params.length()>37?
+        params.(37)=1? @:e.component(index,params,values)
     @:p.state_component(values,int(params.(25)),int(params.(24)),int(params.(21)),params.(23),params.(22),index)
 
 # Readonly layout is shared by field sampling and calibration dispatches.
@@ -309,6 +312,14 @@ carrier_mesh_packet(index:int,params:[num],values:[num])->[num]:
     depth_extent:k.minimum(ex,ey)
     density_profile:false
     params.length()>36? .density_profile:params.(36)=1
+    pixel_space:false
+    params.length()>51? .pixel_space:params.(49)=1
+    viewport_width:1.0
+    viewport_height:1.0
+    pixel_space?
+        .viewport_width:params.(50)
+        .viewport_height:params.(51)
+        (viewport_width>0 /\ viewport_height>0)?! "invalid native pixel viewport"
     coefficient:1.0
     density_profile?
         (values.(base+4+cells+3)=1)?! "material density profile requires opaque authored ink"
@@ -332,6 +343,11 @@ carrier_mesh_packet(index:int,params:[num],values:[num])->[num]:
                 half=1? .f:v00*(1-v)+v11*u+v01*(v-u)
                 output.(at):values.(base)+(2*x/(size-1)-1)*ex
                 output.(at+1): -(values.(base+1)+(2*y/(size-1)-1)*ey)
+                pixel_space?
+                    screen_x:(output.(at)+1)*params.(20)/2+params.(34)
+                    screen_y:(1-output.(at+1))*params.(20)/2+params.(35)
+                    output.(at):(2*screen_x-viewport_width)/viewport_height
+                    output.(at+1):1-2*screen_y/viewport_height
                 output.(at+2):k.maximum(f,0)*depth_extent
                 channel:0
                 channel<4?>
@@ -349,6 +365,8 @@ carrier_mesh_packet(index:int,params:[num],values:[num])->[num]:
 
 # Compact embedding-first-jet diagnostic from the SAME prepared field state.
 state_pose_first(index:int,params:[num],values:[num])->num:
+    params.length()>37?
+        params.(37)=1? @:p.state_first(values,int(params.(39)),int(params.(24)),int(params.(21)),params.(23),params.(22),index)
     component:(index//4)*int(params.(2))+index%4
     @:p.state_first(values,int(params.(25)),int(params.(24)),int(params.(21)),params.(23),params.(22),component)
 

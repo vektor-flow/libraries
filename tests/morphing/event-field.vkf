@@ -1,0 +1,23 @@
+g:.morphing.dispatch
+s:.morphing.state
+c:.StateControls
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+CurveLayout:(knots:[num],count:int,width:int,mode:int)
+GeometryLayout:(dimension:int,size:int,stride:int,carriers:int,width:int,join:num)
+EventLayout:(source:int,target:int,support:int,grow:int,shrink:int,source_attributes:int,target_attributes:int,weights:int)
+Descriptor:(curve:CurveLayout,geometry:GeometryLayout,density:bit,events:[EventLayout])
+fit(knots:[num],values:[num],jets:[num],width:int)->Curve:s.prepare_jets(knots,values,jets,width)
+curve_value(curve:Curve,q:num,index:int)->num:s.component(curve,q,index,false,false)
+curve_first(curve:Curve,q:num,index:int)->num:s.component_first(curve,q,index,false,false)
+descriptor(curve:CurveLayout,geometry:GeometryLayout,event:[EventLayout])->Descriptor:c.prepare(curve,geometry,false,event)
+controls(desc:Descriptor,q:num)->[num]:c.sample(desc,q,1,129,257,800,0,0,[1,1,1,1],[],1)
+probe(params:[num],values:[num],indices:[int])->[num]:
+    [num] result:[0:indices.length()]
+    i:0
+    i<indices.length()?>
+        result.(i):g.state(indices.(i),params,values)
+        .i:i+1
+    @:result
+first(params:[num],values:[num],index:int)->num:g.state_pose_first(index,params,values)
+mesh(index:int,params:[num],values:[num])->[num]:g.carrier_mesh_packet(index,params,values)
+::1

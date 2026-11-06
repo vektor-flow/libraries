@@ -8,3 +8,7 @@ first(y0:num,y1:num,m0:num,m1:num,h:num,u:num)->num:
     a:1-u
     @:(y1-y0)/h+((1-3*a*a)*m0+(3*u*u-1)*m1)*h/6
 second(m0:num,m1:num,u:num)->num:(1-u)*m0+u*m1
+
+# Canonical Hermite first jets expressed in this SAME cubic segment basis.
+left_second(y0:num,y1:num,d0:num,d1:num,h:num)->num:(6*(y1-y0)/h-4*d0-2*d1)/h
+right_second(y0:num,y1:num,d0:num,d1:num,h:num)->num:(-6*(y1-y0)/h+2*d0+4*d1)/h
