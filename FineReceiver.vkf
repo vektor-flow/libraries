@@ -121,10 +121,13 @@ capture(index:int,p:[num],v:[num])->[num]:
         hit_y:ty<=tx
         hit_x?
             .ix:ix+step_x
-            .tx:tx+jump_x
+            # Recompute from the integer boundary; do not accumulate f32 phase.
+            step_x>0? .tx:(num(ix+1)-px)/dpx
+            step_x<0? .tx:(num(ix)-px)/dpx
         hit_y?
             .iy:iy+step_y
-            .ty:ty+jump_y
+            step_y>0? .ty:(num(iy+1)-py)/dpy
+            step_y<0? .ty:(num(iy)-py)/dpy
         .a:b
         .steps:steps+1
     (a>=1)?! "fine receiver crossing budget exceeded"
