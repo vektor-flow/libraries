@@ -1,0 +1,45 @@
+# Conservative physical-pixel viewport of a canonical endpoint/event cohort.
+# StateEvents embeddings are nested convex combinations of endpoint poses.
+# Extents are bounded by endpoint extrema; native calibration scales <=4.
+# This is only a coordinate chart/resource bound, never glyph layout/sampling.
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+GeometryPlan:(curve:Curve,dimension:int,size:int,cells:int,carriers:int,stride:int,smooth_start:bit,smooth_end:bit,join:num)
+Viewport:(origin:[num],css_size:[num],width:int,height:int,pixel_ratio:num,padding:int,maximum_scale:num)
+floor_value(value:num)->int:
+    n:int(value)
+    n>value? @:n-1
+    @:n
+ceil_value(value:num)->int:
+    n:int(value)
+    n<value? @:n+1
+    @:n
+prepare(plan:GeometryPlan,centers:[num],radius:num,pixel_ratio:num,padding:int=2)->Viewport:
+    (plan.dimension=2 /\ plan.curve.count=2 /\ plan.curve.width=plan.carriers*plan.stride /\ centers.length()=4 /\ radius>0 /\ radius<1000000 /\ pixel_ratio>=1 /\ pixel_ratio<=3 /\ padding>=2 /\ padding<=8)?! "native state viewport profile"
+    lo_x:100000000.0
+    lo_y:100000000.0
+    hi_x: -100000000.0
+    hi_y: -100000000.0
+    side:0
+    side<2?>
+        i:0
+        i<plan.carriers?>
+            base:side*plan.curve.width+i*plan.stride
+            x:centers.(2*side)+radius*plan.curve.values.(base)
+            y:centers.(2*side+1)+radius*plan.curve.values.(base+1)
+            ex:4*radius*plan.curve.values.(base+2)
+            ey:4*radius*plan.curve.values.(base+3)
+            (ex>0 /\ ey>0 /\ |x|<1000000 /\ |y|<1000000 /\ ex<1000000 /\ ey<1000000)?! "native state viewport finite bounds"
+            x-ex<lo_x? .lo_x:x-ex
+            y-ey<lo_y? .lo_y:y-ey
+            x+ex>hi_x? .hi_x:x+ex
+            y+ey>hi_y? .hi_y:y+ey
+            .i:i+1
+        .side:side+1
+    left:floor_value(lo_x*pixel_ratio)-padding
+    top:floor_value(lo_y*pixel_ratio)-padding
+    right:ceil_value(hi_x*pixel_ratio)+padding
+    bottom:ceil_value(hi_y*pixel_ratio)+padding
+    width:right-left
+    height:bottom-top
+    (width>0 /\ height>0 /\ width<=8192 /\ height<=8192)?! "native state viewport dimensions"
+    @:(origin:[left/pixel_ratio,top/pixel_ratio],css_size:[width/pixel_ratio,height/pixel_ratio],width:width,height:height,pixel_ratio:pixel_ratio,padding:padding,maximum_scale:4)

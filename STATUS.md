@@ -734,3 +734,47 @@ laminar coalescence/reversal can retain its original correspondence. General
 multi↔multi scheduling/collision topology is not claimed. Root owns FineReceiver
 and point AA; child owns Fluid/session/source port. No PP changes or native full
 physical/glyph factory availability claim. Use flock GPU advisory coordination.
+
+## 2026-11-06 21:39 UTC — checkpoint; public automatic-engine boundary supersedes private integration
+
+Direct owner steering via PP root: read and followed FULL
+`.coordination/atomic-chats446/PP-AUTOMATIC-GPU-COMPUTE-INTEGRATION-HANDOVER-COORDINATOR125.txt`.
+No further integration, GPU runs, feature scope or PP intake. Branch
+`codex/native-interp-research-checkpoint-20261106` preserves upstream research only.
+The current provider registry reports normal native compiler build/automatic
+plan emission narrowly qualified; native execution continuation and matching
+browser automatic-engine artifact/public lifecycle remain unqualified. Its
+worker/deadline/model policies were not adopted by this task.
+
+Qualified local source components: c2a0f54 sparse channel assembly (306 f64
+comparisons exact), fbecc97 EventFields bounded chunks (actual27:62 chunks,
+697828 floats,26.28s preparation),1a88fc3 native compensated coverage, and
+c13fab7533cab1f41acbf7e8a2bf6608ec141070 raster quantization status wrapper.
+The ordinary canonical scalar segment/state backend and original calibrator
+remain shared; the wrapper explicitly reports a resolved-raster sampling limit.
+At q.9, adjacent f32 scales0.7762235403060913/0.7762235999107361 produce
+areas129.0666667/132.8313725 vs desired130.5317647; nearest measured bracket
+endpoint residual1.465098 pixels. This is NOT exact linear rendered area.
+
+The renderer's bounded actual27/17-coordinate software-GPU experiment now has
+monotone visible counts29,22,18,14,11,9,8,8,8,8,5,5,1,1,1,1,1; all but q.9
+meet1-pixel raster tolerance, q.9 is explicitly QUANTIZATION_LIMITED. Contacts
+occur before Ward pose-coincidence events: near-linear visible component timing
+and first-contact certification remain unproved. No full29-scene/public-runtime
+closure, genuine hardware or complete physics-and-graphics under10ms claim.
+
+UNQUALIFIED draft StateViewport.vkf compiled but its attempted floor helper
+incorrectly uses int(fractional), which the actual language rejects. Test fails
+with `int cast requires integer-valued number`. This is a draft implementation
+error, NOT an established missing compiler capability. It is unreferenced by
+qualified source/runtime artifacts and saved only to preserve work at stop.
+No further correction/port started after owner stop.
+
+The physical child preserves individually qualified fluid/material operators
+and an internal source/capture/reemit cycle; actual first-line formation,
+complete source/ports/receiver integration and public automatic-engine session
+are not qualified. No private075 emitters/raw GPU-buffer API or SwiftShader
+result may be promoted as PP's public/hardware integration. Required upstream:
+matching rebuilt native/WASM automatic GPU SDK with supported float/array/state,
+opaque resident references, engine-owned devices/lifetimes, public view/capture
+completion, and qualified complete agreed hardware workload.

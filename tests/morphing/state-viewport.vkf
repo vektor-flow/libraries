@@ -1,0 +1,6 @@
+v:.StateViewport
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+GeometryPlan:(curve:Curve,dimension:int,size:int,cells:int,carriers:int,stride:int,smooth_start:bit,smooth_end:bit,join:num)
+Viewport:(origin:[num],css_size:[num],width:int,height:int,pixel_ratio:num,padding:int,maximum_scale:num)
+prepare(plan:GeometryPlan,centers:[num],radius:num,pixel_ratio:num)->Viewport:v.prepare(plan,centers,radius,pixel_ratio)
+::1
