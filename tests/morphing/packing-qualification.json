@@ -1,13 +1,14 @@
 {
   "passed": true,
   "compilerSourceBinding": "ffcaeaae67079c714583d5487f3452a9ed4107abf14204a512f647400473c71f",
-  "sourceSha256": "e5476659eb806b3c4f528ca47218e2db4e200c1ae3fd5cea53254f2c9d14d00f",
+  "sourceSha256": "d37dfb16e960b8ab6ea62bc69c346e16ce3a2687667422398190fa1b0543c016",
   "baseline": "32aceb6f7aa7cece078482c75af7533a51c21f09",
   "gcRegression": {
     "fixtureSha256": "3ad1303b0dac09d5333f94b900f714e44629690f7445ca7215bff68df7721a34",
     "carriers": 7,
-    "sharedArenaStatus": "RED: nativeGC allocation-header trap after contour then geometry; reset is not a repair",
-    "sharedArenaError": "unreachable",
+    "fullStateArtifactSharedArenaStatus": "Observed RED in full current075 state artifact88a184cc: nativeGC allocation-header trap; reset is not a repair",
+    "smallUnitSharedArenaStatus": "PASS in small biological-only unit; not a full state artifact qualification",
+    "smallUnitSharedArenaError": null,
     "scopedArenaStatus": "GREEN: native contour and geometry use separate detached instances of same cachedmodule",
     "allScopedGeometryValuesAndCoefficientsExact": true
   },
@@ -53,13 +54,42 @@
       "allPlanValuesAndCoefficientsExact": true
     }
   ],
-  "large": {
+  "large": [
+    {
+      "carriers": 27,
+      "size": 65,
+      "direction": "1to27",
+      "distinctFieldPerObject": true,
+      "distinctRGBAperObject": true,
+      "values": 228366,
+      "geometryMs": 3468.5937799999992,
+      "attributesMs": 5427.213759999999,
+      "exactLayout": true,
+      "scope": "One detached current075 WASM invocation per operation, includes marshal/decode; no GPU claim."
+    },
+    {
+      "carriers": 27,
+      "size": 65,
+      "direction": "27to1",
+      "distinctFieldPerObject": true,
+      "distinctRGBAperObject": true,
+      "values": 228366,
+      "geometryMs": 3452.6521770000036,
+      "attributesMs": 5465.114413000003,
+      "exactLayout": true,
+      "scope": "One detached current075 WASM invocation per operation, includes marshal/decode; no GPU claim."
+    }
+  ],
+  "actual27": {
+    "passed": true,
+    "fixtureSha256": "9a33965df1d643962e10a2c0242c91b734769fc3ae2157b47e3e20fdcfc04bac",
     "carriers": 27,
-    "size": 65,
-    "values": 228366,
-    "geometryMs": 713.0344880000011,
-    "attributesMs": 752.1996849999996,
-    "exactLayout": true,
-    "scope": "One current client WASM invocation, includes input marshal and output decoding; no GPU compute claim."
+    "direction": "27to1",
+    "geometryMs": 3450.8436340000044,
+    "attributesMs": 5319.830873999999,
+    "geometryHash": "573e4aed8df5147a6c59f0355885b11bdba7e8b1731a1785c982ea6644bf98c8",
+    "attributesHash": "285dceab21179781a7195c38a6c1f55ce3995f1f164fa6acb191f5053c15a7ae",
+    "allNativeGeometryAndRGBAChannelsExact": true,
+    "rejectedWholeOutputCandidate": "571a16ad33cfbcf87d8ea18c7b7fe89d02bf798f"
   }
 }

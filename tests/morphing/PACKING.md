@@ -1,40 +1,40 @@
 # Native geometry channel packing
 
-`verify-packing.mjs <canonical075compilerDir>` compiles this library and baseline
-32aceb6f7aa7cece078482c75af7533a51c21f09 using the same current075 client compiler.
-It compares every prepared value, natural-cubic second coefficient and metadata
-field in 2D/3D, modes 0/1, with attribute widths 1/4/64. A 27-carrier 65² two-state
-case independently checks all 228366 geometry values and appended RGBA channels
-against the original state-local owner.
+Active source 86d5841 restores the exact d429453 carrier-chunk packer. Each state/
+carrier contributes one native chunk, appended once to the prepared channel
+array. Ownership, order, validation and the original state.prepare are unchanged.
+No source or interpolation algorithm was replaced.
 
-One output-sized native comprehension reads the original state/carrier/channel
-order through scalar helpers. Ownership, validation, field sampling, interpolation
-and the original state.prepare call remain unchanged. No indexed mutation per
-channel or growing-prefix concatenation remains. It is an exact library packing
-optimization, not a new geometry method or an inferred general language defect.
+The whole-output comprehension candidate 571a16a is rejected and removed from
+active source. Small 2D/3D parity and a synthetic 1→27 benchmark passed, but the
+actual 27→1 native glyph input returned corrupted value tag 65538 on a fresh
+current075 instance. With the identical actual inputs, the restored full d429453
+kernel prepared geometry in 4.55s and actual white/mint→gold RGBA in 5.78s with
+all channels exact. That is correctness evidence for the restored implementation,
+not permission to reuse the rejected candidate or its 0.7s timings.
 
-The first optimization d429453 used one concatenated chunk per carrier. Its
-standalone 27-carrier benchmark passed but actual browser view 7 exposed a native
-shared-arena GC trap. The whole-output builder is faster and preserves exact
-plans, but does not independently repair that trap. Do not cite source-only
-packing qualification as a working shared-arena integration.
+`verify-packing.mjs <canonical075compilerDir>` compares complete native plans
+against source 32aceb6 in 2D/3D, modes 0/1, and attribute widths 1/4/64. It tests BOTH
+27-carrier 65² directions using distinct fields and RGBA per object, plus actual
+physical native glyph 27→1 geometry and width 4 attributes. The compressed actual
+fixture preserves the failed candidate's input and the qualified chunk kernel's
+exact full-plan hashes. No host layout, glyph approximation or runtime numerical
+implementation is added by these tests.
 
-`packing-gc-fixture.json` preserves the actual genuine native-outline contour
-call followed by the actual seven-to-one geometry call. On the pinned075
-runtime, sharing a kernel produces a native GC allocation-header assertion;
-geometry alone passes, and existing native reset between calls does not repair
-it. The qualifier records this shared-arena RED explicitly and requires exact
-geometry under separate detached native instances of the same cached module.
-That ownership boundary preserves value-only calls; retained program/handle APIs
-remain a separate responsibility. See renderer docs/state-colors/NATIVE_ARENA_GAP.md
-and KERNEL_OWNERSHIP.json for 216 applicable actual native operations, exact field/
-plan comparisons, creation cost, and resident versus external memory measurements.
+`packing-gc-fixture.json` separately preserves an actual contour call followed
+by actual seven-to-one geometry. On one shared pinned075 instance this triggers
+a native GC allocation-header assertion; geometry alone passes, and existing
+native reset between calls does not repair it. The qualifier records that shared
+arena RED explicitly. Detached native instances of the SAME cached module preserve
+exact output. This ownership scope changes no retained-program/handle APIs.
+Renderer docs/state-colors/NATIVE_ARENA_GAP.md and KERNEL_OWNERSHIP.json record
+the bounded 216-operation history, creation cost and resident/external memory.
+No source-only packing qualification claims to repair the shared native GC path.
 
-`packing-qualification.json` records the exact source/compiler hashes and measured
-client WASM times, including marshaling/decoding. The historical actual Product
-27-carrier diagnostic measured geometry 34363.7ms and attributes 210812.4ms;
-its physical-glyph fields differ from the synthetic large benchmark. Exact
-baseline plan comparisons use small native plans to avoid repeating that
-several-minute large baseline. No GPU, low-memory-device or Navier–Stokes claim
-follows from these CPU measurements. Parent separately qualifies the actual
-29-view authored mixed-color rendering and capture path.
+`packing-qualification.json` records source/compiler hashes and measured WASM
+costs including marshaling/decoding. Historical actual source 32 diagnostics
+measured geometry 34.36s and attributes 210.81s, on physical fields different from
+the synthetic benchmark. Native GPU/color rendering and full 29-view resource,
+pixel and seek qualification are separate parent-owned integration gates. No
+low-memory-device, 3D browser rendering, optical mixing or Navier–Stokes claim
+follows from these tests.
