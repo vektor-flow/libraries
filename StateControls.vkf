@@ -1,0 +1,70 @@
+# Small typed layout/control transport for the canonical native state kernels.
+# No field values, interpolation law, easing, glyph matching or rendering here.
+s:.morphing.state
+CurveLayout:(knots:[num],count:int,width:int,mode:int)
+GeometryLayout:(dimension:int,size:int,stride:int,carriers:int,width:int,join:num)
+EventLayout:(source:int,target:int,support:int,grow:int,shrink:int,source_attributes:int,target_attributes:int,weights:int)
+Descriptor:(curve:CurveLayout,geometry:GeometryLayout,density:bit,events:[EventLayout])
+
+prepare(curve:CurveLayout,geometry:GeometryLayout,density:bit=false,events:[EventLayout]=[])->Descriptor:
+    (curve.count>=2 /\ curve.count<=4096 /\ curve.knots.length()=curve.count /\ curve.width>0 /\ curve.width<16777216 /\ (curve.mode=0 \/ curve.mode=1 \/ curve.mode=2))?! "invalid bounded state curve layout"
+    i:0
+    i<curve.count?>
+        (|curve.knots.(i)|<10000000000.0)?! "finite state coordinates required"
+        i>0? (curve.knots.(i)>curve.knots.(i-1))?! "state coordinates must increase"
+        .i:i+1
+    (geometry.dimension=2 /\ geometry.size>=3 /\ geometry.size<=257 /\ geometry.carriers>0 /\ geometry.carriers<=4096 /\ geometry.stride>=4+geometry.size*geometry.size /\ geometry.stride<=8+geometry.size*geometry.size /\ geometry.width=geometry.carriers*geometry.stride /\ geometry.width<16777216 /\ geometry.join>=0 /\ geometry.join<10000000000.0)?! "invalid bounded 2D state geometry layout"
+    (events.length()<=1)?! "at most one event layout group is supported"
+    events.length()=0? (curve.width=geometry.width)?! "dense state layout width mismatch"
+    events.length()=1?
+        (curve.mode=2 /\ curve.width=4*geometry.carriers)?! "events require a C1 embedding curve"
+        event:events.(0)
+        offsets:[event.source,event.target,event.support,event.grow,event.shrink,event.source_attributes,event.target_attributes,event.weights]
+        .i:0
+        i<offsets.length()?>
+            (offsets.(i)>=0 /\ offsets.(i)<16777216)?! "event buffer offset exceeds exact range"
+            .i:i+1
+    @:(curve:curve,geometry:geometry,density:density,events:events)
+
+sample(desc:Descriptor,q:num,desired:num,resolution:int=129,lattice:int=0,extent:num=1,offset_x:num=0,offset_y:num=0,colour:[num]=[1,1,1,1],viewport:[num]=[],tolerance:num=1)->[num]:
+    (q>=desc.curve.knots.(0) /\ q<=desc.curve.knots.(desc.curve.count-1) /\ desired>0 /\ desired<1000000000000000000000000000000.0 /\ resolution>=2 /\ resolution<=4096 /\ lattice>=0 /\ lattice<16777216 /\ extent>0 /\ extent<1000000000000000000000000000000.0 /\ |offset_x|<1000000000000000000000000000000.0 /\ |offset_y|<1000000000000000000000000000000.0 /\ tolerance>0 /\ tolerance<1000000000000000000000000000000.0)?! "invalid bounded state sample controls"
+    (colour.length()=4 /\ (viewport.length()=0 \/ viewport.length()=2))?! "state colour/viewport dimensions"
+    j:0
+    j<4?>
+        (colour.(j)>=0 /\ colour.(j)<=1)?! "state RGBA outside authored range"
+        .j:j+1
+    viewport.length()=2?
+        (viewport.(0)>0 /\ viewport.(1)>0 /\ viewport.(0)<1000000000000000000000000000000.0 /\ viewport.(1)<1000000000000000000000000000000.0)?! "positive finite state viewport required"
+    curve:desc.curve
+    geometry:desc.geometry
+    interval:s.interval(curve.knots,q)
+    h:curve.knots.(interval+1)-curve.knots.(interval)
+    u:(q-curve.knots.(interval))/h
+    neck:geometry.join*16*u*u*(1-u)*(1-u)
+    spacing:2/num(resolution)
+    chosen_lattice:lattice
+    lattice=0? .chosen_lattice:2*resolution-1
+    count:curve.count
+    curve.mode=2? .count:-count
+    [num] packet:[0:52]
+    original:[num(geometry.dimension),num(geometry.size),num(geometry.stride),num(geometry.carriers),num(resolution),-1,-1,0,1,1,0,1,neck,spacing,spacing*spacing,desired,tolerance,0.000001,4,0,extent,num(interval),u,h,num(count),num(geometry.width),colour.(0),colour.(1),colour.(2),colour.(3),0,0,0,num(chosen_lattice),offset_x,offset_y]
+    .j:0
+    j<36?>
+        packet.(j):original.(j)
+        .j:j+1
+    desc.density? packet.(36):1
+    packet.(39):num(curve.width)
+    packet.(40):q
+    desc.events.length()=1?
+        packet.(37):1
+        event:desc.events.(0)
+        offsets:[event.source,event.target,event.support,event.grow,event.shrink,event.source_attributes,event.target_attributes,event.weights]
+        .j:0
+        j<8?>
+            packet.(41+j):num(offsets.(j))
+            .j:j+1
+    viewport.length()=2?
+        packet.(49):1
+        packet.(50):viewport.(0)
+        packet.(51):viewport.(1)
+    @:packet

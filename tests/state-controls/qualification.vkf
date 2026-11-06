@@ -1,0 +1,9 @@
+c:.StateControls
+CurveLayout:(knots:[num],count:int,width:int,mode:int)
+GeometryLayout:(dimension:int,size:int,stride:int,carriers:int,width:int,join:num)
+EventLayout:(source:int,target:int,support:int,grow:int,shrink:int,source_attributes:int,target_attributes:int,weights:int)
+Descriptor:(curve:CurveLayout,geometry:GeometryLayout,density:bit,events:[EventLayout])
+prepare(curve:CurveLayout,geometry:GeometryLayout,density:bit,events:[EventLayout])->Descriptor:c.prepare(curve,geometry,density,events)
+sample(desc:Descriptor,q:num,desired:num,resolution:int,lattice:int,extent:num,offset_x:num,offset_y:num,colour:[num],viewport:[num],tolerance:num)->[num]:c.sample(desc,q,desired,resolution,lattice,extent,offset_x,offset_y,colour,viewport,tolerance)
+defaults(curve:CurveLayout,geometry:GeometryLayout)->[num]:c.sample(c.prepare(curve,geometry),0,1)
+::defaults((knots:[0,1],count:2,width:17,mode:0),(dimension:2,size:3,stride:17,carriers:1,width:17,join:0))
