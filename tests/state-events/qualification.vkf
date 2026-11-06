@@ -1,0 +1,8 @@
+e:.StateEvents
+s:.morphing.state
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+Plan:(embedding:Curve,weights:[num],parent:[int],children:[int],coordinates:[num],first_coordinates:[num],root_coordinate:num,centers:[num])
+Sample:(value:[num],first:[num],second:[num])
+prepare(source:[num],weights:[num],target:[num])->Plan:e.prepare(source,weights,target)
+sample(curve:Curve,q:num)->Sample:s.evaluate(curve,q,false,false)
+::prepare([-1,0,0.1,0.2,1,0,0.2,0.1],[1,1],[0,0,0.3,0.3])

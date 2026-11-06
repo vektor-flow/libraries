@@ -1,0 +1,133 @@
+# Bounded laminar embedding events for N->1 state interpolation. This is curve
+# preparation, not a renderer or a claim about first geometric contact/topology.
+s:.morphing.state
+segment:.morphing.segment
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+Plan:(embedding:Curve,weights:[num],parent:[int],children:[int],coordinates:[num],first_coordinates:[num],root_coordinate:num,centers:[num])
+
+prepare(source:[num],weights:[num],target:[num])->Plan:
+    n:weights.length()
+    (n>=1 /\ n<=128 /\ source.length()=4*n /\ target.length()=4)?! "bounded embedding dimensions required"
+    total:0.0
+    i:0
+    i<n?>
+        (weights.(i)>0 /\ weights.(i)<1000000000000000000000000000000.0)?! "finite positive event weights required"
+        .total:total+weights.(i)
+        .i:i+1
+    (total>0 /\ total<1000000000000000000000000000000000.0)?! "finite event weight sum required"
+    .i:0
+    i<source.length()?>
+        (|source.(i)|<100000000.0)?! "finite bounded source embedding required"
+        i%4>=2? (source.(i)>0)?! "positive source extent required"
+        .i:i+1
+    .i:0
+    i<4?>
+        (|target.(i)|<100000000.0)?! "finite bounded target embedding required"
+        i>=2? (target.(i)>0)?! "positive target extent required"
+        .i:i+1
+    nodes:2*n-1
+    [num] normalized:[0:n]
+    [num] node_weights:[0:nodes]
+    [num] centers:[0:4*nodes]
+    [int] parent:[-1:nodes]
+    [int] children:[-1:2*(n-1)]
+    [num] coordinates:[0:n-1]
+    [int] active:[0:nodes]
+    .i:0
+    i<n?>
+        normalized.(i):weights.(i)/total
+        node_weights.(i):normalized.(i)
+        active.(i):1
+        j:0
+        j<4?>
+            centers.(4*i+j):source.(4*i+j)
+            .j:j+1
+        .i:i+1
+    event:0
+    event<n-1?>
+        limit:n+event
+        left:-1
+        right:-1
+        best:0.0
+        a:0
+        a<limit?>
+            active.(a)=1?
+                b:a+1
+                b<limit?>
+                    active.(b)=1?
+                        wa:node_weights.(a)
+                        wb:node_weights.(b)
+                        dx:centers.(4*a)-centers.(4*b)
+                        dy:centers.(4*a+1)-centers.(4*b+1)
+                        cost:wa*wb/(wa+wb)*(dx*dx+dy*dy)
+                        left<0 \/ cost<best?
+                            .left:a
+                            .right:b
+                            .best:cost
+                    .b:b+1
+            .a:a+1
+        (left>=0 /\ right>left)?! "event tree has no active pair"
+        at:n+event
+        wa:node_weights.(left)
+        wb:node_weights.(right)
+        node_weights.(at):wa+wb
+        j:0
+        j<4?>
+            centers.(4*at+j):(wa*centers.(4*left+j)+wb*centers.(4*right+j))/(wa+wb)
+            .j:j+1
+        parent.(left):at
+        parent.(right):at
+        children.(2*event):left
+        children.(2*event+1):right
+        coordinates.(event):num(event+1)/num(n)
+        active.(left):0
+        active.(right):0
+        active.(at):1
+        .event:event+1
+    [num] first_coordinates:[0:n]
+    .i:0
+    i<n?>
+        first_coordinates.(i):0.5
+        n>1? first_coordinates.(i):coordinates.(parent.(i)-n)
+        .i:i+1
+    root_coordinate:0.5
+    n>1? .root_coordinate:coordinates.(n-2)
+    width:4*n
+    count:n+1
+    [num] knots:[0:count]
+    [num] values:[0:count*width]
+    [num] first:[0:count*width]
+    root:nodes-1
+    k:0
+    k<count?>
+        q:num(k)/num(n)
+        knots.(k):q
+        leaf:0
+        leaf<n?>
+            j:0
+            j<4?>
+                value:(1-q)*centers.(4*root+j)+q*target.(j)
+                derivative:target.(j)-centers.(4*root+j)
+                node:leaf
+                parent.(node)>=0?>
+                    above:parent.(node)
+                    t:coordinates.(above-n)
+                    q<t?
+                        offset:centers.(4*node+j)-centers.(4*above+j)
+                        m0:(-6/t+4)/t
+                        m1:(6/t-2)/t
+                        .value:value+offset*segment.value(1,0,m0,m1,t,q/t)
+                        .derivative:derivative+offset*segment.first(1,0,m0,m1,t,q/t)
+                    .node:above
+                k=0?
+                    .value:source.(4*leaf+j)
+                    .derivative:target.(j)-source.(4*leaf+j)
+                k=n?
+                    .value:target.(j)
+                    .derivative:target.(j)-centers.(4*root+j)
+                values.(k*width+4*leaf+j):value
+                first.(k*width+4*leaf+j):derivative
+                .j:j+1
+            .leaf:leaf+1
+        .k:k+1
+    @:(embedding:s.prepare_jets(knots,values,first,width),weights:normalized,parent:parent,children:children,coordinates:coordinates,first_coordinates:first_coordinates,root_coordinate:root_coordinate,centers:centers)
