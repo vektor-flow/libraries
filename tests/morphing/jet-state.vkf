@@ -1,0 +1,16 @@
+s:.morphing.state
+p:.morphing.parallel
+poly:.interpolation.polynomial
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+Sample:(value:[num],first:[num],second:[num])
+prepare(knots:[num],values:[num],first:[num],width:int)->Curve:s.prepare_jets(knots,values,first,width)
+sample(curve:Curve,q:num)->Sample:s.evaluate(curve,q,false,false)
+component(curve:Curve,q:num,j:int)->num:s.component(curve,q,j,false,false)
+parallel(values:[num],width:int,count:int,interval:int,h:num,u:num,j:int)->num:p.state_component(values,width,count,interval,h,u,j)
+Polynomial:(controls:[num],width:int,count:int)
+hermite(a:[num],b:[num],da:[num],db:[num])->Polynomial:poly.prepare_hermite(a,b,da,db)
+poly_value(plan:Polynomial,q:num)->[num]:poly.net_value(plan.controls,plan.width,plan.count,q)
+::sample(prepare([0,0.5,1],[0,1,2],[0,2,0],1),0.5)
+
+parallel_first(values:[num],width:int,count:int,interval:int,h:num,u:num,j:int)->num:p.state_first(values,width,count,interval,h,u,j)
+legacy_prepare(knots:[num],values:[num],width:int,mode:int)->Curve:s.prepare(knots,values,width,mode)

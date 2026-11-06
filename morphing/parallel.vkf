@@ -2,11 +2,18 @@
 s:.segment
 
 # State and second-derivative tables are concatenated in readonly storage.
+# Internal ABI: negative state count selects prepared per-interval curvature
+# (native first-jet/Hermite curve); positive count retains original nodal form.
 state_component(values:[num],width:int,count:int,interval:int,h:num,u:num,index:int)->num:
     left:interval*width+index
     right:left+width
-    second:count*width
-    @:s.value(values.(left),values.(right),values.(second+left),values.(second+right),h,u)
+    states:count
+    count<0? .states: -count
+    second:states*width
+    m0:left
+    count<0? .m0:2*interval*width+index
+    m1:m0+width
+    @:s.value(values.(left),values.(right),values.(second+m0),values.(second+m1),h,u)
 
 # Fraction of a triangle's area where its linearly interpolated field is >=0.
 # This is the SAME zero clipping used below, independent of field magnitude.
@@ -172,3 +179,16 @@ rectangle_packet(x:int,y:int,stop:int,size:int,extent:num,r:num,g:num,b:num,a:nu
             .channel:channel+1
         .vertex:vertex+1
     @:storage
+
+# Read the same prepared scalar segment's first jet. Diagnostic/constraint
+# consumers retain native derivatives instead of host finite differences.
+state_first(values:[num],width:int,count:int,interval:int,h:num,u:num,index:int)->num:
+    left:interval*width+index
+    right:left+width
+    states:count
+    count<0? .states: -count
+    second:states*width
+    m0:left
+    count<0? .m0:2*interval*width+index
+    m1:m0+width
+    @:s.first(values.(left),values.(right),values.(second+m0),values.(second+m1),h,u)

@@ -5,3 +5,13 @@ arrival(values:[num],size:int)->[num]:t.arrival(values,size)
 support(source:[num],target:[num],size:int)->[num]:t.support(source,target,size)
 prepare(plan:Plan)->Plan:t.prepare(plan)
 ::arrival([-1,-1,-1,-1,1,-1,-1,-1,-1],3)
+CoalescencePlan:(geometry:Plan,weights:[num],coincidence_coordinate:num,embedding:[num],embedding_first:[num])
+merge(plan:Plan,coordinate:num,weights:[num])->CoalescencePlan:t.prepare_coalescence(plan,coordinate,weights)
+s:.morphing.state
+component(plan:Plan,q:num,j:int)->num:s.component(plan.curve,q,j,false,false)
+first(plan:Plan,q:num,j:int)->num:s.component_first(plan.curve,q,j,false,false)
+m:.Morphing
+ScalarPlan:(curve:Curve,smooth_start:bit,smooth_end:bit)
+public_jets(knots:[num],values:[num],jets:[num],width:int)->ScalarPlan:m.prepare_jets(knots,values,jets,width)
+geometry(knots:[num],offsets:[int],owners:[int],carriers:int,centers:[num],extents:[num],fields:[num],size:int,dimension:int,mode:int,smooth_start:bit,smooth_end:bit,join:num)->Plan:m.prepare_geometry(knots,offsets,owners,carriers,centers,extents,fields,size,dimension,mode,smooth_start,smooth_end,join)
+attributes(plan:Plan,offsets:[int],owners:[int],values:[num],width:int)->Plan:m.prepare_geometry_attributes(plan,offsets,owners,values,width)

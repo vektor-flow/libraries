@@ -34,3 +34,32 @@ policy is NOT active in Product and not ready for intake. Pending post-calibrati
 native GPU component/area/colour/endpoint tests and production native GPU coverage
 measurement. tests/morphing/support-topology.mjs compiles exact source and tests
 all28 physical fields in packing-actual27 fixture, plus native preparation shape.
+
+First-jet/coalescence extension checkpoint
+
+Morphing.prepare_jets(coordinates,states,first,width,smooth_start=false,
+smooth_end=false) is additive. It evaluates through the ORIGINAL scalar cubic
+segment after converting first jets to per-interval endpoint second derivatives.
+Curve.mode2 has 2*(count-1)*width entries in second. Existing modes0/1 retain
+nodal second storage unchanged;82 legacy scalar/vector samples match source86d5841
+EXACTLY. Existing polynomial.prepare_hermite is an independent representation
+oracle (4.44e-16 maximum); linear channels differ by at most1.11e-16.
+GPU internal signed-count tag distinguishes that storage, not a second backend.
+
+Internal topology.prepare_coalescence is currently TWO→ONE only, with source
+weights from actual native clipped-cell areas (or explicit positive weights).
+It returns a CoalescencePlan with a clearly named coincidence_coordinate,
+embedding and embedding_first. The knot is POSE COINCIDENCE, not first boundary
+contact. First contact must occur earlier for finite-area bodies. No false
+contact-time/count declaration is made. Mean embedding follows the original
+linear trajectory; children share exactly one embedding and first jet after
+coincidence. Embedding channels include XY and extents; they are not an invented
+fluid momentum vector. Native2→1 white/mint→gold test passes weighted moments,
+linear per-lineage RGBA and exact post-coincidence equality.
+
+STILL NOT READY: actual GPU contact/count/area/velocity tests, and native
+mass-weighted material colour for overlapping lineages. Dominant-field tie picks
+one child colour after early coincidence; raw per-lineage RGBA parity alone
+cannot establish visible conserved colour. Native relative density p_i/area_i
+and independent union-coverage resolve are planned within this same backend.
+General laminar event timing/collision planning is not implemented here.

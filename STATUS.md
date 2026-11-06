@@ -711,3 +711,26 @@ invalidwidth/storage/owner/finiteguards. Sourcehash/compiler evidence in
  tests/morphing/attributes-qualification.json. No GPUbuild/colorrender claim here;
 parent owns mixedmint/gold/whitefromIdsgroup shader/buffer integration and proof.
 Existing table/nativefont/PP/runtime/glyphpins remain unchanged by these files.
+
+## 2026-11-06: constructive support/first-jet research checkpoint
+
+Local-contour field preparation now has native predecessor/support homotopy;
+source7163ec5 and renderer prototype support PNGs pass actual27→1 area within1px
+and visible components29→27→27→12→1 at five q values. This removes extra native
+islands, but is NOT a near-linear event-count plan: midpoint retains27 supports.
+
+Additive prepare_jets uses the SAME cubic segment primitive, storing true
+per-interval second derivatives.82 old mode0/1 samples are exactly unchanged;
+Hermite polynomial parity4.44e-16. Native2→1 coalescence keeps weighted embedding
+and first-jet moments, linear RGBA, exact common pose after its coincidence knot.
+Do NOT call this knot first boundary contact. Actual native source weight loop
+avoids repeated full-field array argument passing without changing scalar math.
+
+Internal only/NOT READY: GPU contact/C1/rendered count and conserved mixed-colour
+resolve are pending. Early coincident fields expose old dominant-colour tie loss;
+per-lineage colour parity alone is insufficient. Existing adapter creates star
+cohorts (N→1 or1→N) by maximal pairing then surplus donors, so bounded native
+laminar coalescence/reversal can retain its original correspondence. General
+multi↔multi scheduling/collision topology is not claimed. Root owns FineReceiver
+and point AA; child owns Fluid/session/source port. No PP changes or native full
+physical/glyph factory availability claim. Use flock GPU advisory coordination.

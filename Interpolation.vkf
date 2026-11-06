@@ -18,6 +18,9 @@ GeometryFrame:(coverage:[num],measure:num,scale:num)
 prepare(coordinates:[num],states:[num],width:int,mode:int,smooth_start:bit,smooth_end:bit)->Plan:
     @:interpolation_morphing_backend.prepare(coordinates,states,width,mode,smooth_start,smooth_end)
 
+prepare_jets(coordinates:[num],states:[num],first:[num],width:int,smooth_start:bit=false,smooth_end:bit=false)->Plan:
+    @:interpolation_morphing_backend.prepare_jets(coordinates,states,first,width,smooth_start,smooth_end)
+
 sample(plan:Plan,coordinate:num)->Sample:
     @:interpolation_morphing_backend.sample(plan,coordinate)
 

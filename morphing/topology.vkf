@@ -139,3 +139,100 @@ prepare(plan:Plan)->Plan:
             .carrier:carrier+1
         .state:state+1
     @:(curve:s.prepare([0,0.5,1],values,width,0),dimension:2,size:size,cells:cells,carriers:carriers,stride:stride,smooth_start:plan.smooth_start,smooth_end:plan.smooth_end,join:0)
+
+# Native lineage weights from the source's existing clipped-cell geometry.
+# This is the finite polygon/grid model, not an analytic font area certificate.
+p:.parallel
+source_weights(plan:Plan)->[num]:
+    original:plan.curve.values
+    size:plan.size
+    cells:plan.cells
+    stride:plan.stride
+    [num] weights:[0:plan.carriers]
+    carrier:0
+    carrier<plan.carriers?>
+        base:carrier*stride
+        field:[..cells-1 >> original.(base+4+int($))]
+        ex:2*original.(base+2)
+        ey:2*original.(base+3)
+        area:0.0
+        cell:0
+        cell<(size-1)*(size-1)?>
+            origin:(cell//(size-1))*size+cell%(size-1)
+            fraction:p.cell_fraction(field.(origin),field.(origin+1),field.(origin+size),field.(origin+size+1))
+            .area:area+fraction*(ex/(size-1))*(ey/(size-1))
+            .cell:cell+1
+        (area>0)?! "source lineage has zero measured material"
+        weights.(carrier):area
+        .carrier:carrier+1
+    @:weights
+
+CoalescencePlan:(geometry:Plan,weights:[num],coincidence_coordinate:num,embedding:[num],embedding_first:[num])
+
+# Bounded coalescence prototype: two existing lineages to ONE shared target.
+# The knot means pose coincidence, NOT first boundary contact; that needs its
+# own geometric contact/event qualification.
+# It does not retarget endpoints or implement the general laminar event planner.
+prepare_coalescence(plan:Plan,coincidence_coordinate:num=0.5,given_weights:[num]=[])->CoalescencePlan:
+    coordinate:coincidence_coordinate
+    (plan.dimension=2 /\ plan.join=0 /\ plan.curve.count=2 /\ plan.curve.mode=0 /\ plan.carriers=2 /\ coordinate>0 /\ coordinate<1)?! "unsupported merge event profile"
+    size:plan.size
+    cells:plan.cells
+    stride:plan.stride
+    width:plan.curve.width
+    original:plan.curve.values
+    i:0
+    i<4+cells?>
+        (original.(width+i)=original.(width+stride+i))?! "merge event requires one shared target geometry"
+        .i:i+1
+    weights:given_weights
+    weights.length()=0? .weights:source_weights(plan)
+    (weights.length()=2 /\ weights.(0)>0 /\ weights.(1)>0 /\ |weights.(0)|<10000000000 /\ |weights.(1)|<10000000000)?! "invalid merge lineage weights"
+    total:weights.(0)+weights.(1)
+    w0:weights.(0)/total
+    w1:weights.(1)/total
+    source0:[..cells-1 >> original.(4+int($))]
+    source1:[..cells-1 >> original.(stride+4+int($))]
+    target:[..cells-1 >> original.(width+4+int($))]
+    arrival0:arrival(source0,size)
+    arrival1:arrival(source1,size)
+    arrival_target:arrival(target,size)
+    support0:support(source0,target,size)
+    support1:support(source1,target,size)
+    shared_support:[..cells-1 >> maximum(support0.(int($)),support1.(int($)))]
+    source_center:[..3 >> w0*original.(int($))+w1*original.(stride+int($))]
+    merge_center:[..3 >> segment.value(source_center.(int($)),original.(width+int($)),0,0,1,coordinate)]
+    merge_velocity:[..3 >> original.(width+int($))-source_center.(int($))]
+    [num] values:[]
+    [num] first:[]
+    state:0
+    state<3?>
+        q:coordinate
+        state=0? .q:0
+        state=2? .q:1
+        carrier:0
+        carrier<2?>
+            base:carrier*stride
+            center:merge_center
+            velocity:merge_velocity
+            state=0?
+                .center:[..3 >> original.(base+int($))]
+                .velocity:[..3 >> original.(width+base+int($))-original.(base+int($))]
+            state=2? .center:[..3 >> original.(width+base+int($))]
+            field:shared_support
+            state=0 /\ carrier=0? .field:arrival0
+            state=0 /\ carrier=1? .field:arrival1
+            state=2? .field:arrival_target
+            [num] attributes:[]
+            [num] attribute_jets:[]
+            stride>4+cells?
+                .attributes:[..stride-5-cells >> segment.value(original.(base+4+cells+int($)),original.(width+base+4+cells+int($)),0,0,1,q)]
+                .attribute_jets:[..stride-5-cells >> original.(width+base+4+cells+int($))-original.(base+4+cells+int($))]
+            packed:center&field&attributes
+            packed_jets:velocity&[0:cells]&attribute_jets
+            .values:values&packed
+            .first:first&packed_jets
+            .carrier:carrier+1
+        .state:state+1
+    geometry:(curve:s.prepare_jets([0,coordinate,1],values,first,width),dimension:2,size:size,cells:cells,carriers:2,stride:stride,smooth_start:plan.smooth_start,smooth_end:plan.smooth_end,join:0)
+    @:(geometry:geometry,weights:[w0,w1],coincidence_coordinate:coordinate,embedding:merge_center,embedding_first:merge_velocity)

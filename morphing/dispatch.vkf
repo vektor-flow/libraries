@@ -335,3 +335,8 @@ carrier_mesh_packet(index:int,params:[num],values:[num])->[num]:
             .fan:fan+1
         .half:half+1
     @:output
+
+# Compact embedding-first-jet diagnostic from the SAME prepared field state.
+state_pose_first(index:int,params:[num],values:[num])->num:
+    component:(index//4)*int(params.(2))+index%4
+    @:p.state_first(values,int(params.(25)),int(params.(24)),int(params.(21)),params.(23),params.(22),component)

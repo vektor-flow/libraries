@@ -9,6 +9,10 @@ Plan:(curve:Curve,smooth_start:bit,smooth_end:bit)
 prepare(coordinates:[num],states:[num],width:int,mode:int,smooth_start:bit,smooth_end:bit)->Plan:
     @:(curve:s.prepare(coordinates,states,width,mode),smooth_start:smooth_start,smooth_end:smooth_end)
 
+# Explicit first-jet states, using the same native cubic segment backend.
+prepare_jets(coordinates:[num],states:[num],first:[num],width:int,smooth_start:bit=false,smooth_end:bit=false)->Plan:
+    @:(curve:s.prepare_jets(coordinates,states,first,width),smooth_start:smooth_start,smooth_end:smooth_end)
+
 sample(plan:Plan,coordinate:num)->Sample:
     @:s.evaluate(plan.curve,coordinate,plan.smooth_start,plan.smooth_end)
 
