@@ -295,7 +295,6 @@ carrier_mesh_packet(index:int,params:[num],values:[num])->[num]:
     (int(params.(0))=2 /\ stride=4+cells+4 /\ carrier<int(params.(3)))?! "native local material profile"
     base:carrier*stride
     field:base+4
-    clipped:p.cell_triangles_offset(values,size,2,cell,1,1,1,1,field)
     [num] output:[0:84]
     column:cell%(size-1)
     row:cell//(size-1)
@@ -308,21 +307,31 @@ carrier_mesh_packet(index:int,params:[num],values:[num])->[num]:
     ex:values.(base+2)*scale
     ey:values.(base+3)*scale
     depth_extent:k.minimum(ex,ey)
-    vertex:0
-    vertex<12?>
-        clipped.(vertex*6+5)>0?
-            x:clipped.(vertex*6)
-            y:clipped.(vertex*6+1)
-            u:x*(size-1)/2-column
-            v:y*(size-1)/2-row
-            f:v00*(1-u)+v10*(u-v)+v11*v
-            vertex>=6? .f:v00*(1-v)+v11*u+v01*(v-u)
-            output.(vertex*7):values.(base)+(x-1)*ex
-            output.(vertex*7+1): -(values.(base+1)+(y-1)*ey)
-            output.(vertex*7+2):k.maximum(f,0)*depth_extent
-            channel:0
-            channel<4?>
-                output.(vertex*7+3+channel):values.(base+4+cells+channel)
-                .channel:channel+1
-        .vertex:vertex+1
+    half:0
+    half<2?>
+        n:p.polygon_count_offset(values,origin,size,half,field)
+        fan:1
+        at:half*42
+        fan<n-1?>
+            vertex:0
+            vertex<3?>
+                selected:0
+                vertex>0? .selected:fan+vertex-1
+                x:p.polygon_coordinate_offset(values,origin,size,half,selected,0,field)
+                y:p.polygon_coordinate_offset(values,origin,size,half,selected,1,field)
+                u:x-column
+                v:y-row
+                f:v00*(1-u)+v10*(u-v)+v11*v
+                half=1? .f:v00*(1-v)+v11*u+v01*(v-u)
+                output.(at):values.(base)+(2*x/(size-1)-1)*ex
+                output.(at+1): -(values.(base+1)+(2*y/(size-1)-1)*ey)
+                output.(at+2):k.maximum(f,0)*depth_extent
+                channel:0
+                channel<4?>
+                    output.(at+3+channel):values.(base+4+cells+channel)
+                    .channel:channel+1
+                .at:at+7
+                .vertex:vertex+1
+            .fan:fan+1
+        .half:half+1
     @:output

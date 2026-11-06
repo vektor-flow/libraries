@@ -51,24 +51,30 @@ corner(origin:int,size:int,half:int,edge:int)->int:
 
 # Count the same clipped polygon used by the compact native triangle adapter.
 polygon_count(values:[num],origin:int,size:int,half:int)->int:
+    @:polygon_count_offset(values,origin,size,half,0)
+
+polygon_count_offset(values:[num],origin:int,size:int,half:int,offset:int)->int:
     count:0
     edge:0
     edge<3?>
-        a:values.(corner(origin,size,half,edge))
-        b:values.(corner(origin,size,half,(edge+1)%3))
+        a:values.(offset+corner(origin,size,half,edge))
+        b:values.(offset+corner(origin,size,half,(edge+1)%3))
         a>=0? .count:count+1
         (a<0 /\ b>0) \/ (a>0 /\ b<0)? .count:count+1
         .edge:edge+1
     @:count
 
 polygon_coordinate(values:[num],origin:int,size:int,half:int,vertex:int,axis:int)->num:
+    @:polygon_coordinate_offset(values,origin,size,half,vertex,axis,0)
+
+polygon_coordinate_offset(values:[num],origin:int,size:int,half:int,vertex:int,axis:int,offset:int)->num:
     count:0
     edge:0
     edge<3?>
         a:corner(origin,size,half,edge)
         b:corner(origin,size,half,(edge+1)%3)
-        va:values.(a)
-        vb:values.(b)
+        va:values.(offset+a)
+        vb:values.(offset+b)
         ca:num(a%size)
         cb:num(b%size)
         axis=1?

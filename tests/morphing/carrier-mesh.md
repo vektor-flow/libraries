@@ -10,3 +10,9 @@ The native075 unit compares the offset clip packet to the original clipper and
 checks positions/attributes. This is an internal prototype only: active global
 measure, renderer and Interp routes are unchanged. GPU rendering, area, endpoint
 fidelity and component-count qualification are pending.
+
+The initial84-float entry calling a72-float array-return helper is rejected by
+the current GPU emitter (`cannot convert array:72 to array:84`). The prototype now
+reuses the existing scalar polygon-count/coordinate helpers with an explicit
+field offset. It preserves the same clip crossings and packet order and emits
+one84-float output directly. No IR or generated shader edits are used.
