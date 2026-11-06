@@ -15,8 +15,8 @@ bilinear2(a:num,b:num,c:num,d:num,fx:num,fy:num)->num:
     @:value
 
 # Multilinear field lookup in the object's own moving coordinates.
-field(values:[num],dimension:int,size:int,stride:int,carrier:int,x:num,y:num,z:num,scale:num)->num:
-    base:carrier*stride
+field(values:[num],dimension:int,size:int,stride:int,carrier:int,x:num,y:num,z:num,scale:num,offset:int=0)->num:
+    base:offset+carrier*stride
     ex:values.(base+dimension)*scale
     ey:values.(base+dimension+1)*scale
     (ex>0 /\ ey>0)?! "interpolated biological extent is nonpositive"
@@ -69,6 +69,22 @@ field(values:[num],dimension:int,size:int,stride:int,carrier:int,x:num,y:num,z:n
             .dy:dy+1
         .dz:dz+1
     @:(value-maximum(outside,0))*extent
+
+# Native dominant material carrier. This classifies the existing signed fields;
+# it does not alter the union, geometry calibration or attribute interpolation.
+# Equal fields choose the last carrier, matching explicit input paint order.
+dominant(values:[num],dimension:int,size:int,stride:int,carriers:int,x:num,y:num,z:num,scale:num,offset:int=0)->int:
+    (carriers>0 /\ offset>=0 /\ values.length()>=offset+carriers*stride)?! "invalid dominant biological field storage"
+    winner:0
+    best:field(values,dimension,size,stride,0,x,y,z,scale,offset)
+    k:1
+    k<carriers?>
+        value:field(values,dimension,size,stride,k,x,y,z,scale,offset)
+        value>=best?
+            .winner:k
+            .best:value
+        .k:k+1
+    @:winner
 
 # Stable smooth union: geometric contact neck, no alpha/opacity interpolation.
 union(a:num,b:num,radius:num)->num:

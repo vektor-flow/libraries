@@ -1,0 +1,56 @@
+# Native per-carrier attribute qualification; shared geometry/state path.
+m:.Morphing
+s:.morphing.state
+f:.morphing.field
+
+fixture(mode:int):
+    fields:[-1,-1,-1,-1,0.6,-1,-1,-1,-1,-1,-1,-1,-1,0.6,-1,-1,-1,-1,-1,-1,-1,-1,0.6,-1,-1,-1,-1]
+    @:m.prepare_geometry([0,1],[0,1,3],[0,0,0,1],2,[0,0,-0.4,0,0.4,0],[1,1,0.4,0.4,0.4,0.4],fields,3,2,mode,false,false,0)
+
+colored(mode:int):
+    @:m.prepare_geometry_attributes(fixture(mode),[0,1,3],[0,0,0,1],[0.9,0.6,0.2,1,0.2,0.9,0.7,1,1,1,1,1],4)
+
+test()->bit:
+    q_values:[0,0.2,0.5,0.8,1]
+    attributes:[0.9,0.6,0.2,1,0.2,0.9,0.7,1,1,1,1,1]
+    mode:0
+    mode<2?>
+        original:fixture(mode)
+        prepared:colored(mode)
+        (prepared.stride=17 /\ prepared.curve.width=34 /\ prepared.curve.mode=mode /\ prepared.curve.knots=original.curve.knots)?! "attribute state layout changed"
+        qi:0
+        qi<q_values.length()?>
+            q:q_values.(qi)
+            before:s.evaluate(original.curve,q,false,false)
+            after:s.evaluate(prepared.curve,q,false,false)
+            k:0
+            k<2?>
+                j:0
+                j<13?>
+                    (before.value.(k*13+j)=after.value.(k*17+j))?! "attributes changed a geometry channel"
+                    .j:j+1
+                .j:0
+                j<4?>
+                    expected:(1-q)*attributes.(j)+q*attributes.((k+1)*4+j)
+                    (|after.value.(k*17+13+j)-expected|<0.000000000001)?! "attribute does not use shared native interpolation"
+                    .j:j+1
+                phi:f.field(before.value,2,3,13,k,0.15,0.1,0,1)
+                (phi=f.field(after.value,2,3,17,k,0.15,0.1,0,1))?! "attributes changed the signed field"
+                (phi=f.field([9,8,7]&after.value,2,3,17,k,0.15,0.1,0,1,3))?! "field offset changed the signed field"
+                .k:k+1
+            .qi:qi+1
+        first:s.evaluate(prepared.curve,0,false,false)
+        last:s.evaluate(prepared.curve,1,false,false)
+        (f.dominant(first.value,2,3,17,2,0,0,0,1)=1)?! "dominant tie did not choose last carrier"
+        (f.dominant(last.value,2,3,17,2,-0.4,0,0,1)=0 /\ f.dominant(last.value,2,3,17,2,0.4,0,0,1)=1)?! "dominant carrier does not follow native field"
+        (f.dominant([9,8,7]&last.value,2,3,17,2,0.4,0,0,1,3)=1)?! "dominant offset does not follow native field"
+        .mode:mode+1
+    @:true
+
+invalid_width():m.prepare_geometry_attributes(fixture(0),[0,1,3],[0,0,0,1],[1,1,1],0)
+invalid_storage():m.prepare_geometry_attributes(fixture(0),[0,1,3],[0,0,0,1],[1,1],4)
+invalid_owner():m.prepare_geometry_attributes(fixture(0),[0,1,3],[0,1,0,1],[1,1,1],1)
+invalid_nonfinite():m.prepare_geometry_attributes(fixture(0),[0,1,3],[0,0,0,1],[1,10^101,1],1)
+invalid_dominant()->int:f.dominant([],2,3,13,0,0,0,0,1)
+
+::test()

@@ -697,3 +697,17 @@ heading/suffix/endpoints/seek, clocks, geometric removal; ring regression oldtra
 interpolation/GLYPH_STATE_HANDOVER.md and renderer docs/glyph-material-state.
 No PP edits/deploy. Native numeric-cell capability is independent followup;
 physical fluid port remains deferred. Numerical source pinad9 remains immutable.
+
+## 2026-11-06: native per-carrier attributes for mixed-color geometry
+
+Branch codex/native-state-colors-20261106 extends sourcead9 geometry without
+changing its interpolation/calibration math. biological.attributes appends finite
+per-object channels through original ownership into the SAME state.prepare and
+plan; Morphing.prepare_geometry_attributes exposes it. field.field adds optional
+packedoffset default0; field.dominant chooses original signed-field max, lasttie.
+Current075clientWASM tests PASS: both2endpointpaths, exactoldgeometrychannels and
+fields, RGBAendpoint/intermediatevalues, packedoffset, dominantregions/ties,
+invalidwidth/storage/owner/finiteguards. Sourcehash/compiler evidence in
+ tests/morphing/attributes-qualification.json. No GPUbuild/colorrender claim here;
+parent owns mixedmint/gold/whitefromIdsgroup shader/buffer integration and proof.
+Existing table/nativefont/PP/runtime/glyphpins remain unchanged by these files.

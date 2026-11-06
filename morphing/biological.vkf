@@ -108,6 +108,56 @@ prepare(knots:[num],offsets:[int],owners:[int],carriers:int,centers:[num],extent
         .state:state+1
     @:(curve:s.prepare(knots,values,carriers*stride,mode),dimension:dimension,size:size,cells:cells,carriers:carriers,stride:stride,smooth_start:smooth_start,smooth_end:smooth_end,join:join)
 
+# Append finite per-object attributes to the same persistent carrier states.
+# Geometry and previously prepared channels retain their exact ordering. The
+# caller supplies the same state-local object ownership as geometry preparation.
+# RGBA is width 4; interpolation uses the existing curve mode and shared clock.
+attributes(plan:Plan,offsets:[int],owners:[int],attributes:[num],width:int)->Plan:
+    curve:plan.curve
+    count:curve.count
+    carriers:plan.carriers
+    old_stride:plan.stride
+    old_width:curve.width
+    original:curve.values
+    (width>0 /\ width<=64 /\ count>=2 /\ carriers>0 /\ old_stride>=2*plan.dimension+plan.cells /\ old_width=carriers*old_stride /\ original.length()=count*old_width)?! "invalid biological attribute dimensions"
+    (offsets.length()=count+1 /\ offsets.(0)=0 /\ owners.length()=count*carriers)?! "invalid biological attribute ownership"
+    objects:offsets.(count)
+    (objects>0 /\ attributes.length()=objects*width)?! "invalid biological attribute storage"
+    i:0
+    i<attributes.length()?>
+        (|attributes.(i)|<10^100)?! "nonfinite biological attribute"
+        .i:i+1
+    stride:old_stride+width
+    channels:carriers*stride
+    [num] values:[0:count*channels]
+    [int] used:[0:objects]
+    state:0
+    state<count?>
+        (offsets.(state+1)>offsets.(state) /\ offsets.(state+1)<=objects)?! "empty biological attribute state"
+        k:0
+        k<carriers?>
+            owner:owners.(state*carriers+k)
+            (owner>=0 /\ owner<offsets.(state+1)-offsets.(state))?! "biological attribute owner outside state"
+            object:offsets.(state)+owner
+            used.(object):1
+            before:state*old_width+k*old_stride
+            after:state*channels+k*stride
+            j:0
+            j<old_stride?>
+                values.(after+j):original.(before+j)
+                .j:j+1
+            .j:0
+            j<width?>
+                values.(after+old_stride+j):attributes.(object*width+j)
+                .j:j+1
+            .k:k+1
+        .state:state+1
+    .i:0
+    i<objects?>
+        (used.(i)=1)?! "biological attribute object has no lineage"
+        .i:i+1
+    @:(curve:s.prepare(curve.knots,values,channels,curve.mode),dimension:plan.dimension,size:plan.size,cells:plan.cells,carriers:carriers,stride:stride,smooth_start:plan.smooth_start,smooth_end:plan.smooth_end,join:plan.join)
+
 # Existing API delegates to the shared allocation-free field kernel.
 field(plan:Plan,values:[num],carrier:int,x:num,y:num,z:num,scale:num)->num:
     @:kernel.field(values,plan.dimension,plan.size,plan.stride,carrier,x,y,z,scale)

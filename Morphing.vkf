@@ -220,6 +220,11 @@ GeometryFrame:(coverage:[num],measure:num,scale:num)
 prepare_geometry(coordinates:[num],offsets:[int],owners:[int],carriers:int,centers:[num],extents:[num],fields:[num],size:int,dimension:int,mode:int,smooth_start:bit,smooth_end:bit,join:num)->GeometryPlan:
     @:b.prepare(coordinates,offsets,owners,carriers,centers,extents,fields,size,dimension,mode,smooth_start,smooth_end,join)
 
+# Appended carrier attributes share the canonical state curve and clock. RGBA
+# callers supply four per-object channels; geometry fields are unchanged.
+prepare_geometry_attributes(plan:GeometryPlan,offsets:[int],owners:[int],attributes:[num],width:int)->GeometryPlan:
+    @:b.attributes(plan,offsets,owners,attributes,width)
+
 geometry_measure(plan:GeometryPlan,resolution:int,lo:[num],hi:[num])->Curve:
     @:b.measure_curve(plan,resolution,lo,hi)
 
