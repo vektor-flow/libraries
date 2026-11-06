@@ -1,0 +1,75 @@
+# Native zero-contour geometry, independently measured using existing packets.
+p:.morphing.parallel
+
+packet_area(values:[num])->num:
+    area:0.0
+    triangle:0
+    triangle<4?>
+        at:triangle*18
+        ax:values.(at)
+        ay:values.(at+1)
+        bx:values.(at+6)
+        by:values.(at+7)
+        cx:values.(at+12)
+        cy:values.(at+13)
+        .area:area+|(bx-ax)*(cy-ay)-(by-ay)*(cx-ax)|/2
+        .triangle:triangle+1
+    @:area
+
+test()->bit:
+    (p.triangle_fraction(1,-1,-1)=0.25)?! "one inside triangle"
+    (p.triangle_fraction(1,1,-1)=0.75)?! "two inside triangle"
+    (p.triangle_fraction(0,1,-1)=0.5)?! "zero vertex"
+    (p.triangle_fraction(0,-1,-1)=0 /\ p.triangle_fraction(0,0,-1)=0)?! "zero edge has no area"
+    (p.triangle_fraction(0,0,0)=1 /\ p.triangle_fraction(0,0,1)=1)?! "zero plateau matches filled contour"
+    (|p.triangle_fraction(-3,1,2)-0.55|<0.000000000001)?! "asymmetric two inside"
+    samples:[-3,-1,0,1,2]
+    scales:[0.00000001,0.0001,1,10000,100000000]
+    ai:0
+    ai<5?>
+        bi:0
+        bi<5?>
+            ci:0
+            ci<5?>
+                a:samples.(ai)
+                b:samples.(bi)
+                c:samples.(ci)
+                fraction:p.triangle_fraction(a,b,c)
+                (fraction>=0 /\ fraction<=1)?! "triangle fraction outside unit interval"
+                (|fraction-p.triangle_fraction(a,c,b)|<0.000000000001 /\ |fraction-p.triangle_fraction(b,a,c)|<0.000000000001 /\ |fraction-p.triangle_fraction(b,c,a)|<0.000000000001 /\ |fraction-p.triangle_fraction(c,a,b)|<0.000000000001 /\ |fraction-p.triangle_fraction(c,b,a)|<0.000000000001)?! "triangle permutation changed area"
+                ~(a=0 /\ b=0 /\ c=0)? (|fraction+p.triangle_fraction(-a,-b,-c)-1|<0.000000000001)?! "complement changed area"
+                si:0
+                si<5?>
+                    scale:scales.(si)
+                    (|fraction-p.triangle_fraction(a*scale,b*scale,c*scale)|<0.000000000001)?! "positive field rescaling changed triangle area"
+                    .si:si+1
+                di:0
+                di<5?>
+                    d:samples.(di)
+                    values:[a,b,c,d]
+                    geometric:p.cell_area(values,2,3,3,0)
+                    contour:packet_area(p.cell_triangles(values,2,3,0,0.2,0.8,0.5,1))
+                    (|geometric-contour|<0.000000000001)?! "cell area differs from existing contour packet"
+                    (|p.cell_area(values,2,3,5,0)-p.cell_fraction(a,b,c,d)*15|<0.000000000001)?! "rectangular cell area"
+                    .si:0
+                    si<5?>
+                        scale:scales.(si)
+                        (|geometric-p.cell_area([a*scale,b*scale,c*scale,d*scale],2,3,3,0)|<0.000000000001)?! "positive field rescaling changed cell area"
+                        .si:si+1
+                    .di:di+1
+                .ci:ci+1
+            .bi:bi+1
+        .ai:ai+1
+    # The diagonal is significant for a saddle; match the established a--d split.
+    (p.cell_fraction(1,-1,-1,1)=0.75 /\ p.cell_fraction(-1,1,1,-1)=0.25)?! "contour diagonal changed"
+    @:true
+
+invalid_storage()->num:p.cell_area([1,2,3],2,1,1,0)
+invalid_size()->num:p.cell_area([1],1,1,1,0)
+invalid_extent()->num:p.cell_area([1,1,1,1],2,0,1,0)
+invalid_cell()->num:p.cell_area([1,1,1,1],2,1,1,1)
+
+# Detached wrappers also allow native CPU/GPU parity without reimplementing math.
+triangle(a:num,b:num,c:num)->num:p.triangle_fraction(a,b,c)
+cell(values:[num],size:int,extent_x:num,extent_y:num,index:int)->num:p.cell_area(values,size,extent_x,extent_y,index)
+::test()

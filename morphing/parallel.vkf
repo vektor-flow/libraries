@@ -8,6 +8,39 @@ state_component(values:[num],width:int,count:int,interval:int,h:num,u:num,index:
     second:count*width
     @:s.value(values.(left),values.(right),values.(second+left),values.(second+right),h,u)
 
+# Fraction of a triangle's area where its linearly interpolated field is >=0.
+# This is the SAME zero clipping used below, independent of field magnitude.
+# Inputs are finite signed field samples; no distance/gradient assumption.
+two_inside_fraction(outside:num,first:num,second:num)->num:
+    u:first/(first-outside)
+    v:second/(second-outside)
+    fraction:u+v-u*v
+    fraction>1? @:1
+    fraction<0? @:0
+    @:fraction
+
+triangle_fraction(a:num,b:num,c:num)->num:
+    a>=0 /\ b>=0 /\ c>=0? @:1
+    a<0 /\ b<0 /\ c<0? @:0
+    a>=0 /\ b<0 /\ c<0? @:(a/(a-b))*(a/(a-c))
+    b>=0 /\ a<0 /\ c<0? @:(b/(b-a))*(b/(b-c))
+    c>=0 /\ a<0 /\ b<0? @:(c/(c-a))*(c/(c-b))
+    a<0? @:two_inside_fraction(a,b,c)
+    b<0? @:two_inside_fraction(b,a,c)
+    @:two_inside_fraction(c,a,b)
+
+# Row-major corners a,b,c,d; the established contour diagonal is a--d.
+cell_fraction(a:num,b:num,c:num,d:num)->num:
+    @:(triangle_fraction(a,b,d)+triangle_fraction(a,d,c))/2
+
+# Exact clipped-cell area of that piecewise-linear nodal lattice. This measures
+# the rendered polygon model, not the underlying bilinear/exact curved field.
+cell_area(values:[num],size:int,extent_x:num,extent_y:num,cell:int)->num:
+    (size>=2 /\ values.length()>=size*size /\ extent_x>0 /\ extent_y>0 /\ cell>=0 /\ cell<(size-1)*(size-1))?! "invalid geometric measure cell"
+    origin:(cell//(size-1))*size+cell%(size-1)
+    fraction:cell_fraction(values.(origin),values.(origin+1),values.(origin+size),values.(origin+size+1))
+    @:fraction*(extent_x/(size-1))*(extent_y/(size-1))
+
 corner(origin:int,size:int,half:int,edge:int)->int:
     edge=0? @:origin
     half=0?

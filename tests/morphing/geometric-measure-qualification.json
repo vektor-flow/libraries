@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "compilerVersion": "0.7.5",
+  "compilerSourceBinding": "ffcaeaae67079c714583d5487f3452a9ed4107abf14204a512f647400473c71f",
+  "sources": {
+    "morphing/parallel.vkf": "a9d04fc1f827c932f6afe4857294b9b0cacb8be1d04af58e6733f460762018e2",
+    "morphing/segment.vkf": "4c33a71557a69a086b68e1cab4d7337f493678016aed886817d36d5a55666558"
+  },
+  "testSha256": "d313b039b07a5751cc277120c2bb09eadf465f0f81f1dd644d44af7d6b72bdb1",
+  "wasmBytes": 174873,
+  "testMs": 47.79701700000078,
+  "scope": {
+    "triangleSamples": 125,
+    "permutationsPerSample": 6,
+    "positiveScales": [
+      1e-8,
+      0.0001,
+      1,
+      10000,
+      100000000
+    ],
+    "cellCases": 625,
+    "renderingOracle": "Existing native parallel.cell_triangles; area integrated in native VKF test only",
+    "zeroSemantics": "F>=0; all-zero triangle is filled; zero edge with negative remainder has zero area",
+    "measureModel": "Piecewise-linear nodal triangle clipping, established a--d diagonal; not true bilinear/curved-field area",
+    "integration": "New internal helpers only; active biological.raster/dispatch unchanged; no browser/GPU readiness claim",
+    "threeDimensional": "Not implemented/qualified in this bounded helper task"
+  },
+  "invalid": {
+    "invalid_storage": "invalid geometric measure cell",
+    "invalid_size": "invalid geometric measure cell",
+    "invalid_extent": "invalid geometric measure cell",
+    "invalid_cell": "invalid geometric measure cell"
+  }
+}
