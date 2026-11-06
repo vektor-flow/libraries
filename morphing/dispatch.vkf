@@ -367,7 +367,7 @@ carrier_area(index:int,params:[num],values:[num])->num:
         fraction:p.cell_fraction(values.(at),values.(at+1),values.(at+size),values.(at+size+1))
         .total:total+fraction*dx*dy
         .cell:cell+1
-    (total>0 /\ |total|<10000000000)?! "carrier has no finite geometric area"
+    (total>0 /\ |total|<10000000000.0)?! "carrier has no finite geometric area"
     @:total
 
 # Readonly frame layout: evaluated field state, carrier areas, lineage weights.
@@ -381,7 +381,7 @@ material_density(index:int,params:[num],values:[num])->num:
     carrier<carriers?>
         area:values.(width+carrier)
         weight:values.(width+carriers+carrier)
-        (area>0 /\ weight>0 /\ |area|<10000000000 /\ |weight|<10000000000)?! "invalid material density inputs"
+        (area>0 /\ weight>0 /\ |area|<10000000000.0 /\ |weight|<10000000000.0)?! "invalid material density inputs"
         ratio:weight/area
         (|ratio|<10^30)?! "material density exceeds numeric range"
         .largest:k.maximum(largest,ratio)
@@ -400,11 +400,11 @@ material_resolve(index:int,params:[num],values:[num])->[num]:
     coverage:k.clamp(values.(base+4),0,1)
     coverage=0? @:output
     density:values.(base+3)
-    (density>0 /\ density<10000000000)?! "covered material has no finite density"
+    (density>0 /\ density<10000000000.0)?! "covered material has no finite density"
     channel:0
     channel<3?>
         colour:values.(base+channel)
-        (colour>=0 /\ colour<10000000000)?! "invalid material colour moment"
+        (colour>=0 /\ colour<10000000000.0)?! "invalid material colour moment"
         output.(channel):k.clamp(colour/density,0,1)*coverage
         .channel:channel+1
     output.(3):coverage
@@ -419,7 +419,7 @@ material_accumulate(index:int,params:[num],values:[num])->[num]:
     channel<4?>
         left:values.(base+channel)
         right:values.(base+4+channel)
-        (left>=0 /\ right>=0 /\ |left|<10000000000 /\ |right|<10000000000)?! "invalid material accumulation"
+        (left>=0 /\ right>=0 /\ |left|<10000000000.0 /\ |right|<10000000000.0)?! "invalid material accumulation"
         output.(channel):left+right
         .channel:channel+1
     @:output
