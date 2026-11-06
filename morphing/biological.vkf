@@ -88,22 +88,19 @@ prepare(knots:[num],offsets:[int],owners:[int],carriers:int,centers:[num],extent
             .k:k+1
         .state:state+1
     stride:2*dimension+cells
-    [num] values:[0:count*carriers*stride]
+    [num] values:[]
     .state:0
     state<count?>
         k:0
         k<carriers?>
             owner:offsets.(state)+owners.(state*carriers+k)
-            base:(state*carriers+k)*stride
-            d:0
-            d<dimension?>
-                values.(base+d):centers.(owner*dimension+d)
-                values.(base+dimension+d):extents.(owner*dimension+d)
-                .d:d+1
-            j:0
-            j<cells?>
-                values.(base+2*dimension+j):fields.(owner*cells+j)
-                .j:j+1
+            origin:owner*dimension
+            field_origin:owner*cells
+            center:[..dimension-1 >> centers.(origin+int($))]
+            extent:[..dimension-1 >> extents.(origin+int($))]
+            local_field:[..cells-1 >> fields.(field_origin+int($))]
+            packed:center&extent&local_field
+            .values:values&packed
             .k:k+1
         .state:state+1
     @:(curve:s.prepare(knots,values,carriers*stride,mode),dimension:dimension,size:size,cells:cells,carriers:carriers,stride:stride,smooth_start:smooth_start,smooth_end:smooth_end,join:join)
@@ -129,7 +126,7 @@ attributes(plan:Plan,offsets:[int],owners:[int],attributes:[num],width:int)->Pla
         .i:i+1
     stride:old_stride+width
     channels:carriers*stride
-    [num] values:[0:count*channels]
+    [num] values:[]
     [int] used:[0:objects]
     state:0
     state<count?>
@@ -141,15 +138,11 @@ attributes(plan:Plan,offsets:[int],owners:[int],attributes:[num],width:int)->Pla
             object:offsets.(state)+owner
             used.(object):1
             before:state*old_width+k*old_stride
-            after:state*channels+k*stride
-            j:0
-            j<old_stride?>
-                values.(after+j):original.(before+j)
-                .j:j+1
-            .j:0
-            j<width?>
-                values.(after+old_stride+j):attributes.(object*width+j)
-                .j:j+1
+            attribute_origin:object*width
+            geometry:[..old_stride-1 >> original.(before+int($))]
+            attached:[..width-1 >> attributes.(attribute_origin+int($))]
+            packed:geometry&attached
+            .values:values&packed
             .k:k+1
         .state:state+1
     .i:0
