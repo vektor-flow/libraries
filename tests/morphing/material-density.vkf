@@ -1,0 +1,7 @@
+g:.morphing.dispatch
+mesh(index:int,params:[num],values:[num])->[num]:g.carrier_mesh_packet(index,params,values)
+area(index:int,params:[num],values:[num])->num:g.carrier_area(index,params,values)
+density(index:int,params:[num],values:[num])->num:g.material_density(index,params,values)
+resolve(index:int,params:[num],values:[num])->[num]:g.material_resolve(index,params,values)
+::resolve(0,[],[1,0,0,1,0.5])
+accumulate(index:int,params:[num],values:[num])->[num]:g.material_accumulate(index,params,values)

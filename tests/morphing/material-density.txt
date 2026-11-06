@@ -1,0 +1,25 @@
+Native material colour law, internal profile/2026-11-06
+
+Geometry remains the SAME signed-field zero-set and original clipped triangles.
+carrier_area gives each carrier's unscaled native polygon area. material_density
+uses lineage weight/area and normalises every density by one common maximum;
+this preserves colour ratios, not an absolute gas-density unit. Frame readonly
+layout: evaluated state[width], areas[N], weights[N], coefficients[N].
+
+carrier_mesh_packet with internal params[36]=1 emits native PMA rhoRGB/rho in its
+existing xyzRGBA packet. Its original36-parameter/no-density form is unchanged.
+Opacity1 is required; relative coefficient must be>=1/16384, a declared bounded
+MSAA colour-rendering precision range, not silent thinning. Degenerate slots stay
+zero. Uniform area-calibration scale cancels in relative colour ratios.
+
+material_accumulate: input8f32 per pixel [oldRGBA4,newLineageRGBA4], output4sum.
+material_resolve: input5f32 [sumRhoRGB3,sumRho,unionCoverage], outputPMA RGBA4.
+Both expose standard(index:int,params:[num],values:[num]) native lane entry ABI;
+params is unused for these two operators (a one-f32 dummy buffer is sufficient).
+All operators use existing compiled-field errors count+1, last u32summary.
+
+Actual current075 nativeWASM unit passes: exact old/new XYZ, native clipped areas
+vs actual packet triangle area2.22e-16, densities1/3 and1, native colour mixture
+red/blue at weights1:3 givesPMA[.125,0,.375,.5], zero coverage and explicit invalid
+inputs/density range reject. GPU raster/accumulation/precision tests are separate;
+no production/state/whole-physics readiness claim from these scalar units.

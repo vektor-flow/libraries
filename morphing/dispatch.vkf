@@ -307,6 +307,13 @@ carrier_mesh_packet(index:int,params:[num],values:[num])->[num]:
     ex:values.(base+2)*scale
     ey:values.(base+3)*scale
     depth_extent:k.minimum(ex,ey)
+    density_profile:false
+    params.length()>36? .density_profile:params.(36)=1
+    coefficient:1.0
+    density_profile?
+        (values.(base+4+cells+3)=1)?! "material density profile requires opaque authored ink"
+        .coefficient:values.(int(params.(25))+2*int(params.(3))+carrier)
+        (coefficient>0 /\ coefficient<=1.00001)?! "invalid relative material density"
     half:0
     half<2?>
         n:p.polygon_count_offset(values,origin,size,half,field)
@@ -328,7 +335,11 @@ carrier_mesh_packet(index:int,params:[num],values:[num])->[num]:
                 output.(at+2):k.maximum(f,0)*depth_extent
                 channel:0
                 channel<4?>
-                    output.(at+3+channel):values.(base+4+cells+channel)
+                    colour:values.(base+4+cells+channel)
+                    density_profile?
+                        channel<3? .colour:colour*coefficient
+                        channel=3? .colour:coefficient
+                    output.(at+3+channel):colour
                     .channel:channel+1
                 .at:at+7
                 .vertex:vertex+1
@@ -340,3 +351,75 @@ carrier_mesh_packet(index:int,params:[num],values:[num])->[num]:
 state_pose_first(index:int,params:[num],values:[num])->num:
     component:(index//4)*int(params.(2))+index%4
     @:p.state_first(values,int(params.(25)),int(params.(24)),int(params.(21)),params.(23),params.(22),component)
+
+# Area of one carrier at unit common coordinate scale, using exactly its
+# original clipped triangles. Common scale cancels from relative colour density.
+carrier_area(index:int,params:[num],values:[num])->num:
+    size:int(params.(1))
+    stride:int(params.(2))
+    base:index*stride
+    dx:2*values.(base+2)/num(size-1)
+    dy:2*values.(base+3)/num(size-1)
+    total:0.0
+    cell:0
+    cell<(size-1)*(size-1)?>
+        at:base+4+(cell//(size-1))*size+cell%(size-1)
+        fraction:p.cell_fraction(values.(at),values.(at+1),values.(at+size),values.(at+size+1))
+        .total:total+fraction*dx*dy
+        .cell:cell+1
+    (total>0 /\ |total|<10000000000)?! "carrier has no finite geometric area"
+    @:total
+
+# Readonly frame layout: evaluated field state, carrier areas, lineage weights.
+# Normalising every rho by the SAME maximum keeps the render accumulator bounded
+# without changing any mass-weighted colour ratio. Output is appended afterwards.
+material_density(index:int,params:[num],values:[num])->num:
+    width:int(params.(25))
+    carriers:int(params.(3))
+    largest:0.0
+    carrier:0
+    carrier<carriers?>
+        area:values.(width+carrier)
+        weight:values.(width+carriers+carrier)
+        (area>0 /\ weight>0 /\ |area|<10000000000 /\ |weight|<10000000000)?! "invalid material density inputs"
+        ratio:weight/area
+        (|ratio|<10^30)?! "material density exceeds numeric range"
+        .largest:k.maximum(largest,ratio)
+        .carrier:carrier+1
+    coefficient:(values.(width+carriers+index)/values.(width+index))/largest
+    (coefficient>=1/16384)?! "material density exceeds qualified MSAA render range"
+    @:coefficient
+
+# Density-weighted colour moment and union coverage are independent. The renderer
+# only accumulates/copies channels; this native resolve owns their material law.
+# Input per pixel: sum(rho*R),sum(rho*G),sum(rho*B),sum(rho),union coverage.
+# Output is premultiplied numerical RGBA, not a radiometric colour-space claim.
+material_resolve(index:int,params:[num],values:[num])->[num]:
+    [num] output:[0:4]
+    base:index*5
+    coverage:k.clamp(values.(base+4),0,1)
+    coverage=0? @:output
+    density:values.(base+3)
+    (density>0 /\ density<10000000000)?! "covered material has no finite density"
+    channel:0
+    channel<3?>
+        colour:values.(base+channel)
+        (colour>=0 /\ colour<10000000000)?! "invalid material colour moment"
+        output.(channel):k.clamp(colour/density,0,1)*coverage
+        .channel:channel+1
+    output.(3):coverage
+    @:output
+
+# Streaming f32 material-moment accumulation. Input records contain previous
+# RGBA moment then ONE lineage's resolved moment. No colour normalisation here.
+material_accumulate(index:int,params:[num],values:[num])->[num]:
+    [num] output:[0:4]
+    base:index*8
+    channel:0
+    channel<4?>
+        left:values.(base+channel)
+        right:values.(base+4+channel)
+        (left>=0 /\ right>=0 /\ |left|<10000000000 /\ |right|<10000000000)?! "invalid material accumulation"
+        output.(channel):left+right
+        .channel:channel+1
+    @:output
