@@ -683,3 +683,17 @@ semanticcorrespondence orGPUcompute claim. Parent owns actualPP14view/video.
 ## 2026-11-06: cubic presentation state groups, physical port deferred
 
 Owner narrowed current deliverable to no-smoke continuous equation derivation. The unchanged source7347b1b prepare_glyph_state already accepts arbitrary supplied endpoint glyph lists (≤256 per endpoint) and native physical-ID monotone matching. Renderer8b47d36 adds explicit ordered fromIds[]→one toId binding, plus qualifies existing fromId→null ordinary state removal; no native algorithm/artifact change. Actual current075 physical-font browser6frames PASS: exact endpoint canvases/reseek, fixed heading and matched x-prefix pixels, zero gas/carriers, unchanged selected target, grouped removal and invalid input rejection. Root owns portable fromItemIds metadata, Combine row UI, timing and real coefficient-driven graphs. Full physical fluid/SDF port remains unimplemented/deferred; do not relabel existing random material transport as the accepted Navier–Stokes model. No native GPU fluid probe was started in this narrowed delivery. Branch codex/native-physical-smoke-library-20261106 records this handoff only; numerical pin stays7347.
+
+## 2026-11-06: native glyph material state correction
+
+The prior7347pose-only glyph path faded unmatched symbols, now explicitly
+rejected bynativeguard. Sourcead9f85b connects through renderer922fab8 to existing
+canonical Morphing biological/field GPU split/merge. Physical nonzero fontfields,
+valid measured area brackets and proportional domain/resolution correct actual
+6→7 failure. No alternate backend/crossfade/targetshape swap. Native and actual
+GPU tests GREEN inclopaqueinteriors, source2→target5, groupedrows, exact fixed
+heading/suffix/endpoints/seek, clocks, geometric removal; ring regression oldtrap
+→2.31e-6 residual. Limits and explicit mixedcolor/3D/count gaps in
+interpolation/GLYPH_STATE_HANDOVER.md and renderer docs/glyph-material-state.
+No PP edits/deploy. Native numeric-cell capability is independent followup;
+physical fluid port remains deferred. Numerical source pinad9 remains immutable.
