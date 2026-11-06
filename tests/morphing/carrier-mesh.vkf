@@ -1,0 +1,5 @@
+g:.morphing.dispatch
+p:.morphing.parallel
+mesh(index:int,params:[num],values:[num])->[num]:g.carrier_mesh_packet(index,params,values)
+packet(values:[num],size:int,cell:int,offset:int)->[num]:p.cell_triangles_offset(values,size,2,cell,1,1,1,1,offset)
+::1

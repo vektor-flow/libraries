@@ -280,3 +280,49 @@ check_boundary2d(index:int,params:[num],values:[num])->num:
     edge=2? .cell:along*size
     edge=3? .cell:along*size+size-1
     @:sample_field(cell,params,values)
+
+
+# Resident local-field geometry for the opaque join=0 material profile. Taking
+# the union of these native carrier zero sets equals max(carrier_fields)>=0.
+# Z carries field dominance for rendering only; it is not physical scene depth.
+carrier_mesh_packet(index:int,params:[num],values:[num])->[num]:
+    size:int(params.(1))
+    stride:int(params.(2))
+    cells:size*size
+    per_carrier:(size-1)*(size-1)
+    carrier:index//per_carrier
+    cell:index%per_carrier
+    (int(params.(0))=2 /\ stride=4+cells+4 /\ carrier<int(params.(3)))?! "native local material profile"
+    base:carrier*stride
+    field:base+4
+    clipped:p.cell_triangles_offset(values,size,2,cell,1,1,1,1,field)
+    [num] output:[0:84]
+    column:cell%(size-1)
+    row:cell//(size-1)
+    origin:row*size+column
+    v00:values.(field+origin)
+    v10:values.(field+origin+1)
+    v01:values.(field+origin+size)
+    v11:values.(field+origin+size+1)
+    scale:params.(11)
+    ex:values.(base+2)*scale
+    ey:values.(base+3)*scale
+    depth_extent:k.minimum(ex,ey)
+    vertex:0
+    vertex<12?>
+        clipped.(vertex*6+5)>0?
+            x:clipped.(vertex*6)
+            y:clipped.(vertex*6+1)
+            u:x*(size-1)/2-column
+            v:y*(size-1)/2-row
+            f:v00*(1-u)+v10*(u-v)+v11*v
+            vertex>=6? .f:v00*(1-v)+v11*u+v01*(v-u)
+            output.(vertex*7):values.(base)+(x-1)*ex
+            output.(vertex*7+1): -(values.(base+1)+(y-1)*ey)
+            output.(vertex*7+2):k.maximum(f,0)*depth_extent
+            channel:0
+            channel<4?>
+                output.(vertex*7+3+channel):values.(base+4+cells+channel)
+                .channel:channel+1
+        .vertex:vertex+1
+    @:output

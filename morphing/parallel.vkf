@@ -105,6 +105,10 @@ triangle_component(values:[num],size:int,extent:num,index:int,r:num,g:num,b:num,
 # One invocation owns a whole cell packet. Each polygon is clipped once;
 # contiguous vertex attributes are written together instead of recomputed per float.
 cell_triangles(values:[num],size:int,extent:num,cell:int,r:num,g:num,b:num,a:num)->[num]:
+    @:cell_triangles_offset(values,size,extent,cell,r,g,b,a,0)
+
+# Same clipping and packet layout for a field embedded in a native state buffer.
+cell_triangles_offset(values:[num],size:int,extent:num,cell:int,r:num,g:num,b:num,a:num,offset:int)->[num]:
     [num] storage:[0:72]
     [num] color:[r,g,b,a]
     origin:(cell//(size-1))*size+cell%(size-1)
@@ -116,8 +120,8 @@ cell_triangles(values:[num],size:int,extent:num,cell:int,r:num,g:num,b:num,a:num
         edge<3?>
             first:corner(origin,size,half,edge)
             last:corner(origin,size,half,(edge+1)%3)
-            va:values.(first)
-            vb:values.(last)
+            va:values.(offset+first)
+            vb:values.(offset+last)
             va>=0?
                 polygon.(2*n):num(first%size)*extent/(size-1)
                 polygon.(2*n+1):num(first//size)*extent/(size-1)
