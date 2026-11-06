@@ -66,7 +66,8 @@ classify(index:int,p:[num],v:[num])->[num]:
     @:result
 
 # Explicit 4096-lineage tiles keep every emitted loop within the current native
-# field budget. Work <=64M key comparisons; no thinning or atomic-float assumption.
+# field budget. Native compensated positive sums retain small contributions.
+# Work <=64M key comparisons; no thinning or atomic-float assumption.
 # Input is classify output6C. Output order is tile-major, supported-pixel-minor.
 tiled_moments(index:int,p:[num],v:[num])->[num]:
     c:controls(p)
@@ -78,11 +79,15 @@ tiled_moments(index:int,p:[num],v:[num])->[num]:
     stop:minimum(c,(tile+1)*4096)
     i:tile*4096
     [num] result:[0:5]
+    [num] compensation:[0:5]
     i<stop?>
         v.(6*i)=num(pixel)?
             j:0
             j<5?>
-                result.(j):result.(j)+v.(6*i+1+j)
+                increment:v.(6*i+1+j)-compensation.(j)
+                next:result.(j)+increment
+                compensation.(j):(next-result.(j))-increment
+                result.(j):next
                 .j:j+1
         .i:i+1
     @:result
@@ -92,13 +97,17 @@ reduce_moments(index:int,p:[num],v:[num])->[num]:
     tiles:(c+4095)//4096
     (v.length()=5*k*tiles /\ index>=0 /\ index<k)?! "fine moment reduction storage mismatch"
     [num] result:[0:5]
+    [num] compensation:[0:5]
     tile:0
     tile<tiles?>
         channel:0
         channel<5?>
             value:v.(5*(tile*k+index)+channel)
             (value>=0 /\ value<1000000000000000000000000000000.0)?! "invalid fine raw material moment"
-            result.(channel):result.(channel)+value
+            increment:value-compensation.(channel)
+            next:result.(channel)+increment
+            compensation.(channel):(next-result.(channel))-increment
+            result.(channel):next
             .channel:channel+1
         .tile:tile+1
     @:result
