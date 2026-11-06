@@ -1,0 +1,29 @@
+<!doctype html><meta charset="utf-8"><title>Recorded physical reference presentation</title><link rel="icon" href="data:,"><style>body{margin:0;background:black;color:#ddd}#host{position:relative;width:1280px;height:720px}#host>canvas{position:absolute;inset:0}button,output{font:16px sans-serif;margin:8px}</style><div id="host"></div><button id="record">Record reference presentation</button><output id="status"></output>
+<script type="module">
+// Research-only recorded experiment player. Content comes from a real PP export;
+// all points, text, waves, compositing and movie encoding use maintained VKF APIs.
+import {authoredLabelSpecs} from '/src/guided-experience.js';
+import {presentationTextTransitions} from '/src/presentation-text-transitions.js';
+import {openCurrent075PlotTypography} from '/src/current075-plot-typography.js';
+const base='/vkf-0.7.5/vf-ui/',{prepareNativeTextModes}=await import(/* @vite-ignore */ new URL(base+'native-labels/vf-native-text-modes.mjs',location).href),{createScreenSpacePointCloudRenderer}=await import(/* @vite-ignore */ new URL(base+'geom/vf-screen-point-cloud-renderer.mjs',location).href),{createLayeredCanvasCaptureSource}=await import(/* @vite-ignore */ new URL(base+'vf-media-capture.mjs',location).href),{createFrameMovieCapture}=await import(/* @vite-ignore */ new URL(base+'vf-frame-movie-capture.mjs',location).href);
+const host=document.querySelector('#host'),status=document.querySelector('#status');
+async function run(){
+ const query=new URL(location).searchParams,meta=await(await fetch(query.get('data')??'./presentation-reference.json')).json(),doc=await(await fetch(query.get('document')??'./fluid-presentation.vkf')).json(),experience=doc.extensions['platonic-play/session-v1'].authoredExperience,data=new Float32Array(await(await fetch('./presentation-reference.bin')).arrayBuffer()),typography=await openCurrent075PlotTypography();
+ if(!meta.backend.includes('CPU')||meta.width!==1280||meta.height!==720||data.byteLength!==meta.dataBytes)throw Error('Unsupported reference recording');
+ const bg=document.createElement('canvas');bg.width=meta.width;bg.height=meta.height;bg.getContext('2d').fillStyle='#000';bg.getContext('2d').fillRect(0,0,bg.width,bg.height);
+ const gas=document.createElement('canvas');host.append(gas);const points=createScreenSpacePointCloudRenderer(gas,{premultipliedAlpha:true});await points.initialize();points.resize(meta.width,meta.height);
+ const effects=[];let from=[];for(const state of experience.states){const to=authoredLabelSpecs(experience,state.id,{width:meta.width,height:meta.height}),plan=presentationTextTransitions(from,to);if(plan.materialGroups.length)throw Error('This reference player does not simulate glyph release');const effect=await prepareNativeTextModes({fromSpecs:from,toSpecs:to,width:meta.width,height:meta.height,pixelRatio:1,typography,interp:{mode:'state',path:0},...plan});effects.push(effect);from=to;}
+ let active=-1,capture,encoder;const samples=[],ledger=[];try{
+  capture=createLayeredCanvasCaptureSource({layers:()=>[bg,gas,effects[active]?.canvas]});host.append(capture.canvas);encoder=await createFrameMovieCapture({width:meta.width,height:meta.height,frameRate:meta.frameRate});
+  for(let i=0;i<meta.frames.length;i++){
+   const f=meta.frames[i];if(f.viewIndex<0||f.viewIndex>=effects.length)throw Error('Unknown recorded view');if(active!==f.viewIndex){if(active>=0)effects[active].element.remove();active=f.viewIndex;host.append(effects[active].element);}
+   const state=experience.states[active],q=Math.min(1,f.viewTime/(state.transition.durationMs/1000));await effects[active].sample(q);points.setInkCarriers(data.subarray(f.offsetFloats,f.offsetFloats+7*f.count));capture.drawFrame({readback:true});
+   if([24,144,216,288,360,432].includes(i))samples.push({frame:i,png:capture.canvas.toDataURL()});
+   if(i%24===0){ledger.push({frame:i,time:f.time,gasCount:f.gasCount,capturedCount:f.capturedCount,gasMass:f.gasMass,capturedMass:f.capturedMass,probeMassResidual:f.probeMassResidual,stageResidual:f.stageResidual});console.log('REFERENCE_FRAME',i,f.gasCount,f.capturedCount);}
+   const image=new VideoFrame(capture.canvas,{timestamp:Math.round(i/meta.frameRate*1e6)});try{await encoder.addFrame(image,i);}finally{image.close();}status.textContent=`View ${active+1}/${effects.length}; frame ${i+1}/${meta.frames.length}`;
+  }
+  const blob=await encoder.finish(),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='fluid-reference-presentation.webm';a.click();window.proof={schema:'recorded-physical-reference-presentation/1',frames:meta.frames.length,frameRate:meta.frameRate,width:meta.width,height:meta.height,editableViews:experience.states.length,backend:meta.backend,nativeFluidIntegrated:false,dataSha256:meta.dataSha256,sourceHashes:meta.sourceHashes,ledger,samples,nativeTextLibrary:effects.at(-1).libraryCommit,pointRenderer:points.backend};status.textContent='Reference presentation saved';
+ }finally{capture?.close();points.destroy();effects.forEach(e=>e.close());await typography.close();}
+}
+document.querySelector('#record').onclick=()=>{document.querySelector('#record').disabled=true;run().catch(error=>{console.error(error);window.failure=error.message;status.textContent=error.message})};window.ready=true;
+</script>

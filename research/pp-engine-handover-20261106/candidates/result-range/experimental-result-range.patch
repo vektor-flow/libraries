@@ -1,0 +1,31 @@
+diff --git a/public/preview/0.7.5/vf-ui/vf-compiled-field-runtime.mjs b/public/preview/0.7.5/vf-ui/vf-compiled-field-runtime.mjs
+index 1dc92c5..189ffd7 100644
+--- a/public/preview/0.7.5/vf-ui/vf-compiled-field-runtime.mjs
++++ b/public/preview/0.7.5/vf-ui/vf-compiled-field-runtime.mjs
+@@ -32,8 +32,15 @@ export async function createCompiledFieldKernel(device, code, manifest) {
+     compute:{module,entryPoint:'vkf_field'}
+   });
+   return Object.freeze({
+-    bind({params,values,result,errors,count}) {
+-      if (!Number.isInteger(count) || count < 1 || result.size !== count*outputWidth*4 ||
++    bind({params,values,result,errors,count,resultRange}) {
++      let resultResource={buffer:result};
++      if(resultRange!==undefined){
++        const alignment=device.limits.minStorageBufferOffsetAlignment;
++        if(!resultRange||typeof resultRange!=='object'||!Number.isSafeInteger(resultRange.offset)||resultRange.offset<0||!Number.isSafeInteger(resultRange.size)||resultRange.size<4||!Number.isSafeInteger(alignment)||alignment<1||resultRange.offset%alignment||!Number.isSafeInteger(resultRange.offset+resultRange.size)||resultRange.offset+resultRange.size>result.size||resultRange.size>device.limits.maxStorageBufferBindingSize)throw new RangeError('Invalid compiled field result range');
++        resultResource={buffer:result,offset:resultRange.offset,size:resultRange.size};
++      }
++      const resultBytes=resultRange===undefined?result.size:resultRange.size;
++      if (!Number.isInteger(count) || count < 1 || resultBytes !== count*outputWidth*4 ||
+           errors.size < (count+1)*4 || params.size < 4 || values.size < 4) {
+         throw new RangeError('Invalid compiled field buffers');
+       }
+@@ -48,7 +55,7 @@ export async function createCompiledFieldKernel(device, code, manifest) {
+         throw new RangeError('Compiled field exceeds device dispatch limit');
+       }
+       const group = device.createBindGroup({layout:groupLayout,entries:
+-        [params,values,result,errors].map((buffer,binding)=>({binding,resource:{buffer}}))});
++        [params,values,result,errors].map((buffer,binding)=>({binding,resource:binding===2?resultResource:{buffer}}))});
+       const dispatch=(pass,invocations=count)=>{
+         if(!Number.isInteger(invocations)||invocations<0||invocations>count)throw new RangeError('Invalid active invocation count');
+         pass.setPipeline(pipeline);pass.setBindGroup(0,group);

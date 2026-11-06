@@ -1,0 +1,27 @@
+<!doctype html><meta charset="utf-8"><title>Native glyph mask qualification</title><style>body{margin:0;background:black;color:white}canvas{max-width:100%}</style><button id="capture">Capture native glyph masks</button><output id="status"></output><main></main>
+<script type="module">
+// Research input extraction only. VKF renders actual authored glyphs; no host font or shape renderer.
+import {authoredLabelSpecs} from '/src/guided-experience.js';
+import {presentationTextTransitions} from '/src/presentation-text-transitions.js';
+import {openCurrent075PlotTypography} from '/src/current075-plot-typography.js';
+const {prepareNativeTextModes}=await import(/* @vite-ignore */new URL('/vkf-0.7.5/vf-ui/native-labels/vf-native-text-modes.mjs',location).href);
+const hash=async b=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(v=>v.toString(16).padStart(2,'0')).join('');
+document.querySelector('#capture').onclick=async()=>{try{
+ const response=await fetch('/examples/cubic-equation.vkf'),documentBytes=await response.arrayBuffer(),doc=JSON.parse(new TextDecoder().decode(documentBytes)),e=doc.extensions['platonic-play/session-v1'].authoredExperience,typography=await openCurrent075PlotTypography(),width=1280,height=720,chunks=[],cases=[];let from=[],offset=0;
+ try{for(let index=0;index<e.states.length;index++){
+  const to=authoredLabelSpecs(e,e.states[index].id,{width,height}).filter(s=>!s.liveBinding),plan=presentationTextTransitions(from,to);
+  for(const group of plan.materialGroups){if(!group.firstTargetId)continue;const source=from.filter(s=>group.sourceIds.includes(s.id)),receiver=to.filter(s=>s.id===group.firstTargetId),masks=[];
+   for(const [kind,specs]of[['source',source],['receiver',receiver]]){
+    const native=await prepareNativeTextModes({fromSpecs:specs,toSpecs:specs,width,height,pixelRatio:1,typography,interp:{mode:'state',path:0}});
+    try{document.querySelector('main').append(native.element);await native.sample(1);const rgba=native.canvas.getContext('2d').getImageData(0,0,width,height).data,alpha=Uint8Array.from({length:width*height},(_,i)=>rgba[i*4+3]);let area=0,x0=width,y0=height,x1=0,y1=0;for(let y=0;y<height;y++)for(let x=0;x<width;x++){const a=alpha[y*width+x];if(a){area+=a/255;x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x+1);y1=Math.max(y1,y+1);}}
+     if(area<=0)throw Error('Empty native glyph mask');chunks.push(alpha);masks.push({kind,offsetBytes:offset,bytes:alpha.byteLength,areaPx2:area,bounds:[x0,y0,x1,y1],sha256:await hash(alpha),specs,libraryCommit:native.libraryCommit});offset+=alpha.byteLength;
+    }finally{native.close();}
+   }
+   cases.push({view:index+1,label:e.states[index].label,masks});document.querySelector('#status').textContent='Captured view '+(index+1);
+  }from=to;
+ }}finally{await typography.close();}
+ const data=new Uint8Array(offset);let position=0;for(const chunk of chunks){data.set(chunk,position);position+=chunk.byteLength;}
+ window.proof={schema:'native-glyph-mask-research/1',width,height,pixelRatio:1,source:'Actual PP exported list handovers; native VKF physical text rendering; 8-bit alpha occupancy, not an SDF',documentSha256:await hash(documentBytes),dataSha256:await hash(data),bytes:data.byteLength,cases};
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data]));a.download='glyph-mask-reference.bin';a.click();window.done=true;document.querySelector('#status').textContent='Native masks captured';
+}catch(error){window.failure=error.message;console.error(error);document.querySelector('#status').textContent=error.message}};window.ready=true;
+</script>

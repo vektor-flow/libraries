@@ -1,0 +1,206 @@
+{
+  "schema": "fluid-only-proof/1",
+  "date": "2026-11-06",
+  "purpose": "Owner-requested fluid-only visual test before VKF native implementation",
+  "movie": {
+    "url": "https://staging.platonicplay.com/_expo/static/proof/navier-stokes-20261106/fluid-only.mp4",
+    "fullGet": 200,
+    "rangeGet": 206,
+    "sha256": "6ca266098a4a09f970b9deb0aa0d93d143dc9d26447f55887f9c19d0563791a2",
+    "bytes": 5099142,
+    "headers": {
+      "Content-Type": "video/mp4",
+      "Content-Length": "5099142",
+      "Cache-Control": "public, max-age=31536000, immutable, stale-if-error=604800, no-transform",
+      "ETag": "\"6aed8641-4dce86\"",
+      "Accept-Ranges": "bytes"
+    }
+  },
+  "nativeCapture": {
+    "frames": 361,
+    "frameRate": 30,
+    "width": 1280,
+    "height": 720,
+    "pointRenderer": "webgl2-points",
+    "nativeTextLibrary": "7347b1b7de885c1e3c6f9bf7bf8f1432589bbeda",
+    "fluidBackend": "CPU float64 fluid/probes, VKF native rendering; not a client GPU fluid implementation",
+    "dataSha256": "d3810a8bf8b5dcba35737bf3001df4936e4af8c734d05c075abd2a5d49804f1f",
+    "sourceHashes": {
+      "ns_reference.py": "e086923ab53c81da9a30aa0fcbaebe36c18f6fd5bc49d76280d273d67c699d3e",
+      "parcels.py": "1c23124b27cad3d42645bb9f2b206cbfc59fdeda2a6027bc605566d61dcc270f",
+      "demo_case.py": "ae94f7353f67b629f7be1b8c242fa478270196e870ae026e6b2c79733b429527"
+    },
+    "hashes": [
+      {
+        "frame": 0,
+        "hash": "d37fbcfe4874f90cda6470f671ff8568b2d1ca37e2aabccc0a9b64d93c5acd50",
+        "count": 8192,
+        "time": 0
+      },
+      {
+        "frame": 30,
+        "hash": "c2e662b5b642ce0afaba84dc7897144e66de9f6afc13c5d404df945ecbe89730",
+        "count": 8192,
+        "time": 1
+      },
+      {
+        "frame": 45,
+        "hash": "6e96e27b34710629a463fd2b0ca43ebc735b5ef867a81b38258db2ff87548ea3",
+        "count": 8192,
+        "time": 1.5
+      },
+      {
+        "frame": 60,
+        "hash": "4cd2dc0e33b65ac6e6c7177e0f53b64ada18dba528bca4ee4a5b96948ed70510",
+        "count": 8192,
+        "time": 2
+      },
+      {
+        "frame": 90,
+        "hash": "b4a2927b854c16b9ec92c7803fa778fd3a57d44d0b4f145b35798f5cb04a8ebd",
+        "count": 8192,
+        "time": 3
+      },
+      {
+        "frame": 120,
+        "hash": "94c790ff20063122af49a49f651bea2e8935d7191d1c0de8082f634abba32497",
+        "count": 8192,
+        "time": 4
+      },
+      {
+        "frame": 150,
+        "hash": "ce80a508555b80459c45471ebb26eae93cf58eb54b4a0bc7218b522a5464231e",
+        "count": 8192,
+        "time": 5
+      },
+      {
+        "frame": 180,
+        "hash": "7d4274342f33455dab35e367969adb58b08bc6d7dc685a0828f33a156b61a2d3",
+        "count": 8192,
+        "time": 6
+      }
+    ],
+    "fixedLabelsExact": true,
+    "final": {
+      "offsetFloats": 20643840,
+      "count": 8192,
+      "time": 12,
+      "physicsTicks": 720,
+      "physicsSteps": 720,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0,
+        0,
+        0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.0010000000000000005,
+        0.0009999999999999994
+      ],
+      "continuumCapturedMass": [
+        0,
+        0,
+        0
+      ],
+      "capturedFraction": 0,
+      "divergenceResidual": 6.897260540483785e-15,
+      "stageResidual": 6.9111383282915995e-15
+    },
+    "simulationMsP50": 30.822885979432613,
+    "simulationMsP95": 33.32870099693537,
+    "simulationRealTimeRatio": 1.0654112021460402
+  },
+  "phoneBrowser": [
+    {
+      "name": "fluid-only",
+      "width": 1280,
+      "height": 720,
+      "duration": 12.033333,
+      "viewport": [
+        390,
+        844
+      ],
+      "playback": true,
+      "seek": 10,
+      "physicalPhone": false,
+      "responses": [
+        {
+          "status": 206,
+          "headers": {
+            "content-type": "video/mp4",
+            "content-length": "5099142",
+            "cache-control": "public, max-age=31536000, immutable, stale-if-error=604800, no-transform",
+            "etag": "\"6aed8641-4dce86\"",
+            "content-range": "bytes 0-5099141/5099142"
+          }
+        },
+        {
+          "status": 206,
+          "headers": {
+            "content-type": "video/mp4",
+            "content-length": "3952262",
+            "cache-control": "public, max-age=31536000, immutable, stale-if-error=604800, no-transform",
+            "etag": "\"6aed8641-4dce86\"",
+            "content-range": "bytes 1146880-5099141/5099142"
+          }
+        },
+        {
+          "status": 206,
+          "headers": {
+            "content-type": "video/mp4",
+            "content-length": "3788422",
+            "cache-control": "public, max-age=31536000, immutable, stale-if-error=604800, no-transform",
+            "etag": "\"6aed8641-4dce86\"",
+            "content-range": "bytes 1310720-5099141/5099142"
+          }
+        }
+      ]
+    }
+  ],
+  "physicsTests": {
+    "passed": 22,
+    "seconds": 8.768
+  },
+  "sourceHashes": {
+    "ns_reference.py": "e086923ab53c81da9a30aa0fcbaebe36c18f6fd5bc49d76280d273d67c699d3e",
+    "demo_case.py": "ae94f7353f67b629f7be1b8c242fa478270196e870ae026e6b2c79733b429527",
+    "parcels.py": "1c23124b27cad3d42645bb9f2b206cbfc59fdeda2a6027bc605566d61dcc270f",
+    "make_visual_proof.py": "593b2e3bade45ea88d1b30a8da36b5ae1877ef51310dd5962b06b08bc2be2146",
+    "test_reference.py": "b4b737635eb7e850580ee8145a9af0918b3bd91df5ad1802302aa98015e21d28",
+    "test_parcels.py": "6b7bee1c4fae16b7b8a77690fd155dead70ed32e7c26bb1ddba7e4ac62b21445"
+  },
+  "environment": {
+    "python": "3.14.4",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3"
+  },
+  "initialCondition": {
+    "fluidSeed": 881,
+    "probeSeed": 882,
+    "smoothLowFourierModes": 10,
+    "rmsVelocity": 0.055,
+    "continuingForcing": false,
+    "particleRandomDisplacement": false,
+    "collector": false
+  },
+  "limits": [
+    "CPU numerical reference; not installed client GPU fluid backend",
+    "Native glyph SDF emission/capture not integrated",
+    "Physical phone and hardware GPU not tested"
+  ],
+  "codec": {
+    "name": "H264",
+    "pixelFormat": "yuv420p",
+    "range": "tv",
+    "frames": 361,
+    "frameRate": 30,
+    "durationSeconds": 12.033333333333333,
+    "headerCodecMAE": 0.147875,
+    "footerCodecMAE": 0.19883647798742138
+  }
+}

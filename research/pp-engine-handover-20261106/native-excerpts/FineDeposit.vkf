@@ -1,0 +1,131 @@
+# Fine captured-material moments. No optical mapping, glyph formation, air
+# dynamics or endpoint reprojection. Stored native capture pixels are authoritative.
+minimum(a:int,b:int)->int:
+    a<b? @:a
+    @:b
+controls(p:[num])->int:
+    (p.length()=7)?! "fine deposit requires seven controls"
+    (p.(0)>=1 /\ p.(0)<=131072 /\ p.(1)>=1 /\ p.(1)<=65536 /\ p.(0)*p.(1)<=64000000.0 /\ p.(2)>=0 /\ p.(2)<=16777215.0 /\ p.(3)>=1 /\ p.(3)<=4096 /\ p.(4)>=1 /\ p.(4)<=4096 /\ p.(3)*p.(4)<=4194304.0 /\ p.(5)>0 /\ p.(6)>0 /\ p.(5)<10000000000.0 /\ p.(6)<10000000000.0)?! "fine deposit work/domain budget exceeded"
+    i:0
+    i<5?>
+        (p.(i)=num(int(p.(i))))?! "fine deposit dimensions/owner must be exact integers"
+        .i:i+1
+    @:int(p.(0))
+
+# This once-per-support-map validation must precede classify. Input public ABI:
+# records20C ++ ownersC ++ capturePixels2C ++ immutableCoverageC ++ support2K.
+support_check(index:int,p:[num],v:[num])->num:
+    c:controls(p)
+    k:int(p.(1))
+    (v.length()=24*c+2*k /\ index>=0 /\ index<k)?! "fine support storage mismatch"
+    at:24*c+2*index
+    pixel:v.(at)
+    alpha:v.(at+1)
+    (pixel>=0 /\ pixel<p.(3)*p.(4) /\ pixel=num(int(pixel)) /\ alpha>0 /\ alpha<=1)?! "invalid genuine fine support pixel/alpha"
+    index>0? (v.(at-2)<pixel)?! "fine support must be strictly ascending and unique"
+    @:alpha
+
+# Classification is O(C log K), yielding supported index plus five raw moments.
+# A selected record outside support rejects rather than silently losing mass.
+classify(index:int,p:[num],v:[num])->[num]:
+    c:controls(p)
+    k:int(p.(1))
+    (v.length()=24*c+2*k /\ index>=0 /\ index<c)?! "fine deposit lineage storage mismatch"
+    [num] result:[0:6]
+    result.(0):-1
+    base:20*index
+    alive:v.(base+16)
+    owner:v.(20*c+index)
+    ((alive=0 \/ alive=1) /\ owner>=-1 /\ owner<=16777215.0 /\ owner=num(int(owner)))?! "invalid fine deposit ownership/liveness"
+    ~(alive=0 /\ owner=p.(2))? @:result
+    x:v.(21*c+2*index)
+    y:v.(21*c+2*index+1)
+    (x>=0 /\ x<p.(3) /\ y>=0 /\ y<p.(4) /\ x=num(int(x)) /\ y=num(int(y)))?! "invalid stored fine capture pixel"
+    pixel:x+p.(3)*y
+    low:0
+    high:k
+    low<high?>
+        middle:(low+high)//2
+        v.(24*c+2*middle)<pixel? .low:middle+1
+        ~(v.(24*c+2*middle)<pixel)? .high:middle
+    (low<k)?! "owned fine material lies outside genuine target support"
+    (v.(24*c+2*low)=pixel /\ v.(24*c+2*low+1)>0 /\ v.(24*c+2*low+1)<=1)?! "owned fine material lies outside genuine target support"
+    mass:v.(base+9)
+    coverage:v.(23*c+index)
+    alpha:v.(base+13)
+    (mass>0 /\ mass<1000000000000000000000000000000.0 /\ coverage>0 /\ coverage<=1 /\ alpha>=0 /\ alpha<=coverage*1.000001)?! "invalid fine material mass/coverage/opacity"
+    result.(0):num(low)
+    channel:0
+    channel<3?>
+        colour:v.(base+10+channel)
+        (colour>=0 /\ colour<=1)?! "invalid fine material display coefficient"
+        result.(1+channel):mass*colour
+        .channel:channel+1
+    result.(4):mass
+    result.(5):mass*(alpha/coverage)
+    @:result
+
+# Explicit 4096-lineage tiles keep every emitted loop within the current native
+# field budget. Native compensated positive sums retain small contributions.
+# Work <=64M key comparisons; no thinning or atomic-float assumption.
+# Input is classify output6C. Output order is tile-major, supported-pixel-minor.
+tiled_moments(index:int,p:[num],v:[num])->[num]:
+    c:controls(p)
+    k:int(p.(1))
+    tiles:(c+4095)//4096
+    (v.length()=6*c /\ index>=0 /\ index<k*tiles)?! "fine moment tile storage mismatch"
+    tile:index//k
+    pixel:index%k
+    stop:minimum(c,(tile+1)*4096)
+    i:tile*4096
+    [num] result:[0:5]
+    [num] compensation:[0:5]
+    i<stop?>
+        v.(6*i)=num(pixel)?
+            j:0
+            j<5?>
+                increment:v.(6*i+1+j)-compensation.(j)
+                next:result.(j)+increment
+                compensation.(j):(next-result.(j))-increment
+                result.(j):next
+                .j:j+1
+        .i:i+1
+    @:result
+reduce_moments(index:int,p:[num],v:[num])->[num]:
+    c:controls(p)
+    k:int(p.(1))
+    tiles:(c+4095)//4096
+    (v.length()=5*k*tiles /\ index>=0 /\ index<k)?! "fine moment reduction storage mismatch"
+    [num] result:[0:5]
+    [num] compensation:[0:5]
+    tile:0
+    tile<tiles?>
+        channel:0
+        channel<5?>
+            value:v.(5*(tile*k+index)+channel)
+            (value>=0 /\ value<1000000000000000000000000000000.0)?! "invalid fine raw material moment"
+            increment:value-compensation.(channel)
+            next:result.(channel)+increment
+            compensation.(channel):(next-result.(channel))-increment
+            result.(channel):next
+            .channel:channel+1
+        .tile:tile+1
+    @:result
+
+# Preserve old pixel metadata unless FineReceiver reports a newly captured event.
+capture_pixel(index:int,p:[num],v:[num])->[num]:
+    (p.length()=3)?! "capture pixel controls require count/full width/height"
+    (p.(0)>=1 /\ p.(0)<=131072 /\ p.(1)>=1 /\ p.(1)<=4096 /\ p.(2)>=1 /\ p.(2)<=4096 /\ p.(1)*p.(2)<=4194304.0)?! "capture pixel budget exceeded"
+    c:int(p.(0))
+    (p.(0)=num(c) /\ p.(1)=num(int(p.(1))) /\ p.(2)=num(int(p.(2))) /\ index>=0 /\ index<c /\ v.length()=27*c)?! "capture pixel storage mismatch"
+    [num] result:[v.(2*index),v.(2*index+1)]
+    at:2*c+25*index
+    flag:v.(at+20)
+    (flag=0 \/ flag=1)?! "invalid fine capture event flag"
+    flag=1?
+        x:v.(at+22)
+        y:v.(at+23)
+        (v.(at+16)=0 /\ x>=0 /\ x<p.(1) /\ y>=0 /\ y<p.(2) /\ x=num(int(x)) /\ y=num(int(y)))?! "invalid new native capture pixel"
+        result.(0):x
+        result.(1):y
+    @:result

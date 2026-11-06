@@ -1,0 +1,354 @@
+{
+  "schema": "native-fluid-ports-gpu/1",
+  "passed": true,
+  "sourceSha256": "2422df3c5eab2dab6a49739447d974b6704afedfe2a24715df2891f716fb8b66",
+  "referenceSha256": "e086923ab53c81da9a30aa0fcbaebe36c18f6fd5bc49d76280d273d67c699d3e",
+  "dftProvenance": {
+    "schema": "native-physical-fluid-integrated-build/1",
+    "status": "EMITTED_NOT_EXECUTED",
+    "output": "/tmp/vkf-fluid-integrated-HTcvNR",
+    "libraryBase": "bc92f0d1dfcb234464ac639c04621d941855b0d2",
+    "sources": {
+      "Fluid.vkf": "465b19080e1d26625efca7419eec67262cdef0f36b8a52ddfe4204ac23143808",
+      "FineReceiver.vkf": "37858e435f6aa1ea7709667c214c15b8bb24909b865bf975a5d5d825e163fd1a",
+      "MaterialStock.vkf": "6c4d756bb9a1858da4cb51485b75ee1cb3d408e6dd604e8ef8c074cb6a3f94ee",
+      "FineDeposit.vkf": "bca3b1788f48bc03e717db91d5bc50ee61e4ba23f137ce55a9a3b833e229cc3a",
+      "morphing/segment.vkf": "4c33a71557a69a086b68e1cab4d7337f493678016aed886817d36d5a55666558"
+    },
+    "sourceSha256": "465b19080e1d26625efca7419eec67262cdef0f36b8a52ddfe4204ac23143808",
+    "compilerVersion": "0.7.5",
+    "compilerSourceBinding": "ffcaeaae67079c714583d5487f3452a9ed4107abf14204a512f647400473c71f",
+    "gpuEmitter": "a5305eb01c6d36d5234402471750f0c4ed2f1c892fcec628649325bee315676f",
+    "mainSha256": "e09c457761cc79ae1051ab7572ba50ec3b8ab3e543f503522840c4340e39d65c",
+    "typedIRSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+    "entries": {
+      "operators": {
+        "entry": "operators_job",
+        "width": 8,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "9959e082a02b7cc77a1ffb86200eb60ae41c2bffabede578cddd97916664a381",
+        "shaderManifestSha256": "eb655ea79022e2a8076eb1dbf234521cbf61b8af9e712a99abb8298b82cef3f6"
+      },
+      "pressure-rhs": {
+        "entry": "pressure_rhs_job",
+        "width": 2,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "62afb0c3bebf1669d26f1ce6dfe2fa9dcf3f333ba9581f481822fb9b4f661df4",
+        "shaderManifestSha256": "94d316de896ef11a7652f5f3a033b8a0d0f43c7652e7b7aff856c8a827bd73ed"
+      },
+      "dft": {
+        "entry": "dft_job",
+        "width": 2,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "eed399e52df7530a391b81638f7cba50aa274410591dfc14f354cf3392fc2702",
+        "shaderManifestSha256": "79bc0db03c03d0c71b10575b4868d409ba23d1cf20faba6f4450e2078f35d261"
+      },
+      "pressure-spectrum": {
+        "entry": "pressure_spectrum_job",
+        "width": 2,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "c71422a96ca9d6bf701ec412de324d32b2d187b6212b818a8dec6627f5b991f3",
+        "shaderManifestSha256": "4e79484f4e875c56fb0882db161c4012542892ac2f6ba4763744fbf0e870d362"
+      },
+      "project": {
+        "entry": "project_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "1633d86989d44ff0054bec11679fc3dcadd15d1233907bcbfe52737ca133e03b",
+        "shaderManifestSha256": "7af9373cc168d5ed76277c578aa3344750f29589c961895053b602e437b09c5f"
+      },
+      "rhs": {
+        "entry": "rhs_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "909efe62735e49ecb7f1b3c16938bd3d7d94fc6f2a46192ef9287ddf417b19da",
+        "shaderManifestSha256": "c24ce339477a7d2b68a8824904661e347f2179ec8039a94f7482ad21825d2e70"
+      },
+      "ssprk-update": {
+        "entry": "ssprk_update_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "48cb64eb4b75d51f20438cd6f63054df969eea188ca4bac277566df6b1239c62",
+        "shaderManifestSha256": "5cf83e6d300b81ae1151df7e89b96b1f2d70105d838fc2f0b4a50c45e6044e55"
+      },
+      "markers": {
+        "entry": "markers_job",
+        "width": 20,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "276031bf6d273e39121c89968309b718dd256b9b41984eb7d3d21d395371f923",
+        "shaderManifestSha256": "7817428db6191e4bbd76ec41d7e5604967b5fda581f9e1e638cc684981907f81"
+      },
+      "stage-metrics": {
+        "entry": "stage_metrics_job",
+        "width": 12,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "13f5854b77f634a6ecff7c4a09c11fd2e4b5e549d60e88eb11acd06f5b6acb96",
+        "shaderManifestSha256": "0bc9d59ed02ed062d502d2a152a2deacc42ed39008c6e638303dc008d53b8baf"
+      },
+      "receiver-finalize": {
+        "entry": "receiver_finalize_job",
+        "width": 20,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "349975cb42842d1e837cecaf0b342b498af91845375298919c86d7afe579292a",
+        "shaderManifestSha256": "db4096b2f965aef4fceb569ed0c44bf58e8b3664f3b55526264515973754ead5"
+      },
+      "ink-flags": {
+        "entry": "ink_flags_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "972e8d47eca6c12aa3a19cf44893c1e2dc71527017cb8e22d0317564e14956f1",
+        "shaderManifestSha256": "58220c8425fb108e188c42bb35836a4c49b1b1646e14f2a2f97d9efb3cd3afa9"
+      },
+      "ink-prefix": {
+        "entry": "ink_prefix_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "aedd4d8690e20ae2d3838daf7d3c947c1d46b55ae0ccb4842c11dd19706d6345",
+        "shaderManifestSha256": "cea9d6a6d400730b72de33946b822c8da3b191b872b23364b1e390aedc3dd439"
+      },
+      "ink-initialize": {
+        "entry": "ink_initialize_job",
+        "width": 20,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "4155341d8574bd40323d1b294e70ddf9a9265df7531102c79b0d0fd0d0a809ae",
+        "shaderManifestSha256": "c393e164d7e2bb9b615f7a83597a9568ab5bdf29228bf685ccd1b8e15311a5f4"
+      },
+      "ink-mass": {
+        "entry": "ink_mass_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "470bffc08b7378c00cae594506ebcaa88c0eb26855f749bbfa802c69f2a04ad9",
+        "shaderManifestSha256": "c6ba2b335f5897d78ccd996fe3a12593b202a76b2d61c2f43e4b663ce861eb32"
+      },
+      "ink-release": {
+        "entry": "ink_release_job",
+        "width": 20,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "215d4f1b9b5ae1538370f577482360e63a188d5457c70ccade3bdee173f449c0",
+        "shaderManifestSha256": "c6b7416b98ed2cbc78201d75cab608e8ebbc6f7a71807b6bc72ef275e5b4f09f"
+      },
+      "marker-world-ink": {
+        "entry": "marker_world_ink_job",
+        "width": 8,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "6e5d06d2f24c3be1f8f6ed330867dcee13c2dcafa74ed8b09383df2ce1b6bc60",
+        "shaderManifestSha256": "f417c3df0532ee1fc6289abfbeecbfac3eab284b44c332437fbd6b6c38ad7525"
+      },
+      "ink-alpha": {
+        "entry": "ink_alpha_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "3be827b80283e94b512dce96aebbe642542a9d0410085ae0b51af162c78edf58",
+        "shaderManifestSha256": "1bec7bf4dfbb76606f9980df51484c881f7adb35805e782053347bcb67d75fbb"
+      },
+      "ink-support": {
+        "entry": "ink_support_job",
+        "width": 2,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "85ceee8b02a0421f1d93c71765a30dd1497a3ae91d88c3b240d167bfda221aa5",
+        "shaderManifestSha256": "f7cb9f4f54ff5be4833e562796352ba63701a128291fc475260eb94f21c192bc"
+      },
+      "marker-coverage": {
+        "entry": "marker_coverage_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "83f15a3db7d652e74a2c7ac679bbed863028a00b1f5122616e35543bf10b6921",
+        "shaderManifestSha256": "b862bbd2727ef10e7480441ce97a319dfc18aae52ba162027d5b638b91ccdb3a"
+      },
+      "marker-ledger": {
+        "entry": "marker_ledger_job",
+        "width": 2,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "39626680d58b7661d96d4982e37b57a0796cae41867c71a8b457c60dd05593e9",
+        "shaderManifestSha256": "d094a43b56253b5963e783aae8c416df2c503e0d00131d8aa700b14473ef0f1b"
+      },
+      "colour-base": {
+        "entry": "colour_base_job",
+        "width": 5,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "c256d669e138702a58e3034575f5b56c0f212b277ddcf009036977dcc3b85d29",
+        "shaderManifestSha256": "70a7bc0f5bc15342c95913ae5a6ecbb351c6956d2e79a6d5bb94888ee8e6c3b9"
+      },
+      "apply-colour": {
+        "entry": "apply_colour_job",
+        "width": 20,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "5cd8a54f29d566f8b8fee99aa9bbbf62a5908f298f8b6ffdf3808cba5e966ac1",
+        "shaderManifestSha256": "a9fade53c676dce7cd8924f02c6b6d0521ebf6a463931324ac827f7b71af1049"
+      },
+      "capture": {
+        "entry": "capture_job",
+        "width": 25,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "9f38f8509df525ebd52f6e8766893382b081e8dd0100f8dbb508254e924b4849",
+        "shaderManifestSha256": "af9ff61493354a01eb5c073e543d94efc457692db12ca83f2f82de6c6e431ace"
+      },
+      "stock-reemit": {
+        "entry": "stock_reemit_job",
+        "width": 20,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "4c247b81112558a4d964a600d40dd9774c2a0b39867620ae870e5cd4dbbb5f09",
+        "shaderManifestSha256": "4faa975d5a770b5fc6f0349454273c2de66f1f9abfc0720a2435835370425fdd"
+      },
+      "stock-owners": {
+        "entry": "stock_owners_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "3fd91c4c8e03fd9737e0715cccdc8ab0286e38da627a59f49ab44cb2cb385fef",
+        "shaderManifestSha256": "5dc7dccee56b2fbf9c4ed54ecc1ba79191217f7a8f52ca5a550cff189d040def"
+      },
+      "capture-owner": {
+        "entry": "capture_owner_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "d423e4d9ccffc8f1395b24b1811c8396abe1225ec419affebbf2c27505d4dd80",
+        "shaderManifestSha256": "2ece9ffffcc15afc8b362ae8c553dd68ba52b0e75de35be30e8f38aa73a2231b"
+      },
+      "capture-pixel": {
+        "entry": "capture_pixel_job",
+        "width": 2,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "a0a5c0eac15cbb521c14f54e50e9ef1f9949a706cce20594d594a47e669139a7",
+        "shaderSha256": "8a73d28a1855d43d72287c10512c69e7ae4b6a1898986aaca9c6f5e7ad4ccabb",
+        "shaderManifestSha256": "b5737b06bac3b41ce626bfaf08481de604dd1de162ae59cba69843a00c6dfb6e"
+      }
+    }
+  },
+  "reports": [
+    {
+      "shape": [
+        8,
+        6,
+        4
+      ],
+      "normalizedCollectorIntegral": 0.9999999221165963,
+      "normalizedSupplyIntegral": 0.999999923706056,
+      "normalizationError": 2.6170164346694946e-7,
+      "unitRhsError": 2.2444874048233032e-7,
+      "unitLiftError": 1.0923281161534515e-8,
+      "unitPotentialError": 1.7075018725332125e-9,
+      "unitDivergenceConstraintMax": 4.76837158203125e-7,
+      "packError": 2.6170164346694946e-7,
+      "boundaryError": 7.30876369009481e-8,
+      "dragError": 1.1928337595445981e-8,
+      "reconstructionError": 3.725290298461914e-9,
+      "replayExact": true,
+      "stationaryPressureRate": 0,
+      "liftDerivativeResidual": 0.0000023281976406706857,
+      "maximumKnotJump": 0.00021342188119888306,
+      "boundaryTimes": [
+        0.9,
+        1,
+        1.0001,
+        1.1,
+        1.25,
+        1.5,
+        1.7,
+        1.9,
+        2,
+        2.0001
+      ],
+      "wallWithReadbackMs": 201.59999990463257
+    },
+    {
+      "shape": [
+        24,
+        16,
+        8
+      ],
+      "normalizedCollectorIntegral": 0.9999999258915452,
+      "normalizedSupplyIntegral": 0.9999999618530141,
+      "normalizationError": 2.7229558785535346e-7,
+      "unitRhsError": 2.6291617527540723e-7,
+      "unitLiftError": 5.4647624980752596e-8,
+      "unitPotentialError": 4.2575124484939275e-9,
+      "unitDivergenceConstraintMax": 0.0000029206275939941406,
+      "packError": 2.7229558785535346e-7,
+      "boundaryError": 8.359507373822961e-8,
+      "dragError": 1.4210698229266683e-8,
+      "reconstructionError": 3.725290298461914e-9,
+      "replayExact": true,
+      "stationaryPressureRate": 0,
+      "liftDerivativeResidual": 0.000002328197640646675,
+      "maximumKnotJump": 0.00023620855063199997,
+      "boundaryTimes": [
+        0.9,
+        1,
+        1.0001,
+        1.1,
+        1.25,
+        1.5,
+        1.7,
+        1.9,
+        2,
+        2.0001
+      ],
+      "wallWithReadbackMs": 414.10000002384186
+    }
+  ],
+  "rejectionCases": 10,
+  "runtimeBudgetReject": true,
+  "cancelBeforeLoad": true,
+  "cancelBeforeDispatch": true,
+  "cancelBeforeEncode": true,
+  "tamperReject": true,
+  "peakOwnedBytes": 589928,
+  "ownedBytesAfter": 0,
+  "gpuErrors": [],
+  "backend": "Chrome WebGPU Vulkan SwiftShader; unchanged current075 compiler/emitter",
+  "scope": "Finite native port operators and direct DFT lift only; fine probes authoritative, coarse scalar diagnostics/loading0. No full NS coupling, suction/formation or60Hz acceptance.",
+  "browserErrors": []
+}

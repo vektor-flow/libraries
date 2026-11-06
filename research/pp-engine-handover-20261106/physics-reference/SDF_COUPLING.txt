@@ -1,0 +1,67 @@
+NATIVE GLYPH FIELD / PHYSICAL COUPLING HANDOFF — 2026-11-06
+
+Status: requirement and capability audit, NOT implemented/qualified sublimation.
+This CPU reference starts with released aerosol. VKF owns the eventual native
+physical glyph source, solver, material transfer and rendering. No Product import
+of this Python solver or prescribed analytic-vortex fallback is authorized.
+
+Authentic current075 geometry
+- vf-ui/native-labels/vf-adaptive-native-labels.mjs:
+  scene.nativeSourceOutlines(camera,limits) returns physical M/L/C/Z commands,
+  current affine matrix, authored colour, physical identity and source provenance.
+- vf-native-tiled-label-renderer.mjs / vf-shared-area-renderer.mjs:
+  nativeSourceSnapshot() copies accepted authentic sources and their receipts.
+- vf-native-certified-samples.mjs:
+  compileNativeSampleProof(commands,matrix,{pixelRatio,maxDepth,maxNodes,...})
+  provides winding(ix,iy), region/translated queries and exact AA occupancy/sign
+  at the declared sample grid. It does NOT return Euclidean distance or gradient.
+- vf-native-outline-cache.mjs certifies source/control-hull geometry and AA
+  samples. Those certificates do NOT certify an SDF, gradient or nearest point.
+No current physical Type1 math/text glyph SDF+gradient API was located. The chess
+NotoSans SDF atlas is unrelated and must not substitute. Native implementation
+needs a bounded distance/gradient query or qualified field construction from the
+actual physical curves; do not derive glyph physics from renderer triangles.
+
+Required geometry contract
+Declare phi<0 in filled ink, n_out=grad(phi)/|grad(phi)| and n_in=-n_out.
+Use the actual nonzero-winding material region: holes, overlapping contours,
+ligatures/rules and unions can hide boundaries that must not emit twice. Source
+and target fields retain native font/program/resource/layout identities.
+Physical affine transforms matter: gradients transform with A^-T; nonuniform
+stretch/shear does not preserve Euclidean distance by a single scale. Re-distance
+in the chosen physical metric, or state the approximation/error. Corners, cusps,
+medial axes, singular transforms and near-zero gradients need explicit handling.
+Use a declared physical-width narrow band and bounded normal regularization.
+Distance decreases toward a boundary; it is NOT itself temperature or pressure.
+
+Coupling, not prescribed particle paths
+A profile a(phi)*grad(phi)=grad(F(phi)) is a pure gradient and is removed by the
+periodic Leray projection. Setting outward air velocities and projecting them
+cannot be advertised as normal expansion. Geometry can supply a declared
+surface mass flux, material momentum/heat flux or porous continuity source, with
+balanced air-volume return and pressure boundary conditions. Outgoing attached
+ink must debit its finite native reservoir; no ambient smoke creation. Target
+inward flux/hazard must credit the FIRST receiver from actual captured stock;
+later ordinary waves and matched native state interpolation remain separate.
+
+The current probes are overdamped, one-way diagnostics. Their stored velocity
+is terminal resolved air velocity, not a Brownian derivative. Merely assigning
+an initial outward probe velocity has no effect on their current dx update.
+An emission impulse therefore needs a qualified finite-response particle model
+or conservative momentum/heat coupling into shared air. Finite-tau drag is only
+qualified for frozen sampled air. Coarse MAC cells cannot resolve thin glyph
+stroke jets without a declared conservative subgrid boundary treatment.
+
+Edge-weighted release / inward gathering can be controlled source conditions,
+with small seeded flux variations, but they are NOT a solved thermal phase law.
+Actual sublimation/condensation needs interface temperature, vapor pressure or
+chemical potential, latent heat/energy and interface recession/formation. None
+is solved here. Authored target-colour interpolation is an optical native state
+attribute, not chemical conversion of conserved pigment species.
+
+Preserve fluid fields, source/control laws, moving-mask lift/pressure bases,
+fixed tick clock, complete material state and RNG/hazard thresholds/exposures
+across holds/views. Retain finite-rate capture tails; never delete or teleport
+remaining smoke to satisfy a visual deadline. Qualify geometry-field error,
+source/receiver mass+momentum+heat budgets, pressure compatibility, stability,
+replay and actual native pixels before claiming a native physical port.

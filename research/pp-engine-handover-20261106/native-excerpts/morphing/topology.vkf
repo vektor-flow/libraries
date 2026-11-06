@@ -1,0 +1,238 @@
+# Prepared support homotopy for the SAME implicit state/geometry backend.
+# A constructive 2D path: geodesic support growth, then reverse target growth.
+# This does not infer semantic correspondence or promise general count schedules.
+s:.state
+segment:.segment
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+Plan:(curve:Curve,dimension:int,size:int,cells:int,carriers:int,stride:int,smooth_start:bit,smooth_end:bit,join:num)
+
+minimum(a:num,b:num)->num:
+    a<b? @:a
+    @:b
+maximum(a:num,b:num)->num:
+    a>b? @:a
+    @:b
+
+# Native grid predecessor metric. Original positive values and ALL vertices of
+# triangles meeting the source positive set are pinned, retaining its zero set.
+# Every later positive vertex attaches through a four-neighbour predecessor.
+# The pin neighbourhood is the original clipper's NW--SE triangulation.
+arrival(values:[num],size:int)->[num]:
+    (size>=3 /\ size<=257 /\ values.length()=size*size)?! "invalid support field"
+    cells:size*size
+    [num] distances:[1000000:cells]
+    [int] pinned:[0:cells]
+    [num] output:[0:cells]
+    positive:0
+    i:0
+    i<cells?>
+        value:values.(i)
+        (|value|<100000)?! "nonfinite support field"
+        x:i%size
+        y:i//size
+        border:x=0 \/ y=0 \/ x=size-1 \/ y=size-1
+        border? (value<0)?! "support field must enclose its material"
+        value>=0?
+            pinned.(i):1
+            distances.(i):0
+            .positive:positive+1
+        value<0 /\ ~border?
+            touches:values.(i-1)>=0 \/ values.(i+1)>=0 \/ values.(i-size)>=0 \/ values.(i+size)>=0 \/ values.(i-size-1)>=0 \/ values.(i+size+1)>=0
+            touches?
+                pinned.(i):1
+                distances.(i): -value
+        .i:i+1
+    (positive>0)?! "support field has no sampled positive material"
+    step:2/num(size-1)
+    fy:1
+    fy<size-1?>
+        fx:1
+        fx<size-1?>
+            forward_index:fy*size+fx
+            pinned.(forward_index)=0?
+                forward_best:distances.(forward_index)
+                fy>1? .forward_best:minimum(forward_best,distances.(forward_index-size)+step)
+                fx>1? .forward_best:minimum(forward_best,distances.(forward_index-1)+step)
+                distances.(forward_index):forward_best
+            .fx:fx+1
+        .fy:fy+1
+    by:size-2
+    by>=1?>
+        bx:size-2
+        bx>=1?>
+            backward_index:by*size+bx
+            pinned.(backward_index)=0?
+                backward_best:distances.(backward_index)
+                by<size-2? .backward_best:minimum(backward_best,distances.(backward_index+size)+step)
+                bx<size-2? .backward_best:minimum(backward_best,distances.(backward_index+1)+step)
+                distances.(backward_index):backward_best
+            .bx:bx-1
+        .by:by-1
+    .i:0
+    i<cells?>
+        end_value:values.(i)
+        end_x:i%size
+        end_y:i//size
+        end_border:end_x=0 \/ end_y=0 \/ end_x=size-1 \/ end_y=size-1
+        output.(i):end_value
+        end_value<0 /\ ~end_border?
+            (distances.(i)<1000000)?! "unreachable support vertex"
+            output.(i): -distances.(i)
+        .i:i+1
+    @:output
+
+# One convex enclosing support for both endpoint zero sets. It is an internal
+# field waypoint, never an authored font or replacement endpoint glyph.
+support(source:[num],target:[num],size:int)->[num]:
+    cells:size*size
+    (source.length()=cells /\ target.length()=cells)?! "invalid support endpoints"
+    height:1.0
+    epsilon:1.0
+    i:0
+    i<cells?>
+        .height:maximum(height,maximum(source.(i),target.(i))+1)
+        x:i%size
+        y:i//size
+        x=0 \/ y=0 \/ x=size-1 \/ y=size-1?
+            .epsilon:minimum(epsilon,minimum(-source.(i),-target.(i))/10)
+        .i:i+1
+    (epsilon>0)?! "support endpoint boundary is not negative"
+    [num] output:[height:cells]
+    .i:0
+    i<cells?>
+        final_x:i%size
+        final_y:i//size
+        final_x=0 \/ final_y=0 \/ final_x=size-1 \/ final_y=size-1? output.(i): -epsilon
+        .i:i+1
+    @:output
+
+# Internal native policy prototype. ONLY two-key piecewise-linear, 2D join=0
+# geometry is supported. Unchanged physical glyphs remain outside this cohort.
+# Non-field channels use the original scalar state primitive at the same knots.
+prepare(plan:Plan)->Plan:
+    curve:plan.curve
+    (plan.dimension=2 /\ plan.join=0 /\ curve.count=2 /\ curve.mode=0)?! "unsupported topology support profile"
+    size:plan.size
+    cells:plan.cells
+    stride:plan.stride
+    carriers:plan.carriers
+    width:curve.width
+    original:curve.values
+    (cells=size*size /\ stride>=4+cells /\ width=carriers*stride)?! "invalid support geometry layout"
+    [num] values:[]
+    state:0
+    state<3?>
+        carrier:0
+        carrier<carriers?>
+            base:carrier*stride
+            left:[..cells-1 >> original.(base+4+int($))]
+            right:[..cells-1 >> original.(width+base+4+int($))]
+            [num] field:[]
+            state=0? .field:arrival(left,size)
+            state=1? .field:support(left,right,size)
+            state=2? .field:arrival(right,size)
+            center:[..3 >> segment.value(original.(base+int($)),original.(width+base+int($)),0,0,1,num(state)/2)]
+            [num] attributes:[]
+            stride>4+cells? .attributes:[..stride-5-cells >> segment.value(original.(base+4+cells+int($)),original.(width+base+4+cells+int($)),0,0,1,num(state)/2)]
+            packed:center&field&attributes
+            .values:values&packed
+            .carrier:carrier+1
+        .state:state+1
+    @:(curve:s.prepare([0,0.5,1],values,width,0),dimension:2,size:size,cells:cells,carriers:carriers,stride:stride,smooth_start:plan.smooth_start,smooth_end:plan.smooth_end,join:0)
+
+# Native lineage weights from the source's existing clipped-cell geometry.
+# This is the finite polygon/grid model, not an analytic font area certificate.
+p:.parallel
+source_weights(plan:Plan)->[num]:
+    original:plan.curve.values
+    size:plan.size
+    cells:plan.cells
+    stride:plan.stride
+    [num] weights:[0:plan.carriers]
+    carrier:0
+    carrier<plan.carriers?>
+        base:carrier*stride
+        field:[..cells-1 >> original.(base+4+int($))]
+        ex:2*original.(base+2)
+        ey:2*original.(base+3)
+        area:0.0
+        cell:0
+        cell<(size-1)*(size-1)?>
+            origin:(cell//(size-1))*size+cell%(size-1)
+            fraction:p.cell_fraction(field.(origin),field.(origin+1),field.(origin+size),field.(origin+size+1))
+            .area:area+fraction*(ex/(size-1))*(ey/(size-1))
+            .cell:cell+1
+        (area>0)?! "source lineage has zero measured material"
+        weights.(carrier):area
+        .carrier:carrier+1
+    @:weights
+
+CoalescencePlan:(geometry:Plan,weights:[num],coincidence_coordinate:num,embedding:[num],embedding_first:[num])
+
+# Bounded coalescence prototype: two existing lineages to ONE shared target.
+# The knot means pose coincidence, NOT first boundary contact; that needs its
+# own geometric contact/event qualification.
+# It does not retarget endpoints or implement the general laminar event planner.
+prepare_coalescence(plan:Plan,coincidence_coordinate:num=0.5,given_weights:[num]=[])->CoalescencePlan:
+    coordinate:coincidence_coordinate
+    (plan.dimension=2 /\ plan.join=0 /\ plan.curve.count=2 /\ plan.curve.mode=0 /\ plan.carriers=2 /\ coordinate>0 /\ coordinate<1)?! "unsupported merge event profile"
+    size:plan.size
+    cells:plan.cells
+    stride:plan.stride
+    width:plan.curve.width
+    original:plan.curve.values
+    i:0
+    i<4+cells?>
+        (original.(width+i)=original.(width+stride+i))?! "merge event requires one shared target geometry"
+        .i:i+1
+    weights:given_weights
+    weights.length()=0? .weights:source_weights(plan)
+    (weights.length()=2 /\ weights.(0)>0 /\ weights.(1)>0 /\ |weights.(0)|<10000000000 /\ |weights.(1)|<10000000000)?! "invalid merge lineage weights"
+    total:weights.(0)+weights.(1)
+    w0:weights.(0)/total
+    w1:weights.(1)/total
+    source0:[..cells-1 >> original.(4+int($))]
+    source1:[..cells-1 >> original.(stride+4+int($))]
+    target:[..cells-1 >> original.(width+4+int($))]
+    arrival0:arrival(source0,size)
+    arrival1:arrival(source1,size)
+    arrival_target:arrival(target,size)
+    support0:support(source0,target,size)
+    support1:support(source1,target,size)
+    shared_support:[..cells-1 >> maximum(support0.(int($)),support1.(int($)))]
+    source_center:[..3 >> w0*original.(int($))+w1*original.(stride+int($))]
+    merge_center:[..3 >> segment.value(source_center.(int($)),original.(width+int($)),0,0,1,coordinate)]
+    merge_velocity:[..3 >> original.(width+int($))-source_center.(int($))]
+    [num] values:[]
+    [num] first:[]
+    state:0
+    state<3?>
+        q:coordinate
+        state=0? .q:0
+        state=2? .q:1
+        carrier:0
+        carrier<2?>
+            base:carrier*stride
+            center:merge_center
+            velocity:merge_velocity
+            state=0?
+                .center:[..3 >> original.(base+int($))]
+                .velocity:[..3 >> original.(width+base+int($))-original.(base+int($))]
+            state=2? .center:[..3 >> original.(width+base+int($))]
+            field:shared_support
+            state=0 /\ carrier=0? .field:arrival0
+            state=0 /\ carrier=1? .field:arrival1
+            state=2? .field:arrival_target
+            [num] attributes:[]
+            [num] attribute_jets:[]
+            stride>4+cells?
+                .attributes:[..stride-5-cells >> segment.value(original.(base+4+cells+int($)),original.(width+base+4+cells+int($)),0,0,1,q)]
+                .attribute_jets:[..stride-5-cells >> original.(width+base+4+cells+int($))-original.(base+4+cells+int($))]
+            packed:center&field&attributes
+            packed_jets:velocity&[0:cells]&attribute_jets
+            .values:values&packed
+            .first:first&packed_jets
+            .carrier:carrier+1
+        .state:state+1
+    geometry:(curve:s.prepare_jets([0,coordinate,1],values,first,width),dimension:2,size:size,cells:cells,carriers:2,stride:stride,smooth_start:plan.smooth_start,smooth_end:plan.smooth_end,join:0)
+    @:(geometry:geometry,weights:[w0,w1],coincidence_coordinate:coordinate,embedding:merge_center,embedding_first:merge_velocity)

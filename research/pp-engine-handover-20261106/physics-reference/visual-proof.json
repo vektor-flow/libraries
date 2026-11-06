@@ -1,0 +1,5480 @@
+{
+  "schema": "ns-smoke-native-visual-data/1",
+  "frameRate": 30,
+  "width": 1280,
+  "height": 720,
+  "duration": 6,
+  "sourceHashes": {
+    "ns_reference.py": "d80e6a586b008ad5da721cb05be274e9e669c8ad67a3736182033fc6c6b375f4",
+    "parcels.py": "3a778ee13011b92d7ffb28e309d4114109e76d028a45ed8978c40da238f5ac35",
+    "demo_case.py": "ae94f7353f67b629f7be1b8c242fa478270196e870ae026e6b2c79733b429527"
+  },
+  "backend": "CPU float64 fluid/probes, VKF native rendering; not a client GPU fluid implementation",
+  "particleVelocityMeaning": "resolved air velocity; not Brownian derivative",
+  "units": "nondimensional reference",
+  "collector": "balanced return-air supply; smoothly moving mask; residual remains live",
+  "palette": [
+    [
+      0.9137254901960784,
+      0.7686274509803922,
+      0.41568627450980394
+    ],
+    [
+      0.47058823529411764,
+      0.8274509803921568,
+      0.7764705882352941
+    ],
+    [
+      0.9647058823529412,
+      0.9725490196078431,
+      0.9764705882352941
+    ]
+  ],
+  "initialContinuumMass": [
+    0.0010000000000000002,
+    0.001,
+    0.0010000000000000002
+  ],
+  "initialProbeMass": [
+    0.0010000000000000037,
+    0.0009999999999999352,
+    0.0010000000000000037
+  ],
+  "simulationMsP50": 32.17610204592347,
+  "simulationMsP95": 37.78503812500276,
+  "simulationRealTimeRatio": 1.0934250589789376,
+  "frames": [
+    {
+      "offsetFloats": 0,
+      "count": 8192,
+      "time": 0.0,
+      "physicsTicks": 0,
+      "physicsSteps": 0,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.001,
+        0.0010000000000000002
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 0,
+      "stageResidual": 0
+    },
+    {
+      "offsetFloats": 57344,
+      "count": 8192,
+      "time": 0.03333333333333333,
+      "physicsTicks": 2,
+      "physicsSteps": 2,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.001,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 8.881784197001252e-16,
+      "stageResidual": 8.604228440844963e-16
+    },
+    {
+      "offsetFloats": 114688,
+      "count": 8192,
+      "time": 0.06666666666666667,
+      "physicsTicks": 4,
+      "physicsSteps": 4,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.001,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 9.71445146547012e-16,
+      "stageResidual": 9.783840404509192e-16
+    },
+    {
+      "offsetFloats": 172032,
+      "count": 8192,
+      "time": 0.1,
+      "physicsTicks": 6,
+      "physicsSteps": 6,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 9.71445146547012e-16,
+      "stageResidual": 9.992007221626409e-16
+    },
+    {
+      "offsetFloats": 229376,
+      "count": 8192,
+      "time": 0.13333333333333333,
+      "physicsTicks": 8,
+      "physicsSteps": 8,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 9.71445146547012e-16,
+      "stageResidual": 9.71445146547012e-16
+    },
+    {
+      "offsetFloats": 286720,
+      "count": 8192,
+      "time": 0.16666666666666666,
+      "physicsTicks": 10,
+      "physicsSteps": 10,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.0009999999999999998,
+        0.0010000000000000002
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 9.71445146547012e-16,
+      "stageResidual": 9.71445146547012e-16
+    },
+    {
+      "offsetFloats": 344064,
+      "count": 8192,
+      "time": 0.2,
+      "physicsTicks": 12,
+      "physicsSteps": 12,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.001,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.0685896612017132e-15,
+      "stageResidual": 1.0130785099704553e-15
+    },
+    {
+      "offsetFloats": 401408,
+      "count": 8192,
+      "time": 0.23333333333333334,
+      "physicsTicks": 14,
+      "physicsSteps": 14,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.1102230246251565e-15,
+      "stageResidual": 1.1102230246251565e-15
+    },
+    {
+      "offsetFloats": 458752,
+      "count": 8192,
+      "time": 0.26666666666666666,
+      "physicsTicks": 16,
+      "physicsSteps": 16,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.0009999999999999998,
+        0.0010000000000000002
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.0824674490095276e-15,
+      "stageResidual": 1.1657341758564144e-15
+    },
+    {
+      "offsetFloats": 516096,
+      "count": 8192,
+      "time": 0.3,
+      "physicsTicks": 18,
+      "physicsSteps": 18,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.1310397063368782e-15,
+      "stageResidual": 1.1796119636642288e-15
+    },
+    {
+      "offsetFloats": 573440,
+      "count": 8192,
+      "time": 0.3333333333333333,
+      "physicsTicks": 20,
+      "physicsSteps": 20,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.0009999999999999998,
+        0.0010000000000000002
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.124100812432971e-15,
+      "stageResidual": 1.1587952819525071e-15
+    },
+    {
+      "offsetFloats": 630784,
+      "count": 8192,
+      "time": 0.36666666666666664,
+      "physicsTicks": 22,
+      "physicsSteps": 22,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.0009999999999999998,
+        0.0010000000000000002
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.2628786905111156e-15,
+      "stageResidual": 1.2836953722228372e-15
+    },
+    {
+      "offsetFloats": 688128,
+      "count": 8192,
+      "time": 0.4,
+      "physicsTicks": 24,
+      "physicsSteps": 24,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.001,
+        0.0010000000000000002
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.3739009929736312e-15,
+      "stageResidual": 1.4085954624931674e-15
+    },
+    {
+      "offsetFloats": 745472,
+      "count": 8192,
+      "time": 0.43333333333333335,
+      "physicsTicks": 26,
+      "physicsSteps": 26,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.304512053934559e-15,
+      "stageResidual": 1.304512053934559e-15
+    },
+    {
+      "offsetFloats": 802816,
+      "count": 8192,
+      "time": 0.4666666666666667,
+      "physicsTicks": 28,
+      "physicsSteps": 28,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.2698175844150228e-15,
+      "stageResidual": 1.3530843112619095e-15
+    },
+    {
+      "offsetFloats": 860160,
+      "count": 8192,
+      "time": 0.5,
+      "physicsTicks": 30,
+      "physicsSteps": 30,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.304512053934559e-15,
+      "stageResidual": 1.3183898417423734e-15
+    },
+    {
+      "offsetFloats": 917504,
+      "count": 8192,
+      "time": 0.5333333333333333,
+      "physicsTicks": 32,
+      "physicsSteps": 32,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.4016565685892601e-15,
+      "stageResidual": 1.4710455076283324e-15
+    },
+    {
+      "offsetFloats": 974848,
+      "count": 8192,
+      "time": 0.5666666666666667,
+      "physicsTicks": 34,
+      "physicsSteps": 34,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000007,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.4016565685892601e-15,
+      "stageResidual": 1.429412144204889e-15
+    },
+    {
+      "offsetFloats": 1032192,
+      "count": 8192,
+      "time": 0.6,
+      "physicsTicks": 36,
+      "physicsSteps": 36,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.4710455076283324e-15,
+      "stageResidual": 1.5126788710517758e-15
+    },
+    {
+      "offsetFloats": 1089536,
+      "count": 8192,
+      "time": 0.6333333333333333,
+      "physicsTicks": 38,
+      "physicsSteps": 38,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.0009999999999999998,
+        0.0010000000000000002
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.4710455076283324e-15,
+      "stageResidual": 1.582067810090848e-15
+    },
+    {
+      "offsetFloats": 1146880,
+      "count": 8192,
+      "time": 0.6666666666666666,
+      "physicsTicks": 40,
+      "physicsSteps": 40,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.001,
+        0.0009999999999999998
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.582067810090848e-15,
+      "stageResidual": 1.582067810090848e-15
+    },
+    {
+      "offsetFloats": 1204224,
+      "count": 8192,
+      "time": 0.7,
+      "physicsTicks": 42,
+      "physicsSteps": 42,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.5543122344752192e-15,
+      "stageResidual": 1.582067810090848e-15
+    },
+    {
+      "offsetFloats": 1261568,
+      "count": 8192,
+      "time": 0.7333333333333333,
+      "physicsTicks": 44,
+      "physicsSteps": 44,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.4988010832439613e-15,
+      "stageResidual": 1.547373340571312e-15
+    },
+    {
+      "offsetFloats": 1318912,
+      "count": 8192,
+      "time": 0.7666666666666666,
+      "physicsTicks": 46,
+      "physicsSteps": 46,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.5126788710517758e-15,
+      "stageResidual": 1.5404344466674047e-15
+    },
+    {
+      "offsetFloats": 1376256,
+      "count": 8192,
+      "time": 0.8,
+      "physicsTicks": 48,
+      "physicsSteps": 48,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.582067810090848e-15,
+      "stageResidual": 1.6237011735142914e-15
+    },
+    {
+      "offsetFloats": 1433600,
+      "count": 8192,
+      "time": 0.8333333333333334,
+      "physicsTicks": 50,
+      "physicsSteps": 50,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000007,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.3877787807814457e-15,
+      "stageResidual": 1.5404344466674047e-15
+    },
+    {
+      "offsetFloats": 1490944,
+      "count": 8192,
+      "time": 0.8666666666666667,
+      "physicsTicks": 52,
+      "physicsSteps": 52,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.3600232051658168e-15,
+      "stageResidual": 1.394717674685353e-15
+    },
+    {
+      "offsetFloats": 1548288,
+      "count": 8192,
+      "time": 0.9,
+      "physicsTicks": 54,
+      "physicsSteps": 54,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.0009999999999999998,
+        0.0009999999999999998
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.4849232954361469e-15,
+      "stageResidual": 1.4918621893400541e-15
+    },
+    {
+      "offsetFloats": 1605632,
+      "count": 8192,
+      "time": 0.9333333333333333,
+      "physicsTicks": 56,
+      "physicsSteps": 56,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.3739009929736312e-15,
+      "stageResidual": 1.5404344466674047e-15
+    },
+    {
+      "offsetFloats": 1662976,
+      "count": 8192,
+      "time": 0.9666666666666667,
+      "physicsTicks": 58,
+      "physicsSteps": 58,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.3322676295501878e-15,
+      "stageResidual": 1.394717674685353e-15
+    },
+    {
+      "offsetFloats": 1720320,
+      "count": 8192,
+      "time": 1.0,
+      "physicsTicks": 60,
+      "physicsSteps": 60,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.001,
+        0.0009999999999999998
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.3322676295501878e-15,
+      "stageResidual": 1.3600232051658168e-15
+    },
+    {
+      "offsetFloats": 1777664,
+      "count": 8192,
+      "time": 1.0333333333333332,
+      "physicsTicks": 62,
+      "physicsSteps": 62,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.2490009027033011e-15,
+      "stageResidual": 1.3600232051658168e-15
+    },
+    {
+      "offsetFloats": 1835008,
+      "count": 8192,
+      "time": 1.0666666666666667,
+      "physicsTicks": 64,
+      "physicsSteps": 64,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.3565537582138631e-15,
+      "stageResidual": 1.3877787807814457e-15
+    },
+    {
+      "offsetFloats": 1892352,
+      "count": 8192,
+      "time": 1.1,
+      "physicsTicks": 66,
+      "physicsSteps": 66,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.3183898417423734e-15,
+      "stageResidual": 1.4155343563970746e-15
+    },
+    {
+      "offsetFloats": 1949696,
+      "count": 8192,
+      "time": 1.1333333333333333,
+      "physicsTicks": 68,
+      "physicsSteps": 68,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.4849232954361469e-15,
+      "stageResidual": 1.4328815911568427e-15
+    },
+    {
+      "offsetFloats": 2007040,
+      "count": 8192,
+      "time": 1.1666666666666667,
+      "physicsTicks": 70,
+      "physicsSteps": 70,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.001,
+        0.0009999999999999998
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.429412144204889e-15,
+      "stageResidual": 1.457167719820518e-15
+    },
+    {
+      "offsetFloats": 2064384,
+      "count": 8192,
+      "time": 1.2,
+      "physicsTicks": 72,
+      "physicsSteps": 72,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.7069679003611782e-15,
+      "stageResidual": 1.6653345369377348e-15
+    },
+    {
+      "offsetFloats": 2121728,
+      "count": 8192,
+      "time": 1.2333333333333334,
+      "physicsTicks": 74,
+      "physicsSteps": 74,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.001,
+        0.0009999999999999998
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.6514567491299204e-15,
+      "stageResidual": 1.5404344466674047e-15
+    },
+    {
+      "offsetFloats": 2179072,
+      "count": 8192,
+      "time": 1.2666666666666666,
+      "physicsTicks": 76,
+      "physicsSteps": 76,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.609823385706477e-15,
+      "stageResidual": 1.6158949178723958e-15
+    },
+    {
+      "offsetFloats": 2236416,
+      "count": 8192,
+      "time": 1.3,
+      "physicsTicks": 78,
+      "physicsSteps": 78,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.001,
+        0.0009999999999999998,
+        0.0009999999999999998
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.609823385706477e-15,
+      "stageResidual": 1.6653345369377348e-15
+    },
+    {
+      "offsetFloats": 2293760,
+      "count": 8192,
+      "time": 1.3333333333333333,
+      "physicsTicks": 80,
+      "physicsSteps": 80,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.5681900222830336e-15,
+      "stageResidual": 1.6375789613221059e-15
+    },
+    {
+      "offsetFloats": 2351104,
+      "count": 8192,
+      "time": 1.3666666666666667,
+      "physicsTicks": 82,
+      "physicsSteps": 82,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.6514567491299204e-15,
+      "stageResidual": 1.762479051592436e-15
+    },
+    {
+      "offsetFloats": 2408448,
+      "count": 8192,
+      "time": 1.4,
+      "physicsTicks": 84,
+      "physicsSteps": 84,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.0009999999999999998,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.6792123247455493e-15,
+      "stageResidual": 1.5404344466674047e-15
+    },
+    {
+      "offsetFloats": 2465792,
+      "count": 8192,
+      "time": 1.4333333333333333,
+      "physicsTicks": 86,
+      "physicsSteps": 86,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.6896206656014101e-15,
+      "stageResidual": 1.7763568394002505e-15
+    },
+    {
+      "offsetFloats": 2523136,
+      "count": 8192,
+      "time": 1.4666666666666666,
+      "physicsTicks": 88,
+      "physicsSteps": 88,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000002,
+        0.001,
+        0.001
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.97758476261356e-15,
+      "stageResidual": 1.824929096727601e-15
+    },
+    {
+      "offsetFloats": 2580480,
+      "count": 8192,
+      "time": 1.5,
+      "physicsTicks": 90,
+      "physicsSteps": 90,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0010000000000000005,
+        0.0009999999999999998,
+        0.0010000000000000002
+      ],
+      "continuumCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 1.8769708010069053e-15,
+      "stageResidual": 1.889113865338743e-15
+    },
+    {
+      "offsetFloats": 2637824,
+      "count": 8192,
+      "time": 1.5333333333333332,
+      "physicsTicks": 92,
+      "physicsSteps": 92,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0009999991054977608,
+        0.0009999974741253161,
+        0.0009999973517825843
+      ],
+      "continuumCapturedMass": [
+        8.945022392952946e-10,
+        2.525874683834042e-09,
+        2.6482174158421343e-09
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 2.437665954507784e-15,
+      "stageResidual": 2.2503158191022887e-15
+    },
+    {
+      "offsetFloats": 2695168,
+      "count": 8192,
+      "time": 1.5666666666666667,
+      "physicsTicks": 94,
+      "physicsSteps": 94,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0009999867370745375,
+        0.0009999628092848194,
+        0.000999961079551524
+      ],
+      "continuumCapturedMass": [
+        1.3262925462672397e-08,
+        3.7190715180531167e-08,
+        3.892044847611455e-08
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 2.533997317533121e-15,
+      "stageResidual": 2.643718577388654e-15
+    },
+    {
+      "offsetFloats": 2752512,
+      "count": 8192,
+      "time": 1.6,
+      "physicsTicks": 96,
+      "physicsSteps": 96,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009999999999999352,
+        0.0010000000000000037
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "continuumGasMass": [
+        0.0009999379366130753,
+        0.0009998271580267855,
+        0.0009998194461640624
+      ],
+      "continuumCapturedMass": [
+        6.206338692478691e-08,
+        1.7284197321441007e-07,
+        1.8055383593764252e-07
+      ],
+      "capturedFraction": 0.0,
+      "divergenceResidual": 2.9325500361387924e-15,
+      "stageResidual": 2.9182385674619837e-15
+    },
+    {
+      "offsetFloats": 2809856,
+      "count": 8190,
+      "time": 1.6333333333333333,
+      "physicsTicks": 98,
+      "physicsSteps": 98,
+      "parcelGasMass": [
+        0.0010000000000000037,
+        0.0009996336996336349,
+        0.000999633833760531
+      ],
+      "parcelCapturedMass": [
+        0.0,
+        3.663003663003663e-07,
+        3.661662394727207e-07
+      ],
+      "continuumGasMass": [
+        0.000999818959321341,
+        0.000999499246279681,
+        0.000999477923131615
+      ],
+      "continuumCapturedMass": [
+        1.810406786592376e-07,
+        5.007537203188996e-07,
+        5.220768683853193e-07
+      ],
+      "capturedFraction": 0.00024415553525770033,
+      "divergenceResidual": 5.384581669432009e-15,
+      "stageResidual": 5.384581669432009e-15
+    },
+    {
+      "offsetFloats": 2867186,
+      "count": 8183,
+      "time": 1.6666666666666667,
+      "physicsTicks": 100,
+      "physicsSteps": 100,
+      "parcelGasMass": [
+        0.0009989015012815859,
+        0.0009992673992673346,
+        0.0009985353350421132
+      ],
+      "parcelCapturedMass": [
+        1.0984987184181621e-06,
+        7.326007326007326e-07,
+        1.4646649578908828e-06
+      ],
+      "continuumGasMass": [
+        0.0009995921829743701,
+        0.0009988799845523644,
+        0.0009988349412960904
+      ],
+      "continuumCapturedMass": [
+        4.07817025629958e-07,
+        1.1200154476355446e-06,
+        1.1650587039095305e-06
+      ],
+      "capturedFraction": 0.00109858813630328,
+      "divergenceResidual": 8.104628079763643e-15,
+      "stageResidual": 8.104628079763643e-15
+    },
+    {
+      "offsetFloats": 2924467,
+      "count": 8176,
+      "time": 1.7,
+      "physicsTicks": 102,
+      "physicsSteps": 102,
+      "parcelGasMass": [
+        0.000997803002563168,
+        0.0009989010989010342,
+        0.0009974368363236954
+      ],
+      "parcelCapturedMass": [
+        2.1969974368363242e-06,
+        1.0989010989010988e-06,
+        2.563163676309045e-06
+      ],
+      "continuumGasMass": [
+        0.0009992193150715248,
+        0.0009978721545968847,
+        0.0009977925775805732
+      ],
+      "continuumCapturedMass": [
+        7.806849284753064e-07,
+        2.1278454031152937e-06,
+        2.207422419426829e-06
+      ],
+      "capturedFraction": 0.0019530207373488597,
+      "divergenceResidual": 1.3655743202889425e-14,
+      "stageResidual": 1.3655743202889425e-14
+    },
+    {
+      "offsetFloats": 2981699,
+      "count": 8165,
+      "time": 1.7333333333333334,
+      "physicsTicks": 104,
+      "physicsSteps": 104,
+      "parcelGasMass": [
+        0.0009974368363236954,
+        0.0009967032967032323,
+        0.000995972171365805
+      ],
+      "parcelCapturedMass": [
+        2.563163676309045e-06,
+        3.2967032967032968e-06,
+        4.027828634199928e-06
+      ],
+      "continuumGasMass": [
+        0.000998663376295406,
+        0.000996386483608625,
+        0.0009962634612527678
+      ],
+      "continuumCapturedMass": [
+        1.33662370459411e-06,
+        3.613516391374821e-06,
+        3.736538747232353e-06
+      ],
+      "capturedFraction": 0.0032958985357374863,
+      "divergenceResidual": 1.7541523789077473e-14,
+      "stageResidual": 1.7541523789077473e-14
+    },
+    {
+      "offsetFloats": 3038854,
+      "count": 8156,
+      "time": 1.7666666666666666,
+      "physicsTicks": 106,
+      "physicsSteps": 106,
+      "parcelGasMass": [
+        0.0009970706700842228,
+        0.0009967032967032323,
+        0.000993042841450024
+      ],
+      "parcelCapturedMass": [
+        2.9293299157817655e-06,
+        3.2967032967032968e-06,
+        6.957158549981693e-06
+      ],
+      "continuumGasMass": [
+        0.0009978901546405141,
+        0.0009943459885925988,
+        0.0009941757151122222
+      ],
+      "continuumCapturedMass": [
+        2.1098453594858437e-06,
+        5.654011407401092e-06,
+        5.82428488777768e-06
+      ],
+      "capturedFraction": 0.004394397254155668,
+      "divergenceResidual": 2.398081733190338e-14,
+      "stageResidual": 2.398081733190338e-14
+    },
+    {
+      "offsetFloats": 3095946,
+      "count": 8137,
+      "time": 1.8,
+      "physicsTicks": 108,
+      "physicsSteps": 108,
+      "parcelGasMass": [
+        0.000995972171365805,
+        0.0009941391941391301,
+        0.0009897473452947704
+      ],
+      "parcelCapturedMass": [
+        4.027828634199928e-06,
+        5.860805860805861e-06,
+        1.025265470523618e-05
+      ],
+      "continuumGasMass": [
+        0.000996869781092724,
+        0.0009916904684320257,
+        0.0009914776765640222
+      ],
+      "continuumCapturedMass": [
+        3.1302189072762833e-06,
+        8.309531567974005e-06,
+        8.522323435977867e-06
+      ],
+      "capturedFraction": 0.0067137630667474515,
+      "divergenceResidual": 2.7533531010703882e-14,
+      "stageResidual": 2.842170943040401e-14
+    },
+    {
+      "offsetFloats": 3152905,
+      "count": 8114,
+      "time": 1.8333333333333333,
+      "physicsTicks": 110,
+      "physicsSteps": 110,
+      "parcelGasMass": [
+        0.000994873672647387,
+        0.0009897435897435263,
+        0.0009868180153789895
+      ],
+      "parcelCapturedMass": [
+        5.12632735261809e-06,
+        1.0256410256410258e-05,
+        1.3181984621017945e-05
+      ],
+      "continuumGasMass": [
+        0.0009955790587606334,
+        0.0009883820598651978,
+        0.0009881432068741263
+      ],
+      "continuumCapturedMass": [
+        4.420941239366845e-06,
+        1.1617940134802114e-05,
+        1.1856793125873884e-05
+      ],
+      "capturedFraction": 0.009521574076682278,
+      "divergenceResidual": 3.3306690738754696e-14,
+      "stageResidual": 3.3306690738754696e-14
+    },
+    {
+      "offsetFloats": 3209703,
+      "count": 8093,
+      "time": 1.8666666666666667,
+      "physicsTicks": 112,
+      "physicsSteps": 112,
+      "parcelGasMass": [
+        0.0009937751739289692,
+        0.0009864468864468235,
+        0.000983522519223736
+      ],
+      "parcelCapturedMass": [
+        6.224826071036252e-06,
+        1.3553113553113554e-05,
+        1.647748077627243e-05
+      ],
+      "continuumGasMass": [
+        0.0009940044112818262,
+        0.0009844114864501394,
+        0.0009841770877249288
+      ],
+      "continuumCapturedMass": [
+        5.995588718174067e-06,
+        1.5588513549860617e-05,
+        1.58229122750712e-05
+      ],
+      "capturedFraction": 0.01208514013347431,
+      "divergenceResidual": 3.6415315207705135e-14,
+      "stageResidual": 3.68594044175552e-14
+    },
+    {
+      "offsetFloats": 3266354,
+      "count": 8066,
+      "time": 1.9,
+      "physicsTicks": 114,
+      "physicsSteps": 114,
+      "parcelGasMass": [
+        0.0009919443427316061,
+        0.00098241758241752,
+        0.0009794946905895372
+      ],
+      "parcelCapturedMass": [
+        8.055657268399856e-06,
+        1.7582417582417584e-05,
+        2.0505309410472356e-05
+      ],
+      "continuumGasMass": [
+        0.0009921441312673864,
+        0.0009798026955967706,
+        0.0009796182371135036
+      ],
+      "continuumCapturedMass": [
+        7.855868732613758e-06,
+        2.019730440322942e-05,
+        2.038176288649636e-05
+      ],
+      "capturedFraction": 0.015381128087096891,
+      "divergenceResidual": 3.952393967665557e-14,
+      "stageResidual": 3.907985046680551e-14
+    },
+    {
+      "offsetFloats": 3322816,
+      "count": 8027,
+      "time": 1.9333333333333333,
+      "physicsTicks": 116,
+      "physicsSteps": 116,
+      "parcelGasMass": [
+        0.0009893811790552978,
+        0.0009772893772893156,
+        0.0009729036982790291
+      ],
+      "parcelCapturedMass": [
+        1.0618820944708901e-05,
+        2.2710622710622715e-05,
+        2.709630172098133e-05
+      ],
+      "continuumGasMass": [
+        0.0009900089258365185,
+        0.0009746132352463464,
+        0.0009745370859812384
+      ],
+      "continuumCapturedMass": [
+        9.991074163481696e-06,
+        2.538676475365348e-05,
+        2.546291401876177e-05
+      ],
+      "capturedFraction": 0.02014191512543803,
+      "divergenceResidual": 3.952393967665557e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 3379005,
+      "count": 7994,
+      "time": 1.9666666666666666,
+      "physicsTicks": 118,
+      "physicsSteps": 118,
+      "parcelGasMass": [
+        0.000986451849139517,
+        0.0009725274725274115,
+        0.0009685097034053564
+      ],
+      "parcelCapturedMass": [
+        1.3548150860490668e-05,
+        2.7472527472527476e-05,
+        3.149029659465397e-05
+      ],
+      "continuumGasMass": [
+        0.000987619736780987,
+        0.0009689246424782125,
+        0.0009690228507938731
+      ],
+      "continuumCapturedMass": [
+        1.2380263219013128e-05,
+        3.107535752178737e-05,
+        3.097714920612692e-05
+      ],
+      "capturedFraction": 0.024170324975891166,
+      "divergenceResidual": 4.04121180963557e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 3434963,
+      "count": 7957,
+      "time": 2.0,
+      "physicsTicks": 120,
+      "physicsSteps": 120,
+      "parcelGasMass": [
+        0.0009827901867447907,
+        0.0009648351648351048,
+        0.0009663127059685201
+      ],
+      "parcelCapturedMass": [
+        1.7209813255217876e-05,
+        3.5164835164835175e-05,
+        3.36872940314903e-05
+      ],
+      "continuumGasMass": [
+        0.0009849987639305277,
+        0.0009628157756896302,
+        0.0009631582949544438
+      ],
+      "continuumCapturedMass": [
+        1.5001236069472417e-05,
+        3.718422431036964e-05,
+        3.684170504555622e-05
+      ],
+      "capturedFraction": 0.028687314150515,
+      "divergenceResidual": 3.9968028886505635e-14,
+      "stageResidual": 3.9968028886505635e-14
+    },
+    {
+      "offsetFloats": 3490662,
+      "count": 7904,
+      "time": 2.033333333333333,
+      "physicsTicks": 122,
+      "physicsSteps": 122,
+      "parcelGasMass": [
+        0.000978762358110592,
+        0.0009549450549449963,
+        0.0009608202123764292
+      ],
+      "parcelCapturedMass": [
+        2.1237641889417802e-05,
+        4.5054945054945067e-05,
+        3.9179787623581114e-05
+      ],
+      "continuumGasMass": [
+        0.0009821522955188405,
+        0.000956322223148447,
+        0.0009569819815777863
+      ],
+      "continuumCapturedMass": [
+        1.784770448115959e-05,
+        4.36777768515528e-05,
+        4.301801842221382e-05
+      ],
+      "capturedFraction": 0.03515745818931533,
+      "divergenceResidual": 3.9968028886505635e-14,
+      "stageResidual": 3.9968028886505635e-14
+    },
+    {
+      "offsetFloats": 3545990,
+      "count": 7847,
+      "time": 2.0666666666666664,
+      "physicsTicks": 124,
+      "physicsSteps": 124,
+      "parcelGasMass": [
+        0.0009732698645185018,
+        0.0009461538461537887,
+        0.0009542292200659201
+      ],
+      "parcelCapturedMass": [
+        2.6730135481508614e-05,
+        5.384615384615386e-05,
+        4.577077993409009e-05
+      ],
+      "continuumGasMass": [
+        0.0009790707470654011,
+        0.0009494411585960497,
+        0.0009504945064103503
+      ],
+      "continuumCapturedMass": [
+        2.0929252934599032e-05,
+        5.055884140395008e-05,
+        4.9505493589649765e-05
+      ],
+      "capturedFraction": 0.04211568975391833,
+      "divergenceResidual": 3.952393967665557e-14,
+      "stageResidual": 3.9968028886505635e-14
+    },
+    {
+      "offsetFloats": 3600919,
+      "count": 7793,
+      "time": 2.1,
+      "physicsTicks": 126,
+      "physicsSteps": 126,
+      "parcelGasMass": [
+        0.0009699743683632473,
+        0.0009373626373625811,
+        0.0009465397290369929
+      ],
+      "parcelCapturedMass": [
+        3.00256316367631e-05,
+        6.263736263736266e-05,
+        5.346027096301722e-05
+      ],
+      "continuumGasMass": [
+        0.0009757430269652916,
+        0.0009421668090846336,
+        0.0009436941894535685
+      ],
+      "continuumCapturedMass": [
+        2.4256973034708565e-05,
+        5.783319091536621e-05,
+        5.630581054643158e-05
+      ],
+      "capturedFraction": 0.048707755079048586,
+      "divergenceResidual": 3.907985046680551e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 3655470,
+      "count": 7750,
+      "time": 2.1333333333333333,
+      "physicsTicks": 128,
+      "physicsSteps": 128,
+      "parcelGasMass": [
+        0.0009674112046869382,
+        0.0009311355311354757,
+        0.0009395825704870112
+      ],
+      "parcelCapturedMass": [
+        3.258879531307215e-05,
+        6.886446886446888e-05,
+        6.041742951299891e-05
+      ],
+      "continuumGasMass": [
+        0.0009721584381276703,
+        0.0009344940079666365,
+        0.0009365802961044381
+      ],
+      "continuumCapturedMass": [
+        2.784156187232983e-05,
+        6.550599203336345e-05,
+        6.3419703895562e-05
+      ],
+      "capturedFraction": 0.05395689789684768,
+      "divergenceResidual": 3.863576125695545e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 3709720,
+      "count": 7692,
+      "time": 2.1666666666666665,
+      "physicsTicks": 130,
+      "physicsSteps": 130,
+      "parcelGasMass": [
+        0.0009644818747711564,
+        0.0009216117216116675,
+        0.0009307945807396658
+      ],
+      "parcelCapturedMass": [
+        3.551812522885391e-05,
+        7.838827838827841e-05,
+        6.920541926034421e-05
+      ],
+      "continuumGasMass": [
+        0.000968305770521034,
+        0.0009264189913527334,
+        0.0009291526101602406
+      ],
+      "continuumCapturedMass": [
+        3.1694229478966156e-05,
+        7.358100864726659e-05,
+        7.084738983975935e-05
+      ],
+      "capturedFraction": 0.061037274292493345,
+      "divergenceResidual": 3.863576125695545e-14,
+      "stageResidual": 3.907985046680551e-14
+    },
+    {
+      "offsetFloats": 3763564,
+      "count": 7631,
+      "time": 2.2,
+      "physicsTicks": 132,
+      "physicsSteps": 132,
+      "parcelGasMass": [
+        0.000959721713658011,
+        0.0009131868131867602,
+        0.0009216404247528476
+      ],
+      "parcelCapturedMass": [
+        4.027828634199928e-05,
+        8.681318681318682e-05,
+        7.835957524716223e-05
+      ],
+      "continuumGasMass": [
+        0.0009641727814553582,
+        0.0009179395812317051,
+        0.0009214118312815206
+      ],
+      "continuumCapturedMass": [
+        3.58272185446421e-05,
+        8.206041876829476e-05,
+        7.858816871847939e-05
+      ],
+      "capturedFraction": 0.06848368280078408,
+      "divergenceResidual": 3.8191672047105385e-14,
+      "stageResidual": 3.8191672047105385e-14
+    },
+    {
+      "offsetFloats": 3816981,
+      "count": 7574,
+      "time": 2.2333333333333334,
+      "physicsTicks": 134,
+      "physicsSteps": 134,
+      "parcelGasMass": [
+        0.0009560600512632838,
+        0.0009040293040292523,
+        0.0009135847674844477
+      ],
+      "parcelCapturedMass": [
+        4.393994873672649e-05,
+        9.597069597069598e-05,
+        8.64152325155621e-05
+      ],
+      "continuumGasMass": [
+        0.0009597465767101233,
+        0.0009090551483197525,
+        0.000913359835784919
+      ],
+      "continuumCapturedMass": [
+        4.0253423289877144e-05,
+        9.094485168024723e-05,
+        8.664016421508096e-05
+      ],
+      "capturedFraction": 0.07544195907432963,
+      "divergenceResidual": 3.8191672047105385e-14,
+      "stageResidual": 3.8191672047105385e-14
+    },
+    {
+      "offsetFloats": 3869999,
+      "count": 7504,
+      "time": 2.2666666666666666,
+      "physicsTicks": 136,
+      "physicsSteps": 136,
+      "parcelGasMass": [
+        0.0009520322226290838,
+        0.0008901098901098403,
+        0.0009058952764555205
+      ],
+      "parcelCapturedMass": [
+        4.7967777370926416e-05,
+        0.0001098901098901099,
+        9.410472354448923e-05
+      ],
+      "continuumGasMass": [
+        0.0009550146820683683,
+        0.0008997671627977102,
+        0.0009049998531816263
+      ],
+      "continuumCapturedMass": [
+        4.498531793163196e-05,
+        0.00010023283720228977,
+        9.50001468183737e-05
+      ],
+      "capturedFraction": 0.08398753693517677,
+      "divergenceResidual": 3.8191672047105385e-14,
+      "stageResidual": 3.863576125695545e-14
+    },
+    {
+      "offsetFloats": 3922527,
+      "count": 7431,
+      "time": 2.3,
+      "physicsTicks": 138,
+      "physicsSteps": 138,
+      "parcelGasMass": [
+        0.0009469058952764656,
+        0.0008769230769230289,
+        0.0008974734529476478
+      ],
+      "parcelCapturedMass": [
+        5.30941047235445e-05,
+        0.0001230769230769231,
+        0.00010252654705236181
+      ],
+      "continuumGasMass": [
+        0.0009499656135326464,
+        0.0008900792106458355,
+        0.0008963361061990472
+      ],
+      "continuumCapturedMass": [
+        5.003438646735359e-05,
+        0.0001099207893541642,
+        0.00010366389380095282
+      ],
+      "capturedFraction": 0.09289919161761158,
+      "divergenceResidual": 3.8191672047105385e-14,
+      "stageResidual": 3.863576125695545e-14
+    },
+    {
+      "offsetFloats": 3974544,
+      "count": 7373,
+      "time": 2.3333333333333335,
+      "physicsTicks": 140,
+      "physicsSteps": 140,
+      "parcelGasMass": [
+        0.0009436103991212111,
+        0.00086666666666662,
+        0.0008897839619187206
+      ],
+      "parcelCapturedMass": [
+        5.638960087879899e-05,
+        0.00013333333333333334,
+        0.00011021603808128894
+      ],
+      "continuumGasMass": [
+        0.0009445889537308528,
+        0.0008799959131789116,
+        0.0008873727954691454
+      ],
+      "continuumCapturedMass": [
+        5.541104626914728e-05,
+        0.00012000408682108824,
+        0.00011262720453085448
+      ],
+      "capturedFraction": 0.09997965743114233,
+      "divergenceResidual": 3.863576125695545e-14,
+      "stageResidual": 3.863576125695545e-14
+    },
+    {
+      "offsetFloats": 4026155,
+      "count": 7290,
+      "time": 2.3666666666666667,
+      "physicsTicks": 142,
+      "physicsSteps": 142,
+      "parcelGasMass": [
+        0.0009366532405712294,
+        0.0008538461538461089,
+        0.0008791651409740115
+      ],
+      "parcelCapturedMass": [
+        6.334675942878068e-05,
+        0.00014615384615384615,
+        0.00012083485902599784
+      ],
+      "continuumGasMass": [
+        0.0009388757035425598,
+        0.0008695227554644642,
+        0.0008781146096706007
+      ],
+      "continuumCapturedMass": [
+        6.11242964574403e-05,
+        0.00013047724453553558,
+        0.00012188539032939935
+      ],
+      "capturedFraction": 0.11011182153621034,
+      "divergenceResidual": 3.8191672047105385e-14,
+      "stageResidual": 3.863576125695545e-14
+    },
+    {
+      "offsetFloats": 4077185,
+      "count": 7220,
+      "time": 2.4,
+      "physicsTicks": 144,
+      "physicsSteps": 144,
+      "parcelGasMass": [
+        0.0009311607469791385,
+        0.0008424908424907991,
+        0.0008703771512266662
+      ],
+      "parcelCapturedMass": [
+        6.88392530208715e-05,
+        0.0001575091575091575,
+        0.00012962284877334314
+      ],
+      "continuumGasMass": [
+        0.0009328183808087546,
+        0.0008586673735496205,
+        0.0008685668304520602
+      ],
+      "continuumCapturedMass": [
+        6.71816191912454e-05,
+        0.0001413326264503792,
+        0.00013143316954793995
+      ],
+      "capturedFraction": 0.11865708643445964,
+      "divergenceResidual": 3.8191672047105385e-14,
+      "stageResidual": 3.863576125695545e-14
+    },
+    {
+      "offsetFloats": 4127725,
+      "count": 7157,
+      "time": 2.433333333333333,
+      "physicsTicks": 146,
+      "physicsSteps": 146,
+      "parcelGasMass": [
+        0.0009264005858659931,
+        0.0008311355311354893,
+        0.0008634199926766844
+      ],
+      "parcelCapturedMass": [
+        7.359941413401687e-05,
+        0.00016886446886446886,
+        0.00013658000732332483
+      ],
+      "continuumGasMass": [
+        0.0009264109750095234,
+        0.000847438632401137,
+        0.0008587357986625636
+      ],
+      "continuumCapturedMass": [
+        7.358902499047672e-05,
+        0.00015256136759886265,
+        0.00014126420133743633
+      ],
+      "capturedFraction": 0.12634796344060592,
+      "divergenceResidual": 3.863576125695545e-14,
+      "stageResidual": 3.907985046680551e-14
+    },
+    {
+      "offsetFloats": 4177824,
+      "count": 7091,
+      "time": 2.466666666666667,
+      "physicsTicks": 148,
+      "physicsSteps": 148,
+      "parcelGasMass": [
+        0.0009187110948370658,
+        0.0008216117216116811,
+        0.0008564628341267026
+      ],
+      "parcelCapturedMass": [
+        8.128890516294401e-05,
+        0.00017838827838827839,
+        0.00014353716587330652
+      ],
+      "continuumGasMass": [
+        0.000919648721474967,
+        0.0008358466869872528,
+        0.0008486294133578645
+      ],
+      "continuumCapturedMass": [
+        8.035127852503309e-05,
+        0.00016415331301274701,
+        0.00015137058664213565
+      ],
+      "capturedFraction": 0.1344047831415122,
+      "divergenceResidual": 3.774758283725532e-14,
+      "stageResidual": 3.863576125695545e-14
+    },
+    {
+      "offsetFloats": 4227461,
+      "count": 7012,
+      "time": 2.5,
+      "physicsTicks": 150,
+      "physicsSteps": 150,
+      "parcelGasMass": [
+        0.0009121201025265568,
+        0.0008073260073259687,
+        0.0008484071768583027
+      ],
+      "parcelCapturedMass": [
+        8.787989747345298e-05,
+        0.00019267399267399268,
+        0.00015159282314170636
+      ],
+      "continuumGasMass": [
+        0.0009125273367670809,
+        0.0008239036983798491,
+        0.000838256727156429
+      ],
+      "continuumCapturedMass": [
+        8.747266323291922e-05,
+        0.0001760963016201507,
+        0.0001617432728435711
+      ],
+      "capturedFraction": 0.1440489044297201,
+      "divergenceResidual": 3.863576125695545e-14,
+      "stageResidual": 3.907985046680551e-14
+    },
+    {
+      "offsetFloats": 4276545,
+      "count": 6920,
+      "time": 2.533333333333333,
+      "physicsTicks": 152,
+      "physicsSteps": 152,
+      "parcelGasMass": [
+        0.0009058952764555205,
+        0.0007919413919413555,
+        0.0008363236909557027
+      ],
+      "parcelCapturedMass": [
+        9.410472354448923e-05,
+        0.00020805860805860806,
+        0.00016367630904430615
+      ],
+      "continuumGasMass": [
+        0.0009050422455996087,
+        0.0008116237377189873,
+        0.0008276277570448928
+      ],
+      "continuumCapturedMass": [
+        9.49577544003915e-05,
+        0.00018837626228101256,
+        0.00017237224295510727
+      ],
+      "capturedFraction": 0.1552798802158041,
+      "divergenceResidual": 3.907985046680551e-14,
+      "stageResidual": 3.907985046680551e-14
+    },
+    {
+      "offsetFloats": 4324985,
+      "count": 6826,
+      "time": 2.5666666666666664,
+      "physicsTicks": 154,
+      "physicsSteps": 154,
+      "parcelGasMass": [
+        0.0008996704503844841,
+        0.0007783882783882437,
+        0.0008216770413767937
+      ],
+      "parcelCapturedMass": [
+        0.00010032954961552549,
+        0.0002216117216117216,
+        0.00017832295862321495
+      ],
+      "continuumGasMass": [
+        0.0008971892703975439,
+        0.0007990225941359589,
+        0.0008167529693989066
+      ],
+      "continuumCapturedMass": [
+        0.00010281072960245617,
+        0.0002009774058640411,
+        0.0001832470306010933
+      ],
+      "capturedFraction": 0.16675474328349052,
+      "divergenceResidual": 3.907985046680551e-14,
+      "stageResidual": 3.907985046680551e-14
+    },
+    {
+      "offsetFloats": 4372767,
+      "count": 6746,
+      "time": 2.6,
+      "physicsTicks": 156,
+      "physicsSteps": 156,
+      "parcelGasMass": [
+        0.0008886854632003024,
+        0.0007663003663003333,
+        0.0008154522153057574
+      ],
+      "parcelCapturedMass": [
+        0.00011131453679970711,
+        0.00023369963369963367,
+        0.0001845477846942512
+      ],
+      "continuumGasMass": [
+        0.0008889654840452459,
+        0.0007861172448672176,
+        0.0008056434400778537
+      ],
+      "continuumCapturedMass": [
+        0.00011103451595475424,
+        0.00021388275513278238,
+        0.00019435655992214638
+      ],
+      "capturedFraction": 0.17652065173120068,
+      "divergenceResidual": 3.907985046680551e-14,
+      "stageResidual": 3.907985046680551e-14
+    },
+    {
+      "offsetFloats": 4419989,
+      "count": 6664,
+      "time": 2.6333333333333333,
+      "physicsTicks": 158,
+      "physicsSteps": 158,
+      "parcelGasMass": [
+        0.0008813621384108479,
+        0.0007560439560439244,
+        0.0008030025631636848
+      ],
+      "parcelCapturedMass": [
+        0.00011863786158916153,
+        0.00024395604395604394,
+        0.0001969974368363237
+      ],
+      "continuumGasMass": [
+        0.0008803695037092106,
+        0.0007729255491806827,
+        0.0007943111246267541
+      ],
+      "continuumCapturedMass": [
+        0.00011963049629078954,
+        0.00022707445081931722,
+        0.0002056888753732459
+      ],
+      "capturedFraction": 0.18653044746051328,
+      "divergenceResidual": 3.907985046680551e-14,
+      "stageResidual": 3.907985046680551e-14
+    },
+    {
+      "offsetFloats": 4466637,
+      "count": 6569,
+      "time": 2.6666666666666665,
+      "physicsTicks": 160,
+      "physicsSteps": 160,
+      "parcelGasMass": [
+        0.0008725741486635025,
+        0.000743956043956014,
+        0.0007890882460637212
+      ],
+      "parcelCapturedMass": [
+        0.00012742585133650685,
+        0.00025604395604395604,
+        0.00021091175393628709
+      ],
+      "continuumGasMass": [
+        0.0008714015496658284,
+        0.0007594659792140722,
+        0.000782768489246817
+      ],
+      "continuumCapturedMass": [
+        0.00012859845033417187,
+        0.00024053402078592765,
+        0.00021723151075318326
+      ],
+      "capturedFraction": 0.1981271871055871,
+      "divergenceResidual": 3.952393967665557e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 4512620,
+      "count": 6464,
+      "time": 2.7,
+      "physicsTicks": 162,
+      "physicsSteps": 162,
+      "parcelGasMass": [
+        0.0008604906627609026,
+        0.0007304029304029023,
+        0.0007762724276821759
+      ],
+      "parcelCapturedMass": [
+        0.00013950933723910663,
+        0.00026959706959706964,
+        0.00022372757231783232
+      ],
+      "continuumGasMass": [
+        0.0008620634504645179,
+        0.0007457576601821601,
+        0.0007710283763112234
+      ],
+      "continuumCapturedMass": [
+        0.00013793654953548208,
+        0.0002542423398178396,
+        0.00022897162368877653
+      ],
+      "capturedFraction": 0.21094465971800688,
+      "divergenceResidual": 3.952393967665557e-14,
+      "stageResidual": 3.9968028886505635e-14
+    },
+    {
+      "offsetFloats": 4557868,
+      "count": 6352,
+      "time": 2.7333333333333334,
+      "physicsTicks": 164,
+      "physicsSteps": 164,
+      "parcelGasMass": [
+        0.0008509703405346117,
+        0.000715018315018289,
+        0.000760161113145376
+      ],
+      "parcelCapturedMass": [
+        0.00014902965946539737,
+        0.00028498168498168505,
+        0.00023983888685463203
+      ],
+      "continuumGasMass": [
+        0.0008523585636147139,
+        0.0007318202123709352,
+        0.0007591035847726199
+      ],
+      "continuumCapturedMass": [
+        0.0001476414363852861,
+        0.00026817978762906457,
+        0.00024089641522738033
+      ],
+      "capturedFraction": 0.22461674376724244,
+      "divergenceResidual": 3.952393967665557e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 4602332,
+      "count": 6233,
+      "time": 2.7666666666666666,
+      "physicsTicks": 166,
+      "physicsSteps": 166,
+      "parcelGasMass": [
+        0.0008407176858293754,
+        0.0006974358974358738,
+        0.0007444159648480488
+      ],
+      "parcelCapturedMass": [
+        0.00015928231417063353,
+        0.0003025641025641026,
+        0.00025558403515195903
+      ],
+      "continuumGasMass": [
+        0.0008422917050023326,
+        0.0007176738647930643,
+        0.0007470066221030409
+      ],
+      "continuumCapturedMass": [
+        0.00015770829499766757,
+        0.00028232613520693555,
+        0.00025299337789695914
+      ],
+      "capturedFraction": 0.23914348396223628,
+      "divergenceResidual": 3.952393967665557e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 4645963,
+      "count": 6136,
+      "time": 2.8,
+      "physicsTicks": 168,
+      "physicsSteps": 168,
+      "parcelGasMass": [
+        0.0008315635298425573,
+        0.0006846153846153627,
+        0.000730867813987558
+      ],
+      "parcelCapturedMass": [
+        0.00016843647015745154,
+        0.0003153846153846155,
+        0.00026913218601244974
+      ],
+      "continuumGasMass": [
+        0.0008318691810982331,
+        0.000703338984777144,
+        0.0007347501187400972
+      ],
+      "continuumCapturedMass": [
+        0.000168130818901767,
+        0.00029666101522285584,
+        0.000265249881259903
+      ],
+      "capturedFraction": 0.2509844238515104,
+      "divergenceResidual": 3.907985046680551e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 4688915,
+      "count": 6019,
+      "time": 2.8333333333333335,
+      "physicsTicks": 170,
+      "physicsSteps": 170,
+      "parcelGasMass": [
+        0.0008187477114610119,
+        0.0006659340659340466,
+        0.0007195166605639035
+      ],
+      "parcelCapturedMass": [
+        0.00018125228853899678,
+        0.00033406593406593417,
+        0.0002804833394361041
+      ],
+      "continuumGasMass": [
+        0.000821099059375179,
+        0.0006888359221020232,
+        0.0007223468585955609
+      ],
+      "continuumCapturedMass": [
+        0.00017890094062482115,
+        0.0003111640778979766,
+        0.00027765314140443926
+      ],
+      "capturedFraction": 0.26526718734701676,
+      "divergenceResidual": 3.952393967665557e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 4731048,
+      "count": 5913,
+      "time": 2.8666666666666667,
+      "physicsTicks": 172,
+      "physicsSteps": 172,
+      "parcelGasMass": [
+        0.0008095935554741938,
+        0.0006476190476190308,
+        0.000708165507140249
+      ],
+      "parcelCapturedMass": [
+        0.0001904064445258148,
+        0.0003523809523809525,
+        0.00029183449285975847
+      ],
+      "continuumGasMass": [
+        0.0008099914839806432,
+        0.0006741859182329815,
+        0.0007098098324204292
+      ],
+      "continuumCapturedMass": [
+        0.00019000851601935672,
+        0.0003258140817670182,
+        0.000290190167579571
+      ],
+      "capturedFraction": 0.27820729658884724,
+      "divergenceResidual": 3.9968028886505635e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 4772439,
+      "count": 5806,
+      "time": 2.9,
+      "physicsTicks": 174,
+      "physicsSteps": 174,
+      "parcelGasMass": [
+        0.0007997070670084303,
+        0.0006304029304029159,
+        0.0006960820212376491
+      ],
+      "parcelCapturedMass": [
+        0.00020029293299157823,
+        0.0003695970695970697,
+        0.00030391797876235823
+      ],
+      "continuumGasMass": [
+        0.0007985579629080427,
+        0.0006594115548280938,
+        0.0006971522995513033
+      ],
+      "continuumCapturedMass": [
+        0.00020144203709195752,
+        0.000340588445171906,
+        0.0003028477004486968
+      ],
+      "capturedFraction": 0.2912693271170076,
+      "divergenceResidual": 3.952393967665557e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 4813081,
+      "count": 5696,
+      "time": 2.933333333333333,
+      "physicsTicks": 176,
+      "physicsSteps": 176,
+      "parcelGasMass": [
+        0.0007879897473453031,
+        0.0006146520146520023,
+        0.0006832662028561037
+      ],
+      "parcelCapturedMass": [
+        0.0002120102526547053,
+        0.0003853479853479854,
+        0.00031673379714390344
+      ],
+      "continuumGasMass": [
+        0.0007868105332870512,
+        0.0006445358544960267,
+        0.0006843875156712143
+      ],
+      "continuumCapturedMass": [
+        0.00021318946671294877,
+        0.0003554641455039732,
+        0.00031561248432878584
+      ],
+      "capturedFraction": 0.3046973450488705,
+      "divergenceResidual": 3.907985046680551e-14,
+      "stageResidual": 3.9968028886505635e-14
+    },
+    {
+      "offsetFloats": 4852953,
+      "count": 5592,
+      "time": 2.966666666666667,
+      "physicsTicks": 178,
+      "physicsSteps": 178,
+      "parcelGasMass": [
+        0.0007762724276821759,
+        0.0005970695970695871,
+        0.0006744782131087583
+      ],
+      "parcelCapturedMass": [
+        0.00022372757231783235,
+        0.000402930402930403,
+        0.0003255217868912487
+      ],
+      "continuumGasMass": [
+        0.0007747617174694649,
+        0.0006295818047784185,
+        0.0006715289130208528
+      ],
+      "continuumCapturedMass": [
+        0.00022523828253053532,
+        0.0003704181952215813,
+        0.0003284710869791473
+      ],
+      "capturedFraction": 0.31739325404650076,
+      "divergenceResidual": 3.952393967665557e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 4892097,
+      "count": 5449,
+      "time": 3.0,
+      "physicsTicks": 180,
+      "physicsSteps": 180,
+      "parcelGasMass": [
+        0.0007575979494690669,
+        0.0005776556776556703,
+        0.0006601977297693221
+      ],
+      "parcelCapturedMass": [
+        0.0002424020505309411,
+        0.00042234432234432236,
+        0.00033980227023068483
+      ],
+      "continuumGasMass": [
+        0.000762425069335112,
+        0.000614572262363352,
+        0.0006585902818714148
+      ],
+      "continuumCapturedMass": [
+        0.00023757493066488814,
+        0.00038542773763664765,
+        0.00034140971812858534
+      ],
+      "capturedFraction": 0.33484954770198916,
+      "divergenceResidual": 3.863576125695545e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 4930240,
+      "count": 5335,
+      "time": 3.033333333333333,
+      "physicsTicks": 182,
+      "physicsSteps": 182,
+      "parcelGasMass": [
+        0.0007462467960454124,
+        0.0005604395604395555,
+        0.000647015745148304
+      ],
+      "parcelCapturedMass": [
+        0.00025375320395459546,
+        0.00043956043956043956,
+        0.00035298425485170276
+      ],
+      "continuumGasMass": [
+        0.000749817149579628,
+        0.0005995314779258219,
+        0.0006455871483561548
+      ],
+      "continuumCapturedMass": [
+        0.00025018285042037214,
+        0.0004004685220741778,
+        0.0003544128516438454
+      ],
+      "capturedFraction": 0.3487659661222525,
+      "divergenceResidual": 3.952393967665557e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 4967585,
+      "count": 5239,
+      "time": 3.0666666666666664,
+      "physicsTicks": 184,
+      "physicsSteps": 184,
+      "parcelGasMass": [
+        0.0007359941413401761,
+        0.0005468864468864438,
+        0.0006356645917246495
+      ],
+      "parcelCapturedMass": [
+        0.00026400585865983165,
+        0.0004531135531135531,
+        0.0003643354082753571
+      ],
+      "continuumGasMass": [
+        0.0007369726894729797,
+        0.0005845019638368371,
+        0.0006325512381974984
+      ],
+      "continuumCapturedMass": [
+        0.00026302731052702037,
+        0.00041549803616316267,
+        0.00036744876180250187
+      ],
+      "capturedFraction": 0.3604849400162542,
+      "divergenceResidual": 3.863576125695545e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 5004258,
+      "count": 5117,
+      "time": 3.1,
+      "physicsTicks": 186,
+      "physicsSteps": 186,
+      "parcelGasMass": [
+        0.0007235444891981035,
+        0.0005311355311355302,
+        0.0006191871109483769
+      ],
+      "parcelCapturedMass": [
+        0.0002764555108019042,
+        0.00046886446886446883,
+        0.00038081288905162953
+      ],
+      "continuumGasMass": [
+        0.0007239550932839462,
+        0.0005695547967404204,
+        0.0006195390736897265
+      ],
+      "continuumCapturedMass": [
+        0.00027604490671605383,
+        0.00043044520325957947,
+        0.0003804609263102736
+      ],
+      "capturedFraction": 0.375377622906008,
+      "divergenceResidual": 3.907985046680551e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 5040077,
+      "count": 4999,
+      "time": 3.1333333333333333,
+      "physicsTicks": 188,
+      "physicsSteps": 188,
+      "parcelGasMass": [
+        0.0007092640058586672,
+        0.0005142857142857156,
+        0.000607103625045777
+      ],
+      "parcelCapturedMass": [
+        0.0002907359941413403,
+        0.00048571428571428566,
+        0.00039289637495422934
+      ],
+      "continuumGasMass": [
+        0.0007108491424711727,
+        0.0005547794440365558,
+        0.0006066238285612494
+      ],
+      "continuumCapturedMass": [
+        0.0002891508575288273,
+        0.000445220555963444,
+        0.00039337617143875075
+      ],
+      "capturedFraction": 0.38978221826995924,
+      "divergenceResidual": 3.863576125695545e-14,
+      "stageResidual": 3.907985046680551e-14
+    },
+    {
+      "offsetFloats": 5075070,
+      "count": 4880,
+      "time": 3.1666666666666665,
+      "physicsTicks": 190,
+      "physicsSteps": 190,
+      "parcelGasMass": [
+        0.0006949835225192309,
+        0.0004945054945054985,
+        0.0005975833028194861
+      ],
+      "parcelCapturedMass": [
+        0.0003050164774807764,
+        0.0005054945054945054,
+        0.0004024166971805201
+      ],
+      "continuumGasMass": [
+        0.0006977522556602865,
+        0.0005402729434550002,
+        0.0005938866901665327
+      ],
+      "continuumCapturedMass": [
+        0.0003022477443397135,
+        0.00045972705654499964,
+        0.00040611330983346747
+      ],
+      "capturedFraction": 0.4043092267186083,
+      "divergenceResidual": 3.907985046680551e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 5109230,
+      "count": 4772,
+      "time": 3.2,
+      "physicsTicks": 192,
+      "physicsSteps": 192,
+      "parcelGasMass": [
+        0.0006810692054192674,
+        0.0004824175824175872,
+        0.0005840351519589953
+      ],
+      "parcelCapturedMass": [
+        0.0003189307945807398,
+        0.0005175824175824175,
+        0.0004159648480410108
+      ],
+      "continuumGasMass": [
+        0.0006847663316526541,
+        0.000526130925193454,
+        0.0005814095355384861
+      ],
+      "continuumCapturedMass": [
+        0.00031523366834734605,
+        0.00047386907480654575,
+        0.00041859046446151405
+      ],
+      "capturedFraction": 0.41749268673473067,
+      "divergenceResidual": 3.907985046680551e-14,
+      "stageResidual": 3.9968028886505635e-14
+    },
+    {
+      "offsetFloats": 5142634,
+      "count": 4659,
+      "time": 3.2333333333333334,
+      "physicsTicks": 194,
+      "physicsSteps": 194,
+      "parcelGasMass": [
+        0.0006667887220798311,
+        0.00046923076923077386,
+        0.0005701208348590318
+      ],
+      "parcelCapturedMass": [
+        0.0003332112779201759,
+        0.0005307692307692306,
+        0.0004298791651409742
+      ],
+      "continuumGasMass": [
+        0.0006719905547657672,
+        0.0005124404968140443,
+        0.0005692688281147877
+      ],
+      "continuumCapturedMass": [
+        0.000328009445234233,
+        0.0004875595031859556,
+        0.0004307311718852125
+      ],
+      "capturedFraction": 0.43128655794346843,
+      "divergenceResidual": 3.8191672047105385e-14,
+      "stageResidual": 3.907985046680551e-14
+    },
+    {
+      "offsetFloats": 5175247,
+      "count": 4554,
+      "time": 3.2666666666666666,
+      "physicsTicks": 196,
+      "physicsSteps": 196,
+      "parcelGasMass": [
+        0.0006554375686561767,
+        0.0004553113553113598,
+        0.0005569388502380137
+      ],
+      "parcelCapturedMass": [
+        0.00034456243134383025,
+        0.0005446886446886446,
+        0.0004430611497619921
+      ],
+      "continuumGasMass": [
+        0.0006595154257489061,
+        0.0004992749242116849,
+        0.0005575308019317764
+      ],
+      "continuumCapturedMass": [
+        0.00034048457425109405,
+        0.0005007250757883149,
+        0.0004424691980682238
+      ],
+      "capturedFraction": 0.44410407526483076,
+      "divergenceResidual": 3.863576125695545e-14,
+      "stageResidual": 3.907985046680551e-14
+    },
+    {
+      "offsetFloats": 5207125,
+      "count": 4446,
+      "time": 3.3,
+      "physicsTicks": 198,
+      "physicsSteps": 198,
+      "parcelGasMass": [
+        0.0006378615891614859,
+        0.0004424908424908468,
+        0.0005477846942511955
+      ],
+      "parcelCapturedMass": [
+        0.00036213841083852083,
+        0.0005575091575091574,
+        0.0004522153057488101
+      ],
+      "continuumGasMass": [
+        0.0006474180039191302,
+        0.00048668979791489806,
+        0.0005462477212767252
+      ],
+      "continuumCapturedMass": [
+        0.00035258199608087,
+        0.0005133102020851018,
+        0.00045375227872327496
+      ],
+      "capturedFraction": 0.45728762469883816,
+      "divergenceResidual": 3.9968028886505635e-14,
+      "stageResidual": 3.952393967665557e-14
+    },
+    {
+      "offsetFloats": 5238247,
+      "count": 4341,
+      "time": 3.3333333333333335,
+      "physicsTicks": 200,
+      "physicsSteps": 200,
+      "parcelGasMass": [
+        0.0006254119370194132,
+        0.00043186813186813606,
+        0.0005324057121933411
+      ],
+      "parcelCapturedMass": [
+        0.0003745880629805933,
+        0.000568131868131868,
+        0.00046759428780666435
+      ],
+      "continuumGasMass": [
+        0.0006357580600402035,
+        0.00047472081559484127,
+        0.0005354552867483868
+      ],
+      "continuumCapturedMass": [
+        0.00036424193995979653,
+        0.0005252791844051585,
+        0.00046454471325161326
+      ],
+      "capturedFraction": 0.4701047396397175,
+      "divergenceResidual": 3.9968028886505635e-14,
+      "stageResidual": 3.9968028886505635e-14
+    },
+    {
+      "offsetFloats": 5268634,
+      "count": 4245,
+      "time": 3.3666666666666667,
+      "physicsTicks": 202,
+      "physicsSteps": 202,
+      "parcelGasMass": [
+        0.0006103991212010315,
+        0.0004212454212454253,
+        0.0005228853899670502
+      ],
+      "parcelCapturedMass": [
+        0.00038960087879897487,
+        0.0005787545787545786,
+        0.0004771146100329551
+      ],
+      "continuumGasMass": [
+        0.0006245756525153814,
+        0.0004633829719006779,
+        0.0005251714983590935
+      ],
+      "continuumCapturedMass": [
+        0.0003754243474846186,
+        0.000536617028099322,
+        0.0004748285016409067
+      ],
+      "capturedFraction": 0.4818233558621786,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5298349,
+      "count": 4135,
+      "time": 3.4,
+      "physicsTicks": 204,
+      "physicsSteps": 204,
+      "parcelGasMass": [
+        0.0006008787989747406,
+        0.0004054945054945094,
+        0.0005078725741486685
+      ],
+      "parcelCapturedMass": [
+        0.0003991212010252656,
+        0.0005945054945054942,
+        0.0004921274258513366
+      ],
+      "continuumGasMass": [
+        0.0006138890672508925,
+        0.0004526706654049719,
+        0.0005153964639037474
+      ],
+      "continuumCapturedMass": [
+        0.0003861109327491075,
+        0.0005473293345950279,
+        0.0004846035360962528
+      ],
+      "capturedFraction": 0.49525137379404155,
+      "divergenceResidual": 4.04121180963557e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5327294,
+      "count": 4045,
+      "time": 3.433333333333333,
+      "physicsTicks": 206,
+      "physicsSteps": 206,
+      "parcelGasMass": [
+        0.0005887953130721407,
+        0.0003963369963370001,
+        0.0004961552544855413
+      ],
+      "parcelCapturedMass": [
+        0.0004112046869278654,
+        0.0006036630036630034,
+        0.0005038447455144636
+      ],
+      "continuumGasMass": [
+        0.0006036941824576917,
+        0.00044255836525552625,
+        0.0005061127845128868
+      ],
+      "continuumCapturedMass": [
+        0.0003963058175423083,
+        0.0005574416347444736,
+        0.0004938872154871133
+      ],
+      "capturedFraction": 0.5062374787017871,
+      "divergenceResidual": 4.085620730620576e-14,
+      "stageResidual": 4.1744385725905886e-14
+    },
+    {
+      "offsetFloats": 5355609,
+      "count": 3956,
+      "time": 3.466666666666667,
+      "physicsTicks": 208,
+      "physicsSteps": 208,
+      "parcelGasMass": [
+        0.000577810325887959,
+        0.00038351648351648714,
+        0.00048736726473819594
+      ],
+      "parcelCapturedMass": [
+        0.00042218967411204706,
+        0.0006164835164835162,
+        0.0005126327352618089
+      ],
+      "continuumGasMass": [
+        0.0005939651741912706,
+        0.0004330023003143587,
+        0.0004972867022542069
+      ],
+      "continuumCapturedMass": [
+        0.00040603482580872945,
+        0.0005669976996856411,
+        0.0005027132977457933
+      ],
+      "capturedFraction": 0.5171019752858006,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1744385725905886e-14
+    },
+    {
+      "offsetFloats": 5383301,
+      "count": 3880,
+      "time": 3.5,
+      "physicsTicks": 210,
+      "physicsSteps": 210,
+      "parcelGasMass": [
+        0.0005668253387037772,
+        0.000375457875457879,
+        0.00047857927499085054
+      ],
+      "parcelCapturedMass": [
+        0.0004331746612962287,
+        0.0006245421245421243,
+        0.0005214207250091541
+      ],
+      "continuumGasMass": [
+        0.0005846560340055033,
+        0.0004239429627020301,
+        0.0004888699386838706
+      ],
+      "continuumCapturedMass": [
+        0.0004153439659944967,
+        0.0005760570372979697,
+        0.0005111300613161296
+      ],
+      "capturedFraction": 0.5263791702825124,
+      "divergenceResidual": 4.263256414560601e-14,
+      "stageResidual": 4.263256414560601e-14
+    },
+    {
+      "offsetFloats": 5410461,
+      "count": 3811,
+      "time": 3.533333333333333,
+      "physicsTicks": 212,
+      "physicsSteps": 212,
+      "parcelGasMass": [
+        0.00055510801904065,
+        0.0003692307692307727,
+        0.00047125595020139604
+      ],
+      "parcelCapturedMass": [
+        0.00044489198095935573,
+        0.0006307692307692305,
+        0.0005287440497986086
+      ],
+      "continuumGasMass": [
+        0.0005757031384652764,
+        0.0004153084564239429,
+        0.0004808022195202716
+      ],
+      "continuumCapturedMass": [
+        0.00042429686153472383,
+        0.000584691543576057,
+        0.0005191977804797286
+      ],
+      "capturedFraction": 0.5348017538424086,
+      "divergenceResidual": 4.263256414560601e-14,
+      "stageResidual": 4.263256414560601e-14
+    },
+    {
+      "offsetFloats": 5437138,
+      "count": 3727,
+      "time": 3.5666666666666664,
+      "physicsTicks": 214,
+      "physicsSteps": 214,
+      "parcelGasMass": [
+        0.0005415598681801592,
+        0.0003593406593406627,
+        0.00046393262541194154
+      ],
+      "parcelCapturedMass": [
+        0.0004584401318198464,
+        0.0006406593406593404,
+        0.0005360673745880631
+      ],
+      "continuumGasMass": [
+        0.0005670290223501233,
+        0.00040701842988613666,
+        0.00047301445952287175
+      ],
+      "continuumCapturedMass": [
+        0.00043297097764987677,
+        0.0005929815701138633,
+        0.0005269855404771285
+      ],
+      "capturedFraction": 0.5450556156890937,
+      "divergenceResidual": 4.218847493575595e-14,
+      "stageResidual": 4.3076653355456074e-14
+    },
+    {
+      "offsetFloats": 5463227,
+      "count": 3647,
+      "time": 3.6,
+      "physicsTicks": 216,
+      "physicsSteps": 216,
+      "parcelGasMass": [
+        0.0005320395459538684,
+        0.0003487179487179519,
+        0.0004547784694251234
+      ],
+      "parcelCapturedMass": [
+        0.0004679604540461371,
+        0.000651282051282051,
+        0.0005452215305748812
+      ],
+      "continuumGasMass": [
+        0.0005585471386365727,
+        0.0003989884385739329,
+        0.00046543294742119754
+      ],
+      "continuumCapturedMass": [
+        0.00044145286136342736,
+        0.000601011561426067,
+        0.0005345670525788026
+      ],
+      "capturedFraction": 0.5548213453010337,
+      "divergenceResidual": 4.218847493575595e-14,
+      "stageResidual": 4.3520742565306136e-14
+    },
+    {
+      "offsetFloats": 5488756,
+      "count": 3569,
+      "time": 3.6333333333333333,
+      "physicsTicks": 218,
+      "physicsSteps": 218,
+      "parcelGasMass": [
+        0.0005195898938117957,
+        0.00034102564102564414,
+        0.00044635664591725075
+      ],
+      "parcelCapturedMass": [
+        0.0004804101061882096,
+        0.0006589743589743587,
+        0.0005536433540827538
+      ],
+      "continuumGasMass": [
+        0.000550167715283141,
+        0.00039113482639721624,
+        0.00045798392662551457
+      ],
+      "continuumCapturedMass": [
+        0.0004498322847168591,
+        0.0006088651736027836,
+        0.0005420160733744856
+      ],
+      "capturedFraction": 0.5643426064151182,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.263256414560601e-14
+    },
+    {
+      "offsetFloats": 5513739,
+      "count": 3496,
+      "time": 3.6666666666666665,
+      "physicsTicks": 220,
+      "physicsSteps": 220,
+      "parcelGasMass": [
+        0.000508604906627614,
+        0.000332967032967036,
+        0.00043866715488832353
+      ],
+      "parcelCapturedMass": [
+        0.0004913950933723912,
+        0.0006670329670329667,
+        0.000561332845111681
+      ],
+      "continuumGasMass": [
+        0.0005418045939723003,
+        0.0003833805383255622,
+        0.00045059846809096353
+      ],
+      "continuumCapturedMass": [
+        0.00045819540602769974,
+        0.0006166194616744376,
+        0.0005494015319090367
+      ],
+      "capturedFraction": 0.5732536351723573,
+      "divergenceResidual": 4.218847493575595e-14,
+      "stageResidual": 4.263256414560601e-14
+    },
+    {
+      "offsetFloats": 5538211,
+      "count": 3443,
+      "time": 3.6999999999999997,
+      "physicsTicks": 222,
+      "physicsSteps": 222,
+      "parcelGasMass": [
+        0.0004998169168802686,
+        0.0003267399267399297,
+        0.00043427316001465083
+      ],
+      "parcelCapturedMass": [
+        0.0005001830831197365,
+        0.000673260073260073,
+        0.0005657268399853537
+      ],
+      "continuumGasMass": [
+        0.0005333829147624365,
+        0.00037566105680900466,
+        0.0004432180442967395
+      ],
+      "continuumCapturedMass": [
+        0.00046661708523756354,
+        0.0006243389431909951,
+        0.0005567819557032609
+      ],
+      "capturedFraction": 0.5797233321217321,
+      "divergenceResidual": 4.218847493575595e-14,
+      "stageResidual": 4.1744385725905886e-14
+    },
+    {
+      "offsetFloats": 5562312,
+      "count": 3351,
+      "time": 3.7333333333333334,
+      "physicsTicks": 224,
+      "physicsSteps": 224,
+      "parcelGasMass": [
+        0.00048736726473819594,
+        0.0003153846153846182,
+        0.00042438667154888726
+      ],
+      "parcelCapturedMass": [
+        0.000512632735261809,
+        0.0006846153846153844,
+        0.0005756133284511172
+      ],
+      "continuumGasMass": [
+        0.0005248474663161588,
+        0.0003679305977844226,
+        0.00043580036824784457
+      ],
+      "continuumCapturedMass": [
+        0.0004751525336838411,
+        0.0006320694022155772,
+        0.0005641996317521557
+      ],
+      "capturedFraction": 0.5909538161094481,
+      "divergenceResidual": 4.1744385725905886e-14,
+      "stageResidual": 4.218847493575595e-14
+    },
+    {
+      "offsetFloats": 5585769,
+      "count": 3281,
+      "time": 3.7666666666666666,
+      "physicsTicks": 226,
+      "physicsSteps": 226,
+      "parcelGasMass": [
+        0.0004778469425119051,
+        0.00030842490842491115,
+        0.00041523251556206914
+      ],
+      "parcelCapturedMass": [
+        0.0005221530574880996,
+        0.0006915750915750914,
+        0.0005847674844379352
+      ],
+      "continuumGasMass": [
+        0.0005161713757826592,
+        0.00036016822959784135,
+        0.0004283253403118312
+      ],
+      "continuumCapturedMass": [
+        0.00048382862421734063,
+        0.0006398317704021585,
+        0.000571674659688169
+      ],
+      "capturedFraction": 0.5994985445003868,
+      "divergenceResidual": 4.1744385725905886e-14,
+      "stageResidual": 4.1744385725905886e-14
+    },
+    {
+      "offsetFloats": 5608736,
+      "count": 3212,
+      "time": 3.8,
+      "physicsTicks": 228,
+      "physicsSteps": 228,
+      "parcelGasMass": [
+        0.00047015745148297787,
+        0.0002981684981685008,
+        0.00040790919077261464
+      ],
+      "parcelCapturedMass": [
+        0.0005298425485170268,
+        0.0007018315018315017,
+        0.0005920908092273896
+      ],
+      "continuumGasMass": [
+        0.0005073562837087812,
+        0.0003523767120429887,
+        0.00042079454073602854
+      ],
+      "continuumCapturedMass": [
+        0.0004926437162912187,
+        0.0006476232879570112,
+        0.0005792054592639715
+      ],
+      "capturedFraction": 0.607921619858651,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1744385725905886e-14
+    },
+    {
+      "offsetFloats": 5631220,
+      "count": 3140,
+      "time": 3.8333333333333335,
+      "physicsTicks": 230,
+      "physicsSteps": 230,
+      "parcelGasMass": [
+        0.000460637129256687,
+        0.00028974358974359225,
+        0.00039948736726474197
+      ],
+      "parcelCapturedMass": [
+        0.0005393628707433176,
+        0.0007102564102564102,
+        0.0006005126327352622
+      ],
+      "continuumGasMass": [
+        0.0004984121284166497,
+        0.0003445649382633976,
+        0.0004132153654110957
+      ],
+      "continuumCapturedMass": [
+        0.0005015878715833503,
+        0.0006554350617366023,
+        0.0005867846345889045
+      ],
+      "capturedFraction": 0.6167106379116751,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1744385725905886e-14
+    },
+    {
+      "offsetFloats": 5653200,
+      "count": 3068,
+      "time": 3.8666666666666667,
+      "physicsTicks": 232,
+      "physicsSteps": 232,
+      "parcelGasMass": [
+        0.0004496521420725053,
+        0.000280586080586083,
+        0.00039326254119370564
+      ],
+      "parcelCapturedMass": [
+        0.0005503478579274991,
+        0.0007194139194139193,
+        0.0006067374588062985
+      ],
+      "continuumGasMass": [
+        0.0004893495620785939,
+        0.0003367416504869669,
+        0.0004055950832723255
+      ],
+      "continuumCapturedMass": [
+        0.0005106504379214062,
+        0.0006632583495130328,
+        0.0005944049167276747
+      ],
+      "capturedFraction": 0.6254997453825842,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5674676,
+      "count": 2994,
+      "time": 3.9,
+      "physicsTicks": 234,
+      "physicsSteps": 234,
+      "parcelGasMass": [
+        0.0004383009886488508,
+        0.0002739926739926763,
+        0.0003841083852068875
+      ],
+      "parcelCapturedMass": [
+        0.0005616990113511533,
+        0.0007260073260073259,
+        0.0006158916147931165
+      ],
+      "continuumGasMass": [
+        0.00048017957771744345,
+        0.0003289154694371928,
+        0.0003979407799936271
+      ],
+      "continuumCapturedMass": [
+        0.0005198204222825566,
+        0.0006710845305628069,
+        0.0006020592200063731
+      ],
+      "capturedFraction": 0.6345326507172107,
+      "divergenceResidual": 4.085620730620576e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5695634,
+      "count": 2916,
+      "time": 3.933333333333333,
+      "physicsTicks": 236,
+      "physicsSteps": 236,
+      "parcelGasMass": [
+        0.00042841450018308723,
+        0.0002652014652014674,
+        0.00037422189674112395
+      ],
+      "parcelCapturedMass": [
+        0.0005715854998169168,
+        0.0007347985347985347,
+        0.00062577810325888
+      ],
+      "continuumGasMass": [
+        0.0004709136018324547,
+        0.00032109499316874935,
+        0.0003902591920363997
+      ],
+      "continuumCapturedMass": [
+        0.0005290863981675455,
+        0.0006789050068312502,
+        0.0006097408079636004
+      ],
+      "capturedFraction": 0.6440540459581228,
+      "divergenceResidual": 4.085620730620576e-14,
+      "stageResidual": 4.085620730620576e-14
+    },
+    {
+      "offsetFloats": 5716046,
+      "count": 2835,
+      "time": 3.966666666666667,
+      "physicsTicks": 238,
+      "physicsSteps": 238,
+      "parcelGasMass": [
+        0.00041706334675943276,
+        0.00025457875457875667,
+        0.00036653240571219673
+      ],
+      "parcelCapturedMass": [
+        0.0005829366532405711,
+        0.0007454212454212453,
+        0.0006334675942878071
+      ],
+      "continuumGasMass": [
+        0.00046156354326561534,
+        0.0003132887622300629,
+        0.0003825568554765414
+      ],
+      "continuumCapturedMass": [
+        0.0005384364567343847,
+        0.0006867112377699367,
+        0.0006174431445234587
+      ],
+      "capturedFraction": 0.6539418309832202,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5735891,
+      "count": 2776,
+      "time": 4.0,
+      "physicsTicks": 240,
+      "physicsSteps": 240,
+      "parcelGasMass": [
+        0.00040937385573050554,
+        0.00024725274725274926,
+        0.0003599414134016877
+      ],
+      "parcelCapturedMass": [
+        0.0005906261442694983,
+        0.0007527472527472527,
+        0.0006400585865983161
+      ],
+      "continuumGasMass": [
+        0.0004521414464082011,
+        0.0003055052503103813,
+        0.0003748402394575009
+      ],
+      "continuumCapturedMass": [
+        0.0005478585535917988,
+        0.0006944947496896183,
+        0.0006251597605424991
+      ],
+      "capturedFraction": 0.6611439945383683,
+      "divergenceResidual": 4.04121180963557e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5755323,
+      "count": 2689,
+      "time": 4.033333333333333,
+      "physicsTicks": 242,
+      "physicsSteps": 242,
+      "parcelGasMass": [
+        0.00039655803734896017,
+        0.00024029304029304224,
+        0.00034785792749908776
+      ],
+      "parcelCapturedMass": [
+        0.0006034419626510434,
+        0.0007597069597069597,
+        0.0006521420725009158
+      ],
+      "continuumGasMass": [
+        0.00044265926594213645,
+        0.00029775286507106256,
+        0.0003671157735192758
+      ],
+      "continuumCapturedMass": [
+        0.0005573407340578635,
+        0.0007022471349289371,
+        0.0006328842264807243
+      ],
+      "capturedFraction": 0.6717636649529858,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5774146,
+      "count": 2628,
+      "time": 4.066666666666666,
+      "physicsTicks": 244,
+      "physicsSteps": 244,
+      "parcelGasMass": [
+        0.0003896008787989784,
+        0.00023186813186813372,
+        0.000340900768949106
+      ],
+      "parcelCapturedMass": [
+        0.0006103991212010252,
+        0.0007681318681318681,
+        0.0006590992310508976
+      ],
+      "continuumGasMass": [
+        0.00043312900007379316,
+        0.000290039755524035,
+        0.00035938992518945743
+      ],
+      "continuumCapturedMass": [
+        0.0005668709999262067,
+        0.0007099602444759648,
+        0.0006406100748105426
+      ],
+      "capturedFraction": 0.6792100734612765,
+      "divergenceResidual": 4.085620730620576e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5792542,
+      "count": 2558,
+      "time": 4.1,
+      "physicsTicks": 246,
+      "physicsSteps": 246,
+      "parcelGasMass": [
+        0.0003793482240937421,
+        0.0002234432234432252,
+        0.0003339436103991242
+      ],
+      "parcelCapturedMass": [
+        0.0006206517759062614,
+        0.0007765567765567765,
+        0.0006660563896008793
+      ],
+      "continuumGasMass": [
+        0.00042356265829874586,
+        0.0002823737724467754,
+        0.0003516689922929651
+      ],
+      "continuumCapturedMass": [
+        0.000576437341701254,
+        0.0007176262275532244,
+        0.0006483310077070349
+      ],
+      "capturedFraction": 0.6877549806879856,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5810448,
+      "count": 2481,
+      "time": 4.133333333333333,
+      "physicsTicks": 248,
+      "physicsSteps": 248,
+      "parcelGasMass": [
+        0.0003687294031490331,
+        0.00021538461538461704,
+        0.00032442328817283337
+      ],
+      "parcelCapturedMass": [
+        0.0006312705968509703,
+        0.0007846153846153846,
+        0.00067557671182717
+      ],
+      "continuumGasMass": [
+        0.0004139720736290091,
+        0.0002747624438955046,
+        0.0003439591447585647
+      ],
+      "continuumCapturedMass": [
+        0.000586027926370991,
+        0.0007252375561044951,
+        0.0006560408552414354
+      ],
+      "capturedFraction": 0.6971542310978549,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1744385725905886e-14
+    },
+    {
+      "offsetFloats": 5827815,
+      "count": 2390,
+      "time": 4.166666666666667,
+      "physicsTicks": 250,
+      "physicsSteps": 250,
+      "parcelGasMass": [
+        0.0003559135847674877,
+        0.0002058608058608074,
+        0.0003134383009886516
+      ],
+      "parcelCapturedMass": [
+        0.0006440864152325155,
+        0.0007941391941391941,
+        0.0006865616990113517
+      ],
+      "continuumGasMass": [
+        0.0004043687873979146,
+        0.0002672129014937625,
+        0.00033626652507101195
+      ],
+      "continuumCapturedMass": [
+        0.0005956312126020854,
+        0.0007327870985062373,
+        0.0006637334749289882
+      ],
+      "capturedFraction": 0.7082624361277006,
+      "divergenceResidual": 4.085620730620576e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5844545,
+      "count": 2313,
+      "time": 4.2,
+      "physicsTicks": 252,
+      "physicsSteps": 252,
+      "parcelGasMass": [
+        0.00034639326254119686,
+        0.00019743589743589888,
+        0.0003031856462834153
+      ],
+      "parcelCapturedMass": [
+        0.0006536067374588062,
+        0.0008025641025641026,
+        0.0006968143537165877
+      ],
+      "continuumGasMass": [
+        0.00039476404288748586,
+        0.00025973189745746796,
+        0.0003285970848685935
+      ],
+      "continuumCapturedMass": [
+        0.0006052359571125141,
+        0.0007402681025425318,
+        0.0006714029151314065
+      ],
+      "capturedFraction": 0.7176617312465124,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5860736,
+      "count": 2236,
+      "time": 4.233333333333333,
+      "physicsTicks": 254,
+      "physicsSteps": 254,
+      "parcelGasMass": [
+        0.0003354082753570151,
+        0.0001882783882783896,
+        0.0002951299890150154
+      ],
+      "parcelCapturedMass": [
+        0.0006645917246429878,
+        0.0008117216117216118,
+        0.0007048700109849876
+      ],
+      "continuumGasMass": [
+        0.00038516881779949275,
+        0.0002523258709543733,
+        0.00032095662638294395
+      ],
+      "continuumCapturedMass": [
+        0.0006148311822005071,
+        0.0007476741290456264,
+        0.0006790433736170561
+      ],
+      "capturedFraction": 0.7270611157832096,
+      "divergenceResidual": 4.085620730620576e-14,
+      "stageResidual": 4.085620730620576e-14
+    },
+    {
+      "offsetFloats": 5876388,
+      "count": 2150,
+      "time": 4.266666666666667,
+      "physicsTicks": 256,
+      "physicsSteps": 256,
+      "parcelGasMass": [
+        0.0003251556206517788,
+        0.00017655677655677775,
+        0.00028560966678872453
+      ],
+      "parcelCapturedMass": [
+        0.000674844379348224,
+        0.0008234432234432235,
+        0.0007143903332112783
+      ],
+      "continuumGasMass": [
+        0.0003755938423010782,
+        0.0002450008795451812,
+        0.0003133509034520955
+      ],
+      "continuumCapturedMass": [
+        0.0006244061576989217,
+        0.0007549991204548183,
+        0.0006866490965479046
+      ],
+      "capturedFraction": 0.7375593120009226,
+      "divergenceResidual": 4.085620730620576e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5891438,
+      "count": 2085,
+      "time": 4.3,
+      "physicsTicks": 258,
+      "physicsSteps": 258,
+      "parcelGasMass": [
+        0.00031417063346759707,
+        0.00017032967032967145,
+        0.0002790186744782155
+      ],
+      "parcelCapturedMass": [
+        0.0006858293665324057,
+        0.0008296703296703298,
+        0.0007209813255217874
+      ],
+      "continuumGasMass": [
+        0.0003660495881183693,
+        0.00023776258131319152,
+        0.0003057855501790082
+      ],
+      "continuumCapturedMass": [
+        0.0006339504118816307,
+        0.0007622374186868081,
+        0.0006942144498209919
+      ],
+      "capturedFraction": 0.7454936739081884,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5906033,
+      "count": 2011,
+      "time": 4.333333333333333,
+      "physicsTicks": 260,
+      "physicsSteps": 260,
+      "parcelGasMass": [
+        0.00030501647748077895,
+        0.00016263736263736367,
+        0.0002687660197729792
+      ],
+      "parcelCapturedMass": [
+        0.0006949835225192237,
+        0.0008373626373626375,
+        0.0007312339802270234
+      ],
+      "continuumGasMass": [
+        0.0003565462822825032,
+        0.00023061624228899884,
+        0.0002982659831686053
+      ],
+      "continuumCapturedMass": [
+        0.0006434537177174968,
+        0.0007693837577110009,
+        0.0007017340168313948
+      ],
+      "capturedFraction": 0.7545267133696426,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.085620730620576e-14
+    },
+    {
+      "offsetFloats": 5920110,
+      "count": 1935,
+      "time": 4.366666666666666,
+      "physicsTicks": 262,
+      "physicsSteps": 262,
+      "parcelGasMass": [
+        0.00029146832662028813,
+        0.00015384615384615477,
+        0.0002632735261808883
+      ],
+      "parcelCapturedMass": [
+        0.0007085316733797143,
+        0.0008461538461538464,
+        0.0007367264738191143
+      ],
+      "continuumGasMass": [
+        0.00034709384916583534,
+        0.0002235667189778259,
+        0.00029079739502852625
+      ],
+      "continuumCapturedMass": [
+        0.0006529061508341646,
+        0.000776433281022174,
+        0.0007092026049714738
+      ],
+      "capturedFraction": 0.7638039977842396,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5933655,
+      "count": 1854,
+      "time": 4.4,
+      "physicsTicks": 264,
+      "physicsSteps": 264,
+      "parcelGasMass": [
+        0.0002790186744782155,
+        0.00014578754578754662,
+        0.0002541193701940702
+      ],
+      "parcelCapturedMass": [
+        0.0007209813255217867,
+        0.0008542124542124545,
+        0.0007458806298059324
+      ],
+      "continuumGasMass": [
+        0.0003377018852042179,
+        0.00021661850391562165,
+        0.00028338476120939854
+      ],
+      "continuumCapturedMass": [
+        0.0006622981147957821,
+        0.0007833814960843781,
+        0.0007166152387906013
+      ],
+      "capturedFraction": 0.7736914698467393,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5946633,
+      "count": 1776,
+      "time": 4.433333333333334,
+      "physicsTicks": 266,
+      "physicsSteps": 266,
+      "parcelGasMass": [
+        0.0002647381911387792,
+        0.00014029304029304106,
+        0.0002453313804467248
+      ],
+      "parcelCapturedMass": [
+        0.0007352618088612228,
+        0.00085970695970696,
+        0.0007546686195532777
+      ],
+      "continuumGasMass": [
+        0.00032837988789252817,
+        0.00020977572652134625,
+        0.0002760328244738798
+      ],
+      "continuumCapturedMass": [
+        0.0006716201121074719,
+        0.0007902242734786535,
+        0.0007239671755261201
+      ],
+      "capturedFraction": 0.7832124627071684,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5959065,
+      "count": 1707,
+      "time": 4.466666666666667,
+      "physicsTicks": 268,
+      "physicsSteps": 268,
+      "parcelGasMass": [
+        0.0002541193701940702,
+        0.0001347985347985355,
+        0.00023617722445990667
+      ],
+      "parcelCapturedMass": [
+        0.0007458806298059317,
+        0.0008652014652014655,
+        0.0007638227755400957
+      ],
+      "continuumGasMass": [
+        0.0003191372357631776,
+        0.0002030421700521212,
+        0.000268746069122352
+      ],
+      "continuumCapturedMass": [
+        0.0006808627642368223,
+        0.0007969578299478787,
+        0.0007312539308776478
+      ],
+      "capturedFraction": 0.7916349568491794,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1300296516055823e-14
+    },
+    {
+      "offsetFloats": 5971014,
+      "count": 1651,
+      "time": 4.5,
+      "physicsTicks": 270,
+      "physicsSteps": 270,
+      "parcelGasMass": [
+        0.00024496521420725207,
+        0.00013040293040293105,
+        0.0002292200659099249
+      ],
+      "parcelCapturedMass": [
+        0.0007550347857927498,
+        0.0008695970695970699,
+        0.0007707799340900775
+      ],
+      "continuumGasMass": [
+        0.0003099829086952461,
+        0.00019642132231506665,
+        0.0002615288128983993
+      ],
+      "continuumCapturedMass": [
+        0.0006900170913047538,
+        0.0008035786776849334,
+        0.0007384711871016006
+      ],
+      "capturedFraction": 0.7984705964933143,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1744385725905886e-14
+    },
+    {
+      "offsetFloats": 5982571,
+      "count": 1594,
+      "time": 4.533333333333333,
+      "physicsTicks": 272,
+      "physicsSteps": 272,
+      "parcelGasMass": [
+        0.0002350787257414885,
+        0.00012454212454212512,
+        0.00022409373855730675
+      ],
+      "parcelCapturedMass": [
+        0.0007649212742585131,
+        0.0008754578754578758,
+        0.0007759062614426957
+      ],
+      "continuumGasMass": [
+        0.0003009255498769948,
+        0.00018991644769149614,
+        0.0002543851580313591
+      ],
+      "continuumCapturedMass": [
+        0.0006990744501230051,
+        0.0008100835523085039,
+        0.0007456148419686408
+      ],
+      "capturedFraction": 0.805428470386377,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.1744385725905886e-14
+    },
+    {
+      "offsetFloats": 5993729,
+      "count": 1533,
+      "time": 4.566666666666666,
+      "physicsTicks": 274,
+      "physicsSteps": 274,
+      "parcelGasMass": [
+        0.0002262907359941431,
+        0.00011684981684981734,
+        0.00021823507872574316
+      ],
+      "parcelCapturedMass": [
+        0.0007737092640058585,
+        0.0008831501831501836,
+        0.0007817649212742593
+      ],
+      "continuumGasMass": [
+        0.0002919736210497029,
+        0.0001835305661741455,
+        0.0002473189170412716
+      ],
+      "continuumCapturedMass": [
+        0.0007080263789502972,
+        0.0008164694338258546,
+        0.0007526810829587283
+      ],
+      "capturedFraction": 0.8128747894767826,
+      "divergenceResidual": 4.1300296516055823e-14,
+      "stageResidual": 4.218847493575595e-14
+    },
+    {
+      "offsetFloats": 6004460,
+      "count": 1470,
+      "time": 4.6,
+      "physicsTicks": 276,
+      "physicsSteps": 276,
+      "parcelGasMass": [
+        0.00021713658000732498,
+        0.00011245421245421289,
+        0.0002087147564994523
+      ],
+      "parcelCapturedMass": [
+        0.0007828634199926766,
+        0.0008875457875457879,
+        0.00079128524350055
+      ],
+      "continuumGasMass": [
+        0.0002831352859954009,
+        0.0001772664060444528,
+        0.00024033366082222297
+      ],
+      "continuumCapturedMass": [
+        0.000716864714004599,
+        0.0008227335939555473,
+        0.0007596663391777768
+      ],
+      "capturedFraction": 0.8205648170130205,
+      "divergenceResidual": 4.218847493575595e-14,
+      "stageResidual": 4.218847493575595e-14
+    },
+    {
+      "offsetFloats": 6014750,
+      "count": 1391,
+      "time": 4.633333333333333,
+      "physicsTicks": 278,
+      "physicsSteps": 278,
+      "parcelGasMass": [
+        0.00020248993042841599,
+        0.00010586080586080622,
+        0.0002010252654705251
+      ],
+      "parcelCapturedMass": [
+        0.0007975100695715853,
+        0.0008941391941391945,
+        0.0007989747345294771
+      ],
+      "continuumGasMass": [
+        0.000274418314709819,
+        0.00017112637700625763,
+        0.0002334327604640492
+      ],
+      "continuumCapturedMass": [
+        0.0007255816852901809,
+        0.0008288736229937425,
+        0.0007665672395359504
+      ],
+      "capturedFraction": 0.8302079994134348,
+      "divergenceResidual": 4.263256414560601e-14,
+      "stageResidual": 4.218847493575595e-14
+    },
+    {
+      "offsetFloats": 6024487,
+      "count": 1341,
+      "time": 4.666666666666667,
+      "physicsTicks": 280,
+      "physicsSteps": 280,
+      "parcelGasMass": [
+        0.00019260344196265241,
+        0.00010256410256410288,
+        0.00019589893811790694
+      ],
+      "parcelCapturedMass": [
+        0.0008073965580373487,
+        0.0008974358974358978,
+        0.0008041010618820953
+      ],
+      "continuumGasMass": [
+        0.00026582992218031543,
+        0.00016511263890845815,
+        0.00022661941397037608
+      ],
+      "continuumCapturedMass": [
+        0.0007341700778196845,
+        0.000834887361091542,
+        0.0007733805860296234
+      ],
+      "capturedFraction": 0.8363111724517965,
+      "divergenceResidual": 4.1744385725905886e-14,
+      "stageResidual": 4.263256414560601e-14
+    },
+    {
+      "offsetFloats": 6033874,
+      "count": 1284,
+      "time": 4.7,
+      "physicsTicks": 282,
+      "physicsSteps": 282,
+      "parcelGasMass": [
+        0.0001834492859758343,
+        9.74358974358977e-05,
+        0.0001893079458073979
+      ],
+      "parcelCapturedMass": [
+        0.0008165507140241667,
+        0.0009025641025641028,
+        0.0008106920541926042
+      ],
+      "continuumGasMass": [
+        0.0002573766893326524,
+        0.00015922727651343158,
+        0.00021989669922582687
+      ],
+      "continuumCapturedMass": [
+        0.0007426233106673474,
+        0.0008407727234865687,
+        0.0007801033007741728
+      ],
+      "capturedFraction": 0.8432689569269739,
+      "divergenceResidual": 4.263256414560601e-14,
+      "stageResidual": 4.1744385725905886e-14
+    },
+    {
+      "offsetFloats": 6042862,
+      "count": 1234,
+      "time": 4.733333333333333,
+      "physicsTicks": 284,
+      "physicsSteps": 284,
+      "parcelGasMass": [
+        0.00017502746246796162,
+        9.413919413919436e-05,
+        0.00018271695349688884
+      ],
+      "parcelCapturedMass": [
+        0.0008249725375320393,
+        0.0009058608058608061,
+        0.0008172830465031132
+      ],
+      "continuumGasMass": [
+        0.0002490645696818238,
+        0.00015347212953013348,
+        0.00021326761203761672
+      ],
+      "continuumCapturedMass": [
+        0.0007509354303181762,
+        0.0008465278704698668,
+        0.000786732387962383
+      ],
+      "capturedFraction": 0.8493721299653358,
+      "divergenceResidual": 4.1744385725905886e-14,
+      "stageResidual": 4.218847493575595e-14
+    },
+    {
+      "offsetFloats": 6051500,
+      "count": 1182,
+      "time": 4.766666666666667,
+      "physicsTicks": 286,
+      "physicsSteps": 286,
+      "parcelGasMass": [
+        0.00016697180519956167,
+        8.937728937728954e-05,
+        0.00017649212742585252
+      ],
+      "parcelCapturedMass": [
+        0.0008330281948004392,
+        0.0009106227106227109,
+        0.0008235078725741496
+      ],
+      "continuumGasMass": [
+        0.0002408990650336421,
+        0.00014784868759603535,
+        0.00020673509464711563
+      ],
+      "continuumCapturedMass": [
+        0.0007591009349663578,
+        0.0008521513124039649,
+        0.0007932649053528841
+      ],
+      "capturedFraction": 0.8557195926657829,
+      "divergenceResidual": 4.218847493575595e-14,
+      "stageResidual": 4.263256414560601e-14
+    },
+    {
+      "offsetFloats": 6059774,
+      "count": 1136,
+      "time": 4.8,
+      "physicsTicks": 288,
+      "physicsSteps": 288,
+      "parcelGasMass": [
+        0.0001600146466495799,
+        8.49816849816851e-05,
+        0.00017099963383376165
+      ],
+      "parcelCapturedMass": [
+        0.000839985353350421,
+        0.0009150183150183153,
+        0.0008290003661662404
+      ],
+      "continuumGasMass": [
+        0.0002328851462497254,
+        0.00014235812261506378,
+        0.00020030205166176503
+      ],
+      "continuumCapturedMass": [
+        0.0007671148537502744,
+        0.0008576418773849365,
+        0.0007996979483382348
+      ],
+      "capturedFraction": 0.8613346781783421,
+      "divergenceResidual": 4.218847493575595e-14,
+      "stageResidual": 4.218847493575595e-14
+    },
+    {
+      "offsetFloats": 6067726,
+      "count": 1093,
+      "time": 4.833333333333333,
+      "physicsTicks": 290,
+      "physicsSteps": 290,
+      "parcelGasMass": [
+        0.00015342365433907085,
+        8.095238095238102e-05,
+        0.0001658733064811435
+      ],
+      "parcelCapturedMass": [
+        0.00084657634566093,
+        0.0009190476190476194,
+        0.0008341266935188586
+      ],
+      "continuumGasMass": [
+        0.00022502718664245614,
+        0.0001370013116141772,
+        0.0001939711952925595
+      ],
+      "continuumCapturedMass": [
+        0.0007749728133575436,
+        0.000862998688385823,
+        0.0008060288047074403
+      ],
+      "capturedFraction": 0.8665835527424859,
+      "divergenceResidual": 4.218847493575595e-14,
+      "stageResidual": 4.218847493575595e-14
+    },
+    {
+      "offsetFloats": 6075377,
+      "count": 1042,
+      "time": 4.866666666666666,
+      "physicsTicks": 292,
+      "physicsSteps": 292,
+      "parcelGasMass": [
+        0.0001468326620285618,
+        7.728937728937731e-05,
+        0.00015745148297327083
+      ],
+      "parcelCapturedMass": [
+        0.000853167337971439,
+        0.0009227106227106231,
+        0.0008425485170267311
+      ],
+      "continuumGasMass": [
+        0.00021732900376922532,
+        0.00013177883467739522,
+        0.000187745009110529
+      ],
+      "continuumCapturedMass": [
+        0.0007826709962307744,
+        0.000868221165322605,
+        0.0008122549908894708
+      ],
+      "capturedFraction": 0.8728088259029477,
+      "divergenceResidual": 4.218847493575595e-14,
+      "stageResidual": 4.1744385725905886e-14
+    },
+    {
+      "offsetFloats": 6082671,
+      "count": 992,
+      "time": 4.9,
+      "physicsTicks": 294,
+      "physicsSteps": 294,
+      "parcelGasMass": [
+        0.00013914317099963458,
+        7.289377289377286e-05,
+        0.0001512266569022345
+      ],
+      "parcelCapturedMass": [
+        0.0008608568290003661,
+        0.0009271062271062274,
+        0.0008487733430977675
+      ],
+      "continuumGasMass": [
+        0.00020979387153778018,
+        0.00012669099245621567,
+        0.00018162583237312763
+      ],
+      "continuumCapturedMass": [
+        0.0007902061284622196,
+        0.0008733090075437847,
+        0.0008183741676268722
+      ],
+      "capturedFraction": 0.878912133068137,
+      "divergenceResidual": 4.218847493575595e-14,
+      "stageResidual": 4.1744385725905886e-14
+    },
+    {
+      "offsetFloats": 6089615,
+      "count": 955,
+      "time": 4.933333333333334,
+      "physicsTicks": 296,
+      "physicsSteps": 296,
+      "parcelGasMass": [
+        0.00013548150860490733,
+        6.923076923076916e-05,
+        0.00014500183083119818
+      ],
+      "parcelCapturedMass": [
+        0.0008645184913950933,
+        0.000930769230769231,
+        0.0008549981691688038
+      ],
+      "continuumGasMass": [
+        0.00020242452519681154,
+        0.00012173782592317629,
+        0.00017561583853562587
+      ],
+      "continuumCapturedMass": [
+        0.0007975754748031882,
+        0.000878262174076824,
+        0.0008243841614643739
+      ],
+      "capturedFraction": 0.883428630444393,
+      "divergenceResidual": 4.218847493575595e-14,
+      "stageResidual": 4.1744385725905886e-14
+    },
+    {
+      "offsetFloats": 6096300,
+      "count": 900,
+      "time": 4.966666666666667,
+      "physicsTicks": 298,
+      "physicsSteps": 298,
+      "parcelGasMass": [
+        0.00012852435005492556,
+        6.556776556776545e-05,
+        0.00013548150860490733
+      ],
+      "parcelCapturedMass": [
+        0.000871475649945075,
+        0.0009344322344322347,
+        0.0008645184913950945
+      ],
+      "continuumGasMass": [
+        0.0001952232098955254,
+        0.00011691913507489799,
+        0.00016971696506568236
+      ],
+      "continuumCapturedMass": [
+        0.0008047767901044744,
+        0.0008830808649251022,
+        0.0008302830349343174
+      ],
+      "capturedFraction": 0.890142125257485,
+      "divergenceResidual": 4.218847493575595e-14,
+      "stageResidual": 4.218847493575595e-14
+    },
+    {
+      "offsetFloats": 6102600,
+      "count": 849,
+      "time": 5.0,
+      "physicsTicks": 300,
+      "physicsSteps": 300,
+      "parcelGasMass": [
+        0.00012083485902599834,
+        6.080586080586063e-05,
+        0.000129256682533871
+      ],
+      "parcelCapturedMass": [
+        0.0008791651409740022,
+        0.0009391941391941395,
+        0.0008707433174661309
+      ],
+      "continuumGasMass": [
+        0.00018819173297328633,
+        0.00011223449352957896,
+        0.00016393092582067903
+      ],
+      "continuumCapturedMass": [
+        0.0008118082670267135,
+        0.0008877655064704214,
+        0.0008360690741793208
+      ],
+      "capturedFraction": 0.8963675325447745,
+      "divergenceResidual": 4.218847493575595e-14,
+      "stageResidual": 4.263256414560601e-14
+    },
+    {
+      "offsetFloats": 6108543,
+      "count": 815,
+      "time": 5.033333333333333,
+      "physicsTicks": 302,
+      "physicsSteps": 302,
+      "parcelGasMass": [
+        0.00011717319663127109,
+        5.8241758241758084e-05,
+        0.0001230318564628347
+      ],
+      "parcelCapturedMass": [
+        0.0008828268033687295,
+        0.000941758241758242,
+        0.0008769681435371672
+      ],
+      "continuumGasMass": [
+        0.00018133146928628379,
+        0.00010768326282564481,
+        0.00015825925351800423
+      ],
+      "continuumCapturedMass": [
+        0.0008186685307137161,
+        0.0008923167371743556,
+        0.0008417407464819955
+      ],
+      "capturedFraction": 0.9005177295547301,
+      "divergenceResidual": 4.3076653355456074e-14,
+      "stageResidual": 4.3076653355456074e-14
+    },
+    {
+      "offsetFloats": 6114248,
+      "count": 772,
+      "time": 5.066666666666666,
+      "physicsTicks": 304,
+      "physicsSteps": 304,
+      "parcelGasMass": [
+        0.0001113145367997075,
+        5.494505494505481e-05,
+        0.00011644086415232564
+      ],
+      "parcelCapturedMass": [
+        0.0008886854632002931,
+        0.0009450549450549453,
+        0.0008835591358476762
+      ],
+      "continuumGasMass": [
+        0.00017464337075379975,
+        0.0001032645934125679,
+        0.0001527032888059359
+      ],
+      "continuumCapturedMass": [
+        0.0008253566292462001,
+        0.0008967354065874324,
+        0.0008472967111940639
+      ],
+      "capturedFraction": 0.9057665147009888,
+      "divergenceResidual": 4.263256414560601e-14,
+      "stageResidual": 4.263256414560601e-14
+    },
+    {
+      "offsetFloats": 6119652,
+      "count": 722,
+      "time": 5.1,
+      "physicsTicks": 306,
+      "physicsSteps": 306,
+      "parcelGasMass": [
+        0.00010289271329183482,
+        5.054945054945044e-05,
+        0.00011094837056023477
+      ],
+      "parcelCapturedMass": [
+        0.0008971072867081656,
+        0.0009494505494505496,
+        0.0008890516294397671
+      ],
+      "continuumGasMass": [
+        0.00016812811674198817,
+        9.897744742009889e-05,
+        0.0001472641335695174
+      ],
+      "continuumCapturedMass": [
+        0.0008318718832580118,
+        0.0009010225525799016,
+        0.0008527358664304825
+      ],
+      "capturedFraction": 0.9118698218661782,
+      "divergenceResidual": 4.3076653355456074e-14,
+      "stageResidual": 4.3076653355456074e-14
+    },
+    {
+      "offsetFloats": 6124706,
+      "count": 679,
+      "time": 5.133333333333333,
+      "physicsTicks": 308,
+      "physicsSteps": 308,
+      "parcelGasMass": [
+        9.776638593921667e-05,
+        4.761904761904753e-05,
+        0.00010325887953130755
+      ],
+      "parcelCapturedMass": [
+        0.0009022336140607838,
+        0.0009523809523809526,
+        0.0008967411204686943
+      ],
+      "continuumGasMass": [
+        0.00016178616816981358,
+        9.482062952452865e-05,
+        0.000141942689388057
+      ],
+      "continuumCapturedMass": [
+        0.0008382138318301865,
+        0.0009051793704754718,
+        0.0008580573106119429
+      ],
+      "capturedFraction": 0.9171185623034944,
+      "divergenceResidual": 4.3076653355456074e-14,
+      "stageResidual": 4.3520742565306136e-14
+    },
+    {
+      "offsetFloats": 6129459,
+      "count": 647,
+      "time": 5.166666666666667,
+      "physicsTicks": 310,
+      "physicsSteps": 310,
+      "parcelGasMass": [
+        9.264005858659852e-05,
+        4.468864468864462e-05,
+        9.95972171365803e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009073599414134019,
+        0.0009553113553113555,
+        0.0009004027828634216
+      ],
+      "continuumGasMass": [
+        0.00015561762416120575,
+        9.079281479055373e-05,
+        0.00013673970187830575
+      ],
+      "continuumCapturedMass": [
+        0.0008443823758387944,
+        0.0009092071852094467,
+        0.0008632602981216941
+      ],
+      "capturedFraction": 0.9210246931960772,
+      "divergenceResidual": 4.3076653355456074e-14,
+      "stageResidual": 4.3076653355456074e-14
+    },
+    {
+      "offsetFloats": 6133988,
+      "count": 608,
+      "time": 5.2,
+      "physicsTicks": 312,
+      "physicsSteps": 312,
+      "parcelGasMass": [
+        8.78798974734531e-05,
+        4.102564102564098e-05,
+        9.37385573050167e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009121201025265474,
+        0.0009589743589743592,
+        0.0009062614426949852
+      ],
+      "continuumGasMass": [
+        0.00014962223017638628,
+        8.689257689150846e-05,
+        0.00013165576548704078
+      ],
+      "continuumCapturedMass": [
+        0.000850377769823614,
+        0.0009131074231084921,
+        0.0008683442345129592
+      ],
+      "capturedFraction": 0.9257853013986482,
+      "divergenceResidual": 4.3520742565306136e-14,
+      "stageResidual": 4.3076653355456074e-14
+    },
+    {
+      "offsetFloats": 6138244,
+      "count": 573,
+      "time": 5.233333333333333,
+      "physicsTicks": 314,
+      "physicsSteps": 314,
+      "parcelGasMass": [
+        8.385206883925313e-05,
+        3.956043956043953e-05,
+        8.64152325155622e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009161479311607473,
+        0.0009604395604395606,
+        0.0009135847674844396
+      ],
+      "continuumGasMass": [
+        0.0001437994109892174,
+        8.311838888212537e-05,
+        0.00012669130865994478
+      ],
+      "continuumCapturedMass": [
+        0.000856200589010783,
+        0.0009168816111178751,
+        0.000873308691340055
+      ],
+      "capturedFraction": 0.9300574196949336,
+      "divergenceResidual": 4.3520742565306136e-14,
+      "stageResidual": 4.3520742565306136e-14
+    },
+    {
+      "offsetFloats": 6142255,
+      "count": 533,
+      "time": 5.266666666666667,
+      "physicsTicks": 316,
+      "physicsSteps": 316,
+      "parcelGasMass": [
+        7.872574148663498e-05,
+        3.6630036630036616e-05,
+        7.982424020505315e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009212742585133655,
+        0.0009633699633699635,
+        0.0009201757597949486
+      ],
+      "continuumGasMass": [
+        0.0001381483754519163,
+        7.946862401939556e-05,
+        0.00012184665016646292
+      ],
+      "continuumCapturedMass": [
+        0.000861851624548084,
+        0.000920531375980605,
+        0.0008781533498335369
+      ],
+      "capturedFraction": 0.934939993892777,
+      "divergenceResidual": 4.3076653355456074e-14,
+      "stageResidual": 4.39648317751562e-14
+    },
+    {
+      "offsetFloats": 6145986,
+      "count": 512,
+      "time": 5.3,
+      "physicsTicks": 318,
+      "physicsSteps": 318,
+      "parcelGasMass": [
+        7.61625778103259e-05,
+        3.443223443223443e-05,
+        7.689491028927136e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009238374221896745,
+        0.0009655677655677656,
+        0.0009231050897107304
+      ],
+      "continuumGasMass": [
+        0.00013266813373066737,
+        7.594153955647718e-05,
+        0.00011712200930015462
+      ],
+      "continuumCapturedMass": [
+        0.000867331866269333,
+        0.0009240584604435234,
+        0.0008828779906998453
+      ],
+      "capturedFraction": 0.9375034258227414,
+      "divergenceResidual": 4.3520742565306136e-14,
+      "stageResidual": 4.3520742565306136e-14
+    },
+    {
+      "offsetFloats": 6149570,
+      "count": 482,
+      "time": 5.333333333333333,
+      "physicsTicks": 320,
+      "physicsSteps": 320,
+      "parcelGasMass": [
+        7.067008421823503e-05,
+        3.223443223443225e-05,
+        7.359941413401683e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009293299157817654,
+        0.0009677655677655677,
+        0.0009264005858659849
+      ],
+      "continuumGasMass": [
+        0.00012735742965284177,
+        7.253533137393682e-05,
+        0.00011251745268119442
+      ],
+      "continuumCapturedMass": [
+        0.0008726425703471586,
+        0.0009274646686260638,
+        0.0008874825473188055
+      ],
+      "capturedFraction": 0.941165356471124,
+      "divergenceResidual": 4.39648317751562e-14,
+      "stageResidual": 4.3520742565306136e-14
+    },
+    {
+      "offsetFloats": 6152944,
+      "count": 453,
+      "time": 5.366666666666666,
+      "physicsTicks": 322,
+      "physicsSteps": 322,
+      "parcelGasMass": [
+        6.664225558403506e-05,
+        3.0402930402930427e-05,
+        6.883925302087141e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009333577444159654,
+        0.0009695970695970695,
+        0.0009311607469791303
+      ],
+      "continuumGasMass": [
+        0.00012221471188830904,
+        6.924809582272473e-05,
+        0.00010803294489793528
+      ],
+      "continuumCapturedMass": [
+        0.0008777852881116913,
+        0.0009307519041772761,
+        0.0008919670551020646
+      ],
+      "capturedFraction": 0.9447051869974065,
+      "divergenceResidual": 4.39648317751562e-14,
+      "stageResidual": 4.39648317751562e-14
+    },
+    {
+      "offsetFloats": 6156115,
+      "count": 421,
+      "time": 5.4,
+      "physicsTicks": 324,
+      "physicsSteps": 324,
+      "parcelGasMass": [
+        6.188209447088964e-05,
+        2.893772893772896e-05,
+        6.334675942878054e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009381179055291108,
+        0.0009710622710622709,
+        0.0009366532405712212
+      ],
+      "continuumGasMass": [
+        0.00011723818162797283,
+        6.607781365929342e-05,
+        0.00010366837518556751
+      ],
+      "continuumCapturedMass": [
+        0.0008827618183720274,
+        0.0009339221863407074,
+        0.0008963316248144324
+      ],
+      "capturedFraction": 0.948611139054219,
+      "divergenceResidual": 4.39648317751562e-14,
+      "stageResidual": 4.440892098500626e-14
+    },
+    {
+      "offsetFloats": 6159062,
+      "count": 394,
+      "time": 5.433333333333334,
+      "physicsTicks": 326,
+      "physicsSteps": 326,
+      "parcelGasMass": [
+        5.9318930794580596e-05,
+        2.5641025641025653e-05,
+        5.9318930794580596e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009406810692054199,
+        0.0009743589743589742,
+        0.0009406810692054212
+      ],
+      "continuumGasMass": [
+        0.00011242575948315399,
+        6.302235318564078e-05,
+        9.942352602064722e-05
+      ],
+      "continuumCapturedMass": [
+        0.0008875742405168462,
+        0.0009369776468143602,
+        0.0009005764739793527
+      ],
+      "capturedFraction": 0.9519070375899567,
+      "divergenceResidual": 4.440892098500626e-14,
+      "stageResidual": 4.440892098500626e-14
+    },
+    {
+      "offsetFloats": 6161820,
+      "count": 369,
+      "time": 5.466666666666667,
+      "physicsTicks": 328,
+      "physicsSteps": 328,
+      "parcelGasMass": [
+        5.5657268399853415e-05,
+        2.344322344322345e-05,
+        5.602343463932613e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009443427316001471,
+        0.0009765567765567763,
+        0.0009439765653606757
+      ],
+      "continuumGasMass": [
+        0.00010777509580445285,
+        6.00794756425128e-05,
+        9.52980405373433e-05
+      ],
+      "continuumCapturedMass": [
+        0.0008922249041955473,
+        0.0009399205243574881,
+        0.0009047019594626566
+      ],
+      "capturedFraction": 0.9549586911725513,
+      "divergenceResidual": 4.440892098500626e-14,
+      "stageResidual": 4.4853010194856324e-14
+    },
+    {
+      "offsetFloats": 6164403,
+      "count": 354,
+      "time": 5.5,
+      "physicsTicks": 330,
+      "physicsSteps": 330,
+      "parcelGasMass": [
+        5.455876968143526e-05,
+        2.1245421245421246e-05,
+        5.3826437202489824e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009454412303185653,
+        0.0009787545787545784,
+        0.0009461735627975121
+      ],
+      "continuumGasMass": [
+        0.00010328359284538533,
+        5.724687717053337e-05,
+        9.129137947684435e-05
+      ],
+      "continuumCapturedMass": [
+        0.0008967164071546149,
+        0.0009427531228294677,
+        0.0009087086205231555
+      ],
+      "capturedFraction": 0.9567897906235701,
+      "divergenceResidual": 4.4853010194856324e-14,
+      "stageResidual": 4.4853010194856324e-14
+    },
+    {
+      "offsetFloats": 6166881,
+      "count": 329,
+      "time": 5.533333333333333,
+      "physicsTicks": 332,
+      "physicsSteps": 332,
+      "parcelGasMass": [
+        5.016477480776264e-05,
+        2.0512820512820512e-05,
+        4.9798608568289925e-05
+      ],
+      "parcelCapturedMass": [
+        0.000949835225192238,
+        0.000979487179487179,
+        0.000950201391431712
+      ],
+      "continuumGasMass": [
+        9.894843225057704e-05,
+        5.4522212110064434e-05,
+        8.740284565167014e-05
+      ],
+      "continuumCapturedMass": [
+        0.0009010515677494231,
+        0.0009454777878899366,
+        0.0009125971543483296
+      ],
+      "capturedFraction": 0.9598412653703946,
+      "divergenceResidual": 4.39648317751562e-14,
+      "stageResidual": 4.529709940470639e-14
+    },
+    {
+      "offsetFloats": 6169184,
+      "count": 300,
+      "time": 5.566666666666666,
+      "physicsTicks": 334,
+      "physicsSteps": 334,
+      "parcelGasMass": [
+        4.503844745514459e-05,
+        1.8315018315018308e-05,
+        4.650311241303546e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009549615525448562,
+        0.0009816849816849812,
+        0.0009534968875869666
+      ],
+      "continuumGasMass": [
+        9.476660739773205e-05,
+        5.190305456904084e-05,
+        8.363167192293479e-05
+      ],
+      "continuumCapturedMass": [
+        0.0009052333926022683,
+        0.0009480969454309601,
+        0.000916368328077065
+      ],
+      "capturedFraction": 0.9633811406056196,
+      "divergenceResidual": 4.39648317751562e-14,
+      "stageResidual": 4.440892098500626e-14
+    },
+    {
+      "offsetFloats": 6171284,
+      "count": 284,
+      "time": 5.6,
+      "physicsTicks": 336,
+      "physicsSteps": 336,
+      "parcelGasMass": [
+        4.247528377883556e-05,
+        1.8315018315018308e-05,
+        4.3207616257781e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009575247162211652,
+        0.0009816849816849812,
+        0.0009567923837422211
+      ],
+      "continuumGasMass": [
+        9.073494726559969e-05,
+        4.9386902432973744e-05,
+        7.99770077255771e-05
+      ],
+      "continuumCapturedMass": [
+        0.0009092650527344008,
+        0.0009506130975670275,
+        0.0009200229922744227
+      ],
+      "capturedFraction": 0.9653340272161409,
+      "divergenceResidual": 4.440892098500626e-14,
+      "stageResidual": 4.440892098500626e-14
+    },
+    {
+      "offsetFloats": 6173272,
+      "count": 259,
+      "time": 5.633333333333333,
+      "physicsTicks": 338,
+      "physicsSteps": 338,
+      "parcelGasMass": [
+        3.91797876235811e-05,
+        1.4652014652014639e-05,
+        4.101061882094469e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009608202123764198,
+        0.0009853479853479848,
+        0.0009589893811790574
+      ],
+      "continuumGasMass": [
+        8.685017062269267e-05,
+        4.697119098414054e-05,
+        7.64378072854647e-05
+      ],
+      "continuumCapturedMass": [
+        0.0009131498293773078,
+        0.0009530288090158607,
+        0.0009235621927145353
+      ],
+      "capturedFraction": 0.9683858596345057,
+      "divergenceResidual": 4.4853010194856324e-14,
+      "stageResidual": 4.4853010194856324e-14
+    },
+    {
+      "offsetFloats": 6175085,
+      "count": 249,
+      "time": 5.666666666666667,
+      "physicsTicks": 340,
+      "physicsSteps": 340,
+      "parcelGasMass": [
+        3.8447455144635664e-05,
+        1.3553113553113542e-05,
+        3.91797876235811e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009615525448553652,
+        0.0009864468864468857,
+        0.0009608202123764211
+      ],
+      "continuumGasMass": [
+        8.31089282202245e-05,
+        4.465330709852767e-05,
+        7.301289187132889e-05
+      ],
+      "continuumCapturedMass": [
+        0.0009168910717797761,
+        0.0009553466929014738,
+        0.0009269871081286709
+      ],
+      "capturedFraction": 0.9696065478929091,
+      "divergenceResidual": 4.440892098500626e-14,
+      "stageResidual": 4.440892098500626e-14
+    },
+    {
+      "offsetFloats": 6176828,
+      "count": 234,
+      "time": 5.7,
+      "physicsTicks": 342,
+      "physicsSteps": 342,
+      "parcelGasMass": [
+        3.6250457707799356e-05,
+        1.2454212454212446e-05,
+        3.698279018674479e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009637495422922016,
+        0.0009875457875457869,
+        0.0009630172098132574
+      ],
+      "continuumGasMass": [
+        7.950774246159997e-05,
+        4.243059757858779e-05,
+        6.970097201067402e-05
+      ],
+      "continuumCapturedMass": [
+        0.0009204922575384007,
+        0.0009575694024214138,
+        0.000930299027989326
+      ],
+      "capturedFraction": 0.9714375132171006,
+      "divergenceResidual": 4.4853010194856324e-14,
+      "stageResidual": 4.4853010194856324e-14
+    },
+    {
+      "offsetFloats": 6178466,
+      "count": 220,
+      "time": 5.733333333333333,
+      "physicsTicks": 344,
+      "physicsSteps": 344,
+      "parcelGasMass": [
+        3.4419626510435765e-05,
+        1.0989010989010984e-05,
+        3.51519589893812e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009655803734895652,
+        0.0009890109890109881,
+        0.000964848041010621
+      ],
+      "continuumGasMass": [
+        7.604305439200313e-05,
+        4.030038579715512e-05,
+        6.650066412216232e-05
+      ],
+      "continuumCapturedMass": [
+        0.0009239569456079976,
+        0.0009596996142028464,
+        0.0009334993358778377
+      ],
+      "capturedFraction": 0.9731464678370767,
+      "divergenceResidual": 4.4853010194856324e-14,
+      "stageResidual": 4.574118861455645e-14
+    },
+    {
+      "offsetFloats": 6180006,
+      "count": 208,
+      "time": 5.766666666666667,
+      "physicsTicks": 346,
+      "physicsSteps": 346,
+      "parcelGasMass": [
+        3.295496155254489e-05,
+        1.0622710622710618e-05,
+        3.2588795313072175e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009670450384474561,
+        0.0009893772893772885,
+        0.0009674112046869301
+      ],
+      "continuumGasMass": [
+        7.271129981030606e-05,
+        3.82599844713965e-05,
+        6.341050217476705e-05
+      ],
+      "continuumCapturedMass": [
+        0.0009272887001896947,
+        0.0009617400155286051,
+        0.0009365894978252329
+      ],
+      "capturedFraction": 0.9746111775039101,
+      "divergenceResidual": 4.574118861455645e-14,
+      "stageResidual": 4.529709940470639e-14
+    },
+    {
+      "offsetFloats": 6181462,
+      "count": 188,
+      "time": 5.8,
+      "physicsTicks": 348,
+      "physicsSteps": 348,
+      "parcelGasMass": [
+        3.0025631636763145e-05,
+        8.79120879120879e-06,
+        3.0025631636763145e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009699743683632379,
+        0.0009912087912087903,
+        0.0009699743683632392
+      ],
+      "continuumGasMass": [
+        6.95088584661937e-05,
+        3.6306705211578174e-05,
+        6.042892757231481e-05
+      ],
+      "continuumCapturedMass": [
+        0.0009304911415338071,
+        0.0009636932947884233,
+        0.0009395710724276851
+      ],
+      "capturedFraction": 0.9770525093117746,
+      "divergenceResidual": 4.574118861455645e-14,
+      "stageResidual": 4.574118861455645e-14
+    },
+    {
+      "offsetFloats": 6182778,
+      "count": 181,
+      "time": 5.833333333333333,
+      "physicsTicks": 350,
+      "physicsSteps": 350,
+      "parcelGasMass": [
+        2.9659465397290423e-05,
+        8.058608058608059e-06,
+        2.856096667887226e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009703405346027106,
+        0.0009919413919413909,
+        0.0009714390333211301
+      ],
+      "continuumGasMass": [
+        6.643206684059781e-05,
+        3.4437873087125244e-05,
+        5.755434343111992e-05
+      ],
+      "continuumCapturedMass": [
+        0.000933567933159403,
+        0.0009655621269128761,
+        0.0009424456565688799
+      ],
+      "capturedFraction": 0.9779069866217625,
+      "divergenceResidual": 4.574118861455645e-14,
+      "stageResidual": 4.574118861455645e-14
+    },
+    {
+      "offsetFloats": 6184045,
+      "count": 165,
+      "time": 5.866666666666666,
+      "physicsTicks": 352,
+      "physicsSteps": 352,
+      "parcelGasMass": [
+        2.636396924203593e-05,
+        7.326007326007327e-06,
+        2.673013548150865e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009736360307579651,
+        0.0009926739926739915,
+        0.0009732698645184937
+      ],
+      "continuumGasMass": [
+        6.347724156188767e-05,
+        3.2650827419163676e-05,
+        5.47850423046236e-05
+      ],
+      "continuumCapturedMass": [
+        0.0009365227584381133,
+        0.0009673491725808378,
+        0.0009452149576953761
+      ],
+      "capturedFraction": 0.9798599626501688,
+      "divergenceResidual": 4.574118861455645e-14,
+      "stageResidual": 4.618527782440651e-14
+    },
+    {
+      "offsetFloats": 6185200,
+      "count": 148,
+      "time": 5.9,
+      "physicsTicks": 354,
+      "physicsSteps": 354,
+      "parcelGasMass": [
+        2.41669718051996e-05,
+        6.227106227106228e-06,
+        2.380080556572688e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009758330281948015,
+        0.0009937728937728927,
+        0.0009761991944342755
+      ],
+      "continuumGasMass": [
+        6.064069632309537e-05,
+        3.0942926198548313e-05,
+        5.211920495920193e-05
+      ],
+      "continuumCapturedMass": [
+        0.0009393593036769057,
+        0.0009690570738014532,
+        0.0009478807950407981
+      ],
+      "capturedFraction": 0.9819350388006753,
+      "divergenceResidual": 4.529709940470639e-14,
+      "stageResidual": 4.618527782440651e-14
+    },
+    {
+      "offsetFloats": 6186236,
+      "count": 139,
+      "time": 5.933333333333334,
+      "physicsTicks": 356,
+      "physicsSteps": 356,
+      "parcelGasMass": [
+        2.2702306847308715e-05,
+        6.227106227106228e-06,
+        2.1969974368363272e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009772976931526924,
+        0.0009937728937728927,
+        0.000978030025631639
+      ],
+      "continuumGasMass": [
+        5.7918756215010984e-05,
+        2.9311558540654436e-05,
+        4.955494232428843e-05
+      ],
+      "continuumCapturedMass": [
+        0.00094208124378499,
+        0.0009706884414593471,
+        0.0009504450576757117
+      ],
+      "capturedFraction": 0.9830335375190935,
+      "divergenceResidual": 4.618527782440651e-14,
+      "stageResidual": 4.618527782440651e-14
+    },
+    {
+      "offsetFloats": 6187209,
+      "count": 129,
+      "time": 5.966666666666667,
+      "physicsTicks": 358,
+      "physicsSteps": 358,
+      "parcelGasMass": [
+        2.0505309410472386e-05,
+        6.227106227106228e-06,
+        2.0505309410472386e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009794946905895285,
+        0.0009937728937728927,
+        0.0009794946905895296
+      ],
+      "continuumGasMass": [
+        5.5307772555039775e-05,
+        2.775414604637314e-05,
+        4.70903147333663e-05
+      ],
+      "continuumCapturedMass": [
+        0.0009446922274449612,
+        0.0009722458539536281,
+        0.0009529096852666338
+      ],
+      "capturedFraction": 0.984254091650669,
+      "divergenceResidual": 4.574118861455645e-14,
+      "stageResidual": 4.6629367034256575e-14
+    },
+    {
+      "offsetFloats": 6188112,
+      "count": 121,
+      "time": 6.0,
+      "physicsTicks": 360,
+      "physicsSteps": 360,
+      "parcelGasMass": [
+        1.940681069205422e-05,
+        5.860805860805862e-06,
+        1.90406444525815e-05
+      ],
+      "parcelCapturedMass": [
+        0.0009805931893079466,
+        0.000994139194139193,
+        0.0009809593555474205
+      ],
+      "continuumGasMass": [
+        5.280412808316821e-05,
+        2.6268139248512674e-05,
+        4.4723295646688356e-05
+      ],
+      "continuumCapturedMass": [
+        0.0009471958719168326,
+        0.0009737318607514886,
+        0.0009552767043533119
+      ],
+      "capturedFraction": 0.985230579664872,
+      "divergenceResidual": 4.6629367034256575e-14,
+      "stageResidual": 4.6629367034256575e-14
+    }
+  ],
+  "dataBytes": 24755836,
+  "dataSha256": "7e59bb0bf837d3e3e533373b78242aeddc157e462deb5af0e22cbf4ff95ef5b5"
+}

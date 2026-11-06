@@ -1,0 +1,42 @@
+# Material union objective, CSS area from resolved device alpha. No scalechoice,
+# shape/colour/render law. Caller copies resolved texture alpha verbatim.
+width(p:[num])->int:
+    (p.length()=3)?! "coverage controls require width,height,pixelRatio"
+    (p.(0)>=1 /\ p.(0)<=8192 /\ p.(1)>=1 /\ p.(1)<=8192 /\ p.(0)*p.(1)<=16777216 /\ p.(2)>=0.125 /\ p.(2)<=16)?! "coverage dimensions/ratio/work budget exceeded"
+    (p.(0)=num(int(p.(0))) /\ p.(1)=num(int(p.(1))))?! "coverage dimensions must be integers"
+    @:int(p.(0))
+# Native compensated sum over every pixel, including AA and overlap alpha.
+rows(index:int,p:[num],v:[num])->num:
+    w:width(p)
+    h:int(p.(1))
+    (index>=0 /\ index<h /\ v.length()=w*h)?! "coverage alpha storage/index mismatch"
+    sum:0.0
+    compensation:0.0
+    x:0
+    x<w?>
+        alpha:v.(index*w+x)
+        (alpha>=0 /\ alpha<=1)?! "coverage alpha must be finite in [0,1]"
+        increment:alpha-compensation
+        next:sum+increment
+        .compensation:(next-sum)-increment
+        .sum:next
+        .x:x+1
+    @:sum
+# Single native scalar objective: sum device pixels / pixelRatio squared.
+# Native geometric calibration is the sole owner of the next material scale.
+total(index:int,p:[num],v:[num])->num:
+    w:width(p)
+    h:int(p.(1))
+    (index=0 /\ v.length()=h)?! "coverage row storage/index mismatch"
+    sum:0.0
+    compensation:0.0
+    y:0
+    y<h?>
+        row:v.(y)
+        (row>=0 /\ row<=num(w))?! "coverage row area must be finite and bounded"
+        increment:row-compensation
+        next:sum+increment
+        .compensation:(next-sum)-increment
+        .sum:next
+        .y:y+1
+    @:sum/(p.(2)*p.(2))

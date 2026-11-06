@@ -1,0 +1,110 @@
+{
+  "schema": "fine-native-receiver-qualification/1",
+  "status": "PASS native-mask interception with static or affine moving-front gate; full native glyph/fluid/first-wave formation unavailable",
+  "nativeMaskDataSha256": "98a9b219abd5ead23b70788b423e8c85781115d0cc4c4e187298cb551f314bbe",
+  "maskAccuracy": "Actual native VKF8bitalpha occupancy per1CSSpixel, not exact continuous-curve containment or an SDF",
+  "velocity": [
+    0.12,
+    0.04,
+    0.005
+  ],
+  "seed": 712,
+  "rows": [
+    {
+      "mode": "static",
+      "front": null,
+      "view": 19,
+      "count": 2048,
+      "captured": 261,
+      "gas": 1787,
+      "massRemaining": 0.87255859375,
+      "massReceived": 0.12744140625,
+      "massResidual": 0.0,
+      "gasStillMoving": true,
+      "allCapturedPixelsInsideNativeOccupancy": true,
+      "partitionExactCaptureIds": true,
+      "partitionPositionMaxError": 3.3306690738754696e-16,
+      "pythonSeconds": 0.8034946039551869,
+      "normalizationFlowRateForFullMask": 0.01,
+      "frontFluxVariesWithOccupiedBand": false,
+      "normalizedFineMaximumRate": 29.740017818093467
+    },
+    {
+      "mode": "linear-wave-front",
+      "front": [
+        0.09027777777777776,
+        0.3083333333333333,
+        0.004166666666666667
+      ],
+      "view": 19,
+      "count": 2048,
+      "captured": 21,
+      "gas": 2027,
+      "massRemaining": 0.98974609375,
+      "massReceived": 0.01025390625,
+      "massResidual": 0.0,
+      "gasStillMoving": true,
+      "allCapturedPixelsInsideNativeOccupancy": true,
+      "partitionExactCaptureIds": true,
+      "partitionPositionMaxError": 3.885780586188048e-16,
+      "pythonSeconds": 1.2123755679931492,
+      "normalizationFlowRateForFullMask": 0.01,
+      "frontFluxVariesWithOccupiedBand": true,
+      "normalizedFineMaximumRate": 29.740017818093467
+    },
+    {
+      "mode": "static",
+      "front": null,
+      "view": 23,
+      "count": 2048,
+      "captured": 196,
+      "gas": 1852,
+      "massRemaining": 0.904296875,
+      "massReceived": 0.095703125,
+      "massResidual": 0.0,
+      "gasStillMoving": true,
+      "allCapturedPixelsInsideNativeOccupancy": true,
+      "partitionExactCaptureIds": true,
+      "partitionPositionMaxError": 4.718447854656915e-16,
+      "pythonSeconds": 0.8079233909957111,
+      "normalizationFlowRateForFullMask": 0.01,
+      "frontFluxVariesWithOccupiedBand": false,
+      "normalizedFineMaximumRate": 18.384614956692012
+    },
+    {
+      "mode": "linear-wave-front",
+      "front": [
+        0.09027777777777776,
+        0.4097222222222222,
+        0.004166666666666667
+      ],
+      "view": 23,
+      "count": 2048,
+      "captured": 8,
+      "gas": 2040,
+      "massRemaining": 0.99609375,
+      "massReceived": 0.00390625,
+      "massResidual": 0.0,
+      "gasStillMoving": true,
+      "allCapturedPixelsInsideNativeOccupancy": true,
+      "partitionExactCaptureIds": true,
+      "partitionPositionMaxError": 3.0531133177191805e-16,
+      "pythonSeconds": 1.207357682986185,
+      "normalizationFlowRateForFullMask": 0.01,
+      "frontFluxVariesWithOccupiedBand": true,
+      "normalizedFineMaximumRate": 18.384614956692012
+    }
+  ],
+  "limitations": [
+    "Uniform-flow exact-NS test isolates interception; not turbulent full presentation",
+    "Fine air-pressure/velocity near glyphs unqualified",
+    "Only affine finite-width front qualified; nonlinear/shape-changing front remains unqualified",
+    "Native GPU kernel and native authoritative particle ledger not integrated",
+    "Captured mass to native stroke formation unqualified"
+  ],
+  "sourceHashes": {
+    "fine_receiver_reference.py": "97f3a396c5bd4dd8067421ea038a0627b0bdd7c80ed3079f97dec33f95aba415",
+    "test_fine_receiver.py": "7aea5847810283a23fe23a8cea7c852091f8b33ed4e9ea190adaeeb94e780de1",
+    "qualify_fine_receiver.py": "0a3ca0b58e1e87656dbcaaa800748f195c92b5875b4a7c6a272acb71b2ffd82b"
+  }
+}

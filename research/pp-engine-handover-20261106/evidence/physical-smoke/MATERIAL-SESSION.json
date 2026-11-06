@@ -1,0 +1,325 @@
+{
+  "passed": true,
+  "scope": "INTERNAL actual native source→static fine capture→stock→re-emission only; no formation/suction/public factory",
+  "sourcePixels": 3000,
+  "captured": 182,
+  "retainedGas": 2818,
+  "mass": 1.9178550662472844,
+  "reemitTotal": 1.9178550662472844,
+  "holdMotion": true,
+  "clockReceipt": {
+    "profile": "periodic-unforced-fluid-only-reference-v1",
+    "epoch": 50,
+    "physicalTimeSeconds": 50.1,
+    "observationTimeSeconds": 50.1,
+    "maxStepSeconds": 0.016666666666666666,
+    "observationQuantumSeconds": 1e-9,
+    "acceptedTicks": 6,
+    "clock": {
+      "observation_ns": 100000000,
+      "ticks": 6,
+      "time": 0.1,
+      "max_dt": 0.016666666666666666
+    },
+    "lineages": 3000,
+    "gasCarriers": 3000,
+    "gpuBytes": 5838276,
+    "peakGpuBufferBytes": 15195276,
+    "maxGpuBufferBytes": 134217728,
+    "sourceSha256": "465b19080e1d26625efca7419eec67262cdef0f36b8a52ddfe4204ac23143808",
+    "stageAccepted": true,
+    "diagnosticPolicy": "native-per-dispatch-atomic-error-summary",
+    "lastTickMs": 132.20000004768372,
+    "capabilities": {
+      "internalMaterialProbe": true,
+      "coldTransfer": true,
+      "fineReceiver": true,
+      "capturedStockReemit": true,
+      "unforcedNS": true,
+      "balancedPorts": false,
+      "glyphFormation": false,
+      "snapshotRestore": true,
+      "publicFactory": false
+    },
+    "material": {
+      "total": 1.9178550662472844,
+      "gas": 1.9178550662472844,
+      "solid": 0,
+      "alive_count": 3000,
+      "solid_count": 0
+    },
+    "activationCount": 3,
+    "currentReceiverId": null,
+    "colour": null
+  },
+  "exactMassIdsRgbPositions": true,
+  "otherGasByteExact": true,
+  "retryExact": true,
+  "fullSnapshotReplayExact": true,
+  "errors": [],
+  "build": {
+    "schema": "native-physical-fluid-integrated-build/1",
+    "status": "EMITTED_NOT_EXECUTED",
+    "output": "/tmp/vkf-fluid-integrated-KjQ6wM",
+    "libraryBase": "d298245d1eff80cc3caa81772b4e56823434dc5d",
+    "sources": {
+      "Fluid.vkf": "465b19080e1d26625efca7419eec67262cdef0f36b8a52ddfe4204ac23143808",
+      "FineReceiver.vkf": "37858e435f6aa1ea7709667c214c15b8bb24909b865bf975a5d5d825e163fd1a",
+      "MaterialStock.vkf": "6c4d756bb9a1858da4cb51485b75ee1cb3d408e6dd604e8ef8c074cb6a3f94ee",
+      "FineDeposit.vkf": "20f463a9a2fccce17700a93c3bfe8a578e3ed6f59308a0922179fb20f96a9008",
+      "morphing/segment.vkf": "4c33a71557a69a086b68e1cab4d7337f493678016aed886817d36d5a55666558"
+    },
+    "sourceSha256": "465b19080e1d26625efca7419eec67262cdef0f36b8a52ddfe4204ac23143808",
+    "compilerVersion": "0.7.5",
+    "compilerSourceBinding": "ffcaeaae67079c714583d5487f3452a9ed4107abf14204a512f647400473c71f",
+    "gpuEmitter": "a5305eb01c6d36d5234402471750f0c4ed2f1c892fcec628649325bee315676f",
+    "mainSha256": "e09c457761cc79ae1051ab7572ba50ec3b8ab3e543f503522840c4340e39d65c",
+    "typedIRSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+    "entries": {
+      "operators": {
+        "entry": "operators_job",
+        "width": 8,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "9959e082a02b7cc77a1ffb86200eb60ae41c2bffabede578cddd97916664a381",
+        "shaderManifestSha256": "3a4bd3eb5342e56345702a4d6ffe8ca9fec22cdfae510724063ee78c04637774"
+      },
+      "pressure-rhs": {
+        "entry": "pressure_rhs_job",
+        "width": 2,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "62afb0c3bebf1669d26f1ce6dfe2fa9dcf3f333ba9581f481822fb9b4f661df4",
+        "shaderManifestSha256": "9a3606490483bc2b657f9ace57761070e238bf8ecf4998bd2ce8e4d5d43f31e5"
+      },
+      "dft": {
+        "entry": "dft_job",
+        "width": 2,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "eed399e52df7530a391b81638f7cba50aa274410591dfc14f354cf3392fc2702",
+        "shaderManifestSha256": "3d91271c720ad88ef56da777617b51979fec29451e3c6656e9c83b3afbe22717"
+      },
+      "pressure-spectrum": {
+        "entry": "pressure_spectrum_job",
+        "width": 2,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "c71422a96ca9d6bf701ec412de324d32b2d187b6212b818a8dec6627f5b991f3",
+        "shaderManifestSha256": "0e8303cbe787ece2838a2b6906e673b76ad712a6d81f55ce7d2c5df1512f3bc8"
+      },
+      "project": {
+        "entry": "project_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "1633d86989d44ff0054bec11679fc3dcadd15d1233907bcbfe52737ca133e03b",
+        "shaderManifestSha256": "45e575c381d7e41a3db221283924da8d5045137c23520aebc50df3c2ec6df650"
+      },
+      "rhs": {
+        "entry": "rhs_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "909efe62735e49ecb7f1b3c16938bd3d7d94fc6f2a46192ef9287ddf417b19da",
+        "shaderManifestSha256": "cff503933d5db1c50c58167faa8499ee308075ab3f223952a599e2502950aa9b"
+      },
+      "ssprk-update": {
+        "entry": "ssprk_update_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "48cb64eb4b75d51f20438cd6f63054df969eea188ca4bac277566df6b1239c62",
+        "shaderManifestSha256": "46eab10f451ddea81757c3c67767119b6787b3f8c5a2119de0698c08cd91fe43"
+      },
+      "markers": {
+        "entry": "markers_job",
+        "width": 20,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "276031bf6d273e39121c89968309b718dd256b9b41984eb7d3d21d395371f923",
+        "shaderManifestSha256": "a233f243c1a2993b93872baecedbcfbbe6485df70d48c0fd54adbab128a7433b"
+      },
+      "stage-metrics": {
+        "entry": "stage_metrics_job",
+        "width": 12,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "13f5854b77f634a6ecff7c4a09c11fd2e4b5e549d60e88eb11acd06f5b6acb96",
+        "shaderManifestSha256": "baf65f1183cf9f22200fede56a770b111c7cb82f1e0a1f72f3b17553fa061e66"
+      },
+      "receiver-finalize": {
+        "entry": "receiver_finalize_job",
+        "width": 20,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "349975cb42842d1e837cecaf0b342b498af91845375298919c86d7afe579292a",
+        "shaderManifestSha256": "c4e6ae8bf3652bf4c9e9d55a9efb47e47ebaa4ee2c314dfccab98f1484f713c6"
+      },
+      "ink-flags": {
+        "entry": "ink_flags_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "972e8d47eca6c12aa3a19cf44893c1e2dc71527017cb8e22d0317564e14956f1",
+        "shaderManifestSha256": "9202b8bb8fef1702e4717f7e4c8c0d7af12fe9a9f73891e5fcff8e90d657074d"
+      },
+      "ink-prefix": {
+        "entry": "ink_prefix_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "aedd4d8690e20ae2d3838daf7d3c947c1d46b55ae0ccb4842c11dd19706d6345",
+        "shaderManifestSha256": "033c61d91801f4e577be07daead63e929cd4823b379bf852fa6252b1ee6ca7fc"
+      },
+      "ink-initialize": {
+        "entry": "ink_initialize_job",
+        "width": 20,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "4155341d8574bd40323d1b294e70ddf9a9265df7531102c79b0d0fd0d0a809ae",
+        "shaderManifestSha256": "49f2cd66c9cbdef986faa33a40a34edee573f86327a0e191ce5697649bacfdc0"
+      },
+      "ink-mass": {
+        "entry": "ink_mass_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "470bffc08b7378c00cae594506ebcaa88c0eb26855f749bbfa802c69f2a04ad9",
+        "shaderManifestSha256": "5c1affdaece759f95b55fb61ff70cbb8fa7e7c089faaeaac427fda349a989f6f"
+      },
+      "ink-release": {
+        "entry": "ink_release_job",
+        "width": 20,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "215d4f1b9b5ae1538370f577482360e63a188d5457c70ccade3bdee173f449c0",
+        "shaderManifestSha256": "454d975a7a09dba638d973a1eaafbb771aeeea3714cdf7754fcca49483d17fae"
+      },
+      "marker-world-ink": {
+        "entry": "marker_world_ink_job",
+        "width": 8,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "6e5d06d2f24c3be1f8f6ed330867dcee13c2dcafa74ed8b09383df2ce1b6bc60",
+        "shaderManifestSha256": "4729eea20dd09e10686a5c6b5169f841c05d2522ecfdbf1b9ec564495f4bbb93"
+      },
+      "ink-alpha": {
+        "entry": "ink_alpha_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "3be827b80283e94b512dce96aebbe642542a9d0410085ae0b51af162c78edf58",
+        "shaderManifestSha256": "43d1922a7cab029c6d4e07b01e5c3af9e3683bf0d306a647c67727eb105736c8"
+      },
+      "ink-support": {
+        "entry": "ink_support_job",
+        "width": 2,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "85ceee8b02a0421f1d93c71765a30dd1497a3ae91d88c3b240d167bfda221aa5",
+        "shaderManifestSha256": "bab4818f92b473ec64444958a98f2b3337c1535b3c7a4699c258d2c8d97b765d"
+      },
+      "marker-coverage": {
+        "entry": "marker_coverage_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "83f15a3db7d652e74a2c7ac679bbed863028a00b1f5122616e35543bf10b6921",
+        "shaderManifestSha256": "66b8a9ff3e8e3cd6a8241977a4e26aeeddd00ac28e7cd269eabe8b2fa8115ac0"
+      },
+      "marker-ledger": {
+        "entry": "marker_ledger_job",
+        "width": 2,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "39626680d58b7661d96d4982e37b57a0796cae41867c71a8b457c60dd05593e9",
+        "shaderManifestSha256": "94fef0f01c49b7b7088e02804a9ca4600440b5671eb286af1728b9f4ac250e69"
+      },
+      "colour-base": {
+        "entry": "colour_base_job",
+        "width": 5,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "c256d669e138702a58e3034575f5b56c0f212b277ddcf009036977dcc3b85d29",
+        "shaderManifestSha256": "7d96e7e22cb824352a25a6b9cd6012231e878a5a7f9fb2f55d10f50c37bf0b69"
+      },
+      "apply-colour": {
+        "entry": "apply_colour_job",
+        "width": 20,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "5cd8a54f29d566f8b8fee99aa9bbbf62a5908f298f8b6ffdf3808cba5e966ac1",
+        "shaderManifestSha256": "d988b4cd8e5d46bf14f9c3a2b18d86c2e8df164c56dd7c4b4a0f6746bce4cbec"
+      },
+      "capture": {
+        "entry": "capture_job",
+        "width": 25,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "9f38f8509df525ebd52f6e8766893382b081e8dd0100f8dbb508254e924b4849",
+        "shaderManifestSha256": "490849d708261ca985860855b4c186956e1a1bb43528c554d1b373de9dc2c84d"
+      },
+      "stock-reemit": {
+        "entry": "stock_reemit_job",
+        "width": 20,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "4c247b81112558a4d964a600d40dd9774c2a0b39867620ae870e5cd4dbbb5f09",
+        "shaderManifestSha256": "628fb896fa32db26e7de142b0e91aaf7e5ecd5607d69062013b2015015769be4"
+      },
+      "stock-owners": {
+        "entry": "stock_owners_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "3fd91c4c8e03fd9737e0715cccdc8ab0286e38da627a59f49ab44cb2cb385fef",
+        "shaderManifestSha256": "b9fd874f2dea968459ef2807aa1bb31b9434277ddf7c2e8d5a48227a1aa59fa0"
+      },
+      "capture-owner": {
+        "entry": "capture_owner_job",
+        "width": 1,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "d423e4d9ccffc8f1395b24b1811c8396abe1225ec419affebbf2c27505d4dd80",
+        "shaderManifestSha256": "5abce6152e232b7d955da9e3779cfee21c463d137ae61868abebaacb869f5a55"
+      },
+      "capture-pixel": {
+        "entry": "capture_pixel_job",
+        "width": 2,
+        "wasmSha256": "88ccc9a03b2d73cb224dee112fd7bf64dba0cd9663d5d1a2c2c436d9fcb9832d",
+        "manifestSha256": "54ddbc61d9a4199fa3d220340b7444a61f63fea36a1281eb017d728aaf8284d6",
+        "irSha256": "19e07ae7c4623b20bbd29bac40d992a38a1c8a6994096b5a0c059b748fdec635",
+        "shaderSha256": "8a73d28a1855d43d72287c10512c69e7ae4b6a1898986aaca9c6f5e7ad4ccabb",
+        "shaderManifestSha256": "b2726f7a3eb889c79213baff7d9a60577b9f7e4ce169910b58e21e0edc5d87b2"
+      }
+    }
+  },
+  "browserErrors": []
+}

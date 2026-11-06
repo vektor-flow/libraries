@@ -1,0 +1,726 @@
+# Candidate native operator port of accepted research/physical-smoke/ns_reference.py.
+# First profile: unforced periodic 3D MAC, nu=.0004, Cs=D=forcing=ports=0.
+# Not yet an installed/qualified fluid solver. Native glyph coupling is absent.
+# Internal GPU controls: nx,ny,nz,hx,hy,hz,nu,projection_dt,axis,inverse,
+# reserved,max_dt,cfl,reserved,molecular_diffusivity,reserved.
+# Velocity input is SoA x-fast; scalar q follows the three velocity components.
+math:.math
+
+minimum(a:num,b:num)->num:
+    a<b? @:a
+    @:b
+count(p:[num])->int:int(p.(0))*int(p.(1))*int(p.(2))
+axis_size(p:[num],axis:int)->int:int(p.(axis))
+spacing(p:[num],axis:int)->num:p.(3+axis)
+wrap(i:int,n:int)->int:((i%n)+n)%n
+shift(i:int,axis:int,delta:int,p:[num])->int:
+    nx:int(p.(0))
+    ny:int(p.(1))
+    nz:int(p.(2))
+    x:i%nx
+    y:(i//nx)%ny
+    z:i//(nx*ny)
+    axis=0? @:wrap(x+delta,nx)+nx*(y+ny*z)
+    axis=1? @:x+nx*(wrap(y+delta,ny)+ny*z)
+    @:x+nx*(y+ny*wrap(z+delta,nz))
+velocity(v:[num],i:int,axis:int,p:[num])->num:v.(axis*count(p)+i)
+scalar(v:[num],i:int,p:[num])->num:v.(3*count(p)+i)
+
+divergence(v:[num],i:int,p:[num])->num:
+    result:0.0
+    axis:0
+    axis<3?>
+        .result:result+(velocity(v,shift(i,axis,1,p),axis,p)-velocity(v,i,axis,p))/spacing(p,axis)
+        .axis:axis+1
+    @:result
+
+# Conservative dual-MAC flux; matches the accepted reference's central momentum.
+momentum_flux(v:[num],i:int,a:int,b:int,p:[num])->num:
+    next:shift(i,b,1,p)
+    transported:(velocity(v,i,a,p)+velocity(v,next,a,p))/2
+    carrier:transported
+    ~(a=b)? .carrier:(velocity(v,next,b,p)+velocity(v,shift(next,a,-1,p),b,p))/2
+    @:transported*carrier
+momentum(v:[num],i:int,a:int,p:[num])->num:
+    result:0.0
+    b:0
+    b<3?>
+        .result:result-(momentum_flux(v,i,a,b,p)-momentum_flux(v,shift(i,b,-1,p),a,b,p))/spacing(p,b)
+        .b:b+1
+    @:result
+
+# Full symmetric viscous stress, constant molecular viscosity in this first gate.
+# Do not replace it with an unrelated advection/damping or prescribed flow law.
+stress(v:[num],i:int,a:int,b:int,p:[num])->num:
+    a=b? @:2*p.(6)*(velocity(v,shift(i,a,1,p),a,p)-velocity(v,i,a,p))/spacing(p,a)
+    @:p.(6)*((velocity(v,i,a,p)-velocity(v,shift(i,b,-1,p),a,p))/spacing(p,b)+(velocity(v,i,b,p)-velocity(v,shift(i,a,-1,p),b,p))/spacing(p,a))
+viscous(v:[num],i:int,a:int,p:[num])->num:
+    result:(stress(v,i,a,a,p)-stress(v,shift(i,a,-1,p),a,a,p))/spacing(p,a)
+    b:0
+    b<3?>
+        ~(a=b)? .result:result+(stress(v,shift(i,b,1,p),a,b,p)-stress(v,i,a,b,p))/spacing(p,b)
+        .b:b+1
+    @:result
+
+# Accepted MINMOD, not the foreign unqualified candidate's MC limiter.
+minmod(left:num,right:num)->num:
+    left*right<=0? @:0
+    |left|<|right|? @:left
+    @:right
+slope(v:[num],i:int,a:int,p:[num])->num:
+    @:minmod(scalar(v,i,p)-scalar(v,shift(i,a,-1,p),p),scalar(v,shift(i,a,1,p),p)-scalar(v,i,p))
+scalar_flux(v:[num],i:int,a:int,p:[num])->num:
+    next:shift(i,a,1,p)
+    speed:velocity(v,next,a,p)
+    transported:scalar(v,i,p)+slope(v,i,a,p)/2
+    speed<0? .transported:scalar(v,next,p)-slope(v,next,a,p)/2
+    @:speed*transported-p.(14)*(scalar(v,next,p)-scalar(v,i,p))/spacing(p,a)
+scalar_transport(v:[num],i:int,p:[num])->num:
+    result:0.0
+    a:0
+    a<3?>
+        .result:result-(scalar_flux(v,i,a,p)-scalar_flux(v,shift(i,a,-1,p),a,p))/spacing(p,a)
+        .a:a+1
+    @:result
+operator_packet(i:int,p:[num],v:[num])->[num]:
+    [num] result:[0:8]
+    result.(0):divergence(v,i,p)
+    result.(1):momentum(v,i,0,p)
+    result.(2):momentum(v,i,1,p)
+    result.(3):momentum(v,i,2,p)
+    result.(4):viscous(v,i,0,p)
+    result.(5):viscous(v,i,1,p)
+    result.(6):viscous(v,i,2,p)
+    result.(7):scalar_transport(v,i,p)
+    @:result
+
+# No version-matched FFT entry was located. This candidate uses separable direct
+# DFT of the SAME periodic DG eigenproblem. It is not an FFT performance claim.
+coefficient_count(p:[num])->int:
+    nx:int(p.(0))
+    ny:int(p.(1))
+    nz:int(p.(2))
+    @:2*(nx*nx+ny*ny+nz*nz)+nx+ny+nz
+coefficient_value(index:int,p:[num])->num:
+    nx:int(p.(0))
+    ny:int(p.(1))
+    nz:int(p.(2))
+    twiddles:2*(nx*nx+ny*ny+nz*nz)
+    index>=twiddles?
+        k:index-twiddles
+        axis:0
+        k>=nx?
+            .k:k-nx
+            .axis:1
+            k>=ny?
+                .k:k-ny
+                .axis:2
+        n:axis_size(p,axis)
+        wave:math.sin(3.141592653589793*num(k)/n)
+        @:-4*wave*wave/(spacing(p,axis)*spacing(p,axis))
+    axis:0
+    at:index
+    at>=2*nx*nx?
+        .at:at-2*nx*nx
+        .axis:1
+        at>=2*ny*ny?
+            .at:at-2*ny*ny
+            .axis:2
+    n:axis_size(p,axis)
+    entry:at//2
+    angle:6.283185307179586*num((entry//n)*(entry%n))/n
+    at%2=0? @:math.cos(angle)
+    @:math.sin(angle)
+coefficients(p:[num])->[num]:[..coefficient_count(p)-1 >> coefficient_value(int($),p)]
+
+# Complex pairs are x-fast. The immutable native twiddle/eigen table follows
+# those 2*N values in the input binding. No field arithmetic runs in the host.
+dft_axis(index:int,p:[num],v:[num])->[num]:
+    axis:int(p.(8))
+    inverse:p.(9)>0
+    n:axis_size(p,axis)
+    nx:int(p.(0))
+    ny:int(p.(1))
+    stride:1
+    offset:2*count(p)
+    axis>=1?
+        .stride:nx
+        .offset:offset+2*nx*nx
+    axis>=2?
+        .stride:nx*ny
+        .offset:offset+2*ny*ny
+    frequency:(index//stride)%n
+    base:index-frequency*stride
+    real:0.0
+    imaginary:0.0
+    j:0
+    j<n?>
+        at:2*(base+j*stride)
+        coefficient:offset+2*(frequency*n+j)
+        cosine:v.(coefficient)
+        sine:v.(coefficient+1)
+        inverse? .sine: -sine
+        .real:real+v.(at)*cosine+v.(at+1)*sine
+        .imaginary:imaginary+v.(at+1)*cosine-v.(at)*sine
+        .j:j+1
+    inverse?
+        .real:real/n
+        .imaginary:imaginary/n
+    [num] result:[0:2]
+    result.(0):real
+    result.(1):imaginary
+    @:result
+pressure_rhs(index:int,p:[num],v:[num])->[num]:
+    (p.(7)>0)?! "positive projection step required"
+    [num] result:[0:2]
+    result.(0):divergence(v,index,p)/p.(7)
+    @:result
+pressure_spectrum(index:int,p:[num],v:[num])->[num]:
+    [num] result:[0:2]
+    index=0? @:result
+    nx:int(p.(0))
+    ny:int(p.(1))
+    nz:int(p.(2))
+    at:2*count(p)+2*(nx*nx+ny*ny+nz*nz)
+    ix:int(index%nx)
+    iy:int((index//nx)%ny)
+    iz:int(index//(nx*ny))
+    eigen:v.(at+ix)+v.(at+nx+iy)+v.(at+nx+ny+iz)
+    (eigen<0)?! "nonzero periodic pressure eigenvalue required"
+    result.(0):v.(2*index)/eigen
+    result.(1):v.(2*index+1)/eigen
+    @:result
+# Input: original 3*N face components followed by inverse pressure complex pairs.
+project_velocity(index:int,p:[num],v:[num])->num:
+    n:count(p)
+    axis:index//n
+    cell:index%n
+    before:shift(cell,axis,-1,p)
+    gradient:(v.(3*n+2*cell)-v.(3*n+2*before))/spacing(p,axis)
+    @:v.(index)-p.(7)*gradient
+
+# Accepted unforced baseline control preparation. Named public profile wrappers
+# belong to the session adapter; these arrays are only the compiled numeric ABI.
+fluid_only_parameters(nx:int,ny:int,nz:int)->[num]:
+    (nx>=4 /\ ny>=4 /\ nz>=4 /\ nx*ny*nz<=131072)?! "bounded periodic MAC shape required"
+    [num] p:[0:24]
+    p.(0):num(nx)
+    p.(1):num(ny)
+    p.(2):num(nz)
+    p.(3):1.6/nx
+    p.(4):1.0/ny
+    p.(5):0.4/nz
+    p.(6):0.0004
+    p.(7):1
+    p.(11):1/60
+    p.(12):0.3
+    p.(16):0.0002
+    p.(21):0.000001
+    p.(22):0.0001
+    @:p
+
+field_value(v:[num],i:int,field:int,p:[num])->num:v.(field*count(p)+i)
+slope_channel(v:[num],i:int,field:int,a:int,p:[num])->num:
+    @:minmod(field_value(v,i,field,p)-field_value(v,shift(i,a,-1,p),field,p),field_value(v,shift(i,a,1,p),field,p)-field_value(v,i,field,p))
+flux_channel(v:[num],i:int,field:int,a:int,diffusivity:num,p:[num])->num:
+    next:shift(i,a,1,p)
+    speed:velocity(v,next,a,p)
+    transported:field_value(v,i,field,p)+slope_channel(v,i,field,a,p)/2
+    speed<0? .transported:field_value(v,next,field,p)-slope_channel(v,next,field,a,p)/2
+    @:speed*transported-diffusivity*(field_value(v,next,field,p)-field_value(v,i,field,p))/spacing(p,a)
+transport_channel(v:[num],i:int,field:int,diffusivity:num,p:[num])->num:
+    result:0.0
+    a:0
+    a<3?>
+        .result:result-(flux_channel(v,i,field,a,diffusivity,p)-flux_channel(v,shift(i,a,-1,p),field,a,diffusivity,p))/spacing(p,a)
+        .a:a+1
+    @:result
+
+# State SoA: MAC u[3], temperature, three passive species. No hidden forcing,
+# SGS, source/sink or release is enabled by this baseline entry.
+rhs_component(index:int,p:[num],v:[num])->num:
+    n:count(p)
+    field:index//n
+    cell:index%n
+    field<3? @:momentum(v,cell,field,p)+viscous(v,cell,field,p)
+    field=3? @:transport_channel(v,cell,field,p.(16),p)-p.(17)*field_value(v,cell,field,p)
+    @:transport_channel(v,cell,field,p.(14),p)
+ssprk_parameters(parameters:[num],stage:int)->[num]:
+    (stage>=0 /\ stage<3 /\ parameters.length()>=24)?! "invalid SSPRK3 stage"
+    result:[..parameters.length()-1 >> parameters.(int($))]
+    result.(7):1
+    result.(15):num(stage)
+    result.(18):0
+    stage=1? result.(18):1
+    stage=2? result.(18):0.5
+    @:result
+# Input: current7N ++ RHS7N ++ projectedRHS3N ++ initial7N. Projection is of
+# the momentum RHS, exactly as accepted reference, not an Euler-state shortcut.
+ssprk_update(index:int,p:[num],v:[num])->num:
+    n:count(p)
+    rhs:v.(7*n+index)
+    index<3*n? .rhs:v.(14*n+index)
+    euler:v.(index)+p.(11)*rhs
+    stage:int(p.(15))
+    stage=0? @:euler
+    initial:v.(17*n+index)
+    stage=1? @:0.75*initial+0.25*euler
+    @:initial/3+2*euler/3
+
+# Fixed observation clock matches accepted CPU nanosecond/tick partitioning.
+# This uses native f64/WASM, never real-f32 shader nanosecond arithmetic.
+Clock:(observation_ns:int,ticks:int,time:num,max_dt:num)
+clock(seconds:num)->Clock:
+    (seconds>=0 /\ seconds<=1000000)?! "bounded nonnegative observation time required"
+    scaled:seconds*1000000000
+    lower:scaled//1
+    fraction:scaled-lower
+    ns:int(lower)
+    fraction>0.5 \/ (fraction=0.5 /\ ns%2=1)? .ns:ns+1
+    dt:1/60
+    ticks:int((((num(ns)+0.5)/1000000000)/dt)//1)
+    @:(observation_ns:ns,ticks:ticks,time:num(ticks)*dt,max_dt:dt)
+clock_absolute(seconds:num,epoch:num)->Clock:
+    (seconds>=epoch)?! "absolute time precedes bound physical epoch"
+    @:clock(seconds-epoch)
+physical_time(epoch:num,ticks:int)->num:epoch+num(ticks)*(1/60)
+
+# Periodic trilinear sampling at actual staggered face locations. This is the
+# accepted overdamped-tracer limit, not a second velocity/trajectory model.
+wrap_position(x:num,length:num)->num:x-length*((x/length)//1)
+sample_component(v:[num],base:int,x:num,y:num,z:num,a:int,p:[num])->num:
+    ox:0.5
+    oy:0.5
+    oz:0.5
+    a=0? .ox:0
+    a=1? .oy:0
+    a=2? .oz:0
+    gx:x/p.(3)-ox
+    gy:y/p.(4)-oy
+    gz:z/p.(5)-oz
+    ix:int(gx//1)
+    iy:int(gy//1)
+    iz:int(gz//1)
+    tx:gx-num(ix)
+    ty:gy-num(iy)
+    tz:gz-num(iz)
+    nx:int(p.(0))
+    ny:int(p.(1))
+    nz:int(p.(2))
+    result:0.0
+    corner:0
+    corner<8?>
+        dx:corner%2
+        dy:(corner//2)%2
+        dz:corner//4
+        wx:1-tx
+        wy:1-ty
+        wz:1-tz
+        dx=1? .wx:tx
+        dy=1? .wy:ty
+        dz=1? .wz:tz
+        cell:wrap(ix+dx,nx)+nx*(wrap(iy+dy,ny)+ny*wrap(iz+dz,nz))
+        address:base+a*count(p)+cell
+        .result:result+wx*wy*wz*v.(address)
+        .corner:corner+1
+    @:result
+sample_mid_component(v:[num],x:num,y:num,z:num,a:int,p:[num])->num:
+    @:(sample_component(v,0,x,y,z,a,p)+sample_component(v,7*count(p),x,y,z,a,p))/2
+
+# Input old7N ++ acceptedNew7N ++ AoS20 segment records. Each output record:
+# startXYZ,endXYZ,terminalVelocityXYZ,mass,RGBA,exposure,threshold,alive,species,
+# lineage,acceptedDt. End is deliberately UNWRAPPED for fine-mask intersection.
+# The next accepted step wraps its starting point; no periodic crossing is lost.
+# Captured/inactive lineages do not move and are not to be drawn as gas.
+marker_segment(index:int,p:[num],v:[num])->[num]:
+    n:count(p)
+    offset:14*n+20*index
+    [num] result:[0:20]
+    channel:0
+    channel<20?>
+        result.(channel):v.(offset+channel)
+        .channel:channel+1
+    v.(offset+16)=0? @:result
+    x:wrap_position(v.(offset+3),p.(3)*p.(0))
+    y:wrap_position(v.(offset+4),p.(4)*p.(1))
+    z:wrap_position(v.(offset+5),p.(5)*p.(2))
+    dt:p.(11)
+    px:x+sample_component(v,0,x,y,z,0,p)*dt/2
+    py:y+sample_component(v,0,x,y,z,1,p)*dt/2
+    pz:z+sample_component(v,0,x,y,z,2,p)*dt/2
+    ex:x+sample_mid_component(v,px,py,pz,0,p)*dt
+    ey:y+sample_mid_component(v,px,py,pz,1,p)*dt
+    ez:z+sample_mid_component(v,px,py,pz,2,p)*dt
+    result.(0):x
+    result.(1):y
+    result.(2):z
+    result.(3):ex
+    result.(4):ey
+    result.(5):ez
+    result.(6):sample_component(v,7*n,ex,ey,ez,0,p)
+    result.(7):sample_component(v,7*n,ex,ey,ez,1,p)
+    result.(8):sample_component(v,7*n,ex,ey,ez,2,p)
+    result.(19):dt
+    @:result
+
+absolute(x:num)->num:
+    x<0? @:0-x
+    @:x
+maximum(a:num,b:num)->num:
+    a>b? @:a
+    @:b
+# Native chunk reduction of a7N state. Small results may be read back for the
+# native f64 acceptance decision; no host numerical diagnostics are required.
+stage_metrics(index:int,p:[num],v:[num])->[num]:
+    n:count(p)
+    [num] result:[0:12]
+    result.(4):1000000000000000000000000000000.0
+    cell:index*64
+    (cell<n /\ cell<(index+1)*64)?>
+        result.(0):maximum(result.(0),absolute(divergence(v,cell,p)))
+        result.(1):maximum(result.(1),absolute(v.(cell)))
+        result.(2):maximum(result.(2),absolute(v.(n+cell)))
+        result.(3):maximum(result.(3),absolute(v.(2*n+cell)))
+        field:0
+        field<7?>
+            value:v.(field*n+cell)
+            ~(value=value /\ absolute(value)<1000000000000000000000000000000.0)? result.(10):result.(10)+1
+            field>=3? result.(4):minimum(result.(4),value)
+            .field:field+1
+        result.(5):result.(5)+v.(4*n+cell)
+        result.(6):result.(6)+v.(5*n+cell)
+        result.(7):result.(7)+v.(6*n+cell)
+        result.(8):result.(8)+v.(3*n+cell)
+        result.(9):result.(9)+v.(cell)^2+v.(n+cell)^2+v.(2*n+cell)^2
+        result.(11):result.(11)+1
+        .cell:cell+1
+    @:result
+validate_stage(p:[num],chunks:[num])->[num]:
+    (p.length()>=24 /\ chunks.length()%12=0)?! "invalid stage diagnostic packet"
+    [num] result:[0:12]
+    result.(4):1000000000000000000000000000000.0
+    i:0
+    i<chunks.length()?>
+        j:0
+        j<4?>
+            result.(j):maximum(result.(j),chunks.(i+j))
+            .j:j+1
+        result.(4):minimum(result.(4),chunks.(i+4))
+        .j:5
+        j<12?>
+            result.(j):result.(j)+chunks.(i+j)
+            .j:j+1
+        .i:i+12
+    (result.(11)=num(count(p)))?! "incomplete stage diagnostics"
+    (result.(10)=0)?! "nonfinite stage rejected"
+    (result.(4)>=0-p.(21))?! "stage positivity rejected"
+    (result.(0)<=p.(22))?! "stage divergence rejected"
+    rate:result.(1)/p.(3)+result.(2)/p.(4)+result.(3)/p.(5)
+    diffusion:maximum(p.(6),maximum(p.(14),p.(16)))
+    .rate:rate+4*diffusion*(1/p.(3)^2+1/p.(4)^2+1/p.(5)^2)+p.(17)
+    (p.(11)>0 /\ p.(11)<=1/60 /\ p.(11)*rate<=p.(12)*1.000001)?! "stage transport CFL rejected"
+    result.(10):p.(11)*rate
+    @:result
+
+# FineReceiver AoS25 appends capturedNow,fraction,pixelX,pixelY,deltaExposure.
+# Input old7N ++ acceptedNew7N ++ receiver records. At a newly captured point,
+# interpolate old/new accepted air at its event fraction (second-order temporal
+# approximation). Gas endpoints use fraction1. Prior inactive/no-new-event stays
+# unchanged. No re-solve, impulse, or two-way momentum claim is implied.
+finalize_receiver(index:int,p:[num],v:[num])->[num]:
+    n:count(p)
+    offset:14*n+25*index
+    [num] result:[0:20]
+    channel:0
+    channel<20?>
+        result.(channel):v.(offset+channel)
+        .channel:channel+1
+    (v.(offset+16)=0 /\ v.(offset+20)=0)? @:result
+    fraction:1.0
+    v.(offset+20)=1?
+        .fraction:v.(offset+21)
+        (fraction>=0 /\ fraction<=1)?! "invalid native capture time fraction"
+    x:v.(offset+3)
+    y:v.(offset+4)
+    z:v.(offset+5)
+    a:0
+    a<3?>
+        old:sample_component(v,0,x,y,z,a,p)
+        new:sample_component(v,7*n,x,y,z,a,p)
+        result.(6+a):(1-fraction)*old+fraction*new
+        .a:a+1
+    @:result
+
+# Generic native raster->attached aerosol data preparation. Raster is genuine
+# RGBA8, losslessly packed as two16-bit words per pixel (RG,BA). No thinning.
+# Image controls16: cropW,H,originX,Y,fullW,H,worldX0,Y0,X1,Y1,z,
+# massPerCSSPixel,pixelRatio,firstLineage,species,count. Count is learned from
+# exact integer prefix scan; field loading/heat feedback is NOT enabled.
+ink_parameters(flow:[num],image:[num])->[num]:
+    (flow.length()>=24 /\ image.length()=16)?! "invalid native ink controls"
+    w:int(image.(0))
+    h:int(image.(1))
+    fw:int(image.(4))
+    fh:int(image.(5))
+    (w>0 /\ h>0 /\ w*h<=4194304 /\ fw>0 /\ fh>0 /\ fw<=4096 /\ fh<=4096 /\ fw*fh<=4194304)?! "bounded native raster required"
+    (image.(2)>=0 /\ image.(3)>=0 /\ image.(2)+w<=fw /\ image.(3)+h<=fh)?! "invalid native raster crop origin"
+    (image.(6)>=0 /\ image.(7)>=0 /\ image.(8)>image.(6) /\ image.(9)>image.(7) /\ image.(8)<=flow.(0)*flow.(3) /\ image.(9)<=flow.(1)*flow.(4))?! "native ink world bounds outside fluid domain"
+    (image.(10)>=0 /\ image.(10)<flow.(2)*flow.(5) /\ image.(11)>0 /\ image.(11)<1000000000000000000000000000000.0)?! "finite source plane/mass required"
+    (image.(12)=1 \/ image.(12)=2 \/ image.(12)=3)?! "native ink density1..3 required"
+    (image.(13)>=0 /\ image.(14)>=0 /\ image.(14)<3 /\ image.(15)>=0 /\ image.(15)<=131072 /\ image.(13)+image.(15)<=16777215)?! "native ink lineage/species budget exceeded"
+    [num] result:[0:41]
+    i:0
+    i<24?>
+        result.(i):flow.(i)
+        .i:i+1
+    .i:0
+    i<16?>
+        result.(24+i):image.(i)
+        .i:i+1
+    result.(40):1
+    @:result
+ink_pixels(p:[num])->int:int(p.(24))*int(p.(25))
+ink_passes(p:[num])->int:
+    span:1
+    passes:0
+    span<ink_pixels(p)?>
+        .span:span*2
+        .passes:passes+1
+    @:passes
+ink_scan_parameters(p:[num],pass:int)->[num]:
+    (pass>=0 /\ pass<22)?! "bounded native prefix pass required"
+    result:[..p.length()-1 >> p.(int($))]
+    span:1
+    i:0
+    i<pass?>
+        .span:span*2
+        .i:i+1
+    result.(40):num(span)
+    @:result
+ink_flag(index:int,p:[num],v:[num])->num:
+    (index>=0 /\ index<ink_pixels(p))?! "native raster index outside source"
+    alpha:v.(2*index+1)//256
+    alpha>0? @:1
+    @:0
+ink_prefix(index:int,p:[num],v:[num])->num:
+    stride:int(p.(40))
+    result:v.(index)
+    index>=stride? .result:result+v.(index-stride)
+    @:result
+ink_budget(count:int,maximum:int)->int:
+    (count>=0 /\ count<=131072 /\ maximum>=0 /\ maximum<=131072 /\ count<=maximum)?! "all-pixel native ink budget exceeded; thinning forbidden"
+    @:count
+ink_initialize(index:int,p:[num],v:[num])->[num]:
+    pixels:ink_pixels(p)
+    number:int(p.(39))
+    (index>=0 /\ index<number /\ number<=131072)?! "invalid native ink lineage"
+    # Binary select from exact integer occupancy prefix, retaining each pixel.
+    low:0
+    high:pixels-1
+    low<high?>
+        middle:(low+high)//2
+        reached:v.(2*pixels+middle)>=num(index+1)
+        reached? .high:middle
+        ~reached? .low:middle+1
+    pixel:low
+    w:int(p.(24))
+    word0:int(v.(2*pixel))
+    word1:int(v.(2*pixel+1))
+    red:word0%256
+    green:word0//256
+    blue:word1%256
+    alpha:word1//256
+    (alpha>0 /\ alpha<=255)?! "native prefix selected uncovered source pixel"
+    x:p.(30)+(p.(26)+num(pixel%w)+0.5)*(p.(32)-p.(30))/p.(28)
+    y:p.(33)-(p.(27)+num(pixel//w)+0.5)*(p.(33)-p.(31))/p.(29)
+    threshold:v.(3*pixels+index)
+    (threshold>0 /\ threshold<1000)?! "invalid native source exponential threshold"
+    [num] result:[0:20]
+    result.(0):x
+    result.(1):y
+    result.(2):p.(34)
+    result.(3):x
+    result.(4):y
+    result.(5):p.(34)
+    result.(9):(num(alpha)/255)*p.(35)/(p.(36)*p.(36))
+    result.(10):num(red)/255
+    result.(11):num(green)/255
+    result.(12):num(blue)/255
+    result.(13):num(alpha)/255
+    result.(15):threshold
+    result.(17):p.(38)
+    result.(18):p.(37)+num(index)
+    @:result
+ink_mass(index:int,p:[num],v:[num])->num:v.(20*index+9)
+sum_mass(v:[num])->num:
+    result:0.0
+    i:0
+    i<v.length()?>
+        (v.(i)>=0 /\ v.(i)<1000000000000000000000000000000.0)?! "invalid native material mass"
+        .result:result+v.(i)
+        .i:i+1
+    @:result
+InkStock:(count:int,mass:num,attached_mass:num,released_mass:num,phase:int)
+ink_stock(count:int,mass:num)->InkStock:
+    (count>=0 /\ count<=131072 /\ mass>=0 /\ mass<1000000000000000000000000000000.0)?! "invalid attached native material stock"
+    @:(count:count,mass:mass,attached_mass:mass,released_mass:0,phase:0)
+release_stock(stock:InkStock)->InkStock:
+    (stock.phase=0)?! "native material source already released"
+    @:(count:stock.count,mass:stock.mass,attached_mass:0,released_mass:stock.mass,phase:1)
+# Native instantaneous initial-condition transfer; sample existing accepted air.
+# Input accepted7N fields ++ attached20N packet; no air reset or heat/normal force.
+release_ink(index:int,p:[num],v:[num])->[num]:
+    offset:7*count(p)+20*index
+    [num] result:[0:20]
+    i:0
+    i<20?>
+        result.(i):v.(offset+i)
+        .i:i+1
+    (result.(16)=0 /\ result.(9)>=0 /\ result.(15)>0)?! "native attached lineage is not releasable"
+    result.(6):sample_component(v,0,result.(3),result.(4),result.(5),0,p)
+    result.(7):sample_component(v,0,result.(3),result.(4),result.(5),1,p)
+    result.(8):sample_component(v,0,result.(3),result.(4),result.(5),2,p)
+    result.(16):1
+    @:result
+
+# Preparation runs once in native WASM/f64: the current GPU emitter does not
+# support ln. Entropy is independent platform randomness, preserved by snapshots.
+ink_threshold_words(low:num,high:num)->num:
+    (low>=0 /\ low<65536 /\ high>=0 /\ high<256)?! "invalid independent native entropy words"
+    uniform:(low+65536*high+0.5)/16777216
+    @:0-math.ln(uniform)
+ink_thresholds(entropy:[num])->[num]:
+    (entropy.length()%2=0 /\ entropy.length()<=262144)?! "bounded independent native entropy required"
+    @:[..entropy.length()//2-1 >> ink_threshold_words(entropy.(2*int($)),entropy.(2*int($)+1))]
+
+render_parameters(flow:[num],footprint:num)->[num]:
+    (flow.length()>=24 /\ footprint>0 /\ footprint<=64)?! "bounded device-pixel carrier footprint required"
+    [num] result:[0:25]
+    i:0
+    i<24?>
+        result.(i):flow.(i)
+        .i:i+1
+    result.(24):footprint
+    @:result
+# Generic renderer data packet XYZ,device-pixel footprint,RGBA. Projection is
+# owned by the existing point renderer. Captured/inactive material has alpha0,
+# so deposited records never appear as frozen gas. No trajectory is added.
+marker_world_ink(index:int,p:[num],v:[num])->[num]:
+    base:20*index
+    [num] result:[0:8]
+    result.(0):wrap_position(v.(base+3),p.(3)*p.(0))
+    result.(1):wrap_position(v.(base+4),p.(4)*p.(1))
+    result.(2):wrap_position(v.(base+5),p.(5)*p.(2))
+    result.(3):p.(24)
+    result.(4):v.(base+10)
+    result.(5):v.(base+11)
+    result.(6):v.(base+12)
+    result.(7):v.(base+13)
+    v.(base+16)=0? result.(7):0
+    @:result
+
+# Actual native receiver occupancy, expanded from a lossless cropped RGBA raster.
+ink_alpha(index:int,p:[num],v:[num])->num:
+    full_w:int(p.(28))
+    x:index%full_w-int(p.(26))
+    y:index//full_w-int(p.(27))
+    w:int(p.(24))
+    h:int(p.(25))
+    (x<0 \/ y<0 \/ x>=w \/ y>=h)? @:0
+    pixel:y*w+x
+    @:(v.(2*pixel+1)//256)/255
+marker_coverage(index:int,p:[num],v:[num])->num:v.(20*index+13)
+marker_ledger(index:int,p:[num],v:[num])->[num]:
+    [num] result:[0:2]
+    result.(0):v.(20*index+9)
+    result.(1):v.(20*index+16)
+    @:result
+MaterialLedger:(total:num,gas:num,solid:num,alive_count:int,solid_count:int)
+material_ledger(values:[num])->MaterialLedger:
+    (values.length()%2=0 /\ values.length()<=262144)?! "invalid native fine material ledger"
+    total:0.0
+    gas:0.0
+    solid:0.0
+    alive:0
+    dead:0
+    i:0
+    i<values.length()?>
+        mass:values.(i)
+        live:values.(i+1)
+        (mass>=0 /\ mass<1000000000000000000000000000000.0 /\ (live=0 \/ live=1))?! "invalid native lineage ledger state"
+        .total:total+mass
+        live=1?
+            .gas:gas+mass
+            .alive:alive+1
+        live=0?
+            .solid:solid+mass
+            .dead:dead+1
+        .i:i+2
+    @:(total:total,gas:gas,solid:solid,alive_count:alive,solid_count:dead)
+
+# Authored colour-state, not conserved pigment chemistry. The binder provides
+# an already-native coordinate; NO second easing or recursive colour lerp.
+segment:.morphing.segment
+colour_parameters(number:int,coordinate:num,target:[num])->[num]:
+    (number>=0 /\ number<=131072 /\ coordinate>=0 /\ coordinate<=1 /\ target.length()=4)?! "invalid native colour control"
+    [num] p:[0:6]
+    p.(0):num(number)
+    p.(1):coordinate
+    i:0
+    i<4?>
+        (target.(i)>=0 /\ target.(i)<=1)?! "bounded authored target RGBA required"
+        p.(2+i):target.(i)
+        .i:i+1
+    @:p
+# Input records20C ++ immutable sampled coverageC. Output baseRGB, current effective
+# alpha, participating. Target alpha is immutable coverage times authored opacity. Snapshot CURRENT accepted display on activation.
+colour_base(index:int,p:[num],v:[num])->[num]:
+    number:int(p.(0))
+    coverage:v.(20*number+index)
+    (coverage>0 /\ coverage<=1)?! "positive immutable native coverage required"
+    [num] result:[0:5]
+    result.(0):v.(20*index+10)
+    result.(1):v.(20*index+11)
+    result.(2):v.(20*index+12)
+    result.(3):v.(20*index+13)
+    result.(4):v.(20*index+16)
+    @:result
+# Input records20C ++ coverageC ++ immutable colour bases5C. Captured members
+# keep their control mask, so their formed display colour can settle; unrelated
+# solid stocks are not recoloured. Alpha retains sampled coverage as geometry.
+apply_colour(index:int,p:[num],v:[num])->[num]:
+    number:int(p.(0))
+    base:21*number+5*index
+    [num] result:[0:20]
+    i:0
+    i<20?>
+        result.(i):v.(20*index+i)
+        .i:i+1
+    v.(base+4)=0? @:result
+    .i:0
+    i<3?>
+        result.(10+i):segment.value(v.(base+i),p.(2+i),0,0,1,p.(1))
+        .i:i+1
+    result.(13):segment.value(v.(base+3),v.(20*number+index)*p.(5),0,0,1,p.(1))
+    @:result
+
+# Native target-support map from the SAME exact occupancy prefix as ink stock.
+# Output actual full-raster top-down pixel identity and genuine sampled alpha.
+ink_support(index:int,p:[num],v:[num])->[num]:
+    pixels:ink_pixels(p)
+    low:0
+    high:pixels-1
+    low<high?>
+        middle:(low+high)//2
+        reached:v.(2*pixels+middle)>=num(index+1)
+        reached? .high:middle
+        ~reached? .low:middle+1
+    w:int(p.(24))
+    full_w:int(p.(28))
+    ox:int(p.(26))
+    oy:int(p.(27))
+    pixel:(oy+low//w)*full_w+ox+low%w
+    [num] result:[0:2]
+    result.(0):num(pixel)
+    result.(1):(v.(2*low+1)//256)/255
+    @:result

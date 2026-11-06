@@ -1,0 +1,19 @@
+{
+  "schema": "fine-deposit-summation-diagnostic/1",
+  "fixture": "concentrated-nondyadic-10k",
+  "selected": 5000,
+  "expectedFromImmutableFloat32LineageMass": 1240.039372265339,
+  "before": {
+    "sourceSha256": "bca3b1788f48bc03e717db91d5bc50ee61e4ba23f137ce55a9a3b833e229cc3a",
+    "reducedMass": 1240.033935546875,
+    "residual": -0.005436718463897705
+  },
+  "after": {
+    "sourceSha256": "20f463a9a2fccce17700a93c3bfe8a578e3ed6f59308a0922179fb20f96a9008",
+    "reducedMass": 1240.0394287109375,
+    "residual": 5.644559860229492e-05
+  },
+  "correction": "Native compensated sums within tiles and across tiles; no host mass correction or shader/IR patch.",
+  "errorPolicy": "Finite tested normal/nonnegative profile: per moment 1e-7 + 8*2^-24*abs(f64 reference); record actual residual separately. Half an f32 ULP near mass1240 is6.1035e-5, so a fixed2e-5 threshold is below result quantization.",
+  "authority": "Immutable fine lineage records remain authoritative; reduced f32 moments are approximate, not exact conservation proof."
+}

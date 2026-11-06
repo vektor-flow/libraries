@@ -1,0 +1,67 @@
+{
+  "schema": "native-density-composition/1",
+  "passed": true,
+  "reports": [
+    {
+      "kind": "native-density-mixture",
+      "centre": [
+        64,
+        0,
+        191,
+        255
+      ]
+    },
+    {
+      "kind": "order-parity",
+      "exact": true
+    },
+    {
+      "kind": "seek-replay",
+      "exact": true
+    },
+    {
+      "kind": "native-error-summary",
+      "rejectsBeforeDisplay": true
+    },
+    {
+      "kind": "resource-rejection",
+      "preservesViewport": true
+    },
+    {
+      "kind": "single-density",
+      "centre": [
+        255,
+        0,
+        0,
+        255
+      ]
+    }
+  ],
+  "invalidPackets": 3,
+  "statistics": {
+    "profile": "implicit-material-density-2d",
+    "width": 256,
+    "height": 128,
+    "explicitResourceBytes": 5259308,
+    "maxResourceBytes": 268435456,
+    "backend": "webgpu",
+    "layerFormat": "rgba16float",
+    "sumFormat": "native-f32",
+    "coverage": "MSAA4-union-max",
+    "colourLaw": "compiled-native-kernels"
+  },
+  "firstStatistics": {
+    "profile": "implicit-material-density-2d",
+    "width": 128,
+    "height": 128,
+    "explicitResourceBytes": 2637868,
+    "maxResourceBytes": 268435456,
+    "backend": "webgpu",
+    "layerFormat": "rgba16float",
+    "sumFormat": "native-f32",
+    "coverage": "MSAA4-union-max",
+    "colourLaw": "compiled-native-kernels"
+  },
+  "errors": [],
+  "scope": "Raster/transport of supplied native density operators; no state topology, fluid or Product readiness claim"
+}

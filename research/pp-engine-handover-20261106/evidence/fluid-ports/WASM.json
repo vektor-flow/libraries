@@ -1,0 +1,52 @@
+{
+  "schema": "native-fluid-ports-wasm/1",
+  "passed": true,
+  "sourceSha256": "2422df3c5eab2dab6a49739447d974b6704afedfe2a24715df2891f716fb8b66",
+  "referenceSha256": "e086923ab53c81da9a30aa0fcbaebe36c18f6fd5bc49d76280d273d67c699d3e",
+  "reports": [
+    {
+      "shape": [
+        8,
+        6,
+        4
+      ],
+      "sampledCells": 4,
+      "boundaryTimes": [
+        0.9,
+        1,
+        1.0001,
+        1.1,
+        1.25,
+        1.5,
+        1.7,
+        1.9,
+        2,
+        2.0001
+      ],
+      "maximumError": 1.3877787807814457e-17
+    },
+    {
+      "shape": [
+        24,
+        16,
+        8
+      ],
+      "sampledCells": 4,
+      "boundaryTimes": [
+        0.9,
+        1,
+        1.0001,
+        1.1,
+        1.25,
+        1.5,
+        1.7,
+        1.9,
+        2,
+        2.0001
+      ],
+      "maximumError": 1.3877787807814457e-17
+    }
+  ],
+  "rejectionCases": 12,
+  "scope": "Native f64 operator samples vs independent accepted CPU reference, not coupled session acceptance"
+}

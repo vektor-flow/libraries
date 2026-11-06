@@ -1,0 +1,98 @@
+# Explicit finite seed881 ten-mode preset from accepted fluid-only reference.
+# No runtime random generator or host-generated velocity field. Coefficients
+# encode integer waveXYZ, continuous-solenoidal amplitudeXYZ, phase per mode.
+math:.math
+coefficient(index:int)->num:
+    [num] values:[-1.0,-1.0,1.0,-0.902655115500693,0.6208320487785794,0.02266904063625841,5.2154857680469995,0.0,-2.0,-1.0,-0.9974801734673322,0.5430214752498461,-0.43441718019987685,5.982228159484366,2.0,1.0,1.0,-0.9863522422383413,-0.4543996066589839,0.6749359637827642,5.704172306741326,2.0,-2.0,1.0,-0.26023554803879967,0.06549260078670532,0.18251185464876407,4.778914872819126,2.0,1.0,0.0,0.05630000336800656,-0.07037500421000842,0.09885648628280667,5.9788831567068454,0.0,1.0,-1.0,-0.5998767865564133,0.028780095800392647,0.011512038320157014,6.214080412489887,0.0,1.0,-1.0,2.24904405125957,0.17614095532968063,0.07045638213187225,2.5050947597515756,1.0,1.0,-1.0,0.7741846101817422,0.738904088486559,0.489107787940059,5.622756612221413,1.0,2.0,0.0,-0.8486040345674772,0.26518876080233644,-0.7140147705631616,5.431705171877358,2.0,1.0,0.0,-0.6030474838267038,0.7538093547833797,-0.32002959313479207,0.3333919984917109]
+    @:values.(index)
+preset()->[num]:[..69 >> coefficient(int($))]
+count(p:[num])->int:
+    (p.length()=24)?! "initial profile requires flow24 controls"
+    (p.(0)>=4 /\ p.(0)<=64 /\ p.(1)>=4 /\ p.(1)<=64 /\ p.(2)>=4 /\ p.(2)<=64 /\ p.(0)*p.(1)*p.(2)<=131072)?! "initial grid budget exceeded"
+    a:0
+    a<3?>
+        (p.(a)=num(int(p.(a))) /\ p.(3+a)>0 /\ p.(3+a)<2)?! "invalid initial grid/spacing"
+        .a:a+1
+    (|p.(0)*p.(3)-1.6|<0.00001 /\ |p.(1)*p.(4)-1.0|<0.00001 /\ |p.(2)*p.(5)-0.4|<0.00001)?! "seed881 preset requires canonical domain1.6x1x0.4"
+    @:int(p.(0))*int(p.(1))*int(p.(2))
+projection_parameters(p:[num])->[num]:
+    n:count(p)
+    [num] result:[0:24]
+    i:0
+    i<24?>
+        result.(i):p.(i)
+        .i:i+1
+    result.(7):1/60
+    @:result
+# ScalarSoA3N; native staggered faces0 on componentaxis, .5 on others.
+synthesize(index:int,p:[num],v:[num])->num:
+    n:count(p)
+    (index>=0 /\ index<3*n /\ v.length()=1 /\ v.(0)=881)?! "unsupported initial preset/storage/index"
+    a:index//n
+    i:index%n
+    nx:int(p.(0))
+    ny:int(p.(1))
+    [num] x:[num(i%nx),num((i//nx)%ny),num(i//(nx*ny))]
+    d:0
+    d<3?>
+        ~(d=a)? x.(d):x.(d)+0.5
+        x.(d):x.(d)/p.(d)
+        .d:d+1
+    sum:0.0
+    m:0
+    m<10?>
+        phase:coefficient(7*m+6)
+        .d:0
+        d<3?>
+            .phase:phase+6.283185307179586*coefficient(7*m+d)*x.(d)
+            .d:d+1
+        .sum:sum+coefficient(7*m+3+a)*math.cos(phase)
+        .m:m+1
+    @:sum
+# Native finite compensated energy chunks; every component contributes once.
+energy_chunks(index:int,p:[num],v:[num])->num:
+    n:count(p)
+    chunks:(3*n+1023)//1024
+    (index>=0 /\ index<chunks /\ v.length()=3*n)?! "initial energy storage/index mismatch"
+    stop:(index+1)*1024
+    stop>3*n? .stop:3*n
+    sum:0.0
+    compensation:0.0
+    i:index*1024
+    i<stop?>
+        u:v.(i)
+        (u> -1000000 /\ u<1000000)?! "initial velocity must be finite and bounded"
+        increment:u*u-compensation
+        next:sum+increment
+        .compensation:(next-sum)-increment
+        .sum:next
+        .i:i+1
+    @:sum
+normalization(index:int,p:[num],v:[num])->num:
+    n:count(p)
+    chunks:(3*n+1023)//1024
+    (index=0 /\ v.length()=chunks)?! "initial energy reduction storage/index mismatch"
+    sum:0.0
+    compensation:0.0
+    i:0
+    i<chunks?>
+        value:v.(i)
+        (value>=0 /\ value<1000000000000000000.0)?! "invalid initial energy chunk"
+        increment:value-compensation
+        next:sum+increment
+        .compensation:(next-sum)-increment
+        .sum:next
+        .i:i+1
+    (sum>0 /\ sum<1000000000000000000000000.0)?! "initial energy must be positive and finite"
+    @:0.055/math.sqrt(sum/num(n))
+# projectedSoA3N++normalization1 -> initialSoA7N. T and3diagnosticC fields zero;
+# fine probes own material mass. Preserve unscaled projection pressure separately.
+state7(index:int,p:[num],v:[num])->num:
+    n:count(p)
+    (index>=0 /\ index<7*n /\ v.length()=3*n+1)?! "initial state storage/index mismatch"
+    scale:v.(3*n)
+    (scale>0 /\ scale<1000000)?! "invalid native RMS normalization"
+    index>=3*n? @:0
+    u:v.(index)
+    (u> -1000000 /\ u<1000000)?! "initial projected velocity must be finite and bounded"
+    @:u*scale

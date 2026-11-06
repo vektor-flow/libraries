@@ -1,0 +1,73 @@
+{
+  "schema": "native-fluid-initial-gpu-failure/1",
+  "passed": false,
+  "status": "UNQUALIFIED_NUMERICAL_PARITY_FAILED",
+  "sourceSha256": "5feda0b8eeab80f547d7fe23b651aa22de971c8e16ba524b59fcb8a9be0f372b",
+  "shape": [
+    8,
+    6,
+    4
+  ],
+  "backend": "Chrome WebGPU Vulkan SwiftShader (software GPU); explicit emitted current075 experimental kernels",
+  "originalError": "initial profile parity {\"stateError\":0.000011695618120782791,\"pressureError\":0.0011940449428741728,\"rms\":0.054999998056675437,\"divergenceMax\":6.426125764846802e-8,\"zeroScalars\":true,\"pressureMean\":-1.2514647068748337e-9,\"imaginaryMax\":2.9802322387695312e-8}",
+  "observed": {
+    "stateError": 1.1695618120782791e-05,
+    "pressureError": 0.0011940449428741728,
+    "rms": 0.054999998056675437,
+    "divergenceMax": 6.426125764846802e-08,
+    "zeroScalars": true,
+    "pressureMean": -1.2514647068748337e-09,
+    "imaginaryMax": 2.9802322387695312e-08
+  },
+  "acceptanceLimits": {
+    "stateError": 2e-06,
+    "pressureError": 2e-05,
+    "rmsError": 2e-08,
+    "divergenceMax": 0.0001
+  },
+  "rootCause": "Not isolated; end-to-end experimental f32 cos-based synthesis/projection/RMS path differs from accepted independent CPU reference. No sin/cos accuracy claim or compiler defect is established.",
+  "notReached": [
+    "24x16x8 GPU case",
+    "GPU deterministic replay",
+    "runtime invalid/budget/cancel/tamper cases after first profile gate"
+  ],
+  "sourceAndArtifacts": {
+    "schema": "native-fluid-initial-build/1",
+    "status": "EMITTED_NOT_EXECUTED",
+    "output": "/tmp/vkf-fluid-initial-3y49OT",
+    "libraryBase": "94bba2a8b577139c45b9f13fe6ba6868e1a87ed2",
+    "sources": {
+      "FluidInitial.vkf": "5feda0b8eeab80f547d7fe23b651aa22de971c8e16ba524b59fcb8a9be0f372b"
+    },
+    "entrySourceSha256": "d8b18b832fd0751cb91bf297c7561d2a7e61188846bd9f969c2208ce3a220a45",
+    "compilerVersion": "0.7.5",
+    "compilerSourceBinding": "ffcaeaae67079c714583d5487f3452a9ed4107abf14204a512f647400473c71f",
+    "gpuEmitter": "a5305eb01c6d36d5234402471750f0c4ed2f1c892fcec628649325bee315676f",
+    "wasmSha256": "ae39b08c31a2a4c7e7fb78a8354632e9f5ff08014521e9a983115f245e432708",
+    "irSha256": "a9ba73e0235e2fd2cbf01c979cd0b0e34c90166113c57bee424a2e33d295acfa",
+    "entries": {
+      "synthesize": {
+        "width": 1,
+        "shaderSha256": "79ad7a803f0fb58baaf4f0fb2d0801d2718f2e0429ea5e3f19bd7f84e6dac232",
+        "manifestSha256": "d2d9d941e0a5615ae346d5efc38b6a8ee271ab8a7957b12ae32beec900943fd3"
+      },
+      "energy_chunks": {
+        "width": 1,
+        "shaderSha256": "a242f22c2134d46c58e131d16cd5127425d25f4b19867f73de037d78694af4f4",
+        "manifestSha256": "2ae7bf539d272204ff68e94b2957c55a20569dd72a159b91c4e82304d65bf47a"
+      },
+      "normalization": {
+        "width": 1,
+        "shaderSha256": "43fb8e7196b85306c785f91a1e1036e74d65110cbf1cb8a7d87a8b052171da20",
+        "manifestSha256": "9a308009cc7da5bbce2b6a6a0a7bb1f211e2dd133d451ea277b6cb5df977f506"
+      },
+      "state7": {
+        "width": 1,
+        "shaderSha256": "6d39a2ecd4e39990e8760f693bf2468430490c9f3c364beba190e9007335ffcf",
+        "manifestSha256": "b05329c115a967a67873b1d860c64ea41fe552acf994d1d05ed13ab5ec981835"
+      }
+    }
+  },
+  "steering": "Full Coordinator125 PP automatic GPU handover read; stop new experiments and checkpoint. No fallback experiment, Product integration or deployment.",
+  "scope": "WASM numerical point/energy tests green; complete initial GPU profile unqualified. No public automatic GPU or hardware/10ms readiness."
+}

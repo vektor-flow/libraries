@@ -1,0 +1,896 @@
+{
+  "format": "vkf.world",
+  "version": 1,
+  "dimension": 2,
+  "units": {},
+  "geometry": {
+    "vertices": [],
+    "edges": [],
+    "faces": [],
+    "volumes": []
+  },
+  "extensions": {
+    "platonic-play/session-v1": {
+      "authoredExperience": {
+        "schemaVersion": 4,
+        "revision": 12,
+        "elements": [
+          {
+            "id": "5baaea4c-db38-49af-80fb-59e14ea68ff5",
+            "kind": "latex",
+            "visible": true,
+            "transitionMode": "state",
+            "colorRole": "selection",
+            "position": [
+              0.05,
+              0.1
+            ],
+            "scale": 3.2,
+            "source": "\\text{Colored smoke in moving air}"
+          },
+          {
+            "id": "e3fd87f0-5530-4284-9e0c-ec4236474f83",
+            "kind": "latex",
+            "visible": true,
+            "transitionMode": "state",
+            "colorRole": "mutedForeground",
+            "position": [
+              0.05,
+              0.94
+            ],
+            "scale": 2,
+            "source": "\\text{CPU fluid reference; native VKF rendering}"
+          },
+          {
+            "id": "7810773f-34dc-4cfd-8538-df170dd2fecc",
+            "kind": "latex",
+            "visible": true,
+            "transitionMode": "state",
+            "colorRole": "mutedForeground",
+            "position": [
+              0.05,
+              0.985
+            ],
+            "scale": 1.6,
+            "source": "\\text{A recorded experiment, not an installed GPU fluid solver}"
+          },
+          {
+            "id": "e6f1225a-772c-44b7-a54d-fd124f516598",
+            "kind": "list",
+            "visible": true,
+            "transitionMode": "state",
+            "colorRole": "foreground",
+            "items": [
+              {
+                "id": "774ecc31-567d-46d1-af3a-406ebe8d601c",
+                "source": "\\text{div}\\,u=s_i-s_o",
+                "colorRole": "selection"
+              },
+              {
+                "id": "7689695e-f833-4e8a-8bac-3f8b355ee6bc",
+                "source": "u_t+\\text{div}(u u)=-\\text{grad}\\,p+\\text{div}(2vS)-s_o u,\\quad v=0.0004",
+                "colorRole": "foreground"
+              },
+              {
+                "id": "e5f904c7-2255-4d5e-994e-1e72445ac55e",
+                "source": "c_t+\\text{div}(c u)=-s_o c",
+                "colorRole": "active"
+              },
+              {
+                "id": "1779ce5e-3d23-45fe-883f-9bafc0288073",
+                "source": "M_g+M_c=M_0",
+                "colorRole": "selection"
+              }
+            ],
+            "visibleItemIds": [
+              "774ecc31-567d-46d1-af3a-406ebe8d601c"
+            ],
+            "position": [
+              0.05,
+              0.31
+            ],
+            "scale": 2.1
+          }
+        ],
+        "states": [
+          {
+            "id": "684cd6bd-80a4-40b6-a4ba-60fc37a32805",
+            "label": "Drift in a shared fluid",
+            "overrides": {},
+            "transition": {
+              "durationMs": 1200,
+              "easing": "quadratic-in-out",
+              "holdMs": 4800
+            }
+          },
+          {
+            "id": "3f32823a-4475-40a6-9bd8-8251fd25586f",
+            "label": "Switch on the balanced collector",
+            "overrides": {
+              "e6f1225a-772c-44b7-a54d-fd124f516598": {
+                "visible": true,
+                "transitionMode": "state",
+                "colorRole": "foreground",
+                "items": [
+                  {
+                    "id": "774ecc31-567d-46d1-af3a-406ebe8d601c",
+                    "source": "\\text{div}\\,u=s_i-s_o",
+                    "colorRole": "selection"
+                  },
+                  {
+                    "id": "7689695e-f833-4e8a-8bac-3f8b355ee6bc",
+                    "source": "u_t+\\text{div}(u u)=-\\text{grad}\\,p+\\text{div}(2vS)-s_o u,\\quad v=0.0004",
+                    "colorRole": "foreground"
+                  },
+                  {
+                    "id": "e5f904c7-2255-4d5e-994e-1e72445ac55e",
+                    "source": "c_t+\\text{div}(c u)=-s_o c",
+                    "colorRole": "active"
+                  },
+                  {
+                    "id": "1779ce5e-3d23-45fe-883f-9bafc0288073",
+                    "source": "M_g+M_c=M_0",
+                    "colorRole": "selection"
+                  }
+                ],
+                "visibleItemIds": [
+                  "774ecc31-567d-46d1-af3a-406ebe8d601c",
+                  "7689695e-f833-4e8a-8bac-3f8b355ee6bc",
+                  "e5f904c7-2255-4d5e-994e-1e72445ac55e"
+                ],
+                "position": [
+                  0.05,
+                  0.31
+                ],
+                "scale": 2.1
+              }
+            },
+            "transition": {
+              "durationMs": 1200,
+              "easing": "quadratic-in-out",
+              "holdMs": 4800
+            }
+          },
+          {
+            "id": "81cbf8ff-05ab-48b4-b4ab-5d213c91d0be",
+            "label": "Retain all remaining material",
+            "overrides": {
+              "e6f1225a-772c-44b7-a54d-fd124f516598": {
+                "visible": true,
+                "transitionMode": "state",
+                "colorRole": "foreground",
+                "items": [
+                  {
+                    "id": "774ecc31-567d-46d1-af3a-406ebe8d601c",
+                    "source": "\\text{div}\\,u=s_i-s_o",
+                    "colorRole": "selection"
+                  },
+                  {
+                    "id": "7689695e-f833-4e8a-8bac-3f8b355ee6bc",
+                    "source": "u_t+\\text{div}(u u)=-\\text{grad}\\,p+\\text{div}(2vS)-s_o u,\\quad v=0.0004",
+                    "colorRole": "foreground"
+                  },
+                  {
+                    "id": "e5f904c7-2255-4d5e-994e-1e72445ac55e",
+                    "source": "c_t+\\text{div}(c u)=-s_o c",
+                    "colorRole": "active"
+                  },
+                  {
+                    "id": "1779ce5e-3d23-45fe-883f-9bafc0288073",
+                    "source": "M_g+M_c=M_0",
+                    "colorRole": "selection"
+                  }
+                ],
+                "visibleItemIds": [
+                  "774ecc31-567d-46d1-af3a-406ebe8d601c",
+                  "7689695e-f833-4e8a-8bac-3f8b355ee6bc",
+                  "e5f904c7-2255-4d5e-994e-1e72445ac55e",
+                  "1779ce5e-3d23-45fe-883f-9bafc0288073"
+                ],
+                "position": [
+                  0.05,
+                  0.31
+                ],
+                "scale": 2.1
+              }
+            },
+            "transition": {
+              "durationMs": 1200,
+              "easing": "quadratic-in-out",
+              "holdMs": 4800
+            }
+          }
+        ]
+      },
+      "authoredStateId": "81cbf8ff-05ab-48b4-b4ab-5d213c91d0be",
+      "presentation": null,
+      "sensorTest": null,
+      "presentationStory": null,
+      "presentationCanvasViews": {
+        "684cd6bd-80a4-40b6-a4ba-60fc37a32805": {
+          "sensorTest": null,
+          "browserProgram": null,
+          "physicsUpdateProgram": null,
+          "hypergraph": {
+            "vertices": [],
+            "hyperedges": [],
+            "faces": [],
+            "volumes": [],
+            "cellComplex": {
+              "cells": [],
+              "cellsByDimension": [
+                [],
+                [],
+                [],
+                []
+              ]
+            }
+          },
+          "expressions": [],
+          "theme": "dark",
+          "canvasBackground": "#000000",
+          "displaySettings": {
+            "visibility": {
+              "vertex": true,
+              "edge": true,
+              "face": true,
+              "volume": true,
+              "text": true
+            },
+            "drawAngleGuide": true,
+            "drawLengthGuide": true,
+            "drawMeasurements": true,
+            "adaptAppliedColors": false
+          },
+          "coordinateDisplay": {
+            "axisMode": "none",
+            "gridMode": "lines"
+          },
+          "surfaceContexts": {
+            "contexts": [],
+            "stack": [
+              "surface:root"
+            ]
+          },
+          "probe": {
+            "world": [
+              0,
+              0
+            ]
+          },
+          "coordinateView": {
+            "transform": {
+              "position": [
+                640,
+                360
+              ],
+              "scale": [
+                81,
+                81
+              ],
+              "rotation": 0
+            },
+            "referenceScale": 81,
+            "viewport": {
+              "width": 1280,
+              "height": 720
+            }
+          },
+          "dimensions": {
+            "space": 2,
+            "bounds": {
+              "x": [
+                -6,
+                6
+              ],
+              "y": [
+                -4,
+                4
+              ]
+            },
+            "units": "play-units",
+            "aspect": "equal",
+            "signature": "2",
+            "spatialDimension": 2,
+            "timeDimension": 0,
+            "timeAxis": null
+          },
+          "spaceDefinition": {
+            "dimension": 2,
+            "time": false,
+            "physicsEnabled": false,
+            "physics": {
+              "inertia": false,
+              "specialRelativity": false,
+              "rigidCollisions": false,
+              "em": false,
+              "gravity": false,
+              "temperature": false,
+              "light": false
+            },
+            "units": {
+              "system": "si",
+              "length": "m",
+              "time": "s"
+            },
+            "customModules": []
+          },
+          "simulation": {
+            "phase": "stopped",
+            "running": false,
+            "tick": 0,
+            "time": 0,
+            "epoch": 1,
+            "dt": 0.016666666666666666,
+            "velocities": []
+          },
+          "selectedPath": "play/topology.pp",
+          "selectedGeometry": [],
+          "transformations": [],
+          "interpolation": {
+            "styles": [
+              {
+                "id": "linear",
+                "name": "Linear",
+                "type": "linear",
+                "order": 1,
+                "tension": 0.5,
+                "linearStyle": "lines",
+                "linearArrowMode": "absolute",
+                "linearArrowRelativeMode": "end",
+                "linearArrowRelativeValue": 0,
+                "linearArrowAbsoluteMode": "dist",
+                "linearArrowAbsoluteValue": 1
+              }
+            ],
+            "activeStyleId": "linear"
+          },
+          "propertyScope": {},
+          "globalPropertyProgramSource": "",
+          "globalPropertyProgramBaseline": {},
+          "selectedTransformationIds": []
+        },
+        "3f32823a-4475-40a6-9bd8-8251fd25586f": {
+          "sensorTest": null,
+          "browserProgram": null,
+          "physicsUpdateProgram": null,
+          "hypergraph": {
+            "vertices": [],
+            "hyperedges": [],
+            "faces": [],
+            "volumes": [],
+            "cellComplex": {
+              "cells": [],
+              "cellsByDimension": [
+                [],
+                [],
+                [],
+                []
+              ]
+            }
+          },
+          "expressions": [],
+          "theme": "dark",
+          "canvasBackground": "#000000",
+          "displaySettings": {
+            "visibility": {
+              "vertex": true,
+              "edge": true,
+              "face": true,
+              "volume": true,
+              "text": true
+            },
+            "drawAngleGuide": true,
+            "drawLengthGuide": true,
+            "drawMeasurements": true,
+            "adaptAppliedColors": false
+          },
+          "coordinateDisplay": {
+            "axisMode": "none",
+            "gridMode": "lines"
+          },
+          "surfaceContexts": {
+            "contexts": [],
+            "stack": [
+              "surface:root"
+            ]
+          },
+          "probe": {
+            "world": [
+              0,
+              0
+            ]
+          },
+          "coordinateView": {
+            "transform": {
+              "position": [
+                640,
+                360
+              ],
+              "scale": [
+                81,
+                81
+              ],
+              "rotation": 0
+            },
+            "referenceScale": 81,
+            "viewport": {
+              "width": 1280,
+              "height": 720
+            }
+          },
+          "dimensions": {
+            "space": 2,
+            "bounds": {
+              "x": [
+                -6,
+                6
+              ],
+              "y": [
+                -4,
+                4
+              ]
+            },
+            "units": "play-units",
+            "aspect": "equal",
+            "signature": "2",
+            "spatialDimension": 2,
+            "timeDimension": 0,
+            "timeAxis": null
+          },
+          "spaceDefinition": {
+            "dimension": 2,
+            "time": false,
+            "physicsEnabled": false,
+            "physics": {
+              "inertia": false,
+              "specialRelativity": false,
+              "rigidCollisions": false,
+              "em": false,
+              "gravity": false,
+              "temperature": false,
+              "light": false
+            },
+            "units": {
+              "system": "si",
+              "length": "m",
+              "time": "s"
+            },
+            "customModules": []
+          },
+          "simulation": {
+            "phase": "stopped",
+            "running": false,
+            "tick": 0,
+            "time": 0,
+            "epoch": 1,
+            "dt": 0.016666666666666666,
+            "velocities": []
+          },
+          "selectedPath": "play/topology.pp",
+          "selectedGeometry": [],
+          "transformations": [],
+          "interpolation": {
+            "styles": [
+              {
+                "id": "linear",
+                "name": "Linear",
+                "type": "linear",
+                "order": 1,
+                "tension": 0.5,
+                "linearStyle": "lines",
+                "linearArrowMode": "absolute",
+                "linearArrowRelativeMode": "end",
+                "linearArrowRelativeValue": 0,
+                "linearArrowAbsoluteMode": "dist",
+                "linearArrowAbsoluteValue": 1
+              }
+            ],
+            "activeStyleId": "linear"
+          },
+          "propertyScope": {},
+          "globalPropertyProgramSource": "",
+          "globalPropertyProgramBaseline": {},
+          "selectedTransformationIds": []
+        },
+        "81cbf8ff-05ab-48b4-b4ab-5d213c91d0be": {
+          "sensorTest": null,
+          "browserProgram": null,
+          "physicsUpdateProgram": null,
+          "hypergraph": {
+            "vertices": [],
+            "hyperedges": [],
+            "faces": [],
+            "volumes": [],
+            "cellComplex": {
+              "cells": [],
+              "cellsByDimension": [
+                [],
+                [],
+                [],
+                []
+              ]
+            }
+          },
+          "expressions": [],
+          "theme": "dark",
+          "canvasBackground": "#000000",
+          "displaySettings": {
+            "visibility": {
+              "vertex": true,
+              "edge": true,
+              "face": true,
+              "volume": true,
+              "text": true
+            },
+            "drawAngleGuide": true,
+            "drawLengthGuide": true,
+            "drawMeasurements": true,
+            "adaptAppliedColors": false
+          },
+          "coordinateDisplay": {
+            "axisMode": "none",
+            "gridMode": "lines"
+          },
+          "surfaceContexts": {
+            "contexts": [],
+            "stack": [
+              "surface:root"
+            ]
+          },
+          "probe": {
+            "world": [
+              0,
+              0
+            ]
+          },
+          "coordinateView": {
+            "transform": {
+              "position": [
+                640,
+                360
+              ],
+              "scale": [
+                81,
+                81
+              ],
+              "rotation": 0
+            },
+            "referenceScale": 81,
+            "viewport": {
+              "width": 1280,
+              "height": 720
+            }
+          },
+          "dimensions": {
+            "space": 2,
+            "bounds": {
+              "x": [
+                -6,
+                6
+              ],
+              "y": [
+                -4,
+                4
+              ]
+            },
+            "units": "play-units",
+            "aspect": "equal",
+            "signature": "2",
+            "spatialDimension": 2,
+            "timeDimension": 0,
+            "timeAxis": null
+          },
+          "spaceDefinition": {
+            "dimension": 2,
+            "time": false,
+            "physicsEnabled": false,
+            "physics": {
+              "inertia": false,
+              "specialRelativity": false,
+              "rigidCollisions": false,
+              "em": false,
+              "gravity": false,
+              "temperature": false,
+              "light": false
+            },
+            "units": {
+              "system": "si",
+              "length": "m",
+              "time": "s"
+            },
+            "customModules": []
+          },
+          "simulation": {
+            "phase": "stopped",
+            "running": false,
+            "tick": 0,
+            "time": 0,
+            "epoch": 1,
+            "dt": 0.016666666666666666,
+            "velocities": []
+          },
+          "selectedPath": "play/topology.pp",
+          "selectedGeometry": [],
+          "transformations": [],
+          "interpolation": {
+            "styles": [
+              {
+                "id": "linear",
+                "name": "Linear",
+                "type": "linear",
+                "order": 1,
+                "tension": 0.5,
+                "linearStyle": "lines",
+                "linearArrowMode": "absolute",
+                "linearArrowRelativeMode": "end",
+                "linearArrowRelativeValue": 0,
+                "linearArrowAbsoluteMode": "dist",
+                "linearArrowAbsoluteValue": 1
+              }
+            ],
+            "activeStyleId": "linear"
+          },
+          "propertyScope": {},
+          "globalPropertyProgramSource": "",
+          "globalPropertyProgramBaseline": {},
+          "selectedTransformationIds": []
+        }
+      },
+      "browserProgram": null,
+      "physicsUpdateProgram": null,
+      "hypergraph": {
+        "vertices": [],
+        "hyperedges": [],
+        "faces": [],
+        "volumes": [],
+        "cellComplex": {
+          "cells": [],
+          "cellsByDimension": [
+            [],
+            [],
+            [],
+            []
+          ]
+        }
+      },
+      "expressions": [],
+      "canvasMenu": {
+        "mainExpanded": true,
+        "openMenus": {
+          "export": true
+        },
+        "colors": [
+          "#ffffff",
+          "#BFC5D0",
+          "#808080",
+          "#ff4444",
+          "#44ff44",
+          "#4444ff",
+          "#ffff44",
+          "#ff44ff",
+          "rgba(0, 0, 0, 0)"
+        ],
+        "selectedColor": "#ffffff",
+        "selectedColors": [
+          "#ffffff"
+        ],
+        "selectedPaintKind": "color",
+        "plotColormap": {
+          "points": [
+            {
+              "pos": 0,
+              "color": [
+                255,
+                0,
+                0
+              ],
+              "alpha": 1
+            },
+            {
+              "pos": 0.5,
+              "color": [
+                0,
+                255,
+                0
+              ],
+              "alpha": 1
+            },
+            {
+              "pos": 1,
+              "color": [
+                0,
+                0,
+                255
+              ],
+              "alpha": 1
+            }
+          ],
+          "isCyclic": false
+        },
+        "colorModeStateVersion": 2,
+        "edgeColorMode": "colormap",
+        "faceColorMode": "colormap_xy",
+        "selectedColorModeId": "face-colormap",
+        "colorModeExpressions": {
+          "edge-inherit-vertices": "1-r",
+          "edge-colormap": "x",
+          "face-inherit-vertices": "1/r^2",
+          "face-inherit-edges": "1/r^2",
+          "face-colormap": "x"
+        },
+        "activeTargets": [
+          "vertex"
+        ],
+        "targetSelectionSource": "authoring",
+        "targetColors": {
+          "vertex": "#ffffff",
+          "edge": "#BFC5D0",
+          "face": "#808080",
+          "text": "#ffffff"
+        },
+        "targetPaintKinds": {
+          "vertex": "color",
+          "edge": "color",
+          "face": "color",
+          "text": "color"
+        }
+      },
+      "theme": "dark",
+      "canvasBackground": "#000000",
+      "displaySettings": {
+        "visibility": {
+          "vertex": true,
+          "edge": true,
+          "face": true,
+          "volume": true,
+          "text": true
+        },
+        "drawAngleGuide": true,
+        "drawLengthGuide": true,
+        "drawMeasurements": true,
+        "adaptAppliedColors": false
+      },
+      "coordinateDisplay": {
+        "axisMode": "none",
+        "gridMode": "lines"
+      },
+      "surfaceContexts": {
+        "contexts": [],
+        "stack": [
+          "surface:root"
+        ]
+      },
+      "probe": {
+        "world": [
+          0,
+          0
+        ]
+      },
+      "coordinateView": {
+        "transform": {
+          "position": [
+            640,
+            360
+          ],
+          "scale": [
+            81,
+            81
+          ],
+          "rotation": 0
+        },
+        "referenceScale": 81,
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        }
+      },
+      "dimensions": {
+        "space": 2,
+        "bounds": {
+          "x": [
+            -6,
+            6
+          ],
+          "y": [
+            -4,
+            4
+          ]
+        },
+        "units": "play-units",
+        "aspect": "equal",
+        "signature": "2",
+        "spatialDimension": 2,
+        "timeDimension": 0,
+        "timeAxis": null
+      },
+      "spaceDefinition": {
+        "dimension": 2,
+        "time": false,
+        "physicsEnabled": false,
+        "physics": {
+          "inertia": false,
+          "specialRelativity": false,
+          "rigidCollisions": false,
+          "em": false,
+          "gravity": false,
+          "temperature": false,
+          "light": false
+        },
+        "units": {
+          "system": "si",
+          "length": "m",
+          "time": "s"
+        },
+        "customModules": []
+      },
+      "simulation": {
+        "phase": "stopped",
+        "running": false,
+        "tick": 0,
+        "time": 0,
+        "epoch": 1,
+        "dt": 0.016666666666666666,
+        "velocities": []
+      },
+      "selectedPath": "play/topology.pp",
+      "selectedGeometry": [],
+      "transformations": [],
+      "interpolation": {
+        "styles": [
+          {
+            "id": "linear",
+            "name": "Linear",
+            "type": "linear",
+            "order": 1,
+            "tension": 0.5,
+            "linearStyle": "lines",
+            "linearArrowMode": "absolute",
+            "linearArrowRelativeMode": "end",
+            "linearArrowRelativeValue": 0,
+            "linearArrowAbsoluteMode": "dist",
+            "linearArrowAbsoluteValue": 1
+          }
+        ],
+        "activeStyleId": "linear"
+      },
+      "propertyScope": {},
+      "globalPropertyProgramSource": "",
+      "globalPropertyProgramBaseline": {},
+      "systemInputs": {
+        "sensors": []
+      },
+      "systemCodeInputs": {
+        "acceleration": [
+          0,
+          -9.82,
+          0
+        ],
+        "pressure": 101325,
+        "location": [
+          0,
+          0,
+          0
+        ],
+        "orientation": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "selectedTransformationIds": []
+    }
+  }
+}

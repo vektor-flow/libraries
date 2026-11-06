@@ -1,0 +1,194 @@
+# Independent output components for compiler-generated parallel dispatch.
+s:.segment
+
+# State and second-derivative tables are concatenated in readonly storage.
+# Internal ABI: negative state count selects prepared per-interval curvature
+# (native first-jet/Hermite curve); positive count retains original nodal form.
+state_component(values:[num],width:int,count:int,interval:int,h:num,u:num,index:int)->num:
+    left:interval*width+index
+    right:left+width
+    states:count
+    count<0? .states: -count
+    second:states*width
+    m0:left
+    count<0? .m0:2*interval*width+index
+    m1:m0+width
+    @:s.value(values.(left),values.(right),values.(second+m0),values.(second+m1),h,u)
+
+# Fraction of a triangle's area where its linearly interpolated field is >=0.
+# This is the SAME zero clipping used below, independent of field magnitude.
+# Inputs are finite signed field samples; no distance/gradient assumption.
+two_inside_fraction(outside:num,first:num,second:num)->num:
+    u:first/(first-outside)
+    v:second/(second-outside)
+    fraction:u+v-u*v
+    fraction>1? @:1
+    fraction<0? @:0
+    @:fraction
+
+triangle_fraction(a:num,b:num,c:num)->num:
+    a>=0 /\ b>=0 /\ c>=0? @:1
+    a<0 /\ b<0 /\ c<0? @:0
+    a>=0 /\ b<0 /\ c<0? @:(a/(a-b))*(a/(a-c))
+    b>=0 /\ a<0 /\ c<0? @:(b/(b-a))*(b/(b-c))
+    c>=0 /\ a<0 /\ b<0? @:(c/(c-a))*(c/(c-b))
+    a<0? @:two_inside_fraction(a,b,c)
+    b<0? @:two_inside_fraction(b,a,c)
+    @:two_inside_fraction(c,a,b)
+
+# Row-major corners a,b,c,d; the established contour diagonal is a--d.
+cell_fraction(a:num,b:num,c:num,d:num)->num:
+    @:(triangle_fraction(a,b,d)+triangle_fraction(a,d,c))/2
+
+# Exact clipped-cell area of that piecewise-linear nodal lattice. This measures
+# the rendered polygon model, not the underlying bilinear/exact curved field.
+cell_area(values:[num],size:int,extent_x:num,extent_y:num,cell:int)->num:
+    (size>=2 /\ values.length()>=size*size /\ extent_x>0 /\ extent_y>0 /\ cell>=0 /\ cell<(size-1)*(size-1))?! "invalid geometric measure cell"
+    origin:(cell//(size-1))*size+cell%(size-1)
+    fraction:cell_fraction(values.(origin),values.(origin+1),values.(origin+size),values.(origin+size+1))
+    @:fraction*(extent_x/(size-1))*(extent_y/(size-1))
+
+corner(origin:int,size:int,half:int,edge:int)->int:
+    edge=0? @:origin
+    half=0?
+        edge=1? @:origin+1
+        @:origin+size+1
+    edge=1? @:origin+size+1
+    @:origin+size
+
+# Count the same clipped polygon used by the compact native triangle adapter.
+polygon_count(values:[num],origin:int,size:int,half:int)->int:
+    @:polygon_count_offset(values,origin,size,half,0)
+
+polygon_count_offset(values:[num],origin:int,size:int,half:int,offset:int)->int:
+    count:0
+    edge:0
+    edge<3?>
+        a:values.(offset+corner(origin,size,half,edge))
+        b:values.(offset+corner(origin,size,half,(edge+1)%3))
+        a>=0? .count:count+1
+        (a<0 /\ b>0) \/ (a>0 /\ b<0)? .count:count+1
+        .edge:edge+1
+    @:count
+
+polygon_coordinate(values:[num],origin:int,size:int,half:int,vertex:int,axis:int)->num:
+    @:polygon_coordinate_offset(values,origin,size,half,vertex,axis,0)
+
+polygon_coordinate_offset(values:[num],origin:int,size:int,half:int,vertex:int,axis:int,offset:int)->num:
+    count:0
+    edge:0
+    edge<3?>
+        a:corner(origin,size,half,edge)
+        b:corner(origin,size,half,(edge+1)%3)
+        va:values.(offset+a)
+        vb:values.(offset+b)
+        ca:num(a%size)
+        cb:num(b%size)
+        axis=1?
+            .ca:num(a//size)
+            .cb:num(b//size)
+        va>=0?
+            count=vertex? @:ca
+            .count:count+1
+        (va<0 /\ vb>0) \/ (va>0 /\ vb<0)?
+            count=vertex? @:ca+va/(va-vb)*(cb-ca)
+            .count:count+1
+        .edge:edge+1
+    @:0
+
+# Fixed-capacity output uses zero-area triangles for empty slots. Its GPU buffer
+# can serve directly as the renderer's packed [x,y,r,g,b,a] vertex input.
+triangle_component(values:[num],size:int,extent:num,index:int,r:num,g:num,b:num,a:num)->num:
+    channel:index%6
+    channel=2? @:r
+    channel=3? @:g
+    channel=4? @:b
+    channel=5? @:a
+    cell:index//72
+    half:(index//36)%2
+    fan:(index//18)%2
+    vertex:(index//6)%3
+    origin:(cell//(size-1))*size+cell%(size-1)
+    count:polygon_count(values,origin,size,half)
+    count<3 \/ fan>=count-2? @:0
+    selected:0
+    vertex>0? .selected:fan+vertex
+    @:polygon_coordinate(values,origin,size,half,selected,channel)*extent/(size-1)
+
+# One invocation owns a whole cell packet. Each polygon is clipped once;
+# contiguous vertex attributes are written together instead of recomputed per float.
+cell_triangles(values:[num],size:int,extent:num,cell:int,r:num,g:num,b:num,a:num)->[num]:
+    @:cell_triangles_offset(values,size,extent,cell,r,g,b,a,0)
+
+# Same clipping and packet layout for a field embedded in a native state buffer.
+cell_triangles_offset(values:[num],size:int,extent:num,cell:int,r:num,g:num,b:num,a:num,offset:int)->[num]:
+    [num] storage:[0:72]
+    [num] color:[r,g,b,a]
+    origin:(cell//(size-1))*size+cell%(size-1)
+    half:0
+    half<2?>
+        [num] polygon:[0:8]
+        n:0
+        edge:0
+        edge<3?>
+            first:corner(origin,size,half,edge)
+            last:corner(origin,size,half,(edge+1)%3)
+            va:values.(offset+first)
+            vb:values.(offset+last)
+            va>=0?
+                polygon.(2*n):num(first%size)*extent/(size-1)
+                polygon.(2*n+1):num(first//size)*extent/(size-1)
+                .n:n+1
+            (va<0 /\ vb>0) \/ (va>0 /\ vb<0)?
+                t:va/(va-vb)
+                polygon.(2*n):(num(first%size)+t*(last%size-first%size))*extent/(size-1)
+                polygon.(2*n+1):(num(first//size)+t*(last//size-first//size))*extent/(size-1)
+                .n:n+1
+            .edge:edge+1
+        fan:1
+        count:half*36
+        fan<n-1?>
+            vertex:0
+            vertex<3?>
+                selected:0
+                vertex>0? .selected:fan+vertex-1
+                storage.(count):polygon.(2*selected)
+                storage.(count+1):polygon.(2*selected+1)
+                channel:0
+                channel<4?>
+                    storage.(count+2+channel):color.(channel)
+                    .channel:channel+1
+                .count:count+6
+                .vertex:vertex+1
+            .fan:fan+1
+        .half:half+1
+    @:storage
+
+# Same filled-row rectangle as presentation.triangles, in fixed packet storage.
+rectangle_packet(x:int,y:int,stop:int,size:int,extent:num,r:num,g:num,b:num,a:num)->[num]:
+    [num] storage:[0:72]
+    [num] rectangle:[num(x),num(y),num(stop),num(y),num(stop),num(y+1),num(x),num(y),num(stop),num(y+1),num(x),num(y+1)]
+    [num] color:[r,g,b,a]
+    vertex:0
+    vertex<6?>
+        storage.(vertex*6):rectangle.(2*vertex)*extent/(size-1)
+        storage.(vertex*6+1):rectangle.(2*vertex+1)*extent/(size-1)
+        channel:0
+        channel<4?>
+            storage.(vertex*6+2+channel):color.(channel)
+            .channel:channel+1
+        .vertex:vertex+1
+    @:storage
+
+# Read the same prepared scalar segment's first jet. Diagnostic/constraint
+# consumers retain native derivatives instead of host finite differences.
+state_first(values:[num],width:int,count:int,interval:int,h:num,u:num,index:int)->num:
+    left:interval*width+index
+    right:left+width
+    states:count
+    count<0? .states: -count
+    second:states*width
+    m0:left
+    count<0? .m0:2*interval*width+index
+    m1:m0+width
+    @:s.first(values.(left),values.(right),values.(second+m0),values.(second+m1),h,u)

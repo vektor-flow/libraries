@@ -1,0 +1,149 @@
+PHYSICAL SMOKE REFERENCE AND VKF IMPLEMENTATION CONTRACT
+
+Scope and ownership
+This is a numerical research reference, not an alternative Product renderer or
+an installed VKF fluid backend. Platonic Play must not import this Python solver.
+VKF owns the eventual client solver, native glyph capture, plots, material
+rendering, state interpolation and GPU execution. The current published smoke
+backend has NOT been replaced by this reference. The prescribed analytic-vortex
+experiment was superseded before public integration.
+
+The physical model
+A three-dimensional staggered MAC grid carries air velocity u, pressure p,
+temperature deviation T, and three nonnegative pigment concentrations c_k.
+The example parameters are NONDIMENSIONAL, not calibrated properties of actual
+ink or air. For SI use, declare L_ref, t_ref, rho_ref and DeltaT_ref: viscosity
+scales as L_ref^2/t_ref, force as L_ref/t_ref^2, volume flow as L_ref^3/t_ref.
+
+In constant-reference-density conservative form:
+  div u = s_in - s_out
+  du/dt = -div(u tensor u) - grad p + div(2 nu_eff S) + b
+          + s_in u_in - s_out u
+  dc_k/dt = -div(c_k u) + div(D_eff grad c_k) - s_out c_k
+  d captured_k/dt = integral(s_out c_k dV)
+  dT/dt = -div(T u) + div(alpha_eff grad T) - (cooling+s_out)T.
+Here u_in=0 and incoming air has no pigment and ambient temperature. Mean
+buoyancy is included in the hydrostatic reference; only temperature/loading
+contrasts force the periodic velocity field. There are no ambient smoke sources.
+
+S is symmetric strain. nu_eff = nu + (Cs Delta)^2 sqrt(2 S:S), with nonnegative
+Smagorinsky eddy viscosity. The staggered discretization filters squared shear
+before taking its norm, so grid-scale opposing shears do not incorrectly cancel.
+D_eff = D_molecular + nu_t/Sc_t, and alpha_eff similarly uses Pr_t.
+The example Cs=.12, Sc_t=.7 and Pr_t=.7 are declared closure choices. This is a
+coarse large-eddy model, NOT a DNS or an engineering validation of turbulence.
+No prescribed swirl paths, independent decorative vortices or vorticity-
+confinement energy injection replace Navier-Stokes evolution. Initial smoothed
+random velocity perturbations and heat/source conditions are recorded by seed.
+
+Particle interaction and diffusion
+Fine visual/material probes share the SAME solved air field; they are not
+independently animated. Pressure, viscous stress, advection and buoyancy couple
+the flow. The supported regime is dilute, small-Stokes-number aerosol/tracers.
+There are no hard-sphere contacts or a qualified finite-inertia two-way drag model.
+The optional finite-response drag helper is exact only for frozen sampled air.
+
+For a spatially variable diffusivity K, the overdamped Ito probe equation is
+  dX = [u(X,t) + grad K(X,t)] dt + sqrt(2K(X,t)) dW.
+The grad K drift is essential: its Fokker-Planck equation is the SAME Fickian
+advection/diffusion equation, rather than an artificial pile-up where K is small.
+Random increments model only unresolved/molecular diffusion. Resolved motion and
+vortices come from the nonlinear 3D fluid solver. Stored probe velocity is terminal
+RESOLVED AIR VELOCITY u(X_end), not the undefined instantaneous derivative of a
+Brownian path and not an independent inertial momentum.
+
+Continuum concentrations and fine probes are TWO discretizations of the same
+material. NEVER add their masses together. The continuum supplies mean loading;
+probes are dilute diagnostics of that field. Check their uptake/distribution
+agreement with sampling confidence AND discretization error. For production ink
+carriers, choose one authoritative material ledger and qualify any particle/grid
+transfer; do not silently relabel these probes as an exact two-way particle fluid.
+
+A collector, not a magical endpoint
+Text attraction is an explicit controlled porous collector, not a spontaneous
+property of Navier-Stokes. Nonnegative collector/supply masks each integrate to1:
+  s_out = Q(t) W_collector, s_in = Q(t) W_return.
+The separate pigment-free return-air supply balances removed AIR volume. Pressure
+then enforces div u=s; divergence is zero in bulk, and prescribed at porous ports.
+This is an OPEN, periodically bounded reference volume, not a sealed box. Pump
+pressure work and port momentum exchange must be counted before claiming energy
+conservation. This implementation qualifies periodic boundaries only.
+
+Native VKF must supply actual glyph/front masks and source ink. The solver accepts
+fields, not handcrafted fonts or triangles. Only the FIRST new creation receives
+the outgoing material; later rows reveal normally. Captured mass/flux must drive
+materialization. Do not prescribe a deadline and then teleport or discard smoke.
+Finite-rate continuum uptake has an exponential tail: retain every residual mass.
+Fine probes use a sampled exponential optical-depth threshold and accumulated
+physical capture hazard, so their actual absorption events debit gas and credit
+the receiver. Preserve these thresholds/exposures across a view change.
+
+Source pigment composition is conserved by transport. A requested fade toward a
+new authored text colour is a separate native rendering/state-interpolation
+attribute, not a claim that fluid dynamics chemically changes the pigment.
+The model starts with released aerosol; latent heat, boiling and ink chemistry
+are NOT solved. Glyph-to-gas release must be an explicit conservative source
+transfer from the native attached-material reservoir, with declared heat/momentum.
+
+Numerical method and boundary movement
+Velocity lives on faces, scalars at cell centres. The same staggered divergence
+D and gradient G define the pressure operator DG. Pressure projection and all
+stencils are compatible. Momentum fluxes are conservative; symmetric viscous
+stress is dissipative; pigments use conservative limited MUSCL fluxes.
+
+For nonstationary ports, use a gradient lift L with D L=s and u=w+L. Since L is a
+gradient, the incompressible projection annihilates dL/dt, so evolve divergence-free
+w with the projected momentum RHS. Reconstruct actual u at EVERY SSPRK3 stage
+time t, t+dt, t+dt/2, including the convexly combined stages. Final projection alone
+cannot repair inconsistent intermediate transport. A quintic C2 collector ramp
+and convex C2 spatial-mask transitions preserve volume balance and avoid resets.
+For a basis L=-G pL, physical stage pressure is p_rhs + d(Q pL)/dt, including the
+spatial-mask blending derivative. The reference checks every stage's constraint,
+positivity and transport bound, and final CFL too. Failed trial steps do not
+mutate accepted state. Adaptive CFL subdivisions occur only inside fixed ticks.
+
+Observation cadence cannot drive the integration schedule. advance_to(t) uses an
+absolute observation clock (nanosecond input quantization) and integer fixed ticks.
+A partially observed tick is not cut into a new physical step. Native rendering
+may interpolate accepted frames separately; it must not feed that interpolation
+back into physics. A view change or hold never resets or pauses the fluid clock.
+
+Snapshots and replay
+Persist the complete velocity/pressure/temperature/species state, deposited mass,
+fixed tick/substep clock, source/control laws, normalized masks, pressure-lift
+bases, active mask-transition state and random/probe state. Probe position,
+resolved velocity, weight/species, alive mask, capture exposure/threshold and RNG
+state all matter. Do not renormalize already-normalized snapshots on restoration.
+Exact replay is qualified on the same CPU backend; GPU f32 comparisons need an
+explicit measured tolerance and backend identity, not an inherited f64 claim.
+
+Required native port gates
+Run the supplied physics tests and independent falsification cases before a full
+movie. Compare GPU/native Poisson residuals using D/G above; do not count fixed
+Jacobi iterations as convergence. The current075 compiled-field ABI supports
+persistent/ping-pong buffers and gather stencils. A GPU FFT, float atomics, particle
+scatter, global reductions and a fluid solver are NOT automatically available.
+Qualify the required implementation or expose the capability gap. Matrix-free
+multigrid/PCG is acceptable if its residual/error criteria pass. Keep compute and
+memory budgets, cancellation, fixed solver clock and immutable source provenance.
+
+Current limitations
+Periodic reference boundary; no qualified solid/open-wall GPU boundary backend.
+Nondimensional demonstration parameters; no calibrated material/air-property fit.
+Dilute probes, not a validated dense/collisional or finite-inertia two-way solver.
+Continuum residual stays live; no exact zero-gas guarantee at a finite deadline.
+Actual native glyph-front/colour coupling and client GPU implementation are the
+next implementation work; the numerical reference alone does not establish them.
+
+Primary sources (concepts; implementation/port-control derivation above is ours)
+Jos Stam, Stable Fluids, SIGGRAPH1999:
+https://www.dgp.toronto.edu/public_user/stam/reality/Research/pdf/ns.pdf
+Robert Bridson and Matthias Mueller-Fischer, Fluid Simulation course notes2007:
+https://www.cs.ubc.ca/~rbridson/fluidsimulation/fluids_notes.pdf
+Fedkiw, Stam and Jensen, Visual Simulation of Smoke, SIGGRAPH2001 (background;
+our model does not substitute their vorticity-confinement term for resolved flow):
+https://physbam.stanford.edu/papers/stanford2001-01.pdf
+NASA technical report on LES constitutive/Smagorinsky closure,2016:
+https://www.nas.nasa.gov/assets/nas/pdf/papers/NASA-TP-2016-219422_and_JANNAF-GL-2016-0001.pdf
+Target-driven control is an explicit addition to fluid laws; related background:
+https://pages.cs.huji.ac.il/danix-lab/cglab/projects/tdsmoke/

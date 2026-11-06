@@ -1,0 +1,132 @@
+PLATONIC PLAY → VKF: OPTIONAL ENGINE RESEARCH AND EXPERIMENTS
+2026-11-06 — Owner direction: engine work belongs upstream; PP is a thin wrapper.
+
+START HERE
+This directory is a research handover, not an SDK, release, required design or
+finished presentation. Take inspiration, reuse useful mathematics/tests, or
+discard any component. Do not inherit the experimental APIs, implementation
+choices, manual dispatch plumbing or historical compiler process by default.
+
+The primary current integration authority is:
+/home/viktor/Projects/Vektor Flow/.coordination/atomic-chats446/PP-AUTOMATIC-GPU-COMPUTE-INTEGRATION-HANDOVER-COORDINATOR125.txt
+Read its current provider references as needed. This handover does not reopen
+other workers/jobs, adopt their deadlines or authorize deployments.
+
+OWNERSHIP
+VKF owns physics, state interpolation, layout, graphics, numerical execution,
+automatic GPU scheduling/resources, resident state and rendering. PP owns
+editable authored content, bindings, UI, navigation/triggers, Session/phone input,
+persistence and lifecycle. PP should communicate through documented public SDK
+entrypoints; it should not own an engine, private vf-ui contract, raw GPU buffers,
+shader emission, per-frame numerical readback/re-upload or an alternate solver.
+
+WHAT IS HERE
+1. physics-reference/: the CPU/f64 research and historical proof receipts moved
+   OUT of the PP repository. This includes conservative periodic MAC/SSPRK3 NS,
+   fine glyph-mask segment capture, finite attached material bookkeeping, and a
+   proposed areal-fill formation closure. These are independent reference oracles,
+   not Product execution. Existing historical rejected/reference video receipts
+   retain their original status; they are not full-presentation acceptance.
+2. native-excerpts/: optional snapshots of committed native VKF candidates.
+   INVENTORY.json identifies canonical repositories, exact commits, source paths,
+   hashes and qualification scope. Git refs remain canonical; these excerpts are
+   not a second maintained implementation or complete compiler project.
+3. candidates/: unintegrated FineFormation source/emission recipe and an optional
+   old-runtime result-range patch. FineFormation was compiled/emitted only; it
+   has NO native execution or GPU qualification. The range patch has a finite
+   software-GPU transport test. Neither is a public API requirement. Historical
+   emission recipes are retained for provenance, not instructions to retain
+   explicit shader flags/private runtime contracts in the automatic engine.
+4. evidence/: finite reference/WASM/software-GPU receipts, original failures,
+   quantization and memory limits. Preserve failed approaches if evaluating them.
+5. inputs/: actual physical-font 27-glyph historical geometry fixture.
+6. app-use-case/: the editable 29-view cubic lesson and its authored content plan.
+   The .vkf file is PP's portable Session Document, not an ordinary CLI program.
+   It is application content, not a presentation-specific solver or renderer.
+
+POTENTIALLY USEFUL IDEAS
+- Native D/G-consistent pressure projection, conservative momentum flux/full
+  constant-viscosity stress, SSPRK3 stage acceptance and CFL/positivity checks.
+- FineReceiver captures only where a segment intersects genuine native text
+  occupancy and the first creation front. It integrates hazard along the accepted
+  segment, preserves identity/mass and records the actual pixel/event fraction.
+- One continuous physical epoch, explicit observation versus accepted fixed-tick
+  time, native ownership/pixel/colour bookkeeping, transactional rejection and
+  complete snapshots. Captured solids are not displayed as frozen gas particles.
+  Re-emission uses stored lineages, not freshly rasterized replacement mass.
+- StateEvents/StateControls/EventFields reuse the existing native state/segment
+  primitives. Ward/C1 embeddings, immutable sparse field chunks and a small
+  control descriptor avoid passing giant field plans on every frame. Identity
+  fields stay unchanged. These are model/representation ideas, not SDK dictates.
+- Geometry union coverage and density-weighted colour moments need separate
+  treatment. Native compensated reductions preserve small positive contributions.
+- A native area controller should expose a representable/raster-limited result
+  rather than pretend an unreachable pixel-area tolerance converged. One q=.9
+  case has adjacent representable scales whose area jump makes the 1px target
+  impossible; nearest observed residual is 1.4651px. Exact linear raster area
+  and exact visible contact timing are NOT proved.
+- Shared allocations, input chunks/leases, compact diagnostics and explicit
+  completion are engine concerns. An app inspector/capture should not force
+  full state download or a global host fence every physics/render operation.
+
+CURRENT REAL LIMITS — DO NOT PROMOTE THESE RESULTS
+All browser GPU evidence here used SwiftShader. It checks finite implementation
+behaviour, not genuine hardware performance. No complete initialized physics+
+graphics under10ms workload has been established. Native/Vulkan f64 and browser
+WebGPU f32 are distinct; no cross-backend zero-copy guarantee is established.
+
+The internal source→capture→owner/pixel→re-emission→restore cycle passed finite
+software tests. The full physical presentation is still missing integrated ports
+stage coupling, native initialized-world accuracy, actual fine-support formation,
+and a documented public automatic GPU factory/runtime bridge.
+
+FluidInitial's GPU candidate FAILED its first accuracy case: state error
+1.16956e-5 (limit2e-6), pressure error .001194 (limit2e-5). Later GPU cases were
+not reached. Its WASM reference checks passing do not repair that failure.
+
+The actual27 state test had no fragment-count increase/reopening in its sampled
+frames and bounded area/colour results. Visible contacts precede semantic Ward
+coincidences; near-linear visible connected-component timing remains unproved.
+Full29-view runtime, ordinary public-SDK integration and hardware performance
+remain unqualified. No new full-presentation movie was recorded or deployed.
+
+FineFormation's areal-fill rule is a declared constitutive assumption: coverage
+is derived from actual deposited mass and a declared areal density; excess mass
+remains attached thickness. It is not thermodynamics, surface diffusion or an
+empirically qualified optical model. Its reference contract/tests are included;
+there is no independent time fade or missing-mass top-up. You may replace it.
+
+PUBLIC PROVIDER CAPABILITIES PP STILL NEEDS
+Please implement/publish only through the normal shared engine when qualified:
+- Actual documented version-matched compiler/runtime/ABI entrypoints for ordinary
+  retained physics, state interpolation and compatible rendering, with supported
+  source/revision/runtime-input and diagnostic contracts.
+- One execution authority per Session/branch/timeline/epoch, independent of view
+  attachment, resizing, mode changes and phone clients.
+- Engine-owned opaque resident results/view leases, batched commands and inputs,
+  cancellation/supersession/device loss, and deliberate portable observations.
+- Completion that binds the accepted generation to ALL composed view outputs,
+  preserving real errors and exact backend/precision/resource information.
+- End-to-end correctness and the agreed complete initialized hardware workload
+  target; component timings, mocks or shader emission do not establish it.
+
+These describe responsibilities/use cases, NOT names of promised SDK exports.
+Do not manufacture a public API from the private experimental module names.
+
+PP STATUS
+Current PP branch is codex/cubic-interpolation-correction-20261106, last runtime
+change802c8d24308dd3e498a5d06c8a483da10bb2f599. It preserves stable authored IDs,
+independent presentation/physical clocks and explicit unavailable capabilities.
+Existing app dependencies/assets were not replaced with these candidates.
+Its existing JS-compat physics/source-view adapters are migration inventory, not
+qualification of the new automatic GPU engine. No new PP solver is requested.
+The native app/Expo/auth/relay/staging application has not been redeployed here.
+Staging's existing image528934d6 remains unchanged; a prepared movie-only recipe
+was not built/deployed. The requested full video remains pending real integration.
+
+HOW TO USE
+Start with the scope/failures above, then select individual inventory entries.
+Read the source maths and reference assertions; adapt or reject them in the
+current shared engine. Rebuild and qualify actual matching native/browser
+artifacts under current ownership. Expose documented public capabilities when
+ready; PP can then integrate them without inheriting private internals.

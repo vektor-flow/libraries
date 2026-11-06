@@ -1,0 +1,202 @@
+{
+  "schema": "native-material-coverage-gpu/1",
+  "passed": true,
+  "sourceSha256": "404a1bbcc1040a323609425b07e443aa7e64d0243c908b1705eb5f3e69b97601",
+  "reports": [
+    {
+      "name": "empty",
+      "width": 7,
+      "height": 5,
+      "ratio": 1,
+      "kind": "empty",
+      "area": 0,
+      "cpuAlphaArea": 0,
+      "error": 0,
+      "errorBudget": 0.000001,
+      "partialCoveragePixels": 0,
+      "firstMeasureMs": 5.299999952316284,
+      "warmMeasureMs": [
+        2.5,
+        2.5,
+        2.4000000953674316
+      ],
+      "ownedBytes": 220,
+      "controlReadbackBytes": 12,
+      "testOnlyCpuReadbackBytes": 1280
+    },
+    {
+      "name": "full-dpr2",
+      "width": 9,
+      "height": 7,
+      "ratio": 2,
+      "kind": "full",
+      "area": 15.75,
+      "cpuAlphaArea": 15.75,
+      "error": 0,
+      "errorBudget": 0.00000851018524169922,
+      "partialCoveragePixels": 0,
+      "firstMeasureMs": 2.6999999284744263,
+      "warmMeasureMs": [
+        2.399999976158142,
+        2.200000047683716,
+        2.299999952316284
+      ],
+      "ownedBytes": 348,
+      "controlReadbackBytes": 12,
+      "testOnlyCpuReadbackBytes": 1792
+    },
+    {
+      "name": "partial-nonsquare-dpr1.5",
+      "width": 19,
+      "height": 11,
+      "ratio": 1.5,
+      "kind": "partial",
+      "area": 32.684967041015625,
+      "cpuAlphaArea": 32.68496732026143,
+      "error": 2.792458033695766e-7,
+      "errorBudget": 0.00001658540693295547,
+      "partialCoveragePixels": 25,
+      "firstMeasureMs": 2.399999976158142,
+      "warmMeasureMs": [
+        2.3000000715255737,
+        2.5,
+        2.5
+      ],
+      "ownedBytes": 964,
+      "controlReadbackBytes": 12,
+      "testOnlyCpuReadbackBytes": 2816
+    },
+    {
+      "name": "overlap-union",
+      "width": 127,
+      "height": 83,
+      "ratio": 2,
+      "kind": "overlap",
+      "area": 1270.13037109375,
+      "cpuAlphaArea": 1270.130392156863,
+      "error": 0.000021063113081254414,
+      "errorBudget": 0.0006066453667434993,
+      "partialCoveragePixels": 149,
+      "firstMeasureMs": 2.700000047683716,
+      "warmMeasureMs": [
+        2.399999976158142,
+        2.600000023841858,
+        2.5
+      ],
+      "ownedBytes": 42868,
+      "controlReadbackBytes": 12,
+      "testOnlyCpuReadbackBytes": 42496
+    },
+    {
+      "name": "scene800",
+      "width": 800,
+      "height": 450,
+      "ratio": 1,
+      "kind": "overlap",
+      "area": 173341.3125,
+      "cpuAlphaArea": 173341.31764705852,
+      "error": 0.005147058516740799,
+      "errorBudget": 0.08265658130600859,
+      "partialCoveragePixels": 448,
+      "firstMeasureMs": 10.600000023841858,
+      "warmMeasureMs": [
+        8.899999976158142,
+        10.100000023841858,
+        9.899999976158142
+      ],
+      "ownedBytes": 1443640,
+      "controlReadbackBytes": 12,
+      "testOnlyCpuReadbackBytes": 1497600
+    },
+    {
+      "name": "scene1280-dpr2",
+      "width": 1280,
+      "height": 720,
+      "ratio": 2,
+      "kind": "partial",
+      "area": 82101,
+      "cpuAlphaArea": 82100.9999999998,
+      "error": 2.0372681319713593e-10,
+      "errorBudget": 0.03914980752563467,
+      "partialCoveragePixels": 1915,
+      "firstMeasureMs": 24.699999928474426,
+      "warmMeasureMs": [
+        19.700000047683716,
+        18.600000023841858,
+        19.600000023841858
+      ],
+      "ownedBytes": 3692200,
+      "controlReadbackBytes": 12,
+      "testOnlyCpuReadbackBytes": 3686400
+    },
+    {
+      "name": "wide-row-bound",
+      "width": 8192,
+      "height": 1,
+      "ratio": 1,
+      "kind": "partial",
+      "area": 2221.929443359375,
+      "cpuAlphaArea": 2221.9294117648556,
+      "error": 0.00003159451944156899,
+      "errorBudget": 0.0010604985064338948,
+      "partialCoveragePixels": 5312,
+      "firstMeasureMs": 3.600000023841858,
+      "warmMeasureMs": [
+        3.5,
+        3.600000023841858,
+        3.5
+      ],
+      "ownedBytes": 32816,
+      "controlReadbackBytes": 12,
+      "testOnlyCpuReadbackBytes": 32768
+    },
+    {
+      "name": "tall-row-bound",
+      "width": 1,
+      "height": 8192,
+      "ratio": 2,
+      "kind": "full",
+      "area": 2048,
+      "cpuAlphaArea": 2048,
+      "error": 0,
+      "errorBudget": 0.0009775625,
+      "partialCoveragePixels": 0,
+      "firstMeasureMs": 4.200000047683716,
+      "warmMeasureMs": [
+        3.5,
+        3.5,
+        3.6999999284744263
+      ],
+      "ownedBytes": 98344,
+      "controlReadbackBytes": 12,
+      "testOnlyCpuReadbackBytes": 2097152
+    },
+    {
+      "name": "bgra-varied-alpha",
+      "width": 13,
+      "height": 3,
+      "ratio": 1.25,
+      "format": "bgra8unorm",
+      "area": 13.685961723327637,
+      "cpuAlphaArea": 13.685960784313727,
+      "error": 9.390139101839168e-7,
+      "errorBudget": 0.000007525974647671569,
+      "controlReadbackBytes": 12,
+      "ownedBytes": 220
+    }
+  ],
+  "malformedControls": 5,
+  "nativeMalformedCases": 4,
+  "nativeAlphaReject": true,
+  "resourceReject": true,
+  "preAbort": true,
+  "pendingAbort": true,
+  "disposeReject": true,
+  "tamperReject": true,
+  "peakOwnedBytes": 3692200,
+  "ownedBytesAfterDispose": 0,
+  "errors": [],
+  "backend": "Chrome WebGPU Vulkan SwiftShader",
+  "scope": "Resolved MSAA4 alpha transport and native compensated CSS-area objective only; no scale selection, full formation/session or60Hz claim",
+  "browserErrors": []
+}

@@ -1,0 +1,73 @@
+# Attached material ownership/re-emission. Air dynamics and capture remain in
+# Fluid/FineReceiver. No new motion or interpolation model is introduced here.
+f:.Fluid
+owner(value:num)->bool:
+    @:value>=-1 /\ value<=16777215.0 /\ value=num(int(value))
+controls(p:[num],v:[num],index:int)->int:
+    (p.length()=26)?! "material stock requires flow24 and count/owner"
+    nx:int(p.(0))
+    ny:int(p.(1))
+    nz:int(p.(2))
+    n:nx*ny*nz
+    (nx>=4 /\ ny>=4 /\ nz>=4 /\ n<=131072 /\ p.(0)=num(nx) /\ p.(1)=num(ny) /\ p.(2)=num(nz))?! "invalid material stock air shape"
+    (p.(3)>0 /\ p.(4)>0 /\ p.(5)>0 /\ |p.(3)|<10000000000.0 /\ |p.(4)|<10000000000.0 /\ |p.(5)|<10000000000.0)?! "invalid material stock air spacing"
+    count:int(p.(24))
+    (count>0 /\ count<=131072 /\ p.(24)=num(count) /\ index>=0 /\ index<count /\ owner(p.(25)) /\ p.(25)>=0 /\ v.length()=7*n+22*count)?! "invalid material stock storage/owner"
+    @:n
+selected(index:int,p:[num],v:[num],n:int)->bool:
+    count:int(p.(24))
+    base:7*n+20*index
+    key:v.(7*n+20*count+index)
+    (owner(key) /\ (v.(base+16)=0 \/ v.(base+16)=1))?! "invalid native attached ownership/liveness"
+    @:v.(base+16)=0 /\ key=p.(25)
+
+# Input accepted7N ++ records20C ++ ownersC ++ persistedNewThresholdsC.
+# Non-selected records, including moving gas, are byte-preserved numerically.
+reemit(index:int,p:[num],v:[num])->[num]:
+    n:controls(p,v,index)
+    count:int(p.(24))
+    base:7*n+20*index
+    [num] result:[0:20]
+    channel:0
+    channel<20?>
+        result.(channel):v.(base+channel)
+        .channel:channel+1
+    ~selected(index,p,v,n)? @:result
+    threshold:v.(7*n+21*count+index)
+    (threshold>0 /\ threshold<1000 /\ result.(9)>0 /\ |result.(9)|<1000000000000000000000000000000.0)?! "invalid native released mass/threshold"
+    .channel:0
+    channel<20?>
+        (|result.(channel)|<1000000000000000000000000000000.0)?! "nonfinite attached native material"
+        .channel:channel+1
+    .channel:10
+    channel<14?>
+        (result.(channel)>=0 /\ result.(channel)<=1)?! "invalid attached native RGBA"
+        .channel:channel+1
+    .channel:0
+    channel<3?>
+        result.(6+channel):f.sample_component(v,0,result.(3),result.(4),result.(5),channel,p)
+        .channel:channel+1
+    result.(14):0
+    result.(15):threshold
+    result.(16):1
+    result.(19):0
+    @:result
+owners(index:int,p:[num],v:[num])->num:
+    n:controls(p,v,index)
+    selected(index,p,v,n)? @:-1
+    @:v.(7*n+20*int(p.(24))+index)
+
+# Same transaction as FineReceiver accepted output. Only a new capture claims
+# ownership; an old attached record or free moving gas retains its old tag.
+capture_owner(index:int,p:[num],v:[num])->num:
+    (p.length()=2)?! "capture ownership requires count and receiver key"
+    count:int(p.(0))
+    (count>0 /\ count<=131072 /\ p.(0)=num(count) /\ owner(p.(1)) /\ p.(1)>=0 /\ index>=0 /\ index<count /\ v.length()=26*count)?! "invalid capture ownership storage"
+    prior:v.(index)
+    base:count+25*index
+    captured:v.(base+20)
+    (owner(prior) /\ (captured=0 \/ captured=1))?! "invalid capture ownership event"
+    captured=1?
+        (v.(base+16)=0)?! "captured material cannot remain live gas"
+        @:p.(1)
+    @:prior

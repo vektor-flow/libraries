@@ -1,0 +1,41 @@
+<!doctype html><meta charset="utf-8"><title>Physical smoke numerical reference</title><link rel="icon" href="data:,"><style>body{margin:0;background:#000;color:#ddd}#host{width:1280px;height:720px;position:relative}#host>canvas{position:absolute;inset:0}</style><div id="host"></div><button id="record">Record fluid reference</button><output id="status"></output>
+<script type="module">
+const {createScreenSpacePointCloudRenderer}=await import(/* @vite-ignore */ new URL('/vkf-0.7.5/vf-ui/geom/vf-screen-point-cloud-renderer.mjs',location).href);
+const {prepareNativeTextModes}=await import(/* @vite-ignore */ new URL('/vkf-0.7.5/vf-ui/native-labels/vf-native-text-modes.mjs',location).href);
+const {loadCurrentWasmLabelProducer}=await import(/* @vite-ignore */ new URL('/vkf-0.7.5/vf-ui/native-labels/vf-current-wasm-producer.mjs',location).href);
+const {createCurrentNativeTypography}=await import(/* @vite-ignore */ new URL('/vkf-0.7.5/vf-ui/native-labels/vf-current-native-provider.mjs',location).href);
+const {createLayeredCanvasCaptureSource}=await import(/* @vite-ignore */ new URL('/vkf-0.7.5/vf-ui/vf-media-capture.mjs',location).href);
+const {createFrameMovieCapture}=await import(/* @vite-ignore */ new URL('/vkf-0.7.5/vf-ui/vf-frame-movie-capture.mjs',location).href);
+const status=document.querySelector('#status'),host=document.querySelector('#host');
+async function run(){
+ const name=new URL(location).searchParams.get('case')==='fluid-only'?'fluid-only':'visual-proof';const meta=await(await fetch('./'+name+'.json')).json(),data=new Float32Array(await(await fetch('./'+name+'.bin')).arrayBuffer());
+ const root=new URL('/vkf-0.7.5/vf-ui/artifacts/current-labels/',location),get=async n=>(await fetch(new URL(n,root))).json(),descriptor=await get('producer.json'),vectors=await get('native-mapping/vectors.json'),binding=await get('native-mapping/binding.json'),files=Object.fromEntries(Object.entries(descriptor.files).map(([n,f])=>[n,{...f,url:new URL(f.url,new URL('producer.json',root)).href}])),producer=await loadCurrentWasmLabelProducer({...descriptor,files}),typography=createCurrentNativeTypography({boxes:{},vectors,binding,identity:producer.identity,typeset:(run,pins)=>producer.typeset(run,pins)});
+ const bg=document.createElement('canvas');bg.width=1280;bg.height=720;bg.getContext('2d').fillStyle='#000';bg.getContext('2d').fillRect(0,0,1280,720);
+ const gas=document.createElement('canvas');host.append(gas);const points=createScreenSpacePointCloudRenderer(gas,{premultipliedAlpha:true});await points.initialize();points.resize(1280,720);
+ const spec=(id,source,x,y,scale=2.4,color=[.47,.827,.776,1])=>({id,kind:'math',source,anchor:[x,y],sizeSpace:'css',scale,color});
+ const specs=[spec('title',meta.collectorActive?String.raw`\text{Navier-Stokes smoke reference}`:String.raw`\text{Fluid dynamics only}`,64,54,3.4),spec('meaning',meta.collectorActive?String.raw`\text{Fine probes share one 3D fluid field}`:String.raw`\text{Unforced 3D flow, smooth initial velocity}`,64,98,2.2,[.96,.97,.98,1]),spec('collector',String.raw`\text{Collector}`,1010,340,2.2),spec('mass',String.raw`M+C=M_0`,64,670,2.6,[.91,.77,.42,1]),spec('scope',String.raw`\text{CPU numerical reference, VKF native rendering}`,400,670,2.2,[.96,.97,.98,1])];
+ if(!meta.collectorActive)specs.splice(specs.findIndex(s=>s.id==='collector'),1);
+ const labels=await prepareNativeTextModes({fromSpecs:specs,toSpecs:specs,width:1280,height:720,pixelRatio:1,typography,interp:{mode:'state'}});host.append(labels.element);await labels.sample(1);
+ const capture=createLayeredCanvasCaptureSource({layers:[bg,gas,labels.canvas]});host.append(capture.canvas);const encoder=await createFrameMovieCapture({width:1280,height:720,frameRate:meta.frameRate});const hashes=[],samples=[];let fixedPixels;
+ try{
+  for(let i=0;i<meta.frames.length;i++){
+   const f=meta.frames[i];points.setInkCarriers(data.subarray(f.offsetFloats,f.offsetFloats+7*f.count));capture.drawFrame({readback:true});
+   const fixed=capture.canvas.getContext('2d').getImageData(0,0,1280,120).data;
+   if(!fixedPixels)fixedPixels=fixed.slice();else{let changed=0;for(let k=0;k<fixed.length;k++)if(fixed[k]!==fixedPixels[k])changed++;if(changed)throw Error('Native fixed-label pixels changed: '+changed+' atframe '+i);}
+   if([0,60,90].includes(i))samples.push({frame:i,png:capture.canvas.toDataURL('image/png')});
+   if([0,30,45,60,90,120,150,180].includes(i)){
+    const pixels=capture.canvas.getContext('2d').getImageData(0,0,1280,720).data;
+    const digest=[...new Uint8Array(await crypto.subtle.digest('SHA-256',pixels))].map(n=>n.toString(16).padStart(2,'0')).join('');hashes.push({frame:i,hash:digest,count:f.count,time:f.time});
+    // WebGL canvases discard outside the submitted turn. Re-submit before the
+    // native composition used for encoding; no hand-drawn image substitution.
+    points.setInkCarriers(data.subarray(f.offsetFloats,f.offsetFloats+7*f.count));capture.drawFrame({readback:true});
+   }
+   const vf=new VideoFrame(capture.canvas,{timestamp:Math.round(i/meta.frameRate*1e6)});try{await encoder.addFrame(vf,i);}finally{vf.close();}
+   status.textContent=`Frame ${i+1}/${meta.frames.length}; remaining probes ${f.count}`;if(i%30===0)console.log('FLUID_FRAME',i,f.count);
+  }
+  const blob=await encoder.finish(),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='navier-stokes-reference.webm';a.click();
+  window.proof={frames:meta.frames.length,frameRate:meta.frameRate,width:1280,height:720,pointRenderer:points.backend,nativeTextLibrary:labels.libraryCommit,fluidBackend:meta.backend,dataSha256:meta.dataSha256,sourceHashes:meta.sourceHashes,hashes,fixedLabelsExact:true,samples,final:meta.frames.at(-1),simulationMsP50:meta.simulationMsP50,simulationMsP95:meta.simulationMsP95,simulationRealTimeRatio:meta.simulationRealTimeRatio};status.textContent='Reference saved';
+ }finally{points.destroy();labels.close();typography.close();producer.close();}
+}
+document.querySelector('#record').onclick=()=>{document.querySelector('#record').disabled=true;run().catch(e=>{console.error(e);status.textContent=e.message;window.failure=e.message;});};window.ready=true;
+</script>

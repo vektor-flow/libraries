@@ -1,0 +1,87 @@
+# Declared opaque areal-fill surface closure from fine captured moments.
+# No air dynamics, time fade, mass top-up or stock mutation. See reference contract.
+minimum(a:num,b:num)->num:
+    a<b? @:a
+    @:b
+parameters(count:int,pixel_area:num,areal_density:num,ratio_tolerance:num=0.000000476837158203125)->[num]:
+    (count>=1 /\ count<=65536 /\ pixel_area>0 /\ areal_density>0 /\ pixel_area<1000000000000000000000000000000.0 /\ areal_density<1000000000000000000000000000000.0 /\ ratio_tolerance>=0 /\ ratio_tolerance<=0.00001)?! "invalid bounded surface formation parameters"
+    layer:pixel_area*areal_density
+    (layer>0.000000000000000000000000000001 /\ layer<1000000000000000000000000000000.0)?! "one-layer pixel mass outside finite formation profile"
+    @:[num(count),pixel_area,areal_density,ratio_tolerance]
+
+# Controls[K,pixelAreaWorld,sigma,ratioTolerance]. Input support2K++moments5K.
+# Output PMA4,geometricCoverage,coveredArea,mass,layerMass,excessMass,
+# thicknessFactor,authoredOpacity,clampCount. Five moments are mRGB3,M,mOpacity.
+pixel(index:int,p:[num],v:[num])->[num]:
+    (p.length()=4 /\ p.(0)>=1 /\ p.(0)<=65536 /\ p.(0)=num(int(p.(0))) /\ index>=0 /\ index<int(p.(0)) /\ v.length()=7*int(p.(0)))?! "invalid fine formation storage"
+    k:int(p.(0))
+    area:p.(1)
+    sigma:p.(2)
+    tolerance:p.(3)
+    layer:area*sigma
+    (area>0 /\ sigma>0 /\ area<1000000000000000000000000000000.0 /\ sigma<1000000000000000000000000000000.0 /\ layer>0.000000000000000000000000000001 /\ layer<1000000000000000000000000000000.0 /\ tolerance>=0 /\ tolerance<=0.00001)?! "invalid finite surface mass scale"
+    id:v.(2*index)
+    alpha:v.(2*index+1)
+    (id>=0 /\ id<4194304 /\ id=num(int(id)) /\ alpha>0 /\ alpha<=1)?! "invalid genuine formation support"
+    at:2*k+5*index
+    j:0
+    j<5?>
+        (v.(at+j)>=0 /\ v.(at+j)<1000000000000000000000000000000.0)?! "invalid raw surface moment"
+        .j:j+1
+    [num] result:[0:12]
+    mass:v.(at+3)
+    mass=0?
+        .j:0
+        j<5?>
+            (v.(at+j)=0)?! "colour or opacity cannot exist without material"
+            .j:j+1
+        @:result
+    (mass>0.000000000000000000000000000001)?! "surface moment below finite formation profile"
+    cap:layer*alpha
+    (cap>0)?! "surface layer capacity underflow"
+    first:minimum(mass,cap)
+    coverage:minimum(alpha,first/layer)
+    opacity:v.(at+4)/mass
+    (opacity<=1+tolerance)?! "surface opacity exceeds reduction tolerance"
+    opacity>1? result.(11):result.(11)+1
+    .opacity:minimum(opacity,1)
+    result.(3):coverage*opacity
+    .j:0
+    j<3?>
+        colour:v.(at+j)/mass
+        (colour<=1+tolerance)?! "surface display coefficient exceeds reduction tolerance"
+        colour>1? result.(11):result.(11)+1
+        result.(j):minimum(colour,1)*result.(3)
+        .j:j+1
+    result.(4):coverage
+    result.(5):coverage*area
+    result.(6):mass
+    result.(7):first
+    result.(8):mass-first
+    result.(9):mass/first
+    result.(10):opacity
+    @:result
+
+# Existing native analytic pixel renderer consumes straight RGBA at pixel centres.
+# It displays attached solid ink, not inactive gas; no text is drawn by a host.
+# Input support2K++formation12K, controls[K,fullPhysicalWidth,fullPhysicalHeight].
+screen_ink(index:int,p:[num],v:[num])->[num]:
+    (p.length()=3 /\ p.(0)>=1 /\ p.(0)<=65536 /\ p.(0)=num(int(p.(0))) /\ p.(1)>=1 /\ p.(1)<=4096 /\ p.(1)=num(int(p.(1))) /\ p.(2)>=1 /\ p.(2)<=4096 /\ p.(2)=num(int(p.(2))) /\ p.(1)*p.(2)<=4194304 /\ index>=0 /\ index<int(p.(0)) /\ v.length()=14*int(p.(0)))?! "invalid native solid-ink storage/viewport"
+    id:v.(2*index)
+    (id>=0 /\ id<p.(1)*p.(2) /\ id=num(int(id)))?! "invalid native solid-ink pixel"
+    at:2*int(p.(0))+12*index
+    alpha:v.(at+3)
+    (alpha>=0 /\ alpha<=1)?! "invalid formed native alpha"
+    [num] result:[0:7]
+    result.(0):num(int(id)%int(p.(1)))+0.5
+    result.(1):num(int(id)//int(p.(1)))+0.5
+    result.(2):1
+    alpha>0?
+        j:0
+        j<3?>
+            value:v.(at+j)
+            (value>=0 /\ value<=alpha*1.000001)?! "invalid formed premultiplied coefficient"
+            result.(3+j):minimum(1,value/alpha)
+            .j:j+1
+    result.(6):alpha
+    @:result

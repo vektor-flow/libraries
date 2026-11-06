@@ -1,0 +1,27 @@
+{
+  "schema": "material-transfer-reference/1",
+  "status": "Research bookkeeping, not installed glyph coupling",
+  "tests": 3,
+  "seconds": 0.81,
+  "model": "Declared instantaneous solid-density field release into existing dilute aerosol; no thermal or normal-momentum impulse law",
+  "qualifications": [
+    "Finite source debited exactly once; no duplicate source identity",
+    "Release leaves resolved air velocity unchanged",
+    "Solid+gas+captured species conserved",
+    "Uncaptured gas remains in fluid while other material is absorbed",
+    "Pending sources, spatial deposits and release history survive snapshot/handover exactly",
+    "Invalid/nonfinite/negative source fields reject"
+  ],
+  "notQualified": [
+    "Native glyph density/particle sampling",
+    "Native glyph receiver mask and first-wave stroke formation",
+    "Native fluid integration",
+    "Thermal sublimation or SDF-normal emission impulse"
+  ],
+  "sourceHashes": {
+    "ns_reference.py": "e086923ab53c81da9a30aa0fcbaebe36c18f6fd5bc49d76280d273d67c699d3e",
+    "receiver_reference.py": "6f1ea228f64b7f3e412b9e85f63b1771b372529164725ea934f30155a855c427",
+    "material_transfer_reference.py": "74380ae2965d9a8c143df37197ec5cd1f2ac64fe8d75d082dae1a6cfc1959ba5",
+    "test_material_transfer.py": "e910b5fc96a4c6ba3703b40ac2f291dbdaabfc323bcb0373d7441d94364ba569"
+  }
+}

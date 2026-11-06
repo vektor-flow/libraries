@@ -1,0 +1,91 @@
+# Batched 2D evaluation of the SAME field kernel. Axes are prepared once per
+# carrier; every point retains the scalar kernel's operation/union order.
+f:.field
+
+axis(coordinates:[num],center:num,extent:num,size:int)->[num]:
+    (extent>0 /\ size>=3)?! "invalid field axis"
+    [num] result:[0:3*coordinates.length()]
+    i:0
+    i<coordinates.length()?>
+        x:(coordinates.(i)-center)/extent
+        g:f.clamp((x+1)*(size-1)/2,0,size-1)
+        index:int(f.minimum(g//1,size-2))
+        result.(3*i):num(index)
+        result.(3*i+1):g-index
+        result.(3*i+2):|x|-1
+        .i:i+1
+    @:result
+
+sample(values:[num],size:int,stride:int,carriers:int,xs:[num],ys:[num],scale:num,neck:num)->[num]:
+    (size>=3 /\ stride>=4+size*size /\ carriers>0 /\ values.length()>=carriers*stride /\ scale>0 /\ xs.length()>0 /\ ys.length()>0)?! "invalid field lattice"
+    nx:xs.length()
+    ny:ys.length()
+    [num] result:[0:nx*ny]
+    carrier:0
+    carrier<carriers?>
+        base:carrier*stride
+        ex:values.(base+2)*scale
+        ey:values.(base+3)*scale
+        (ex>0 /\ ey>0)?! "interpolated biological extent is nonpositive"
+        extent:f.minimum(ex,ey)
+        ax:axis(xs,values.(base),ex,size)
+        ay:axis(ys,values.(base+1),ey,size)
+        y:0
+        y<ny?>
+            iy:int(ay.(3*y))
+            fy:ay.(3*y+1)
+            outside_row:ay.(3*y+2)
+            row:base+4+iy*size
+            x:0
+            x<nx?>
+                ix:int(ax.(3*x))
+                fx:ax.(3*x+1)
+                outside:outside_row
+                outside_column:ax.(3*x+2)
+                outside_column>outside_row? .outside:outside_column
+                ~(outside> -1)? .outside: -1
+                positive_outside:0.0
+                outside>0? .positive_outside:outside
+                at:row+ix
+                # Scalar kernel operation order, inlined inside the batch.
+                value:(1-fx)*(1-fy)*values.(at)
+                .value:value+fx*(1-fy)*values.(at+1)
+                .value:value+(1-fx)*fy*values.(at+size)
+                .value:value+fx*fy*values.(at+size+1)
+                .value:(value-positive_outside)*extent
+                target:y*nx+x
+                carrier=0? result.(target):value
+                carrier>0?
+                    previous:result.(target)
+                    largest:value
+                    previous>value? .largest:previous
+                    neck<=0? .value:largest
+                    neck>0?
+                        difference:neck-|previous-value|
+                        positive_difference:0.0
+                        difference>0? .positive_difference:difference
+                        h:positive_difference/neck
+                        .value:largest+neck*h*h/4
+                    result.(target):value
+                .x:x+1
+            .y:y+1
+        .carrier:carrier+1
+    @:result
+
+# Row sums retain the exact accumulation order of dispatch.reduce_row. No lower
+# resolution, looser tolerance or approximate area is introduced here.
+measure_rows(values:[num],size:int,stride:int,carriers:int,xs:[num],ys:[num],scale:num,neck:num,spacing:num,voxel:num)->[num]:
+    samples:sample(values,size,stride,carriers,xs,ys,scale,neck)
+    nx:xs.length()
+    ny:ys.length()
+    [num] rows:[0:ny]
+    y:0
+    y<ny?>
+        total:0.0
+        x:0
+        x<nx?>
+            .total:total+f.clamp(samples.(y*nx+x)/spacing+0.5,0,1)*voxel
+            .x:x+1
+        rows.(y):total
+        .y:y+1
+    @:rows

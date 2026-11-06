@@ -1,0 +1,186 @@
+# Coordinate-independent vector state interpolation.
+# mode0: piecewise linear; mode1: natural cubic; explicit prepare_jets produces
+# mode2: C1 Hermite with per-interval endpoint second derivatives.
+segment:.segment
+Curve:(knots:[num],values:[num],second:[num],count:int,width:int,mode:int)
+Sample:(value:[num],first:[num],second:[num])
+Clock:(coordinate:num,first:num,second:num)
+
+prepare(knots:[num],values:[num],width:int,mode:int)->Curve:
+    count:knots.length()
+    (count>=2 /\ width>0 /\ values.length()=count*width)?! "invalid state dimensions"
+    (mode=0 \/ mode=1)?! "mode must be linear (0) or cubic (1)"
+    i:0
+    i<count?>
+        (|knots.(i)|<10^100)?! "nonfinite or excessive coordinate"
+        i>0? (knots.(i)>knots.(i-1))?! "coordinates must increase strictly"
+        .i:i+1
+    .i:0
+    i<values.length()?>
+        (|values.(i)|<10^100)?! "nonfinite or excessive state"
+        .i:i+1
+    [num] second:[0:values.length()]
+    [num] upper:[0:count]
+    mode=1?
+        .i:1
+        i<count-1?>
+            left:knots.(i)-knots.(i-1)
+            right:knots.(i+1)-knots.(i)
+            diagonal:2*(left+right)-left*upper.(i-1)
+            upper.(i):right/diagonal
+            j:0
+            j<width?>
+                rhs:6*((values.((i+1)*width+j)-values.(i*width+j))/right-(values.(i*width+j)-values.((i-1)*width+j))/left)
+                second.(i*width+j):(rhs-left*second.((i-1)*width+j))/diagonal
+                .j:j+1
+            .i:i+1
+        .i:count-2
+        i>0?>
+            j:0
+            j<width?>
+                second.(i*width+j):second.(i*width+j)-upper.(i)*second.((i+1)*width+j)
+                .j:j+1
+            .i:i-1
+    @:(knots:knots,values:values,second:second,count:count,width:width,mode:mode)
+
+# Piecewise C1 Hermite states. The existing scalar cubic segment is retained;
+# caller first jets are converted to per-interval endpoint second derivatives.
+# mode2 stores 2*(count-1)*width second values, preserving their actual meaning.
+prepare_jets(knots:[num],values:[num],first:[num],width:int)->Curve:
+    validated:prepare(knots,values,width,0)
+    count:validated.count
+    (first.length()=values.length())?! "invalid first-jet state dimensions"
+    i:0
+    i<first.length()?>
+        (|first.(i)|<10^100)?! "nonfinite or excessive first jet"
+        .i:i+1
+    [num] second:[0:2*(count-1)*width]
+    .i:0
+    i<count-1?>
+        h:knots.(i+1)-knots.(i)
+        j:0
+        j<width?>
+            y0:values.(i*width+j)
+            y1:values.((i+1)*width+j)
+            d0:first.(i*width+j)
+            d1:first.((i+1)*width+j)
+            second.((2*i)*width+j):segment.left_second(y0,y1,d0,d1,h)
+            second.((2*i+1)*width+j):segment.right_second(y0,y1,d0,d1,h)
+            .j:j+1
+        .i:i+1
+    @:(knots:knots,values:values,second:second,count:count,width:width,mode:2)
+
+interval(knots:[num],coordinate:num)->int:
+    (coordinate>=knots.(0) /\ coordinate<=knots.(knots.length()-1))?! "coordinate outside state domain"
+    low:0
+    high:knots.length()-1
+    high-low>1?>
+        middle:(low+high)//2
+        coordinate>=knots.(middle)? .low:middle
+        coordinate<knots.(middle)? .high:middle
+    @:low
+
+# Easing fixes every knot and has unit speed / zero curvature at interior knots.
+# It is a separate coordinate mapping, not part of the cubic minimization.
+# Scalar coordinate mapping is also available to compiled GPU field kernels.
+coordinate_map(knots:[num],coordinate:num,smooth_start:bit,smooth_end:bit)->num:
+    i:interval(knots,coordinate)
+    h:knots.(i+1)-knots.(i)
+    u:(coordinate-knots.(i))/h
+    start:smooth_start /\ i=0
+    finish:smooth_end /\ i=knots.length()-2
+    v:u
+    start /\ finish? .v:10*u^3-15*u^4+6*u^5
+    start /\ ~finish? .v:6*u^3-8*u^4+3*u^5
+    finish /\ ~start?
+        z:1-u
+        .v:1-(6*z^3-8*z^4+3*z^5)
+    @:knots.(i)+h*v
+
+clock(knots:[num],coordinate:num,smooth_start:bit,smooth_end:bit)->Clock:
+    i:interval(knots,coordinate)
+    h:knots.(i+1)-knots.(i)
+    u:(coordinate-knots.(i))/h
+    start:smooth_start /\ i=0
+    finish:smooth_end /\ i=knots.length()-2
+    d:1.0
+    dd:0.0
+    start /\ finish?
+        .d:30*u^2-60*u^3+30*u^4
+        .dd:60*u-180*u^2+120*u^3
+    start /\ ~finish?
+        .d:18*u^2-32*u^3+15*u^4
+        .dd:36*u-96*u^2+60*u^3
+    finish /\ ~start?
+        z:1-u
+        .d:18*z^2-32*z^3+15*z^4
+        .dd: -(36*z-96*z^2+60*z^3)
+    @:(coordinate:coordinate_map(knots,coordinate,smooth_start,smooth_end),first:d,second:dd/h)
+
+evaluate(curve:Curve,coordinate:num,smooth_start:bit,smooth_end:bit)->Sample:
+    mapping:clock(curve.knots,coordinate,smooth_start,smooth_end)
+    i:interval(curve.knots,mapping.coordinate)
+    h:curve.knots.(i+1)-curve.knots.(i)
+    b:(mapping.coordinate-curve.knots.(i))/h
+    a:1-b
+    [num] value:[0:curve.width]
+    [num] first:[0:curve.width]
+    [num] second:[0:curve.width]
+    j:0
+    j<curve.width?>
+        y0:curve.values.(i*curve.width+j)
+        y1:curve.values.((i+1)*curve.width+j)
+        second_index:i*curve.width+j
+        curve.mode=2? .second_index:2*i*curve.width+j
+        m0:curve.second.(second_index)
+        m1:curve.second.(second_index+curve.width)
+        value.(j):segment.value(y0,y1,m0,m1,h,b)
+        derivative:segment.first(y0,y1,m0,m1,h,b)
+        first.(j):derivative*mapping.first
+        second.(j):segment.second(m0,m1,b)*mapping.first^2+derivative*mapping.second
+        .j:j+1
+    @:(value:value,first:first,second:second)
+
+# A basis evaluation supplies shared weights for geometry and material samples.
+weights(knots:[num],coordinate:num,mode:int,smooth_start:bit,smooth_end:bit)->[num]:
+    count:knots.length()
+    [num] identity:[0:count*count]
+    i:0
+    i<count?>
+        identity.(i*count+i):1
+        .i:i+1
+    curve:prepare(knots,identity,count,mode)
+    sample:evaluate(curve,coordinate,smooth_start,smooth_end)
+    @:sample.value
+
+# Sample one value without allocating full vectors or computing derivatives.
+component(curve:Curve,coordinate:num,index:int,smooth_start:bit,smooth_end:bit)->num:
+    (index>=0 /\ index<curve.width)?! "component outside state"
+    mapping:clock(curve.knots,coordinate,smooth_start,smooth_end)
+    i:interval(curve.knots,mapping.coordinate)
+    h:curve.knots.(i+1)-curve.knots.(i)
+    b:(mapping.coordinate-curve.knots.(i))/h
+    a:1-b
+    y0:curve.values.(i*curve.width+index)
+    y1:curve.values.((i+1)*curve.width+index)
+    value:a*y0+b*y1
+    curve.mode=1 \/ curve.mode=2?
+        second_index:i*curve.width+index
+        curve.mode=2? .second_index:2*i*curve.width+index
+        m0:curve.second.(second_index)
+        m1:curve.second.(second_index+curve.width)
+        .value:segment.value(y0,y1,m0,m1,h,b)
+    @:value
+
+# Scalar physical-coordinate first jet, without allocating full sample vectors.
+component_first(curve:Curve,coordinate:num,index:int,smooth_start:bit,smooth_end:bit)->num:
+    (index>=0 /\ index<curve.width)?! "component outside state"
+    mapping:clock(curve.knots,coordinate,smooth_start,smooth_end)
+    i:interval(curve.knots,mapping.coordinate)
+    h:curve.knots.(i+1)-curve.knots.(i)
+    u:(mapping.coordinate-curve.knots.(i))/h
+    at:i*curve.width+index
+    second_at:at
+    curve.mode=2? .second_at:2*i*curve.width+index
+    derivative:segment.first(curve.values.(at),curve.values.(at+curve.width),curve.second.(second_at),curve.second.(second_at+curve.width),h,u)
+    @:derivative*mapping.first

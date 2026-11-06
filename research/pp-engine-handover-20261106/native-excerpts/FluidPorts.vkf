@@ -1,0 +1,147 @@
+# Balanced periodic MAC ports. Operators only; SSPRK stage ownership is external.
+# p[0:24] preserves Fluid flow24; all fields x-fast SoA unless stated AoS.
+count(p:[num])->int:
+    (p.length()>=24)?! "ports require flow24 controls"
+    (p.(0)>=4 /\ p.(0)<=64 /\ p.(1)>=4 /\ p.(1)<=64 /\ p.(2)>=4 /\ p.(2)<=64 /\ p.(0)*p.(1)*p.(2)<=131072)?! "ports grid budget exceeded"
+    a:0
+    a<3?>
+        (p.(a)=num(int(p.(a))) /\ p.(3+a)>0 /\ p.(3+a)<1000000)?! "invalid ports grid/spacing"
+        .a:a+1
+    @:int(p.(0))*int(p.(1))*int(p.(2))
+finite(x:num)->num:
+    (x> -1000000000000000000000000000000.0 /\ x<1000000000000000000000000000000.0)?! "nonfinite or excessive ports value"
+    @:x
+nonnegative(x:num)->num:
+    y:finite(x)
+    (y>=0)?! "negative port mask"
+    @:y
+previous(i:int,a:int,p:[num])->int:
+    nx:int(p.(0))
+    ny:int(p.(1))
+    nz:int(p.(2))
+    a=0? @:((i%nx+nx-1)%nx)+nx*(i//nx)
+    a=1? @:i%nx+nx*(((i//nx+ny-1)%ny)+ny*(i//(nx*ny)))
+    @:i%(nx*ny)+nx*ny*((i//(nx*ny)+nz-1)%nz)
+
+# Supplied raw sums are an explicit once-per-mask reduction contract. Validate
+# every raw mask cell with this dispatch before using the normalized SoA fields.
+# Output AoS2 [collector,supply], retained through unit_rhs2 and pack6.
+normalize2(index:int,p:[num],v:[num])->[num]:
+    n:count(p)
+    (p.length()=26 /\ v.length()=2*n /\ index>=0 /\ index<n)?! "ports normalization storage mismatch"
+    c:nonnegative(v.(index))
+    s:nonnegative(v.(n+index))
+    cs:finite(p.(24))
+    ss:finite(p.(25))
+    (cs>0 /\ ss>0)?! "port masks require positive raw sums"
+    dv:finite(p.(3)*p.(4)*p.(5))
+    cd:finite(cs*dv)
+    sd:finite(ss*dv)
+    (cd>0 /\ sd>0)?! "port volume normalization underflow"
+    [num] result:[0:2]
+    result.(0):finite(c/cd)
+    result.(1):finite(s/sd)
+    @:result
+
+# normalized AoS2 -> complex pressure RHS. Native Fluid DFT,
+# pressure_spectrum and project(zero3N ++ potential2N) produce D(lift)=supply-collector.
+unit_rhs2(index:int,p:[num],v:[num])->[num]:
+    n:count(p)
+    (v.length()=2*n /\ index>=0 /\ index<n)?! "unit port RHS storage mismatch"
+    [num] result:[0:2]
+    result.(0):nonnegative(v.(2*index))-nonnegative(v.(2*index+1))
+    @:result
+# Pack native normalized masks, native DFT lift and complex potential.
+pack6(index:int,p:[num],v:[num])->[num]:
+    n:count(p)
+    (v.length()=7*n /\ index>=0 /\ index<n)?! "port pack storage mismatch"
+    [num] result:[0:6]
+    result.(0):nonnegative(v.(2*index))
+    result.(1):nonnegative(v.(2*index+1))
+    a:0
+    a<3?>
+        result.(2+a):finite(v.(2*n+a*n+index))
+        .a:a+1
+    result.(5):finite(v.(5*n+2*index))
+    @:result
+quintic(a:num)->num:a*a*a*(10+a*(-15+6*a))
+clamp(x:num)->num:
+    x<0? @:0
+    x>1? @:1
+    @:x
+quintic_rate(a:num,duration:num)->num:
+    (a<=0 \/ a>=1)? @:0
+    @:30*a*a*(1-a)*(1-a)/duration
+
+# p24..30 time,start,Q,rampDuration,hasNext,maskStart,maskDuration.
+# values oldAoS6N [collector,supply,liftXYZ,potential] ++ optional nextAoS6N.
+# Output AoS6 sink,source,liftXYZ,pressureRate. Exact reference C2 quintic.
+boundary6(index:int,p:[num],v:[num])->[num]:
+    n:count(p)
+    (p.length()=31 /\ index>=0 /\ index<n)?! "boundary controls/index mismatch"
+    time:finite(p.(24))
+    start:finite(p.(25))
+    flux:nonnegative(p.(26))
+    duration:finite(p.(27))
+    has:p.(28)
+    (duration>0 /\ (has=0 \/ has=1) /\ v.length()=6*n*(1+int(has)))?! "invalid boundary duration/storage"
+    maskStart:finite(p.(29))
+    maskDuration:finite(p.(30))
+    (has=0 \/ maskDuration>0)?! "positive mask transition duration required"
+    a:clamp((time-start)/duration)
+    q:finite(flux*quintic(a))
+    qd:finite(flux*quintic_rate(a,duration))
+    mix:0.0
+    dmix:0.0
+    has=1?
+        b:clamp((time-maskStart)/maskDuration)
+        .mix:quintic(b)
+        .dmix:quintic_rate(b,maskDuration)
+    [num] blended:[0:6]
+    j:0
+    j<6?>
+        old:finite(v.(6*index+j))
+        j<2? (old>=0)?! "negative boundary mask"
+        next:old
+        has=1?
+            .next:finite(v.(6*n+6*index+j))
+            j<2? (next>=0)?! "negative next boundary mask"
+        blended.(j):(1-mix)*old+mix*next
+        .j:j+1
+    [num] result:[0:6]
+    result.(0):q*blended.(0)
+    result.(1):q*(blended.(1)-blended.(0))
+    result.(2):q*blended.(2)
+    result.(3):q*blended.(3)
+    result.(4):q*blended.(4)
+    result.(5):qd*blended.(5)
+    has=1? result.(5):result.(5)+q*dmix*(v.(6*n+6*index+5)-v.(6*index+5))
+    .j:0
+    j<6?>
+        result.(j):finite(result.(j))
+        .j:j+1
+    @:result
+
+# Boundary remains AoS6 from boundary6; state/rhs scalar dispatch is SoA7N.
+add_lift(index:int,p:[num],v:[num])->num:
+    n:count(p)
+    (v.length()=13*n /\ index>=0 /\ index<7*n)?! "add lift storage mismatch"
+    x:finite(v.(index))
+    axis:index//n
+    axis<3? @:finite(x+finite(v.(7*n+6*(index%n)+2+axis)))
+    @:x
+remove_lift(index:int,p:[num],v:[num])->num:
+    n:count(p)
+    (v.length()=13*n /\ index>=0 /\ index<7*n)?! "remove lift storage mismatch"
+    x:finite(v.(index))
+    axis:index//n
+    axis<3? @:finite(x-finite(v.(7*n+6*(index%n)+2+axis)))
+    @:x
+port_drag(index:int,p:[num],v:[num])->num:
+    n:count(p)
+    (v.length()=20*n /\ index>=0 /\ index<7*n)?! "port drag storage mismatch"
+    cell:index%n
+    axis:index//n
+    sink:nonnegative(v.(14*n+6*cell))
+    axis<3? .sink:(sink+nonnegative(v.(14*n+6*previous(cell,axis,p))))/2
+    @:finite(finite(v.(7*n+index))-sink*finite(v.(index)))

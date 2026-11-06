@@ -1,0 +1,33 @@
+// Editable lesson data only; every drawable is authored/rendered by the application and VKF.
+const T=String.raw,views=[];
+const initial=[T`P(x)=ax^3+bx^2+cx+d`,T`a=1,\quad b=-2,\quad c=-5,\quad d=6.0`,T`P(x)=x^3-2x^2-5x+6.0`,T`\text{Find every }x\text{ for which }P(x)=0`];
+const symbolic=[T`P(x)=ax^3+bx^2+cx+d`,T`P(x)=0`,T`P'(x)=3ax^2+2bx+c`,T`\text{Changing coefficients moves the roots}`];
+let rows=symbolic.slice(),count=1,params={a:1,b:-2,c:-5,d:6,h:0,trig:0},title='A cubic with three real roots',note='The coefficients drive the plotted curve',legend=T`P(x)=ax^3+bx^2+cx+d`;
+function add(name,changes={}){if(changes.rows)rows=changes.rows;if(changes.count!==undefined)count=changes.count;if(changes.params)params={...params,...changes.params};if(changes.title)title=changes.title;if(changes.note)note=changes.note;if(changes.legend)legend=changes.legend;views.push({name,title,note,legend,rows:rows.slice(),count,params:{...params},seconds:changes.seconds??1.25,hold:changes.hold??1.5,newList:changes.newList??false,combineGroups:changes.combineGroups??null,liveParameters:changes.liveParameters??[]});}
+add('Four coefficients, one curve');add('Choose four real coefficients',{count:2});add('Our concrete cubic',{count:3});add('Roots are horizontal-axis crossings',{count:4});
+add('Explore coefficient space',{note:'Move through coefficient space; watch all three roots',hold:6,liveParameters:[['a',1,.9,1.1],['b',-2,-2.2,-1.8],['c',-5,-5.3,-4.7],['d',6,5.5,6.5]].map(([variable,initial,min,max])=>({variable,initial,min,max,step:.01,intervalMs:10,mode:'ping-pong'}))});
+add('Back to the same cubic',{params:{d:6},rows:initial.slice(),note:'Now solve the exact example; the plot stays fixed',hold:2});
+add('Test a rational root',{title:'First reduce the degree',rows:[initial[2],T`P(1)=1-2-5+6`,T`P(x)=(x-1)Q(x)`,T`Q(x)=x^2-x-6`],count:2,combineGroups:[[0,1],[2,3]],note:'A rational root is an integer divisor of 6'});
+add('Simplify only the current row',{rows:[initial[2],T`P(1)=6-6`,T`P(x)=(x-1)Q(x)`,T`Q(x)=x^2-x-6`],note:'The first expression and the curve do not move'});
+add('The first root',{rows:[initial[2],T`P(1)=0`,T`P(x)=(x-1)Q(x)`,T`Q(x)=x^2-x-6`],note:'Keep this result while adding the factorization'});
+add('Keep the result and add a factor',{count:3,note:'The factor theorem gives a linear factor'});
+add('Divide once; plot the quotient',{count:4,params:{a:0,b:1,c:-1,d:-6},legend:T`Q(x)=x^2-x-6`,note:'The remaining two roots belong to the quadratic'});
+add('Expand into a product',{rows:[initial[2],T`P(1)=0`,T`P(x)=(x-1)Q(x)`,T`Q(x)=(x-3)(x+2)`],note:'The graph confirms the two remaining crossings'});
+add('Solve the quadratic in steps',{rows:[initial[2],T`P(1)=0`,T`x^2-x-6=0`,T`Q(x)=(x-3)(x+2)`],count:4,note:'A second route uses the quadratic formula'});
+add('Move the constant',{rows:[initial[2],T`P(1)=0`,T`x^2-x=6`,T`Q(x)=(x-3)(x+2)`]});
+add('Complete the square',{rows:[initial[2],T`P(1)=0`,T`(x-\frac12)^2=\frac{25}{4}`,T`Q(x)=(x-3)(x+2)`]});
+add('Take both square roots',{rows:[initial[2],T`P(1)=0`,T`x=\frac12\pm\frac52`,T`Q(x)=(x-3)(x+2)`]});
+add('Both quadratic roots',{rows:[initial[2],T`P(1)=0`,T`x=-2\quad\text{or}\quad x=3`,T`Q(x)=(x-3)(x+2)`],hold:2});
+add('Combine the root statements',{rows:[initial[2],T`\text{Roots: }-2,1,3`],count:2,combineGroups:[[1,2,3]],params:{a:1,b:-2,c:-5,d:6},legend:initial[2],note:'Two rows combine by ordinary state interpolation; no smoke',hold:2.5});
+add('A method without guessing a root',{newList:true,title:'Remove the quadratic term',rows:[T`x=u-\frac{b}{3a}`,T`x=u+\frac23`,T`u^3+pu+q=0`,T`p=-\frac{19}{3},\qquad q=\frac{56}{27}`],count:2,note:'A translation keeps all three roots, in new coordinates'});
+add('Choose the translation',{count:2,params:{h:2/3},legend:T`P(u+\frac23)`,note:'The graph moves by the same change of variable'});
+add('Expand and cancel the square term',{count:3,rows:[T`x=u-\frac{b}{3a}`,T`x=u+\frac23`,T`u^3-\frac{19}{3}u+\frac{56}{27}=0`,T`p=-\frac{19}{3},\qquad q=\frac{56}{27}`],note:'The u squared term cancels exactly'});
+add('Read the depressed coefficients',{count:4});
+add('Classify the three real roots',{newList:true,title:'Three real roots, one cosine identity',rows:[T`u^3+pu+q=0`,T`D=-4p^3-27q^2=900`,T`p=-\frac{19}{3}`,T`q=\frac{56}{27}`],count:4,note:'Positive discriminant means three distinct real roots'});
+add('Introduce an angle',{rows:[T`u^3+pu+q=0`,T`D=900`,T`u=2\sqrt{-p/3}\cos\theta`,T`q=\frac{56}{27}`],count:4,note:'The substitution turns a cubic into a triple angle'});
+add('Keep the substitution; reveal the identity',{rows:[T`u^3+pu+q=0`,T`D=900`,T`u=2\sqrt{-p/3}\cos\theta`,T`4\cos^3\theta-3\cos\theta=\cos3\theta`],count:4,note:'The cosine identity matches the depressed cubic'});
+add('Substitute and simplify',{rows:[T`u^3+pu+q=0`,T`D=900`,T`u=\frac{2\sqrt{19}}{3}\cos\theta`,T`\cos3\theta=-\frac{28}{19\sqrt{19}}`],params:{trig:1},legend:T`\cos3\theta+\frac{28}{19\sqrt{19}}`,note:'Now the plotted equation is the triple-angle equation'});
+add('Select the three angles',{rows:[T`u^3+pu+q=0`,T`\theta_k=\frac13\arccos(-\frac{28}{19\sqrt{19}})-\frac{2k\pi}{3}`,T`u_k=\frac{2\sqrt{19}}{3}\cos\theta_k`,T`k=0,1,2`],note:'The three angle choices produce the three solutions',hold:2.5});
+add('Translate the roots back',{rows:[T`x_k=\frac23+\frac{2\sqrt{19}}{3}\cos\theta_k`,T`x_0=3`,T`x_1=1`,T`x_2=-2`],params:{h:0,trig:0},legend:initial[2],note:'Both methods return the same three crossings',hold:2});
+add('Verify every root',{title:'Algebra and the graph agree',rows:[T`P(x)=(x+2)(x-1)(x-3)`,T`P(-2)=0`,T`P(1)=0`,T`P(3)=0`],note:'The factorization reconstructs every original coefficient',hold:3});
+module.exports={views};

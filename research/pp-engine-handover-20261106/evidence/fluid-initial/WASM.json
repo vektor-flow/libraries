@@ -1,0 +1,41 @@
+{
+  "schema": "native-fluid-initial-wasm/1",
+  "passed": true,
+  "sourceSha256": "5feda0b8eeab80f547d7fe23b651aa22de971c8e16ba524b59fcb8a9be0f372b",
+  "referenceSha256": {
+    "make_visual_proof.py": "593b2e3bade45ea88d1b30a8da36b5ae1877ef51310dd5962b06b08bc2be2146",
+    "ns_reference.py": "e086923ab53c81da9a30aa0fcbaebe36c18f6fd5bc49d76280d273d67c699d3e"
+  },
+  "fluidSourceSha256": "465b19080e1d26625efca7419eec67262cdef0f36b8a52ddfe4204ac23143808",
+  "reports": [
+    {
+      "shape": [
+        8,
+        6,
+        4
+      ],
+      "sampledCells": 4,
+      "synthesisError": 4.107825191113079e-15,
+      "projectionError": 0,
+      "scaleError": 3.469446951953614e-18,
+      "stateError": 1.3877787807814457e-17,
+      "scalarChannelsZero": true
+    },
+    {
+      "shape": [
+        24,
+        16,
+        8
+      ],
+      "sampledCells": 4,
+      "synthesisError": 2.6645352591003757e-15,
+      "projectionError": 1.3877787807814457e-17,
+      "scaleError": 0,
+      "stateError": 0,
+      "scalarChannelsZero": true
+    }
+  ],
+  "rejections": 8,
+  "presetExact": true,
+  "scope": "Native f64 coefficient/synthesis, exact discrete projection point checks, energy/RMS/state parity; final production initialization is GPU, not fixture arrays"
+}

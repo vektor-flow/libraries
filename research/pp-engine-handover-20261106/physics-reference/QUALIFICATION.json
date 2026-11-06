@@ -1,0 +1,4264 @@
+{
+  "schema": "physical-smoke-reference-qualification/2",
+  "generatedUtc": "2026-11-06T07:52:22.169427+00:00",
+  "backend": "CPU NumPy/SciPy float64; native rendering is separate; native VKF fluid port NOT implemented",
+  "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+  "numpy": "2.3.5",
+  "scipy": "1.16.3",
+  "sourceProvenance": {
+    "PHYSICS.txt": {
+      "sha256": "a50a2246da3530ddafe1447ad285b6039c4bba5231d0388939ad84890d79b41f",
+      "bytes": 9632
+    },
+    "SDF_COUPLING.txt": {
+      "sha256": "8ed07c770ab0fc142ad5a09c2673fe48cd3ae86ddefd6bf9870a5417cfb9ab47",
+      "bytes": 4467
+    },
+    "demo_case.py": {
+      "sha256": "ae94f7353f67b629f7be1b8c242fa478270196e870ae026e6b2c79733b429527",
+      "bytes": 769
+    },
+    "make_visual_proof.py": {
+      "sha256": "593b2e3bade45ea88d1b30a8da36b5ae1877ef51310dd5962b06b08bc2be2146",
+      "bytes": 4601
+    },
+    "ns_reference.py": {
+      "sha256": "e086923ab53c81da9a30aa0fcbaebe36c18f6fd5bc49d76280d273d67c699d3e",
+      "bytes": 19003
+    },
+    "parcels.py": {
+      "sha256": "1c23124b27cad3d42645bb9f2b206cbfc59fdeda2a6027bc605566d61dcc270f",
+      "bytes": 5075
+    },
+    "qualify.py": {
+      "sha256": "243a2126c64946eae4a50c57857746440b1b2724853d8e4a544153b3ba045685",
+      "bytes": 11855
+    },
+    "test_parcels.py": {
+      "sha256": "6b7bee1c4fae16b7b8a77690fd155dead70ed32e7c26bb1ddba7e4ac62b21445",
+      "bytes": 4958
+    },
+    "test_reference.py": {
+      "sha256": "b4b737635eb7e850580ee8145a9af0918b3bd91df5ad1802302aa98015e21d28",
+      "bytes": 9207
+    }
+  },
+  "tests": {
+    "passed": true,
+    "count": 22,
+    "seconds": 8.55,
+    "output": "test_collector_and_finite_parcels_conserve_mass_without_teleporting_residual (test_parcels.ProbeTests.test_collector_and_finite_parcels_conserve_mass_without_teleporting_residual) ... ok\ntest_particle_capture_hazard_refines_in_physical_time (test_parcels.ProbeTests.test_particle_capture_hazard_refines_in_physical_time) ... ok\ntest_physical_diffusion_has_einstein_variance_and_no_spurious_drift (test_parcels.ProbeTests.test_physical_diffusion_has_einstein_variance_and_no_spurious_drift) ... ok\ntest_snapshot_and_observer_cadence_preserve_particle_rng_and_velocity (test_parcels.ProbeTests.test_snapshot_and_observer_cadence_preserve_particle_rng_and_velocity) ... ok\ntest_spatial_capture_converges_to_integrated_physical_hazard (test_parcels.ProbeTests.test_spatial_capture_converges_to_integrated_physical_hazard) ... ok\ntest_variable_diffusivity_preserves_a_well_mixed_distribution (test_parcels.ProbeTests.test_variable_diffusivity_preserves_a_well_mixed_distribution) ... ok\ntest_anisotropic_strong_port_stages_and_rejected_step_rollback (test_reference.FluidTests.test_anisotropic_strong_port_stages_and_rejected_step_rollback) ... ok\ntest_capture_keeps_all_species_mass_in_gas_or_deposit (test_reference.FluidTests.test_capture_keeps_all_species_mass_in_gas_or_deposit) ... ok\ntest_collector_masks_are_explicit_validated_and_detached (test_reference.FluidTests.test_collector_masks_are_explicit_validated_and_detached) ... ok\ntest_fixed_physics_ticks_are_independent_of_observation_cadence (test_reference.FluidTests.test_fixed_physics_ticks_are_independent_of_observation_cadence) ... ok\ntest_grid_scale_checkerboard_shear_is_not_invisible_to_sgs (test_reference.FluidTests.test_grid_scale_checkerboard_shear_is_not_invisible_to_sgs) ... ok\ntest_invalid_units_and_transport_coefficients_reject (test_reference.FluidTests.test_invalid_units_and_transport_coefficients_reject) ... ok\ntest_marker_drag_has_correct_response_and_periodic_motion (test_reference.FluidTests.test_marker_drag_has_correct_response_and_periodic_motion) ... ok\ntest_moving_collector_keeps_pressure_constraints_mass_and_replay (test_reference.FluidTests.test_moving_collector_keeps_pressure_constraints_mass_and_replay) ... ok\ntest_port_ramp_temporal_refinement_and_stage_constraints (test_reference.FluidTests.test_port_ramp_temporal_refinement_and_stage_constraints) ... ok\ntest_projection_honours_balanced_volume_ports (test_reference.FluidTests.test_projection_honours_balanced_volume_ports) ... ok\ntest_projection_removes_divergence_without_changing_mean_momentum (test_reference.FluidTests.test_projection_removes_divergence_without_changing_mean_momentum) ... ok\ntest_snapshot_replay_preserves_complete_fluid_state (test_reference.FluidTests.test_snapshot_replay_preserves_complete_fluid_state) ... ok\ntest_species_diffusion_is_positive_conservative_and_convergent (test_reference.FluidTests.test_species_diffusion_is_positive_conservative_and_convergent) ... ok\ntest_taylor_green_velocity_converges_under_grid_refinement (test_reference.FluidTests.test_taylor_green_velocity_converges_under_grid_refinement) ... ok\ntest_tracer_handoff_velocity_is_terminal_not_midpoint (test_reference.FluidTests.test_tracer_handoff_velocity_is_terminal_not_midpoint) ... ok\ntest_viscous_stress_dissipates_energy_and_conserves_momentum (test_reference.FluidTests.test_viscous_stress_dissipates_energy_and_conserves_momentum) ... ok\n\n----------------------------------------------------------------------\nRan 22 tests in 8.550s\n\nOK\n"
+  },
+  "domain": "3D periodic MAC, optional balanced porous collector/clear-air supply with C2 moving mask/lift",
+  "timeUnits": "nondimensional reference; SI calibration requires declared reference scales",
+  "snapshotPolicy": "Complete typed manifests include config, masks, lift bases, transition, fixed clock, all fields and probe RNG/hazard. No partial NPZ or checkpoint archive generated.",
+  "limitations": [
+    "coarse LES, not DNS/calibrated air",
+    "finite-rate capture tail retained",
+    "fine probes dilute/one-way; no finite-inertia two-way qualification",
+    "glyph SDF/phase-change coupling missing; see SDF_COUPLING.txt",
+    "metrics are diagnostics, not evidence of turbulence accuracy",
+    "GPU f32 needs its own residual/convergence/validation"
+  ],
+  "records": [
+    {
+      "case": "closed-plumes-(16, 12, 8)",
+      "config": {
+        "shape": [
+          16,
+          12,
+          8
+        ],
+        "lengths": [
+          1.6,
+          1.0,
+          0.4
+        ],
+        "nu": 0.001,
+        "cs": 0.12,
+        "diffusivity": 5e-05,
+        "thermal_diffusivity": 0.0002,
+        "schmidt": 0.7,
+        "prandtl": 0.7,
+        "buoyancy": 0.3,
+        "loading": 0.025,
+        "cooling": 0.25,
+        "max_dt": 0.016666666666666666,
+        "cfl": 0.3,
+        "collector_start": 3.0,
+        "collector_flux": 0
+      },
+      "initialization": "Smoke.plumes seed701; collector disabled",
+      "shape": [
+        16,
+        12,
+        8
+      ],
+      "cells": 1536,
+      "frameRate": 60,
+      "observationPolicy": "absolute advance_to(frame/fps); fixed outer ticks; adaptive subdivisions only within complete ticks",
+      "simulatedSeconds": 2.0,
+      "observationNs": 2000000000,
+      "wallSeconds": 1.15091934800148,
+      "realTimeRatio": 1.737741227022476,
+      "frameMsP50": 9.338814939837903,
+      "frameMsP95": 10.472899145679548,
+      "substeps": 120,
+      "ticks": 120,
+      "maximumDivergenceResidual": 2.123301534595612e-15,
+      "maximumStageDivergenceResidual": 2.157996004115148e-15,
+      "maximumTransportCourant": 0.08059135241821562,
+      "maximumSpeciesMassResidual": 4.336808689942018e-19,
+      "minimumConcentration": 4.860743287983e-70,
+      "initialMass": [
+        0.0010000000000000002,
+        0.001,
+        0.0010000000000000002
+      ],
+      "finalGasMass": [
+        0.0010000000000000002,
+        0.0009999999999999998,
+        0.001
+      ],
+      "finalDepositedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "samples": [
+        {
+          "time": 1.0,
+          "rmsSpeed": 0.009284001680939272,
+          "rmsVorticity": 0.10292483515215739,
+          "rmsVorticityStretching": 0.005839744659300865,
+          "maxSubgridViscosity": 6.602296728447777e-05,
+          "mixedMassFraction": 0.053216851392474604,
+          "gasMass": [
+            0.0010000000000000002,
+            0.001,
+            0.0009999999999999998
+          ],
+          "depositedMass": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "time": 2.0,
+          "rmsSpeed": 0.01086255406240555,
+          "rmsVorticity": 0.10971333410411532,
+          "rmsVorticityStretching": 0.00639152021462875,
+          "maxSubgridViscosity": 6.61862047632363e-05,
+          "mixedMassFraction": 0.07725647575608517,
+          "gasMass": [
+            0.0010000000000000002,
+            0.0009999999999999998,
+            0.001
+          ],
+          "depositedMass": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "initialSnapshot": {
+        "sha256": "066d97887a07ecda8a9f4954d97fded5768c11549d92a7f7c918227ed47d2acc",
+        "manifest": {
+          "c": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 36864,
+            "sha256": "6379f31ddca1a5eebbf430bcbf3578c4a077e06d6849406adbc044ed794f997b"
+          },
+          "collectorMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 12288,
+            "sha256": "63b4f17bc154f438d89bbdbd97a193c414346d26c58968d074a9503d5ab96771"
+          },
+          "config": {
+            "buoyancy": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "cfl": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "collector_flux": 0,
+            "collector_start": {
+              "kind": "binary64",
+              "hex": "0x1.8000000000000p+1"
+            },
+            "cooling": {
+              "kind": "binary64",
+              "hex": "0x1.0000000000000p-2"
+            },
+            "cs": {
+              "kind": "binary64",
+              "hex": "0x1.eb851eb851eb8p-4"
+            },
+            "diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-15"
+            },
+            "lengths": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.0000000000000p+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap-2"
+                }
+              ]
+            },
+            "loading": {
+              "kind": "binary64",
+              "hex": "0x1.999999999999ap-6"
+            },
+            "max_dt": {
+              "kind": "binary64",
+              "hex": "0x1.1111111111111p-6"
+            },
+            "nu": {
+              "kind": "binary64",
+              "hex": "0x1.0624dd2f1a9fcp-10"
+            },
+            "prandtl": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "schmidt": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "shape": {
+              "kind": "tuple",
+              "items": [
+                16,
+                12,
+                8
+              ]
+            },
+            "thermal_diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-13"
+            }
+          },
+          "deposited": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3
+            ],
+            "order": "C",
+            "bytes": 24,
+            "sha256": "9d908ecfb6b256def8b49a7c504e6c889c4b0e41fe6ce3e01863dd7b61a20aa0"
+          },
+          "last": {},
+          "maskDuration": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "maskStart": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "nextPorts": null,
+          "observationNs": 0,
+          "portLift": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 36864,
+            "sha256": "830c715766ce0a5ade9db798e03a97719be11b16510ef8a54c22428704456808"
+          },
+          "portPressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 12288,
+            "sha256": "9880037611e679209dccef45d09fe7d15ce8d01ea9956661557b763b3dea8502"
+          },
+          "pressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 12288,
+            "sha256": "8c061ae150f5ff3b61f2300ca09ee57b192820970e9181f35883e4f0a2343958"
+          },
+          "schema": "ns-smoke-reference/1",
+          "seed": 701,
+          "steps": 0,
+          "supplyMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 12288,
+            "sha256": "72e036700d3bdd77708fae7bea3fba7192e88bc484e2b27f7db6712276825630"
+          },
+          "temperature": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 12288,
+            "sha256": "cbf14196e0dfb42f3c2bfac825d795fc1659042dcbdcf1a29587839b2da73d5d"
+          },
+          "ticks": 0,
+          "time": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "u": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 36864,
+            "sha256": "6d14d13b2a2cde83872cd2650d27cda95d37aefe5e28dfc85f233f208acebc15"
+          }
+        },
+        "meaning": "Complete in-memory snapshot provenance; hashes, not array payloads; NOT a restorable checkpoint archive"
+      },
+      "finalSnapshot": {
+        "sha256": "4222b732faa853da48eae64ceca6ed2461256fe6d68c42e71ec576dcf3214c51",
+        "manifest": {
+          "c": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 36864,
+            "sha256": "a6fb7433fcb24e0ae70d1654877398612d8f99c8479a85d9fc37f6c3e64b9c98"
+          },
+          "collectorMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 12288,
+            "sha256": "63b4f17bc154f438d89bbdbd97a193c414346d26c58968d074a9503d5ab96771"
+          },
+          "config": {
+            "buoyancy": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "cfl": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "collector_flux": 0,
+            "collector_start": {
+              "kind": "binary64",
+              "hex": "0x1.8000000000000p+1"
+            },
+            "cooling": {
+              "kind": "binary64",
+              "hex": "0x1.0000000000000p-2"
+            },
+            "cs": {
+              "kind": "binary64",
+              "hex": "0x1.eb851eb851eb8p-4"
+            },
+            "diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-15"
+            },
+            "lengths": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.0000000000000p+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap-2"
+                }
+              ]
+            },
+            "loading": {
+              "kind": "binary64",
+              "hex": "0x1.999999999999ap-6"
+            },
+            "max_dt": {
+              "kind": "binary64",
+              "hex": "0x1.1111111111111p-6"
+            },
+            "nu": {
+              "kind": "binary64",
+              "hex": "0x1.0624dd2f1a9fcp-10"
+            },
+            "prandtl": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "schmidt": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "shape": {
+              "kind": "tuple",
+              "items": [
+                16,
+                12,
+                8
+              ]
+            },
+            "thermal_diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-13"
+            }
+          },
+          "deposited": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3
+            ],
+            "order": "C",
+            "bytes": 24,
+            "sha256": "9d908ecfb6b256def8b49a7c504e6c889c4b0e41fe6ce3e01863dd7b61a20aa0"
+          },
+          "last": {
+            "depositedMass": [
+              {
+                "kind": "binary64",
+                "hex": "0x0.0p+0"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x0.0p+0"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x0.0p+0"
+              }
+            ],
+            "divergenceResidualMax": {
+              "kind": "binary64",
+              "hex": "0x1.d800000000000p-50"
+            },
+            "dt": {
+              "kind": "binary64",
+              "hex": "0x1.1111111111100p-6"
+            },
+            "finalTransportCourant": {
+              "kind": "binary64",
+              "hex": "0x1.4a19332a94339p-4"
+            },
+            "gasMass": [
+              {
+                "kind": "binary64",
+                "hex": "0x1.0624dd2f1a9fdp-10"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x1.0624dd2f1a9fbp-10"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x1.0624dd2f1a9fcp-10"
+              }
+            ],
+            "kineticEnergy": {
+              "kind": "binary64",
+              "hex": "0x1.e54c8347102d6p-14"
+            },
+            "minConcentration": {
+              "kind": "binary64",
+              "hex": "0x1.131827c69860ap-67"
+            },
+            "stageDivergenceResidualMax": {
+              "kind": "binary64",
+              "hex": "0x1.ba00000000000p-50"
+            },
+            "stageMinimum": {
+              "kind": "binary64",
+              "hex": "0x1.04df0f97bf93bp-67"
+            },
+            "stageTransportCourant": {
+              "kind": "binary64",
+              "hex": "0x1.4a1a286fa0583p-4"
+            },
+            "stages": [
+              {
+                "divergenceResidualMax": {
+                  "kind": "binary64",
+                  "hex": "0x1.a400000000000p-50"
+                },
+                "minimum": {
+                  "kind": "binary64",
+                  "hex": "0x1.04df0f97bf93bp-67"
+                },
+                "time": {
+                  "kind": "binary64",
+                  "hex": "0x1.fbbbbbbbbbbbcp+0"
+                },
+                "transportCourant": {
+                  "kind": "binary64",
+                  "hex": "0x1.49f067dadbb19p-4"
+                }
+              },
+              {
+                "divergenceResidualMax": {
+                  "kind": "binary64",
+                  "hex": "0x1.b440000000000p-50"
+                },
+                "minimum": {
+                  "kind": "binary64",
+                  "hex": "0x1.12ba9a61b792ep-67"
+                },
+                "time": {
+                  "kind": "binary64",
+                  "hex": "0x1.0000000000000p+1"
+                },
+                "transportCourant": {
+                  "kind": "binary64",
+                  "hex": "0x1.4a1a286fa0583p-4"
+                }
+              },
+              {
+                "divergenceResidualMax": {
+                  "kind": "binary64",
+                  "hex": "0x1.ba00000000000p-50"
+                },
+                "minimum": {
+                  "kind": "binary64",
+                  "hex": "0x1.0bfae5d89e9f9p-67"
+                },
+                "time": {
+                  "kind": "binary64",
+                  "hex": "0x1.fdddddddddddep+0"
+                },
+                "transportCourant": {
+                  "kind": "binary64",
+                  "hex": "0x1.4a04ccf219240p-4"
+                }
+              }
+            ],
+            "volumePortBalance": {
+              "kind": "binary64",
+              "hex": "0x0.0p+0"
+            }
+          },
+          "maskDuration": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "maskStart": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "nextPorts": null,
+          "observationNs": 2000000000,
+          "portLift": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 36864,
+            "sha256": "830c715766ce0a5ade9db798e03a97719be11b16510ef8a54c22428704456808"
+          },
+          "portPressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 12288,
+            "sha256": "9880037611e679209dccef45d09fe7d15ce8d01ea9956661557b763b3dea8502"
+          },
+          "pressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 12288,
+            "sha256": "297d4aac3c7a98d4c06e7ae663edc39ca7b0cd93a28fdfcb1f5952648a5b9318"
+          },
+          "schema": "ns-smoke-reference/1",
+          "seed": 701,
+          "steps": 120,
+          "supplyMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 12288,
+            "sha256": "72e036700d3bdd77708fae7bea3fba7192e88bc484e2b27f7db6712276825630"
+          },
+          "temperature": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 12288,
+            "sha256": "24f5145d6ef6769daa9329046cec41ed3f4905daa12e7073491b8e610da1ffad"
+          },
+          "ticks": 120,
+          "time": {
+            "kind": "binary64",
+            "hex": "0x1.0000000000000p+1"
+          },
+          "u": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              16,
+              12,
+              8
+            ],
+            "order": "C",
+            "bytes": 36864,
+            "sha256": "c9e9302cde9f102b38dab200cebeb594d5e7f3a5dd4e8b071034c1110abe631b"
+          }
+        },
+        "meaning": "Complete in-memory snapshot provenance; hashes, not array payloads; NOT a restorable checkpoint archive"
+      }
+    },
+    {
+      "case": "closed-plumes-(24, 16, 8)",
+      "config": {
+        "shape": [
+          24,
+          16,
+          8
+        ],
+        "lengths": [
+          1.6,
+          1.0,
+          0.4
+        ],
+        "nu": 0.001,
+        "cs": 0.12,
+        "diffusivity": 5e-05,
+        "thermal_diffusivity": 0.0002,
+        "schmidt": 0.7,
+        "prandtl": 0.7,
+        "buoyancy": 0.3,
+        "loading": 0.025,
+        "cooling": 0.25,
+        "max_dt": 0.016666666666666666,
+        "cfl": 0.3,
+        "collector_start": 3.0,
+        "collector_flux": 0
+      },
+      "initialization": "Smoke.plumes seed701; collector disabled",
+      "shape": [
+        24,
+        16,
+        8
+      ],
+      "cells": 3072,
+      "frameRate": 60,
+      "observationPolicy": "absolute advance_to(frame/fps); fixed outer ticks; adaptive subdivisions only within complete ticks",
+      "simulatedSeconds": 2.0,
+      "observationNs": 2000000000,
+      "wallSeconds": 1.3235037180129439,
+      "realTimeRatio": 1.5111404469665721,
+      "frameMsP50": 10.97576302709058,
+      "frameMsP95": 11.279129475587979,
+      "substeps": 120,
+      "ticks": 120,
+      "maximumDivergenceResidual": 4.5102810375396984e-15,
+      "maximumStageDivergenceResidual": 4.343747583845925e-15,
+      "maximumTransportCourant": 0.10493647633935713,
+      "maximumSpeciesMassResidual": 4.336808689942018e-19,
+      "minimumConcentration": 5.230920802635607e-72,
+      "initialMass": [
+        0.0010000000000000002,
+        0.001,
+        0.0009999999999999998
+      ],
+      "finalGasMass": [
+        0.0010000000000000005,
+        0.0010000000000000002,
+        0.001
+      ],
+      "finalDepositedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "samples": [
+        {
+          "time": 1.0,
+          "rmsSpeed": 0.009047061136882755,
+          "rmsVorticity": 0.10664010498164372,
+          "rmsVorticityStretching": 0.00677651346437803,
+          "maxSubgridViscosity": 4.042051216745189e-05,
+          "mixedMassFraction": 0.042525786981167345,
+          "gasMass": [
+            0.0010000000000000005,
+            0.001,
+            0.001
+          ],
+          "depositedMass": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "time": 2.0,
+          "rmsSpeed": 0.010577125568500552,
+          "rmsVorticity": 0.11366061204109094,
+          "rmsVorticityStretching": 0.007103765254958189,
+          "maxSubgridViscosity": 4.1228739466800434e-05,
+          "mixedMassFraction": 0.06726036821847112,
+          "gasMass": [
+            0.0010000000000000005,
+            0.0010000000000000002,
+            0.001
+          ],
+          "depositedMass": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "initialSnapshot": {
+        "sha256": "d21d06986f6dfe9e7a723a7b770f12c34144568f4a35409b459f40124392eebd",
+        "manifest": {
+          "c": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "0d3bb95a672ce5fb236ee44d70bf9fe042530a0c0cdd24ca1a46f175b538442b"
+          },
+          "collectorMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "9fa7c80567d1ff6062a54db90503bcf2065d5d282b80e6756ea1df698406e07d"
+          },
+          "config": {
+            "buoyancy": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "cfl": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "collector_flux": 0,
+            "collector_start": {
+              "kind": "binary64",
+              "hex": "0x1.8000000000000p+1"
+            },
+            "cooling": {
+              "kind": "binary64",
+              "hex": "0x1.0000000000000p-2"
+            },
+            "cs": {
+              "kind": "binary64",
+              "hex": "0x1.eb851eb851eb8p-4"
+            },
+            "diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-15"
+            },
+            "lengths": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.0000000000000p+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap-2"
+                }
+              ]
+            },
+            "loading": {
+              "kind": "binary64",
+              "hex": "0x1.999999999999ap-6"
+            },
+            "max_dt": {
+              "kind": "binary64",
+              "hex": "0x1.1111111111111p-6"
+            },
+            "nu": {
+              "kind": "binary64",
+              "hex": "0x1.0624dd2f1a9fcp-10"
+            },
+            "prandtl": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "schmidt": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "shape": {
+              "kind": "tuple",
+              "items": [
+                24,
+                16,
+                8
+              ]
+            },
+            "thermal_diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-13"
+            }
+          },
+          "deposited": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3
+            ],
+            "order": "C",
+            "bytes": 24,
+            "sha256": "9d908ecfb6b256def8b49a7c504e6c889c4b0e41fe6ce3e01863dd7b61a20aa0"
+          },
+          "last": {},
+          "maskDuration": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "maskStart": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "nextPorts": null,
+          "observationNs": 0,
+          "portLift": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "56039dc2b3a207d45836792d59c00d85882fe6905f183a91451ab1811c02185a"
+          },
+          "portPressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "d688d30ee9ddf04d47b4756d1b03a737a057e4f8de906d8f034515a710288f7f"
+          },
+          "pressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "f138ad7d69a5fdba053f9c35f0bb56143b76c4e4a19302545991c6dd0b70d294"
+          },
+          "schema": "ns-smoke-reference/1",
+          "seed": 701,
+          "steps": 0,
+          "supplyMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "7fcf25f1444a62df134f8cff3c3e467d94d4e548138a27bdad07fc254e8a76da"
+          },
+          "temperature": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "36022f5f7bfb227548af6b6d99375b38d78bfff81683075bd572265884ddba03"
+          },
+          "ticks": 0,
+          "time": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "u": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "2ef73ea81d1bb252b37fb0d32fd8844e22817a6b9e1b72a84c47c81643e457a9"
+          }
+        },
+        "meaning": "Complete in-memory snapshot provenance; hashes, not array payloads; NOT a restorable checkpoint archive"
+      },
+      "finalSnapshot": {
+        "sha256": "81b56819489d521a8f98ebfb0a5255895ad4145050f3dbf7afc1c94063347727",
+        "manifest": {
+          "c": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "fca84a78503c3b6e75cdcd98c511e28525d2305b3db7b5d67d0751404ef29693"
+          },
+          "collectorMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "9fa7c80567d1ff6062a54db90503bcf2065d5d282b80e6756ea1df698406e07d"
+          },
+          "config": {
+            "buoyancy": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "cfl": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "collector_flux": 0,
+            "collector_start": {
+              "kind": "binary64",
+              "hex": "0x1.8000000000000p+1"
+            },
+            "cooling": {
+              "kind": "binary64",
+              "hex": "0x1.0000000000000p-2"
+            },
+            "cs": {
+              "kind": "binary64",
+              "hex": "0x1.eb851eb851eb8p-4"
+            },
+            "diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-15"
+            },
+            "lengths": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.0000000000000p+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap-2"
+                }
+              ]
+            },
+            "loading": {
+              "kind": "binary64",
+              "hex": "0x1.999999999999ap-6"
+            },
+            "max_dt": {
+              "kind": "binary64",
+              "hex": "0x1.1111111111111p-6"
+            },
+            "nu": {
+              "kind": "binary64",
+              "hex": "0x1.0624dd2f1a9fcp-10"
+            },
+            "prandtl": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "schmidt": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "shape": {
+              "kind": "tuple",
+              "items": [
+                24,
+                16,
+                8
+              ]
+            },
+            "thermal_diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-13"
+            }
+          },
+          "deposited": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3
+            ],
+            "order": "C",
+            "bytes": 24,
+            "sha256": "9d908ecfb6b256def8b49a7c504e6c889c4b0e41fe6ce3e01863dd7b61a20aa0"
+          },
+          "last": {
+            "depositedMass": [
+              {
+                "kind": "binary64",
+                "hex": "0x0.0p+0"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x0.0p+0"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x0.0p+0"
+              }
+            ],
+            "divergenceResidualMax": {
+              "kind": "binary64",
+              "hex": "0x1.4500000000000p-48"
+            },
+            "dt": {
+              "kind": "binary64",
+              "hex": "0x1.1111111111100p-6"
+            },
+            "finalTransportCourant": {
+              "kind": "binary64",
+              "hex": "0x1.add09c4c6e33ap-4"
+            },
+            "gasMass": [
+              {
+                "kind": "binary64",
+                "hex": "0x1.0624dd2f1a9fep-10"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x1.0624dd2f1a9fdp-10"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x1.0624dd2f1a9fcp-10"
+              }
+            ],
+            "kineticEnergy": {
+              "kind": "binary64",
+              "hex": "0x1.c809c77092f65p-14"
+            },
+            "minConcentration": {
+              "kind": "binary64",
+              "hex": "0x1.160f948892bd0p-83"
+            },
+            "stageDivergenceResidualMax": {
+              "kind": "binary64",
+              "hex": "0x1.3500000000000p-48"
+            },
+            "stageMinimum": {
+              "kind": "binary64",
+              "hex": "0x1.024b82cedebe2p-83"
+            },
+            "stageTransportCourant": {
+              "kind": "binary64",
+              "hex": "0x1.add1dee08f6dap-4"
+            },
+            "stages": [
+              {
+                "divergenceResidualMax": {
+                  "kind": "binary64",
+                  "hex": "0x1.2c00000000000p-48"
+                },
+                "minimum": {
+                  "kind": "binary64",
+                  "hex": "0x1.024b82cedebe2p-83"
+                },
+                "time": {
+                  "kind": "binary64",
+                  "hex": "0x1.fbbbbbbbbbbbcp+0"
+                },
+                "transportCourant": {
+                  "kind": "binary64",
+                  "hex": "0x1.ad8cecfe86019p-4"
+                }
+              },
+              {
+                "divergenceResidualMax": {
+                  "kind": "binary64",
+                  "hex": "0x1.2f00000000000p-48"
+                },
+                "minimum": {
+                  "kind": "binary64",
+                  "hex": "0x1.1562382decc19p-83"
+                },
+                "time": {
+                  "kind": "binary64",
+                  "hex": "0x1.0000000000000p+1"
+                },
+                "transportCourant": {
+                  "kind": "binary64",
+                  "hex": "0x1.add1dee08f6dap-4"
+                }
+              },
+              {
+                "divergenceResidualMax": {
+                  "kind": "binary64",
+                  "hex": "0x1.3500000000000p-48"
+                },
+                "minimum": {
+                  "kind": "binary64",
+                  "hex": "0x1.0c2bd4d053ddep-83"
+                },
+                "time": {
+                  "kind": "binary64",
+                  "hex": "0x1.fdddddddddddep+0"
+                },
+                "transportCourant": {
+                  "kind": "binary64",
+                  "hex": "0x1.adaec42cc6d1fp-4"
+                }
+              }
+            ],
+            "volumePortBalance": {
+              "kind": "binary64",
+              "hex": "0x0.0p+0"
+            }
+          },
+          "maskDuration": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "maskStart": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "nextPorts": null,
+          "observationNs": 2000000000,
+          "portLift": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "56039dc2b3a207d45836792d59c00d85882fe6905f183a91451ab1811c02185a"
+          },
+          "portPressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "d688d30ee9ddf04d47b4756d1b03a737a057e4f8de906d8f034515a710288f7f"
+          },
+          "pressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "c8938a0260084817951922a5dbd5191b5ba57c3eb2345fee1f7baca2348ef286"
+          },
+          "schema": "ns-smoke-reference/1",
+          "seed": 701,
+          "steps": 120,
+          "supplyMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "7fcf25f1444a62df134f8cff3c3e467d94d4e548138a27bdad07fc254e8a76da"
+          },
+          "temperature": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "53b36c09e3fec86b49fc4bf4258999294cf89e232cc841120eb78ea83bed7c91"
+          },
+          "ticks": 120,
+          "time": {
+            "kind": "binary64",
+            "hex": "0x1.0000000000000p+1"
+          },
+          "u": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "c2667c47bda82edb38f927420bbe00bcdac2fa279beaab91487953f1fe3c5d0c"
+          }
+        },
+        "meaning": "Complete in-memory snapshot provenance; hashes, not array payloads; NOT a restorable checkpoint archive"
+      }
+    },
+    {
+      "case": "closed-plumes-(32, 24, 12)",
+      "config": {
+        "shape": [
+          32,
+          24,
+          12
+        ],
+        "lengths": [
+          1.6,
+          1.0,
+          0.4
+        ],
+        "nu": 0.001,
+        "cs": 0.12,
+        "diffusivity": 5e-05,
+        "thermal_diffusivity": 0.0002,
+        "schmidt": 0.7,
+        "prandtl": 0.7,
+        "buoyancy": 0.3,
+        "loading": 0.025,
+        "cooling": 0.25,
+        "max_dt": 0.016666666666666666,
+        "cfl": 0.3,
+        "collector_start": 3.0,
+        "collector_flux": 0
+      },
+      "initialization": "Smoke.plumes seed701; collector disabled",
+      "shape": [
+        32,
+        24,
+        12
+      ],
+      "cells": 9216,
+      "frameRate": 60,
+      "observationPolicy": "absolute advance_to(frame/fps); fixed outer ticks; adaptive subdivisions only within complete ticks",
+      "simulatedSeconds": 2.0,
+      "observationNs": 2000000000,
+      "wallSeconds": 2.165321111911908,
+      "realTimeRatio": 0.9236505334001317,
+      "frameMsP50": 17.764523974619806,
+      "frameMsP95": 19.953641708707437,
+      "substeps": 120,
+      "ticks": 120,
+      "maximumDivergenceResidual": 7.577272143066693e-15,
+      "maximumStageDivergenceResidual": 7.632783294297951e-15,
+      "maximumTransportCourant": 0.19243886666168925,
+      "maximumSpeciesMassResidual": 6.505213034913027e-19,
+      "minimumConcentration": 8.096687246116868e-74,
+      "initialMass": [
+        0.001,
+        0.0009999999999999998,
+        0.0009999999999999996
+      ],
+      "finalGasMass": [
+        0.001,
+        0.001,
+        0.0009999999999999998
+      ],
+      "finalDepositedMass": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "capturedFraction": 0.0,
+      "samples": [
+        {
+          "time": 1.0,
+          "rmsSpeed": 0.00942523606850362,
+          "rmsVorticity": 0.11663722439344458,
+          "rmsVorticityStretching": 0.007850569890510454,
+          "maxSubgridViscosity": 2.1407168085699636e-05,
+          "mixedMassFraction": 0.03269564110671931,
+          "gasMass": [
+            0.001,
+            0.0010000000000000002,
+            0.0009999999999999996
+          ],
+          "depositedMass": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "time": 2.0,
+          "rmsSpeed": 0.011094616171220371,
+          "rmsVorticity": 0.12302258757674685,
+          "rmsVorticityStretching": 0.008153377838477771,
+          "maxSubgridViscosity": 2.2057192527692162e-05,
+          "mixedMassFraction": 0.04792256872774452,
+          "gasMass": [
+            0.001,
+            0.001,
+            0.0009999999999999998
+          ],
+          "depositedMass": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "initialSnapshot": {
+        "sha256": "188fd17ecd092dd4b7800f2a539055d15e62a11ed2bd462e8b644f60f4234d65",
+        "manifest": {
+          "c": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 221184,
+            "sha256": "b5abd5ec088e07e783d4120c04e1f46a6f48d6551b3c3747c29e50e17d8de7e3"
+          },
+          "collectorMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "804047138dafbc2a1ae10dad1136849784d8c1243c25715585b945ccc756fb90"
+          },
+          "config": {
+            "buoyancy": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "cfl": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "collector_flux": 0,
+            "collector_start": {
+              "kind": "binary64",
+              "hex": "0x1.8000000000000p+1"
+            },
+            "cooling": {
+              "kind": "binary64",
+              "hex": "0x1.0000000000000p-2"
+            },
+            "cs": {
+              "kind": "binary64",
+              "hex": "0x1.eb851eb851eb8p-4"
+            },
+            "diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-15"
+            },
+            "lengths": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.0000000000000p+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap-2"
+                }
+              ]
+            },
+            "loading": {
+              "kind": "binary64",
+              "hex": "0x1.999999999999ap-6"
+            },
+            "max_dt": {
+              "kind": "binary64",
+              "hex": "0x1.1111111111111p-6"
+            },
+            "nu": {
+              "kind": "binary64",
+              "hex": "0x1.0624dd2f1a9fcp-10"
+            },
+            "prandtl": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "schmidt": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "shape": {
+              "kind": "tuple",
+              "items": [
+                32,
+                24,
+                12
+              ]
+            },
+            "thermal_diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-13"
+            }
+          },
+          "deposited": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3
+            ],
+            "order": "C",
+            "bytes": 24,
+            "sha256": "9d908ecfb6b256def8b49a7c504e6c889c4b0e41fe6ce3e01863dd7b61a20aa0"
+          },
+          "last": {},
+          "maskDuration": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "maskStart": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "nextPorts": null,
+          "observationNs": 0,
+          "portLift": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 221184,
+            "sha256": "ff5caec2787aae0d6b56e7609a51d3bcf93a94ed15720742528b4c9f2de66556"
+          },
+          "portPressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "9d1b272cc9f76ef7140ba2797ef77c872d0a28f3f76b3169acc4ca674b14537d"
+          },
+          "pressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "596b708696c14db186e0b49f20041a67ed0bb19834901bef8bc6fce1fba520d1"
+          },
+          "schema": "ns-smoke-reference/1",
+          "seed": 701,
+          "steps": 0,
+          "supplyMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "13549b83a612544f658df0f75b4d3ee82ebed40caaa791391d2d3978e19520b8"
+          },
+          "temperature": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "df04b149623f953c4243a65bc6ccf261a507b8fb0331795c6ebb8cb3becd9a0b"
+          },
+          "ticks": 0,
+          "time": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "u": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 221184,
+            "sha256": "2f996a6666195ad2d31cb2b878da4ea3bf9f637313abc2b40dd3843ef162855b"
+          }
+        },
+        "meaning": "Complete in-memory snapshot provenance; hashes, not array payloads; NOT a restorable checkpoint archive"
+      },
+      "finalSnapshot": {
+        "sha256": "10de2fe2d7367802a19e252beab7fadd06e8207a69042718589a910e44bf751b",
+        "manifest": {
+          "c": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 221184,
+            "sha256": "4671dfa19f678eec8b502c05ba2cca8628c3238fa9db408c81ef9c970bebf557"
+          },
+          "collectorMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "804047138dafbc2a1ae10dad1136849784d8c1243c25715585b945ccc756fb90"
+          },
+          "config": {
+            "buoyancy": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "cfl": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "collector_flux": 0,
+            "collector_start": {
+              "kind": "binary64",
+              "hex": "0x1.8000000000000p+1"
+            },
+            "cooling": {
+              "kind": "binary64",
+              "hex": "0x1.0000000000000p-2"
+            },
+            "cs": {
+              "kind": "binary64",
+              "hex": "0x1.eb851eb851eb8p-4"
+            },
+            "diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-15"
+            },
+            "lengths": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.0000000000000p+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap-2"
+                }
+              ]
+            },
+            "loading": {
+              "kind": "binary64",
+              "hex": "0x1.999999999999ap-6"
+            },
+            "max_dt": {
+              "kind": "binary64",
+              "hex": "0x1.1111111111111p-6"
+            },
+            "nu": {
+              "kind": "binary64",
+              "hex": "0x1.0624dd2f1a9fcp-10"
+            },
+            "prandtl": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "schmidt": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "shape": {
+              "kind": "tuple",
+              "items": [
+                32,
+                24,
+                12
+              ]
+            },
+            "thermal_diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-13"
+            }
+          },
+          "deposited": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3
+            ],
+            "order": "C",
+            "bytes": 24,
+            "sha256": "9d908ecfb6b256def8b49a7c504e6c889c4b0e41fe6ce3e01863dd7b61a20aa0"
+          },
+          "last": {
+            "depositedMass": [
+              {
+                "kind": "binary64",
+                "hex": "0x0.0p+0"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x0.0p+0"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x0.0p+0"
+              }
+            ],
+            "divergenceResidualMax": {
+              "kind": "binary64",
+              "hex": "0x1.f200000000000p-48"
+            },
+            "dt": {
+              "kind": "binary64",
+              "hex": "0x1.1111111111100p-6"
+            },
+            "finalTransportCourant": {
+              "kind": "binary64",
+              "hex": "0x1.8a1c2a9d0f3b0p-3"
+            },
+            "gasMass": [
+              {
+                "kind": "binary64",
+                "hex": "0x1.0624dd2f1a9fcp-10"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x1.0624dd2f1a9fcp-10"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x1.0624dd2f1a9fbp-10"
+              }
+            ],
+            "kineticEnergy": {
+              "kind": "binary64",
+              "hex": "0x1.f26f2dfb0f27ep-14"
+            },
+            "minConcentration": {
+              "kind": "binary64",
+              "hex": "0x1.f88c275dec8e4p-96"
+            },
+            "stageDivergenceResidualMax": {
+              "kind": "binary64",
+              "hex": "0x1.fe00000000000p-48"
+            },
+            "stageMinimum": {
+              "kind": "binary64",
+              "hex": "0x1.d0e51359ce8fap-96"
+            },
+            "stageTransportCourant": {
+              "kind": "binary64",
+              "hex": "0x1.8a1d637654802p-3"
+            },
+            "stages": [
+              {
+                "divergenceResidualMax": {
+                  "kind": "binary64",
+                  "hex": "0x1.ec00000000000p-48"
+                },
+                "minimum": {
+                  "kind": "binary64",
+                  "hex": "0x1.d0e51359ce8fap-96"
+                },
+                "time": {
+                  "kind": "binary64",
+                  "hex": "0x1.fbbbbbbbbbbbcp+0"
+                },
+                "transportCourant": {
+                  "kind": "binary64",
+                  "hex": "0x1.89ffbb0759a30p-3"
+                }
+              },
+              {
+                "divergenceResidualMax": {
+                  "kind": "binary64",
+                  "hex": "0x1.f600000000000p-48"
+                },
+                "minimum": {
+                  "kind": "binary64",
+                  "hex": "0x1.f6e6088f86b70p-96"
+                },
+                "time": {
+                  "kind": "binary64",
+                  "hex": "0x1.0000000000000p+1"
+                },
+                "transportCourant": {
+                  "kind": "binary64",
+                  "hex": "0x1.8a1d637654802p-3"
+                }
+              },
+              {
+                "divergenceResidualMax": {
+                  "kind": "binary64",
+                  "hex": "0x1.fe00000000000p-48"
+                },
+                "minimum": {
+                  "kind": "binary64",
+                  "hex": "0x1.e4b2f4a898891p-96"
+                },
+                "time": {
+                  "kind": "binary64",
+                  "hex": "0x1.fdddddddddddep+0"
+                },
+                "transportCourant": {
+                  "kind": "binary64",
+                  "hex": "0x1.8a0df20a71675p-3"
+                }
+              }
+            ],
+            "volumePortBalance": {
+              "kind": "binary64",
+              "hex": "0x0.0p+0"
+            }
+          },
+          "maskDuration": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "maskStart": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "nextPorts": null,
+          "observationNs": 2000000000,
+          "portLift": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 221184,
+            "sha256": "ff5caec2787aae0d6b56e7609a51d3bcf93a94ed15720742528b4c9f2de66556"
+          },
+          "portPressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "9d1b272cc9f76ef7140ba2797ef77c872d0a28f3f76b3169acc4ca674b14537d"
+          },
+          "pressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "90dea3a910e02cd81342e91c2752ec7e68f422e43086d04eed660a8804d01f57"
+          },
+          "schema": "ns-smoke-reference/1",
+          "seed": 701,
+          "steps": 120,
+          "supplyMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "13549b83a612544f658df0f75b4d3ee82ebed40caaa791391d2d3978e19520b8"
+          },
+          "temperature": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "654b9c10e91c1661e5685a20aacc8b671c12b2995ef4309afb154ace79d81706"
+          },
+          "ticks": 120,
+          "time": {
+            "kind": "binary64",
+            "hex": "0x1.0000000000000p+1"
+          },
+          "u": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              32,
+              24,
+              12
+            ],
+            "order": "C",
+            "bytes": 221184,
+            "sha256": "27fbadff6e61302fd72249ac0bd8998535397162463cadae01d841c23d3534f2"
+          }
+        },
+        "meaning": "Complete in-memory snapshot provenance; hashes, not array payloads; NOT a restorable checkpoint archive"
+      }
+    },
+    {
+      "case": "moving-collector",
+      "config": {
+        "shape": [
+          24,
+          16,
+          8
+        ],
+        "lengths": [
+          1.6,
+          1.0,
+          0.4
+        ],
+        "nu": 0.001,
+        "cs": 0.12,
+        "diffusivity": 5e-05,
+        "thermal_diffusivity": 0.0002,
+        "schmidt": 0.7,
+        "prandtl": 0.7,
+        "buoyancy": 0.3,
+        "loading": 0.025,
+        "cooling": 0.25,
+        "max_dt": 0.016666666666666666,
+        "cfl": 0.3,
+        "collector_start": 1.5,
+        "collector_flux": 0.24
+      },
+      "initialization": "make_demo(count=0), seed701",
+      "shape": [
+        24,
+        16,
+        8
+      ],
+      "cells": 3072,
+      "frameRate": 60,
+      "observationPolicy": "absolute advance_to(frame/fps); fixed outer ticks; adaptive subdivisions only within complete ticks",
+      "simulatedSeconds": 6.0,
+      "observationNs": 6000000000,
+      "wallSeconds": 4.000599448918365,
+      "realTimeRatio": 1.499775240338597,
+      "frameMsP50": 11.039548029657453,
+      "frameMsP95": 11.460432532476261,
+      "substeps": 360,
+      "ticks": 360,
+      "maximumDivergenceResidual": 8.881784197001252e-14,
+      "maximumStageDivergenceResidual": 8.926193117986259e-14,
+      "maximumTransportCourant": 0.2958928462630046,
+      "maximumSpeciesMassResidual": 1.5178830414797062e-18,
+      "minimumConcentration": 5.230920802635607e-72,
+      "initialMass": [
+        0.0010000000000000002,
+        0.001,
+        0.0009999999999999998
+      ],
+      "finalGasMass": [
+        3.635252305146686e-05,
+        1.862999628037461e-05,
+        3.2950136253240435e-05
+      ],
+      "finalDepositedMass": [
+        0.0009636474769485344,
+        0.0009813700037196245,
+        0.0009670498637467588
+      ],
+      "capturedFraction": 0.9706891148049724,
+      "samples": [
+        {
+          "time": 1.0,
+          "rmsSpeed": 0.009047061136882755,
+          "rmsVorticity": 0.10664010498164372,
+          "rmsVorticityStretching": 0.00677651346437803,
+          "maxSubgridViscosity": 4.042051216745189e-05,
+          "mixedMassFraction": 0.042525786981167345,
+          "gasMass": [
+            0.0010000000000000005,
+            0.001,
+            0.001
+          ],
+          "depositedMass": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "time": 2.0,
+          "rmsSpeed": 0.12903433737979816,
+          "rmsVorticity": 0.11392502146083625,
+          "rmsVorticityStretching": 0.023214099882251118,
+          "maxSubgridViscosity": 0.00022085535678211823,
+          "mixedMassFraction": 0.0741605290369986,
+          "gasMass": [
+            0.0009845243702015895,
+            0.0009647951593246877,
+            0.0009650805094694256
+          ],
+          "depositedMass": [
+            1.5475629798410977e-05,
+            3.5204840675312584e-05,
+            3.4919490530574244e-05
+          ]
+        },
+        {
+          "time": 3.0,
+          "rmsSpeed": 0.12970645035585068,
+          "rmsVorticity": 0.1245258879026208,
+          "rmsVorticityStretching": 0.035178689311239235,
+          "maxSubgridViscosity": 0.00021923364271389718,
+          "mixedMassFraction": 0.10772446766402978,
+          "gasMass": [
+            0.0007491482874201552,
+            0.0006241789114928899,
+            0.0006672320286394149
+          ],
+          "depositedMass": [
+            0.000250851712579845,
+            0.0003758210885071103,
+            0.00033276797136058515
+          ]
+        },
+        {
+          "time": 4.0,
+          "rmsSpeed": 0.12528636410838023,
+          "rmsVorticity": 0.13904561294919393,
+          "rmsVorticityStretching": 0.04125400492068737,
+          "maxSubgridViscosity": 0.00022518003172925026,
+          "mixedMassFraction": 0.13057271776709126,
+          "gasMass": [
+            0.00041624150449234186,
+            0.0003045334835892389,
+            0.000376467097818081
+          ],
+          "depositedMass": [
+            0.0005837584955076589,
+            0.0006954665164107608,
+            0.0006235329021819184
+          ]
+        },
+        {
+          "time": 5.0,
+          "rmsSpeed": 0.12750609528331822,
+          "rmsVorticity": 0.15499898245441068,
+          "rmsVorticityStretching": 0.05830874496932135,
+          "maxSubgridViscosity": 0.0002244908045250689,
+          "mixedMassFraction": 0.14227308763092886,
+          "gasMass": [
+            0.00015262967894000227,
+            0.00010104071890674529,
+            0.0001524996309688361
+          ],
+          "depositedMass": [
+            0.0008473703210599991,
+            0.0008989592810932539,
+            0.0008475003690311633
+          ]
+        },
+        {
+          "time": 6.0,
+          "rmsSpeed": 0.12918905109330622,
+          "rmsVorticity": 0.15684499134764568,
+          "rmsVorticityStretching": 0.0563714672167918,
+          "maxSubgridViscosity": 0.00022383454004602202,
+          "mixedMassFraction": 0.1470038560557681,
+          "gasMass": [
+            3.635252305146686e-05,
+            1.862999628037461e-05,
+            3.2950136253240435e-05
+          ],
+          "depositedMass": [
+            0.0009636474769485344,
+            0.0009813700037196245,
+            0.0009670498637467588
+          ]
+        }
+      ],
+      "initialSnapshot": {
+        "sha256": "139ac54bbfc7fef0470b6ad3c7f1fb22aed5af14d4ce1a50bda9bbd8cc7327b0",
+        "manifest": {
+          "c": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "0d3bb95a672ce5fb236ee44d70bf9fe042530a0c0cdd24ca1a46f175b538442b"
+          },
+          "collectorMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "79d44f167b483cbd73170319108e7afccfc632b3d0a54ab1864cd34193715fa5"
+          },
+          "config": {
+            "buoyancy": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "cfl": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "collector_flux": {
+              "kind": "binary64",
+              "hex": "0x1.eb851eb851eb8p-3"
+            },
+            "collector_start": {
+              "kind": "binary64",
+              "hex": "0x1.8000000000000p+0"
+            },
+            "cooling": {
+              "kind": "binary64",
+              "hex": "0x1.0000000000000p-2"
+            },
+            "cs": {
+              "kind": "binary64",
+              "hex": "0x1.eb851eb851eb8p-4"
+            },
+            "diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-15"
+            },
+            "lengths": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.0000000000000p+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap-2"
+                }
+              ]
+            },
+            "loading": {
+              "kind": "binary64",
+              "hex": "0x1.999999999999ap-6"
+            },
+            "max_dt": {
+              "kind": "binary64",
+              "hex": "0x1.1111111111111p-6"
+            },
+            "nu": {
+              "kind": "binary64",
+              "hex": "0x1.0624dd2f1a9fcp-10"
+            },
+            "prandtl": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "schmidt": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "shape": {
+              "kind": "tuple",
+              "items": [
+                24,
+                16,
+                8
+              ]
+            },
+            "thermal_diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-13"
+            }
+          },
+          "deposited": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3
+            ],
+            "order": "C",
+            "bytes": 24,
+            "sha256": "9d908ecfb6b256def8b49a7c504e6c889c4b0e41fe6ce3e01863dd7b61a20aa0"
+          },
+          "last": {},
+          "maskDuration": {
+            "kind": "binary64",
+            "hex": "0x1.8000000000000p-1"
+          },
+          "maskStart": {
+            "kind": "binary64",
+            "hex": "0x1.8000000000000p+1"
+          },
+          "nextPorts": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "ndarray",
+                "dtype": "<f8",
+                "shape": [
+                  24,
+                  16,
+                  8
+                ],
+                "order": "C",
+                "bytes": 24576,
+                "sha256": "1b67c6c43a0d3870554196a3a126158e54929d746badae2f5f7c6ae99123100a"
+              },
+              {
+                "kind": "ndarray",
+                "dtype": "<f8",
+                "shape": [
+                  24,
+                  16,
+                  8
+                ],
+                "order": "C",
+                "bytes": 24576,
+                "sha256": "c69783ac62fd7490be7b8676df30c4fb2886a3ede62decf037ec59422b4da397"
+              },
+              {
+                "kind": "ndarray",
+                "dtype": "<f8",
+                "shape": [
+                  3,
+                  24,
+                  16,
+                  8
+                ],
+                "order": "C",
+                "bytes": 73728,
+                "sha256": "26989719fac50ec2a000d600ad40be26417e4331c2bf5c63580cf67b526a8b1e"
+              },
+              {
+                "kind": "ndarray",
+                "dtype": "<f8",
+                "shape": [
+                  24,
+                  16,
+                  8
+                ],
+                "order": "C",
+                "bytes": 24576,
+                "sha256": "194efe385c5d14a224b09062b262c2a892867a8d6f58c6445b8cbe58db9c9fce"
+              }
+            ]
+          },
+          "observationNs": 0,
+          "portLift": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "69235e493de964efdca1916d24e566024a1b0c630f2af9797a0dd84f85ced61f"
+          },
+          "portPressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "df2392d6857622cb2cc2631d416467a570cd1059ac0a2f6e9995f8e3462557d8"
+          },
+          "pressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "f138ad7d69a5fdba053f9c35f0bb56143b76c4e4a19302545991c6dd0b70d294"
+          },
+          "schema": "ns-smoke-reference/1",
+          "seed": 701,
+          "steps": 0,
+          "supplyMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "c69783ac62fd7490be7b8676df30c4fb2886a3ede62decf037ec59422b4da397"
+          },
+          "temperature": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "36022f5f7bfb227548af6b6d99375b38d78bfff81683075bd572265884ddba03"
+          },
+          "ticks": 0,
+          "time": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          },
+          "u": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "2ef73ea81d1bb252b37fb0d32fd8844e22817a6b9e1b72a84c47c81643e457a9"
+          }
+        },
+        "meaning": "Complete in-memory snapshot provenance; hashes, not array payloads; NOT a restorable checkpoint archive"
+      },
+      "finalSnapshot": {
+        "sha256": "65f372ec095cfe78f6741756fa18ca68d89a4dfae8ac774bc82420d9437513d7",
+        "manifest": {
+          "c": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "551aa4ac6d49a3a30423238631f6331cb06cfa23422420d015196fe259b79be8"
+          },
+          "collectorMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "79d44f167b483cbd73170319108e7afccfc632b3d0a54ab1864cd34193715fa5"
+          },
+          "config": {
+            "buoyancy": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "cfl": {
+              "kind": "binary64",
+              "hex": "0x1.3333333333333p-2"
+            },
+            "collector_flux": {
+              "kind": "binary64",
+              "hex": "0x1.eb851eb851eb8p-3"
+            },
+            "collector_start": {
+              "kind": "binary64",
+              "hex": "0x1.8000000000000p+0"
+            },
+            "cooling": {
+              "kind": "binary64",
+              "hex": "0x1.0000000000000p-2"
+            },
+            "cs": {
+              "kind": "binary64",
+              "hex": "0x1.eb851eb851eb8p-4"
+            },
+            "diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-15"
+            },
+            "lengths": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.0000000000000p+0"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.999999999999ap-2"
+                }
+              ]
+            },
+            "loading": {
+              "kind": "binary64",
+              "hex": "0x1.999999999999ap-6"
+            },
+            "max_dt": {
+              "kind": "binary64",
+              "hex": "0x1.1111111111111p-6"
+            },
+            "nu": {
+              "kind": "binary64",
+              "hex": "0x1.0624dd2f1a9fcp-10"
+            },
+            "prandtl": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "schmidt": {
+              "kind": "binary64",
+              "hex": "0x1.6666666666666p-1"
+            },
+            "shape": {
+              "kind": "tuple",
+              "items": [
+                24,
+                16,
+                8
+              ]
+            },
+            "thermal_diffusivity": {
+              "kind": "binary64",
+              "hex": "0x1.a36e2eb1c432dp-13"
+            }
+          },
+          "deposited": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3
+            ],
+            "order": "C",
+            "bytes": 24,
+            "sha256": "e23b7351a3a67f099bc2484f47cad9e21cdbc2f3a264dd1fb58bd09355e0b082"
+          },
+          "last": {
+            "depositedMass": [
+              {
+                "kind": "binary64",
+                "hex": "0x1.f93a932fdaf81p-11"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x1.0142a048f6122p-10"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x1.fb033c4ea14bcp-11"
+              }
+            ],
+            "divergenceResidualMax": {
+              "kind": "binary64",
+              "hex": "0x1.9000000000000p-44"
+            },
+            "dt": {
+              "kind": "binary64",
+              "hex": "0x1.1111111111100p-6"
+            },
+            "finalTransportCourant": {
+              "kind": "binary64",
+              "hex": "0x1.2b3a7b449bdacp-2"
+            },
+            "gasMass": [
+              {
+                "kind": "binary64",
+                "hex": "0x1.30f272e5a4821p-15"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x1.388f398923575p-16"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x1.1467e0f93f34ap-15"
+              }
+            ],
+            "kineticEnergy": {
+              "kind": "binary64",
+              "hex": "0x1.0e6b10437cfafp-6"
+            },
+            "minConcentration": {
+              "kind": "binary64",
+              "hex": "0x1.69a2e8369cee4p-49"
+            },
+            "stageDivergenceResidualMax": {
+              "kind": "binary64",
+              "hex": "0x1.9200000000000p-44"
+            },
+            "stageMinimum": {
+              "kind": "binary64",
+              "hex": "0x1.697a3bc6fa3c2p-49"
+            },
+            "stageTransportCourant": {
+              "kind": "binary64",
+              "hex": "0x1.2b583ab682f60p-2"
+            },
+            "stages": [
+              {
+                "divergenceResidualMax": {
+                  "kind": "binary64",
+                  "hex": "0x1.9000000000000p-44"
+                },
+                "minimum": {
+                  "kind": "binary64",
+                  "hex": "0x1.74de08ce457fap-49"
+                },
+                "time": {
+                  "kind": "binary64",
+                  "hex": "0x1.7eeeeeeeeeeefp+2"
+                },
+                "transportCourant": {
+                  "kind": "binary64",
+                  "hex": "0x1.2b583ab682f60p-2"
+                }
+              },
+              {
+                "divergenceResidualMax": {
+                  "kind": "binary64",
+                  "hex": "0x1.9000000000000p-44"
+                },
+                "minimum": {
+                  "kind": "binary64",
+                  "hex": "0x1.697a3bc6fa3c2p-49"
+                },
+                "time": {
+                  "kind": "binary64",
+                  "hex": "0x1.8000000000000p+2"
+                },
+                "transportCourant": {
+                  "kind": "binary64",
+                  "hex": "0x1.2b3aab284e30dp-2"
+                }
+              },
+              {
+                "divergenceResidualMax": {
+                  "kind": "binary64",
+                  "hex": "0x1.9200000000000p-44"
+                },
+                "minimum": {
+                  "kind": "binary64",
+                  "hex": "0x1.6f40a4ac8f50ep-49"
+                },
+                "time": {
+                  "kind": "binary64",
+                  "hex": "0x1.7f77777777778p+2"
+                },
+                "transportCourant": {
+                  "kind": "binary64",
+                  "hex": "0x1.2b495a80523cap-2"
+                }
+              }
+            ],
+            "volumePortBalance": {
+              "kind": "binary64",
+              "hex": "0x1.b4e81b4e81b4fp-55"
+            }
+          },
+          "maskDuration": {
+            "kind": "binary64",
+            "hex": "0x1.8000000000000p-1"
+          },
+          "maskStart": {
+            "kind": "binary64",
+            "hex": "0x1.8000000000000p+1"
+          },
+          "nextPorts": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "ndarray",
+                "dtype": "<f8",
+                "shape": [
+                  24,
+                  16,
+                  8
+                ],
+                "order": "C",
+                "bytes": 24576,
+                "sha256": "1b67c6c43a0d3870554196a3a126158e54929d746badae2f5f7c6ae99123100a"
+              },
+              {
+                "kind": "ndarray",
+                "dtype": "<f8",
+                "shape": [
+                  24,
+                  16,
+                  8
+                ],
+                "order": "C",
+                "bytes": 24576,
+                "sha256": "c69783ac62fd7490be7b8676df30c4fb2886a3ede62decf037ec59422b4da397"
+              },
+              {
+                "kind": "ndarray",
+                "dtype": "<f8",
+                "shape": [
+                  3,
+                  24,
+                  16,
+                  8
+                ],
+                "order": "C",
+                "bytes": 73728,
+                "sha256": "26989719fac50ec2a000d600ad40be26417e4331c2bf5c63580cf67b526a8b1e"
+              },
+              {
+                "kind": "ndarray",
+                "dtype": "<f8",
+                "shape": [
+                  24,
+                  16,
+                  8
+                ],
+                "order": "C",
+                "bytes": 24576,
+                "sha256": "194efe385c5d14a224b09062b262c2a892867a8d6f58c6445b8cbe58db9c9fce"
+              }
+            ]
+          },
+          "observationNs": 6000000000,
+          "portLift": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "69235e493de964efdca1916d24e566024a1b0c630f2af9797a0dd84f85ced61f"
+          },
+          "portPressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "df2392d6857622cb2cc2631d416467a570cd1059ac0a2f6e9995f8e3462557d8"
+          },
+          "pressure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "9ac70ebc554ecac6324a20708715a587eca5c7766b4b8671bbfa0b33ec3b27f1"
+          },
+          "schema": "ns-smoke-reference/1",
+          "seed": 701,
+          "steps": 360,
+          "supplyMask": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "c69783ac62fd7490be7b8676df30c4fb2886a3ede62decf037ec59422b4da397"
+          },
+          "temperature": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 24576,
+            "sha256": "9e15472cf2838dfc149dac1c6328b2d79f9f7398969d1dc2c1409ff573b45e5a"
+          },
+          "ticks": 360,
+          "time": {
+            "kind": "binary64",
+            "hex": "0x1.8000000000000p+2"
+          },
+          "u": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3,
+              24,
+              16,
+              8
+            ],
+            "order": "C",
+            "bytes": 73728,
+            "sha256": "b85bb1ff4d9b1143da3d3a4d2fd4bdeb99e5ccbe61a610bc1301b7c124c1202c"
+          }
+        },
+        "meaning": "Complete in-memory snapshot provenance; hashes, not array payloads; NOT a restorable checkpoint archive"
+      },
+      "blankHoldContinuation": {
+        "seconds": 0.75,
+        "targetAbsoluteSeconds": 6.75,
+        "sameCompleteSnapshotReplayExact": true,
+        "maximumVelocityDelta": 0.09127135384254478,
+        "gasMassRetained": [
+          1.072559070179274e-05,
+          3.813536954073588e-06,
+          6.9791625981544625e-06
+        ],
+        "depositedMassRetained": [
+          0.0009892744092982087,
+          0.0009961864630459259,
+          0.0009930208374018439
+        ],
+        "completeSnapshot": {
+          "sha256": "0604b674f2f2f0c400d8fd5c2b1fc89be0924db118e4d302f9914abbc69d4132",
+          "manifest": {
+            "c": {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                3,
+                24,
+                16,
+                8
+              ],
+              "order": "C",
+              "bytes": 73728,
+              "sha256": "a3db5d09d11c14a93d026d4eb789f240624fc0d94bd3c19668fbf2a06aed09f6"
+            },
+            "collectorMask": {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                24,
+                16,
+                8
+              ],
+              "order": "C",
+              "bytes": 24576,
+              "sha256": "79d44f167b483cbd73170319108e7afccfc632b3d0a54ab1864cd34193715fa5"
+            },
+            "config": {
+              "buoyancy": {
+                "kind": "binary64",
+                "hex": "0x1.3333333333333p-2"
+              },
+              "cfl": {
+                "kind": "binary64",
+                "hex": "0x1.3333333333333p-2"
+              },
+              "collector_flux": {
+                "kind": "binary64",
+                "hex": "0x1.eb851eb851eb8p-3"
+              },
+              "collector_start": {
+                "kind": "binary64",
+                "hex": "0x1.8000000000000p+0"
+              },
+              "cooling": {
+                "kind": "binary64",
+                "hex": "0x1.0000000000000p-2"
+              },
+              "cs": {
+                "kind": "binary64",
+                "hex": "0x1.eb851eb851eb8p-4"
+              },
+              "diffusivity": {
+                "kind": "binary64",
+                "hex": "0x1.a36e2eb1c432dp-15"
+              },
+              "lengths": {
+                "kind": "tuple",
+                "items": [
+                  {
+                    "kind": "binary64",
+                    "hex": "0x1.999999999999ap+0"
+                  },
+                  {
+                    "kind": "binary64",
+                    "hex": "0x1.0000000000000p+0"
+                  },
+                  {
+                    "kind": "binary64",
+                    "hex": "0x1.999999999999ap-2"
+                  }
+                ]
+              },
+              "loading": {
+                "kind": "binary64",
+                "hex": "0x1.999999999999ap-6"
+              },
+              "max_dt": {
+                "kind": "binary64",
+                "hex": "0x1.1111111111111p-6"
+              },
+              "nu": {
+                "kind": "binary64",
+                "hex": "0x1.0624dd2f1a9fcp-10"
+              },
+              "prandtl": {
+                "kind": "binary64",
+                "hex": "0x1.6666666666666p-1"
+              },
+              "schmidt": {
+                "kind": "binary64",
+                "hex": "0x1.6666666666666p-1"
+              },
+              "shape": {
+                "kind": "tuple",
+                "items": [
+                  24,
+                  16,
+                  8
+                ]
+              },
+              "thermal_diffusivity": {
+                "kind": "binary64",
+                "hex": "0x1.a36e2eb1c432dp-13"
+              }
+            },
+            "deposited": {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                3
+              ],
+              "order": "C",
+              "bytes": 24,
+              "sha256": "d6ad3b22b5146cebc326277047de995ca80d2632b8a231653dc8ed770d29acea"
+            },
+            "last": {
+              "depositedMass": [
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.035514f056a52p-10"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.0524f11e354a8p-10"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.0450801563854p-10"
+                }
+              ],
+              "divergenceResidualMax": {
+                "kind": "binary64",
+                "hex": "0x1.a000000000000p-44"
+              },
+              "dt": {
+                "kind": "binary64",
+                "hex": "0x1.1111111111100p-6"
+              },
+              "finalTransportCourant": {
+                "kind": "binary64",
+                "hex": "0x1.27cac1d0bbf17p-2"
+              },
+              "gasMass": [
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.67e41f61fd830p-17"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.ffd821caaa2abp-19"
+                },
+                {
+                  "kind": "binary64",
+                  "hex": "0x1.d45d19b71a04cp-18"
+                }
+              ],
+              "kineticEnergy": {
+                "kind": "binary64",
+                "hex": "0x1.126e28c2b71d7p-6"
+              },
+              "minConcentration": {
+                "kind": "binary64",
+                "hex": "0x1.513dff9257bfdp-51"
+              },
+              "stageDivergenceResidualMax": {
+                "kind": "binary64",
+                "hex": "0x1.a400000000000p-44"
+              },
+              "stageMinimum": {
+                "kind": "binary64",
+                "hex": "0x1.510d03d5070c8p-51"
+              },
+              "stageTransportCourant": {
+                "kind": "binary64",
+                "hex": "0x1.27d715176a1a5p-2"
+              },
+              "stages": [
+                {
+                  "divergenceResidualMax": {
+                    "kind": "binary64",
+                    "hex": "0x1.a400000000000p-44"
+                  },
+                  "minimum": {
+                    "kind": "binary64",
+                    "hex": "0x1.5ceb90ee04b42p-51"
+                  },
+                  "time": {
+                    "kind": "binary64",
+                    "hex": "0x1.aeeeeeeeeeeefp+2"
+                  },
+                  "transportCourant": {
+                    "kind": "binary64",
+                    "hex": "0x1.27d715176a1a5p-2"
+                  }
+                },
+                {
+                  "divergenceResidualMax": {
+                    "kind": "binary64",
+                    "hex": "0x1.a200000000000p-44"
+                  },
+                  "minimum": {
+                    "kind": "binary64",
+                    "hex": "0x1.510d03d5070c8p-51"
+                  },
+                  "time": {
+                    "kind": "binary64",
+                    "hex": "0x1.b000000000000p+2"
+                  },
+                  "transportCourant": {
+                    "kind": "binary64",
+                    "hex": "0x1.27cab802d3dacp-2"
+                  }
+                },
+                {
+                  "divergenceResidualMax": {
+                    "kind": "binary64",
+                    "hex": "0x1.a200000000000p-44"
+                  },
+                  "minimum": {
+                    "kind": "binary64",
+                    "hex": "0x1.571509c0de2dcp-51"
+                  },
+                  "time": {
+                    "kind": "binary64",
+                    "hex": "0x1.af77777777778p+2"
+                  },
+                  "transportCourant": {
+                    "kind": "binary64",
+                    "hex": "0x1.27d0eb7223bcbp-2"
+                  }
+                }
+              ],
+              "volumePortBalance": {
+                "kind": "binary64",
+                "hex": "0x1.b4e81b4e81b4fp-55"
+              }
+            },
+            "maskDuration": {
+              "kind": "binary64",
+              "hex": "0x1.8000000000000p-1"
+            },
+            "maskStart": {
+              "kind": "binary64",
+              "hex": "0x1.8000000000000p+1"
+            },
+            "nextPorts": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "ndarray",
+                  "dtype": "<f8",
+                  "shape": [
+                    24,
+                    16,
+                    8
+                  ],
+                  "order": "C",
+                  "bytes": 24576,
+                  "sha256": "1b67c6c43a0d3870554196a3a126158e54929d746badae2f5f7c6ae99123100a"
+                },
+                {
+                  "kind": "ndarray",
+                  "dtype": "<f8",
+                  "shape": [
+                    24,
+                    16,
+                    8
+                  ],
+                  "order": "C",
+                  "bytes": 24576,
+                  "sha256": "c69783ac62fd7490be7b8676df30c4fb2886a3ede62decf037ec59422b4da397"
+                },
+                {
+                  "kind": "ndarray",
+                  "dtype": "<f8",
+                  "shape": [
+                    3,
+                    24,
+                    16,
+                    8
+                  ],
+                  "order": "C",
+                  "bytes": 73728,
+                  "sha256": "26989719fac50ec2a000d600ad40be26417e4331c2bf5c63580cf67b526a8b1e"
+                },
+                {
+                  "kind": "ndarray",
+                  "dtype": "<f8",
+                  "shape": [
+                    24,
+                    16,
+                    8
+                  ],
+                  "order": "C",
+                  "bytes": 24576,
+                  "sha256": "194efe385c5d14a224b09062b262c2a892867a8d6f58c6445b8cbe58db9c9fce"
+                }
+              ]
+            },
+            "observationNs": 6750000000,
+            "portLift": {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                3,
+                24,
+                16,
+                8
+              ],
+              "order": "C",
+              "bytes": 73728,
+              "sha256": "69235e493de964efdca1916d24e566024a1b0c630f2af9797a0dd84f85ced61f"
+            },
+            "portPressure": {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                24,
+                16,
+                8
+              ],
+              "order": "C",
+              "bytes": 24576,
+              "sha256": "df2392d6857622cb2cc2631d416467a570cd1059ac0a2f6e9995f8e3462557d8"
+            },
+            "pressure": {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                24,
+                16,
+                8
+              ],
+              "order": "C",
+              "bytes": 24576,
+              "sha256": "f038ae880b90deb14939ce0857b05bf5bff18b2a2eb3bbb442a7bd0da8657ab5"
+            },
+            "schema": "ns-smoke-reference/1",
+            "seed": 701,
+            "steps": 405,
+            "supplyMask": {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                24,
+                16,
+                8
+              ],
+              "order": "C",
+              "bytes": 24576,
+              "sha256": "c69783ac62fd7490be7b8676df30c4fb2886a3ede62decf037ec59422b4da397"
+            },
+            "temperature": {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                24,
+                16,
+                8
+              ],
+              "order": "C",
+              "bytes": 24576,
+              "sha256": "4fc5cc1f713d708cd9f6992131370f57e24c6e19313df1307b21b88f79d1cc42"
+            },
+            "ticks": 405,
+            "time": {
+              "kind": "binary64",
+              "hex": "0x1.b000000000000p+2"
+            },
+            "u": {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                3,
+                24,
+                16,
+                8
+              ],
+              "order": "C",
+              "bytes": 73728,
+              "sha256": "d4dc2408f448e45e9a348c0182478c8ce55b916feeb9f35626fcaeeffac960ef"
+            }
+          },
+          "meaning": "Complete in-memory snapshot provenance; hashes, not array payloads; NOT a restorable checkpoint archive"
+        }
+      }
+    }
+  ],
+  "probeSnapshotReplay": {
+    "sameCompleteSnapshotIncludingRngHazardReplayExact": true,
+    "config": {
+      "shape": [
+        8,
+        8,
+        4
+      ],
+      "lengths": [
+        1.6,
+        1.0,
+        0.4
+      ],
+      "nu": 0.001,
+      "cs": 0.12,
+      "diffusivity": 5e-05,
+      "thermal_diffusivity": 0.0002,
+      "schmidt": 0.7,
+      "prandtl": 0.7,
+      "buoyancy": 0.3,
+      "loading": 0.025,
+      "cooling": 0.25,
+      "max_dt": 0.016666666666666666,
+      "cfl": 0.3,
+      "collector_start": 1.5,
+      "collector_flux": 0.24
+    },
+    "particleCount": 2048,
+    "massAuthority": "continuum and probes independently approximate the same species; NEVER sum their masses",
+    "savedSnapshot": {
+      "sha256": "005df6402fc69a93a7982b2239378242f93d3962ca22a696887cfe1c09f2e5eb",
+      "manifest": {
+        "c": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            3,
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 6144,
+          "sha256": "d6f2b49bc1613033735a0daf9af1840ca9a44dfde18af87fba221232f6c4e276"
+        },
+        "collectorMask": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 2048,
+          "sha256": "e00d3bde3d5044d148922d0cbfefa402740aeba62c1480d904ce910a5bc33798"
+        },
+        "config": {
+          "buoyancy": {
+            "kind": "binary64",
+            "hex": "0x1.3333333333333p-2"
+          },
+          "cfl": {
+            "kind": "binary64",
+            "hex": "0x1.3333333333333p-2"
+          },
+          "collector_flux": {
+            "kind": "binary64",
+            "hex": "0x1.eb851eb851eb8p-3"
+          },
+          "collector_start": {
+            "kind": "binary64",
+            "hex": "0x1.8000000000000p+0"
+          },
+          "cooling": {
+            "kind": "binary64",
+            "hex": "0x1.0000000000000p-2"
+          },
+          "cs": {
+            "kind": "binary64",
+            "hex": "0x1.eb851eb851eb8p-4"
+          },
+          "diffusivity": {
+            "kind": "binary64",
+            "hex": "0x1.a36e2eb1c432dp-15"
+          },
+          "lengths": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "binary64",
+                "hex": "0x1.999999999999ap+0"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x1.0000000000000p+0"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x1.999999999999ap-2"
+              }
+            ]
+          },
+          "loading": {
+            "kind": "binary64",
+            "hex": "0x1.999999999999ap-6"
+          },
+          "max_dt": {
+            "kind": "binary64",
+            "hex": "0x1.1111111111111p-6"
+          },
+          "nu": {
+            "kind": "binary64",
+            "hex": "0x1.0624dd2f1a9fcp-10"
+          },
+          "prandtl": {
+            "kind": "binary64",
+            "hex": "0x1.6666666666666p-1"
+          },
+          "schmidt": {
+            "kind": "binary64",
+            "hex": "0x1.6666666666666p-1"
+          },
+          "shape": {
+            "kind": "tuple",
+            "items": [
+              8,
+              8,
+              4
+            ]
+          },
+          "thermal_diffusivity": {
+            "kind": "binary64",
+            "hex": "0x1.a36e2eb1c432dp-13"
+          }
+        },
+        "deposited": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            3
+          ],
+          "order": "C",
+          "bytes": 24,
+          "sha256": "9d908ecfb6b256def8b49a7c504e6c889c4b0e41fe6ce3e01863dd7b61a20aa0"
+        },
+        "last": {
+          "depositedMass": [
+            {
+              "kind": "binary64",
+              "hex": "0x0.0p+0"
+            },
+            {
+              "kind": "binary64",
+              "hex": "0x0.0p+0"
+            },
+            {
+              "kind": "binary64",
+              "hex": "0x0.0p+0"
+            }
+          ],
+          "divergenceResidualMax": {
+            "kind": "binary64",
+            "hex": "0x1.c000000000000p-53"
+          },
+          "dt": {
+            "kind": "binary64",
+            "hex": "0x1.1111111111111p-6"
+          },
+          "finalTransportCourant": {
+            "kind": "binary64",
+            "hex": "0x1.dba000d58ff01p-6"
+          },
+          "gasMass": [
+            {
+              "kind": "binary64",
+              "hex": "0x1.0624dd2f1a9fcp-10"
+            },
+            {
+              "kind": "binary64",
+              "hex": "0x1.0624dd2f1a9fdp-10"
+            },
+            {
+              "kind": "binary64",
+              "hex": "0x1.0624dd2f1a9fcp-10"
+            }
+          ],
+          "kineticEnergy": {
+            "kind": "binary64",
+            "hex": "0x1.cd90a61c4a10cp-15"
+          },
+          "minConcentration": {
+            "kind": "binary64",
+            "hex": "0x1.18792f78f431dp-68"
+          },
+          "stageDivergenceResidualMax": {
+            "kind": "binary64",
+            "hex": "0x1.2000000000000p-52"
+          },
+          "stageMinimum": {
+            "kind": "binary64",
+            "hex": "0x1.73084b5bd1761p-69"
+          },
+          "stageTransportCourant": {
+            "kind": "binary64",
+            "hex": "0x1.dba2b4c4da135p-6"
+          },
+          "stages": [
+            {
+              "divergenceResidualMax": {
+                "kind": "binary64",
+                "hex": "0x1.2000000000000p-52"
+              },
+              "minimum": {
+                "kind": "binary64",
+                "hex": "0x1.73084b5bd1761p-69"
+              },
+              "time": {
+                "kind": "binary64",
+                "hex": "0x1.7777777777777p-3"
+              },
+              "transportCourant": {
+                "kind": "binary64",
+                "hex": "0x1.da07b65520fc1p-6"
+              }
+            },
+            {
+              "divergenceResidualMax": {
+                "kind": "binary64",
+                "hex": "0x1.f000000000000p-53"
+              },
+              "minimum": {
+                "kind": "binary64",
+                "hex": "0x1.0951b25f8b637p-68"
+              },
+              "time": {
+                "kind": "binary64",
+                "hex": "0x1.9999999999999p-3"
+              },
+              "transportCourant": {
+                "kind": "binary64",
+                "hex": "0x1.dba2b4c4da135p-6"
+              }
+            },
+            {
+              "divergenceResidualMax": {
+                "kind": "binary64",
+                "hex": "0x1.1000000000000p-52"
+              },
+              "minimum": {
+                "kind": "binary64",
+                "hex": "0x1.d0b604332e102p-69"
+              },
+              "time": {
+                "kind": "binary64",
+                "hex": "0x1.8888888888888p-3"
+              },
+              "transportCourant": {
+                "kind": "binary64",
+                "hex": "0x1.dad3daa2aff02p-6"
+              }
+            }
+          ],
+          "volumePortBalance": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          }
+        },
+        "maskDuration": {
+          "kind": "binary64",
+          "hex": "0x1.8000000000000p-1"
+        },
+        "maskStart": {
+          "kind": "binary64",
+          "hex": "0x1.8000000000000p+1"
+        },
+        "nextPorts": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                8,
+                8,
+                4
+              ],
+              "order": "C",
+              "bytes": 2048,
+              "sha256": "04c1aba40619aef03eca7940f28c0fbd76d1dea2a51903a0e6d11084dd3da57c"
+            },
+            {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                8,
+                8,
+                4
+              ],
+              "order": "C",
+              "bytes": 2048,
+              "sha256": "c056600210e279ceccd8a96902eedb7f364f0f4e9e01b13a2b0dec7560e8ca06"
+            },
+            {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                3,
+                8,
+                8,
+                4
+              ],
+              "order": "C",
+              "bytes": 6144,
+              "sha256": "92e586669505d606d4537e595baaf244ec87afc2a0bbc78f37b9e99fd8db75a1"
+            },
+            {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                8,
+                8,
+                4
+              ],
+              "order": "C",
+              "bytes": 2048,
+              "sha256": "a813e269dd268d0ba0156165aa302dd9b7b77e4ef1a3d1759fd9ecce6fc65bc4"
+            }
+          ]
+        },
+        "observationNs": 200000000,
+        "portLift": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            3,
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 6144,
+          "sha256": "338627175447f52560a0b24e5bca6bb4a423c0b735c5f84fbb772e56e32fc21a"
+        },
+        "portPressure": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 2048,
+          "sha256": "cc3f93a8f191f1395b2a7fd34fd9b1ac8b15ea22d9fb95a181eae0a26d41892b"
+        },
+        "pressure": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 2048,
+          "sha256": "87592a9c119d13ad1b5bef6c8b9170658b331628ad5fe38d0e07ae19486ee033"
+        },
+        "probes": {
+          "alive": {
+            "kind": "ndarray",
+            "dtype": "|b1",
+            "shape": [
+              2048
+            ],
+            "order": "C",
+            "bytes": 2048,
+            "sha256": "7c7d2eb358671b401d2a5e59bf56e7163e16994a170d4788faad9be5d82363b2"
+          },
+          "capture_exposure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              2048
+            ],
+            "order": "C",
+            "bytes": 16384,
+            "sha256": "4fe7b59af6de3b665b67788cc2f99892ab827efae3a467342b3bb4e3bc8e5bfe"
+          },
+          "capture_threshold": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              2048
+            ],
+            "order": "C",
+            "bytes": 16384,
+            "sha256": "b5f9fa448f9a70a89398cc6e2661257a7ca6d754da6ef0838c3eb753857576ca"
+          },
+          "deposited": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3
+            ],
+            "order": "C",
+            "bytes": 24,
+            "sha256": "9d908ecfb6b256def8b49a7c504e6c889c4b0e41fe6ce3e01863dd7b61a20aa0"
+          },
+          "positions": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              2048,
+              3
+            ],
+            "order": "C",
+            "bytes": 49152,
+            "sha256": "1fbf25e16ef7e1451d4833028ad414a6cdb51d2986fd76c3e915daa4b1cc23d4"
+          },
+          "rng": {
+            "bit_generator": "PCG64",
+            "has_uint32": 0,
+            "state": {
+              "inc": 194562668685599031432749363616857697291,
+              "state": 12346253902454474840151447156161846034
+            },
+            "uinteger": 0
+          },
+          "species": {
+            "kind": "ndarray",
+            "dtype": "<i2",
+            "shape": [
+              2048
+            ],
+            "order": "C",
+            "bytes": 4096,
+            "sha256": "cc45fcd7bee3437b97f543de97483d05bb40fcf148e553e44ea20f37f23a87c3"
+          },
+          "velocities": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              2048,
+              3
+            ],
+            "order": "C",
+            "bytes": 49152,
+            "sha256": "95ef426822219a78ae5e1f9214a3b57abe304798f231cd85f222079b40185d4e"
+          },
+          "weights": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              2048
+            ],
+            "order": "C",
+            "bytes": 16384,
+            "sha256": "c4bf4300a2dbb99f3b0376b4c594c7c48010161d5fd1be3b95699f98352693cb"
+          }
+        },
+        "schema": "ns-smoke-reference/1",
+        "seed": 701,
+        "steps": 12,
+        "supplyMask": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 2048,
+          "sha256": "c056600210e279ceccd8a96902eedb7f364f0f4e9e01b13a2b0dec7560e8ca06"
+        },
+        "temperature": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 2048,
+          "sha256": "5619c3213ab4464e2db50822caa8bb00b881346c7f40af3bf2eef2b49815d175"
+        },
+        "ticks": 12,
+        "time": {
+          "kind": "binary64",
+          "hex": "0x1.999999999999ap-3"
+        },
+        "u": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            3,
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 6144,
+          "sha256": "e6c55f10d91bf5796ed55670da2ecda52f7d255d0bee8cdf21b68dc5b93239ae"
+        }
+      },
+      "meaning": "Complete in-memory snapshot provenance; hashes, not array payloads; NOT a restorable checkpoint archive"
+    },
+    "finalSnapshot": {
+      "sha256": "5ba81e6ddba9d3c301b68c163060b19c3cb5e7d949400551c42ac7afe0790fdb",
+      "manifest": {
+        "c": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            3,
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 6144,
+          "sha256": "116c63adac5a56adbc1730412de12630ea323c101f999a92ac10bfe69f3863a8"
+        },
+        "collectorMask": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 2048,
+          "sha256": "e00d3bde3d5044d148922d0cbfefa402740aeba62c1480d904ce910a5bc33798"
+        },
+        "config": {
+          "buoyancy": {
+            "kind": "binary64",
+            "hex": "0x1.3333333333333p-2"
+          },
+          "cfl": {
+            "kind": "binary64",
+            "hex": "0x1.3333333333333p-2"
+          },
+          "collector_flux": {
+            "kind": "binary64",
+            "hex": "0x1.eb851eb851eb8p-3"
+          },
+          "collector_start": {
+            "kind": "binary64",
+            "hex": "0x1.8000000000000p+0"
+          },
+          "cooling": {
+            "kind": "binary64",
+            "hex": "0x1.0000000000000p-2"
+          },
+          "cs": {
+            "kind": "binary64",
+            "hex": "0x1.eb851eb851eb8p-4"
+          },
+          "diffusivity": {
+            "kind": "binary64",
+            "hex": "0x1.a36e2eb1c432dp-15"
+          },
+          "lengths": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "binary64",
+                "hex": "0x1.999999999999ap+0"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x1.0000000000000p+0"
+              },
+              {
+                "kind": "binary64",
+                "hex": "0x1.999999999999ap-2"
+              }
+            ]
+          },
+          "loading": {
+            "kind": "binary64",
+            "hex": "0x1.999999999999ap-6"
+          },
+          "max_dt": {
+            "kind": "binary64",
+            "hex": "0x1.1111111111111p-6"
+          },
+          "nu": {
+            "kind": "binary64",
+            "hex": "0x1.0624dd2f1a9fcp-10"
+          },
+          "prandtl": {
+            "kind": "binary64",
+            "hex": "0x1.6666666666666p-1"
+          },
+          "schmidt": {
+            "kind": "binary64",
+            "hex": "0x1.6666666666666p-1"
+          },
+          "shape": {
+            "kind": "tuple",
+            "items": [
+              8,
+              8,
+              4
+            ]
+          },
+          "thermal_diffusivity": {
+            "kind": "binary64",
+            "hex": "0x1.a36e2eb1c432dp-13"
+          }
+        },
+        "deposited": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            3
+          ],
+          "order": "C",
+          "bytes": 24,
+          "sha256": "9d908ecfb6b256def8b49a7c504e6c889c4b0e41fe6ce3e01863dd7b61a20aa0"
+        },
+        "last": {
+          "depositedMass": [
+            {
+              "kind": "binary64",
+              "hex": "0x0.0p+0"
+            },
+            {
+              "kind": "binary64",
+              "hex": "0x0.0p+0"
+            },
+            {
+              "kind": "binary64",
+              "hex": "0x0.0p+0"
+            }
+          ],
+          "divergenceResidualMax": {
+            "kind": "binary64",
+            "hex": "0x1.9800000000000p-52"
+          },
+          "dt": {
+            "kind": "binary64",
+            "hex": "0x1.1111111111111p-6"
+          },
+          "finalTransportCourant": {
+            "kind": "binary64",
+            "hex": "0x1.ed31975fb58b2p-6"
+          },
+          "gasMass": [
+            {
+              "kind": "binary64",
+              "hex": "0x1.0624dd2f1a9fcp-10"
+            },
+            {
+              "kind": "binary64",
+              "hex": "0x1.0624dd2f1a9fdp-10"
+            },
+            {
+              "kind": "binary64",
+              "hex": "0x1.0624dd2f1a9fcp-10"
+            }
+          ],
+          "kineticEnergy": {
+            "kind": "binary64",
+            "hex": "0x1.07b7e39cc9775p-14"
+          },
+          "minConcentration": {
+            "kind": "binary64",
+            "hex": "0x1.15774fa5e7e1ap-63"
+          },
+          "stageDivergenceResidualMax": {
+            "kind": "binary64",
+            "hex": "0x1.a800000000000p-52"
+          },
+          "stageMinimum": {
+            "kind": "binary64",
+            "hex": "0x1.bc702d0f473f4p-64"
+          },
+          "stageTransportCourant": {
+            "kind": "binary64",
+            "hex": "0x1.ed34227d6814dp-6"
+          },
+          "stages": [
+            {
+              "divergenceResidualMax": {
+                "kind": "binary64",
+                "hex": "0x1.a800000000000p-52"
+              },
+              "minimum": {
+                "kind": "binary64",
+                "hex": "0x1.bc702d0f473f4p-64"
+              },
+              "time": {
+                "kind": "binary64",
+                "hex": "0x1.8888888888888p-2"
+              },
+              "transportCourant": {
+                "kind": "binary64",
+                "hex": "0x1.ebd660a2d363dp-6"
+              }
+            },
+            {
+              "divergenceResidualMax": {
+                "kind": "binary64",
+                "hex": "0x1.a000000000000p-52"
+              },
+              "minimum": {
+                "kind": "binary64",
+                "hex": "0x1.10753bbe52abfp-63"
+              },
+              "time": {
+                "kind": "binary64",
+                "hex": "0x1.9999999999999p-2"
+              },
+              "transportCourant": {
+                "kind": "binary64",
+                "hex": "0x1.ed34227d6814dp-6"
+              }
+            },
+            {
+              "divergenceResidualMax": {
+                "kind": "binary64",
+                "hex": "0x1.9800000000000p-52"
+              },
+              "minimum": {
+                "kind": "binary64",
+                "hex": "0x1.f36e938ca9dd6p-64"
+              },
+              "time": {
+                "kind": "binary64",
+                "hex": "0x1.9111111111111p-2"
+              },
+              "transportCourant": {
+                "kind": "binary64",
+                "hex": "0x1.ec83faac2b0bep-6"
+              }
+            }
+          ],
+          "volumePortBalance": {
+            "kind": "binary64",
+            "hex": "0x0.0p+0"
+          }
+        },
+        "maskDuration": {
+          "kind": "binary64",
+          "hex": "0x1.8000000000000p-1"
+        },
+        "maskStart": {
+          "kind": "binary64",
+          "hex": "0x1.8000000000000p+1"
+        },
+        "nextPorts": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                8,
+                8,
+                4
+              ],
+              "order": "C",
+              "bytes": 2048,
+              "sha256": "04c1aba40619aef03eca7940f28c0fbd76d1dea2a51903a0e6d11084dd3da57c"
+            },
+            {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                8,
+                8,
+                4
+              ],
+              "order": "C",
+              "bytes": 2048,
+              "sha256": "c056600210e279ceccd8a96902eedb7f364f0f4e9e01b13a2b0dec7560e8ca06"
+            },
+            {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                3,
+                8,
+                8,
+                4
+              ],
+              "order": "C",
+              "bytes": 6144,
+              "sha256": "92e586669505d606d4537e595baaf244ec87afc2a0bbc78f37b9e99fd8db75a1"
+            },
+            {
+              "kind": "ndarray",
+              "dtype": "<f8",
+              "shape": [
+                8,
+                8,
+                4
+              ],
+              "order": "C",
+              "bytes": 2048,
+              "sha256": "a813e269dd268d0ba0156165aa302dd9b7b77e4ef1a3d1759fd9ecce6fc65bc4"
+            }
+          ]
+        },
+        "observationNs": 400000000,
+        "portLift": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            3,
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 6144,
+          "sha256": "338627175447f52560a0b24e5bca6bb4a423c0b735c5f84fbb772e56e32fc21a"
+        },
+        "portPressure": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 2048,
+          "sha256": "cc3f93a8f191f1395b2a7fd34fd9b1ac8b15ea22d9fb95a181eae0a26d41892b"
+        },
+        "pressure": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 2048,
+          "sha256": "f9aa67b0b94577cfa5839f6298e72cab19cb71f1af38aa682428d6f6bf5d4b37"
+        },
+        "probes": {
+          "alive": {
+            "kind": "ndarray",
+            "dtype": "|b1",
+            "shape": [
+              2048
+            ],
+            "order": "C",
+            "bytes": 2048,
+            "sha256": "7c7d2eb358671b401d2a5e59bf56e7163e16994a170d4788faad9be5d82363b2"
+          },
+          "capture_exposure": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              2048
+            ],
+            "order": "C",
+            "bytes": 16384,
+            "sha256": "4fe7b59af6de3b665b67788cc2f99892ab827efae3a467342b3bb4e3bc8e5bfe"
+          },
+          "capture_threshold": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              2048
+            ],
+            "order": "C",
+            "bytes": 16384,
+            "sha256": "b5f9fa448f9a70a89398cc6e2661257a7ca6d754da6ef0838c3eb753857576ca"
+          },
+          "deposited": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              3
+            ],
+            "order": "C",
+            "bytes": 24,
+            "sha256": "9d908ecfb6b256def8b49a7c504e6c889c4b0e41fe6ce3e01863dd7b61a20aa0"
+          },
+          "positions": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              2048,
+              3
+            ],
+            "order": "C",
+            "bytes": 49152,
+            "sha256": "122c6309d2cf3d2ef76972caccb6fb6085a0ed98a15dfbd1844806328a187cef"
+          },
+          "rng": {
+            "bit_generator": "PCG64",
+            "has_uint32": 0,
+            "state": {
+              "inc": 194562668685599031432749363616857697291,
+              "state": 285642602586573544191542586135096040775
+            },
+            "uinteger": 0
+          },
+          "species": {
+            "kind": "ndarray",
+            "dtype": "<i2",
+            "shape": [
+              2048
+            ],
+            "order": "C",
+            "bytes": 4096,
+            "sha256": "cc45fcd7bee3437b97f543de97483d05bb40fcf148e553e44ea20f37f23a87c3"
+          },
+          "velocities": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              2048,
+              3
+            ],
+            "order": "C",
+            "bytes": 49152,
+            "sha256": "e23183593530793102d668beeb78f3bcd13132d1e2a1764e3dbb09a4d17bc4df"
+          },
+          "weights": {
+            "kind": "ndarray",
+            "dtype": "<f8",
+            "shape": [
+              2048
+            ],
+            "order": "C",
+            "bytes": 16384,
+            "sha256": "c4bf4300a2dbb99f3b0376b4c594c7c48010161d5fd1be3b95699f98352693cb"
+          }
+        },
+        "schema": "ns-smoke-reference/1",
+        "seed": 701,
+        "steps": 24,
+        "supplyMask": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 2048,
+          "sha256": "c056600210e279ceccd8a96902eedb7f364f0f4e9e01b13a2b0dec7560e8ca06"
+        },
+        "temperature": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 2048,
+          "sha256": "c7b0704ab22ea0b35d74c5213699584b8b8504259996d10eed53621e4938c735"
+        },
+        "ticks": 24,
+        "time": {
+          "kind": "binary64",
+          "hex": "0x1.999999999999ap-2"
+        },
+        "u": {
+          "kind": "ndarray",
+          "dtype": "<f8",
+          "shape": [
+            3,
+            8,
+            8,
+            4
+          ],
+          "order": "C",
+          "bytes": 6144,
+          "sha256": "7f4c3e52dff59274758ab61f49c0fc66aa587decaa11ecfaa45537397a628cda"
+        }
+      },
+      "meaning": "Complete in-memory snapshot provenance; hashes, not array payloads; NOT a restorable checkpoint archive"
+    }
+  },
+  "existingFluidOnlyVisual": {
+    "status": "existing separately rendered visual data; NOT regenerated by this script",
+    "metadataSha256": "e20c220e274540c32d8cca9ff46fa600fc3b575b6ef42468b5dae53badd15821",
+    "sourceHashesMatchCurrent": true,
+    "dataSha256": "d3810a8bf8b5dcba35737bf3001df4936e4af8c734d05c075abd2a5d49804f1f",
+    "dataBytes": 82804736,
+    "binaryVerified": true,
+    "config": {
+      "shape": [
+        24,
+        16,
+        8
+      ],
+      "lengths": [
+        1.6,
+        1.0,
+        0.4
+      ],
+      "nu": 0.0004,
+      "cs": 0,
+      "diffusivity": 0,
+      "thermal_diffusivity": 0.0002,
+      "schmidt": 0.7,
+      "prandtl": 0.7,
+      "buoyancy": 0,
+      "loading": 0,
+      "cooling": 0,
+      "max_dt": 0.016666666666666666,
+      "cfl": 0.3,
+      "collector_start": 3.0,
+      "collector_flux": 0
+    },
+    "sourceHashes": {
+      "ns_reference.py": "e086923ab53c81da9a30aa0fcbaebe36c18f6fd5bc49d76280d273d67c699d3e",
+      "parcels.py": "1c23124b27cad3d42645bb9f2b206cbfc59fdeda2a6027bc605566d61dcc270f",
+      "demo_case.py": "ae94f7353f67b629f7be1b8c242fa478270196e870ae026e6b2c79733b429527"
+    },
+    "collectorActive": false,
+    "duration": 12,
+    "scope": "reported CPU fluid/probe data + native VKF rendering; no client native fluid solver claim"
+  }
+}

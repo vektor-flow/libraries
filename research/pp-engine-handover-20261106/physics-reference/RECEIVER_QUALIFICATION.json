@@ -1,0 +1,28 @@
+{
+  "schema": "physical-receiver-reference/1",
+  "status": "research reference only; native glyph coupling unavailable",
+  "tests": 3,
+  "seconds": 2.988,
+  "method": "Existing SSPRK3 collector RHS; spatial deposit quadrature dt*(k1/6+k2/6+2*k3/3)",
+  "qualifications": [
+    "Uniform ramped hazard analytical solution",
+    "Moving collector preserves original velocity/concentration/deposited arrays bit-for-bit",
+    "Spatial captured-species integral equals existing deposited ledger",
+    "Gas+captured mass conservation",
+    "Nonnegative spatial uptake",
+    "Snapshot/partition exact replay",
+    "Missing spatial captured history rejects"
+  ],
+  "sourceHashes": {
+    "ns_reference.py": "e086923ab53c81da9a30aa0fcbaebe36c18f6fd5bc49d76280d273d67c699d3e",
+    "receiver_reference.py": "6f1ea228f64b7f3e412b9e85f63b1771b372529164725ea934f30155a855c427",
+    "test_receiver.py": "f3077960438658b1a65dd0afe8faccd554027a90066de413ce1a24a2b6c0da5a"
+  },
+  "notQualified": [
+    "Native solver integration",
+    "Glyph source masks and release",
+    "Glyph receiver masks and stroke formation",
+    "Thermal phase law",
+    "SDF-normal release impulse"
+  ]
+}
