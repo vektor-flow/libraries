@@ -93,3 +93,19 @@ snapshots, tentative-state rollback, native initialization, source/receiver
 integration and collector/SGS/pressure lift. FineReceiver output AoS25 is agreed;
 a separate native finalizer must resample accepted air at capture point before
 any physical capture-momentum claim. No glyph-coupling readiness yet.
+
+Receiver-velocity finalization primitive PASS (separate partialbuild only).
+finalize_receiver receives accepted7N fields plus AoS25 FineReceiver output,
+keeps first20 metadata channels, resamples terminalV6..8 from accepted NEW air
+at updated END3..5, and returns AoS20. Prior inactive with capturedNow0 returns
+unchanged. This is the declared time-discrete terminal-air sample, not a new
+capture/impulse/thermal model or two-way momentum conservation claim.
+Native f64 endpoint oracle error6.94e-18. GPU8records over both grids maxerror
+4.924e-8 vs CPU, GPU/WASM<=6.42e-9, nonvelocity channels exact, repeat byte-exact.
+FineReceiver interception itself belongs to Root's separate native worktree.
+No source/receiver/session integration follows from this primitive gate.
+
+Renderer build script can select explicit VKF_FLUID_ENTRIES for an isolated
+partialbuild. Such output updates latest-partial-build.json only; qualified
+latest-build.json/SSPRK.json retain their exact earlier9-entry source evidence.
+Default build emits all10 entries from the same complete current source.
