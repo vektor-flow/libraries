@@ -90,12 +90,24 @@ calibrate(index:int,params:[num],values:[num])->num:
         @:params.(index)
     phase=1?
         (measured<=desired)?! "biological GPU measure cannot be bracketed below"
-        index=11? @:params.(18)
+        index=11? @:k.minimum(1,params.(18))
         index=31? @:2
         @:params.(index)
     low:params.(17)
     high:params.(18)
-    phase=2? (measured>=desired)?! "biological GPU measure cannot be bracketed above"
+    # A large fixed upper scale can clip hollow material out of the domain.
+    # Search outward from unit scale for the first actual sign-changing bracket;
+    # only a measured bracket enters bisection. No global monotonicity is assumed.
+    phase=2?
+        measured<desired?
+            (params.(11)<high)?! "biological GPU measure cannot be bracketed above"
+            index=17? @:params.(11)
+            index=11? @:k.minimum(high,params.(11)*1.25)
+            @:params.(index)
+        index=18? @:params.(11)
+        index=11? @:(low+params.(11))/2
+        index=31? @:3
+        @:params.(index)
     phase>2?
         measured<desired? .low:params.(11)
         measured>=desired? .high:params.(11)

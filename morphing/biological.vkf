@@ -154,7 +154,14 @@ sample(plan:Plan,coordinate:num,resolution:int,lo:[num],hi:[num],desired:num,tol
     low:0.125
     high:4.0
     small:raster(plan,evaluated.value,resolution,lo,hi,low,neck)
+    .high:1
     large:raster(plan,evaluated.value,resolution,lo,hi,high,neck)
+    |large.measure-desired|<=tolerance? @:checked(large,resolution,plan.dimension)
+    large.measure<desired /\ high<4?>
+        .low:high
+        .high:minimum(4,high*1.25)
+        .large:raster(plan,evaluated.value,resolution,lo,hi,high,neck)
+        |large.measure-desired|<=tolerance? @:checked(large,resolution,plan.dimension)
     (small.measure<=desired /\ large.measure>=desired)?! "biological measure cannot be bracketed"
     iteration:0
     iteration<36?>
